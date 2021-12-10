@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.11&#x2F;src&#x2F;h2&#x2F;dispatcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatcher.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.14&#x2F;src&#x2F;h2&#x2F;dispatcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatcher.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -267,6 +267,67 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">cmp</span>,
     <span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>,
@@ -279,11 +340,15 @@
 };
 
 <span class="kw">use</span> <span class="ident">actix_codec</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>};
+<span class="kw">use</span> <span class="ident">actix_rt::time::Sleep</span>;
 <span class="kw">use</span> <span class="ident">actix_service::Service</span>;
 <span class="kw">use</span> <span class="ident">actix_utils::future::poll_fn</span>;
 <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
 <span class="kw">use</span> <span class="ident">futures_core::ready</span>;
-<span class="kw">use</span> <span class="ident">h2::server</span>::{<span class="ident">Connection</span>, <span class="ident">SendResponse</span>};
+<span class="kw">use</span> <span class="ident">h2</span>::{
+    <span class="ident">server</span>::{<span class="ident">Connection</span>, <span class="ident">SendResponse</span>},
+    <span class="ident">Ping</span>, <span class="ident">PingPong</span>,
+};
 <span class="kw">use</span> <span class="ident">http::header</span>::{<span class="ident">HeaderValue</span>, <span class="ident">CONNECTION</span>, <span class="ident">CONTENT_LENGTH</span>, <span class="ident">DATE</span>, <span class="ident">TRANSFER_ENCODING</span>};
 <span class="kw">use</span> <span class="ident">log</span>::{<span class="ident">error</span>, <span class="ident">trace</span>};
 <span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
@@ -305,27 +370,44 @@
         <span class="ident">on_connect_data</span>: <span class="ident">OnConnectData</span>,
         <span class="ident">config</span>: <span class="ident">ServiceConfig</span>,
         <span class="ident">peer_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>,
-        <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
+        <span class="ident">ping_pong</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">H2PingPong</span><span class="op">&gt;</span>,
+        <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Dispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Dispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
+{
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">flow</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpFlow</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">connection</span>: <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Bytes</span><span class="op">&gt;</span>,
+        <span class="kw-2">mut</span> <span class="ident">connection</span>: <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Bytes</span><span class="op">&gt;</span>,
         <span class="ident">on_connect_data</span>: <span class="ident">OnConnectData</span>,
         <span class="ident">config</span>: <span class="ident">ServiceConfig</span>,
         <span class="ident">peer_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>,
     ) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">ping_pong</span> <span class="op">=</span> <span class="ident">config</span>.<span class="ident">keep_alive_timer</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">timer</span><span class="op">|</span> <span class="ident">H2PingPong</span> {
+            <span class="ident">timer</span>: <span class="ident">Box::pin</span>(<span class="ident">timer</span>),
+            <span class="ident">on_flight</span>: <span class="bool-val">false</span>,
+            <span class="ident">ping_pong</span>: <span class="ident">connection</span>.<span class="ident">ping_pong</span>().<span class="ident">unwrap</span>(),
+        });
+
         <span class="self">Self</span> {
             <span class="ident">flow</span>,
             <span class="ident">config</span>,
             <span class="ident">peer_addr</span>,
             <span class="ident">connection</span>,
             <span class="ident">on_connect_data</span>,
+            <span class="ident">ping_pong</span>,
             <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
         }
     }
+}
+
+<span class="kw">struct</span> <span class="ident">H2PingPong</span> {
+    <span class="ident">timer</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Sleep</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">on_flight</span>: <span class="ident">bool</span>,
+    <span class="ident">ping_pong</span>: <span class="ident">PingPong</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">Dispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
@@ -346,54 +428,92 @@
     <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_mut</span>();
 
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">req</span>, <span class="ident">tx</span>)) <span class="op">=</span>
-            <span class="macro">ready!</span>(<span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">this</span>.<span class="ident">connection</span>).<span class="ident">poll_accept</span>(<span class="ident">cx</span>)<span class="question-mark">?</span>)
-        {
-            <span class="kw">let</span> (<span class="ident">parts</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">into_parts</span>();
-            <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::h2::Payload::new</span>(<span class="ident">body</span>);
-            <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">Payload</span>::<span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::payload::PayloadStream</span><span class="op">&gt;</span><span class="ident">::H2</span>(<span class="ident">pl</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">Request::with_payload</span>(<span class="ident">pl</span>);
+        <span class="kw">loop</span> {
+            <span class="kw">match</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">this</span>.<span class="ident">connection</span>).<span class="ident">poll_accept</span>(<span class="ident">cx</span>)<span class="question-mark">?</span> {
+                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>((<span class="ident">req</span>, <span class="ident">tx</span>))) =&gt; {
+                    <span class="kw">let</span> (<span class="ident">parts</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">into_parts</span>();
+                    <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::h2::Payload::new</span>(<span class="ident">body</span>);
+                    <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">Payload</span>::<span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::payload::PayloadStream</span><span class="op">&gt;</span><span class="ident">::H2</span>(<span class="ident">pl</span>);
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">Request::with_payload</span>(<span class="ident">pl</span>);
 
-            <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">head_mut</span>();
-            <span class="ident">head</span>.<span class="ident">uri</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">uri</span>;
-            <span class="ident">head</span>.<span class="ident">method</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">method</span>;
-            <span class="ident">head</span>.<span class="ident">version</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">version</span>;
-            <span class="ident">head</span>.<span class="ident">headers</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">headers</span>.<span class="ident">into</span>();
-            <span class="ident">head</span>.<span class="ident">peer_addr</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">peer_addr</span>;
+                    <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">head_mut</span>();
+                    <span class="ident">head</span>.<span class="ident">uri</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">uri</span>;
+                    <span class="ident">head</span>.<span class="ident">method</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">method</span>;
+                    <span class="ident">head</span>.<span class="ident">version</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">version</span>;
+                    <span class="ident">head</span>.<span class="ident">headers</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">headers</span>.<span class="ident">into</span>();
+                    <span class="ident">head</span>.<span class="ident">peer_addr</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">peer_addr</span>;
 
-            <span class="comment">// merge on_connect_ext data into request extensions</span>
-            <span class="ident">this</span>.<span class="ident">on_connect_data</span>.<span class="ident">merge_into</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">req</span>);
+                    <span class="comment">// merge on_connect_ext data into request extensions</span>
+                    <span class="ident">this</span>.<span class="ident">on_connect_data</span>.<span class="ident">merge_into</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">req</span>);
 
-            <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>);
-            <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">config</span>.<span class="ident">clone</span>();
+                    <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>);
+                    <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">config</span>.<span class="ident">clone</span>();
 
-            <span class="comment">// multiplex request handling with spawn task</span>
-            <span class="ident">actix_rt::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
-                <span class="comment">// resolve service call and send response.</span>
-                <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">fut</span>.<span class="kw">await</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">res</span>) =&gt; <span class="ident">handle_response</span>(<span class="ident">res</span>.<span class="ident">into</span>(), <span class="ident">tx</span>, <span class="ident">config</span>).<span class="kw">await</span>,
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">into</span>();
-                        <span class="ident">handle_response</span>(<span class="ident">res</span>, <span class="ident">tx</span>, <span class="ident">config</span>).<span class="kw">await</span>
-                    }
-                };
+                    <span class="comment">// multiplex request handling with spawn task</span>
+                    <span class="ident">actix_rt::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
+                        <span class="comment">// resolve service call and send response.</span>
+                        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">fut</span>.<span class="kw">await</span> {
+                            <span class="prelude-val">Ok</span>(<span class="ident">res</span>) =&gt; <span class="ident">handle_response</span>(<span class="ident">res</span>.<span class="ident">into</span>(), <span class="ident">tx</span>, <span class="ident">config</span>).<span class="kw">await</span>,
+                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                                <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">into</span>();
+                                <span class="ident">handle_response</span>(<span class="ident">res</span>, <span class="ident">tx</span>, <span class="ident">config</span>).<span class="kw">await</span>
+                            }
+                        };
 
-                <span class="comment">// log error.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">res</span> {
-                    <span class="kw">match</span> <span class="ident">err</span> {
-                        <span class="ident">DispatchError::SendResponse</span>(<span class="ident">err</span>) =&gt; {
-                            <span class="macro">trace!</span>(<span class="string">&quot;Error sending HTTP/2 response: {:?}&quot;</span>, <span class="ident">err</span>)
+                        <span class="comment">// log error.</span>
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">res</span> {
+                            <span class="kw">match</span> <span class="ident">err</span> {
+                                <span class="ident">DispatchError::SendResponse</span>(<span class="ident">err</span>) =&gt; {
+                                    <span class="macro">trace!</span>(<span class="string">&quot;Error sending HTTP/2 response: {:?}&quot;</span>, <span class="ident">err</span>)
+                                }
+                                <span class="ident">DispatchError::SendData</span>(<span class="ident">err</span>) =&gt; <span class="macro">warn!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">err</span>),
+                                <span class="ident">DispatchError::ResponseBody</span>(<span class="ident">err</span>) =&gt; {
+                                    <span class="macro">error!</span>(<span class="string">&quot;Response payload stream error: {:?}&quot;</span>, <span class="ident">err</span>)
+                                }
+                            }
                         }
-                        <span class="ident">DispatchError::SendData</span>(<span class="ident">err</span>) =&gt; <span class="macro">warn!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">err</span>),
-                        <span class="ident">DispatchError::ResponseBody</span>(<span class="ident">err</span>) =&gt; {
-                            <span class="macro">error!</span>(<span class="string">&quot;Response payload stream error: {:?}&quot;</span>, <span class="ident">err</span>)
-                        }
-                    }
+                    });
                 }
-            });
-        }
+                <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>) =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(())),
+                <span class="ident">Poll::Pending</span> =&gt; <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">ping_pong</span>.<span class="ident">as_mut</span>() {
+                    <span class="prelude-val">Some</span>(<span class="ident">ping_pong</span>) =&gt; <span class="kw">loop</span> {
+                        <span class="kw">if</span> <span class="ident">ping_pong</span>.<span class="ident">on_flight</span> {
+                            <span class="comment">// When have on flight ping pong. poll pong and and keep alive timer.</span>
+                            <span class="comment">// on success pong received update keep alive timer to determine the next timing of</span>
+                            <span class="comment">// ping pong.</span>
+                            <span class="kw">match</span> <span class="ident">ping_pong</span>.<span class="ident">ping_pong</span>.<span class="ident">poll_pong</span>(<span class="ident">cx</span>)<span class="question-mark">?</span> {
+                                <span class="ident">Poll::Ready</span>(<span class="kw">_</span>) =&gt; {
+                                    <span class="ident">ping_pong</span>.<span class="ident">on_flight</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
-        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()))
+                                    <span class="kw">let</span> <span class="ident">dead_line</span> <span class="op">=</span>
+                                        <span class="ident">this</span>.<span class="ident">config</span>.<span class="ident">keep_alive_expire</span>().<span class="ident">unwrap</span>();
+                                    <span class="ident">ping_pong</span>.<span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">reset</span>(<span class="ident">dead_line</span>);
+                                }
+                                <span class="ident">Poll::Pending</span> =&gt; {
+                                    <span class="kw">return</span> <span class="ident">ping_pong</span>
+                                        .<span class="ident">timer</span>
+                                        .<span class="ident">as_mut</span>()
+                                        .<span class="ident">poll</span>(<span class="ident">cx</span>)
+                                        .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="prelude-val">Ok</span>(()))
+                                }
+                            }
+                        } <span class="kw">else</span> {
+                            <span class="comment">// When there is no on flight ping pong. keep alive timer is used to wait for next</span>
+                            <span class="comment">// timing of ping pong. Therefore at this point it serves as an interval instead.</span>
+                            <span class="macro">ready!</span>(<span class="ident">ping_pong</span>.<span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>));
+
+                            <span class="ident">ping_pong</span>.<span class="ident">ping_pong</span>.<span class="ident">send_ping</span>(<span class="ident">Ping::opaque</span>())<span class="question-mark">?</span>;
+
+                            <span class="kw">let</span> <span class="ident">dead_line</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">config</span>.<span class="ident">keep_alive_expire</span>().<span class="ident">unwrap</span>();
+                            <span class="ident">ping_pong</span>.<span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">reset</span>(<span class="ident">dead_line</span>);
+
+                            <span class="ident">ping_pong</span>.<span class="ident">on_flight</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                        }
+                    },
+                    <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="ident">Poll::Pending</span>,
+                },
+            }
+        }
     }
 }
 
@@ -495,9 +615,11 @@
 
     <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">size</span> {
         <span class="ident">BodySize::None</span> <span class="op">|</span> <span class="ident">BodySize::Stream</span> =&gt; <span class="prelude-val">None</span>,
-        <span class="ident">BodySize::Empty</span> =&gt; <span class="ident">res</span>
+
+        <span class="ident">BodySize::Sized</span>(<span class="number">0</span>) =&gt; <span class="ident">res</span>
             .<span class="ident">headers_mut</span>()
             .<span class="ident">insert</span>(<span class="ident">CONTENT_LENGTH</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;0&quot;</span>)),
+
         <span class="ident">BodySize::Sized</span>(<span class="ident">len</span>) =&gt; {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">itoa::Buffer::new</span>();
 

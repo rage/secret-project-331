@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.11&#x2F;src&#x2F;body&#x2F;body.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>body.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.14&#x2F;src&#x2F;body&#x2F;body.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>body.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -225,6 +225,112 @@
 <span id="225">225</span>
 <span id="226">226</span>
 <span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">borrow::Cow</span>,
     <span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>,
@@ -235,53 +341,94 @@
 
 <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
 <span class="kw">use</span> <span class="ident">futures_core::Stream</span>;
+<span class="kw">use</span> <span class="ident">pin_project::pin_project</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">BodySize</span>, <span class="ident">BodyStream</span>, <span class="ident">MessageBody</span>, <span class="ident">MessageBodyMapErr</span>, <span class="ident">SizedStream</span>};
 
+<span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;4.0.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Renamed to `AnyBody`.&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="ident">AnyBody</span>;
 
 <span class="doccomment">/// Represents various types of HTTP message body.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AnyBody</span> {
+<span class="attribute">#[<span class="ident">pin_project</span>(<span class="ident">project</span> <span class="op">=</span> <span class="ident">AnyBodyProj</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">B</span> <span class="op">=</span> <span class="ident">BoxBody</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Empty response. `Content-Length` header is not set.</span>
     <span class="prelude-val">None</span>,
 
-    <span class="doccomment">/// Zero sized response body. `Content-Length` header is set to `0`.</span>
-    <span class="ident">Empty</span>,
-
-    <span class="doccomment">/// Specific response body.</span>
+    <span class="doccomment">/// Complete, in-memory response body.</span>
     <span class="ident">Bytes</span>(<span class="ident">Bytes</span>),
 
-    <span class="doccomment">/// Generic message body.</span>
-    <span class="ident">Message</span>(<span class="ident">BoxAnyBody</span>),
+    <span class="doccomment">/// Generic / Other message body.</span>
+    <span class="ident">Body</span>(<span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">B</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">AnyBody</span> {
-    <span class="doccomment">/// Create body from slice (copy)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_slice</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="ident">Bytes::copy_from_slice</span>(<span class="ident">s</span>))
+    <span class="doccomment">/// Constructs a &quot;body&quot; representing an empty response.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">none</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::None</span>
     }
 
-    <span class="doccomment">/// Create body from generic message body.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_message</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">body</span>: <span class="ident">B</span>) -&gt; <span class="self">Self</span>
+    <span class="doccomment">/// Constructs a new, 0-length body.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="ident">Bytes::new</span>())
+    }
+
+    <span class="doccomment">/// Create boxed body from generic message body.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_boxed</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">body</span>: <span class="ident">B</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident"><span class="self">Self</span>::Message</span>(<span class="ident">BoxAnyBody::from_body</span>(<span class="ident">body</span>))
+        <span class="ident"><span class="self">Self</span>::Body</span>(<span class="ident">BoxBody::from_body</span>(<span class="ident">body</span>))
+    }
+
+    <span class="doccomment">/// Constructs new `AnyBody` instance from a slice of bytes by copying it.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If your bytes container is owned, it may be cheaper to use a `From` impl.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_from_slice</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="ident">Bytes::copy_from_slice</span>(<span class="ident">s</span>))
+    }
+
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;4.0.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Renamed to `copy_from_slice`.&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_slice</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="ident">Bytes::copy_from_slice</span>(<span class="ident">s</span>))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">AnyBody</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+{
+    <span class="doccomment">/// Create body from generic message body.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">body</span>: <span class="ident">B</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Body</span>(<span class="ident">body</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_boxed</span>(<span class="self">self</span>) -&gt; <span class="ident">AnyBody</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::None</span> =&gt; <span class="ident">AnyBody::None</span>,
+            <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="ident">bytes</span>) =&gt; <span class="ident">AnyBody::Bytes</span>(<span class="ident">bytes</span>),
+            <span class="ident"><span class="self">Self</span>::Body</span>(<span class="ident">body</span>) =&gt; <span class="ident">AnyBody::new_boxed</span>(<span class="ident">body</span>),
+        }
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+    <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+{
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">AnyBody::None</span> =&gt; <span class="ident">BodySize::None</span>,
-            <span class="ident">AnyBody::Empty</span> =&gt; <span class="ident">BodySize::Empty</span>,
             <span class="ident">AnyBody::Bytes</span>(<span class="kw-2">ref</span> <span class="ident">bin</span>) =&gt; <span class="ident">BodySize::Sized</span>(<span class="ident">bin</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>),
-            <span class="ident">AnyBody::Message</span>(<span class="kw-2">ref</span> <span class="ident">body</span>) =&gt; <span class="ident">body</span>.<span class="ident">size</span>(),
+            <span class="ident">AnyBody::Body</span>(<span class="kw-2">ref</span> <span class="ident">body</span>) =&gt; <span class="ident">body</span>.<span class="ident">size</span>(),
         }
     }
 
@@ -289,10 +436,9 @@
         <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_mut</span>() {
-            <span class="ident">AnyBody::None</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
-            <span class="ident">AnyBody::Empty</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
-            <span class="ident">AnyBody::Bytes</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">bin</span>) =&gt; {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">project</span>() {
+            <span class="ident">AnyBodyProj::None</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
+            <span class="ident">AnyBodyProj::Bytes</span>(<span class="ident">bin</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">bin</span>.<span class="ident">len</span>();
                 <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">0</span> {
                     <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
@@ -301,8 +447,7 @@
                 }
             }
 
-            <span class="ident">AnyBody::Message</span>(<span class="ident">body</span>) =&gt; <span class="ident">body</span>
-                .<span class="ident">as_pin_mut</span>()
+            <span class="ident">AnyBodyProj::Body</span>(<span class="ident">body</span>) =&gt; <span class="ident">body</span>
                 .<span class="ident">poll_next</span>(<span class="ident">cx</span>)
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">Error::new_body</span>().<span class="ident">with_cause</span>(<span class="ident">err</span>)),
         }
@@ -310,80 +455,88 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">AnyBody</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Body</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">AnyBody</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
             <span class="ident">AnyBody::None</span> =&gt; <span class="macro">matches!</span>(<span class="kw-2">*</span><span class="ident">other</span>, <span class="ident">AnyBody::None</span>),
-            <span class="ident">AnyBody::Empty</span> =&gt; <span class="macro">matches!</span>(<span class="kw-2">*</span><span class="ident">other</span>, <span class="ident">AnyBody::Empty</span>),
             <span class="ident">AnyBody::Bytes</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) =&gt; <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">other</span> {
                 <span class="ident">AnyBody::Bytes</span>(<span class="kw-2">ref</span> <span class="ident">b2</span>) =&gt; <span class="ident">b</span> <span class="op">==</span> <span class="ident">b2</span>,
                 <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
             },
-            <span class="ident">AnyBody::Message</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
+            <span class="ident">AnyBody::Body</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">AnyBody</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">fmt::Debug</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
             <span class="ident">AnyBody::None</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;AnyBody::None&quot;</span>),
-            <span class="ident">AnyBody::Empty</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;AnyBody::Empty&quot;</span>),
-            <span class="ident">AnyBody::Bytes</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;AnyBody::Bytes({:?})&quot;</span>, <span class="ident">b</span>),
-            <span class="ident">AnyBody::Message</span>(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;AnyBody::Message(_)&quot;</span>),
+            <span class="ident">AnyBody::Bytes</span>(<span class="kw-2">ref</span> <span class="ident">bytes</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;AnyBody::Bytes({:?})&quot;</span>, <span class="ident">bytes</span>),
+            <span class="ident">AnyBody::Body</span>(<span class="kw-2">ref</span> <span class="ident">stream</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;AnyBody::Message({:?})&quot;</span>, <span class="ident">stream</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">AnyBody::Bytes</span>(<span class="ident">Bytes::from_static</span>(<span class="ident">s</span>.<span class="ident">as_ref</span>()))
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="ident">Bytes::from_static</span>(<span class="ident">string</span>.<span class="ident">as_ref</span>()))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">Body</span> {
-        <span class="ident">AnyBody::Bytes</span>(<span class="ident">Bytes::from_static</span>(<span class="ident">s</span>))
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="ident">Bytes::from_static</span>(<span class="ident">bytes</span>))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">vec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">AnyBody::Bytes</span>(<span class="ident">Bytes::from</span>(<span class="ident">vec</span>))
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">vec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="ident">Bytes::from</span>(<span class="ident">vec</span>))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">String</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">s</span>.<span class="ident">into_bytes</span>().<span class="ident">into</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">string</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="ident">Bytes::from</span>(<span class="ident">string</span>))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">AnyBody::Bytes</span>(<span class="ident">Bytes::copy_from_slice</span>(<span class="ident">AsRef</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="ident">::as_ref</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>)))
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="ident">Bytes::copy_from_slice</span>(<span class="ident">AsRef</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="ident">::as_ref</span>(<span class="kw-2">&amp;</span><span class="ident">string</span>)))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">Body</span> {
-        <span class="kw">match</span> <span class="ident">s</span> {
-            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; <span class="ident">AnyBody::from</span>(<span class="ident">s</span>),
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">string</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">match</span> <span class="ident">string</span> {
+            <span class="ident">Cow::Owned</span>(<span class="ident">s</span>) =&gt; <span class="ident"><span class="self">Self</span>::from</span>(<span class="ident">s</span>),
             <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>) =&gt; {
-                <span class="ident">AnyBody::Bytes</span>(<span class="ident">Bytes::copy_from_slice</span>(<span class="ident">AsRef</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="ident">::as_ref</span>(<span class="ident">s</span>)))
+                <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="ident">Bytes::copy_from_slice</span>(<span class="ident">AsRef</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="ident">::as_ref</span>(<span class="ident">s</span>)))
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">Bytes</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">AnyBody::Bytes</span>(<span class="ident">s</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bytes</span>: <span class="ident">Bytes</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="ident">bytes</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BytesMut</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">BytesMut</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">AnyBody::Bytes</span>(<span class="ident">s</span>.<span class="ident">freeze</span>())
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BytesMut</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bytes</span>: <span class="ident">BytesMut</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="ident">bytes</span>.<span class="ident">freeze</span>())
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">SizedStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">SizedStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">S</span>: <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+{
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">stream</span>: <span class="ident">SizedStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">AnyBody::new</span>(<span class="ident">stream</span>)
     }
 }
 
@@ -392,8 +545,18 @@
     <span class="ident">S</span>: <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">SizedStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">AnyBody::from_message</span>(<span class="ident">s</span>)
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">stream</span>: <span class="ident">SizedStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">AnyBody::new_boxed</span>(<span class="ident">stream</span>)
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BodyStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">BodyStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">S</span>: <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+{
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">stream</span>: <span class="ident">BodyStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">AnyBody::new</span>(<span class="ident">stream</span>)
     }
 }
 
@@ -402,15 +565,15 @@
     <span class="ident">S</span>: <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">BodyStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">AnyBody::from_message</span>(<span class="ident">s</span>)
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">stream</span>: <span class="ident">BodyStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">AnyBody::new_boxed</span>(<span class="ident">stream</span>)
     }
 }
 
 <span class="doccomment">/// A boxed message body with boxed errors.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BoxAnyBody</span>(<span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">MessageBody</span><span class="op">&lt;</span><span class="ident">Error</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BoxBody</span>(<span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">MessageBody</span><span class="op">&lt;</span><span class="ident">Error</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>);
 
-<span class="kw">impl</span> <span class="ident">BoxAnyBody</span> {
+<span class="kw">impl</span> <span class="ident">BoxBody</span> {
     <span class="doccomment">/// Boxes a `MessageBody` and any errors it generates.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_body</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">body</span>: <span class="ident">B</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
@@ -424,18 +587,18 @@
     <span class="doccomment">/// Returns a mutable pinned reference to the inner message body type.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_pin_mut</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-    ) -&gt; <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw">dyn</span> <span class="ident">MessageBody</span><span class="op">&lt;</span><span class="ident">Error</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw">dyn</span> <span class="ident">MessageBody</span><span class="op">&lt;</span><span class="ident">Error</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_mut</span>()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">BoxAnyBody</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">BoxBody</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;BoxAnyBody(dyn MessageBody)&quot;</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">BoxAnyBody</span> {
+<span class="kw">impl</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">BoxBody</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
@@ -450,6 +613,55 @@
             .<span class="ident">as_mut</span>()
             .<span class="ident">poll_next</span>(<span class="ident">cx</span>)
             .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">Error::new_body</span>().<span class="ident">with_cause</span>(<span class="ident">err</span>))
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="ident">std::marker::PhantomPinned</span>;
+
+    <span class="kw">use</span> <span class="ident">static_assertions</span>::{<span class="ident">assert_impl_all</span>, <span class="ident">assert_not_impl_all</span>};
+
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::body::to_bytes</span>;
+
+    <span class="kw">struct</span> <span class="ident">PinType</span>(<span class="ident">PhantomPinned</span>);
+
+    <span class="kw">impl</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">PinType</span> {
+        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
+
+        <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
+            <span class="macro">unimplemented!</span>()
+        }
+
+        <span class="kw">fn</span> <span class="ident">poll_next</span>(
+            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
+            <span class="ident">_cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="macro">unimplemented!</span>()
+        }
+    }
+
+    <span class="macro">assert_impl_all!</span>(<span class="ident">AnyBody</span><span class="op">&lt;</span>()<span class="op">&gt;</span>: <span class="ident">MessageBody</span>, <span class="ident">fmt::Debug</span>, <span class="ident">Send</span>, <span class="ident">Sync</span>, <span class="ident">Unpin</span>);
+    <span class="macro">assert_impl_all!</span>(<span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>: <span class="ident">MessageBody</span>, <span class="ident">fmt::Debug</span>, <span class="ident">Send</span>, <span class="ident">Sync</span>, <span class="ident">Unpin</span>);
+    <span class="macro">assert_impl_all!</span>(<span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>: <span class="ident">MessageBody</span>, <span class="ident">fmt::Debug</span>, <span class="ident">Send</span>, <span class="ident">Sync</span>, <span class="ident">Unpin</span>);
+    <span class="macro">assert_impl_all!</span>(<span class="ident">AnyBody</span>: <span class="ident">MessageBody</span>, <span class="ident">fmt::Debug</span>, <span class="ident">Unpin</span>);
+    <span class="macro">assert_impl_all!</span>(<span class="ident">BoxBody</span>: <span class="ident">MessageBody</span>, <span class="ident">fmt::Debug</span>, <span class="ident">Unpin</span>);
+    <span class="macro">assert_impl_all!</span>(<span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">PinType</span><span class="op">&gt;</span>: <span class="ident">MessageBody</span>);
+
+    <span class="macro">assert_not_impl_all!</span>(<span class="ident">AnyBody</span>: <span class="ident">Send</span>, <span class="ident">Sync</span>, <span class="ident">Unpin</span>);
+    <span class="macro">assert_not_impl_all!</span>(<span class="ident">BoxBody</span>: <span class="ident">Send</span>, <span class="ident">Sync</span>, <span class="ident">Unpin</span>);
+    <span class="macro">assert_not_impl_all!</span>(<span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">PinType</span><span class="op">&gt;</span>: <span class="ident">Send</span>, <span class="ident">Sync</span>, <span class="ident">Unpin</span>);
+
+    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">nested_boxed_body</span>() {
+        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">AnyBody::copy_from_slice</span>(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);
+        <span class="kw">let</span> <span class="ident">boxed_body</span> <span class="op">=</span> <span class="ident">BoxBody::from_body</span>(<span class="ident">BoxBody::from_body</span>(<span class="ident">body</span>));
+
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">to_bytes</span>(<span class="ident">boxed_body</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
+            <span class="ident">Bytes::from</span>(<span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]),
+        );
     }
 }
 </code></pre></div>

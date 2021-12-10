@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["new","Start server building process"]],"struct":[["Server",""],["ServerBuilder","Server builder"],["ServiceConfig",""],["ServiceRuntime",""],["TestServer","The `TestServer` type."]],"trait":[["ServiceFactory",""]]});
+initSidebarItems({"struct":[["Server","General purpose TCP server that runs services receiving Tokio `TcpStream`s."],["ServerBuilder","[Server] builder."],["ServerHandle","Server handle."],["TestServer","A testing server."]],"trait":[["ServiceFactory",""]]});

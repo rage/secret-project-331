@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-codec-0.4.0&#x2F;src&#x2F;framed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>framed.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_codec/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-codec-0.4.1&#x2F;src&#x2F;framed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>framed.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_codec/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -411,13 +411,6 @@
 <span id="411">411</span>
 <span id="412">412</span>
 <span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::pin::Pin</span>;
 <span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">io</span>};
@@ -441,14 +434,13 @@
 }
 
 <span class="macro">pin_project_lite::pin_project!</span> {
-    <span class="doccomment">/// A unified `Stream` and `Sink` interface to an underlying I/O object, using</span>
-    <span class="doccomment">/// the `Encoder` and `Decoder` traits to encode and decode frames.</span>
+    <span class="doccomment">/// A unified `Stream` and `Sink` interface to an underlying I/O object, using the `Encoder` and</span>
+    <span class="doccomment">/// `Decoder` traits to encode and decode frames.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Raw I/O objects work with byte sequences, but higher-level code usually</span>
-    <span class="doccomment">/// wants to batch these into meaningful chunks, called &quot;frames&quot;. This</span>
-    <span class="doccomment">/// method layers framing on top of an I/O object, by using the `Encoder`/`Decoder`</span>
-    <span class="doccomment">/// traits to handle encoding and decoding of message frames. Note that</span>
-    <span class="doccomment">/// the incoming and outgoing frame types may be distinct.</span>
+    <span class="doccomment">/// Raw I/O objects work with byte sequences, but higher-level code usually wants to batch these</span>
+    <span class="doccomment">/// into meaningful chunks, called &quot;frames&quot;. This method layers framing on top of an I/O object,</span>
+    <span class="doccomment">/// by using the `Encoder`/`Decoder` traits to handle encoding and decoding of message frames.</span>
+    <span class="doccomment">/// Note that the incoming and outgoing frame types may be distinct.</span>
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
         <span class="attribute">#[<span class="ident">pin</span>]</span>
         <span class="ident">io</span>: <span class="ident">T</span>,
@@ -464,10 +456,9 @@
     <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span>,
     <span class="ident">U</span>: <span class="ident">Decoder</span>,
 {
-    <span class="doccomment">/// This function returns a *single* object that is both `Stream` and</span>
-    <span class="doccomment">/// `Sink`; grouping this into a single object is often useful for layering</span>
-    <span class="doccomment">/// things like gzip or TLS, which require both read and write access to the</span>
-    <span class="doccomment">/// underlying object.</span>
+    <span class="doccomment">/// This function returns a *single* object that is both `Stream` and `Sink`; grouping this into</span>
+    <span class="doccomment">/// a single object is often useful for layering things like gzip or TLS, which require both</span>
+    <span class="doccomment">/// read and write access to the underlying object.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">io</span>: <span class="ident">T</span>, <span class="ident">codec</span>: <span class="ident">U</span>) -&gt; <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
         <span class="ident">Framed</span> {
             <span class="ident">io</span>,
@@ -490,21 +481,18 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">codec</span>
     }
 
-    <span class="doccomment">/// Returns a reference to the underlying I/O stream wrapped by</span>
-    <span class="doccomment">/// `Frame`.</span>
+    <span class="doccomment">/// Returns a reference to the underlying I/O stream wrapped by `Frame`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that care should be taken to not tamper with the underlying stream</span>
-    <span class="doccomment">/// of data coming in as it may corrupt the stream of frames otherwise</span>
-    <span class="doccomment">/// being worked with.</span>
+    <span class="doccomment">/// Note that care should be taken to not tamper with the underlying stream of data coming in as</span>
+    <span class="doccomment">/// it may corrupt the stream of frames otherwise being worked with.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">io_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">io</span>
     }
 
     <span class="doccomment">/// Returns a mutable reference to the underlying I/O stream.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that care should be taken to not tamper with the underlying stream</span>
-    <span class="doccomment">/// of data coming in as it may corrupt the stream of frames otherwise</span>
-    <span class="doccomment">/// being worked with.</span>
+    <span class="doccomment">/// Note that care should be taken to not tamper with the underlying stream of data coming in as</span>
+    <span class="doccomment">/// it may corrupt the stream of frames otherwise being worked with.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">io_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">io</span>
     }
@@ -603,16 +591,15 @@
         <span class="ident">U</span>: <span class="ident">Decoder</span>,
     {
         <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
-            <span class="comment">// Repeatedly call `decode` or `decode_eof` as long as it is</span>
-            <span class="comment">// &quot;readable&quot;. Readable is defined as not having returned `None`. If</span>
-            <span class="comment">// the upstream has returned EOF, and the decoder is no longer</span>
-            <span class="comment">// readable, it can be assumed that the decoder will never become</span>
+            <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
+            <span class="comment">// Repeatedly call `decode` or `decode_eof` as long as it is &quot;readable&quot;. Readable is</span>
+            <span class="comment">// defined as not having returned `None`. If the upstream has returned EOF, and the</span>
+            <span class="comment">// decoder is no longer readable, it can be assumed that the decoder will never become</span>
             <span class="comment">// readable again, at which point the stream is terminated.</span>
 
             <span class="kw">if</span> <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::READABLE</span>) {
                 <span class="kw">if</span> <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::EOF</span>) {
-                    <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">decode_eof</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">this</span>.<span class="ident">read_buf</span>) {
+                    <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">decode_eof</span>(<span class="ident">this</span>.<span class="ident">read_buf</span>) {
                         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">frame</span>)) =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">frame</span>))),
                         <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
                         <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>))),
@@ -621,7 +608,7 @@
 
                 <span class="macro">log::trace!</span>(<span class="string">&quot;attempting to decode a frame&quot;</span>);
 
-                <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">this</span>.<span class="ident">read_buf</span>) {
+                <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">decode</span>(<span class="ident">this</span>.<span class="ident">read_buf</span>) {
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">frame</span>)) =&gt; {
                         <span class="macro">log::trace!</span>(<span class="string">&quot;frame decoded from buffer&quot;</span>);
                         <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">frame</span>)));
@@ -635,7 +622,7 @@
 
             <span class="macro">debug_assert!</span>(<span class="op">!</span><span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::EOF</span>));
 
-            <span class="comment">// Otherwise, try to read more data and try again. Make sure we&#39;ve got room</span>
+            <span class="comment">// Otherwise, try to read more data and try again. Make sure we&#39;ve got room.</span>
             <span class="kw">let</span> <span class="ident">remaining</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">read_buf</span>.<span class="ident">capacity</span>() <span class="op">-</span> <span class="ident">this</span>.<span class="ident">read_buf</span>.<span class="ident">len</span>();
             <span class="kw">if</span> <span class="ident">remaining</span> <span class="op">&lt;</span> <span class="ident">LW</span> {
                 <span class="ident">this</span>.<span class="ident">read_buf</span>.<span class="ident">reserve</span>(<span class="ident">HW</span> <span class="op">-</span> <span class="ident">remaining</span>)
@@ -726,11 +713,11 @@
 {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">U::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_write_ready</span>() {
             <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()))
         } <span class="kw">else</span> {
-            <span class="ident">Poll::Pending</span>
+            <span class="self">self</span>.<span class="ident">flush</span>(<span class="ident">cx</span>)
         }
     }
 
@@ -761,13 +748,12 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// This function returns a *single* object that is both `Stream` and</span>
-    <span class="doccomment">/// `Sink`; grouping this into a single object is often useful for layering</span>
-    <span class="doccomment">/// things like gzip or TLS, which require both read and write access to the</span>
-    <span class="doccomment">/// underlying object.</span>
+    <span class="doccomment">/// This function returns a *single* object that is both `Stream` and `Sink`; grouping this into</span>
+    <span class="doccomment">/// a single object is often useful for layering things like gzip or TLS, which require both</span>
+    <span class="doccomment">/// read and write access to the underlying object.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// These objects take a stream, a read buffer and a write buffer. These</span>
-    <span class="doccomment">/// fields can be obtained from an existing `Framed` with the `into_parts` method.</span>
+    <span class="doccomment">/// These objects take a stream, a read buffer and a write buffer. These fields can be obtained</span>
+    <span class="doccomment">/// from an existing `Framed` with the `into_parts` method.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_parts</span>(<span class="ident">parts</span>: <span class="ident">FramedParts</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span>) -&gt; <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
         <span class="ident">Framed</span> {
             <span class="ident">io</span>: <span class="ident">parts</span>.<span class="ident">io</span>,
@@ -778,12 +764,11 @@
         }
     }
 
-    <span class="doccomment">/// Consumes the `Frame`, returning its underlying I/O stream, the buffer</span>
-    <span class="doccomment">/// with unprocessed data, and the codec.</span>
+    <span class="doccomment">/// Consumes the `Frame`, returning its underlying I/O stream, the buffer with unprocessed data,</span>
+    <span class="doccomment">/// and the codec.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that care should be taken to not tamper with the underlying stream</span>
-    <span class="doccomment">/// of data coming in as it may corrupt the stream of frames otherwise</span>
-    <span class="doccomment">/// being worked with.</span>
+    <span class="doccomment">/// Note that care should be taken to not tamper with the underlying stream of data coming in as</span>
+    <span class="doccomment">/// it may corrupt the stream of frames otherwise being worked with.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_parts</span>(<span class="self">self</span>) -&gt; <span class="ident">FramedParts</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
         <span class="ident">FramedParts</span> {
             <span class="ident">io</span>: <span class="self">self</span>.<span class="ident">io</span>,
@@ -796,14 +781,15 @@
 }
 
 <span class="doccomment">/// `FramedParts` contains an export of the data of a Framed transport.</span>
-<span class="doccomment">/// It can be used to construct a new `Framed` with a different codec.</span>
-<span class="doccomment">/// It contains all current buffers and the inner transport.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// It can be used to construct a new `Framed` with a different codec. It contains all current</span>
+<span class="doccomment">/// buffers and the inner transport.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FramedParts</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The inner transport used to read bytes to and write bytes to</span>
+    <span class="doccomment">/// The inner transport used to read bytes to and write bytes to.</span>
     <span class="kw">pub</span> <span class="ident">io</span>: <span class="ident">T</span>,
 
-    <span class="doccomment">/// The codec</span>
+    <span class="doccomment">/// The codec object.</span>
     <span class="kw">pub</span> <span class="ident">codec</span>: <span class="ident">U</span>,
 
     <span class="doccomment">/// The buffer with read but unprocessed data.</span>
@@ -816,7 +802,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">FramedParts</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Create a new, default, `FramedParts`</span>
+    <span class="doccomment">/// Creates a new default `FramedParts`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">io</span>: <span class="ident">T</span>, <span class="ident">codec</span>: <span class="ident">U</span>) -&gt; <span class="ident">FramedParts</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
         <span class="ident">FramedParts</span> {
             <span class="ident">io</span>,
@@ -827,7 +813,7 @@
         }
     }
 
-    <span class="doccomment">/// Create a new `FramedParts` with read buffer</span>
+    <span class="doccomment">/// Creates a new `FramedParts` with read buffer.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_read_buf</span>(<span class="ident">io</span>: <span class="ident">T</span>, <span class="ident">codec</span>: <span class="ident">U</span>, <span class="ident">read_buf</span>: <span class="ident">BytesMut</span>) -&gt; <span class="ident">FramedParts</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
         <span class="ident">FramedParts</span> {
             <span class="ident">io</span>,

@@ -14,7 +14,11 @@ interface CheckboxFieldExtraProps {
 const ERRORCOLOR = "#F76D82"
 const DEFAULTCOLOR = "#787878"
 
-const Label = styled.label`
+interface LabelExtraProps {
+  error?: boolean
+}
+
+const Label = styled.label<LabelExtraProps>`
   font-family: system-ui, sans-serif;
   font-size: 1.2rem;
   line-height: 1.1;
@@ -30,7 +34,7 @@ const Label = styled.label`
     color: currentColor;
     width: 1.15em;
     height: 1.1em;
-    border: 2px solid ${({ error }: any) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
+    border: 2px solid ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
     transform: translateY(-0.075em);
     display: grid;
     place-content: center;

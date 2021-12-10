@@ -52,7 +52,7 @@ pub fn configure(
                 // create custom error response
                 let response = HttpResponse::with_body(
                     StatusCode::BAD_REQUEST,
-                    AnyBody::from_slice(body_bytes),
+                    AnyBody::copy_from_slice(body_bytes),
                 );
                 InternalError::from_response(err, response).into()
             });

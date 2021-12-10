@@ -21,9 +21,7 @@ test("It renders", async () => {
   const res = render(
     <MessageChannelIFrame
       url="http://example.com/example-iframe-page"
-      onCommunicationChannelEstabilished={(port) => {
-        console.log(port)
-      }}
+      postThisStateToIFrame={{ view_type: "exercise", data: {} }}
       onMessageFromIframe={(message, responsePort) => {
         console.log(message, responsePort)
       }}

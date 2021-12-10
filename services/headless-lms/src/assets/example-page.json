@@ -1639,8 +1639,11 @@
     "isValid": true,
     "name": "core/buttons",
     "attributes": {
-      "contentJustification": "center",
-      "orientation": "vertical"
+      "layout": {
+        "justifyContent": "center",
+        "orientation": "vertical",
+        "type": "flex"
+      }
     },
     "innerBlocks": [
       {
@@ -1668,8 +1671,11 @@
     "isValid": true,
     "name": "core/buttons",
     "attributes": {
-      "contentJustification": "left",
-      "orientation": "vertical"
+      "layout": {
+        "justifyContent": "left",
+        "orientation": "vertical",
+        "type": "flex"
+      }
     },
     "innerBlocks": [
       {
@@ -1697,8 +1703,11 @@
     "isValid": true,
     "name": "core/buttons",
     "attributes": {
-      "contentJustification": "right",
-      "orientation": "vertical"
+      "layout": {
+        "justifyContent": "right",
+        "orientation": "vertical",
+        "type": "flex"
+      }
     },
     "innerBlocks": [
       {
@@ -1726,8 +1735,11 @@
     "isValid": true,
     "name": "core/buttons",
     "attributes": {
-      "contentJustification": "center",
-      "orientation": "horizontal"
+      "layout": {
+        "justifyContent": "center",
+        "orientation": "horizontal",
+        "type": "flex"
+      }
     },
     "innerBlocks": [
       {
@@ -1755,8 +1767,11 @@
     "isValid": true,
     "name": "core/buttons",
     "attributes": {
-      "contentJustification": "left",
-      "orientation": "horizontal"
+      "layout": {
+        "justifyContent": "left",
+        "orientation": "horizontal",
+        "type": "flex"
+      }
     },
     "innerBlocks": [
       {
@@ -1784,8 +1799,11 @@
     "isValid": true,
     "name": "core/buttons",
     "attributes": {
-      "contentJustification": "right",
-      "orientation": "horizontal"
+      "layout": {
+        "justifyContent": "right",
+        "orientation": "horizontal",
+        "type": "flex"
+      }
     },
     "innerBlocks": [
       {
@@ -1813,8 +1831,11 @@
     "isValid": true,
     "name": "core/buttons",
     "attributes": {
-      "contentJustification": "space-between",
-      "orientation": "horizontal"
+      "layout": {
+        "justifyContent": "space-between",
+        "orientation": "horizontal",
+        "type": "flex"
+      }
     },
     "innerBlocks": [
       {

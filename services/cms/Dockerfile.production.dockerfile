@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:16-bullseye-slim as builder
 
 RUN apt-get update \
   && apt-get install -y build-essential vim \
@@ -20,6 +20,15 @@ COPY --chown=node . /app
 ENV NEXT_PUBLIC_BASE_PATH="/cms"
 
 RUN npm run build
+
+FROM node:16-bullseye-slim as runtime
+
+COPY --from=builder /app/.next/standalone /app
+COPY --from=builder /app/.next/static /app/.next/static
+
+USER node
+
+WORKDIR /app
 
 EXPOSE 3000
 

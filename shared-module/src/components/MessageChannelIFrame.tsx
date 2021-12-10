@@ -1,26 +1,27 @@
 import { css } from "@emotion/css"
-import React, { useEffect, useRef } from "react"
+import { isEqual } from "lodash"
+import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import useMessageChannel from "../hooks/useMessageChannel"
-import { isHeightChangedMessage } from "../iframe-protocol-types.guard"
+import { CurrentStateMessage, SetStateMessage } from "../iframe-protocol-types"
+import { isCurrentStateMessage, isHeightChangedMessage } from "../iframe-protocol-types.guard"
 
 interface MessageChannelIFrameProps {
   url: string
-  onCommunicationChannelEstabilished: (port: MessagePort) => void
-  onMessageFromIframe: (message: unknown, responsePort: MessagePort) => void
+  postThisStateToIFrame: Omit<SetStateMessage, "message">
+  onMessageFromIframe: (message: CurrentStateMessage, responsePort: MessagePort) => void
 }
 
 const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   url,
-  onCommunicationChannelEstabilished,
+  postThisStateToIFrame,
   onMessageFromIframe,
 }) => {
   const { t } = useTranslation()
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  // needed because we cannot execute again the temporary event handler useEffect
-  // whenever this changes.
-  const onCommunicationChannelEstabilishedRef = useRef(onCommunicationChannelEstabilished)
+
+  const [lastThingPosted, setLastThingPosted] = useState<unknown>(null)
 
   const messageChannel = useMessageChannel()
 
@@ -43,13 +44,16 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
         console.info("Updating height")
         // eslint-disable-next-line i18next/no-literal-string
         iframeRef.current.height = Number(data.data).toString() + "px"
-      } else {
+      } else if (isCurrentStateMessage(data)) {
         try {
           onMessageFromIframe(message.data, messageChannel.port1)
         } catch (e) {
           // eslint-disable-next-line i18next/no-literal-string
           console.error("onMessageFromIframe crashed", e)
         }
+      } else {
+        // eslint-disable-next-line i18next/no-literal-string
+        console.warn("unsupported message")
       }
     }
   }, [messageChannel, onMessageFromIframe])
@@ -76,12 +80,6 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
         iframeRef.current.contentWindow.postMessage("communication-port", "*", [
           messageChannel.port2,
         ])
-        try {
-          onCommunicationChannelEstabilishedRef.current(messageChannel.port1)
-        } catch (e) {
-          // eslint-disable-next-line i18next/no-literal-string
-          console.error("onCommunicationChannelEstabilished crashed", e)
-        }
       } else {
         console.error(
           // eslint-disable-next-line i18next/no-literal-string
@@ -95,6 +93,23 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
       removeEventListener("message", temporaryEventHandler)
     }
   }, [messageChannel])
+
+  useEffect(() => {
+    if (!messageChannel || isEqual(lastThingPosted, postThisStateToIFrame)) {
+      return
+    }
+    const postData: SetStateMessage = {
+      // eslint-disable-next-line i18next/no-literal-string
+      message: "set-state",
+      view_type: postThisStateToIFrame.view_type,
+      data: postThisStateToIFrame.data,
+    }
+    // eslint-disable-next-line i18next/no-literal-string
+    console.log(`parent posting data ${postData}`)
+    messageChannel.port1.postMessage(postData)
+    setLastThingPosted(postThisStateToIFrame)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- lastThingPosted is only used to cancel reposting when postThisStateToIFrame has not changed. Adding it to the dependency array would cause an infinite loop.
+  }, [messageChannel, postThisStateToIFrame])
 
   if (!messageChannel) {
     return null

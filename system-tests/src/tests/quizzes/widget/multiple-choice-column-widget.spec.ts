@@ -7,25 +7,24 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("widget, multiple-choice screenshot test", async ({ page, headless }) => {
+test("widget, multiple-choice column screenshot test", async ({ page, headless }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/playground")
 
   // Click text=University of Helsinki, Department of Computer Science
 
   // Click text=Quizzes example, multiple-choice
-  await page.selectOption("select", { label: "Quizzes example, multiple-choice" })
+  await page.selectOption("select", { label: "Quizzes example, multiple-choice, column" })
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/quizzes/exercise?width=500")
+      return f.url().startsWith("http://project-331.local/quizzes/iframe?width=500")
     }),
   )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
-    snapshotName: "widget-multiple-choice-initial",
+    snapshotName: "widget-multiple-choice-column-initial",
     waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
     frame,
   })
@@ -34,9 +33,8 @@ test("widget, multiple-choice screenshot test", async ({ page, headless }) => {
   await frame.click("text=#00ff00")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
-    snapshotName: "widget-multiple-choice-#00ff00",
+    snapshotName: "widget-multiple-choice-column-#00ff00",
     waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
     frame,
   })
@@ -45,9 +43,8 @@ test("widget, multiple-choice screenshot test", async ({ page, headless }) => {
   await frame.click("text=#ff0000")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
-    snapshotName: "widget-multiple-choice-#ff0000",
+    snapshotName: "widget-multiple-choice-column-#ff0000",
     waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,
     frame,
   })

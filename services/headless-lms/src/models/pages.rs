@@ -679,7 +679,6 @@ UPDATE exercise_tasks
 SET deleted_at = now()
 WHERE exercise_slide_id = ANY($1)
 RETURNING id,
-  exercise_slide_id,
   private_spec,
   public_spec,
   model_solution_spec;
@@ -1013,7 +1012,6 @@ WHERE id = $2;
 #[derive(Debug)]
 struct ExerciseTaskIdAndSpec {
     id: Uuid,
-    exercise_slide_id: Uuid,
     private_spec: Option<serde_json::Value>,
     public_spec: Option<serde_json::Value>,
     model_solution_spec: Option<serde_json::Value>,

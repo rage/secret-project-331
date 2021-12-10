@@ -118,21 +118,60 @@ async function main() {
         },
       }
     }
-    return {
-      title: sanitizeNames(block.name),
-      type: "object" as JSONSchemaTypeName,
-      properties: { ...block.attributes },
-      additionalProperties: false,
-      required: Object.entries(block.attributes)
-        .filter(([_key, value]) => (value as { default: unknown }).default !== undefined)
-        .map(([key, _value]) => key),
+
+    let res = [
+      {
+        title: sanitizeNames(block.name),
+        type: "object" as JSONSchemaTypeName,
+        properties: { ...block.attributes },
+        additionalProperties: false,
+        required: Object.entries(block.attributes)
+          .filter(([_key, value]) => (value as { default: unknown }).default !== undefined)
+          .map(([key, _value]) => key),
+      },
+    ]
+    if (block.deprecated) {
+      res = res.concat(
+        block.deprecated?.map((deprecated, n) => {
+          const blockName = sanitizeNames(block.name)
+          return {
+            title: blockName.replace("Attributes", `Deprecated${n + 1}Attributes`),
+            type: "object" as JSONSchemaTypeName,
+            properties: { ...deprecated.attributes },
+            additionalProperties: false,
+            required: Object.entries(deprecated.attributes)
+              .filter(([_key, value]) => (value as { default: unknown }).default !== undefined)
+              .map(([key, _value]) => key),
+            deprecated: true,
+          }
+        }),
+      )
     }
+
+    return res
   })
 
   const typescriptTypes = await Promise.all(
-    jsonSchemaTypes.map(async (schema) => {
-      return await compile(schema as JSONSchema, schema.title, { bannerComment: "" })
-    }),
+    jsonSchemaTypes
+      .flat()
+      .filter((o) => !!o)
+      .map(async (schema) => {
+        const jsonSchema = schema as JSONSchema
+        const title = jsonSchema.title ?? "SchemaWithoutName"
+        let bannerComment = ``
+        // @ts-ignore: We set this above
+        if (schema.deprecated) {
+          bannerComment = `/**
+* @deprecated This is an older version of ${title.replaceAll(
+            /Deprecated\d+/g,
+            "",
+          )}. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+*/`
+        }
+        return await compile(jsonSchema, title, {
+          bannerComment,
+        })
+      }),
   )
 
   const types = `/* eslint-disable @typescript-eslint/no-empty-interface */
@@ -151,4 +190,5 @@ ${typescriptTypes.join("\n")}`
   console.info("Done!")
   process.exit(0)
 }
+
 main()

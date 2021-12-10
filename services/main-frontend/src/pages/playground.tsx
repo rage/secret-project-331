@@ -15,9 +15,12 @@ import {
 import { PlaygroundExample } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
+import { ViewType } from "../shared-module/iframe-protocol-types"
 import { monospaceFont } from "../shared-module/styles"
 import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../shared-module/styles/constants"
+
+const PLAYGROUND_EXERCISE: ViewType = "playground-exercise"
 
 const Home: React.FC = () => {
   const { t } = useTranslation()
@@ -66,16 +69,6 @@ const Home: React.FC = () => {
       setTimeout(() => deleteMutation.reset(), 5000)
     },
   })
-
-  const onChannelEstablished = (port: MessagePort) => {
-    // eslint-disable-next-line i18next/no-literal-string
-    console.log("channel established", port)
-    // eslint-disable-next-line i18next/no-literal-string
-    console.log("Posting data to iframe")
-    if (exampleData) {
-      port.postMessage({ message: "set-state", data: JSON.parse(exampleData) })
-    }
-  }
 
   const onMessage = (message: unknown, responsePort: MessagePort) => {
     console.log(responsePort)
@@ -195,7 +188,7 @@ const Home: React.FC = () => {
         <h2>{t("title-playground-exercise-iframe")}</h2>
         {data.length > 0 && (
           <div>
-            <h4>{t("title-list-of-examples")}</h4>
+            <h3>{t("title-list-of-examples")}</h3>
             <div
               className={css`
                 margin-bottom: 1rem;
@@ -203,7 +196,11 @@ const Home: React.FC = () => {
               `}
             >
               {/* eslint-disable-next-line jsx-a11y/no-onchange */}
-              <select onChange={handleExampleChange} name="playground-examples">
+              <select
+                onChange={handleExampleChange}
+                name="playground-examples"
+                aria-label={t("playground-examples")}
+              >
                 <option selected disabled label={t("label-examples")} />
                 {data.map((example) => (
                   <option
@@ -248,21 +245,20 @@ const Home: React.FC = () => {
           `}
         />
         <br />
-        <label>
-          {t("data-to-post-to-iframe")}
-          <textarea
-            rows={20}
-            spellCheck={false}
-            value={exampleData}
-            onChange={(e) => handleDataChange(e.target.value)}
-            className={css`
-              border: 1px solid black;
-              margin-bottom: 1rem;
-              width: 100%;
-              font-family: ${monospaceFont} !important;
-            `}
-          />
-        </label>
+        <label id="data-preview-label">{t("data-to-post-to-iframe")}</label>
+        <textarea
+          rows={20}
+          spellCheck={false}
+          value={exampleData}
+          onChange={(e) => handleDataChange(e.target.value)}
+          aria-labelledby="data-preview-label"
+          className={css`
+            border: 1px solid black;
+            margin-bottom: 1rem;
+            width: 100%;
+            font-family: ${monospaceFont} !important;
+          `}
+        />
         {exampleUrl && exampleWidth && exampleData && exampleName && (
           <Button
             variant="primary"
@@ -309,7 +305,10 @@ const Home: React.FC = () => {
           <MessageChannelIFrame
             key={combinedUrl + exampleData}
             url={combinedUrl}
-            onCommunicationChannelEstabilished={onChannelEstablished}
+            postThisStateToIFrame={{
+              view_type: PLAYGROUND_EXERCISE,
+              data: JSON.parse(exampleData),
+            }}
             onMessageFromIframe={onMessage}
           />
         </div>

@@ -31,16 +31,10 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
     const newMatrixItemAnswer = {
       optionId: selectedOptionId,
       textData: text,
-      column: column,
-      row: row,
     }
-    const newOptionCells: MatrixItemAnswer[] = quizItemAnswerState.optionCells?.map((option) => {
-      if (option.optionId === selectedOptionId) {
-        return newMatrixItemAnswer
-      } else {
-        return option
-      }
-    })
+    const newOptionCells: MatrixItemAnswer[][] = quizItemAnswerState.optionCells
+
+    newOptionCells[column][row] = newMatrixItemAnswer
 
     const newItemAnswer: QuizItemAnswer = {
       ...quizItemAnswerState,
@@ -52,38 +46,54 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   }
 
   if (quizItemAnswerState?.optionCells === null) {
-    const initializeQuizAnswers: MatrixItemAnswer[] = quizItem.options.map((option) => {
-      if (option.column !== null && option.row !== null) {
-        return {
-          optionId: option.id,
-          textData: "",
-          column: option.column,
-          row: option.row,
-        }
-      } else {
-        return {
-          optionId: option.id,
-          textData: "",
-          column: -1,
-          row: -1,
+    const quizAnswers: MatrixItemAnswer[][] = []
+    for (let i = 0; i < 6; i++) {
+      const rowArray: MatrixItemAnswer[] = []
+      for (let j = 0; j < 6; j++) {
+        const correctColumnOption = quizItem.options.find(
+          (option) => option.row === i && option.column === j,
+        )
+
+        if (correctColumnOption) {
+          rowArray.push({
+            optionId: correctColumnOption.id,
+            textData: "",
+          })
+        } else {
+          // eslint-disable-next-line i18next/no-literal-string
+          rowArray.push({ optionId: "error", textData: "error" })
         }
       }
-    })
-    if (initializeQuizAnswers !== null) {
+      quizAnswers.push(rowArray)
+    }
+    if (quizAnswers !== undefined && quizAnswers.length !== 0) {
       const newItemAnswer: QuizItemAnswer = {
         ...quizItemAnswerState,
-        optionCells: initializeQuizAnswers,
+        optionCells: quizAnswers,
       }
       setQuizItemAnswerState(newItemAnswer)
     }
   }
 
-  const findOptionText = (optionId: string): string => {
-    const option = quizItemAnswerState?.optionCells?.find((option) => option.optionId === optionId)
-    if (option === undefined) {
+  const findOptionText = (column: number, row: number): string => {
+    const optionCells = quizItemAnswerState?.optionCells
+    if (optionCells !== null && optionCells !== undefined) {
+      return optionCells[column][row].textData
+    } else {
       return ""
     }
-    return option?.textData
+  }
+
+  const checkNeighbourCells = (column: number, row: number) => {
+    const findOption = quizItem.options.find(
+      (option) => option.column === column && option.row === row,
+    )
+
+    if (findOption !== undefined) {
+      return findOption
+    } else {
+      return null
+    }
   }
 
   const tempArray = [0, 1, 2, 3, 4, 5]
@@ -116,13 +126,15 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
             {tempArray.map((rowIndex) => {
               return (
                 <tr key={`row${rowIndex}`}>
-                  {quizItem.options.map((option, columnIndex) => {
-                    if (option.row === rowIndex) {
+                  {tempArray.map((columnIndex) => {
+                    const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
+                    if (checkNeighbour !== null) {
                       return (
                         <MatrixCell
+                          key={`${columnIndex} ${rowIndex}`}
                           column={columnIndex}
                           row={rowIndex}
-                          option={option}
+                          option={checkNeighbour}
                           findOptionText={findOptionText}
                           handleOptionSelect={handleOptionSelect}
                         >

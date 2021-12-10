@@ -7,7 +7,7 @@ export interface MatrixCellProps {
   row: number
   column: number
   option: PublicQuizItemOption
-  findOptionText: (optionId: string) => string
+  findOptionText: (column: number, row: number) => string
   handleOptionSelect: (
     text: string,
     option: PublicQuizItemOption,
@@ -43,17 +43,17 @@ const MatrixCell: React.FunctionComponent<MatrixCellProps> = ({
             outline: none;
             text-align: center;
             resize: none;
-            ${findOptionText(option.id).length === 0 &&
+            ${findOptionText(column, row).length === 0 &&
             `
                               background-color: #ECECEC;
                             `}
             ${isActive &&
-            findOptionText(option.id).length === 0 &&
+            findOptionText(column, row).length === 0 &&
             `
                                 background-color: #DBDBDB;
                                 `}
           `}
-          value={findOptionText(option.id) ?? ""}
+          value={findOptionText(column, row) ?? ""}
           onSelect={() => setIsActive(!isActive)}
           onBlur={() => setIsActive(!isActive)}
           onChange={(event) => handleOptionSelect(event.target.value, option, column, row)}

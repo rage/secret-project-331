@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import { Quiz, QuizAnswer, QuizItem, QuizItemAnswer } from "../../../types/types"
+import { MatrixItemAnswer, Quiz, QuizAnswer, QuizItem, QuizItemAnswer } from "../../../types/types"
 
 interface QuizzesGradingRequest {
   exercise_spec: Quiz
@@ -161,13 +161,24 @@ function assessMatrixQuiz(
     throw new Error("No option answers")
   }
 
-  const isMatrixCorrect = studentAnswers.every((answers) => {
-    const option = correctAnswers.find((o) => o.id === answers.optionId)
-    if (option && option.correctAnswer === answers.textData) {
+  const isMatrixCorrect = correctAnswers.every((answers) => {
+    let itemOption: MatrixItemAnswer | null = null
+    for (let i = 0; i < 6; i++) {
+      for (let j = 0; j < 6; j++) {
+        if (answers.id === studentAnswers[j][i].optionId) {
+          itemOption = studentAnswers[j][i]
+        }
+      }
+    }
+    const textData = removeNonPrintingCharacters(answers.correctAnswer ? answers.correctAnswer : "")
+      .replace(/\0/g, "")
+      .trim()
+    if (itemOption && itemOption.textData === textData) {
       return true
     }
     return false
   })
+  console.log(isMatrixCorrect)
   return { quizItemId: quizItem.id, correct: isMatrixCorrect }
 }
 

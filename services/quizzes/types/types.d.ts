@@ -267,14 +267,12 @@ export interface QuizItemAnswer {
   valid: boolean
   /** Only contains an id of a selected option */
   optionAnswers: string[] | null
-  optionCells: MatrixItemAnswer[] | null
+  optionCells: MatrixItemAnswer[][] | null
 }
 
 export interface MatrixItemAnswer {
   optionId: string
   textData: string
-  column: number
-  row: number
 }
 
 export interface UserQuizState {

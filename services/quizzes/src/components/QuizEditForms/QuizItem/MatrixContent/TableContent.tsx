@@ -21,7 +21,7 @@ const TableContent: React.FC<TableContentProps> = ({ item }) => {
   if (storeItem.options.length < 1) {
     for (let i = 0; i < 6; i++) {
       for (let j = 0; j < 6; j++) {
-        dispatch(createdNewOption(storeItem.id, "", i, j))
+        dispatch(createdNewOption(storeItem.id, "", j, i))
       }
     }
   }
@@ -70,7 +70,6 @@ const TableContent: React.FC<TableContentProps> = ({ item }) => {
               <tr key={`row ${rowIndex}`}>
                 {tempArray.map((columnIndex) => {
                   const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
-                  console.log(checkNeighbour)
                   return (
                     <>
                       <>

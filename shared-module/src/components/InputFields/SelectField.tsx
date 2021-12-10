@@ -24,7 +24,7 @@ interface SelectMenuExtraProps {
   label: string
   error?: string
   value?: string
-  onBlur: (name?: any) => void
+  onBlur: (event: React.FocusEvent<HTMLSelectElement>) => void
   onChange: (value: string, name?: string) => void
 }
 

@@ -49,6 +49,7 @@ const Iframe: React.FC = () => {
             ReactDOM.flushSync(() => {
               if (data.view_type === "exercise") {
                 setState(
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   (data.data as any).public_spec.current_exercise_task
                     .public_spec as PublicAlternative[],
                 )

@@ -55,13 +55,13 @@ test("latex-block renders", async ({ headless, page }) => {
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
   // Click text=Remove blockShift+Alt+Z
-  await page.click("text=Remove blockShift+Alt+Z")
+  await page.click("text=Remove Chapter Progress")
   // - CHAPTER GRID
   await page.click("text=Pages in chapter placeholder")
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
   // Click text=Remove blockShift+Alt+Z
-  await page.click("text=Remove blockShift+Alt+Z")
+  await page.click("text=Remove Pages In Chapter")
   // - EXERCISES
   await page.click(
     "text=Exercises In Chapter PlaceholderThis block is placed on each chapter front page,",
@@ -69,11 +69,11 @@ test("latex-block renders", async ({ headless, page }) => {
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
   // Click text=Remove blockShift+Alt+Z
-  await page.click("text=Remove blockShift+Alt+Z")
+  await page.click("text=Remove Exercises In Chapter")
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
   // Click text=Remove blockShift+Alt+Z
-  await page.click("text=Remove blockShift+Alt+Z")
+  await page.click("text=Remove Hero Section")
   // - CREATE LATEX BLOCK
   // Click text=No block selected.Pages In Chapter Grid PlaceholderThis block is placed on each  >> button
   await page.click('[aria-label="Add block"]')

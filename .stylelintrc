@@ -1,12 +1,14 @@
 {
   "extends": "stylelint-config-recommended",
-  "overrides": {
-    "files": [
-      "**/*.ts",
-      "**/*.tsx",
-      "**/*.js",
-      "**/*.jsx"
-    ],
-    "customSyntax": "@stylelint/postcss-css-in-js"
-  }
+  "overrides": [
+    {
+      "files": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.js",
+        "**/*.jsx"
+      ],
+      "customSyntax": "@stylelint/postcss-css-in-js"
+    }
+  ]
 }

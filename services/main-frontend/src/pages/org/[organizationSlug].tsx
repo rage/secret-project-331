@@ -15,7 +15,6 @@ import {
   fetchOrganizationCoursesBySlug,
 } from "../../services/backend/organizations"
 import { NewCourse } from "../../shared-module/bindings"
-import { isErrorResponse } from "../../shared-module/bindings.guard"
 import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"

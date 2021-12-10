@@ -3,3 +3,5 @@ target
 .next
 out
 playwright-report
+storybook-static
+services/**/shared-module

@@ -1,4 +1,4 @@
-use actix_http::{body::Body, Request};
+use actix_http::{body::AnyBody, Request};
 use actix_session::CookieSession;
 use actix_web::{dev::ServiceResponse, test, web::Data, App};
 use headless_lms_actix::{
@@ -52,7 +52,7 @@ pub async fn init_db() -> String {
 
 /// Initialises the actix server for testing
 pub async fn init_actix() -> (
-    impl actix_web::dev::Service<Request, Response = ServiceResponse<Body>, Error = actix_web::Error>,
+    impl actix_web::dev::Service<Request, Response = ServiceResponse<AnyBody>, Error = actix_web::Error>,
     PgPool,
 ) {
     let db = init_db().await;

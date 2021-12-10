@@ -11,7 +11,7 @@ function envToNumber(env: string, defaultNumber: number) {
 const config: PlaywrightTestConfig = {
   globalSetup: require.resolve("./src/setup/globalSetup.ts"),
   globalTeardown: require.resolve("./src/setup/globalTeardown.ts"),
-  reporter: [["./src/utils/customReporter"]],
+  reporter: [["line"]],
   timeout: 100000,
   use: {
     navigationTimeout: 15000,

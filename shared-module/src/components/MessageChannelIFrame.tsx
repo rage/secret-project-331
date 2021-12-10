@@ -21,7 +21,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   const { t } = useTranslation()
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  const [lastThingPosted, setLastThingPosted] = useState<any>(null)
+  const [lastThingPosted, setLastThingPosted] = useState<unknown>(null)
 
   const messageChannel = useMessageChannel()
 
@@ -108,6 +108,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
     console.log(`parent posting data ${postData}`)
     messageChannel.port1.postMessage(postData)
     setLastThingPosted(postThisStateToIFrame)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- lastThingPosted is only used to cancel reposting when postThisStateToIFrame has not changed. Adding it to the dependency array would cause an infinite loop.
   }, [messageChannel, postThisStateToIFrame])
 
   if (!messageChannel) {

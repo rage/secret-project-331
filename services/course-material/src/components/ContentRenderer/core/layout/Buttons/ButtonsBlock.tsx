@@ -11,9 +11,19 @@ import { normalWidthCenteredComponentStyles } from "../../../../../shared-module
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 
+// Layout looks like this:
+// export interface Layout {
+//   justifyContent: string
+//   orientation: string
+//   type: string
+// }
+
 const ButtonsBlock: React.FC<BlockRendererProps<ButtonsAttributes>> = ({ data }) => {
   const { t } = useTranslation()
-  const { orientation, anchor, contentJustification } = data.attributes
+  const { anchor } = data.attributes
+
+  const orientation = data.attributes.layout?.orientation as string | undefined | null
+  const contentJustification = data.attributes.layout?.justifyContent as string | undefined | null
 
   const getContentJustification = (contentJustification: string) => {
     if (contentJustification === "center") {

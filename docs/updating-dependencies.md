@@ -26,6 +26,8 @@ One by one cd to a service and run `npm ci`. After that run `npx npm-check --upd
 
 You can get a list of targets that need updating by running: `find -name 'package.json' | grep --invert-match 'node_modules'`.
 
+Start by upgrading the dependencies in the root of the repo and run `npm run eslint` to catch new changes to ESLint rules / prettier formatting. You can also use `npm run eslint:open:vscode` if you want to open all the files with ESLint problems.
+
 ## Update rust dependencies
 
 Open Cargo.toml, and update outdated ones. If you don't see which ones are outdated in vscode install workspace recommended extensions. For prerelease crates, you have to check the latest version manually from crates.io.

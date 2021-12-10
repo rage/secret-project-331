@@ -70,16 +70,6 @@ const Home: React.FC = () => {
     },
   })
 
-  const onChannelEstablished = (port: MessagePort) => {
-    // eslint-disable-next-line i18next/no-literal-string
-    console.log("channel established", port)
-    // eslint-disable-next-line i18next/no-literal-string
-    console.log("Posting data to iframe")
-    if (exampleData) {
-      port.postMessage({ message: "set-state", data: JSON.parse(exampleData) })
-    }
-  }
-
   const onMessage = (message: unknown, responsePort: MessagePort) => {
     console.log(responsePort)
     // eslint-disable-next-line i18next/no-literal-string

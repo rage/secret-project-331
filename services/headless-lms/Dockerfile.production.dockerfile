@@ -36,7 +36,7 @@ FROM eu.gcr.io/moocfi-public/project-331-headless-lms-production-base:latest as 
 WORKDIR /app
 
 COPY --from=cleanup /app/bins /app
-COPY --from=builder /app/migrations /app/
+COPY --from=builder /app/migrations /app/migrations
 COPY --from=builder /app/wait-for-db.sh /app/
 COPY --from=builder /app/wait-for-db-migrations.sh /app/
 

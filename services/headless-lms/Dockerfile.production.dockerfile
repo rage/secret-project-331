@@ -32,12 +32,15 @@ RUN mkdir bins && find ./full-build -maxdepth 1 -executable -type f -exec cp "{}
 
 FROM eu.gcr.io/moocfi-public/project-331-headless-lms-production-base:latest as runtime
 
-USER user
-
 WORKDIR /app
 
 COPY --from=cleanup /app/bins /app
 COPY --from=builder /app/wait-for-db.sh /app/
 COPY --from=builder /app/wait-for-db-migrations.sh /app/
+
+# Used in the test mode
+RUN mkdir uploads && chown -R user uploads
+
+USER user
 
 CMD [ "./headless-lms-actix" ]

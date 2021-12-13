@@ -37,5 +37,7 @@ USER user
 WORKDIR /app
 
 COPY --from=cleanup /app/bins /app
+COPY --from=builder /app/wait-for-db.sh /app/
+COPY --from=builder /app/wait-for-db-migrations.sh /app/
 
 CMD [ "./headless-lms-actix" ]

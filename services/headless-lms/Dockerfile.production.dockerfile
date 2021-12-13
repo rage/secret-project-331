@@ -1,5 +1,5 @@
 # Built from DockerfileBase.dockerfile
-FROM eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest
+FROM eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest as builder
 
 # create dummy main.rs file so that cargo will download dependencies
 # we also are setting the timestamp to a old value because cargo will only
@@ -22,4 +22,20 @@ COPY --chown=user . .
 # Compile the program
 RUN cargo build --release
 
-CMD [ "cargo", "run", "--release" ]
+# Middle stage where we can remove unnecessary files
+FROM eu.gcr.io/moocfi-public/project-331-headless-lms-production-base:latest as cleanup
+
+WORKDIR /app
+
+COPY --from=builder /app/target/release /app/full-build
+RUN mkdir bins && find ./full-build -maxdepth 1 -executable -type f -exec cp "{}" ./bins \;
+
+FROM eu.gcr.io/moocfi-public/project-331-headless-lms-production-base:latest as runtime
+
+USER user
+
+WORKDIR /app
+
+COPY --from=cleanup /app/bins /app
+
+CMD [ "./headless-lms-actix" ]

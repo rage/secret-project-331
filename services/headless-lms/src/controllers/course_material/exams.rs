@@ -46,7 +46,7 @@ pub enum ExamData {
         starts_at: DateTime<Utc>,
         ends_at: Option<DateTime<Utc>>,
         time_minutes: i32,
-        page: Page,
+        page: Box<Page>,
         enrollment: ExamEnrollment,
     },
     EnrolledAndClosed,
@@ -96,7 +96,7 @@ pub async fn fetch_exam_for_user(
             starts_at,
             ends_at: exam.ends_at,
             time_minutes: exam.time_minutes,
-            page,
+            page: Box::new(page),
             enrollment,
         }))
     } else {

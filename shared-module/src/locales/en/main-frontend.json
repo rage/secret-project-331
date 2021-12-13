@@ -21,6 +21,7 @@
   "error-could-not-find-edit-history-for-page": "Could not find any edit history for the page",
   "error-loading-organizations": "Error loading organizations.",
   "error-title": "Error",
+  "error-unknown-in-component": "Unknown error when rendering {{component}}",
   "export-points-as-csv": "Export points as csv",
   "feedback-given": "Feedback: {{feedback-given}}",
   "selected-text": "Selected text: {{selected-text}}",
@@ -174,5 +175,7 @@
   "courses": "Courses",
   "add": "Add",
   "add-course": "Add course",
-  "course-id": "Course id"
+  "course-id": "Course id",
+  "no-submissions": "No submissions found",
+  "playground-examples": "Playground examples"
 }

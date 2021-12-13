@@ -288,3 +288,21 @@ RETURNING id;
     .collect();
     Ok(deleted_ids)
 }
+
+pub async fn get_exercise_task_model_solution_spec_by_id(
+    conn: &mut PgConnection,
+    exercise_task_id: Uuid,
+) -> ModelResult<Option<serde_json::Value>> {
+    let exercise_task = sqlx::query_as!(
+        ExerciseTask,
+        "
+SELECT *
+FROM exercise_tasks et
+WHERE et.id = $1;
+    ",
+        exercise_task_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(exercise_task.model_solution_spec)
+}

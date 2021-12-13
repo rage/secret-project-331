@@ -18,13 +18,14 @@ pub struct LocalFileStore {
 }
 
 impl LocalFileStore {
-    pub async fn new(base_path: PathBuf, base_url: String) -> Result<Self> {
+    /// Needs to not be async because of how this is used in worker factories
+    pub fn new(base_path: PathBuf, base_url: String) -> Result<Self> {
         if base_path.exists() {
             if !base_path.is_dir() {
                 anyhow::bail!("Base path should be a folder");
             }
         } else {
-            fs::create_dir_all(&base_path).await?;
+            std::fs::create_dir_all(&base_path)?;
         }
         Ok(Self {
             base_path,
@@ -126,7 +127,6 @@ mod tests {
         let base_path = dir.into_path();
         let local_file_store =
             LocalFileStore::new(base_path.clone(), "http://localhost:3000".to_string())
-                .await
                 .expect("Could not create local file storage");
 
         let path1 = Path::new("file1");
@@ -158,7 +158,6 @@ mod tests {
         let base_path = dir.into_path();
         let local_file_store =
             LocalFileStore::new(base_path.clone(), "http://localhost:3000".to_string())
-                .await
                 .expect("Could not create local file storage");
         let test_file_contents = "Test file contents 2".as_bytes().to_vec();
         let path1 = Path::new("file1");

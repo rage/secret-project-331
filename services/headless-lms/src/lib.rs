@@ -2,11 +2,12 @@ pub mod controllers;
 pub mod domain;
 pub mod models;
 pub mod regrading;
-mod ts_binding_generator;
 pub mod utils;
 
 #[cfg(test)]
 pub mod test_helper;
+#[cfg(test)]
+pub mod ts_binding_generator;
 
 #[macro_use]
 extern crate tracing;
@@ -51,7 +52,7 @@ pub fn configure(
                 // create custom error response
                 let response = HttpResponse::with_body(
                     StatusCode::BAD_REQUEST,
-                    AnyBody::from_slice(body_bytes),
+                    AnyBody::copy_from_slice(body_bytes),
                 );
                 InternalError::from_response(err, response).into()
             });

@@ -4,15 +4,17 @@ import { faPenSquare, faTrashAlt, faWindowClose } from "@fortawesome/free-solid-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
-import React, { useContext } from "react"
+import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import { baseTheme, primaryFont, typography } from "../../shared-module/styles"
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../../shared-module/styles/constants"
 import { runCallbackIfEnterPressed } from "../../shared-module/utils/accessibility"
-import { gutenbergControlsVisible } from "../../styles/EditorStyles"
+import {
+  cmsNormalWidthCenteredComponentStyles,
+  gutenbergControlsVisible,
+} from "../../styles/EditorStyles"
 
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
 import { exerciseTaskTypes } from "./ChooseExerciseTaskType/ExerciseServiceList"
@@ -79,6 +81,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
 }) => {
   const dispatch = useContext(EditorContentDispatch)
 
+  const [privateSpecOnFirstRender] = useState(attributes.private_spec)
   const { t } = useTranslation()
 
   const handleDeleteTask = () => {
@@ -92,7 +95,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
 
   return (
     <div>
-      <div className={normalWidthCenteredComponentStyles}>
+      <div className={cmsNormalWidthCenteredComponentStyles}>
         <div
           className={css`
             align-items: stretch;
@@ -149,7 +152,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
           ) : (
             <ExerciseTaskIFrameEditor
               onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
-              privateSpec={attributes.private_spec}
+              privateSpec={privateSpecOnFirstRender}
               url={`${url}?width=${defaultContainerWidth}`}
             />
           )}

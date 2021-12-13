@@ -42,10 +42,9 @@ Represents error messages that are sent in responses.
 # Example
 ```json
 {
-    "type": "https://httpstatuses.com/500",
-    "status": 500,
     "title": "Internal Server Error",
-    "detail": "pool timed out while waiting for an open connection"
+    "message": "pool timed out while waiting for an open connection"
+    "source": "source of error"
 }
 ```
 */

@@ -87,5 +87,6 @@
   "enroll": "Enroll",
   "start-the-exam": "Start the exam!",
   "instructions": "Instructions",
-  "template-exercise-instructions": "You can submit your answer to each question to save their state before submitting the exam. You will see the results after you submit the exam or the timer runs out."
+  "template-exercise-instructions": "You can submit your answer to each question to save their state before submitting the exam. You will see the results after you submit the exam or the timer runs out.",
+  "try-again": "try again"
 }

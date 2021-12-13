@@ -8,7 +8,7 @@ import { Trans, useTranslation } from "react-i18next"
 
 import useTime from "../../hooks/useTime"
 import { baseTheme } from "../../shared-module/styles"
-import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 
 const SHORT = "short"
@@ -65,7 +65,7 @@ const ExamTimer: React.FC<ExamTimerProps> = ({
   return (
     <div
       className={cx(
-        courseMaterialCenteredComponentStyles,
+        normalWidthCenteredComponentStyles,
         css`
           display: flex;
           flex-direction: row;

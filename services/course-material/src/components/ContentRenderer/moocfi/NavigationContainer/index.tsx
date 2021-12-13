@@ -2,7 +2,7 @@ import React, { useContext } from "react"
 
 import CoursePageContext from "../../../../contexts/CoursePageContext"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import GenericLoading from "../../../GenericLoading"
 
 import NextPage from "./NextPage"
@@ -21,7 +21,7 @@ const NavigationContainer: React.FC = () => {
   }
 
   return (
-    <div className={courseMaterialCenteredComponentStyles}>
+    <div className={normalWidthCenteredComponentStyles}>
       <NextPage
         chapterId={pageContext.pageData.chapter_id}
         currentPageId={pageContext.pageData.id}

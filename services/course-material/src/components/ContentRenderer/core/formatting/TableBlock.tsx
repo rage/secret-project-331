@@ -7,7 +7,7 @@ import {
   TableAttributes,
 } from "../../../../../types/GutenbergBlockAttributes"
 import { baseTheme } from "../../../../shared-module/styles"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
@@ -44,7 +44,7 @@ const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => 
   return (
     <div
       className={css`
-        ${courseMaterialCenteredComponentStyles}
+        ${normalWidthCenteredComponentStyles}
       `}
     >
       <table

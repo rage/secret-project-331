@@ -31,14 +31,14 @@ patches:
 # Patch image names
 images:
   - name: course-material
-    newName: eu.gcr.io/moocfi-public/secret-project-course-material-production:latest
+    newName: eu.gcr.io/moocfi-public/secret-project-course-material-production-slim:latest
   - name: quizzes
-    newName: eu.gcr.io/moocfi-public/secret-project-quizzes-production:latest
+    newName: eu.gcr.io/moocfi-public/secret-project-quizzes-production-slim:latest
   - name: example-exercise
-    newName: eu.gcr.io/moocfi-public/secret-project-example-exercise-production:latest
+    newName: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-slim:latest
   - name: main-frontend
-    newName: eu.gcr.io/moocfi-public/secret-project-main-frontend-production:latest
+    newName: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-slim:latest
   - name: cms
-    newName: eu.gcr.io/moocfi-public/secret-project-cms-production:latest
+    newName: eu.gcr.io/moocfi-public/secret-project-cms-production-slim:latest
   - name: headless-lms
-    newName: eu.gcr.io/moocfi-public/secret-project-headless-lms-production:latest
+    newName: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-slim:latest

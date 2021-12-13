@@ -1,19 +1,14 @@
 import { css } from "@emotion/css"
 import { useState } from "react"
 
-import { PublicQuizItemOption } from "../../../../types/types"
+import { MatrixItemAnswer } from "../../../../types/types"
 
 export interface MatrixCellProps {
   row: number
   column: number
-  option: PublicQuizItemOption
+  option: MatrixItemAnswer
   findOptionText: (column: number, row: number) => string
-  handleOptionSelect: (
-    text: string,
-    option: PublicQuizItemOption,
-    column: number,
-    row: number,
-  ) => void
+  handleOptionSelect: (text: string, option: MatrixItemAnswer, column: number, row: number) => void
 }
 
 const MatrixCell: React.FunctionComponent<MatrixCellProps> = ({
@@ -35,6 +30,8 @@ const MatrixCell: React.FunctionComponent<MatrixCellProps> = ({
     >
       {
         <input
+          // eslint-disable-next-line i18next/no-literal-string
+          aria-label={`row: ${row}, column: ${column}`}
           className={css`
             display: block;
             width: 50px;

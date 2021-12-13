@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useState } from "react"
 
 import { QuizItemComponentProps } from ".."
-import { MatrixItemAnswer, PublicQuizItemOption, QuizItemAnswer } from "../../../../types/types"
+import { MatrixItemAnswer, QuizItemAnswer } from "../../../../types/types"
 
 import MatrixCell from "./MatrixCell"
 
@@ -17,35 +17,7 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItem,
   setQuizItemAnswerState,
 }) => {
-  const handleOptionSelect = (
-    text: string,
-    option: PublicQuizItemOption,
-    column: number,
-    row: number,
-  ) => {
-    if (!quizItemAnswerState?.optionCells) {
-      return
-    }
-
-    const selectedOptionId = option.id
-    const newMatrixItemAnswer = {
-      optionId: selectedOptionId,
-      textData: text,
-    }
-    const newOptionCells: MatrixItemAnswer[][] = quizItemAnswerState.optionCells
-
-    newOptionCells[column][row] = newMatrixItemAnswer
-
-    const newItemAnswer: QuizItemAnswer = {
-      ...quizItemAnswerState,
-      optionCells: newOptionCells,
-      valid: true,
-    }
-
-    setQuizItemAnswerState(newItemAnswer)
-  }
-
-  if (quizItemAnswerState?.optionCells === null) {
+  const [matrixVariable, setMatrixVariable] = useState<MatrixItemAnswer[][]>(() => {
     const quizAnswers: MatrixItemAnswer[][] = []
     for (let i = 0; i < 6; i++) {
       const rowArray: MatrixItemAnswer[] = []
@@ -66,34 +38,48 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
       }
       quizAnswers.push(rowArray)
     }
-    if (quizAnswers !== undefined && quizAnswers.length !== 0) {
-      const newItemAnswer: QuizItemAnswer = {
-        ...quizItemAnswerState,
-        optionCells: quizAnswers,
-      }
-      setQuizItemAnswerState(newItemAnswer)
+    return quizAnswers
+  })
+
+  if (!quizItemAnswerState) {
+    return <div></div>
+  }
+  const handleOptionSelect = (
+    text: string,
+    option: MatrixItemAnswer,
+    column: number,
+    row: number,
+  ) => {
+    const selectedOptionId = option.optionId
+    const newMatrixItemAnswer = {
+      optionId: selectedOptionId,
+      textData: text,
     }
+
+    matrixVariable[column][row] = newMatrixItemAnswer
+    setMatrixVariable(matrixVariable)
+
+    let newOptionCells: MatrixItemAnswer[][] = [[]]
+    if (quizItemAnswerState?.optionCells) {
+      newOptionCells = quizItemAnswerState?.optionCells
+    } else {
+      newOptionCells = matrixVariable
+    }
+
+    const newItemAnswer: QuizItemAnswer = {
+      ...quizItemAnswerState,
+      optionCells: newOptionCells,
+      valid: true,
+    }
+    setQuizItemAnswerState(newItemAnswer)
   }
 
   const findOptionText = (column: number, row: number): string => {
-    const optionCells = quizItemAnswerState?.optionCells
-    if (optionCells !== null && optionCells !== undefined) {
-      return optionCells[column][row].textData
-    } else {
-      return ""
-    }
+    return matrixVariable[column][row].textData
   }
 
-  const checkNeighbourCells = (column: number, row: number) => {
-    const findOption = quizItem.options.find(
-      (option) => option.column === column && option.row === row,
-    )
-
-    if (findOption !== undefined) {
-      return findOption
-    } else {
-      return null
-    }
+  const findOption = (column: number, row: number) => {
+    return matrixVariable[column][row]
   }
 
   const tempArray = [0, 1, 2, 3, 4, 5]
@@ -127,14 +113,14 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
               return (
                 <tr key={`row${rowIndex}`}>
                   {tempArray.map((columnIndex) => {
-                    const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
-                    if (checkNeighbour !== null) {
+                    const cellOption = findOption(columnIndex, rowIndex)
+                    if (cellOption !== null) {
                       return (
                         <MatrixCell
                           key={`${columnIndex} ${rowIndex}`}
                           column={columnIndex}
                           row={rowIndex}
-                          option={checkNeighbour}
+                          option={cellOption}
                           findOptionText={findOptionText}
                           handleOptionSelect={handleOptionSelect}
                         >

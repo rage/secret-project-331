@@ -1,4 +1,4 @@
-# Built from DockerfileBase.dockerfile
+# Built from DockerfileBase.dockerfile. The builder target is used skaffold.production.yml to cache the build
 FROM eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest as builder
 
 # create dummy main.rs file so that cargo will download dependencies
@@ -30,11 +30,13 @@ WORKDIR /app
 COPY --from=builder /app/target/release /app/full-build
 RUN mkdir bins && find ./full-build -maxdepth 1 -executable -type f -exec cp "{}" ./bins \;
 
+# The runtime target is used skaffold.production.yml to create a slim image that is used in production
 FROM eu.gcr.io/moocfi-public/project-331-headless-lms-production-base:latest as runtime
 
 WORKDIR /app
 
 COPY --from=cleanup /app/bins /app
+COPY --from=builder /app/migrations /app/
 COPY --from=builder /app/wait-for-db.sh /app/
 COPY --from=builder /app/wait-for-db-migrations.sh /app/
 

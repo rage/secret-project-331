@@ -7,10 +7,10 @@ import { fetchOrganizations } from "../../../../services/backend/organizations"
 import DebugModal from "../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
+import UHNoBG from "../../../../shared-module/img/uh_without_background.svg"
 import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import { organizationCoursesPageHref } from "../../../../shared-module/utils/cross-routing"
-import UHNoBG from "../../shared-module/img/uh_without_background.svg"
 
 const OrganizationsList: React.FC = () => {
   const { t } = useTranslation()

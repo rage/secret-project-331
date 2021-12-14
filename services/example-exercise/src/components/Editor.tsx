@@ -3,6 +3,7 @@ import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import { State } from "../pages/iframe"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { CurrentStateMessage } from "../shared-module/iframe-protocol-types"
 import { Alternative } from "../util/stateInterfaces"
@@ -12,7 +13,7 @@ import ButtonEditor from "./ButtonEditor"
 const CURRENT_STATE = "current-state"
 interface Props {
   state: Alternative[]
-  setState: (newState: Alternative[]) => void
+  setState: (newState: State) => void
   maxWidth: number
   port: MessagePort
 }
@@ -61,7 +62,8 @@ const Editor: React.FC<Props> = ({ state, setState, port }) => {
             item={o}
             onDelete={() => {
               const newState = state.filter((e) => e.id !== o.id)
-              setState(newState)
+              // eslint-disable-next-line i18next/no-literal-string
+              setState({ view_type: "exercise-editor", private_spec: newState })
             }}
             onChange={(task) => {
               const newState = state.map((e) => {
@@ -70,7 +72,8 @@ const Editor: React.FC<Props> = ({ state, setState, port }) => {
                 }
                 return task
               })
-              setState(newState)
+              // eslint-disable-next-line i18next/no-literal-string
+              setState({ view_type: "exercise-editor", private_spec: newState })
             }}
           />
         ))}
@@ -78,7 +81,8 @@ const Editor: React.FC<Props> = ({ state, setState, port }) => {
           onClick={() => {
             const newState = [...state]
             newState.push({ name: "", correct: false, id: v4() })
-            setState(newState)
+            // eslint-disable-next-line i18next/no-literal-string
+            setState({ view_type: "exercise-editor", private_spec: newState })
           }}
         >
           {t("new")}

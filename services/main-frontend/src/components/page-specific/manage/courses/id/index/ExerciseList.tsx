@@ -3,9 +3,9 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import { fetchCourseExercises } from "../../services/backend/courses"
-import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import Spinner from "../../shared-module/components/Spinner"
+import { fetchCourseExercises } from "../../../../../../services/backend/courses"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/components/Spinner"
 
 export interface ExerciseListProps {
   courseId: string

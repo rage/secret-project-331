@@ -17,7 +17,7 @@ import dontRenderUntilQueryParametersReady, {
 import { roundDown } from "../../../../shared-module/utils/numbers"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
-export interface PointListProps {
+export interface CourseInstancePointsListProps {
   query: SimplifiedUrlQuery<"id">
 }
 
@@ -33,7 +33,7 @@ const SCORE = "score"
 const EMAIL = "email"
 const DOWN_ARROW = "v"
 
-const PointList: React.FC<PointListProps> = ({ query }) => {
+const CourseInstancePointsList: React.FC<CourseInstancePointsListProps> = ({ query }) => {
   const courseInstanceId = query.id
   const { t } = useTranslation()
 
@@ -302,4 +302,6 @@ const PointList: React.FC<PointListProps> = ({ query }) => {
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(PointList)))
+export default withErrorBoundary(
+  withSignedIn(dontRenderUntilQueryParametersReady(CourseInstancePointsList)),
+)

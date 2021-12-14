@@ -3,14 +3,14 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import { fetchOrganizations } from "../../services/backend/organizations"
-import DebugModal from "../../shared-module/components/DebugModal"
-import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import Spinner from "../../shared-module/components/Spinner"
+import { fetchOrganizations } from "../../../../services/backend/organizations"
+import DebugModal from "../../../../shared-module/components/DebugModal"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
+import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+import { organizationCoursesPageHref } from "../../../../shared-module/utils/cross-routing"
 import UHNoBG from "../../shared-module/img/uh_without_background.svg"
-import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
-import { respondToOrLarger } from "../../shared-module/styles/respond"
-import { organizationCoursesPageHref } from "../../shared-module/utils/cross-routing"
 
 const OrganizationsList: React.FC = () => {
   const { t } = useTranslation()

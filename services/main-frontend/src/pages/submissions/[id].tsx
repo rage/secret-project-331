@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
-import SubmissionIFrame from "../../components/SubmissionIFrame"
+import SubmissionIFrame from "../../components/page-specific/submissions/id/SubmissionIFrame"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"

@@ -126,6 +126,7 @@ jobs:
 
   deploy:
     needs: system-tests
+    if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
     environment:
       name: production

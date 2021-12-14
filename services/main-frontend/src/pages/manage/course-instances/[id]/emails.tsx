@@ -5,13 +5,15 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
-import NewEmailTemplateForm from "../../../../components/forms/NewEmailTemplateForm"
+import NewEmailTemplateForm from "../../../../components/page-specific/manage/course-instances/id/emails/NewEmailTemplateForm"
 import {
   fetchCourseInstanceEmailTemplates,
   postNewEmailTemplateForCourseInstance,
 } from "../../../../services/backend/course-instances"
 import { deleteEmailTemplate } from "../../../../services/backend/email-templates"
 import Button from "../../../../shared-module/components/Button"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
@@ -26,28 +28,11 @@ export interface CourseInstanceEmailTemplatesProps {
 const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> = ({ query }) => {
   const { t } = useTranslation()
   const courseInstanceId = query.id
-  const {
-    isLoading,
-    error,
-    data: courseInstanceEmailTemplates,
-    refetch,
-  } = useQuery(`course-instance-${courseInstanceId}-emails`, () =>
-    fetchCourseInstanceEmailTemplates(courseInstanceId),
+  const getCourseInstanceEmailTemplates = useQuery(
+    `course-instance-${courseInstanceId}-emails`,
+    () => fetchCourseInstanceEmailTemplates(courseInstanceId),
   )
   const [showForm, setShowForm] = useState(false)
-
-  if (error) {
-    return (
-      <div>
-        <h1>{t("error-title")}</h1>
-        <pre>{JSON.stringify(error, undefined, 2)}</pre>
-      </div>
-    )
-  }
-
-  if (isLoading || !courseInstanceEmailTemplates) {
-    return <div>{t("loading-text")}</div>
-  }
 
   const handleCreateEmailTemplate = async (newName: string) => {
     const result = await postNewEmailTemplateForCourseInstance(courseInstanceId, {
@@ -60,7 +45,7 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
 
   const handleOnDelete = async (templateId: string) => {
     await deleteEmailTemplate(templateId)
-    await refetch()
+    await getCourseInstanceEmailTemplates.refetch()
   }
 
   return (
@@ -89,22 +74,29 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
             <NewEmailTemplateForm onSubmitForm={handleCreateEmailTemplate} />
           </div>
         </Dialog>
-        <ul>
-          {courseInstanceEmailTemplates.map((template) => {
-            return (
-              <li key={template.id}>
-                {template.name} <a href={`/cms/email-templates/${template.id}/edit`}>{t("edit")}</a>{" "}
-                <Button
-                  size="medium"
-                  variant="secondary"
-                  onClick={async () => await handleOnDelete(template.id)}
-                >
-                  {t("button-text-delete")}
-                </Button>
-              </li>
-            )
-          })}
-        </ul>
+        {getCourseInstanceEmailTemplates.isError && (
+          <ErrorBanner variant={"readOnly"} error={getCourseInstanceEmailTemplates.error} />
+        )}
+        {getCourseInstanceEmailTemplates.isLoading && <Spinner variant={"medium"} />}
+        {getCourseInstanceEmailTemplates.isSuccess && (
+          <ul>
+            {getCourseInstanceEmailTemplates.data.map((template) => {
+              return (
+                <li key={template.id}>
+                  {template.name}{" "}
+                  <a href={`/cms/email-templates/${template.id}/edit`}>{t("edit")}</a>{" "}
+                  <Button
+                    size="medium"
+                    variant="secondary"
+                    onClick={async () => await handleOnDelete(template.id)}
+                  >
+                    {t("button-text-delete")}
+                  </Button>
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </div>
     </Layout>
   )

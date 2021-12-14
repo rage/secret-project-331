@@ -12,6 +12,8 @@ import {
   manageCourseInstancePageRoute,
 } from "../../../../../../utils/routing"
 
+import PointExportButton from "./PointExportButton"
+
 export interface CourseInstancesListProps {
   courseId: string
 }
@@ -47,18 +49,12 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
                     </a>
                   </Link>{" "}
                   <a
-                    href={`/manage/course-instances/${instance.id}/point-list`}
+                    href={`/manage/course-instances/${instance.id}/points`}
                     aria-label={`${t("link-view-points")} (${name})`}
                   >
                     {t("link-view-points")}
                   </a>{" "}
-                  <a
-                    href={`/api/v0/main-frontend/course-instances/${instance.id}/point_export`}
-                    download
-                    aria-label={`${t("link-export-points")} (${name})`}
-                  >
-                    {t("link-export-points")}
-                  </a>
+                  <PointExportButton courseInstanceId={instance.id} courseInstanceName={name} />
                 </li>
               )
             })}

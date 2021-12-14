@@ -49,7 +49,7 @@ export default function useStateQuery<T, A1 = unknown, A2 = unknown, A3 = unknow
   // All of the elements a1..aN are non null if this check is true.
   const enabled = (options?.enabled ?? true) && compositeKey.every((x) => !!x)
   const [, a1, a2, a3, a4] = compositeKey
-  const { data, error, isLoading, refetch } = useQuery<T, Error, T>(
+  const getQueryState = useQuery<T, Error, T>(
     compositeKey,
     () =>
       query(
@@ -67,20 +67,43 @@ export default function useStateQuery<T, A1 = unknown, A2 = unknown, A3 = unknow
     state: "disabled",
     data: null,
     error: null,
-    refetch,
+    refetch: getQueryState.refetch,
   })
 
   useEffect(() => {
     if (!enabled) {
-      setQueryState({ state: "disabled", data: null, error: null, refetch })
-    } else if (error) {
-      setQueryState({ state: "error", data: null, error: error, refetch })
-    } else if (isLoading) {
-      setQueryState({ state: "loading", data: null, error: error, refetch })
-    } else {
-      setQueryState({ state: "ready", data: data as T, error: null, refetch })
+      setQueryState({ state: "disabled", data: null, error: null, refetch: getQueryState.refetch })
+    } else if (getQueryState.isError) {
+      setQueryState({
+        state: "error",
+        data: null,
+        error: getQueryState.error,
+        refetch: getQueryState.refetch,
+      })
+    } else if (getQueryState.isLoading) {
+      setQueryState({
+        state: "loading",
+        data: null,
+        error: null,
+        refetch: getQueryState.refetch,
+      })
+    } else if (getQueryState.isSuccess) {
+      setQueryState({
+        state: "ready",
+        data: getQueryState.data,
+        error: null,
+        refetch: getQueryState.refetch,
+      })
     }
-  }, [data, enabled, error, isLoading, refetch])
+  }, [
+    getQueryState.data,
+    enabled,
+    getQueryState.error,
+    getQueryState.isLoading,
+    getQueryState.refetch,
+    getQueryState.isError,
+    getQueryState.isSuccess,
+  ])
 
   return queryState
 }

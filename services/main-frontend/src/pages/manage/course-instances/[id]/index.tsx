@@ -140,10 +140,8 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
       >
         <h1>
           {t("label-course-instance")}{" "}
-          {getCourseInstances.isSuccess
-            ? getCourseInstances.data.name
-            : t("default-course-instance-name")}{" "}
-          ({getCourseInstances.isSuccess && getCourseInstances.data.id})
+          {getCourseInstances.data?.name ?? t("default-course-instance-name")} (
+          {getCourseInstances.isSuccess && getCourseInstances.data.id})
         </h1>
         {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
         {deleteMutation.isError && (

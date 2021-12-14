@@ -20,7 +20,11 @@ interface GradingResult {
   score_maximum: number
   feedback_text: string | null
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  feedback_json: { selectedOptionIsCorrect: boolean } | null
+  feedback_json: ExerciseFeedback | null
+}
+
+export interface ExerciseFeedback {
+  selectedOptionIsCorrect: boolean
 }
 
 interface GradingRequest {

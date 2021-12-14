@@ -10,7 +10,7 @@ export interface Alternative {
 }
 
 export interface Answer {
-  selectedOptionId?: string
+  selectedOptionId: string
 }
 
 export interface ClientErrorResponse {

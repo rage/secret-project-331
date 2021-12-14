@@ -18,8 +18,6 @@ import GenericLoading from "../../../GenericLoading"
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
 
-const INITIAL_VIEW_TYPE = "exercise"
-
 interface ExerciseBlockAttributes {
   id: string
 }
@@ -31,10 +29,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const loginState = useContext(LoginStateContext)
   const coursePageContext = useContext(CoursePageContext)
   const showExercise = loginState.signedIn ? !!coursePageContext.settings : true
-  const [postThisStateToIFrame, dispatch] = useReducer(exerciseBlockPostThisStateToIFrameReducer, {
-    view_type: INITIAL_VIEW_TYPE,
-    data: null,
-  })
+  const [postThisStateToIFrame, dispatch] = useReducer(
+    exerciseBlockPostThisStateToIFrameReducer,
+    null,
+  )
 
   const id = props.data.attributes.id
   // eslint-disable-next-line i18next/no-literal-string
@@ -47,12 +45,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       }
       dispatch({
         type: "exerciseDownloaded",
-        payload: {
-          view_type: "exercise",
-          data: {
-            public_spec: data,
-          },
-        },
+        payload: data,
       })
     },
   })
@@ -64,12 +57,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       dispatch({
         type: "submissionGraded",
         payload: {
-          view_type: "view-submission",
-          data: {
-            submission_result: data,
-            user_answer: answer,
-            public_spec: exerciseTask.data?.current_exercise_task.public_spec,
-          },
+          submissionResult: data,
+          publicSpec: exerciseTask.data?.current_exercise_task.public_spec,
         },
       })
     },
@@ -200,8 +189,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             size="medium"
             onClick={() => {
               dispatch({
-                type: "showExercise",
-                payload: { view_type: "exercise", data: { public_spec: exerciseTask.data } },
+                type: "tryAgain",
+                payload: exerciseTask.data,
               })
               postSubmissionMutation.reset()
               setAnswerValid(false)

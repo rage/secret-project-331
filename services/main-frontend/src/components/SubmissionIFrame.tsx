@@ -50,7 +50,15 @@ const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
       onMessageFromIframe={(messageContainer, _responsePort) => {
         console.log(messageContainer)
       }}
-      postThisStateToIFrame={{ view_type: VIEW_SUBMISSION, data: state }}
+      postThisStateToIFrame={{
+        view_type: VIEW_SUBMISSION,
+        data: {
+          public_spec: state.public_spec,
+          user_answer: state.user_answer,
+          model_solution_spec: state.submission_result.model_solution_spec,
+          grading: state.submission_result.grading,
+        },
+      }}
     />
   )
 }

@@ -528,9 +528,30 @@
 <span id="528">528</span>
 <span id="529">529</span>
 <span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">course_instances</span>,
     <span class="ident">exercise_tasks</span>::{<span class="self">self</span>, <span class="ident">get_existing_user_exercise_task_for_course_instance</span>},
+    <span class="ident">gradings::Grading</span>,
+    <span class="ident">submissions::Submission</span>,
     <span class="ident">user_course_settings</span>, <span class="ident">ModelResult</span>,
 };
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
@@ -577,6 +598,8 @@
     <span class="kw">pub</span> <span class="ident">current_exercise_task_service_info</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CourseMaterialExerciseServiceInfo</span><span class="op">&gt;</span>,
     <span class="doccomment">/// None for logged out users.</span>
     <span class="kw">pub</span> <span class="ident">exercise_status</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseStatus</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">previous_submission</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Submission</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">grading</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Grading</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/**
@@ -874,6 +897,19 @@ WHERE page_id = $1
         <span class="ident">grading_progress</span> <span class="op">=</span> <span class="ident">user_exercise_state</span>.<span class="ident">grading_progress</span>;
     }
 
+    <span class="kw">let</span> <span class="ident">previous_submission</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_id</span>) <span class="op">=</span> <span class="ident">user_id</span> {
+        <span class="ident"><span class="kw">crate</span>::models::submissions::get_latest_user_exercise_submission</span>(<span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">exercise_id</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>
+    } <span class="kw">else</span> {
+        <span class="prelude-val">None</span>
+    };
+    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">grading_id</span>) <span class="op">=</span> <span class="ident">previous_submission</span>.<span class="ident">as_ref</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">grading_id</span>)
+    {
+        <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::models::gradings::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">grading_id</span>).<span class="kw">await</span><span class="question-mark">?</span>)
+    } <span class="kw">else</span> {
+        <span class="prelude-val">None</span>
+    };
+
     <span class="prelude-val">Ok</span>(<span class="ident">CourseMaterialExercise</span> {
         <span class="ident">exercise</span>,
         <span class="ident">current_exercise_task</span>: <span class="ident">selected_exercise_task</span>,
@@ -883,6 +919,8 @@ WHERE page_id = $1
             <span class="ident">grading_progress</span>,
         }),
         <span class="ident">current_exercise_task_service_info</span>,
+        <span class="ident">previous_submission</span>,
+        <span class="ident">grading</span>,
     })
 }
 

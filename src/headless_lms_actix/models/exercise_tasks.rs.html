@@ -306,6 +306,10 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">exercise_slides</span>, <span class="ident">exercise_tasks</span>, <span class="ident">user_exercise_states</span>, <span class="ident">ModelError</span>, <span class="ident">ModelResult</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::document_schema_processor::GutenbergBlock</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
@@ -322,6 +326,7 @@
     <span class="kw">pub</span> <span class="ident">exercise_type</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">assignment</span>: <span class="ident">serde_json::Value</span>,
     <span class="kw">pub</span> <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">model_solution_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ExerciseTask</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CourseMaterialExerciseTask</span> {
@@ -332,6 +337,7 @@
             <span class="ident">exercise_slide_id</span>: <span class="ident">exercise_task</span>.<span class="ident">exercise_slide_id</span>,
             <span class="ident">exercise_type</span>: <span class="ident">exercise_task</span>.<span class="ident">exercise_type</span>,
             <span class="ident">public_spec</span>: <span class="ident">exercise_task</span>.<span class="ident">public_spec</span>,
+            <span class="ident">model_solution_spec</span>: <span class="prelude-val">None</span>,
         }
     }
 }
@@ -413,14 +419,15 @@ WHERE id = (
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseMaterialExerciseTask</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exercise_task</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_task</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">CourseMaterialExerciseTask</span>,
         <span class="string">r#&quot;
 SELECT t.id,
   t.exercise_slide_id,
   t.exercise_type,
   t.assignment,
-  t.public_spec
+  t.public_spec,
+  t.model_solution_spec
 FROM exercise_tasks t
   JOIN exercise_slides s ON (t.exercise_slide_id = s.id)
 WHERE s.exercise_id = $1
@@ -432,6 +439,7 @@ ORDER BY random();
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">exercise_task</span>.<span class="ident">model_solution_spec</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">exercise_task</span>)
 }
 

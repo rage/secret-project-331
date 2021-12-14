@@ -19,13 +19,13 @@ interface SubmissionProps {
   user_answer: QuizAnswer
   publicAlternatives: PublicQuiz
   modelSolutions: ModelSolutionQuiz
-  feedback_json: ItemAnswerFeedback[]
+  feedback_json: ItemAnswerFeedback[] | null
 }
 
 interface QuizItemSubmissionComponentProps {
   public_quiz_item: PublicQuizItem
   quiz_item_model_solution: ModelSolutionQuizItem
-  quiz_item_feedback: ItemAnswerFeedback
+  quiz_item_feedback: ItemAnswerFeedback | null
   user_quiz_item_answer: QuizItemAnswer
 }
 
@@ -63,9 +63,9 @@ const Submission: React.FC<SubmissionProps> = ({
     <HeightTrackingContainer port={port}>
       {publicAlternatives.items.map((item) => {
         const Component = componentsByTypeNames(item.type as QuizItemType)
-        const itemFeedback = feedback_json.filter(
-          (itemFeedback) => itemFeedback.quiz_item_id === item.id,
-        )[0]
+        const itemFeedback = feedback_json
+          ? feedback_json.filter((itemFeedback) => itemFeedback.quiz_item_id === item.id)[0]
+          : null
         const itemModelSolution = modelSolutions.items.filter(
           (itemModelSolution) => itemModelSolution.id === item.id,
         )[0]

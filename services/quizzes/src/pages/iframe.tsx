@@ -4,12 +4,13 @@ import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { PublicQuiz, Quiz, QuizAnswer } from "../../types/types"
+import { ModelSolutionQuiz, PublicQuiz, Quiz, QuizAnswer } from "../../types/types"
 import { Renderer } from "../components/Renderer"
 import { SubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
-import { ViewType } from "../shared-module/iframe-protocol-types"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
+
+import { ItemAnswerFeedback } from "./api/grade"
 
 export interface SubmissionData {
   submission_result: SubmissionResult
@@ -17,12 +18,22 @@ export interface SubmissionData {
   public_spec: unknown
 }
 
+export type State =
+  | { viewType: "exercise"; publicSpec: PublicQuiz }
+  | {
+      viewType: "view-submission"
+      publicSpec: PublicQuiz
+      modelSolutions: ModelSolutionQuiz
+      userAnswer: QuizAnswer
+      feedbackJson: ItemAnswerFeedback[] | null
+    }
+  | { viewType: "exercise-editor"; privateSpec: Quiz }
+
 const IFrame: React.FC = () => {
   const { t } = useTranslation()
 
   const [port, setPort] = useState<MessagePort | null>(null)
-  const [state, setState] = useState<SubmissionData | Quiz | PublicQuiz | null>(null)
-  const [viewType, setViewType] = useState<ViewType | null>(null)
+  const [state, setState] = useState<State | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
   let maxWidth: number | null = 500
@@ -49,25 +60,34 @@ const IFrame: React.FC = () => {
           if (isSetStateMessage(data)) {
             ReactDOM.flushSync(() => {
               if (data.view_type === "exercise") {
-                setState(
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  (data.data as any).public_spec.current_exercise_task.public_spec as PublicQuiz,
-                )
+                setState({
+                  viewType: data.view_type,
+                  publicSpec: data.data.public_spec as PublicQuiz,
+                })
               } else if (data.view_type === "exercise-editor") {
-                if (data.data === null) {
-                  setState(emptyQuiz)
+                if (data.data.private_spec === null) {
+                  setState({
+                    viewType: data.view_type,
+                    privateSpec: emptyQuiz,
+                  })
                 } else {
-                  setState(JSON.parse(data.data as string) as Quiz)
+                  setState({
+                    viewType: data.view_type,
+                    privateSpec: data.data.private_spec as Quiz,
+                  })
                 }
               } else if (data.view_type === "view-submission") {
-                setState(data.data as SubmissionData)
-              } else if (data.view_type === "playground-exercise") {
-                setState(data.data as PublicQuiz)
+                setState({
+                  viewType: data.view_type,
+                  publicSpec: data.data.public_spec as PublicQuiz,
+                  modelSolutions: data.data.model_solution_spec as ModelSolutionQuiz,
+                  userAnswer: data.data.user_answer as QuizAnswer,
+                  feedbackJson: data.data.grading?.feedback_json as ItemAnswerFeedback[] | null,
+                })
               } else {
                 // eslint-disable-next-line i18next/no-literal-string
                 console.error("Unknown view type received from parent")
               }
-              setViewType(data.view_type)
             })
           } else {
             // eslint-disable-next-line i18next/no-literal-string
@@ -95,18 +115,12 @@ const IFrame: React.FC = () => {
     return <>{t("waiting-for-port")}</>
   }
 
-  if (!state || !viewType) {
+  if (!state) {
     return <>{t("waiting-for-content")}</>
   }
   return (
     <HeightTrackingContainer port={port}>
-      <Renderer
-        maxWidth={maxWidth}
-        port={port}
-        setState={setState}
-        state={state}
-        viewType={viewType}
-      />
+      <Renderer maxWidth={maxWidth} port={port} setState={setState} state={state} />
     </HeightTrackingContainer>
   )
 }

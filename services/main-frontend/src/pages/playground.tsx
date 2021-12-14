@@ -17,12 +17,9 @@ import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
 import Spinner from "../shared-module/components/Spinner"
-import { ViewType } from "../shared-module/iframe-protocol-types"
 import { monospaceFont } from "../shared-module/styles"
 import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../shared-module/styles/constants"
-
-const PLAYGROUND_EXERCISE: ViewType = "playground-exercise"
 
 const Home: React.FC = () => {
   const { t } = useTranslation()
@@ -302,8 +299,12 @@ const Home: React.FC = () => {
             key={combinedUrl + exampleData}
             url={combinedUrl}
             postThisStateToIFrame={{
-              view_type: PLAYGROUND_EXERCISE,
-              data: JSON.parse(exampleData),
+              // eslint-disable-next-line i18next/no-literal-string
+              view_type: "exercise",
+              data: {
+                public_spec: JSON.parse(exampleData),
+                previous_submission: null,
+              },
             }}
             onMessageFromIframe={onMessage}
           />

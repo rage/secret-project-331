@@ -249,9 +249,9 @@ VALUES ($1, $2)
 
 #[derive(Debug, Serialize, TS)]
 pub struct ExamEnrollment {
-    user_id: Uuid,
-    exam_id: Uuid,
-    started_at: DateTime<Utc>,
+    pub user_id: Uuid,
+    pub exam_id: Uuid,
+    pub started_at: DateTime<Utc>,
 }
 
 pub async fn get_enrollment(

@@ -1,3 +1,4 @@
+import { injectGlobal } from "@emotion/css"
 import { ThemeProvider } from "@material-ui/core"
 import type { AppProps } from "next/app"
 import Head from "next/head"
@@ -11,6 +12,12 @@ import GlobalStyles from "../shared-module/styles/GlobalStyles"
 import muiTheme from "../shared-module/styles/muiTheme"
 import initI18n from "../shared-module/utils/initI18n"
 import store from "../store/store"
+
+injectGlobal`
+html {
+  overflow: hidden;
+}
+`
 
 // eslint-disable-next-line i18next/no-literal-string
 const i18n = initI18n("quizzes")

@@ -23,7 +23,8 @@ use uuid::Uuid;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewSubmission {
     pub exercise_task_id: Uuid,
-    pub course_instance_id: Uuid,
+    /// Required when submitting non-exam exercises
+    pub course_instance_id: Option<Uuid>,
     pub data_json: Option<serde_json::Value>,
 }
 
@@ -314,22 +315,30 @@ pub async fn insert_submission(
     let submission = sqlx::query_as!(
         Submission,
         r#"
-  INSERT INTO
-    submissions(exercise_task_id, data_json, exercise_id, course_id, user_id, course_instance_id)
-  VALUES($1, $2, $3, $4, $5, $6)
-  RETURNING *
-          "#,
+INSERT INTO submissions(
+    exercise_task_id,
+    data_json,
+    exercise_id,
+    course_id,
+    user_id,
+    course_instance_id,
+    exam_id
+  )
+VALUES($1, $2, $3, $4, $5, $6, $7)
+RETURNING *
+"#,
         new_submission.exercise_task_id,
         new_submission.data_json,
         exercise.id,
         exercise.course_id,
         user_id,
-        new_submission.course_instance_id
+        new_submission.course_instance_id,
+        exercise.exam_id,
     )
     .fetch_one(&mut *conn)
     .await?;
     let exercise_task = get_exercise_task_by_id(conn, submission.exercise_task_id).await?;
-    let grading = new_grading(conn, &submission).await?;
+    let mut grading = new_grading(conn, &submission).await?;
     let updated_submission = sqlx::query_as!(
         Submission,
         "UPDATE submissions SET grading_id = $1 WHERE id = $2 RETURNING *",
@@ -338,14 +347,18 @@ pub async fn insert_submission(
     )
     .fetch_one(&mut *conn)
     .await?;
-    let updated_grading =
-        grade_submission(conn, submission.clone(), exercise_task, exercise, grading).await?;
     let model_solution_spec =
         get_exercise_task_model_solution_spec_by_id(conn, submission.exercise_task_id).await?;
 
+    // skip grading for exam submissions; they should be graded only after the exam is over
+    if exercise.exam_id.is_none() {
+        grading =
+            grade_submission(conn, submission.clone(), exercise_task, exercise, grading).await?;
+    }
+
     Ok(SubmissionResult {
         submission: updated_submission,
-        grading: updated_grading,
+        grading,
         model_solution_spec,
     })
 }

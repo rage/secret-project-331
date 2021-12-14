@@ -3,11 +3,12 @@
 use crate::{
     controllers::{ControllerError, ControllerResult},
     domain::authorization::AuthUser,
-    models::submissions::{NewSubmission, SubmissionResult},
+    models::submissions::{self, NewSubmission, Submission, SubmissionResult},
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
 use sqlx::PgPool;
+use uuid::Uuid;
 
 /**
 POST `/api/v0/course-material/submissions` - Post a new submission.
@@ -89,6 +90,21 @@ async fn post_submission(
     Ok(Json(submission))
 }
 
+async fn previous_submission(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<Json<Option<Submission>>> {
+    let mut conn = pool.acquire().await?;
+    let submission = submissions::get_latest_user_exercise_submission(
+        &mut conn,
+        user.id,
+        exercise_id.into_inner(),
+    )
+    .await?;
+    Ok(Json(submission))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -97,5 +113,8 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_submissions_routes(cfg: &mut ServiceConfig) {
-    cfg.route("", web::post().to(post_submission));
+    cfg.route("", web::post().to(post_submission)).route(
+        "/previous-for-exercise/{exercise_id}",
+        web::get().to(previous_submission),
+    );
 }

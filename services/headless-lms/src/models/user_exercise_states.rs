@@ -267,7 +267,8 @@ pub async fn get_user_exercise_state_if_exits(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_instance_id: Option<Uuid>,
+    exam_id: Option<Uuid>,
 ) -> ModelResult<Option<UserExerciseState>> {
     let res = sqlx::query_as!(
         UserExerciseState,
@@ -286,11 +287,12 @@ SELECT user_id,
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
-  AND course_instance_id = $3
+  AND (course_instance_id = $3 OR exam_id = $4)
       "#,
         user_id,
         exercise_id,
-        course_instance_id
+        course_instance_id,
+        exam_id
     )
     .fetch_optional(conn)
     .await?;
@@ -301,7 +303,8 @@ pub async fn upsert_selected_exercise_slide_id(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_instance_id: Option<Uuid>,
+    exam_id: Option<Uuid>,
     selected_exercise_slide_id: Option<Uuid>,
 ) -> ModelResult<()> {
     let existing = sqlx::query!(
@@ -310,11 +313,12 @@ SELECT
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
-  AND course_instance_id = $3
+  AND (course_instance_id = $3 OR exam_id = $4)
 ",
         user_id,
         exercise_id,
-        course_instance_id
+        course_instance_id,
+        exam_id
     )
     .fetch_optional(&mut *conn)
     .await?;
@@ -325,12 +329,13 @@ UPDATE user_exercise_states
 SET selected_exercise_slide_id = $4
 WHERE user_id = $1
   AND exercise_id = $2
-  AND course_instance_id = $3
+  AND (course_instance_id = $3 OR exam_id = $5)
     ",
             user_id,
             exercise_id,
             course_instance_id,
             selected_exercise_slide_id,
+            exam_id
         )
         .execute(&mut *conn)
         .await?;
@@ -341,14 +346,16 @@ WHERE user_id = $1
         user_id,
         exercise_id,
         course_instance_id,
-        selected_exercise_slide_id
+        selected_exercise_slide_id,
+        exam_id
       )
-    VALUES ($1, $2, $3, $4)
+    VALUES ($1, $2, $3, $4, $5)
     ",
             user_id,
             exercise_id,
             course_instance_id,
             selected_exercise_slide_id,
+            exam_id
         )
         .execute(&mut *conn)
         .await?;

@@ -504,7 +504,7 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     (obj.course_id === null || typeof obj.course_id === "string") &&
     (obj.exam_id === null || typeof obj.exam_id === "string") &&
     typeof obj.page_id === "string" &&
-    typeof obj.chapter_id === "string" &&
+    (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.score_maximum === "number" &&
@@ -1019,7 +1019,7 @@ export function isNewSubmission(obj: any, _argumentName?: string): obj is NewSub
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.exercise_task_id === "string" &&
-    typeof obj.course_instance_id === "string"
+    (obj.course_instance_id === null || typeof obj.course_instance_id === "string")
   )
 }
 
@@ -1090,7 +1090,9 @@ export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.tag === "EnrolledAndClosed") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "NotEnrolled")
+      obj.tag === "NotEnrolled") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "OutOfTime")
   )
 }
 

@@ -28,7 +28,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const coursePageContext = useContext(CoursePageContext)
-  const showExercise = loginState.signedIn ? !!coursePageContext.settings : true
+  const showExercise = props.isExam || (loginState.signedIn ? !!coursePageContext.settings : true)
   const [postThisStateToIFrame, dispatch] = useReducer(
     exerciseBlockPostThisStateToIFrameReducer,
     null,
@@ -144,6 +144,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
           editing={false}
           selectedBlockId={null}
           setEdits={(map) => map}
+          isExam={props.isExam}
         />
       )}
       {url ? (
@@ -164,18 +165,19 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
           }
         `}
       >
-        {!postSubmissionMutation.isSuccess && (
+        {postThisStateToIFrame?.view_type !== "view-submission" && (
           <Button
             size="medium"
             variant="primary"
-            disabled={postSubmissionMutation.isLoading || !courseInstanceId || !answerValid}
+            disabled={postSubmissionMutation.isLoading || !answerValid}
             onClick={() => {
-              if (!courseInstanceId) {
+              if (!courseInstanceId && !exerciseTask.data.exercise.exam_id) {
                 return
               }
               postSubmissionMutation.mutate({
-                course_instance_id: courseInstanceId,
+                course_instance_id: courseInstanceId || null,
                 exercise_task_id: exerciseTask.data.current_exercise_task.id,
+
                 data_json: answer,
               })
             }}
@@ -183,7 +185,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             {t("submit-button")}
           </Button>
         )}
-        {postSubmissionMutation.isSuccess && (
+        {postThisStateToIFrame?.view_type === "view-submission" && (
           <Button
             variant="primary"
             size="medium"
@@ -192,9 +194,11 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 type: "tryAgain",
                 payload: exerciseTask.data,
               })
+              //exerciseTask.refetch()
               postSubmissionMutation.reset()
               setAnswerValid(false)
             }}
+            disabled={exerciseTask.isRefetching}
           >
             {t("try-again")}
           </Button>

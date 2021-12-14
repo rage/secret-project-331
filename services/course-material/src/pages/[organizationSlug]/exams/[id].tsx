@@ -82,6 +82,10 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
     return <div>{t("closed")}</div>
   }
 
+  if (exam.isSuccess && exam.data.tag === "OutOfTime") {
+    return <div>{t("closed")}</div>
+  }
+
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
       <CoursePageContext.Provider value={pageState}>
@@ -143,8 +147,8 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
               </div>
 
               <ExamTimer
-                startedAt={exam.data.starts_at}
-                endsAt={addMinutes(exam.data.starts_at, exam.data.time_minutes)}
+                startedAt={exam.data.enrollment.started_at}
+                endsAt={addMinutes(exam.data.enrollment.started_at, exam.data.time_minutes)}
                 maxScore={100}
               />
             </>

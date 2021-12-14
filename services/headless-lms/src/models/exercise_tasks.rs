@@ -193,7 +193,8 @@ pub async fn get_existing_user_exercise_task_for_course_instance(
         conn,
         user_id,
         exercise_id,
-        course_instance_id,
+        Some(course_instance_id),
+        None,
     )
     .await?;
     let exercise_task = if let Some(user_exercise_state) = user_exercise_state {
@@ -210,18 +211,19 @@ pub async fn get_existing_user_exercise_task_for_course_instance(
     Ok(exercise_task)
 }
 
-pub async fn get_or_select_user_exercise_task_for_course_instance(
+pub async fn get_or_select_user_exercise_task_for_course_instance_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_instance_id: Option<Uuid>,
+    exam_id: Option<Uuid>,
 ) -> ModelResult<CourseMaterialExerciseTask> {
     let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
         conn,
         user_id,
         exercise_id,
-        Some(course_instance_id),
-        None,
+        course_instance_id,
+        exam_id,
     )
     .await?;
     let selected_exercise_slide_id =
@@ -237,6 +239,7 @@ pub async fn get_or_select_user_exercise_task_for_course_instance(
                 user_id,
                 exercise_id,
                 course_instance_id,
+                exam_id,
                 Some(exercise_slide_id),
             )
             .await?;

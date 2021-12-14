@@ -597,15 +597,17 @@ pub async fn update_page(
     author: Uuid,
     retain_exercise_ids: bool,
     history_change_reason: HistoryChangeReason,
+    is_exam_page: bool,
 ) -> ModelResult<ContentManagementPage> {
     page_update.validate_exercise_data()?;
 
     let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page_update.content)?;
-    if page_update.chapter_id.is_none()
+    if !is_exam_page
+        && page_update.chapter_id.is_none()
         && contains_blocks_not_allowed_in_top_level_pages(&parsed_content)
     {
         return Err(ModelError::Generic(
-                "Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
+                "Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
             ));
     }
 
@@ -790,15 +792,17 @@ INSERT INTO exercises(
     name,
     order_number,
     page_id,
-    chapter_id
+    chapter_id,
+    exam_id
   )
-VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO
+VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
 UPDATE
 SET course_id = $2,
   name = $3,
   order_number = $4,
   page_id = $5,
   chapter_id = $6,
+  exam_id = $7,
   deleted_at = NULL
 RETURNING id,
   name,
@@ -810,6 +814,7 @@ RETURNING id,
             exercise_update.order_number,
             page.id,
             page.chapter_id,
+            page.exam_id,
         )
         .fetch_one(&mut *conn)
         .await?;
@@ -1133,6 +1138,7 @@ RETURNING id,
         author,
         false,
         HistoryChangeReason::PageSaved,
+        new_page.exam_id.is_some(),
     )
     .await?;
 
@@ -1741,24 +1747,24 @@ pub async fn restore(
 ) -> ModelResult<Uuid> {
     // fetch old content
     let page = get_page(conn, page_id).await?;
-    let (content_to_restore, title_to_restore) =
-        page_history::get_history_content_and_title(conn, history_id).await?;
+    let history_data = page_history::get_history_data(conn, history_id).await?;
 
     update_page(
         conn,
         page.id,
         CmsPageUpdate {
-            content: content_to_restore.content,
-            exercises: content_to_restore.exercises,
-            exercise_slides: content_to_restore.exercise_slides,
-            exercise_tasks: content_to_restore.exercise_tasks,
+            content: history_data.content.content,
+            exercises: history_data.content.exercises,
+            exercise_slides: history_data.content.exercise_slides,
+            exercise_tasks: history_data.content.exercise_tasks,
             url_path: page.url_path,
-            title: title_to_restore,
+            title: history_data.title,
             chapter_id: page.chapter_id,
         },
         author,
         true,
         HistoryChangeReason::HistoryRestored,
+        history_data.exam_id.is_some(),
     )
     .await?;
 

@@ -280,7 +280,7 @@ export interface Exercise {
   course_id: string | null
   exam_id: string | null
   page_id: string
-  chapter_id: string
+  chapter_id: string | null
   deadline: Date | null
   deleted_at: Date | null
   score_maximum: number
@@ -616,7 +616,7 @@ export interface SubmissionResult {
 
 export interface NewSubmission {
   exercise_task_id: string
-  course_instance_id: string
+  course_instance_id: string | null
   data_json: unknown | null
 }
 
@@ -667,6 +667,7 @@ export type ExamData =
     }
   | { tag: "EnrolledAndClosed" }
   | { tag: "NotEnrolled" }
+  | { tag: "OutOfTime" }
 
 export interface ExamCourseInfo {
   course_id: string

@@ -18,13 +18,13 @@ interface SubmissionProps {
   maxWidth: number | null
   user_answer: QuizAnswer
   publicAlternatives: PublicQuiz
-  modelSolutions: ModelSolutionQuiz
+  modelSolutions: ModelSolutionQuiz | null
   feedback_json: ItemAnswerFeedback[] | null
 }
 
 interface QuizItemSubmissionComponentProps {
   public_quiz_item: PublicQuizItem
-  quiz_item_model_solution: ModelSolutionQuizItem
+  quiz_item_model_solution: ModelSolutionQuizItem | null
   quiz_item_feedback: ItemAnswerFeedback | null
   user_quiz_item_answer: QuizItemAnswer
 }
@@ -66,9 +66,9 @@ const Submission: React.FC<SubmissionProps> = ({
         const itemFeedback = feedback_json
           ? feedback_json.filter((itemFeedback) => itemFeedback.quiz_item_id === item.id)[0]
           : null
-        const itemModelSolution = modelSolutions.items.filter(
-          (itemModelSolution) => itemModelSolution.id === item.id,
-        )[0]
+        const itemModelSolution = modelSolutions
+          ? modelSolutions.items.filter((itemModelSolution) => itemModelSolution.id === item.id)[0]
+          : null
         const quizItemAnswer = user_answer.itemAnswers.filter((ia) => ia.quizItemId === item.id)[0]
         return (
           <Component

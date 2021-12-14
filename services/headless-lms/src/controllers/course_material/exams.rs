@@ -8,7 +8,7 @@ use crate::{
     },
 };
 use actix_web::web::{self, Json, ServiceConfig};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use serde::Serialize;
 use sqlx::PgPool;
 use ts_rs::TS;
@@ -51,6 +51,7 @@ pub enum ExamData {
     },
     EnrolledAndClosed,
     NotEnrolled,
+    OutOfTime,
 }
 
 pub async fn fetch_exam_for_user(
@@ -60,49 +61,58 @@ pub async fn fetch_exam_for_user(
 ) -> ControllerResult<Json<ExamData>> {
     let mut conn = pool.acquire().await?;
     let id = id.into_inner();
-    if let Some(enrollment) = exams::get_enrollment(&mut conn, id, user.id).await? {
+
+    let enrollment = if let Some(enrollment) = exams::get_enrollment(&mut conn, id, user.id).await?
+    {
         // user has started the exam
-        let exam = exams::get(&mut conn, id).await?;
-
-        // check if the exam is closed
-        let starts_at = match exam.starts_at {
-            Some(starts_at) => {
-                if starts_at > Utc::now() {
-                    // hasn't started yet
-                    return Ok(Json(ExamData::EnrolledAndClosed));
-                }
-                if let Some(ends_at) = exam.ends_at {
-                    if ends_at < Utc::now() {
-                        // already ended
-                        return Ok(Json(ExamData::EnrolledAndClosed));
-                    }
-                }
-                starts_at
-            }
-            None => {
-                // no start time defined
-                return Ok(Json(ExamData::EnrolledAndClosed));
-            }
-        };
-
-        let page = pages::get_page(&mut conn, exam.page_id).await?;
-
-        Ok(Json(ExamData::EnrolledAndOpen {
-            id: exam.id,
-            name: exam.name,
-            instructions: exam.instructions,
-            page_id: exam.page_id,
-            courses: exam.courses,
-            starts_at,
-            ends_at: exam.ends_at,
-            time_minutes: exam.time_minutes,
-            page: Box::new(page),
-            enrollment,
-        }))
+        enrollment
     } else {
         // user has not started the exam
-        Ok(Json(ExamData::NotEnrolled))
+        return Ok(Json(ExamData::NotEnrolled));
+    };
+
+    let exam = exams::get(&mut conn, id).await?;
+
+    // check if the user's time is up
+    if Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into()) {
+        return Ok(Json(ExamData::OutOfTime));
     }
+
+    // check if the exam is closed
+    let starts_at = match exam.starts_at {
+        Some(starts_at) => {
+            if starts_at > Utc::now() {
+                // hasn't started yet
+                return Ok(Json(ExamData::EnrolledAndClosed));
+            }
+            if let Some(ends_at) = exam.ends_at {
+                if ends_at < Utc::now() {
+                    // already ended
+                    return Ok(Json(ExamData::EnrolledAndClosed));
+                }
+            }
+            starts_at
+        }
+        None => {
+            // no start time defined
+            return Ok(Json(ExamData::EnrolledAndClosed));
+        }
+    };
+
+    let page = pages::get_page(&mut conn, exam.page_id).await?;
+
+    Ok(Json(ExamData::EnrolledAndOpen {
+        id: exam.id,
+        name: exam.name,
+        instructions: exam.instructions,
+        page_id: exam.page_id,
+        courses: exam.courses,
+        starts_at,
+        ends_at: exam.ends_at,
+        time_minutes: exam.time_minutes,
+        page: Box::new(page),
+        enrollment,
+    }))
 }
 
 /**

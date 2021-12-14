@@ -33,15 +33,16 @@ const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
   loading: () => EditorLoading,
 })
 
-const supportedBlocks = (chapter_id: string | null): string[] => {
+const supportedBlocks = (chapter_id: string | null, exam_id: string | null): string[] => {
   const supportedBlocksForPages: string[] = blockTypeMapForPages.map((mapping) => mapping[0])
   const supportedBlocksTopLevelPages: string[] = blockTypeMapForTopLevelPages.map(
     (mapping) => mapping[0],
   )
 
-  const allSupportedBlocks = chapter_id
-    ? supportedCoreBlocks.concat(supportedBlocksForPages)
-    : supportedCoreBlocks.concat(supportedBlocksTopLevelPages)
+  const allSupportedBlocks =
+    chapter_id || exam_id
+      ? supportedCoreBlocks.concat(supportedBlocksForPages)
+      : supportedCoreBlocks.concat(supportedBlocksTopLevelPages)
 
   return allSupportedBlocks
 }
@@ -53,7 +54,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
     editorContentReducer,
     modifyBlocks(
       data.content as BlockInstance[],
-      supportedBlocks(data.chapter_id),
+      supportedBlocks(data.chapter_id, data.exam_id),
     ) as BlockInstance[],
   )
   const [saving, setSaving] = useState(false)
@@ -117,7 +118,9 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
           content={content}
           onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
           customBlocks={
-            data.chapter_id !== null ? blockTypeMapForPages : blockTypeMapForTopLevelPages
+            data.chapter_id !== null || data.exam_id !== null
+              ? blockTypeMapForPages
+              : blockTypeMapForTopLevelPages
           }
           allowedBlocks={supportedCoreBlocks}
           allowedBlockVariations={allowedBlockVariants}

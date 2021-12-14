@@ -2,11 +2,10 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faCheckCircle, faClock } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { differenceInSeconds, hoursToSeconds, secondsToHours, secondsToMinutes } from "date-fns"
+import { hoursToSeconds, secondsToHours, secondsToMinutes } from "date-fns"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import useTime from "../../hooks/useTime"
 import { baseTheme } from "../../shared-module/styles"
 import { courseMaterialCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
@@ -40,22 +39,21 @@ const InfoBoxDarkGreenSmall = styled.div`
 `
 
 export interface ExamTimerProps {
-  courseName?: string
   endsAt: Date
   /** Define to override how time is displayed. */
   hour12?: boolean
   maxScore: number
   startedAt: Date
+  secondsLeft: number
 }
 
 const ExamTimer: React.FC<ExamTimerProps> = ({
-  courseName,
   endsAt,
   hour12,
   maxScore,
+  secondsLeft,
   startedAt,
 }) => {
-  const now = useTime(5000)
   const { t } = useTranslation()
 
   const timeFormatOptions: Intl.DateTimeFormatOptions = { hour12, timeStyle: SHORT }
@@ -73,12 +71,6 @@ const ExamTimer: React.FC<ExamTimerProps> = ({
         `,
       )}
     >
-      {/* Not sure if we want to use this in the case that the name is very long. */}
-      {courseName && (
-        <InfoBoxLightGreenMedium>
-          {t("course-title", { title: courseName })}
-        </InfoBoxLightGreenMedium>
-      )}
       <InfoBoxLightGreenMedium>
         <FontAwesomeIcon
           icon={faCheckCircle}
@@ -117,7 +109,7 @@ const ExamTimer: React.FC<ExamTimerProps> = ({
       >
         {t("ends-at-time", { time: formatedEndsAt })}
       </InfoBoxLightGreenMedium>
-      <InfoBoxDarkGreenSmall>{formatTimeLeft(now, endsAt)}</InfoBoxDarkGreenSmall>
+      <InfoBoxDarkGreenSmall>{formatTimeLeft(secondsLeft)}</InfoBoxDarkGreenSmall>
     </div>
   )
 }
@@ -125,8 +117,7 @@ const ExamTimer: React.FC<ExamTimerProps> = ({
 export default ExamTimer
 
 /** Display as hours:minutes left, e.g. 1:03 or 120:59 */
-function formatTimeLeft(from: Date, to: Date) {
-  const secondsLeft = differenceInSeconds(to, from)
+function formatTimeLeft(secondsLeft: number) {
   if (secondsLeft <= 0) {
     return "0:00"
   }

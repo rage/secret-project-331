@@ -1,0 +1,5 @@
+# Undoes the production ingress patches
+- op: remove
+  path: "/spec/tls"
+- op: remove
+  path: "/spec/rules/0/host"

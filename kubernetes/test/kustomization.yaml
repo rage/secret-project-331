@@ -8,6 +8,11 @@ resources:
   - ./postgres-dev.yml
   - headless-lms/env.yml
 patches:
+  - path: patch-ingress.yml
+    target:
+      version: v1
+      kind: Ingress
+      name: project-331-ingress
   # Remove cpu and memory resource without initContainer defined
   - path: patch-without-init-container.yml
     target:

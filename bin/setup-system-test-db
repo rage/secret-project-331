@@ -16,6 +16,6 @@ run_command cd "$RELATIVE_PATH" || exit
 
 run_command kubectl exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-development-intentionally-public dropdb --host=postgres --port=5432 --username=headless-lms --no-password --if-exists --force headless_lms_test
 
-run_command kubectl exec -it "$POD_NAME" -- cargo sqlx database setup --database-url postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/headless_lms_test
+run_command kubectl exec -it "$POD_NAME" -- sqlx database setup --database-url postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/headless_lms_test
 
-run_command kubectl exec -it "$POD_NAME" "$@" -- env PGPASSWORD=only-for-local-development-intentionally-public  cargo run --bin seed --release "$@"
+run_command kubectl exec -it "$POD_NAME" "$@" -- env PGPASSWORD=only-for-local-development-intentionally-public ./seed "$@"

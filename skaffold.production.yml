@@ -1,0 +1,150 @@
+# Does the production setup, however for safety reasons, this defaults to the test enviroment and does not push images by default.
+# If you want to do a production deploy or you want to push images, you have to activate profiles for those things.
+# The filename has production instead of test because the test enviroment matches the production enviroment -- it just runs locally.
+
+# How building works:
+
+# For each deployed service, we build two images: a build cache image and a slim image that is used for the deployment. The slim image depends on the cache image and will be built after the cache image. The cache image can be very big (many gigabytes) and  slim image should be much smaller (like a couple hunderd megabytes).
+# The two different images are built with Docker's multi-stage builds (https://docs.docker.com/develop/develop-images/multistage-build/) -- we just specify which target we want for each image. The latter build will use the Docker build cache from the previous build so we don't execute the build steps twice.
+
+apiVersion: skaffold/v2beta12
+kind: Config
+build:
+  tagPolicy:
+    # sha256 tag policy pushes the latest tag, which is used for caching
+    sha256: {}
+  artifacts:
+    # headless-lms
+    - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache
+      context: services/headless-lms
+      docker:
+        dockerfile: Dockerfile.production.dockerfile
+        target: "builder"
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-slim
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache
+          alias: HEADLESS_LMS_BUILD_CACHE
+      context: services/headless-lms
+      docker:
+        dockerfile: Dockerfile.production.dockerfile
+        target: "runtime"
+
+    # CMS
+    - image: eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache
+      context: services/cms
+      docker:
+        dockerfile: Dockerfile.production.dockerfile
+        target: "builder"
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-cms-production-slim
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache
+          alias: CMS_BUILD_CACHE
+      context: services/cms
+      docker:
+        dockerfile: Dockerfile.production.dockerfile
+        target: "runtime"
+
+    # course-material
+    - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache
+      context: services/course-material
+      docker:
+        dockerfile: Dockerfile.production.dockerfile
+        target: "builder"
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-slim
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache
+          alias: COURSE_MATERIAL_BUILD_CACHE
+      context: services/course-material
+      docker:
+        dockerfile: Dockerfile.production.dockerfile
+        target: "runtime"
+
+    # main-frontend
+    - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache
+      context: services/main-frontend
+      docker:
+        dockerfile: Dockerfile.production.dockerfile
+        target: "builder"
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-slim
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache
+          alias: MAIN_FRONTEND_BUILD_CACHE
+      context: services/main-frontend
+      docker:
+        dockerfile: Dockerfile.production.dockerfile
+        target: "runtime"
+
+
+    # example-exercise
+    - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache
+      context: services/example-exercise
+      docker:
+        dockerfile: Dockerfile.production.dockerfile
+        target: "builder"
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-slim
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache
+          alias: EXAMPLE_EXERCISE_BUILD_CACHE
+      context: services/example-exercise
+      docker:
+        dockerfile: Dockerfile.production.dockerfile
+        target: "runtime"
+
+    # quizzes
+    - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache
+      context: services/quizzes
+      docker:
+        dockerfile: Dockerfile.production.dockerfile
+        target: "builder"
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-slim
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache
+          alias: QUIZZES_BUILD_CACHE
+      context: services/quizzes
+      docker:
+        dockerfile: Dockerfile.production.dockerfile
+        target: "runtime"
+
+  local:
+    # Allow parallel builds
+    concurrency: 0
+    useDockerCLI: true
+deploy:
+  kustomize:
+    paths:
+      - kubernetes/test
+  kubeContext: minikube
+portForward:
+  - resourceType: statefulset
+    resourceName: postgres
+    namespace: default
+    port: 5432
+    localPort: 54328
+profiles:
+  # Push builds to moocfi-public
+  - name: push-images
+    patches:
+      - op: add
+        path: /build/local/push
+        value: true
+  - name: production
+    patches:
+      # Allow all kube contexes
+      - op: remove
+        path: /deploy/kubeContext
+      # Replace which folder to use
+      - op: replace
+        path: /deploy/kustomize/paths
+        value: [kubernetes/production]

@@ -1,3 +1,6 @@
+# This dockerfile contains the base dependencies that we need for developing the headless-lms service. We build this manually to in order to effectively cache these build steps.
+# You can rebuild this image by running bin/build-dockerfile-development-base in the repo root
+
 FROM rust:bullseye
 
 # Switch to use the lld linker for better compile times

@@ -391,7 +391,7 @@ We add the routes by calling the route method instead of using the route annotat
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_email_templates_by_course_instance_id</span>),
         )
         .<span class="ident">route</span>(
-            <span class="string">&quot;/{course_instance_id}/point_export&quot;</span>,
+            <span class="string">&quot;/{course_instance_id}/points/export&quot;</span>,
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">point_export</span>),
         )
         .<span class="ident">route</span>(<span class="string">&quot;/{course_instance_id}/edit&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">edit</span>))

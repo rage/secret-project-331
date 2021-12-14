@@ -19,6 +19,7 @@ metadata:
   labels:
     app: headless-lms
     deploymentType: with-init-container
+    needs-db: "true"
 spec:
   replicas: 1
   selector:
@@ -39,11 +40,11 @@ spec:
               name: headless-lms
           resources:
             requests:
-              memory: 200Mi
-              cpu: 200m
+              memory: 100Mi
+              cpu: 20m
             limits:
-              memory: 500Mi
-              cpu: 500m
+              memory: 300Mi
+              cpu: 200m
           envFrom:
             - secretRef:
                 name: headless-lms-secrets
@@ -59,11 +60,11 @@ spec:
               ./wait-for-db-migrations.sh
           resources:
             requests:
-              memory: 200Mi
-              cpu: 200m
+              memory: 100Mi
+              cpu: 20m
             limits:
-              memory: 500Mi
-              cpu: 500m
+              memory: 300Mi
+              cpu: 200m
           envFrom:
             - secretRef:
                 name: headless-lms-secrets
@@ -75,6 +76,7 @@ metadata:
   name: headless-lms-run-migrations
   labels:
     deploymentType: without-init-container
+    needs-db: "true"
 spec:
   backoffLimit: 10
   template:
@@ -96,16 +98,16 @@ spec:
               echo Waiting for postgres to be available
               timeout 120 ./wait-for-db.sh
               echo Running migrations
-              cargo sqlx database setup
+              sqlx database setup
               echo Migrations complete
           envFrom:
             - secretRef:
                 name: headless-lms-secrets
           resources:
             requests:
-              memory: 200Mi
-              cpu: 200m
+              memory: 100Mi
+              cpu: 20m
             limits:
-              memory: 500Mi
-              cpu: 500m
+              memory: 300Mi
+              cpu: 200m
       restartPolicy: Never

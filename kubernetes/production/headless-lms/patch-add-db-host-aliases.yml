@@ -1,0 +1,6 @@
+- op: add
+  path: "/spec/template/spec/hostAliases"
+  value:
+    - ip: 10.46.224.18
+      hostnames:
+        - production-db

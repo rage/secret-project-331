@@ -4,12 +4,12 @@ import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import useMessageChannel from "../hooks/useMessageChannel"
-import { CurrentStateMessage, SetStateMessage } from "../iframe-protocol-types"
+import { CurrentStateMessage, IframeState, SetStateMessage } from "../iframe-protocol-types"
 import { isCurrentStateMessage, isHeightChangedMessage } from "../iframe-protocol-types.guard"
 
 interface MessageChannelIFrameProps {
   url: string
-  postThisStateToIFrame: Omit<SetStateMessage, "message">
+  postThisStateToIFrame: IframeState | null
   onMessageFromIframe: (message: CurrentStateMessage, responsePort: MessagePort) => void
 }
 
@@ -95,14 +95,17 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   }, [messageChannel])
 
   useEffect(() => {
-    if (!messageChannel || isEqual(lastThingPosted, postThisStateToIFrame)) {
+    if (
+      !postThisStateToIFrame ||
+      !messageChannel ||
+      isEqual(lastThingPosted, postThisStateToIFrame)
+    ) {
       return
     }
     const postData: SetStateMessage = {
+      ...postThisStateToIFrame,
       // eslint-disable-next-line i18next/no-literal-string
       message: "set-state",
-      view_type: postThisStateToIFrame.view_type,
-      data: postThisStateToIFrame.data,
     }
     // eslint-disable-next-line i18next/no-literal-string
     console.log(`parent posting data ${postData}`)

@@ -13,6 +13,9 @@ const config = {
       },
     ]
   },
+  experimental: {
+    outputStandalone: true,
+  },
 }
 
 if (process.env.NEXT_PUBLIC_BASE_PATH) {

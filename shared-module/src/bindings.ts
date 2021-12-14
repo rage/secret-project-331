@@ -243,6 +243,7 @@ export interface CourseMaterialExerciseTask {
   exercise_type: string
   assignment: unknown
   public_spec: unknown | null
+  model_solution_spec: unknown | null
 }
 
 export interface ExerciseTask {
@@ -267,6 +268,8 @@ export interface CourseMaterialExercise {
   current_exercise_task: CourseMaterialExerciseTask
   current_exercise_task_service_info: CourseMaterialExerciseServiceInfo | null
   exercise_status: ExerciseStatus | null
+  previous_submission: Submission | null
+  grading: Grading | null
 }
 
 export interface Exercise {

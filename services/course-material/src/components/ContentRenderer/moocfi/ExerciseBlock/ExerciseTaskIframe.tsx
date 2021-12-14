@@ -3,11 +3,11 @@ import React, { Dispatch } from "react"
 import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
-import { SetStateMessage } from "../../../../shared-module/iframe-protocol-types"
+import { IframeState } from "../../../../shared-module/iframe-protocol-types"
 
 interface ExerciseTaskIframeProps {
   url: string
-  postThisStateToIFrame: Omit<SetStateMessage, "message">
+  postThisStateToIFrame: IframeState | null
   setAnswer: Dispatch<unknown>
   setAnswerValid: Dispatch<boolean>
 }

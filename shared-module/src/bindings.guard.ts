@@ -488,7 +488,9 @@ export function isCourseMaterialExercise(
     (isCourseMaterialExerciseTask(obj.current_exercise_task) as boolean) &&
     (obj.current_exercise_task_service_info === null ||
       (isCourseMaterialExerciseServiceInfo(obj.current_exercise_task_service_info) as boolean)) &&
-    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean))
+    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
+    (obj.previous_submission === null || (isSubmission(obj.previous_submission) as boolean)) &&
+    (obj.grading === null || (isGrading(obj.grading) as boolean))
   )
 }
 

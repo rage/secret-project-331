@@ -281,6 +281,30 @@ OFFSET $4;
     Ok(submissions)
 }
 
+pub async fn get_latest_user_exercise_submission(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<Option<Submission>> {
+    let submission = sqlx::query_as!(
+        Submission,
+        r#"
+SELECT *
+FROM submissions
+WHERE exercise_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+ORDER BY created_at DESC
+LIMIT 1
+"#,
+        exercise_id,
+        user_id,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(submission)
+}
+
 pub async fn insert_submission(
     conn: &mut PgConnection,
     new_submission: NewSubmission,

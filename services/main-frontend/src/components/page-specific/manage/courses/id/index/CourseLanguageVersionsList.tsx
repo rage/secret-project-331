@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchCourseLanguageVersions } from "../../../../../../services/backend/courses"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/components/Spinner"
 
 export const formatLanguageVersionsQueryKey = (courseId: string): string => {
   // eslint-disable-next-line i18next/no-literal-string
@@ -15,35 +17,34 @@ export interface CourseTranslationsListProps {
 }
 
 const CourseLanguageVersionsList: React.FC<CourseTranslationsListProps> = ({ courseId }) => {
-  const { t } = useTranslation()
-  const { isLoading, error, data } = useQuery(formatLanguageVersionsQueryKey(courseId), () =>
+  const getCourseLanguageVersions = useQuery(formatLanguageVersionsQueryKey(courseId), () =>
     fetchCourseLanguageVersions(courseId),
   )
 
-  if (error) {
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
-  }
-
-  if (isLoading || !data) {
-    return <>{t("loading-text")}</>
-  }
-
   return (
-    <ul>
-      {data.map((course) => (
-        <li key={course.id}>
-          <Link
-            href={{
-              pathname: "/manage/courses/[id]",
-              query: { id: course.id },
-            }}
-          >
-            {course.name}
-          </Link>{" "}
-          <span>({course.language_code})</span>
-        </li>
-      ))}
-    </ul>
+    <>
+      {getCourseLanguageVersions.isError && (
+        <ErrorBanner variant={"readOnly"} error={getCourseLanguageVersions.error} />
+      )}
+      {getCourseLanguageVersions.isLoading && <Spinner variant={"medium"} />}
+      {getCourseLanguageVersions.isSuccess && (
+        <ul>
+          {getCourseLanguageVersions.data.map((course) => (
+            <li key={course.id}>
+              <Link
+                href={{
+                  pathname: "/manage/courses/[id]",
+                  query: { id: course.id },
+                }}
+              >
+                {course.name}
+              </Link>{" "}
+              <span>({course.language_code})</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   )
 }
 

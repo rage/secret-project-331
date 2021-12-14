@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../../components/Layout"
-import OrganizationsList from "../../components/lists/OrganizationsList"
+import OrganizationsList from "../../components/page-specific/organizations/index/OrganizationsList"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 

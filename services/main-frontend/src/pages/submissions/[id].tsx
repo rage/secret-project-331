@@ -6,6 +6,8 @@ import Layout from "../../components/Layout"
 import SubmissionIFrame from "../../components/SubmissionIFrame"
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 import DebugModal from "../../shared-module/components/DebugModal"
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
+import Spinner from "../../shared-module/components/Spinner"
 import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -17,51 +19,46 @@ interface SubmissionPageProps {
 
 const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
   const { t } = useTranslation()
-  const { isLoading, error, data } = useQuery(`submission-${query.id}`, () =>
-    fetchSubmissionInfo(query.id),
-  )
-
-  if (error) {
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
-  }
-
-  if (isLoading || !data) {
-    return <>{t("loading-text")}</>
-  }
-
-  let grading = <></>
-  if (data.grading) {
-    grading = (
-      <div>
-        <div>
-          {t("points-out-of", {
-            points: data.grading.score_given,
-            scoreMaximum: data.exercise.score_maximum,
-          })}
-        </div>
-        <div>
-          {t("submitted-at-by", {
-            time: data.submission.created_at.toDateString(),
-            user: data.submission.user_id,
-          })}
-        </div>
-      </div>
-    )
-  }
+  const getSubmissionInfo = useQuery(`submission-${query.id}`, () => fetchSubmissionInfo(query.id))
 
   return (
     <Layout navVariant="complex">
       <div className={normalWidthCenteredComponentStyles}>
-        <h1>{t("title-submission-id", { id: data.submission.id })}</h1>
-        {grading}
-        <SubmissionIFrame
-          url={`${data.iframe_path}?width=700`} // todo: move constants to shared module?
-          public_spec={data.exercise_task.public_spec}
-          submission={data.submission}
-          model_solution_spec={data.exercise_task.model_solution_spec}
-          grading={data.grading}
-        />
-        <DebugModal data={data} />
+        {getSubmissionInfo.isError && (
+          <ErrorBanner variant={"readOnly"} error={getSubmissionInfo.error} />
+        )}
+        {getSubmissionInfo.isLoading && <Spinner variant={"medium"} />}
+        {getSubmissionInfo.isSuccess && (
+          <>
+            <h1>{t("title-submission-id", { id: getSubmissionInfo.data.submission.id })}</h1>
+            {
+              <div>
+                <div>
+                  {t("points-out-of", {
+                    points: getSubmissionInfo.data.grading
+                      ? getSubmissionInfo.data.grading.score_given
+                      : 0,
+                    scoreMaximum: getSubmissionInfo.data.exercise.score_maximum,
+                  })}
+                </div>
+                <div>
+                  {t("submitted-at-by", {
+                    time: getSubmissionInfo.data.submission.created_at.toDateString(),
+                    user: getSubmissionInfo.data.submission.user_id,
+                  })}
+                </div>
+              </div>
+            }
+            <SubmissionIFrame
+              url={`${getSubmissionInfo.data.iframe_path}?width=700`} // todo: move constants to shared module?
+              public_spec={getSubmissionInfo.data.exercise_task.public_spec}
+              submission={getSubmissionInfo.data.submission}
+              model_solution_spec={getSubmissionInfo.data.exercise_task.model_solution_spec}
+              grading={getSubmissionInfo.data.grading}
+            />
+          </>
+        )}
+        <DebugModal data={getSubmissionInfo.data} />
       </div>
     </Layout>
   )

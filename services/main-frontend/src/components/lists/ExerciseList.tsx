@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchCourseExercises } from "../../services/backend/courses"
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
+import Spinner from "../../shared-module/components/Spinner"
 
 export interface ExerciseListProps {
   courseId: string
@@ -11,34 +13,34 @@ export interface ExerciseListProps {
 
 const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
   const { t } = useTranslation()
-  const { data, error, isLoading } = useQuery(`course-${courseId}-exercises`, () =>
+  const getCourseExercises = useQuery(`course-${courseId}-exercises`, () =>
     fetchCourseExercises(courseId),
   )
 
-  if (error) {
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
-  }
-
-  if (isLoading || !data) {
-    return <>{t("loading-text")}</>
-  }
-
   return (
-    <ul>
-      {data.map((x) => (
-        <li key={x.id}>
-          {x.name}{" "}
-          <Link
-            href={{
-              pathname: "/manage/exercises/[exerciseId]/submissions",
-              query: { exerciseId: x.id },
-            }}
-          >
-            {t("link-view-submissions")}
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <>
+      {getCourseExercises.isError && (
+        <ErrorBanner variant={"readOnly"} error={getCourseExercises.error} />
+      )}
+      {getCourseExercises.isLoading && <Spinner variant={"medium"} />}
+      {getCourseExercises.isSuccess && (
+        <ul>
+          {getCourseExercises.data.map((x) => (
+            <li key={x.id}>
+              {x.name}{" "}
+              <Link
+                href={{
+                  pathname: "/manage/exercises/[exerciseId]/submissions",
+                  query: { exerciseId: x.id },
+                }}
+              >
+                {t("link-view-submissions")}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   )
 }
 

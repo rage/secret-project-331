@@ -14,7 +14,9 @@ import {
 } from "../services/backend/playground-examples"
 import { PlaygroundExample } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
+import ErrorBanner from "../shared-module/components/ErrorBanner"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
+import Spinner from "../shared-module/components/Spinner"
 import { ViewType } from "../shared-module/iframe-protocol-types"
 import { monospaceFont } from "../shared-module/styles"
 import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
@@ -32,13 +34,11 @@ const Home: React.FC = () => {
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
   const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
   const [msg, setMsg] = useState<string>("")
-  const { isLoading, error, data, refetch } = useQuery("playground-examples", () =>
-    fetchPlaygroundExamples(),
-  )
+  const getPlaygroundExamples = useQuery("playground-examples", () => fetchPlaygroundExamples())
   const saveMutation = useMutation(savePlaygroundExample, {
     onSuccess: () => {
       setMsg(t("message-saved-succesfully"))
-      refetch()
+      getPlaygroundExamples.refetch()
       setTimeout(() => saveMutation.reset(), 5000)
     },
     onError: () => {
@@ -49,7 +49,7 @@ const Home: React.FC = () => {
   const updateMutation = useMutation(updatePlaygroundExample, {
     onSuccess: () => {
       setMsg(t("message-update-succesful"))
-      refetch()
+      getPlaygroundExamples.refetch()
       setTimeout(() => updateMutation.reset(), 5000)
     },
     onError: () => {
@@ -60,7 +60,7 @@ const Home: React.FC = () => {
   const deleteMutation = useMutation(deletePlaygroundExample, {
     onSuccess: () => {
       setMsg(t("message-deleting-succesful"))
-      refetch()
+      getPlaygroundExamples.refetch()
       setSelectedExample(null)
       setTimeout(() => deleteMutation.reset(), 5000)
     },
@@ -148,14 +148,6 @@ const Home: React.FC = () => {
     deleteMutation.mutate(selectedExample.id)
   }
 
-  if (isLoading || !data) {
-    return <p>{t("loading-text")}</p>
-  }
-
-  if (error) {
-    return <pre>{JSON.stringify(error)}</pre>
-  }
-
   return (
     <Layout>
       <div className={normalWidthCenteredComponentStyles}>
@@ -186,7 +178,11 @@ const Home: React.FC = () => {
           </Alert>
         </Grow>
         <h2>{t("title-playground-exercise-iframe")}</h2>
-        {data.length > 0 && (
+        {getPlaygroundExamples.isError && (
+          <ErrorBanner variant={"readOnly"} error={getPlaygroundExamples.error} />
+        )}
+        {getPlaygroundExamples.isLoading && <Spinner variant={"medium"} />}
+        {getPlaygroundExamples.isSuccess && getPlaygroundExamples.data.length > 0 && (
           <div>
             <h3>{t("title-list-of-examples")}</h3>
             <div
@@ -202,7 +198,7 @@ const Home: React.FC = () => {
                 aria-label={t("playground-examples")}
               >
                 <option selected disabled label={t("label-examples")} />
-                {data.map((example) => (
+                {getPlaygroundExamples.data.map((example) => (
                   <option
                     key={JSON.stringify(example)}
                     value={JSON.stringify(example)}

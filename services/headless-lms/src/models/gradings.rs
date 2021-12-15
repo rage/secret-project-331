@@ -8,8 +8,8 @@ use super::{
 };
 use crate::{
     models::{
-        exercise_service_info::get_service_info_by_exercise_type, submissions::GradingRequest,
-        ModelError,
+        exams, exercise_service_info::get_service_info_by_exercise_type,
+        submissions::GradingRequest, ModelError,
     },
     utils::numbers::f32_to_two_decimals,
 };
@@ -199,7 +199,7 @@ pub async fn grade_submission(
     let grade_url = get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
     let obj = send_grading_request(grade_url, exercise_task, submission).await?;
     let updated_grading = update_grading(conn, grading, &obj, exercise).await?;
-    update_user_exercise_state(conn, &updated_grading, &submission).await?;
+    update_user_exercise_state(conn, &updated_grading, submission).await?;
     Ok(updated_grading)
 }
 
@@ -295,4 +295,30 @@ RETURNING id,
     .await?;
 
     Ok(grading)
+}
+
+/// Fetches the grading for the student, but hides the result in some circumstances.
+/// For example, for an ongoing exam.
+pub async fn get_for_student(
+    conn: &mut PgConnection,
+    grading_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Option<Grading>> {
+    let grading = get_by_id(conn, grading_id).await?;
+    if let Some(exam_id) = grading.exam_id {
+        let exam = exams::get(conn, exam_id).await?;
+        let enrollment = exams::get_enrollment(conn, exam_id, user_id)
+            .await?
+            .ok_or_else(|| anyhow::anyhow!("User has grading for exam but no enrollment"))?;
+        if Utc::now() > enrollment.started_at + chrono::Duration::minutes(exam.time_minutes.into())
+        {
+            // exam over, return grading
+            Ok(Some(grading))
+        } else {
+            // exam still ongoing, do not return grading
+            Ok(None)
+        }
+    } else {
+        Ok(Some(grading))
+    }
 }

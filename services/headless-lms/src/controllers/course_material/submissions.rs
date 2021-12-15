@@ -3,10 +3,14 @@
 use crate::{
     controllers::{ControllerError, ControllerResult},
     domain::authorization::AuthUser,
-    models::submissions::{self, NewSubmission, Submission, SubmissionResult},
+    models::{
+        gradings::{self, Grading},
+        submissions::{self, NewSubmission, Submission, SubmissionResult},
+    },
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
+use serde::Serialize;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -90,19 +94,37 @@ async fn post_submission(
     Ok(Json(submission))
 }
 
+#[derive(Debug, Serialize)]
+pub struct PreviousSubmission {
+    pub submission: Submission,
+    pub grading: Option<Grading>,
+}
+
 async fn previous_submission(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<Option<Submission>>> {
+) -> ControllerResult<Json<Option<PreviousSubmission>>> {
     let mut conn = pool.acquire().await?;
-    let submission = submissions::get_latest_user_exercise_submission(
+    if let Some(submission) = submissions::get_latest_user_exercise_submission(
         &mut conn,
         user.id,
         exercise_id.into_inner(),
     )
-    .await?;
-    Ok(Json(submission))
+    .await?
+    {
+        let grading = if let Some(grading_id) = submission.grading_id {
+            gradings::get_for_student(&mut conn, grading_id, user.id).await?
+        } else {
+            None
+        };
+        Ok(Json(Some(PreviousSubmission {
+            submission,
+            grading,
+        })))
+    } else {
+        Ok(Json(None))
+    }
 }
 
 /**

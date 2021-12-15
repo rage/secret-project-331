@@ -1,9 +1,11 @@
 import { css } from "@emotion/css"
+import { Alert, FormControl, Input, InputLabel } from "@material-ui/core"
 import { useRouter } from "next/router"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../components/Layout"
+import Button from "../shared-module/components/Button"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import { login } from "../shared-module/services/backend/auth"
@@ -19,6 +21,10 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const uncheckedReturnTo = useQueryParameter("return_to")
+
+  const EMAIL = "email"
+  const PASSWORD = "password"
+  const LOGIN = "login"
 
   return (
     <Layout>
@@ -52,34 +58,66 @@ const Login: React.FC = () => {
             router.push(returnTo)
           }}
           className={css`
-            input {
-              display: block;
-              margin-bottom: 1rem;
-            }
+            display: flex;
+            flex-direction: column;
+            width: 30rem;
+            padding: 1rem;
           `}
         >
           <h1>{t("login")}</h1>
-          <label>
-            {t("label-email")}
-            <input
+          <FormControl
+            className={css`
+              margin-top: 1rem;
+            `}
+          >
+            <InputLabel htmlFor={EMAIL}>{t("label-email")}</InputLabel>
+            <Input
+              id={EMAIL}
               type="text"
-              name="email"
+              name={EMAIL}
+              required={true}
               value={email}
+              aria-required={true}
               onChange={(ev) => setEmail(ev.target.value)}
             />
-          </label>
-          <label>
-            {t("label-password")}
-            <input
+          </FormControl>
+          <FormControl
+            className={css`
+              margin-top: 1rem;
+            `}
+          >
+            <InputLabel htmlFor={PASSWORD}>{t("label-password")}</InputLabel>
+            <Input
+              id={PASSWORD}
               type="password"
-              name="password"
+              name={PASSWORD}
+              required={true}
               value={password}
+              aria-required={true}
               onChange={(ev) => setPassword(ev.target.value)}
             />
-          </label>
-          <button name="login">{t("button-text-submit")}</button>
+          </FormControl>
+          <Button
+            className={css`
+              margin-top: 2rem;
+            `}
+            name={LOGIN}
+            variant={"primary"}
+            size={"medium"}
+          >
+            {t("login")}
+          </Button>
+          {notification && (
+            <Alert
+              className={css`
+                margin-top: 1rem;
+              `}
+              severity="error"
+            >
+              {notification}
+            </Alert>
+          )}
         </form>
-        {notification && <p>{notification}</p>}
       </div>
     </Layout>
   )

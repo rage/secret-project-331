@@ -53,7 +53,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const postSubmissionMutation = useMutation(postSubmission, {
     retry: 3,
     onSuccess: (data) => {
-      setPoints(data.grading.score_given)
+      if (data.grading) {
+        setPoints(data.grading.score_given)
+      }
       dispatch({
         type: "submissionGraded",
         payload: {

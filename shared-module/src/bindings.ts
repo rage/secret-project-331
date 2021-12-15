@@ -610,7 +610,7 @@ export interface SubmissionInfo {
 
 export interface SubmissionResult {
   submission: Submission
-  grading: Grading
+  grading: Grading | null
   model_solution_spec: unknown | null
 }
 
@@ -649,6 +649,11 @@ export interface User {
   deleted_at: Date | null
   upstream_id: number | null
   email: string
+}
+
+export interface PreviousSubmission {
+  submission: Submission
+  grading: Grading | null
 }
 
 export type ExamData =

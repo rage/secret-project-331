@@ -80,6 +80,7 @@ import {
   PlaygroundExampleData,
   PointMap,
   Points,
+  PreviousSubmission,
   ProposalCount,
   ProposalStatus,
   Submission,
@@ -1011,7 +1012,7 @@ export function isSubmissionResult(obj: any, _argumentName?: string): obj is Sub
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isSubmission(obj.submission) as boolean) &&
-    (isGrading(obj.grading) as boolean)
+    (obj.grading === null || (isGrading(obj.grading) as boolean))
   )
 }
 
@@ -1069,6 +1070,14 @@ export function isUser(obj: any, _argumentName?: string): obj is User {
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     (obj.upstream_id === null || typeof obj.upstream_id === "number") &&
     typeof obj.email === "string"
+  )
+}
+
+export function isPreviousSubmission(obj: any, _argumentName?: string): obj is PreviousSubmission {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isSubmission(obj.submission) as boolean) &&
+    (obj.grading === null || (isGrading(obj.grading) as boolean))
   )
 }
 

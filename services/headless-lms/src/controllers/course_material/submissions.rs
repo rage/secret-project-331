@@ -12,6 +12,7 @@ use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
 use serde::Serialize;
 use sqlx::PgPool;
+use ts_rs::TS;
 use uuid::Uuid;
 
 /**
@@ -94,7 +95,7 @@ async fn post_submission(
     Ok(Json(submission))
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, TS)]
 pub struct PreviousSubmission {
     pub submission: Submission,
     pub grading: Option<Grading>,

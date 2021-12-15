@@ -124,6 +124,7 @@ const Login: React.FC = () => {
             name={LOGIN}
             variant={"primary"}
             size={"medium"}
+            id={"login-button"}
           >
             {t("login")}
           </Button>

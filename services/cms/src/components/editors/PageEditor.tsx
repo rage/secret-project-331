@@ -14,7 +14,7 @@ import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
 import Spinner from "../../shared-module/components/Spinner"
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { cmsNormalWidthCenteredComponentStyles } from "../../styles/EditorStyles"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
@@ -33,15 +33,16 @@ const GutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
   loading: () => EditorLoading,
 })
 
-const supportedBlocks = (chapter_id: string | null): string[] => {
+const supportedBlocks = (chapter_id: string | null, exam_id: string | null): string[] => {
   const supportedBlocksForPages: string[] = blockTypeMapForPages.map((mapping) => mapping[0])
   const supportedBlocksTopLevelPages: string[] = blockTypeMapForTopLevelPages.map(
     (mapping) => mapping[0],
   )
 
-  const allSupportedBlocks = chapter_id
-    ? supportedCoreBlocks.concat(supportedBlocksForPages)
-    : supportedCoreBlocks.concat(supportedBlocksTopLevelPages)
+  const allSupportedBlocks =
+    chapter_id || exam_id
+      ? supportedCoreBlocks.concat(supportedBlocksForPages)
+      : supportedCoreBlocks.concat(supportedBlocksTopLevelPages)
 
   return allSupportedBlocks
 }
@@ -53,7 +54,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
     editorContentReducer,
     modifyBlocks(
       data.content as BlockInstance[],
-      supportedBlocks(data.chapter_id),
+      supportedBlocks(data.chapter_id, data.exam_id),
     ) as BlockInstance[],
   )
   const [saving, setSaving] = useState(false)
@@ -97,7 +98,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>
       <div className="editor__component">
-        <div className={normalWidthCenteredComponentStyles}>
+        <div className={cmsNormalWidthCenteredComponentStyles}>
           {error && <pre>{error}</pre>}
           <LoadingButton
             // eslint-disable-next-line i18next/no-literal-string
@@ -112,12 +113,14 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />
         </div>
       </div>
-      <div className={normalWidthCenteredComponentStyles}>
+      <div className={cmsNormalWidthCenteredComponentStyles}>
         <GutenbergEditor
           content={content}
           onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
           customBlocks={
-            data.chapter_id !== null ? blockTypeMapForPages : blockTypeMapForTopLevelPages
+            data.chapter_id !== null || data.exam_id !== null
+              ? blockTypeMapForPages
+              : blockTypeMapForTopLevelPages
           }
           allowedBlocks={supportedCoreBlocks}
           allowedBlockVariations={allowedBlockVariants}
@@ -127,7 +130,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
       <div className="editor__component">
         <div
           className={css`
-            ${normalWidthCenteredComponentStyles}
+            ${cmsNormalWidthCenteredComponentStyles}
             margin-top: 1rem;
             margin-bottom: 1rem;
           `}

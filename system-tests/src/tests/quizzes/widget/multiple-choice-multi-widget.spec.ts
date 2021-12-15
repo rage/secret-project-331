@@ -18,7 +18,7 @@ test("widget, multiple-choice multi screenshot test", async ({ page, headless })
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/quizzes/exercise?width=500")
+      return f.url().startsWith("http://project-331.local/quizzes/iframe?width=500")
     }),
   )
 
@@ -29,7 +29,6 @@ test("widget, multiple-choice multi screenshot test", async ({ page, headless })
   await frame.click("text=#ff0000")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-multiple-choice-multi-answered",
     waitForThisToBeVisibleAndStable: `text="Which of the color codes represent the color"`,

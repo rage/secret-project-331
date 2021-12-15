@@ -202,9 +202,7 @@ export interface CourseMaterialExerciseServiceInfo {
 
 export interface ExerciseServiceInfoApi {
   service_name: string
-  editor_iframe_path: string
-  exercise_iframe_path: string
-  submission_iframe_path: string
+  exercise_type_specific_user_interface_iframe: string
   grade_endpoint_path: string
   public_spec_endpoint_path: string
   model_solution_path: string
@@ -245,6 +243,7 @@ export interface CourseMaterialExerciseTask {
   exercise_type: string
   assignment: unknown
   public_spec: unknown | null
+  model_solution_spec: unknown | null
 }
 
 export interface ExerciseTask {
@@ -269,6 +268,8 @@ export interface CourseMaterialExercise {
   current_exercise_task: CourseMaterialExerciseTask
   current_exercise_task_service_info: CourseMaterialExerciseServiceInfo | null
   exercise_status: ExerciseStatus | null
+  previous_submission: Submission | null
+  grading: Grading | null
 }
 
 export interface Exercise {
@@ -279,7 +280,7 @@ export interface Exercise {
   course_id: string | null
   exam_id: string | null
   page_id: string
-  chapter_id: string
+  chapter_id: string | null
   deadline: Date | null
   deleted_at: Date | null
   score_maximum: number
@@ -525,11 +526,7 @@ export interface BlockProposal {
   accept_preview: string | null
 }
 
-export type BlockProposalAction =
-  | { tag: "Accept"; data: string }
-  | {
-      tag: "Reject"
-    }
+export type BlockProposalAction = { tag: "Accept"; data: string } | { tag: "Reject" }
 
 export interface BlockProposalInfo {
   id: string
@@ -608,17 +605,18 @@ export interface SubmissionInfo {
   exercise: Exercise
   exercise_task: ExerciseTask
   grading: Grading | null
-  submission_iframe_path: string
+  iframe_path: string
 }
 
 export interface SubmissionResult {
   submission: Submission
   grading: Grading
+  model_solution_spec: unknown | null
 }
 
 export interface NewSubmission {
   exercise_task_id: string
-  course_instance_id: string
+  course_instance_id: string | null
   data_json: unknown | null
 }
 
@@ -669,6 +667,7 @@ export type ExamData =
     }
   | { tag: "EnrolledAndClosed" }
   | { tag: "NotEnrolled" }
+  | { tag: "OutOfTime" }
 
 export interface ExamCourseInfo {
   course_id: string

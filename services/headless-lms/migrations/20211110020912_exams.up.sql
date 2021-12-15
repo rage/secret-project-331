@@ -58,6 +58,7 @@ COMMENT ON COLUMN pages.course_id IS 'The course the page is associated with.';
 COMMENT ON COLUMN pages.exam_id IS 'The exam the page is associated with.';
 COMMENT ON CONSTRAINT course_or_exam_id_set ON pages IS 'A page must be associated with either a course or an exam.';
 ALTER TABLE exercises ALTER course_id DROP NOT NULL,
+  ALTER chapter_id DROP NOT NULL,
   ADD exam_id UUID REFERENCES exams,
   ADD CONSTRAINT course_or_exam_id_set CHECK ((course_id IS NULL) <> (exam_id IS NULL));
 COMMENT ON COLUMN exercises.exam_id IS 'The exam the exercise is associated with.';

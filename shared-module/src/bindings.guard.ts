@@ -394,9 +394,7 @@ export function isExerciseServiceInfoApi(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.service_name === "string" &&
-    typeof obj.editor_iframe_path === "string" &&
-    typeof obj.exercise_iframe_path === "string" &&
-    typeof obj.submission_iframe_path === "string" &&
+    typeof obj.exercise_type_specific_user_interface_iframe === "string" &&
     typeof obj.grade_endpoint_path === "string" &&
     typeof obj.public_spec_endpoint_path === "string" &&
     typeof obj.model_solution_path === "string"
@@ -490,7 +488,9 @@ export function isCourseMaterialExercise(
     (isCourseMaterialExerciseTask(obj.current_exercise_task) as boolean) &&
     (obj.current_exercise_task_service_info === null ||
       (isCourseMaterialExerciseServiceInfo(obj.current_exercise_task_service_info) as boolean)) &&
-    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean))
+    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
+    (obj.previous_submission === null || (isSubmission(obj.previous_submission) as boolean)) &&
+    (obj.grading === null || (isGrading(obj.grading) as boolean))
   )
 }
 
@@ -504,7 +504,7 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     (obj.course_id === null || typeof obj.course_id === "string") &&
     (obj.exam_id === null || typeof obj.exam_id === "string") &&
     typeof obj.page_id === "string" &&
-    typeof obj.chapter_id === "string" &&
+    (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.score_maximum === "number" &&
@@ -1003,7 +1003,7 @@ export function isSubmissionInfo(obj: any, _argumentName?: string): obj is Submi
     (isExercise(obj.exercise) as boolean) &&
     (isExerciseTask(obj.exercise_task) as boolean) &&
     (obj.grading === null || (isGrading(obj.grading) as boolean)) &&
-    typeof obj.submission_iframe_path === "string"
+    typeof obj.iframe_path === "string"
   )
 }
 
@@ -1019,7 +1019,7 @@ export function isNewSubmission(obj: any, _argumentName?: string): obj is NewSub
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.exercise_task_id === "string" &&
-    typeof obj.course_instance_id === "string"
+    (obj.course_instance_id === null || typeof obj.course_instance_id === "string")
   )
 }
 
@@ -1090,7 +1090,9 @@ export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.tag === "EnrolledAndClosed") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "NotEnrolled")
+      obj.tag === "NotEnrolled") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "OutOfTime")
   )
 }
 

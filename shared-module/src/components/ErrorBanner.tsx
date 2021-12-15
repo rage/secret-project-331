@@ -2,6 +2,8 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { ErrorResponse } from "../bindings"
+import { isErrorResponse } from "../bindings.guard"
 import { baseTheme } from "../styles"
 
 const BannerWrapper = styled.div`
@@ -14,7 +16,8 @@ const BannerWrapper = styled.div`
 `
 
 const Content = styled.div`
-  padding-top: 2rem;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
   max-width: 100%;
   font-weight: 500;
   font-size: 1rem;
@@ -66,10 +69,12 @@ const DetailTag = styled.div`
     list-style: none;
     color: ${baseTheme.colors.grey[800]};
     outline: 0;
-  }
-
-  details summary::-webkit-details-marker {
-    display: none;
+    ::-webkit-details-marker {
+      display: none;
+    }
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   details[open] > summary {
@@ -96,41 +101,99 @@ const DetailTag = styled.div`
     border: 2px solid #c1c1c1;
     border-radius: 10px;
   }
+
+  ul li pre {
+    white-space: pre-line;
+  }
 `
 
 export interface BannerExtraProps {
   variant: "text" | "link" | "readOnly"
-  content: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error: any
 }
 
-const PLACEHOLDER_TITLE = "Data Not Found"
-const PLACEHOLDER_TEXT_ONE = "This is because one of our backend developers was sleeping on duty"
-const PLACEHOLDER_TEXT_TWO = `
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
-Ipsum has been the industrys standard dummy text ever since the 1500s, when an
-unknown printer took a galley of type and scrambled it to make a type specimen book.
-It has survived not only five centuries, but also the leap into electronic
-typesetting, remaining essentially unchanged. It was popularised in the 1960s with
-the release of Letraset sheets containing Lorem Ipsum passages, and more recently
-with desktop publishing software like Aldus PageMaker including versions of Lorem
-Ipsum
-`
 export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
 
 const Banner: React.FC<BannerProps> = (props) => {
   const { t } = useTranslation()
+  const { error } = props
+  if (typeof error === "object" && error !== null) {
+    if (isErrorResponse(error.data)) {
+      // response data contains an error response
+      const data: ErrorResponse = error.data
+      return (
+        <BannerWrapper>
+          <Content>
+            <Text>
+              <h2>
+                {t("error-title")} {error.status}: {data.title}
+              </h2>
+              <p>{data.message}</p>
+            </Text>
+            <DetailTag>
+              {data.source && (
+                <details>
+                  <summary>{t("show-error-source")}</summary>
+                  <ul>
+                    <li>
+                      <pre>{data.source}</pre>
+                    </li>
+                  </ul>
+                </details>
+              )}
+            </DetailTag>
+          </Content>
+        </BannerWrapper>
+      )
+    } else if (
+      error.status !== undefined &&
+      error.statusText !== undefined &&
+      typeof error.request === "object" &&
+      error.request.responseURL !== undefined
+    ) {
+      // error contains a response but no ErrorResponse
+      return (
+        <BannerWrapper>
+          <Content>
+            <Text>
+              <h2>
+                {t("error-title")} {error.status}: {error.statusText}
+              </h2>
+              <p>{error.request.responseURL}</p>
+            </Text>
+            <DetailTag>
+              {error.data && (
+                <details>
+                  <summary>{t("show-error-source")}</summary>
+                  <ul>
+                    <li>
+                      <pre>{JSON.stringify(error.data, undefined, 2)}</pre>
+                    </li>
+                  </ul>
+                </details>
+              )}
+            </DetailTag>
+          </Content>
+        </BannerWrapper>
+      )
+    }
+  }
+
+  // Error very much unknown
   return (
-    <BannerWrapper {...props}>
+    <BannerWrapper>
       <Content>
         <Text>
-          <h2>{PLACEHOLDER_TITLE}</h2>
-          <p>{PLACEHOLDER_TEXT_ONE}</p>
+          <h2>{t("error-title")}</h2>
         </Text>
         <DetailTag>
           <details>
             <summary>{t("show-error-source")}</summary>
             <ul>
-              <li>{PLACEHOLDER_TEXT_TWO}</li>
+              <li>
+                <pre>{JSON.stringify(error, undefined, 2)}</pre>
+              </li>
             </ul>
           </details>
         </DetailTag>

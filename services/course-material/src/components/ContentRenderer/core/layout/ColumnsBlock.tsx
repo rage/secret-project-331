@@ -5,13 +5,13 @@ import { BlockRendererProps } from "../.."
 import { ColumnAttributes, ColumnsAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { Block } from "../../../../services/backend"
 import { NewProposedBlockEdit } from "../../../../shared-module/bindings"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import colorMapper from "../../../../styles/colorMapper"
 
 import ColumnBlock from "./ColumnBlock"
 
-const ColumnsBlock: React.FC<BlockRendererProps<ColumnsAttributes>> = ({ data }) => {
+const ColumnsBlock: React.FC<BlockRendererProps<ColumnsAttributes>> = ({ data, isExam }) => {
   const innerBlocks = data.innerBlocks as Block<ColumnAttributes>[]
   const {
     isStackedOnMobile,
@@ -39,7 +39,7 @@ const ColumnsBlock: React.FC<BlockRendererProps<ColumnsAttributes>> = ({ data })
           flex-wrap: nowrap;
         }
 
-        ${courseMaterialCenteredComponentStyles}
+        ${normalWidthCenteredComponentStyles}
         ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
         ${gradient && `background: ${colorMapper(gradient)};`}
         ${textColor && `color: ${colorMapper(textColor)};`}
@@ -75,6 +75,7 @@ const ColumnsBlock: React.FC<BlockRendererProps<ColumnsAttributes>> = ({ data })
               throw new Error("Function not implemented.")
             }}
             id={block.clientId}
+            isExam={isExam}
           />
         )
       })}

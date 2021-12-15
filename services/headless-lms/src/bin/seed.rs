@@ -259,6 +259,7 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    info!("cs");
     let _cs_design = seed_cs_course_material(&mut conn, uh_cs, admin).await?;
     let new_course = NewCourse {
         name: "Introduction to Computer Science".to_string(),
@@ -294,6 +295,7 @@ async fn main() -> Result<()> {
     .await?;
 
     // uh-mathstat
+    info!("uh-mathstat");
     let uh_mathstat = organizations::insert(
         &mut conn,
         "University of Helsinki, Department of Mathematics and Statistics",
@@ -337,6 +339,7 @@ async fn main() -> Result<()> {
     .await?;
 
     // roles
+    info!("roles");
     roles::insert(&mut conn, admin, None, None, UserRole::Admin).await?;
     roles::insert(&mut conn, teacher, Some(uh_cs), None, UserRole::Teacher).await?;
     roles::insert(
@@ -348,11 +351,12 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    info!("playground examples");
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
             name: "Example exercise".to_string(),
-            url: "http://project-331.local/example-exercise/exercise".to_string(),
+            url: "http://project-331.local/example-exercise/iframe".to_string(),
             width: 500,
             data: serde_json::json!([
               {
@@ -376,7 +380,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes, example, checkbox".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
                 "id": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
@@ -429,8 +433,8 @@ async fn main() -> Result<()> {
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
-            name: "Quizzes example, multiple-choice".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            name: "Quizzes example, multiple-choice, row".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!(
               {
@@ -509,8 +513,88 @@ async fn main() -> Result<()> {
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice, column".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
+            width: 500,
+            data: serde_json::json!(
+              {
+                "id": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
+                "courseId": "5209f752-9db9-4daf-a7bc-64e21987b719",
+                "body": "Something about CSS and color codes",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "section": 1,
+                "title": "Something about CSS and color codes",
+                "tries": 1,
+                "triesLimited": false,
+                "items": [
+                    {
+                        "id": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                        "body": "Which of the color codes represent the color **red**?",
+                        "direction": "column",
+                        "formatRegex": null,
+                        "maxLabel": null,
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minLabel": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "multi": false,
+                        "order": 1,
+                        "quizId": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
+                        "title": "Hexadecimal color codes",
+                        "type": "multiple-choice",
+                        "options": [
+                            {
+                                "id": "8d17a216-9655-4558-adfb-cf66fb3e08ba",
+                                "body": "#00ff00",
+                                "order": 1,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "11e0f3ac-fe21-4524-93e6-27efd4a92595",
+                                "body": "#0000ff",
+                                "order": 2,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "e0033168-9f92-4d71-9c23-7698de9ea3b0",
+                                "body": "#663300",
+                                "order": 3,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "2931180f-827f-468c-a616-a8df6e94f717",
+                                "body": "#ff0000",
+                                "order": 4,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "9f5a09d7-c03f-44dd-85db-38065600c2c3",
+                                "body": "#ffffff",
+                                "order": 5,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                        ]
+                    }
+                ]
+              }
+            ),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
             name: "Quizzes example, multiple-choice, multi".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!(
               {
@@ -590,7 +674,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, essay".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!(              {
               "id": "47cbd36c-0c32-41f2-8a4a-b008de7d3494",
@@ -629,7 +713,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, multiple-choice dropdown".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
             "id": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
@@ -733,7 +817,7 @@ async fn main() -> Result<()> {
 
         PlaygroundExampleData {
             name: "Quizzes example, open".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
                 "id": "801b9275-5034-438d-922f-104af517468a",
@@ -773,7 +857,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, scale".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
                 "id": "3d3c633d-ea60-412f-8c85-8cab7742a5b8",
@@ -845,7 +929,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, multiple-choice clickable".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
               "id": "3562f83c-4d5d-41a9-aceb-a8f98511dd5d",
@@ -1061,6 +1145,7 @@ async fn seed_sample_course(
     )
     .await?;
 
+    info!("sample exercises");
     let block_id_1 = Uuid::new_v5(&course_id, b"af3b467a-f5db-42ad-9b21-f42ca316b3c6");
     let block_id_2 = Uuid::new_v5(&course_id, b"465f1f95-22a1-43e1-b4a3-7d18e525dc12");
     let block_id_3 = Uuid::new_v5(&course_id, b"46aad5a8-71bd-49cd-8d86-3368ee8bb7ac");
@@ -1216,6 +1301,7 @@ async fn seed_sample_course(
     .await?;
 
     // enrollments, user exercise states, submissions, grades
+    info!("sample enrollments, user exercise states, submissions, grades");
     for &user_id in users {
         course_instance_enrollments::insert_enrollment_and_set_as_current(
             conn,
@@ -1315,6 +1401,7 @@ async fn seed_sample_course(
     }
 
     // feedback
+    info!("sample feedback");
     let new_feedback = NewFeedback {
         feedback_given: "this part was unclear to me".to_string(),
         selected_text: Some("blanditiis".to_string()),
@@ -1374,6 +1461,7 @@ async fn seed_sample_course(
     .await?;
 
     // edit proposals
+    info!("sample edit proposals");
     let edits = NewProposedPageEdits {
         page_id: page_c1_1,
         block_edits: vec![NewProposedBlockEdit {
@@ -1404,6 +1492,7 @@ async fn seed_sample_course(
     proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
 
     // exams
+    info!("sample exams");
     let exam_id = Uuid::new_v5(&course_id, b"7d6ed843-2a94-445b-8ced-ab3c67290ad0");
     exams::insert(
         conn,
@@ -1418,13 +1507,35 @@ async fn seed_sample_course(
         },
     )
     .await?;
+    let (exam_exercise_block_1, exam_exercise_1, exam_exercise_slide_1, exam_exercise_task_1) =
+        example_exercise(
+            Uuid::new_v5(&course_id, b"b1b16970-60bc-426e-9537-b29bd2185db3"),
+            Uuid::new_v5(&course_id, b"ea461a21-e0b4-4e09-a811-231f583b3dcb"),
+            Uuid::new_v5(&course_id, b"9d8ccf47-3e83-4459-8f2f-8e546a75f372"),
+            Uuid::new_v5(&course_id, b"a4edb4e5-507d-43f1-8058-9d95941dbf09"),
+            Uuid::new_v5(&course_id, b"eced4875-ece9-4c3d-ad0a-2443e61b3e78"),
+            Uuid::new_v5(&course_id, b"8870d951-1a27-4544-ad1d-6e0ac19ec5ee"),
+            Uuid::new_v5(&course_id, b"59029dbd-b6bc-42c2-ad18-3d62b1844a23"),
+            Uuid::new_v5(&course_id, b"0b3098e1-c1f1-4b7b-87f8-ef38826cac79"),
+        );
+    let (exam_exercise_block_2, exam_exercise_2, exam_exercise_slide_2, exam_exercise_task_2) =
+        example_exercise(
+            Uuid::new_v5(&course_id, b"44f472e5-b726-4c50-89a1-93f4170673f5"),
+            Uuid::new_v5(&course_id, b"23182b3d-fbf4-4c0d-93fa-e9ddc199cc52"),
+            Uuid::new_v5(&course_id, b"ca105826-5007-439f-87be-c25f9c79506e"),
+            Uuid::new_v5(&course_id, b"96a9e586-cf88-4cb2-b7c9-efc2bc47e90b"),
+            Uuid::new_v5(&course_id, b"fe5bb5a9-d0ab-4072-abe1-119c9c1e4f4a"),
+            Uuid::new_v5(&course_id, b"22959aad-26fc-4212-8259-c128cdab8b08"),
+            Uuid::new_v5(&course_id, b"d8ba9e92-4530-4a74-9b11-eb708fa54d40"),
+            Uuid::new_v5(&course_id, b"846f4895-f573-41e2-9926-cd700723ac18"),
+        );
     pages::insert_page(
         conn,
         NewPage {
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
-            content: Value::Array(vec![]),
+            exercises: vec![exam_exercise_1, exam_exercise_2],
+            exercise_slides: vec![exam_exercise_slide_1, exam_exercise_slide_2],
+            exercise_tasks: vec![exam_exercise_task_1, exam_exercise_task_2],
+            content: serde_json::json!([exam_exercise_block_1, exam_exercise_block_2,]),
             url_path: "".to_string(),
             title: "".to_string(),
             course_id: None,
@@ -1519,6 +1630,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         admin,
         true,
         HistoryChangeReason::PageSaved,
+        false,
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
@@ -1559,6 +1671,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         admin,
         true,
         HistoryChangeReason::PageSaved,
+        false,
     )
     .await?;
 
@@ -1674,7 +1787,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         },
         admin,
         true,
-        HistoryChangeReason::PageSaved
+        HistoryChangeReason::PageSaved,
+        false,
     )
     .await?;
     // /chapter-2/user-research
@@ -1774,6 +1888,7 @@ async fn create_page(
         author,
         true,
         HistoryChangeReason::PageSaved,
+        false,
     )
     .await?;
     Ok(page.id)
@@ -1886,8 +2001,8 @@ async fn submit_and_grade(
     let submission = submissions::get_by_id(conn, sub).await?;
     let grading = gradings::new_grading(conn, &submission).await?;
     let grading_result = GradingResult {
-        feedback_json: None,
-        feedback_text: None,
+        feedback_json: Some(serde_json::json!([{"SelectedOptioIsCorrect": true}])),
+        feedback_text: Some("Good job!".to_string()),
         grading_progress: GradingProgress::FullyGraded,
         score_given: out_of_100,
         score_maximum: 100,

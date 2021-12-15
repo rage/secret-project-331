@@ -14,6 +14,7 @@ pub struct CourseMaterialExerciseTask {
     pub exercise_type: String,
     pub assignment: serde_json::Value,
     pub public_spec: Option<serde_json::Value>,
+    pub model_solution_spec: Option<serde_json::Value>,
 }
 
 impl From<ExerciseTask> for CourseMaterialExerciseTask {
@@ -24,6 +25,7 @@ impl From<ExerciseTask> for CourseMaterialExerciseTask {
             exercise_slide_id: exercise_task.exercise_slide_id,
             exercise_type: exercise_task.exercise_type,
             public_spec: exercise_task.public_spec,
+            model_solution_spec: None,
         }
     }
 }
@@ -105,14 +107,15 @@ pub async fn get_random_exercise_task(
     conn: &mut PgConnection,
     exercise_id: Uuid,
 ) -> ModelResult<CourseMaterialExerciseTask> {
-    let exercise_task = sqlx::query_as!(
+    let mut exercise_task = sqlx::query_as!(
         CourseMaterialExerciseTask,
         r#"
 SELECT t.id,
   t.exercise_slide_id,
   t.exercise_type,
   t.assignment,
-  t.public_spec
+  t.public_spec,
+  t.model_solution_spec
 FROM exercise_tasks t
   JOIN exercise_slides s ON (t.exercise_slide_id = s.id)
 WHERE s.exercise_id = $1
@@ -124,6 +127,7 @@ ORDER BY random();
     )
     .fetch_one(conn)
     .await?;
+    exercise_task.model_solution_spec = None;
     Ok(exercise_task)
 }
 
@@ -189,7 +193,8 @@ pub async fn get_existing_user_exercise_task_for_course_instance(
         conn,
         user_id,
         exercise_id,
-        course_instance_id,
+        Some(course_instance_id),
+        None,
     )
     .await?;
     let exercise_task = if let Some(user_exercise_state) = user_exercise_state {
@@ -206,18 +211,19 @@ pub async fn get_existing_user_exercise_task_for_course_instance(
     Ok(exercise_task)
 }
 
-pub async fn get_or_select_user_exercise_task_for_course_instance(
+pub async fn get_or_select_user_exercise_task_for_course_instance_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_instance_id: Option<Uuid>,
+    exam_id: Option<Uuid>,
 ) -> ModelResult<CourseMaterialExerciseTask> {
     let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
         conn,
         user_id,
         exercise_id,
-        Some(course_instance_id),
-        None,
+        course_instance_id,
+        exam_id,
     )
     .await?;
     let selected_exercise_slide_id =
@@ -233,6 +239,7 @@ pub async fn get_or_select_user_exercise_task_for_course_instance(
                 user_id,
                 exercise_id,
                 course_instance_id,
+                exam_id,
                 Some(exercise_slide_id),
             )
             .await?;
@@ -287,4 +294,22 @@ RETURNING id;
     .map(|x| x.id)
     .collect();
     Ok(deleted_ids)
+}
+
+pub async fn get_exercise_task_model_solution_spec_by_id(
+    conn: &mut PgConnection,
+    exercise_task_id: Uuid,
+) -> ModelResult<Option<serde_json::Value>> {
+    let exercise_task = sqlx::query_as!(
+        ExerciseTask,
+        "
+SELECT *
+FROM exercise_tasks et
+WHERE et.id = $1;
+    ",
+        exercise_task_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(exercise_task.model_solution_spec)
 }

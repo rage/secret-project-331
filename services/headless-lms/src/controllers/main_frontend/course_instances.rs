@@ -191,7 +191,7 @@ pub fn _add_course_instances_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_email_templates_by_course_instance_id),
         )
         .route(
-            "/{course_instance_id}/point_export",
+            "/{course_instance_id}/points/export",
             web::get().to(point_export),
         )
         .route("/{course_instance_id}/edit", web::post().to(edit))

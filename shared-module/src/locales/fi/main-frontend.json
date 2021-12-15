@@ -21,7 +21,7 @@
   "error-could-not-find-edit-history-for-page": "Sivulle ei löytynyt muokkaushistoriaa",
   "error-loading-organizations": "Virhe organisaatioiden lataamisessa",
   "error-title": "Virhe",
-  "export-points-as-csv": "Lataa pisteet CSV-tiedostona",
+  "error-unknown-in-component": "Määrittelemätön virhe komponentissa {{component}}",
   "feedback-given": "Palaute: {{feedback-given}}",
   "selected-text": "Valittu teksti: {{selected-text}}",
   "no-selected-text": "Ei valittua tekstiä",
@@ -135,5 +135,6 @@
   "courses": "Kurssit",
   "add": "Lisää",
   "add-course": "Lisää kurssi",
-  "course-id": "Kurssin tunnus"
+  "course-id": "Kurssin tunnus",
+  "no-submissions": "Ei palautuksia tehtävälle"
 }

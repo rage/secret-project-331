@@ -1,3 +1,5 @@
+import { Grading, Submission } from "./bindings"
+
 /**
  * from: IFrame
  *
@@ -33,7 +35,26 @@ export interface ReadyMessage {
  *
  * to: IFrame
  */
-export interface SetStateMessage {
-  message: "set-state"
-  data: unknown
-}
+export type SetStateMessage = { message: "set-state" } & IframeState
+
+export type IframeState =
+  | {
+      view_type: "exercise"
+      data: {
+        public_spec: unknown
+        previous_submission: Submission | null
+      }
+    }
+  | {
+      view_type: "view-submission"
+      data: {
+        grading: Grading | null
+        user_answer: unknown
+        public_spec: unknown
+        model_solution_spec: unknown
+      }
+    }
+  | {
+      view_type: "exercise-editor"
+      data: { private_spec: unknown }
+    }

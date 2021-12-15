@@ -26,6 +26,8 @@ spec:
       app: cms
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: cms
     spec:
@@ -40,5 +42,8 @@ spec:
               value: "/cms"
           resources:
             requests:
-              memory: 200Mi
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
               cpu: 200m

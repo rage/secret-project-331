@@ -1,11 +1,13 @@
 use anyhow::Result;
-use chrono::{TimeZone, Utc};
+use chrono::{Duration, TimeZone, Utc};
 use headless_lms_actix::attributes;
 use headless_lms_actix::models::chapters::NewChapter;
+use headless_lms_actix::models::course_instance_enrollments::NewCourseInstanceEnrollment;
 use headless_lms_actix::models::course_instances::NewCourseInstance;
 use headless_lms_actix::models::courses::NewCourse;
 use headless_lms_actix::models::exercises::GradingProgress;
 use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
+use headless_lms_actix::models::page_history::HistoryChangeReason;
 use headless_lms_actix::models::pages::{
     CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
 };
@@ -18,7 +20,9 @@ use headless_lms_actix::models::{
     exercises, organizations, pages, roles, roles::UserRole, submissions, user_exercise_states,
     users,
 };
-use headless_lms_actix::models::{feedback, playground_examples};
+use headless_lms_actix::models::{
+    course_instance_enrollments, exams, feedback, playground_examples,
+};
 use headless_lms_actix::models::{gradings, proposed_page_edits};
 use headless_lms_actix::setup_tracing;
 use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
@@ -26,10 +30,13 @@ use serde_json::Value;
 use sqlx::migrate::MigrateDatabase;
 use sqlx::{Connection, PgConnection, Postgres};
 use std::{env, process::Command};
+use tracing::info;
 use uuid::Uuid;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    env::set_var("RUST_LOG", "info,sqlx=warn");
+
     dotenv::dotenv().ok();
     setup_tracing()?;
 
@@ -37,6 +44,7 @@ async fn main() -> Result<()> {
     let db_url = env::var("DATABASE_URL")?;
 
     if clean {
+        info!("cleaning");
         // hardcoded for now
         let status = Command::new("dropdb")
             .args(["-U", "headless-lms"])
@@ -51,10 +59,12 @@ async fn main() -> Result<()> {
     }
     let mut conn = PgConnection::connect(&db_url).await?;
     if clean {
+        info!("running migrations");
         sqlx::migrate!("./migrations").run(&mut conn).await?;
     }
 
     // exercise services
+    info!("inserting exercise services");
     let _example_exercise_exercise_service = exercise_services::insert_exercise_service(
         &mut conn,
         &exercise_services::ExerciseServiceNewOrUpdate {
@@ -83,6 +93,7 @@ async fn main() -> Result<()> {
     .await?;
 
     // users
+    info!("inserting users");
     let admin = users::insert_with_id(
         &mut conn,
         "admin@example.com",
@@ -115,7 +126,35 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    let users = vec![
+        users::insert_with_id(
+            &mut conn,
+            "user_1@example.com",
+            Uuid::parse_str("00e249d8-345f-4eff-aedb-7bdc4c44c1d5")?,
+        )
+        .await?,
+        users::insert_with_id(
+            &mut conn,
+            "user_2@example.com",
+            Uuid::parse_str("8d7d6c8c-4c31-48ae-8e20-c68fa95c25cc")?,
+        )
+        .await?,
+        users::insert_with_id(
+            &mut conn,
+            "user_3@example.com",
+            Uuid::parse_str("fbeb9286-3dd8-4896-a6b8-3faffa3fabd6")?,
+        )
+        .await?,
+        users::insert_with_id(
+            &mut conn,
+            "user_4@example.com",
+            Uuid::parse_str("3524d694-7fa8-4e73-aa1a-de9a20fd514b")?,
+        )
+        .await?,
+    ];
+
     // uh-cs
+    info!("uh-cs");
     let uh_cs = organizations::insert(
         &mut conn,
         "University of Helsinki, Department of Computer Science",
@@ -125,6 +164,7 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    info!("inserting uh-cs courses");
     let cs_intro = seed_sample_course(
         &mut conn,
         uh_cs,
@@ -134,6 +174,7 @@ async fn main() -> Result<()> {
         admin,
         teacher,
         student,
+        &users,
     )
     .await?;
     seed_sample_course(
@@ -145,6 +186,7 @@ async fn main() -> Result<()> {
         admin,
         teacher,
         student,
+        &users,
     )
     .await?;
     seed_sample_course(
@@ -156,6 +198,7 @@ async fn main() -> Result<()> {
         admin,
         teacher,
         student,
+        &users,
     )
     .await?;
     seed_sample_course(
@@ -167,6 +210,7 @@ async fn main() -> Result<()> {
         admin,
         teacher,
         student,
+        &users,
     )
     .await?;
     let introduction_to_localizing = seed_sample_course(
@@ -178,6 +222,19 @@ async fn main() -> Result<()> {
         admin,
         teacher,
         student,
+        &users,
+    )
+    .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("b4cb334c-11d6-4e93-8f3d-849c4abfcd67")?,
+        "Point view for teachers",
+        "point-view-for-teachers",
+        admin,
+        teacher,
+        student,
+        &users,
     )
     .await?;
     seed_sample_course(
@@ -189,6 +246,7 @@ async fn main() -> Result<()> {
         admin,
         teacher,
         student,
+        &users,
     )
     .await?;
     roles::insert(
@@ -293,7 +351,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Example exercise".to_string(),
-            url: "http://project-331.local/example-exercise/exercise".to_string(),
+            url: "http://project-331.local/example-exercise/iframe".to_string(),
             width: 500,
             data: serde_json::json!([
               {
@@ -317,7 +375,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes, example, checkbox".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
                 "id": "57f03d8e-e768-485c-b0c3-a3e485a3e18a",
@@ -370,8 +428,8 @@ async fn main() -> Result<()> {
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
-            name: "Quizzes example, multiple-choice".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            name: "Quizzes example, multiple-choice, row".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!(
               {
@@ -450,8 +508,88 @@ async fn main() -> Result<()> {
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice, column".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
+            width: 500,
+            data: serde_json::json!(
+              {
+                "id": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
+                "courseId": "5209f752-9db9-4daf-a7bc-64e21987b719",
+                "body": "Something about CSS and color codes",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "section": 1,
+                "title": "Something about CSS and color codes",
+                "tries": 1,
+                "triesLimited": false,
+                "items": [
+                    {
+                        "id": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                        "body": "Which of the color codes represent the color **red**?",
+                        "direction": "column",
+                        "formatRegex": null,
+                        "maxLabel": null,
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minLabel": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "multi": false,
+                        "order": 1,
+                        "quizId": "3ee47b02-ba13-46a7-957e-fd4f21fc290b",
+                        "title": "Hexadecimal color codes",
+                        "type": "multiple-choice",
+                        "options": [
+                            {
+                                "id": "8d17a216-9655-4558-adfb-cf66fb3e08ba",
+                                "body": "#00ff00",
+                                "order": 1,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "11e0f3ac-fe21-4524-93e6-27efd4a92595",
+                                "body": "#0000ff",
+                                "order": 2,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "e0033168-9f92-4d71-9c23-7698de9ea3b0",
+                                "body": "#663300",
+                                "order": 3,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "2931180f-827f-468c-a616-a8df6e94f717",
+                                "body": "#ff0000",
+                                "order": 4,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                            {
+                                "id": "9f5a09d7-c03f-44dd-85db-38065600c2c3",
+                                "body": "#ffffff",
+                                "order": 5,
+                                "title": null,
+                                "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                            },
+                        ]
+                    }
+                ]
+              }
+            ),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
             name: "Quizzes example, multiple-choice, multi".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!(
               {
@@ -531,7 +669,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, essay".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!(              {
               "id": "47cbd36c-0c32-41f2-8a4a-b008de7d3494",
@@ -570,7 +708,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, multiple-choice dropdown".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
             "id": "1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4",
@@ -674,7 +812,7 @@ async fn main() -> Result<()> {
 
         PlaygroundExampleData {
             name: "Quizzes example, open".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
                 "id": "801b9275-5034-438d-922f-104af517468a",
@@ -714,7 +852,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, scale".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
                 "id": "3d3c633d-ea60-412f-8c85-8cab7742a5b8",
@@ -786,7 +924,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, multiple-choice clickable".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!({
               "id": "3562f83c-4d5d-41a9-aceb-a8f98511dd5d",
@@ -906,7 +1044,9 @@ async fn seed_sample_course(
     admin: Uuid,
     teacher: Uuid,
     student: Uuid,
+    users: &[Uuid],
 ) -> Result<Uuid> {
+    info!("inserting sample course {}", course_name);
     let new_course = NewCourse {
         name: course_name.to_string(),
         organization_id: org,
@@ -915,7 +1055,7 @@ async fn seed_sample_course(
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
     };
-    let (course, _front_page, _default_instance) = courses::insert_course(
+    let (course, _front_page, default_instance) = courses::insert_course(
         conn,
         course_id,
         Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
@@ -923,7 +1063,7 @@ async fn seed_sample_course(
         admin,
     )
     .await?;
-    let course_instance = course_instances::insert(
+    course_instances::insert(
         conn,
         NewCourseInstance {
             id: Uuid::new_v5(&course_id, b"67f077b4-0562-47ae-a2b9-db2f08f168a9"),
@@ -1154,178 +1294,104 @@ async fn seed_sample_course(
     )
     .await?;
 
-    // submissions
-    let submission_admin_c1p1e1t1_1 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"8c447aeb-1791-4236-8471-204d8bc27507"),
-            exercise_id: exercise_c1p1_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p1e1_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p1e1t1_1.to_string()),
-        },
-    )
-    .await?;
-    let submission_admin_c1p1e1t1_2 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"a719fe25-5721-412d-adea-4696ccb3d883"),
-            exercise_id: exercise_c1p1_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p1e1_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p1e1t1_2.to_string()),
-        },
-    )
-    .await?;
-    let submission_admin_c1p1e1t1_3 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"bbc16d4b-1f91-4bd0-a47f-047665a32196"),
-            exercise_id: exercise_c1p1_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p1e1_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p1e1t1_3.to_string()),
-        },
-    )
-    .await?;
-    let _submission_admin_c1p1e1t1_4 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"c60bf5e5-9b67-4f62-9df7-16d268c1b5f5"),
-            exercise_id: exercise_c1p1_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p1e1_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p1e1t1_1.to_string()),
-        },
-    )
-    .await?;
-    let submission_admin_c1p2e1t1 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"e0ec1386-72aa-4eed-8b91-72bba420c23b"),
-            exercise_id: exercise_c1p2_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p2e1_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p2e1t1_1.to_string()),
-        },
-    )
-    .await?;
-    let submission_admin_c1p2e2t1 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"4c6b8f4f-40c9-4970-947d-077e25c67e24"),
-            exercise_id: exercise_c1p2_2,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p2e2_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p2e2t1_1.to_string()),
-        },
-    )
-    .await?;
-    let submission_admin_c2p1e1t1 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"02c9e1ad-6e4c-4473-a3e9-dbfab018a055"),
-            exercise_id: exercise_c2p1_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c2p1e1_1,
-            user_id: admin,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c2p1e1t1_1.to_string()),
-        },
-    )
-    .await?;
-    let submission_teacher_c1p1e1t1 = submissions::insert_with_id(
-        conn,
-        &submissions::SubmissionData {
-            id: Uuid::new_v5(&course_id, b"75df4600-d337-4083-99d1-e8e3b6bf6192"),
-            exercise_id: exercise_c1p1_1,
-            course_id: course.id,
-            exercise_task_id: exercise_task_c1p1e1_1,
-            user_id: teacher,
-            course_instance_id: course_instance.id,
-            data_json: Value::String(spec_c1p1e1t1_1.to_string()),
-        },
-    )
-    .await?;
+    // enrollments, user exercise states, submissions, grades
+    for &user_id in users {
+        course_instance_enrollments::insert_enrollment_and_set_as_current(
+            conn,
+            NewCourseInstanceEnrollment {
+                course_id,
+                course_instance_id: default_instance.id,
+                user_id,
+            },
+        )
+        .await?;
 
-    // intro gradings
-    grade(
-        conn,
-        submission_admin_c1p1e1t1_1,
-        exercise_c1p1_1,
-        GradingProgress::FullyGraded,
-        100.0,
-        100,
-    )
-    .await?;
-    // this grading is for the same exercise, but no points are removed due to the update strategy
-    grade(
-        conn,
-        submission_admin_c1p1e1t1_2,
-        exercise_c1p1_1,
-        GradingProgress::Failed,
-        1.0,
-        100,
-    )
-    .await?;
-    // this grading is for the same exercise, but no points are removed due to the update strategy
-    grade(
-        conn,
-        submission_admin_c1p1e1t1_3,
-        exercise_c1p1_1,
-        GradingProgress::Pending,
-        0.0,
-        100,
-    )
-    .await?;
-    grade(
-        conn,
-        submission_admin_c1p2e1t1,
-        exercise_c1p2_1,
-        GradingProgress::FullyGraded,
-        60.0,
-        100,
-    )
-    .await?;
-    grade(
-        conn,
-        submission_admin_c1p2e2t1,
-        exercise_c1p2_2,
-        GradingProgress::FullyGraded,
-        70.0,
-        100,
-    )
-    .await?;
-    grade(
-        conn,
-        submission_admin_c2p1e1t1,
-        exercise_c2p1_1,
-        GradingProgress::FullyGraded,
-        80.0,
-        100,
-    )
-    .await?;
-    grade(
-        conn,
-        submission_teacher_c1p1e1t1,
-        exercise_c1p1_1,
-        GradingProgress::FullyGraded,
-        90.0,
-        100,
-    )
-    .await?;
+        submit_and_grade(
+            conn,
+            b"8c447aeb-1791-4236-8471-204d8bc27507",
+            exercise_c1p1_1,
+            course.id,
+            exercise_task_c1p1e1_1,
+            user_id,
+            default_instance.id,
+            spec_c1p1e1t1_1.to_string(),
+            100.0,
+        )
+        .await?;
+        // this submission is for the same exercise, but no points are removed due to the update strategy
+        submit_and_grade(
+            conn,
+            b"a719fe25-5721-412d-adea-4696ccb3d883",
+            exercise_c1p1_1,
+            course.id,
+            exercise_task_c1p1e1_1,
+            user_id,
+            default_instance.id,
+            spec_c1p1e1t1_2.to_string(),
+            1.0,
+        )
+        .await?;
+        submit_and_grade(
+            conn,
+            b"bbc16d4b-1f91-4bd0-a47f-047665a32196",
+            exercise_c1p1_1,
+            course.id,
+            exercise_task_c1p1e1_1,
+            user_id,
+            default_instance.id,
+            spec_c1p1e1t1_3.to_string(),
+            0.0,
+        )
+        .await?;
+        submit_and_grade(
+            conn,
+            b"c60bf5e5-9b67-4f62-9df7-16d268c1b5f5",
+            exercise_c1p1_1,
+            course.id,
+            exercise_task_c1p1e1_1,
+            user_id,
+            default_instance.id,
+            spec_c1p1e1t1_1.to_string(),
+            60.0,
+        )
+        .await?;
+        submit_and_grade(
+            conn,
+            b"e0ec1386-72aa-4eed-8b91-72bba420c23b",
+            exercise_c1p2_1,
+            course.id,
+            exercise_task_c1p2e1_1,
+            user_id,
+            default_instance.id,
+            spec_c1p2e1t1_1.to_string(),
+            70.0,
+        )
+        .await?;
+        submit_and_grade(
+            conn,
+            b"02c9e1ad-6e4c-4473-a3e9-dbfab018a055",
+            exercise_c2p1_1,
+            course.id,
+            exercise_task_c2p1e1_1,
+            user_id,
+            default_instance.id,
+            spec_c2p1e1t1_1.to_string(),
+            80.0,
+        )
+        .await?;
+        submit_and_grade(
+            conn,
+            b"75df4600-d337-4083-99d1-e8e3b6bf6192",
+            exercise_c1p1_1,
+            course.id,
+            exercise_task_c1p1e1_1,
+            user_id,
+            default_instance.id,
+            spec_c1p1e1t1_1.to_string(),
+            90.0,
+        )
+        .await?;
+    }
 
     // feedback
     let new_feedback = NewFeedback {
@@ -1416,31 +1482,70 @@ async fn seed_sample_course(
     };
     proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
 
-    Ok(course.id)
-}
+    // exams
+    let exam_id = Uuid::new_v5(&course_id, b"7d6ed843-2a94-445b-8ced-ab3c67290ad0");
+    exams::insert(
+        conn,
+        exam_id,
+        "Course exam",
+        Some(Utc::now()),
+        Some(Utc::now() + Duration::days(30)),
+        Some(120),
+        org,
+    )
+    .await?;
+    pages::insert_page(
+        conn,
+        NewPage {
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: Value::Array(vec![]),
+            url_path: "".to_string(),
+            title: "".to_string(),
+            course_id: None,
+            exam_id: Some(exam_id),
+            chapter_id: None,
+            front_page_of_chapter_id: None,
+            content_search_language: None,
+        },
+        teacher,
+    )
+    .await?;
+    exams::set_course(conn, exam_id, course.id).await?;
 
-async fn grade(
-    conn: &mut PgConnection,
-    sub_id: Uuid,
-    ex_id: Uuid,
-    grading_progress: GradingProgress,
-    score_given: f32,
-    score_maximum: i32,
-) -> Result<()> {
-    let submission = submissions::get_by_id(conn, sub_id).await?;
-    let grading = gradings::new_grading(conn, &submission).await?;
-    let grading_result = GradingResult {
-        feedback_json: None,
-        feedback_text: None,
-        grading_progress,
-        score_given,
-        score_maximum,
-    };
-    let exercise = exercises::get_by_id(conn, ex_id).await?;
-    let grading = gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
-    submissions::set_grading_id(conn, grading.id, submission.id).await?;
-    user_exercise_states::update_user_exercise_state(conn, &grading, &submission).await?;
-    Ok(())
+    let exam_id = Uuid::new_v5(&course_id, b"94393cf5-1814-4d57-80d5-e5af93790967");
+    exams::insert(
+        conn,
+        exam_id,
+        "Repeat exam",
+        Some(Utc::now()),
+        Some(Utc::now() + Duration::days(30)),
+        Some(120),
+        org,
+    )
+    .await?;
+    pages::insert_page(
+        conn,
+        NewPage {
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: Value::Array(vec![]),
+            url_path: "".to_string(),
+            title: "".to_string(),
+            course_id: None,
+            exam_id: Some(exam_id),
+            chapter_id: None,
+            front_page_of_chapter_id: None,
+            content_search_language: None,
+        },
+        teacher,
+    )
+    .await?;
+    exams::set_course(conn, exam_id, course.id).await?;
+
+    Ok(course.id)
 }
 
 async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid) -> Result<Uuid> {
@@ -1486,6 +1591,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         },
         admin,
         true,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
@@ -1525,6 +1631,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         },
         admin,
         true,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
 
@@ -1640,6 +1747,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         },
         admin,
         true,
+        HistoryChangeReason::PageSaved
     )
     .await?;
     // /chapter-2/user-research
@@ -1714,12 +1822,14 @@ async fn create_page(
         content: Value::Array(vec![]),
         url_path: page_data.url_path.to_string(),
         title: format!("{} WIP", page_data.title),
-        course_id,
+        course_id: Some(course_id),
+        exam_id: None,
         chapter_id: Some(chapter_id),
         front_page_of_chapter_id: None,
         exercises: vec![],
         exercise_slides: vec![],
         exercise_tasks: vec![],
+        content_search_language: None,
     };
     let page = pages::insert_page(conn, new_page, author).await?;
     pages::update_page(
@@ -1736,6 +1846,7 @@ async fn create_page(
         },
         author,
         true,
+        HistoryChangeReason::PageSaved,
     )
     .await?;
     Ok(page.id)
@@ -1815,4 +1926,48 @@ fn example_exercise(
         ])),
     };
     (block, exercise, exercise_slide, exercise_task)
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn submit_and_grade(
+    conn: &mut PgConnection,
+    id: &[u8],
+    exercise_id: Uuid,
+    course_id: Uuid,
+    exercise_task_id: Uuid,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+    spec: String,
+    out_of_100: f32,
+) -> Result<()> {
+    // combine the id with the user id to ensure it's unique
+    let id = [id, &user_id.as_bytes()[..]].concat();
+    let sub = submissions::insert_with_id(
+        conn,
+        &submissions::SubmissionData {
+            id: Uuid::new_v5(&course_id, &id),
+            exercise_id,
+            course_id,
+            exercise_task_id,
+            user_id,
+            course_instance_id,
+            data_json: Value::String(spec),
+        },
+    )
+    .await?;
+
+    let submission = submissions::get_by_id(conn, sub).await?;
+    let grading = gradings::new_grading(conn, &submission).await?;
+    let grading_result = GradingResult {
+        feedback_json: Some(serde_json::json!([{"SelectedOptioIsCorrect": true}])),
+        feedback_text: Some("Good job!".to_string()),
+        grading_progress: GradingProgress::FullyGraded,
+        score_given: out_of_100,
+        score_maximum: 100,
+    };
+    let exercise = exercises::get_by_id(conn, exercise_id).await?;
+    let grading = gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
+    submissions::set_grading_id(conn, grading.id, submission.id).await?;
+    user_exercise_states::update_user_exercise_state(conn, &grading, &submission).await?;
+    Ok(())
 }

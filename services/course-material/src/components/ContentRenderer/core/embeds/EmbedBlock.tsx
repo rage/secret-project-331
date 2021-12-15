@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 import { EmbedAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 
 const YoutubeEmbeddedBlock: React.FC<EmbedAttributes> = (props) => {
   const { t } = useTranslation()
@@ -85,7 +85,7 @@ const EmbedBlock: React.FC<BlockRendererProps<EmbedAttributes>> = (props) => {
   const type = data.attributes.providerNameSlug
 
   return (
-    <div className={courseMaterialCenteredComponentStyles}>
+    <div className={normalWidthCenteredComponentStyles}>
       {type === "youtube" && <YoutubeEmbeddedBlock {...props.data.attributes} />}
       {type === "twitter" && <TwitterEmbeddedBlock {...props.data.attributes} />}
       {type === "spotify" && <SpotifyEmbeddedBlock {...props.data.attributes} />}

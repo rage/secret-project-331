@@ -2,6 +2,7 @@ import React, { ComponentType, useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
+import ErrorBanner from "../components/ErrorBanner"
 import Spinner from "../components/Spinner"
 import { loggedIn } from "../services/backend/auth"
 
@@ -25,19 +26,19 @@ export default LoginStateContext
 
 export const LoginStateContextProvider: React.FC = ({ children }) => {
   const [loginState, setLoginState] = useState(defaultLoginState)
-  const { isLoading, error, data, refetch } = useQuery(`logged-in`, loggedIn)
+  const isLoggedIn = useQuery(`logged-in`, loggedIn)
 
   useEffect(() => {
     setLoginState((prev) => ({
       ...prev,
-      isLoading,
-      refresh: refetch,
-      signedIn: data,
+      isLoading: isLoggedIn.isLoading,
+      refresh: isLoggedIn.refetch,
+      signedIn: isLoggedIn.data,
     }))
-  }, [data, isLoading, refetch])
+  }, [isLoggedIn.data, isLoggedIn.isLoading, isLoggedIn.refetch])
 
-  if (error) {
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
+  if (isLoggedIn.isError) {
+    return <ErrorBanner variant={"readOnly"} error={isLoggedIn.error} />
   }
 
   return <LoginStateContext.Provider value={loginState}>{children}</LoginStateContext.Provider>

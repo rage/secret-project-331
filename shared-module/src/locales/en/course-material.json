@@ -60,6 +60,9 @@
   "n-characters-left": "{{n}} characters left",
   "n-characters-over-limit": "{{n}} characters over the limit",
   "add-comment": "Add comment",
+  "write-your-feedback-here": "Write your feedback here",
+  "added-text": "Added text",
+  "removed-text": "Removed text",
   "feedback-submitted-succesfully": "Feedback submitted successfully",
   "written-feedback": "Written feedback",
   "improve-material": "Improve material",
@@ -72,6 +75,9 @@
   "button-label-search-for-pages": "Search for pages",
   "search": "Search",
   "search-field-placeholder": "Search...",
+  "search-pages-container": "Search pages container",
   "available-in-languages": "Available in {{num}} languages",
-  "screen-reader-opens-in-new-tab": "(opens in a new tab)"
+  "screen-reader-opens-in-new-tab": "(opens in a new tab)",
+  "try-again": "try again",
+  "error-page-without-course": "Error: Page is not associated with any course"
 }

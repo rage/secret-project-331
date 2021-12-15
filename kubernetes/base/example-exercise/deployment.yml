@@ -26,6 +26,8 @@ spec:
       app: example-exercise
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: example-exercise
     spec:
@@ -40,5 +42,8 @@ spec:
               value: "/example-exercise"
           resources:
             requests:
-              memory: 200Mi
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
               cpu: 200m

@@ -1,10 +1,14 @@
 import { Alert } from "@material-ui/lab"
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
+import { useMemoOne } from "use-memo-one"
 
 import MessageChannelIFrame from "../../shared-module/components/MessageChannelIFrame"
-import { SetStateMessage } from "../../shared-module/iframe-protocol-types"
+import { IframeState } from "../../shared-module/iframe-protocol-types"
 import { isCurrentStateMessage } from "../../shared-module/iframe-protocol-types.guard"
+
+const VIEW_TYPE = "exercise-editor"
+const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."
 
 interface ExerciseTaskIFrameEditorProps {
   onPrivateSpecChange(newSpec: unknown): void
@@ -17,47 +21,27 @@ const ExerciseTaskIFrameEditor: React.FC<ExerciseTaskIFrameEditorProps> = ({
   privateSpec,
   url,
 }) => {
-  const [specParseable, setSpecParseable] = useState(true)
   const { t } = useTranslation()
+
+  const postThisStateToIFrame: IframeState = useMemoOne(() => {
+    return { view_type: VIEW_TYPE, data: { private_spec: privateSpec } }
+  }, [privateSpec])
 
   if (!url || url.trim() === "") {
     return <Alert severity="error">{t("error-cannot-render-exercise-task-missing-url")}</Alert>
   }
 
-  if (!specParseable) {
-    return (
-      <>
-        <Alert severity="error">{t("error-spec-not-parseable")}</Alert>
-        <pre>{JSON.stringify(privateSpec)}</pre>
-      </>
-    )
-  }
-
+  console.log(url)
   return (
     <MessageChannelIFrame
       url={url}
-      onCommunicationChannelEstabilished={(port) => {
-        // eslint-disable-next-line i18next/no-literal-string
-        console.info("communication channel established")
-        let parsedPrivateSpec = null
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          parsedPrivateSpec = JSON.parse(privateSpec as any)
-        } catch (e) {
-          setSpecParseable(false)
-          return
-        }
-        // eslint-disable-next-line i18next/no-literal-string
-        const message: SetStateMessage = { message: "set-state", data: parsedPrivateSpec }
-        port.postMessage(message)
-      }}
+      postThisStateToIFrame={postThisStateToIFrame}
       onMessageFromIframe={(messageContainer, _responsePort) => {
         if (isCurrentStateMessage(messageContainer)) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
         } else {
-          // eslint-disable-next-line i18next/no-literal-string
-          console.error("Unexpected message or structure is not valid.")
+          console.error(UNEXPECTED_MESSAGE_ERROR)
         }
       }}
     />

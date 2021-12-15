@@ -9,8 +9,10 @@ import { useTranslation } from "react-i18next"
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import Button from "../../shared-module/components/Button"
 import { primaryFont, typography } from "../../shared-module/styles"
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
-import { gutenbergControlsHidden } from "../../styles/EditorStyles"
+import {
+  cmsNormalWidthCenteredComponentStyles,
+  gutenbergControlsHidden,
+} from "../../styles/EditorStyles"
 
 import { ExerciseAttributes } from "."
 
@@ -41,7 +43,7 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
 
   return (
     <ExerciseEditorCard id={attributes.id}>
-      <div className={normalWidthCenteredComponentStyles}>
+      <div className={cmsNormalWidthCenteredComponentStyles}>
         <div
           className={css`
             font-family: ${primaryFont};
@@ -65,7 +67,7 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
       <div className={gutenbergControlsHidden}>
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
       </div>
-      <div className={normalWidthCenteredComponentStyles}>
+      <div className={cmsNormalWidthCenteredComponentStyles}>
         <Button variant="primary" size="medium" onClick={handleAddNewSlide}>
           {t("add-slide")}
         </Button>

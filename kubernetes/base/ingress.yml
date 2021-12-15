@@ -3,7 +3,8 @@ kind: Ingress
 metadata:
   name: project-331-ingress
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-dev
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.org/websocket-services: "ws"
     nginx.ingress.kubernetes.io/limit-connections: "100"
     nginx.ingress.kubernetes.io/limit-rps: "100"
@@ -16,6 +17,7 @@ metadata:
       location /oembed/1.0/proxy {
          return 301 /api/v0/cms/oembed/preview?$args;
        }
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
     - http:
@@ -41,13 +43,20 @@ spec:
                 name: cms
                 port:
                   number: 3000
-          - path: /courses
+          - path: /org
             pathType: Prefix
             backend:
               service:
                 name: course-material
                 port:
                   number: 3003
+          - path: /org/[^/]+/?$
+            pathType: Exact
+            backend:
+              service:
+                name: main-frontend
+                port:
+                  number: 3000
           - path: /
             pathType: Prefix
             backend:

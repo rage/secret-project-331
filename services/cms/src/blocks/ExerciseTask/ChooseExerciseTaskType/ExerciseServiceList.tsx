@@ -1,7 +1,7 @@
 import { List, ListItem } from "@material-ui/core"
 import { useTranslation } from "react-i18next"
 
-import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import { cmsNormalWidthCenteredComponentStyles } from "../../../styles/EditorStyles"
 
 export interface ExerciseTaskTypes {
   name: string
@@ -11,11 +11,11 @@ export interface ExerciseTaskTypes {
 // Fetch iFrame exercise types from an endpoint?
 export const exerciseTaskTypes: ExerciseTaskTypes[] = [
   // eslint-disable-next-line i18next/no-literal-string
-  { name: "Quizzes", url: "/quizzes/editor", identifier: "quizzes" },
+  { name: "Quizzes", url: "/quizzes/iframe", identifier: "quizzes" },
   // eslint-disable-next-line i18next/no-literal-string
   { name: "Test My Code", url: null, identifier: "tmc" },
   // eslint-disable-next-line i18next/no-literal-string
-  { name: "Example Exercise", url: "/example-exercise/editor", identifier: "example-exercise" },
+  { name: "Example Exercise", url: "/example-exercise/iframe", identifier: "example-exercise" },
 ]
 
 interface Props {
@@ -25,7 +25,7 @@ interface Props {
 const ExerciseServiceList: React.FC<Props> = ({ onChooseItem }) => {
   const { t } = useTranslation()
   return (
-    <div className={normalWidthCenteredComponentStyles}>
+    <div className={cmsNormalWidthCenteredComponentStyles}>
       <h2>{t("please-select-exercise-type")}</h2>
       <List>
         {exerciseTaskTypes.map((eit) => (

@@ -1,6 +1,8 @@
 use super::{
     course_instances,
     exercise_tasks::{self, get_existing_user_exercise_task_for_course_instance},
+    gradings::Grading,
+    submissions::Submission,
     user_course_settings, ModelResult,
 };
 use chrono::{DateTime, Utc};
@@ -25,7 +27,8 @@ pub struct Exercise {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
     pub page_id: Uuid,
     pub chapter_id: Uuid,
     pub deadline: Option<DateTime<Utc>>,
@@ -46,6 +49,8 @@ pub struct CourseMaterialExercise {
     pub current_exercise_task_service_info: Option<CourseMaterialExerciseServiceInfo>,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
+    pub previous_submission: Option<Submission>,
+    pub grading: Option<Grading>,
 }
 
 /**
@@ -169,6 +174,30 @@ WHERE course_id = $1
     Ok(exercises)
 }
 
+pub async fn get_exercises_by_course_instance_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Exercise>> {
+    let exercises = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT *
+FROM exercises
+WHERE course_id = (
+    SELECT course_id
+    FROM course_instances
+    WHERE id = $1
+  )
+  AND deleted_at IS NULL
+ORDER BY order_number ASC
+"#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exercises)
+}
+
 pub async fn get_exercises_by_chapter_id(
     conn: &mut PgConnection,
     chapter_id: &Uuid,
@@ -208,10 +237,13 @@ WHERE page_id = $1
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
-    let course_id = sqlx::query!("SELECT course_id FROM exercises WHERE id = $1;", id)
-        .fetch_one(conn)
-        .await?
-        .course_id;
+    let course_id = sqlx::query!(
+        r#"SELECT course_id AS "course_id!" FROM exercises WHERE id = $1 AND course_id IS NOT NULL"#,
+        id
+    )
+    .fetch_one(conn)
+    .await?
+    .course_id;
     Ok(course_id)
 }
 
@@ -221,16 +253,18 @@ pub async fn get_course_material_exercise(
     exercise_id: Uuid,
 ) -> ModelResult<CourseMaterialExercise> {
     let exercise = get_by_id(conn, exercise_id).await?;
+    let course_id = if let Some(course_id) = exercise.course_id {
+        course_id
+    } else {
+        return Err(anyhow::anyhow!("The selected exercise is not attached to any course").into());
+    };
 
     let (selected_exercise_task, current_course_instance_id) = if let Some(user_id) = user_id {
-        let user_course_settings = user_course_settings::get_user_course_settings_by_course_id(
-            conn,
-            user_id,
-            exercise.course_id,
-        )
-        .await?;
+        let user_course_settings =
+            user_course_settings::get_user_course_settings_by_course_id(conn, user_id, course_id)
+                .await?;
         match user_course_settings {
-            Some(settings) if settings.current_course_id == exercise.course_id => {
+            Some(settings) if settings.current_course_id == course_id => {
                 // User is enrolled on an instance of the given course.
                 let task = exercise_tasks::get_or_select_user_exercise_task_for_course_instance(
                     conn,
@@ -245,9 +279,7 @@ pub async fn get_course_material_exercise(
                 // User is enrolled on a different language version of the course. Show exercise
                 // task based on their latest enrollment or a random one.
                 let latest_instance = course_instances::course_instance_by_users_latest_enrollment(
-                    conn,
-                    user_id,
-                    exercise.course_id,
+                    conn, user_id, course_id,
                 )
                 .await?;
                 if let Some(instance) = latest_instance {
@@ -316,6 +348,19 @@ pub async fn get_course_material_exercise(
         grading_progress = user_exercise_state.grading_progress;
     }
 
+    let previous_submission = if let Some(user_id) = user_id {
+        crate::models::submissions::get_latest_user_exercise_submission(conn, user_id, exercise_id)
+            .await?
+    } else {
+        None
+    };
+    let grading = if let Some(grading_id) = previous_submission.as_ref().and_then(|s| s.grading_id)
+    {
+        Some(crate::models::gradings::get_by_id(conn, grading_id).await?)
+    } else {
+        None
+    };
+
     Ok(CourseMaterialExercise {
         exercise,
         current_exercise_task: selected_exercise_task,
@@ -325,6 +370,8 @@ pub async fn get_course_material_exercise(
             grading_progress,
         }),
         current_exercise_task_service_info,
+        previous_submission,
+        grading,
     })
 }
 

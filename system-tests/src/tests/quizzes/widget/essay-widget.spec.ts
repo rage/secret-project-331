@@ -15,12 +15,11 @@ test("widget, essay", async ({ page, headless }) => {
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/quizzes/exercise?width=500")
+      return f.url().startsWith("http://project-331.local/quizzes/iframe?width=500")
     }),
   )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-essay",
     waitForThisToBeVisibleAndStable: [`text="Of the lamps of Fëanor"`],
@@ -33,7 +32,6 @@ test("widget, essay", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-essay-answered",
     waitForThisToBeVisibleAndStable: [`text="Of the lamps of Fëanor"`],
@@ -52,7 +50,6 @@ test("widget, essay", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-essay-long-answer",
     waitForThisToBeVisibleAndStable: [`text="Of the lamps of Fëanor"`, `text="Word count: 481"`],

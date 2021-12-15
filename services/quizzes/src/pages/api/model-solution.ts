@@ -2,16 +2,16 @@ import { NextApiRequest, NextApiResponse } from "next"
 
 import { ModelSolutionQuiz, Quiz } from "../../../types/types"
 
-interface QuizzesModelSolutionReg {
-  quiz: Quiz
+export default (req: NextApiRequest, res: NextApiResponse<ModelSolutionQuiz>): void => {
+  const quiz: Quiz = req.body
+
+  const modelSolution = createModelSolution(quiz)
+
+  return res.status(200).json(modelSolution)
 }
 
-interface QuizzesModelSolutionRes {
-  modelSolution: ModelSolutionQuiz
-}
+function createModelSolution(quiz: Quiz): ModelSolutionQuiz {
+  const modelSolution: ModelSolutionQuiz = quiz
 
-export default (req: NextApiRequest, res: NextApiResponse<QuizzesModelSolutionRes>): void => {
-  const { quiz }: QuizzesModelSolutionReg = req.body
-
-  return res.status(200).json({ modelSolution: { ...quiz } })
+  return modelSolution
 }

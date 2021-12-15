@@ -14,6 +14,7 @@ pub struct CourseMaterialExerciseTask {
     pub exercise_type: String,
     pub assignment: serde_json::Value,
     pub public_spec: Option<serde_json::Value>,
+    pub model_solution_spec: Option<serde_json::Value>,
 }
 
 impl From<ExerciseTask> for CourseMaterialExerciseTask {
@@ -24,6 +25,7 @@ impl From<ExerciseTask> for CourseMaterialExerciseTask {
             exercise_slide_id: exercise_task.exercise_slide_id,
             exercise_type: exercise_task.exercise_type,
             public_spec: exercise_task.public_spec,
+            model_solution_spec: None,
         }
     }
 }
@@ -80,8 +82,8 @@ RETURNING id
 
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let course_id = sqlx::query!(
-        "
-SELECT course_id
+        r#"
+SELECT course_id as "course_id!"
 FROM exercises
 WHERE id = (
     SELECT s.exercise_id
@@ -90,8 +92,9 @@ WHERE id = (
     WHERE s.deleted_at IS NULL
       AND t.id = $1
       AND t.deleted_at IS NULL
-  );
-        ",
+  )
+  AND course_id IS NOT NULL
+"#,
         id
     )
     .fetch_one(conn)
@@ -104,14 +107,15 @@ pub async fn get_random_exercise_task(
     conn: &mut PgConnection,
     exercise_id: Uuid,
 ) -> ModelResult<CourseMaterialExerciseTask> {
-    let exercise_task = sqlx::query_as!(
+    let mut exercise_task = sqlx::query_as!(
         CourseMaterialExerciseTask,
         r#"
 SELECT t.id,
   t.exercise_slide_id,
   t.exercise_type,
   t.assignment,
-  t.public_spec
+  t.public_spec,
+  t.model_solution_spec
 FROM exercise_tasks t
   JOIN exercise_slides s ON (t.exercise_slide_id = s.id)
 WHERE s.exercise_id = $1
@@ -123,6 +127,7 @@ ORDER BY random();
     )
     .fetch_one(conn)
     .await?;
+    exercise_task.model_solution_spec = None;
     Ok(exercise_task)
 }
 
@@ -215,7 +220,8 @@ pub async fn get_or_select_user_exercise_task_for_course_instance(
         conn,
         user_id,
         exercise_id,
-        course_instance_id,
+        Some(course_instance_id),
+        None,
     )
     .await?;
     let selected_exercise_slide_id =
@@ -285,4 +291,22 @@ RETURNING id;
     .map(|x| x.id)
     .collect();
     Ok(deleted_ids)
+}
+
+pub async fn get_exercise_task_model_solution_spec_by_id(
+    conn: &mut PgConnection,
+    exercise_task_id: Uuid,
+) -> ModelResult<Option<serde_json::Value>> {
+    let exercise_task = sqlx::query_as!(
+        ExerciseTask,
+        "
+SELECT *
+FROM exercise_tasks et
+WHERE et.id = $1;
+    ",
+        exercise_task_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(exercise_task.model_solution_spec)
 }

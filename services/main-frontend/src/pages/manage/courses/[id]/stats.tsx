@@ -3,8 +3,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../../../../components/Layout"
-import CourseSubmissionsByDay from "../../../../components/stats/CourseSubmissionsByDay"
-import CourseSubmissionsByWeekdayAndHour from "../../../../components/stats/CourseSubmissionsByWeekdayAndHour"
+import CourseSubmissionsByDay from "../../../../components/page-specific/manage/courses/id/stats/CourseSubmissionsByDay"
+import CourseSubmissionsByWeekdayAndHour from "../../../../components/page-specific/manage/courses/id/stats/CourseSubmissionsByWeekdayAndHour"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
   dontRenderUntilQueryParametersReady,

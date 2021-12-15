@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use super::{course_instances::CourseInstance, ModelResult};
 use crate::{
@@ -536,7 +536,7 @@ pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> ModelResu
 pub async fn get_course_structure(
     conn: &mut PgConnection,
     course_id: Uuid,
-    file_store: &impl FileStore,
+    file_store: &Arc<dyn FileStore>,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseStructure> {
     let course = get_course(conn, course_id).await?;
@@ -553,7 +553,7 @@ pub async fn get_course_structure(
     })
 }
 
-pub async fn organization_courses(
+pub async fn organization_courses_paginated(
     conn: &mut PgConnection,
     organization_id: &Uuid,
     pagination: &Pagination,
@@ -581,6 +581,36 @@ WHERE organization_id = $1
         organization_id,
         pagination.limit(),
         pagination.offset()
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
+pub async fn organization_courses(
+    conn: &mut PgConnection,
+    organization_id: &Uuid,
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  course_language_group_id,
+  description
+FROM courses
+WHERE organization_id = $1
+  AND deleted_at IS NULL;
+        "#,
+        organization_id,
     )
     .fetch_all(conn)
     .await?;
@@ -666,13 +696,15 @@ RETURNING id,
     let course_front_page = NewPage {
         chapter_id: None,
         content: course_front_page_content,
-        course_id: course.id,
+        course_id: Some(course.id),
+        exam_id: None,
         front_page_of_chapter_id: None,
         title: course.name.clone(),
         url_path: String::from("/"),
         exercises: vec![],
         exercise_slides: vec![],
         exercise_tasks: vec![],
+        content_search_language: None,
     };
     let page = crate::models::pages::insert_page(&mut tx, course_front_page, user).await?;
 
@@ -1017,6 +1049,7 @@ SELECT id,
   created_at,
   updated_at,
   course_id,
+  exam_id,
   chapter_id,
   url_path,
   title,
@@ -1025,7 +1058,9 @@ SELECT id,
   order_number,
   copied_from
 FROM pages
-WHERE chapter_id = $1;",
+WHERE chapter_id = $1
+  AND course_id IS NOT NULL
+",
             copied_chapter.id
         )
         .fetch_one(tx.as_mut())

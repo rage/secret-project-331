@@ -1,17 +1,17 @@
 import { css } from "@emotion/css"
 import HelpIcon from "@material-ui/icons/Help"
-import { useContext, useState } from "react"
+import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery, useQueryClient } from "react-query"
+import { useMutation, useQuery } from "react-query"
 
 import ContentRenderer, { BlockRendererProps } from "../.."
 import CoursePageContext from "../../../../contexts/CoursePageContext"
+import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
 import { Block, fetchExerciseById, postSubmission } from "../../../../services/backend"
-import { SubmissionResult } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import DebugModal from "../../../../shared-module/components/DebugModal"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { courseMaterialCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../../../../shared-module/styles/constants"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../../GenericLoading"
@@ -29,40 +29,65 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const loginState = useContext(LoginStateContext)
   const coursePageContext = useContext(CoursePageContext)
   const showExercise = loginState.signedIn ? !!coursePageContext.settings : true
+  const [postThisStateToIFrame, dispatch] = useReducer(
+    exerciseBlockPostThisStateToIFrameReducer,
+    null,
+  )
 
   const id = props.data.attributes.id
   // eslint-disable-next-line i18next/no-literal-string
   const queryUniqueKey = `exercise-${id}`
-  const { isLoading, error, data } = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
+  const exerciseTask = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
     enabled: showExercise,
+    onSuccess: (data) => {
+      if (data.exercise_status?.score_given) {
+        setPoints(data.exercise_status?.score_given)
+      }
+      dispatch({
+        type: "exerciseDownloaded",
+        payload: data,
+      })
+    },
+  })
+
+  const postSubmissionMutation = useMutation(postSubmission, {
+    retry: 3,
+    onSuccess: (data) => {
+      setPoints(data.grading.score_given)
+      dispatch({
+        type: "submissionGraded",
+        payload: {
+          submissionResult: data,
+          publicSpec: exerciseTask.data?.current_exercise_task.public_spec,
+        },
+      })
+    },
   })
   const [answer, setAnswer] = useState<unknown>(null)
   const [answerValid, setAnswerValid] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [submissionResponse, setSubmissionResponse] = useState<SubmissionResult | null>(null)
-  const [submissionError, setSubmissionError] = useState<unknown | null>(null)
-  const queryClient = useQueryClient()
+  const [points, setPoints] = useState<number | null>(null)
 
-  if (error) {
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
+  if (exerciseTask.error) {
+    return <pre>{JSON.stringify(exerciseTask.error, undefined, 2)}</pre>
+  }
+  if (postSubmissionMutation.isError) {
+    return <pre>{JSON.stringify(postSubmissionMutation.error, undefined, 2)}</pre>
   }
 
   if (!showExercise) {
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
   }
 
-  if (isLoading || !data) {
+  if (exerciseTask.isLoading || !exerciseTask.data) {
     return <GenericLoading />
   }
 
-  const url = data.current_exercise_task_service_info?.exercise_iframe_url
+  const url = exerciseTask.data.current_exercise_task_service_info?.exercise_iframe_url
 
-  const currentExerciseTaskAssignment = data.current_exercise_task
+  const currentExerciseTaskAssignment = exerciseTask.data.current_exercise_task
     .assignment as unknown as Block<unknown>[]
 
   const courseInstanceId = coursePageContext?.instance?.id
-
-  const feedbackText = submissionResponse?.grading?.feedback_text
 
   return (
     <div
@@ -76,7 +101,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     >
       <div
         className={css`
-          ${courseMaterialCenteredComponentStyles}
+          ${normalWidthCenteredComponentStyles}
           display: flex;
           align-items: center;
           margin-bottom: 1.5rem;
@@ -95,7 +120,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             font-weight: 400;
           `}
         >
-          {data.exercise.name}
+          {exerciseTask.data.exercise.name}
         </h2>
         <div
           className={css`
@@ -110,7 +135,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         >
           {t("points-label")}
           <br />
-          {data.exercise_status?.score_given ?? 0}/{data.exercise.score_maximum}
+          {points ?? 0}/{exerciseTask.data.exercise.score_maximum}
         </div>
       </div>
       {currentExerciseTaskAssignment && (
@@ -123,7 +148,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       )}
       {url ? (
         <ExerciseTaskIframe
-          public_spec={data.current_exercise_task.public_spec}
+          postThisStateToIFrame={postThisStateToIFrame}
           url={`${url}?width=${defaultContainerWidth}`}
           setAnswer={setAnswer}
           setAnswerValid={setAnswerValid}
@@ -133,59 +158,50 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       )}
       <div
         className={css`
-          ${courseMaterialCenteredComponentStyles}
+          ${normalWidthCenteredComponentStyles}
           button {
             margin-bottom: 0.5rem;
           }
         `}
       >
-        <Button
-          size="medium"
-          variant="primary"
-          disabled={submitting || !courseInstanceId || !answerValid}
-          onClick={async () => {
-            if (!courseInstanceId) {
-              // eslint-disable-next-line i18next/no-literal-string
-              console.error("Tried to submit without a current course instance id")
-              return
-            }
-            try {
-              setSubmitting(true)
-              setSubmissionResponse(null)
-              setSubmissionError(null)
-              const res = await postSubmission({
-                exercise_task_id: data.current_exercise_task.id,
+        {!postSubmissionMutation.isSuccess && (
+          <Button
+            size="medium"
+            variant="primary"
+            disabled={postSubmissionMutation.isLoading || !courseInstanceId || !answerValid}
+            onClick={() => {
+              if (!courseInstanceId) {
+                return
+              }
+              postSubmissionMutation.mutate({
                 course_instance_id: courseInstanceId,
+                exercise_task_id: exerciseTask.data.current_exercise_task.id,
                 data_json: answer,
               })
-              setSubmitting(false)
-              setSubmissionResponse(res)
-              const scoreGiven = res.grading.score_given ?? 0
-              const newData = { ...data }
-              if (newData.exercise_status) {
-                newData.exercise_status.score_given = scoreGiven
-                queryClient.setQueryData(queryUniqueKey, newData)
-              }
-            } catch (e: unknown) {
-              console.error(e)
-              setSubmissionResponse(null)
-              if (e instanceof Error) {
-                setSubmissionError(e.toString())
-              } else {
-                setSubmissionError(t("error-submission-failed"))
-              }
-            } finally {
-              setSubmitting(false)
-            }
-          }}
-        >
-          {t("submit-button")}
-        </Button>
-        {feedbackText && <p>{feedbackText}</p>}
-        {submissionResponse && <pre>{JSON.stringify(submissionResponse, undefined, 2)}</pre>}
-        {submissionError && <pre>{JSON.stringify(submissionError, undefined, 2)}</pre>}
+            }}
+          >
+            {t("submit-button")}
+          </Button>
+        )}
+        {postSubmissionMutation.isSuccess && (
+          <Button
+            variant="primary"
+            size="medium"
+            onClick={() => {
+              dispatch({
+                type: "tryAgain",
+                payload: exerciseTask.data,
+              })
+              postSubmissionMutation.reset()
+              setAnswerValid(false)
+            }}
+          >
+            {t("try-again")}
+          </Button>
+        )}
+        {postSubmissionMutation.isError && <></>}
         <br />
-        <DebugModal data={data} />
+        <DebugModal data={exerciseTask.data} />
       </div>
     </div>
   )

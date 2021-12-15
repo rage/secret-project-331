@@ -26,6 +26,8 @@ spec:
       app: quizzes
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: quizzes
     spec:
@@ -40,5 +42,8 @@ spec:
               value: "/quizzes"
           resources:
             requests:
-              memory: 200Mi
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
               cpu: 200m

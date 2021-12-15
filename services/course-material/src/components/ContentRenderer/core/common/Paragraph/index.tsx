@@ -3,12 +3,13 @@ import { diffChars } from "diff"
 import KaTex from "katex"
 import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useMemo } from "use-memo-one"
 
 import { BlockRendererProps } from "../../.."
 import { ParagraphAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { baseTheme } from "../../../../../shared-module/styles"
-import { courseMaterialCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
@@ -77,6 +78,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
   // eslint-disable-next-line i18next/no-literal-string
   const bgColor = colorMapper(backgroundColor, "unset")
   const [editedContent, setEditedContent] = useState(data.attributes.content)
+  const { t } = useTranslation()
 
   // edited content should not persist between edit proposals
   // reset edited content when no longer editing
@@ -96,7 +98,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
       return (
         <p
           className={css`
-            ${courseMaterialCenteredComponentStyles}
+            ${normalWidthCenteredComponentStyles}
             white-space: pre-line;
             min-width: 1px;
             color: ${textColor};
@@ -139,7 +141,8 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         if (diff.added) {
           spans.push(
             <mark
-              aria-roledescription={"Added text"}
+              role="note"
+              aria-label={t("added-text")}
               className={css`
                 background: ${baseTheme.colors.blue[0]};
               `}
@@ -150,7 +153,8 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         } else if (diff.removed) {
           spans.push(
             <mark
-              aria-roledescription={"Removed text"}
+              role="note"
+              aria-label={t("removed-text")}
               className={css`
                 background: ${baseTheme.colors.red[0]};
               `}
@@ -165,7 +169,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
       return (
         <p
           className={css`
-            ${courseMaterialCenteredComponentStyles}
+            ${normalWidthCenteredComponentStyles}
             white-space: pre-line;
             min-width: 1px;
             color: ${textColor};
@@ -187,7 +191,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
   return (
     <P
       className={css`
-        ${courseMaterialCenteredComponentStyles}
+        ${normalWidthCenteredComponentStyles}
         ${dropCap ? hasDropCap : null}
         white-space: pre-line;
         min-width: 1px;

@@ -5,6 +5,7 @@ metadata:
   labels:
     app: service-info-fetcher
     deploymentType: with-init-container
+    needs-db: "true"
 spec:
   replicas: 1
   selector:
@@ -12,6 +13,8 @@ spec:
       app: service-info-fetcher
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: service-info-fetcher
     spec:
@@ -21,8 +24,14 @@ spec:
           command: ["cargo", "run", "--bin", "service_info_fetcher"]
           resources:
             requests:
-              memory: 200Mi
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
               cpu: 200m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets
       initContainers:
         - name: headless-lms-wait-for-db
           image: headless-lms
@@ -35,5 +44,11 @@ spec:
               ./wait-for-db-migrations.sh
           resources:
             requests:
-              memory: 200Mi
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
               cpu: 200m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets

@@ -2,6 +2,8 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: update-course-variant-statuses
+  labels:
+    needs-db: "job"
 spec:
   schedule: "0 3 * * *"
   startingDeadlineSeconds: 900
@@ -10,6 +12,9 @@ spec:
     spec:
       activeDeadlineSeconds: 1800
       template:
+        metadata:
+          annotations:
+            linkerd.io/inject: enabled
         spec:
           restartPolicy: OnFailure
           containers:
@@ -24,3 +29,10 @@ spec:
               envFrom:
                 - secretRef:
                     name: headless-lms-secrets
+              resources:
+                requests:
+                  memory: 200Mi
+                  cpu: 200m
+                limits:
+                  memory: 500Mi
+                  cpu: 500m

@@ -1,36 +1,43 @@
 //! Shared helper functions for multiple controllers.
 
 use crate::controllers::{ControllerError, ControllerResult};
-use crate::models::courses::Course;
 use crate::models::organizations::DatabaseOrganization;
 use crate::utils::file_store::file_utils::{get_extension_from_filename, upload_media_to_storage};
-use crate::utils::file_store::{
-    course_audio_path, course_file_path, course_image_path, organization_image_path, FileStore,
-};
+use crate::utils::file_store::FileStore;
 use crate::utils::strings::generate_random_string;
 use actix_multipart as mp;
 use actix_web::http::{header, HeaderMap};
 use futures::StreamExt;
-use std::path::PathBuf;
+use serde::Deserialize;
+use std::{path::PathBuf, sync::Arc};
+use ts_rs::TS;
+use uuid::Uuid;
 
-pub async fn upload_media_for_course(
+#[derive(Debug, Clone, Copy, Deserialize, TS)]
+pub enum StoreKind {
+    Organization(Uuid),
+    Course(Uuid),
+    Exam(Uuid),
+}
+
+pub async fn upload_media<'a>(
     headers: &HeaderMap,
     mut payload: mp::Multipart,
-    course: &Course,
-    file_store: &impl FileStore,
+    store_kind: StoreKind,
+    file_store: &Arc<dyn FileStore>,
 ) -> ControllerResult<PathBuf> {
     validate_media_headers(headers)?;
 
-    let next_payload = payload
+    let file_payload = payload
         .next()
         .await
         .ok_or_else(|| ControllerError::BadRequest("Missing form data".into()))?;
-    match next_payload {
+    match file_payload {
         Ok(field) => {
             let path: PathBuf = match field.content_type().type_() {
-                mime::AUDIO => generate_audio_path(&field, course),
-                mime::IMAGE => generate_image_path(&field, course),
-                _ => generate_file_path(&field, course),
+                mime::AUDIO => generate_audio_path(&field, store_kind),
+                mime::IMAGE => generate_image_path(&field, store_kind),
+                _ => generate_file_path(&field, store_kind),
             }?;
             upload_media_to_storage(&path, field, file_store).await?;
             Ok(path)
@@ -43,7 +50,7 @@ pub async fn upload_image_for_organization(
     headers: &HeaderMap,
     mut payload: mp::Multipart,
     organization: &DatabaseOrganization,
-    file_store: &impl FileStore,
+    file_store: &Arc<dyn FileStore>,
 ) -> ControllerResult<PathBuf> {
     validate_media_headers(headers)?;
 
@@ -54,7 +61,9 @@ pub async fn upload_image_for_organization(
     match next_payload {
         Ok(field) => {
             let path: PathBuf = match field.content_type().type_() {
-                mime::IMAGE => generate_organization_image_path(&field, organization),
+                mime::IMAGE => {
+                    generate_image_path(&field, StoreKind::Organization(organization.id))
+                }
                 unsupported => Err(ControllerError::BadRequest(format!(
                     "Unsupported image Mime type: {}",
                     unsupported
@@ -67,7 +76,7 @@ pub async fn upload_image_for_organization(
     }
 }
 
-fn generate_audio_path(field: &mp::Field, course: &Course) -> ControllerResult<PathBuf> {
+fn generate_audio_path(field: &mp::Field, store_kind: StoreKind) -> ControllerResult<PathBuf> {
     let extension = match field.content_type().to_string().as_str() {
         "audio/aac" => ".aac",
         "audio/mpeg" => ".mp3",
@@ -86,13 +95,12 @@ fn generate_audio_path(field: &mp::Field, course: &Course) -> ControllerResult<P
     };
     let mut file_name = generate_random_string(30);
     file_name.push_str(extension);
-    let path = course_audio_path(course, file_name)
-        .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
+    let path = path(&file_name, FileType::Audio, store_kind);
 
     Ok(path)
 }
 
-fn generate_file_path(field: &mp::Field, course: &Course) -> ControllerResult<PathBuf> {
+fn generate_file_path(field: &mp::Field, store_kind: StoreKind) -> ControllerResult<PathBuf> {
     let field_content = field
         .content_disposition()
         .ok_or_else(|| ControllerError::BadRequest("Missing field content-disposition".into()))?;
@@ -106,13 +114,12 @@ fn generate_file_path(field: &mp::Field, course: &Course) -> ControllerResult<Pa
         file_name.push_str(format!(".{}", extension).as_str());
     }
 
-    let path = course_file_path(course, file_name)
-        .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
+    let path = path(&file_name, FileType::File, store_kind);
 
     Ok(path)
 }
 
-fn generate_image_path(field: &mp::Field, course: &Course) -> ControllerResult<PathBuf> {
+fn generate_image_path(field: &mp::Field, store_kind: StoreKind) -> ControllerResult<PathBuf> {
     let extension = match field.content_type().to_string().as_str() {
         "image/jpeg" => ".jpg",
         "image/png" => ".png",
@@ -134,39 +141,7 @@ fn generate_image_path(field: &mp::Field, course: &Course) -> ControllerResult<P
     // b) we don't want the filename to be too easily guessable (so no uuid)
     let mut file_name = generate_random_string(30);
     file_name.push_str(extension);
-    let path = course_image_path(course, file_name)
-        .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
-
-    Ok(path)
-}
-
-fn generate_organization_image_path(
-    field: &mp::Field,
-    organization: &DatabaseOrganization,
-) -> ControllerResult<PathBuf> {
-    let extension = match field.content_type().to_string().as_str() {
-        "image/jpeg" => ".jpg",
-        "image/png" => ".png",
-        "image/svg+xml" => ".svg",
-        "image/tiff" => ".tif",
-        "image/bmp" => ".bmp",
-        "image/webp" => ".webp",
-        "image/gif" => ".gif",
-        unsupported => {
-            return Err(ControllerError::BadRequest(format!(
-                "Unsupported image Mime type: {}",
-                unsupported
-            )))
-        }
-    };
-
-    // using a random string for the image name because
-    // a) we don't want the filename to be user controllable
-    // b) we don't want the filename to be too easily guessable (so no uuid)
-    let mut file_name = generate_random_string(30);
-    file_name.push_str(extension);
-    let path = organization_image_path(organization, file_name)
-        .map_err(|err| ControllerError::InternalServerError(err.to_string()))?;
+    let path = path(&file_name, FileType::Image, store_kind);
 
     Ok(path)
 }
@@ -200,4 +175,26 @@ fn validate_media_headers(headers: &HeaderMap) -> ControllerResult<()> {
     }
 
     Ok(())
+}
+
+enum FileType {
+    Image,
+    Audio,
+    File,
+}
+
+fn path(file_name: &str, file_type: FileType, store_kind: StoreKind) -> PathBuf {
+    let (base_dir, base_id) = match store_kind {
+        StoreKind::Organization(id) => ("organization", id),
+        StoreKind::Course(id) => ("course", id),
+        StoreKind::Exam(id) => ("exam", id),
+    };
+    let file_type_subdir = match file_type {
+        FileType::Image => "images",
+        FileType::Audio => "audios",
+        FileType::File => "files",
+    };
+    [base_dir, &base_id.to_string(), file_type_subdir, file_name]
+        .iter()
+        .collect()
 }

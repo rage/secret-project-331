@@ -6,7 +6,10 @@ use super::{
     ModelResult,
 };
 use crate::{
-    models::{exercise_tasks::get_exercise_task_by_id, gradings::grade_submission},
+    models::{
+        exercise_tasks::{get_exercise_task_by_id, get_exercise_task_model_solution_spec_by_id},
+        gradings::grade_submission,
+    },
     utils::pagination::Pagination,
 };
 use chrono::{DateTime, NaiveDate, Utc};
@@ -31,8 +34,9 @@ pub struct Submission {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub exercise_id: Uuid,
-    pub course_id: Uuid,
-    pub course_instance_id: Uuid,
+    pub course_id: Option<Uuid>,
+    pub course_instance_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
     pub exercise_task_id: Uuid,
     pub data_json: Option<serde_json::Value>,
     pub grading_id: Option<Uuid>,
@@ -79,6 +83,7 @@ pub struct GradingResult {
 pub struct SubmissionResult {
     submission: Submission,
     grading: Grading,
+    model_solution_spec: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
@@ -87,7 +92,7 @@ pub struct SubmissionInfo {
     pub exercise: Exercise,
     pub exercise_task: ExerciseTask,
     pub grading: Option<Grading>,
-    pub submission_iframe_path: String,
+    pub iframe_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
@@ -199,25 +204,30 @@ WHERE id = $1
     Ok(submission)
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
-    let course_id = sqlx::query!("SELECT course_id FROM submissions WHERE id = $1", id)
-        .fetch_one(conn)
-        .await?
-        .course_id;
-    Ok(course_id)
+pub async fn get_course_and_exam_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<(Option<Uuid>, Option<Uuid>)> {
+    let res = sqlx::query!(
+        "SELECT course_id, exam_id FROM submissions WHERE id = $1",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok((res.course_id, res.exam_id))
 }
 
 pub async fn exercise_submission_count(
     conn: &mut PgConnection,
     exercise_id: &Uuid,
-) -> ModelResult<i64> {
+) -> ModelResult<u32> {
     let count = sqlx::query!(
         "SELECT COUNT(*) as count FROM submissions WHERE exercise_id = $1",
         exercise_id,
     )
     .fetch_one(conn)
     .await?;
-    Ok(count.count.unwrap_or(0))
+    Ok(count.count.unwrap_or(0).try_into()?)
 }
 
 pub async fn exercise_submissions(
@@ -271,6 +281,30 @@ OFFSET $4;
     Ok(submissions)
 }
 
+pub async fn get_latest_user_exercise_submission(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<Option<Submission>> {
+    let submission = sqlx::query_as!(
+        Submission,
+        r#"
+SELECT *
+FROM submissions
+WHERE exercise_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+ORDER BY created_at DESC
+LIMIT 1
+"#,
+        exercise_id,
+        user_id,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(submission)
+}
+
 pub async fn insert_submission(
     conn: &mut PgConnection,
     new_submission: NewSubmission,
@@ -306,10 +340,13 @@ pub async fn insert_submission(
     .await?;
     let updated_grading =
         grade_submission(conn, submission.clone(), exercise_task, exercise, grading).await?;
+    let model_solution_spec =
+        get_exercise_task_model_solution_spec_by_id(conn, submission.exercise_task_id).await?;
 
     Ok(SubmissionResult {
         submission: updated_submission,
         grading: updated_grading,
+        model_solution_spec,
     })
 }
 

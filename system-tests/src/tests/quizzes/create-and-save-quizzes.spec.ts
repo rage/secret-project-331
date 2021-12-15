@@ -17,7 +17,7 @@ test.describe("quizzes tests", () => {
       page.waitForNavigation(),
       await page.click("text=University of Helsinki, Department of Computer Science"),
     ])
-    expectPath(page, "/organizations/[id]")
+    expectPath(page, "/org/uh-cs")
 
     // Click text=Add course
     await page.click(`button:text("New")`)
@@ -111,7 +111,7 @@ test.describe("quizzes tests", () => {
 
     const frame = await waitForFunction(page, () =>
       page.frames().find((f) => {
-        return f.url().startsWith("http://project-331.local/quizzes/editor")
+        return f.url().startsWith("http://project-331.local/quizzes/iframe")
       }),
     )
 
@@ -279,7 +279,7 @@ test.describe("quizzes tests", () => {
       await page.click("text=University of Helsinki, Department of Computer Science"),
     ])
 
-    expectPath(page, "/organizations/[id]")
+    expectPath(page, "/org/uh-cs")
 
     // Click text=Add course
     await page.click(`button:text("Create")`)
@@ -375,7 +375,7 @@ test.describe("quizzes tests", () => {
 
     const frame = await waitForFunction(page, () =>
       page.frames().find((f) => {
-        return f.url().startsWith("http://project-331.local/quizzes/editor")
+        return f.url().startsWith("http://project-331.local/quizzes/iframe")
       }),
     )
 

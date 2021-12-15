@@ -1,2 +1,44 @@
+# The production environment is also used as a base for the test environment.
 resources:
-- ../base
+  - ../base
+
+patches:
+  - path: patch-ingress.yml
+    target:
+      version: v1
+      kind: Ingress
+      name: project-331-ingress
+  # Patch to use --release param in cargo command
+  - path: headless-lms/patch-service-info-fetcher.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: service-info-fetcher
+  - path: headless-lms/patch-regrader.yml
+    target:
+      version: v1
+      kind: Deployment
+      name: regrader
+  - path: ./headless-lms/patch-add-db-host-aliases.yml
+    target:
+      version: v1
+      labelSelector: "needs-db=true"
+  - path: ./headless-lms/patch-add-db-host-aliases-job.yml
+    target:
+      version: v1
+      labelSelector: "needs-db=job"
+
+# Patch image names
+images:
+  - name: course-material
+    newName: eu.gcr.io/moocfi-public/secret-project-course-material-production-slim:latest
+  - name: quizzes
+    newName: eu.gcr.io/moocfi-public/secret-project-quizzes-production-slim:latest
+  - name: example-exercise
+    newName: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-slim:latest
+  - name: main-frontend
+    newName: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-slim:latest
+  - name: cms
+    newName: eu.gcr.io/moocfi-public/secret-project-cms-production-slim:latest
+  - name: headless-lms
+    newName: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-slim:latest

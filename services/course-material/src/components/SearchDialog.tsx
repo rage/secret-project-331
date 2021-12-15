@@ -16,6 +16,8 @@ import { sanitizeCourseMaterialHtml } from "../utils/sanitizeCourseMaterialHtml"
 
 export interface SearchDialogProps {
   courseId: string
+  courseSlug: string
+  organizationSlug: string
 }
 
 const HeaderBar = styled.div`
@@ -34,10 +36,10 @@ const StyledIcon = css`
   }
 `
 
-const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
+const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState<string | null>(null)
+  const [query, setQuery] = useState<string>("")
   const [debouncedQuery] = useDebounce(query, 200)
   const [phraseSearchResults, setPhraseSearchResults] = useState<PageSearchResult[] | null>(null)
   const [wordSearchResults, setWordSearchResults] = useState<PageSearchResult[] | null>(null)
@@ -100,13 +102,19 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
   return (
     <>
       <FontAwesomeIcon
+        id="search-for-pages-button"
         className={cx(StyledIcon)}
         icon={faSearch}
         aria-label={t("button-label-search-for-pages")}
         onClick={openModal}
       />
       {/* eslint-disable-next-line i18next/no-literal-string */}
-      <Dialog maxWidth="xl" open={open} onClose={closeModal}>
+      <Dialog
+        maxWidth="xl"
+        open={open}
+        onClose={closeModal}
+        aria-labelledby="search-for-pages-button"
+      >
         <Paper
           className={css`
             overflow: hidden;
@@ -151,7 +159,11 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId }) => {
                   return null
                 }
                 return (
-                  <Link href={result.url_path} key={result.id} passHref>
+                  <Link
+                    href={`/${organizationSlug}/courses/${result.url_path}`}
+                    key={result.id}
+                    passHref
+                  >
                     <a
                       href="replace"
                       className={css`

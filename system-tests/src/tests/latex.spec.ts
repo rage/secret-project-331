@@ -15,7 +15,6 @@ test("latex-block renders", async ({ headless, page }) => {
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
   ])
-  expectPath(page, "/organizations/[id]")
   // Click text=Add course
   await page.click(`button:text("New")`)
   // Click input[type="text"]
@@ -58,13 +57,13 @@ test("latex-block renders", async ({ headless, page }) => {
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
   // Click text=Remove blockShift+Alt+Z
-  await page.click("text=Remove blockShift+Alt+Z")
+  await page.click("text=Remove Chapter Progress")
   // - CHAPTER GRID
   await page.click("text=Pages in chapter placeholder")
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
   // Click text=Remove blockShift+Alt+Z
-  await page.click("text=Remove blockShift+Alt+Z")
+  await page.click("text=Remove Pages In Chapter")
   // - EXERCISES
   await page.click(
     "text=Exercises In Chapter PlaceholderThis block is placed on each chapter front page,",
@@ -72,11 +71,11 @@ test("latex-block renders", async ({ headless, page }) => {
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
   // Click text=Remove blockShift+Alt+Z
-  await page.click("text=Remove blockShift+Alt+Z")
+  await page.click("text=Remove Exercises In Chapter")
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
   // Click text=Remove blockShift+Alt+Z
-  await page.click("text=Remove blockShift+Alt+Z")
+  await page.click("text=Remove Hero Section")
   // - CREATE LATEX BLOCK
   // Click text=No block selected.Pages In Chapter Grid PlaceholderThis block is placed on each  >> button
   await page.click('[aria-label="Add block"]')
@@ -119,7 +118,7 @@ test("latex-block renders", async ({ headless, page }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
   ])
-  expectPath(page, "/organizations/[id]")
+  expectPath(page, "/org/uh-mathstat")
   // Click text=Latex course
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/latex-course' }*/),
@@ -129,10 +128,9 @@ test("latex-block renders", async ({ headless, page }) => {
   await page.click('button:has-text("Continue")')
   // Click text=Chapter 1: first page
   await Promise.all([page.waitForNavigation(), page.click("text=first page")])
-  expectPath(page, "/courses/latex-course/chapter-1")
+  expectPath(page, "org/uh-mathstat/courses/latex-course/chapter-1")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "latex",

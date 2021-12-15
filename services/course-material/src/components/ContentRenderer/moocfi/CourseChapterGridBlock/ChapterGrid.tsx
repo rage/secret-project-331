@@ -6,12 +6,14 @@ import { useQuery } from "react-query"
 import useQueryParameter from "../../../../hooks/useQueryParameter"
 import useTime from "../../../../hooks/useTime"
 import { fetchChaptersInTheCourse } from "../../../../services/backend"
-import { frontendWideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { cardMaxWidth } from "../../../../shared-module/styles/constants"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import GenericLoading from "../../../GenericLoading"
 
 import ChapterGridCard from "./ChapterGridCard"
+
+const YELLOW = "yellow"
 
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   const { t } = useTranslation()
@@ -20,6 +22,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
     fetchChaptersInTheCourse(courseId),
   )
   const courseSlug = useQueryParameter("courseSlug")
+  const organizationSlug = useQueryParameter("organizationSlug")
 
   if (error) {
     return <pre>{JSON.stringify(error, undefined, 2)}</pre>
@@ -32,7 +35,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   return (
     <div
       className={css`
-        ${frontendWideWidthCenteredComponentStyles}
+        ${wideWidthCenteredComponentStyles}
         padding: 7.5em 1em;
       `}
     >
@@ -86,8 +89,13 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                 `}
                 key={chapter.id}
               >
-                {/* eslint-disable-next-line i18next/no-literal-string */}
-                <ChapterGridCard bg="yellow" now={now} chapter={chapter} courseSlug={courseSlug} />
+                <ChapterGridCard
+                  bg={YELLOW}
+                  now={now}
+                  chapter={chapter}
+                  courseSlug={courseSlug}
+                  organizationSlug={organizationSlug}
+                />
               </div>
             )
           })}

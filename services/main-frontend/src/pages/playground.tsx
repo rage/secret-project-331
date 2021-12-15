@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
 import { Alert, Grow } from "@material-ui/core"
 import TextField from "@material-ui/core/TextField"
-import dynamic from "next/dynamic"
 import React, { ChangeEvent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useMutation, useQuery } from "react-query"
@@ -15,16 +14,12 @@ import {
 } from "../services/backend/playground-examples"
 import { PlaygroundExample } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
+import ErrorBanner from "../shared-module/components/ErrorBanner"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
 import Spinner from "../shared-module/components/Spinner"
+import { monospaceFont } from "../shared-module/styles"
 import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../shared-module/styles/constants"
-
-const Editor = dynamic(() => import("@monaco-editor/react"), {
-  ssr: false,
-  // eslint-disable-next-line react/display-name
-  loading: () => <Spinner variant="medium" />,
-})
 
 const Home: React.FC = () => {
   const { t } = useTranslation()
@@ -36,13 +31,11 @@ const Home: React.FC = () => {
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
   const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
   const [msg, setMsg] = useState<string>("")
-  const { isLoading, error, data, refetch } = useQuery("playground-examples", () =>
-    fetchPlaygroundExamples(),
-  )
+  const getPlaygroundExamples = useQuery("playground-examples", () => fetchPlaygroundExamples())
   const saveMutation = useMutation(savePlaygroundExample, {
     onSuccess: () => {
       setMsg(t("message-saved-succesfully"))
-      refetch()
+      getPlaygroundExamples.refetch()
       setTimeout(() => saveMutation.reset(), 5000)
     },
     onError: () => {
@@ -53,7 +46,7 @@ const Home: React.FC = () => {
   const updateMutation = useMutation(updatePlaygroundExample, {
     onSuccess: () => {
       setMsg(t("message-update-succesful"))
-      refetch()
+      getPlaygroundExamples.refetch()
       setTimeout(() => updateMutation.reset(), 5000)
     },
     onError: () => {
@@ -64,7 +57,7 @@ const Home: React.FC = () => {
   const deleteMutation = useMutation(deletePlaygroundExample, {
     onSuccess: () => {
       setMsg(t("message-deleting-succesful"))
-      refetch()
+      getPlaygroundExamples.refetch()
       setSelectedExample(null)
       setTimeout(() => deleteMutation.reset(), 5000)
     },
@@ -73,16 +66,6 @@ const Home: React.FC = () => {
       setTimeout(() => deleteMutation.reset(), 5000)
     },
   })
-
-  const onChannelEstablished = (port: MessagePort) => {
-    // eslint-disable-next-line i18next/no-literal-string
-    console.log("channel established", port)
-    // eslint-disable-next-line i18next/no-literal-string
-    console.log("Posting data to iframe")
-    if (exampleData) {
-      port.postMessage({ message: "set-state", data: JSON.parse(exampleData) })
-    }
-  }
 
   const onMessage = (message: unknown, responsePort: MessagePort) => {
     console.log(responsePort)
@@ -162,14 +145,6 @@ const Home: React.FC = () => {
     deleteMutation.mutate(selectedExample.id)
   }
 
-  if (isLoading || !data) {
-    return <p>{t("loading-text")}</p>
-  }
-
-  if (error) {
-    return <pre>{JSON.stringify(error)}</pre>
-  }
-
   return (
     <Layout>
       <div className={normalWidthCenteredComponentStyles}>
@@ -200,9 +175,13 @@ const Home: React.FC = () => {
           </Alert>
         </Grow>
         <h2>{t("title-playground-exercise-iframe")}</h2>
-        {data.length > 0 && (
+        {getPlaygroundExamples.isError && (
+          <ErrorBanner variant={"readOnly"} error={getPlaygroundExamples.error} />
+        )}
+        {getPlaygroundExamples.isLoading && <Spinner variant={"medium"} />}
+        {getPlaygroundExamples.isSuccess && getPlaygroundExamples.data.length > 0 && (
           <div>
-            <h4>{t("title-list-of-examples")}</h4>
+            <h3>{t("title-list-of-examples")}</h3>
             <div
               className={css`
                 margin-bottom: 1rem;
@@ -210,9 +189,13 @@ const Home: React.FC = () => {
               `}
             >
               {/* eslint-disable-next-line jsx-a11y/no-onchange */}
-              <select onChange={handleExampleChange} name="playground-examples">
+              <select
+                onChange={handleExampleChange}
+                name="playground-examples"
+                aria-label={t("playground-examples")}
+              >
                 <option selected disabled label={t("label-examples")} />
-                {data.map((example) => (
+                {getPlaygroundExamples.data.map((example) => (
                   <option
                     key={JSON.stringify(example)}
                     value={JSON.stringify(example)}
@@ -255,25 +238,18 @@ const Home: React.FC = () => {
           `}
         />
         <br />
-        <Editor
-          defaultLanguage="json"
-          options={{
-            // eslint-disable-next-line i18next/no-literal-string
-            wordWrap: "on",
-            readOnly: false,
-            scrollBeyondLastLine: false,
-            roundedSelection: false,
-            formatOnType: true,
-            formatOnPaste: true,
-            tabSize: 2,
-          }}
+        <label id="data-preview-label">{t("data-to-post-to-iframe")}</label>
+        <textarea
+          rows={20}
+          spellCheck={false}
           value={exampleData}
-          onChange={(value) => value && handleDataChange(value)}
-          height="50vh"
+          onChange={(e) => handleDataChange(e.target.value)}
+          aria-labelledby="data-preview-label"
           className={css`
             border: 1px solid black;
             margin-bottom: 1rem;
             width: 100%;
+            font-family: ${monospaceFont} !important;
           `}
         />
         {exampleUrl && exampleWidth && exampleData && exampleName && (
@@ -322,7 +298,14 @@ const Home: React.FC = () => {
           <MessageChannelIFrame
             key={combinedUrl + exampleData}
             url={combinedUrl}
-            onCommunicationChannelEstabilished={onChannelEstablished}
+            postThisStateToIFrame={{
+              // eslint-disable-next-line i18next/no-literal-string
+              view_type: "exercise",
+              data: {
+                public_spec: JSON.parse(exampleData),
+                previous_submission: null,
+              },
+            }}
             onMessageFromIframe={onMessage}
           />
         </div>

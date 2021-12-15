@@ -27,7 +27,7 @@ type GradingFutures =
     HashMap<String, Vec<Pin<Box<dyn Future<Output = GradingData> + Send + 'static>>>>;
 
 pub async fn regrade(
-    mut conn: &mut PgConnection,
+    conn: &mut PgConnection,
     exercise_services_by_type: &HashMap<String, (ExerciseService, ExerciseServiceInfo)>,
 ) -> Result<()> {
     // stores all the futures which will resolve into new gradings
@@ -126,7 +126,7 @@ pub async fn regrade(
     // update completed regradings
     for regrading_id in regrading_ids {
         if !incomplete_regradings.contains(&regrading_id) {
-            models::regradings::complete_regrading(&mut conn, regrading_id).await?;
+            models::regradings::complete_regrading(conn, regrading_id).await?;
         }
     }
     Ok(())
@@ -337,9 +337,7 @@ mod test {
             tx.as_mut(),
             &models::exercise_service_info::PathInfo {
                 exercise_service_id: exercise_service.id,
-                editor_iframe_path: "/editor".to_string(),
-                exercise_iframe_path: "/exercise".to_string(),
-                submission_iframe_path: "/wat".to_string(),
+                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_path: "/model-solution".to_string(),
@@ -435,9 +433,7 @@ mod test {
             tx.as_mut(),
             &models::exercise_service_info::PathInfo {
                 exercise_service_id: exercise_service.id,
-                editor_iframe_path: "/editor".to_string(),
-                exercise_iframe_path: "/exercise".to_string(),
-                submission_iframe_path: "/wat".to_string(),
+                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_path: "/model-solution".to_string(),
@@ -559,9 +555,7 @@ mod test {
             tx.as_mut(),
             &models::exercise_service_info::PathInfo {
                 exercise_service_id: exercise_service_1.id,
-                editor_iframe_path: "/editor".to_string(),
-                exercise_iframe_path: "/exercise".to_string(),
-                submission_iframe_path: "/wat".to_string(),
+                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_path: "/model-solution".to_string(),
@@ -585,9 +579,7 @@ mod test {
             tx.as_mut(),
             &models::exercise_service_info::PathInfo {
                 exercise_service_id: exercise_service_2.id,
-                editor_iframe_path: "/editor".to_string(),
-                exercise_iframe_path: "/exercise".to_string(),
-                submission_iframe_path: "/wat".to_string(),
+                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_path: "/model-solution".to_string(),

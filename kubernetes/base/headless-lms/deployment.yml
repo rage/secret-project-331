@@ -19,6 +19,7 @@ metadata:
   labels:
     app: headless-lms
     deploymentType: with-init-container
+    needs-db: "true"
 spec:
   replicas: 1
   selector:
@@ -26,6 +27,8 @@ spec:
       app: headless-lms
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: headless-lms
     spec:
@@ -37,8 +40,14 @@ spec:
               name: headless-lms
           resources:
             requests:
-              memory: 200Mi
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
               cpu: 200m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets
       initContainers:
         - name: headless-lms-wait-for-db
           image: headless-lms
@@ -51,8 +60,14 @@ spec:
               ./wait-for-db-migrations.sh
           resources:
             requests:
-              memory: 200Mi
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
               cpu: 200m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets
 ---
 # Migrations
 apiVersion: batch/v1
@@ -61,10 +76,13 @@ metadata:
   name: headless-lms-run-migrations
   labels:
     deploymentType: without-init-container
+    needs-db: "true"
 spec:
   backoffLimit: 10
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         waitToBeReady: "false"
     spec:
@@ -80,10 +98,16 @@ spec:
               echo Waiting for postgres to be available
               timeout 120 ./wait-for-db.sh
               echo Running migrations
-              cargo sqlx database setup
+              sqlx database setup
               echo Migrations complete
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets
           resources:
             requests:
-              memory: 200Mi
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
               cpu: 200m
       restartPolicy: Never

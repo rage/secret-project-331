@@ -18,14 +18,21 @@ async fn get_submission_info(
     user: AuthUser,
 ) -> ControllerResult<Json<SubmissionInfo>> {
     let mut conn = pool.acquire().await?;
-    let course_id = crate::models::submissions::get_course_id(&mut conn, *submission_id).await?;
-    authorize(
-        &mut conn,
-        Action::View,
-        user.id,
-        Resource::Course(course_id),
-    )
-    .await?;
+    let (course_id, exam_id) =
+        crate::models::submissions::get_course_and_exam_id(&mut conn, *submission_id).await?;
+    if let Some(course_id) = course_id {
+        authorize(
+            &mut conn,
+            Action::View,
+            user.id,
+            Resource::Course(course_id),
+        )
+        .await?;
+    } else if let Some(exam_id) = exam_id {
+        authorize(&mut conn, Action::View, user.id, Resource::Exam(exam_id)).await?;
+    } else {
+        return Err(anyhow::anyhow!("Submission not associated with course or exam").into());
+    }
 
     let submission = models::submissions::get_by_id(&mut conn, *submission_id).await?;
     let exercise = models::exercises::get_by_id(&mut conn, submission.exercise_id).await?;
@@ -48,7 +55,7 @@ async fn get_submission_info(
         exercise,
         exercise_task,
         grading,
-        submission_iframe_path: exercise_service_info.submission_iframe_path,
+        iframe_path: exercise_service_info.exercise_type_specific_user_interface_iframe,
     }))
 }
 

@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { Alert, FormControl, Input, InputLabel } from "@material-ui/core"
+import Link from "next/link"
 import { useRouter } from "next/router"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -9,7 +10,7 @@ import Button from "../shared-module/components/Button"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import { login } from "../shared-module/services/backend/auth"
-import { wideWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
+import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 
 const Login: React.FC = () => {
@@ -28,7 +29,19 @@ const Login: React.FC = () => {
 
   return (
     <Layout>
-      <div className={wideWidthCenteredComponentStyles}>
+      <div
+        className={css`
+          ${normalWidthCenteredComponentStyles}
+          margin: 0 auto;
+          a {
+            text-decoration: none;
+            color: #007bff;
+            :hover {
+              text-decoration: underline;
+            }
+          }
+        `}
+      >
         <form
           onSubmit={async (event) => {
             event.preventDefault()
@@ -60,11 +73,18 @@ const Login: React.FC = () => {
           className={css`
             display: flex;
             flex-direction: column;
-            width: 30rem;
-            padding: 1rem;
+            padding: 3rem 0rem;
           `}
         >
           <h1>{t("login")}</h1>
+          <div
+            className={css`
+              margin-bottom: 2rem;
+            `}
+          >
+            {/* eslint-disable-next-line i18next/no-literal-string */}
+            {t("login-description")} <a href="https://mooc.fi">mooc.fi</a> {t("login-description2")}
+          </div>
           <FormControl
             className={css`
               margin-top: 1rem;
@@ -99,7 +119,7 @@ const Login: React.FC = () => {
           </FormControl>
           <Button
             className={css`
-              margin-top: 2rem;
+              margin: 2rem 0rem;
             `}
             name={LOGIN}
             variant={"primary"}
@@ -107,6 +127,20 @@ const Login: React.FC = () => {
           >
             {t("login")}
           </Button>
+          <div
+            className={css`
+              margin-bottom: 1.5rem;
+            `}
+          >
+            <Link href="/sign-up">{t("create-new-account")}</Link>
+          </div>
+          <div
+            className={css`
+              margin-bottom: 1.5rem;
+            `}
+          >
+            <a href="https://tmc.mooc.fi/password_reset_keys/new">{t("forgot-password")}</a>
+          </div>
           {notification && (
             <Alert
               className={css`

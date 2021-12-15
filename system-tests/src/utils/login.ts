@@ -23,7 +23,7 @@ export async function login(
 
   await Promise.all([
     page.waitForNavigation(/*{ url: "http://project-331.local/" }*/),
-    page.click("text=Submit"),
+    page.click("text=Log in"),
   ])
 
   // Ensure we are logged in

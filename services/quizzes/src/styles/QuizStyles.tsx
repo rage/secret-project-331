@@ -4,9 +4,11 @@ import { css } from "@emotion/css"
 
 import { baseTheme } from "../shared-module/styles"
 
-// old #227a64
-
 export const quizTheme = {
+  gradingCorrectItemBackground: baseTheme.colors.green[500],
+  gradingCorrectItemColor: baseTheme.colors.neutral[800],
+  gradingWrongItemBackground: "#fcc5cd",
+  gradingWrongItemColor: baseTheme.colors.neutral[800],
   quizBodyColor: baseTheme.colors.grey[800],
   quizBodyFontSize: "24px",
   quizTitleFontSize: "16px",

@@ -65,10 +65,10 @@ pub struct SubmissionCountByExercise {
     pub exercise_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct GradingRequest {
-    pub exercise_spec: Option<serde_json::Value>,
-    pub submission_data: Option<serde_json::Value>,
+#[derive(Debug, Serialize, PartialEq, Eq, Clone)]
+pub struct GradingRequest<'a> {
+    pub exercise_spec: &'a Option<serde_json::Value>,
+    pub submission_data: &'a Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -83,7 +83,7 @@ pub struct GradingResult {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct SubmissionResult {
     submission: Submission,
-    grading: Grading,
+    grading: Option<Grading>,
     model_solution_spec: Option<serde_json::Value>,
 }
 
@@ -338,7 +338,7 @@ RETURNING *
     .fetch_one(&mut *conn)
     .await?;
     let exercise_task = get_exercise_task_by_id(conn, submission.exercise_task_id).await?;
-    let mut grading = new_grading(conn, &submission).await?;
+    let grading = new_grading(conn, &submission).await?;
     let updated_submission = sqlx::query_as!(
         Submission,
         "UPDATE submissions SET grading_id = $1 WHERE id = $2 RETURNING *",
@@ -347,14 +347,19 @@ RETURNING *
     )
     .fetch_one(&mut *conn)
     .await?;
-    let model_solution_spec =
-        get_exercise_task_model_solution_spec_by_id(conn, submission.exercise_task_id).await?;
+    let finished_grading =
+        grade_submission(conn, &submission, &exercise_task, &exercise, &grading).await?;
 
-    // skip grading for exam submissions; they should be graded only after the exam is over
-    if exercise.exam_id.is_none() {
-        grading =
-            grade_submission(conn, submission.clone(), exercise_task, exercise, grading).await?;
-    }
+    let (grading, model_solution_spec) = if exercise.exam_id.is_some() {
+        // exam, hide grading result and model solution spec
+        (None, None)
+    } else {
+        // not an exam, reveal grading result and model solution spec in return value
+        (
+            Some(finished_grading),
+            get_exercise_task_model_solution_spec_by_id(conn, submission.exercise_task_id).await?,
+        )
+    };
 
     Ok(SubmissionResult {
         submission: updated_submission,

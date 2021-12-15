@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { addMinutes } from "date-fns"
+import { addMinutes, differenceInSeconds } from "date-fns"
 import React, { useCallback, useEffect, useReducer } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
@@ -8,10 +8,12 @@ import Layout from "../../../components/Layout"
 import Page from "../../../components/Page"
 import ExamStartBanner from "../../../components/exams/ExamStartBanner"
 import ExamTimer from "../../../components/exams/ExamTimer"
+import ExamTimeOverModal from "../../../components/modals/ExamTimeOverModal"
 import CoursePageContext, {
   CoursePageDispatch,
   defaultCoursePageState,
 } from "../../../contexts/CoursePageContext"
+import useTime from "../../../hooks/useTime"
 import coursePageStateReducer from "../../../reducers/coursePageStateReducer"
 import { enrollInExam, fetchExam } from "../../../services/backend"
 import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
@@ -30,6 +32,7 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
   const { t } = useTranslation()
   const examId = query.id
   const [pageState, pageStateDispatch] = useReducer(coursePageStateReducer, defaultCoursePageState)
+  const now = useTime(5000)
 
   const exam = useQuery(`exam-page-${examId}`, () => fetchExam(examId))
 
@@ -56,6 +59,11 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
   const handleRefresh = useCallback(async () => {
     await exam.refetch()
   }, [exam])
+
+  const handleTimeOverModalClose = useCallback(async () => {
+    // Maybe do something?
+    await handleRefresh()
+  }, [handleRefresh])
 
   if (exam.isError) {
     return <pre>{JSON.stringify(exam.error, undefined, 2)}</pre>
@@ -92,6 +100,13 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
         <Layout organizationSlug={query.organizationSlug}>
           {exam.isSuccess && exam.data.tag === "EnrolledAndOpen" && (
             <>
+              <ExamTimeOverModal
+                secondsLeft={differenceInSeconds(
+                  addMinutes(exam.data.enrollment.started_at, exam.data.time_minutes),
+                  now,
+                )}
+                onClose={handleTimeOverModalClose}
+              />
               <div
                 className={css`
                   background: #f6f6f6;
@@ -149,6 +164,10 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
               <ExamTimer
                 startedAt={exam.data.enrollment.started_at}
                 endsAt={addMinutes(exam.data.enrollment.started_at, exam.data.time_minutes)}
+                secondsLeft={differenceInSeconds(
+                  addMinutes(exam.data.enrollment.started_at, exam.data.time_minutes),
+                  now,
+                )}
                 maxScore={100}
               />
             </>

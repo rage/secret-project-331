@@ -63,5 +63,7 @@
   "waiting-for-content": "Waiting for content...",
   "waiting-for-port": "Waiting for port...",
   "selected-option": "Selected option",
-  "unselected-option": "Unselected option"
+  "unselected-option": "Unselected option",
+  "student-answer": "Student answer",
+  "correct-answer": "Correct answer"
 }

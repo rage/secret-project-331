@@ -4,8 +4,8 @@ import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { updateCourse } from "../../services/backend/courses"
-import Button from "../../shared-module/components/Button"
+import { updateCourse } from "../../../../../../services/backend/courses"
+import Button from "../../../../../../shared-module/components/Button"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;

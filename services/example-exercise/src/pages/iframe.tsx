@@ -4,25 +4,46 @@ import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
 
 import { Renderer } from "../components/Renderer"
-import { SubmissionResult } from "../shared-module/bindings"
-import { ViewType } from "../shared-module/iframe-protocol-types"
+import { Grading } from "../shared-module/bindings"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
-import { Alternative, Answer, PublicAlternative } from "../util/stateInterfaces"
+import { Alternative, Answer, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
+
+import { ExerciseFeedback } from "./api/grade"
 
 export interface SubmissionData {
-  submission_result: SubmissionResult
+  grading: Grading
   user_answer: Answer
   public_spec: PublicAlternative[]
 }
+
+export interface ExerciseData {
+  alternatives: PublicAlternative[]
+  initialState: Answer | null
+}
+
+export type State =
+  | {
+      view_type: "exercise"
+      public_spec: PublicAlternative[]
+    }
+  | {
+      view_type: "view-submission"
+      public_spec: PublicAlternative[]
+      selectedOptionId: string
+      feedback_json: ExerciseFeedback | null
+      model_solution_spec: ModelSolutionApi | null
+      grading: Grading | null
+    }
+  | {
+      view_type: "exercise-editor"
+      private_spec: Alternative[]
+    }
 
 const Iframe: React.FC = () => {
   const { t } = useTranslation()
 
   const [port, setPort] = useState<MessagePort | null>(null)
-  const [state, setState] = useState<SubmissionData | Alternative[] | PublicAlternative[] | null>(
-    null,
-  )
-  const [viewType, setViewType] = useState<ViewType | null>(null)
+  const [state, setState] = useState<State | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
   let maxWidth: number | null = 500
@@ -44,26 +65,33 @@ const Iframe: React.FC = () => {
           // eslint-disable-next-line i18next/no-literal-string
           console.info("Frame received a message from port", JSON.stringify(message.data))
           const data = message.data
-          console.log(data)
           if (isSetStateMessage(data)) {
             ReactDOM.flushSync(() => {
               if (data.view_type === "exercise") {
-                setState(
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  (data.data as any).public_spec.current_exercise_task
-                    .public_spec as PublicAlternative[],
-                )
+                setState({
+                  view_type: data.view_type,
+                  public_spec: data.data.public_spec as PublicAlternative[],
+                })
               } else if (data.view_type === "exercise-editor") {
-                setState((JSON.parse(data.data as string) as Alternative[]) || [])
+                setState({
+                  view_type: data.view_type,
+                  private_spec:
+                    (JSON.parse(data.data.private_spec as string) as Alternative[]) || [],
+                })
               } else if (data.view_type === "view-submission") {
-                setState(data.data as SubmissionData)
-              } else if (data.view_type === "playground-exercise") {
-                setState(data.data as PublicAlternative[])
+                const userAnswer = data.data.user_answer as { selectedOptionId: string }
+                setState({
+                  view_type: data.view_type,
+                  public_spec: data.data.public_spec as PublicAlternative[],
+                  selectedOptionId: userAnswer.selectedOptionId,
+                  feedback_json: data.data.grading?.feedback_json as ExerciseFeedback | null,
+                  model_solution_spec: data.data.model_solution_spec as ModelSolutionApi | null,
+                  grading: data.data.grading,
+                })
               } else {
                 // eslint-disable-next-line i18next/no-literal-string
                 console.error("Unknown view type received from parent")
               }
-              setViewType(data.view_type)
             })
           } else {
             // eslint-disable-next-line i18next/no-literal-string
@@ -91,18 +119,10 @@ const Iframe: React.FC = () => {
     return <>{t("waiting-for-port")}</>
   }
 
-  if (!state || !viewType) {
+  if (!state) {
     return <>{t("waiting-for-content")}</>
   }
-  return (
-    <Renderer
-      maxWidth={maxWidth}
-      port={port}
-      setState={setState}
-      state={state}
-      viewType={viewType}
-    />
-  )
+  return <Renderer maxWidth={maxWidth} port={port} setState={setState} state={state} />
 }
 
 export default Iframe

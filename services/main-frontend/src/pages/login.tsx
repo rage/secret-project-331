@@ -131,6 +131,7 @@ const Login: React.FC = () => {
           <div
             className={css`
               margin-bottom: 1.5rem;
+              display: none;
             `}
           >
             <Link href="/sign-up">{t("create-new-account")}</Link>

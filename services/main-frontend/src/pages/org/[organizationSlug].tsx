@@ -35,25 +35,7 @@ const PAGE_LIMIT = 5
 const NO_DESCRIPTION = "No description available"
 
 const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
-  const {
-    isLoading: isLoadingOrgCourses,
-    error: errorOrgCourses,
-    data: dataOrgCourses,
-    refetch: refetchOrgCourses,
-  } = useQuery(`organization-courses`, () =>
-    fetchOrganizationCourses(query.organizationSlug, page, PAGE_LIMIT),
-  )
-
   const [page, setPage] = useState(1)
-
-  const {
-    isLoading: isLoadingCourseCount,
-    error: errorCourseCount,
-    data: dataOrgCourseCount,
-    refetch: refetchOrgCourseCount,
-  } = useQuery([`organization-courses-count`, query.organizationSlug], () =>
-    fetchOrganizationCourseCount(query.organizationSlug),
-  )
 
   const { t } = useTranslation()
   const {
@@ -73,6 +55,37 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     },
     { enabled: !!dataOrg },
   )
+
+  const {
+    isLoading: isLoadingOrgCourses,
+    error: errorOrgCourses,
+    data: dataOrgCourses,
+    refetch: refetchOrgCourses,
+  } = useQuery(
+    `organization-courses`,
+    () => {
+      if (dataOrg) {
+        return fetchOrganizationCourses(dataOrg.id, page, PAGE_LIMIT)
+      }
+    },
+    { enabled: !!dataOrg },
+  )
+
+  const {
+    isLoading: isLoadingCourseCount,
+    error: errorCourseCount,
+    data: dataOrgCourseCount,
+    refetch: refetchOrgCourseCount,
+  } = useQuery(
+    [`organization-courses-count`, query.organizationSlug],
+    () => {
+      if (dataOrg) {
+        return fetchOrganizationCourseCount(dataOrg.id)
+      }
+    },
+    { enabled: !!dataOrg },
+  )
+
   const loginStateContext = useContext(LoginStateContext)
 
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)

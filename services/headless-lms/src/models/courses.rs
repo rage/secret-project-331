@@ -627,6 +627,7 @@ SELECT
     COUNT(DISTINCT id) as count
 FROM courses
 WHERE organization_id = $1
+    AND deleted_at IS NULL;
         "#,
         organization_id,
     )

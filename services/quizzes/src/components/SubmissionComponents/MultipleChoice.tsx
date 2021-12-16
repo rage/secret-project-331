@@ -13,12 +13,14 @@ const DIRECTION_ROW = "row"
 
 const gradingOption = css`
   align-items: center;
+  background: ${quizTheme.quizItemBackground};
   border: none;
   display: flex;
   flex: 1;
+  flex-wrap: wrap;
   justify-content: space-between;
   margin: 0.3rem;
-  padding: 1rem;
+  padding: 0 1rem;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -82,7 +84,9 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
       >
         {public_quiz_item.options.map((qo) => {
           const studentAnswer = user_quiz_item_answer.optionAnswers?.includes(qo.id)
-          const correctAnswer = quiz_item_model_solution?.options.some((x) => x.id === qo.id)
+          const correctAnswer = quiz_item_model_solution?.options.some(
+            (x) => x.id === qo.id && x.correct,
+          )
 
           return (
             <div
@@ -94,8 +98,19 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                 correctAnswer ?? studentAnswer ? gradingOptionCorrect : "",
               )}
             >
-              <div>{qo.title || qo.body}</div>
-              <div>
+              <div
+                className={css`
+                  padding: 1rem 0;
+                `}
+              >
+                {qo.title || qo.body}
+              </div>
+              <div
+                className={css`
+                  display: flex;
+                  flex-direction: column;
+                `}
+              >
                 <div>{studentAnswer === true && t("student-answer")}</div>
                 <div>{correctAnswer === true && t("correct-answer")}</div>
               </div>

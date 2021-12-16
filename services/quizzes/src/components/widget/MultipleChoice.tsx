@@ -59,10 +59,11 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
     let newItemAnswer: QuizItemAnswer
     // multi is set to true then student can select multiple options for an answer
     if (quizItem.multi) {
+      const optionAnswers = _.xor(quizItemAnswerState.optionAnswers, [selectedOptionId])
       newItemAnswer = {
         ...quizItemAnswerState,
-        optionAnswers: _.xor(quizItemAnswerState.optionAnswers, [selectedOptionId]),
-        valid: true,
+        optionAnswers,
+        valid: optionAnswers.length > 0,
       }
     } else {
       newItemAnswer = {

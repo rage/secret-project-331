@@ -334,6 +334,39 @@ async fn main() -> Result<()> {
         },
     )
     .await?;
+    let new_course = NewCourse {
+        name: "Introduction to Matrices".to_string(),
+        slug: "introduction-to-matrices".to_string(),
+        organization_id: uh_mathstat,
+        language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
+    };
+    let (matrices_course, _matrices_front_page, _matrices_default_course_instance) =
+        courses::insert_course(
+            &mut conn,
+            Uuid::parse_str("6ba48a9c-0460-45e5-b227-317cf8a5ac25")?,
+            Uuid::parse_str("13a338a2-cca3-468f-93f1-3fb93216262c")?,
+            new_course,
+            admin,
+        )
+        .await?;
+    let _matrices_course_instance = course_instances::insert(
+        &mut conn,
+        NewCourseInstance {
+            id: Uuid::parse_str("84b55cf7-2613-4f87-b794-e676db36dd9c")?,
+            course_id: matrices_course.id,
+            name: Some("non-default instance"),
+            description: Some("this appears to be a non-default instance"),
+            variant_status: Some(VariantStatus::Active),
+            support_email: Some("contact@example.com"),
+            teacher_in_charge_name: "admin",
+            teacher_in_charge_email: "admin@example.com",
+            opening_time: None,
+            closing_time: None,
+        },
+    )
+    .await?;
 
     // roles
     roles::insert(&mut conn, admin, None, None, UserRole::Admin).await?;
@@ -947,6 +980,49 @@ async fn main() -> Result<()> {
               "courseId": "f5bed4ff-63ec-44cd-9056-86eb00df84ca",
               "triesLimited": true
             }),
+        },
+    )
+    .await?;
+
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, matrix".to_string(),
+            url: "http://project-331.local/quizzes/exercise".to_string(),
+            width: 500,
+            data: serde_json::json!(
+            {
+                "id": "91cf86bd-39f1-480f-a16c-5b0ad36dc787",
+                "courseId": "2764d02f-bea3-47fe-9529-21c801bdf6f5",
+                "body": "Something about matrices and numbers",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "section": 1,
+                "title": "Something about matrices and numbers",
+                "tries": 1,
+                "triesLimited": false,
+                "items": [
+                    {
+                        "id": "b17f3965-2223-48c9-9063-50f1ebafcf08",
+                        "body": "Create a matrix that represents 4x4",
+                        "direction": "row",
+                        "formatRegex": null,
+                        "maxLabel": null,
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minLabel": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "multi": false,
+                        "order": 1,
+                        "quizId": "91cf86bd-39f1-480f-a16c-5b0ad36dc787",
+                        "title": "Matrices are interesting",
+                        "type": "matrix",
+                        "options": [
+                            ],
+                        }
+                        ]}),
         },
     )
     .await?;

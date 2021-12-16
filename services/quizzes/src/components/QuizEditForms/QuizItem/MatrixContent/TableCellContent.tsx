@@ -1,27 +1,25 @@
 import { css } from "@emotion/css"
 import React, { useState } from "react"
-import { useDispatch } from "react-redux"
 
-import { NormalizedQuizItemOption, QuizItemVariables } from "../../../../../types/types"
-import { editedOptionCorrectAnswer } from "../../../../store/editor/options/optionActions"
-import { useTypedSelector } from "../../../../store/store"
+import { MatrixItemAnswer, QuizItemVariables } from "../../../../../types/types"
 
 interface TableCellContentProps {
   rowLoop: number
   columnLoop: number
   variables: QuizItemVariables
-  option: NormalizedQuizItemOption
+  option: MatrixItemAnswer
+  matrixSize: number[]
+  handleTextarea: (text: string, column: number, row: number) => void
 }
 
-const TableCellContent: React.FC<TableCellContentProps> = ({ columnLoop, rowLoop, option }) => {
-  const storeOption = useTypedSelector((state) => state.editor.options[option.id])
-
+const TableCellContent: React.FC<TableCellContentProps> = ({
+  columnLoop,
+  rowLoop,
+  option,
+  handleTextarea,
+  matrixSize,
+}) => {
   const [IsActive, setIsActive] = useState(false)
-  const dispatch = useDispatch()
-
-  const handleTextarea = (text: string) => {
-    dispatch(editedOptionCorrectAnswer(text, storeOption.id))
-  }
   return (
     <>
       <td
@@ -40,20 +38,24 @@ const TableCellContent: React.FC<TableCellContentProps> = ({ columnLoop, rowLoop
             outline: none;
             text-align: center;
             resize: none;
-            ${storeOption.correctAnswer.length === 0 &&
+            ${option.optionId === "" &&
+            (columnLoop > matrixSize[0] || rowLoop > matrixSize[1]) &&
             `
             background-color: #ECECEC;
           `}
-            ${IsActive &&
-            storeOption.correctAnswer.length === 0 &&
-            `
+            ${(option.optionId !== "" && columnLoop > matrixSize[0]) ||
+            (option.optionId !== "" &&
+              rowLoop > matrixSize[1] &&
+              IsActive &&
+              option.textData.length === 0 &&
+              `
               background-color: #DBDBDB;
-              `}
+              `)}
           `}
-          value={storeOption.correctAnswer ?? ""}
+          value={option?.textData ?? ""}
           onSelect={() => setIsActive(true)}
           onBlur={() => setIsActive(false)}
-          onChange={(event) => handleTextarea(event.target.value)}
+          onChange={(event) => handleTextarea(event.target.value, columnLoop, rowLoop)}
         ></input>
       </td>
     </>

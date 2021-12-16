@@ -19,24 +19,24 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
 }) => {
   const [matrixVariable, setMatrixVariable] = useState<MatrixItemAnswer[][]>(() => {
     const quizAnswers: MatrixItemAnswer[][] = []
-    for (let i = 0; i < 6; i++) {
-      const rowArray: MatrixItemAnswer[] = []
-      for (let j = 0; j < 6; j++) {
+    for (let j = 0; j < 6; j++) {
+      const columnArray: MatrixItemAnswer[] = []
+      for (let i = 0; i < 6; i++) {
         const correctColumnOption = quizItem.options.find(
           (option) => option.row === i && option.column === j,
         )
 
         if (correctColumnOption) {
-          rowArray.push({
+          columnArray.push({
             optionId: correctColumnOption.id,
             textData: "",
           })
         } else {
           // eslint-disable-next-line i18next/no-literal-string
-          rowArray.push({ optionId: "error", textData: "error" })
+          columnArray.push({ optionId: "not-correct", textData: "" })
         }
       }
-      quizAnswers.push(rowArray)
+      quizAnswers.push(columnArray)
     }
     return quizAnswers
   })

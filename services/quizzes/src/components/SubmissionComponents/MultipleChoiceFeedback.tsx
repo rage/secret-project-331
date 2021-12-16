@@ -105,33 +105,35 @@ const MultipleChoiceFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
           )
         })}
       </div>
-      <div
-        className={css`
-          display: flex;
-          flex-direction: column;
+      {quiz_item_feedback && (
+        <div
+          className={css`
+            display: flex;
+            flex-direction: column;
 
-          ${respondToOrLarger.sm} {
-            flex-direction: ${direction};
-          }
-        `}
-      >
-        {quiz_item_feedback.quiz_item_option_feedbacks &&
-          quiz_item_feedback.quiz_item_option_feedbacks.map((of) => {
-            if (of.option_feedback) {
-              return (
-                <p
-                  className={css`
-                    color: ${quizTheme.quizBodyColor};
-                    font-size: ${quizTheme.quizBodyFontSize};
-                    margin: 0.5rem 0;
-                  `}
-                >
-                  {of.option_feedback}
-                </p>
-              )
+            ${respondToOrLarger.sm} {
+              flex-direction: ${direction};
             }
-          })}
-      </div>
+          `}
+        >
+          {quiz_item_feedback.quiz_item_option_feedbacks &&
+            quiz_item_feedback.quiz_item_option_feedbacks.map((of) => {
+              if (of.option_feedback) {
+                return (
+                  <p
+                    className={css`
+                      color: ${quizTheme.quizBodyColor};
+                      font-size: ${quizTheme.quizBodyFontSize};
+                      margin: 0.5rem 0;
+                    `}
+                  >
+                    {of.option_feedback}
+                  </p>
+                )
+              }
+            })}
+        </div>
+      )}
     </div>
   )
 }

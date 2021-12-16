@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { addMinutes, differenceInSeconds } from "date-fns"
+import { addMinutes, differenceInSeconds, isPast } from "date-fns"
 import React, { useCallback, useEffect, useReducer } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
@@ -85,6 +85,7 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
                 await enrollInExam(examId)
                 exam.refetch()
               }}
+              examHasStarted={exam.data.starts_at ? isPast(exam.data.starts_at) : false}
             />
           </div>
         </Layout>
@@ -92,7 +93,7 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
     )
   }
 
-  if (exam.data.tag === "EnrolledAndNotYetStarted") {
+  if (exam.data.tag === "NotYetStarted") {
     return (
       <>
         <Layout organizationSlug={query.organizationSlug}>

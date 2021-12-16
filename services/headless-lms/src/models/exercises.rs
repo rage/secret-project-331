@@ -291,7 +291,20 @@ pub async fn get_course_material_exercise(
     };
     let grading = if let Some(grading_id) = previous_submission.as_ref().and_then(|s| s.grading_id)
     {
-        Some(crate::models::gradings::get_by_id(conn, grading_id).await?)
+        if let Some(user_id) = user_id {
+            crate::models::gradings::get_for_student(conn, grading_id, user_id).await?
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+    let exercise_status = if grading.is_some() {
+        Some(ExerciseStatus {
+            score_given,
+            activity_progress,
+            grading_progress,
+        })
     } else {
         None
     };
@@ -299,11 +312,7 @@ pub async fn get_course_material_exercise(
     Ok(CourseMaterialExercise {
         exercise,
         current_exercise_task: selected_exercise_task,
-        exercise_status: Some(ExerciseStatus {
-            score_given,
-            activity_progress,
-            grading_progress,
-        }),
+        exercise_status,
         current_exercise_task_service_info,
         previous_submission,
         grading,

@@ -7,10 +7,11 @@ import { baseTheme } from "../../shared-module/styles"
 
 export interface ExamInstructionsProps {
   onStart: () => Promise<void>
+  examHasStarted: boolean
 }
 
-const ExamStartBanner: React.FC<ExamInstructionsProps> = ({ onStart }) => {
-  const [disaled, setDisabled] = useState(false)
+const ExamStartBanner: React.FC<ExamInstructionsProps> = ({ onStart, examHasStarted }) => {
+  const [disabled, setDisabled] = useState(false)
   const { t } = useTranslation()
 
   const handleStart = async () => {
@@ -62,7 +63,12 @@ const ExamStartBanner: React.FC<ExamInstructionsProps> = ({ onStart }) => {
             text-align: center;
           `}
         >
-          <Button onClick={handleStart} disabled={disaled} variant="primary" size="medium">
+          <Button
+            onClick={handleStart}
+            disabled={!examHasStarted || disabled}
+            variant="primary"
+            size="medium"
+          >
             {t("start-the-exam")}
           </Button>
         </div>

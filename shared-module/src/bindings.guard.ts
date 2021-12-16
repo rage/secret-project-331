@@ -1097,9 +1097,11 @@ export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
       (isPage(obj.page) as boolean) &&
       (isExamEnrollment(obj.enrollment) as boolean)) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "EnrolledAndNotYetStarted") ||
+      obj.tag === "NotEnrolled" &&
+      (obj.starts_at === null || obj.starts_at instanceof Date)) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "NotEnrolled")
+      obj.tag === "NotYetStarted" &&
+      (obj.starts_at === null || obj.starts_at instanceof Date))
   )
 }
 

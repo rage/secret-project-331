@@ -670,8 +670,8 @@ export type ExamData =
       page: Page
       enrollment: ExamEnrollment
     }
-  | { tag: "EnrolledAndNotYetStarted" }
-  | { tag: "NotEnrolled" }
+  | { tag: "NotEnrolled"; starts_at: Date | null }
+  | { tag: "NotYetStarted"; starts_at: Date | null }
 
 export interface ExamCourseInfo {
   course_id: string

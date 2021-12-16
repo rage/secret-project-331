@@ -1,5 +1,5 @@
 use crate::{
-    controllers::ControllerResult,
+    controllers::{ControllerError, ControllerResult},
     domain::authorization::AuthUser,
     models::{
         courses::Course,
@@ -30,8 +30,19 @@ pub async fn enroll(
     user: AuthUser,
 ) -> ControllerResult<Json<()>> {
     let mut conn = pool.acquire().await?;
-    exams::enroll(&mut conn, id.into_inner(), user.id).await?;
-    Ok(Json(()))
+
+    // check if the exam has started yet
+    let exam_id = id.into_inner();
+    let exam = exams::get(&mut conn, exam_id).await?;
+    if let Some(starts_at) = exam.starts_at {
+        if Utc::now() > starts_at {
+            exams::enroll(&mut conn, exam_id, user.id).await?;
+            return Ok(Json(()));
+        }
+    }
+    Err(ControllerError::Forbidden(
+        "Exam has not started yet".to_string(),
+    ))
 }
 
 #[derive(Debug, Serialize, TS)]
@@ -49,8 +60,12 @@ pub enum ExamData {
         page: Box<Page>,
         enrollment: ExamEnrollment,
     },
-    EnrolledAndNotYetStarted,
-    NotEnrolled,
+    NotEnrolled {
+        starts_at: Option<DateTime<Utc>>,
+    },
+    NotYetStarted {
+        starts_at: Option<DateTime<Utc>>,
+    },
 }
 
 pub async fn fetch_exam_for_user(
@@ -60,6 +75,25 @@ pub async fn fetch_exam_for_user(
 ) -> ControllerResult<Json<ExamData>> {
     let mut conn = pool.acquire().await?;
     let id = id.into_inner();
+    let exam = exams::get(&mut conn, id).await?;
+
+    let starts_at = match exam.starts_at {
+        Some(starts_at) => {
+            if starts_at > Utc::now() {
+                // exam has not started yet
+                return Ok(Json(ExamData::NotYetStarted {
+                    starts_at: exam.starts_at,
+                }));
+            }
+            starts_at
+        }
+        None => {
+            // exam has no start time yet
+            return Ok(Json(ExamData::NotYetStarted {
+                starts_at: exam.starts_at,
+            }));
+        }
+    };
 
     let enrollment = if let Some(enrollment) = exams::get_enrollment(&mut conn, id, user.id).await?
     {
@@ -67,24 +101,9 @@ pub async fn fetch_exam_for_user(
         enrollment
     } else {
         // user has not started the exam
-        return Ok(Json(ExamData::NotEnrolled));
-    };
-
-    let exam = exams::get(&mut conn, id).await?;
-
-    // check if the exam hasn't started yet
-    let starts_at = match exam.starts_at {
-        Some(starts_at) => {
-            if starts_at > Utc::now() {
-                // hasn't started yet
-                return Ok(Json(ExamData::EnrolledAndNotYetStarted));
-            }
-            starts_at
-        }
-        None => {
-            // no start time defined
-            return Ok(Json(ExamData::EnrolledAndNotYetStarted));
-        }
+        return Ok(Json(ExamData::NotEnrolled {
+            starts_at: exam.starts_at,
+        }));
     };
 
     let page = pages::get_page(&mut conn, exam.page_id).await?;

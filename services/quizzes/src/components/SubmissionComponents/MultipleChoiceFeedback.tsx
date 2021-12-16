@@ -115,21 +115,22 @@ const MultipleChoiceFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
           }
         `}
       >
-        {quiz_item_feedback.quiz_item_option_feedbacks?.map((of) => {
-          if (of.option_feedback) {
-            return (
-              <p
-                className={css`
-                  color: ${quizTheme.quizBodyColor};
-                  font-size: ${quizTheme.quizBodyFontSize};
-                  margin: 0.5rem 0;
-                `}
-              >
-                {of.option_feedback}
-              </p>
-            )
-          }
-        })}
+        {quiz_item_feedback.quiz_item_option_feedbacks &&
+          quiz_item_feedback.quiz_item_option_feedbacks.map((of) => {
+            if (of.option_feedback) {
+              return (
+                <p
+                  className={css`
+                    color: ${quizTheme.quizBodyColor};
+                    font-size: ${quizTheme.quizBodyFontSize};
+                    margin: 0.5rem 0;
+                  `}
+                >
+                  {of.option_feedback}
+                </p>
+              )
+            }
+          })}
       </div>
     </div>
   )

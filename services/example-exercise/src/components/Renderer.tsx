@@ -1,61 +1,42 @@
 import React, { Dispatch, SetStateAction } from "react"
 import { useTranslation } from "react-i18next"
 
-import { SubmissionData } from "../pages/iframe"
-import { ViewType } from "../shared-module/iframe-protocol-types"
-import { Alternative, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
+import { ExerciseFeedback } from "../pages/api/grade"
+import { State } from "../pages/iframe"
 
 import Editor from "./Editor"
 import Exercise from "./Exercise"
-import PlaygroundExercise from "./PlaygroundExercise"
 import Submission from "./Submission"
 
 interface RendererProps {
-  viewType: ViewType
-  state: SubmissionData | Alternative[] | PublicAlternative[]
-  setState: Dispatch<SetStateAction<SubmissionData | PublicAlternative[] | Alternative[] | null>>
+  state: State
+  setState: Dispatch<SetStateAction<State | null>>
   port: MessagePort
   maxWidth: number
 }
 
-export const Renderer: React.FC<RendererProps> = ({
-  viewType,
-  state,
-  setState,
-  port,
-  maxWidth,
-}) => {
+export const Renderer: React.FC<RendererProps> = ({ state, setState, port, maxWidth }) => {
   const { t } = useTranslation()
 
-  if (viewType === "exercise") {
-    return <Exercise maxWidth={maxWidth} port={port} state={state as PublicAlternative[]} />
-  } else if (viewType === "view-submission") {
+  if (state.view_type === "exercise") {
+    return <Exercise maxWidth={maxWidth} port={port} state={state.public_spec} />
+  } else if (state.view_type === "view-submission") {
     return (
       <Submission
         port={port}
         maxWidth={maxWidth}
-        publicAlternatives={(state as SubmissionData).public_spec as PublicAlternative[]}
-        selectedId={(state as SubmissionData).user_answer.selectedOptionId}
+        publicAlternatives={state.public_spec}
+        selectedId={state.selectedOptionId}
         selectedOptionIsCorrect={
-          (
-            (state as SubmissionData).submission_result.grading.feedback_json as {
-              selectedOptionIsCorrect: boolean
-            }
-          ).selectedOptionIsCorrect
+          state.grading
+            ? (state.grading.feedback_json as ExerciseFeedback).selectedOptionIsCorrect
+            : null
         }
-        modelSolutions={
-          (state as SubmissionData).submission_result.model_solution_spec as ModelSolutionApi
-        }
+        modelSolutions={state.model_solution_spec ? state.model_solution_spec : null}
       />
     )
-  } else if (viewType === "exercise-editor") {
-    return (
-      <Editor state={state as Alternative[]} maxWidth={maxWidth} port={port} setState={setState} />
-    )
-  } else if (viewType === "playground-exercise") {
-    return (
-      <PlaygroundExercise port={port} maxWidth={maxWidth} state={state as PublicAlternative[]} />
-    )
+  } else if (state.view_type === "exercise-editor") {
+    return <Editor state={state.private_spec} maxWidth={maxWidth} port={port} setState={setState} />
   } else {
     return <>{t("waiting-for-content")}</>
   }

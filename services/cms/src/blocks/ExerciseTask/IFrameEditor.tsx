@@ -4,10 +4,10 @@ import { useTranslation } from "react-i18next"
 import { useMemoOne } from "use-memo-one"
 
 import MessageChannelIFrame from "../../shared-module/components/MessageChannelIFrame"
-import { ViewType } from "../../shared-module/iframe-protocol-types"
+import { IframeState } from "../../shared-module/iframe-protocol-types"
 import { isCurrentStateMessage } from "../../shared-module/iframe-protocol-types.guard"
 
-const VIEW_TYPE: ViewType = "exercise-editor"
+const VIEW_TYPE = "exercise-editor"
 const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."
 
 interface ExerciseTaskIFrameEditorProps {
@@ -23,8 +23,8 @@ const ExerciseTaskIFrameEditor: React.FC<ExerciseTaskIFrameEditorProps> = ({
 }) => {
   const { t } = useTranslation()
 
-  const postThisStateToIFrame = useMemoOne(() => {
-    return { view_type: VIEW_TYPE, data: privateSpec }
+  const postThisStateToIFrame: IframeState = useMemoOne(() => {
+    return { view_type: VIEW_TYPE, data: { private_spec: privateSpec } }
   }, [privateSpec])
 
   if (!url || url.trim() === "") {

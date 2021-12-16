@@ -2,8 +2,8 @@ import { Alert } from "@material-ui/lab"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { Grading, Submission, SubmissionResult } from "../shared-module/bindings"
-import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
+import { Grading, Submission, SubmissionResult } from "../../../../shared-module/bindings"
+import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
 
 const VIEW_SUBMISSION = "view-submission"
 interface SubmissionIFrameProps {
@@ -50,7 +50,15 @@ const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
       onMessageFromIframe={(messageContainer, _responsePort) => {
         console.log(messageContainer)
       }}
-      postThisStateToIFrame={{ view_type: VIEW_SUBMISSION, data: state }}
+      postThisStateToIFrame={{
+        view_type: VIEW_SUBMISSION,
+        data: {
+          public_spec: state.public_spec,
+          user_answer: state.user_answer,
+          model_solution_spec: state.submission_result.model_solution_spec,
+          grading: state.submission_result.grading,
+        },
+      }}
     />
   )
 }

@@ -10,8 +10,8 @@ interface SubmissionProps {
   maxWidth: number | null
   publicAlternatives: PublicAlternative[]
   selectedId: string | undefined
-  selectedOptionIsCorrect: boolean
-  modelSolutions: ModelSolutionApi
+  selectedOptionIsCorrect: boolean | null
+  modelSolutions: ModelSolutionApi | null
 }
 
 const Submission: React.FC<SubmissionProps> = ({
@@ -40,10 +40,15 @@ const Submission: React.FC<SubmissionProps> = ({
       >
         {publicAlternatives.map((option) => {
           const selected = selectedId === option.id
-          const optionIsCorrect = modelSolutions.correctOptionIds.includes(option.id)
+          const optionIsCorrect = modelSolutions?.correctOptionIds.includes(option.id)
+
+          let color = ""
+          if (optionIsCorrect !== undefined) {
+            color = optionIsCorrect ? GREEN : RED
+          }
 
           // eslint-disable-next-line i18next/no-literal-string
-          const border = `4px solid ${optionIsCorrect ? GREEN : RED}`
+          const border = `4px solid ${color}`
           return (
             <button
               role="checkbox"

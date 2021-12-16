@@ -22,7 +22,6 @@
   "error-loading-organizations": "Error loading organizations.",
   "error-title": "Error",
   "error-unknown-in-component": "Unknown error when rendering {{component}}",
-  "export-points-as-csv": "Export points as csv",
   "feedback-given": "Feedback: {{feedback-given}}",
   "selected-text": "Selected text: {{selected-text}}",
   "no-selected-text": "No selected text",

@@ -23,7 +23,6 @@ interface QuizzesGradingResult {
   grading_progress: "FullyGraded" | "Pending" | "PendingManual" | "Failed"
   score_given: number
   score_maximum: number
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   feedback_json: ItemAnswerFeedback[]
 }
 

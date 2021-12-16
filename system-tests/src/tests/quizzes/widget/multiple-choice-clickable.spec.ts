@@ -16,7 +16,7 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/quizzes/exercise?width=500")
+      return f.url().startsWith("http://project-331.local/quizzes/iframe?width=500")
     }),
   )
 

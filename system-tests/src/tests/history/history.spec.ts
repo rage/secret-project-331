@@ -111,7 +111,7 @@ test("test", async ({ page, headless }) => {
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
-      return f.url().startsWith("http://project-331.local/example-exercise/editor")
+      return f.url().startsWith("http://project-331.local/example-exercise/iframe")
     }),
   )
 

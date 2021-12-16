@@ -33,7 +33,7 @@ test.describe("Model solutions", () => {
     // Wait for the frame to be visible
     const frame = await waitForFunction(page, () =>
       page.frames().find((f) => {
-        return f.url().startsWith("http://project-331.local/example-exercise/submission")
+        return f.url().startsWith("http://project-331.local/example-exercise/iframe")
       }),
     )
 
@@ -89,7 +89,7 @@ test.describe("Model solutions", () => {
     // Wait for the frame to be visible
     const frame = await waitForFunction(page, () =>
       page.frames().find((f) => {
-        return f.url().startsWith("http://project-331.local/example-exercise/exercise")
+        return f.url().startsWith("http://project-331.local/example-exercise/iframe")
       }),
     )
 

@@ -12,19 +12,23 @@ interface TextFieldExtraProps {
   placeholder?: string
   required?: boolean
   value?: string
-  /*   onBlur?: (name?:string) => void */
+  /* onBlur?: (event: React.FocusEvent<HTMLSelectElement>) => void */
   onChange: (value: string, name?: string) => void
 }
 
 const ERRORCOLOR = "#F76D82"
 const DEFAULTCOLOR = "#dedede"
 
-const Input = styled.input`
+interface InputExtraProps {
+  error?: boolean
+}
+
+const Input = styled.input<InputExtraProps>`
   background: #fcfcfc;
   border-width: 1.6px;
   border-style: solid;
   border-radius: 3px;
-  border-color: ${({ error }: any) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
+  border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
   padding: 4px 12px;
   transition: ease-in-out, width 0.35s ease-in-out;
   outline: none;

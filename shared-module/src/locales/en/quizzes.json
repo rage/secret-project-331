@@ -62,5 +62,7 @@
   "label-preview": "Preview",
   "markdown-editor-help-text": "This is a markdown editor",
   "waiting-for-content": "Waiting for content...",
-  "waiting-for-port": "Waiting for port..."
+  "waiting-for-port": "Waiting for port...",
+  "selected-option": "Selected option",
+  "unselected-option": "Unselected option"
 }

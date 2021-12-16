@@ -1,25 +1,22 @@
-import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useLayoutEffect, useRef } from "react"
+import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import { State } from "../pages/iframe"
+import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
+import { CurrentStateMessage } from "../shared-module/iframe-protocol-types"
 import { Alternative } from "../util/stateInterfaces"
 
 import ButtonEditor from "./ButtonEditor"
+
+const CURRENT_STATE = "current-state"
 interface Props {
   state: Alternative[]
-  setState: (newState: Alternative[]) => void
-  onHeightChange: (newHeight: number, port: MessagePort) => void
-  port: MessagePort
+  setState: (newState: State) => void
   maxWidth: number
+  port: MessagePort
 }
-
-const Wrapper = styled.div`
-  /* Overflows break height calculations */
-  overflow: hidden;
-  box-sizing: border-box;
-`
 
 // eslint-disable-next-line i18next/no-literal-string
 const ButtonWrapper = styled.div`
@@ -41,29 +38,23 @@ const NewButton = styled.button`
   }
 `
 
-const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port, maxWidth }) => {
+const Editor: React.FC<Props> = ({ state, setState, port }) => {
   const { t } = useTranslation()
-  const contentRef = useRef<HTMLDivElement>(null)
-  // Automatic height resizing events
-  useLayoutEffect(() => {
-    const ref = contentRef.current
-    if (!ref) {
+
+  useEffect(() => {
+    if (!port) {
       return
     }
-    onHeightChange(ref.getBoundingClientRect().height, port)
-  })
+    const message: CurrentStateMessage = {
+      data: { private_spec: state },
+      message: CURRENT_STATE,
+      valid: true,
+    }
+    port.postMessage(message)
+  }, [state, port])
+
   return (
-    <Wrapper
-      className={css`
-        /* Overflows break height calculations */
-        overflow: hidden;
-        box-sizing: border-box;
-        width: 100%;
-        max-width: ${maxWidth}rem;
-        margin: 0 auto;
-      `}
-      ref={contentRef}
-    >
+    <HeightTrackingContainer port={port}>
       <ButtonWrapper>
         {state.map((o) => (
           <ButtonEditor
@@ -71,7 +62,8 @@ const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port, maxWid
             item={o}
             onDelete={() => {
               const newState = state.filter((e) => e.id !== o.id)
-              setState(newState)
+              // eslint-disable-next-line i18next/no-literal-string
+              setState({ view_type: "exercise-editor", private_spec: newState })
             }}
             onChange={(task) => {
               const newState = state.map((e) => {
@@ -80,7 +72,8 @@ const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port, maxWid
                 }
                 return task
               })
-              setState(newState)
+              // eslint-disable-next-line i18next/no-literal-string
+              setState({ view_type: "exercise-editor", private_spec: newState })
             }}
           />
         ))}
@@ -88,13 +81,14 @@ const Editor: React.FC<Props> = ({ state, setState, onHeightChange, port, maxWid
           onClick={() => {
             const newState = [...state]
             newState.push({ name: "", correct: false, id: v4() })
-            setState(newState)
+            // eslint-disable-next-line i18next/no-literal-string
+            setState({ view_type: "exercise-editor", private_spec: newState })
           }}
         >
           {t("new")}
         </NewButton>
       </ButtonWrapper>
-    </Wrapper>
+    </HeightTrackingContainer>
   )
 }
 

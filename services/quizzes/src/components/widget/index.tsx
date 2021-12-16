@@ -1,4 +1,5 @@
 import { useReducer } from "react"
+import { v4 } from "uuid"
 
 import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../../types/types"
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
@@ -17,7 +18,7 @@ import Unsupported from "./Unsupported"
 interface WidgetProps {
   port: MessagePort
   maxWidth: number | null
-  initialState: State
+  quiz: PublicQuiz
 }
 
 type QuizItemType =
@@ -45,7 +46,7 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
   return mapTypeToComponent[typeName]
 }
 
-export interface State {
+export interface WidgetReducerState {
   quiz: PublicQuiz
   quiz_answer: QuizAnswer
   quiz_answer_is_valid: boolean
@@ -64,7 +65,7 @@ export interface QuizItemComponentProps {
   setQuizItemAnswerState: (newQuizItemAnswer: QuizItemAnswerWithoutId) => void
 }
 
-function reducer(state: State, action: Action): State {
+function reducer(state: WidgetReducerState, action: Action): WidgetReducerState {
   switch (action.type) {
     case "set-answer-state": {
       const itemAnswers = state.quiz_answer.itemAnswers.map((qia) => {
@@ -87,8 +88,36 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-const Widget: React.FC<WidgetProps> = ({ port, initialState }) => {
-  const [state, dispatch] = useReducer(reducer, initialState)
+const Widget: React.FC<WidgetProps> = ({ port, quiz }) => {
+  const quiz_answer_id = v4()
+  const widget_state: WidgetReducerState = {
+    quiz: quiz,
+    quiz_answer: {
+      id: quiz_answer_id,
+      quizId: quiz.id,
+      createdAt: Date.now().toString(),
+      updatedAt: Date.now().toString(),
+      // eslint-disable-next-line i18next/no-literal-string
+      status: "open",
+      itemAnswers: quiz.items.map((qi) => {
+        return {
+          id: v4(),
+          createdAt: Date.now().toString(),
+          updatedAt: Date.now().toString(),
+          quizItemId: qi.id,
+          quizAnswerId: quiz_answer_id,
+          correct: false,
+          valid: false,
+          intData: null,
+          textData: null,
+          optionAnswers: null,
+          optionCells: null,
+        }
+      }),
+    },
+    quiz_answer_is_valid: false,
+  }
+  const [state, dispatch] = useReducer(reducer, widget_state)
 
   useSendQuizAnswerOnChange(port, state)
 

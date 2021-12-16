@@ -1,5 +1,6 @@
 {
   "error-page-without-course": "Virhe: Sivu ei liity mihinkään kurssiin",
   "enroll": "Aloita",
-  "instructions": "Ohjeet"
+  "instructions": "Ohjeet",
+  "exam-has-not-started-yet": "Koe ei ole vielä alkanut"
 }

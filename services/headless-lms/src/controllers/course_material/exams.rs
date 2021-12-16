@@ -8,7 +8,7 @@ use crate::{
     },
 };
 use actix_web::web::{self, Json, ServiceConfig};
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Utc};
 use serde::Serialize;
 use sqlx::PgPool;
 use ts_rs::TS;
@@ -37,7 +37,7 @@ pub async fn enroll(
 #[derive(Debug, Serialize, TS)]
 #[serde(tag = "tag")]
 pub enum ExamData {
-    EnrolledAndOpen {
+    EnrolledAndStarted {
         id: Uuid,
         name: String,
         instructions: String,
@@ -49,9 +49,8 @@ pub enum ExamData {
         page: Box<Page>,
         enrollment: ExamEnrollment,
     },
-    EnrolledAndClosed,
+    EnrolledAndNotYetStarted,
     NotEnrolled,
-    OutOfTime,
 }
 
 pub async fn fetch_exam_for_user(
@@ -73,35 +72,24 @@ pub async fn fetch_exam_for_user(
 
     let exam = exams::get(&mut conn, id).await?;
 
-    // check if the user's time is up
-    if Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into()) {
-        return Ok(Json(ExamData::OutOfTime));
-    }
-
-    // check if the exam is closed
+    // check if the exam hasn't started yet
     let starts_at = match exam.starts_at {
         Some(starts_at) => {
             if starts_at > Utc::now() {
                 // hasn't started yet
-                return Ok(Json(ExamData::EnrolledAndClosed));
-            }
-            if let Some(ends_at) = exam.ends_at {
-                if ends_at < Utc::now() {
-                    // already ended
-                    return Ok(Json(ExamData::EnrolledAndClosed));
-                }
+                return Ok(Json(ExamData::EnrolledAndNotYetStarted));
             }
             starts_at
         }
         None => {
             // no start time defined
-            return Ok(Json(ExamData::EnrolledAndClosed));
+            return Ok(Json(ExamData::EnrolledAndNotYetStarted));
         }
     };
 
     let page = pages::get_page(&mut conn, exam.page_id).await?;
 
-    Ok(Json(ExamData::EnrolledAndOpen {
+    Ok(Json(ExamData::EnrolledAndStarted {
         id: exam.id,
         name: exam.name,
         instructions: exam.instructions,

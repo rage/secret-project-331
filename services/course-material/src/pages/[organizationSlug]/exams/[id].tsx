@@ -16,6 +16,8 @@ import CoursePageContext, {
 import useTime from "../../../hooks/useTime"
 import coursePageStateReducer from "../../../reducers/coursePageStateReducer"
 import { enrollInExam, fetchExam } from "../../../services/backend"
+import ErrorBanner from "../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../shared-module/components/Spinner"
 import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
@@ -40,7 +42,7 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
     if (exam.isError) {
       // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setError", payload: exam.error })
-    } else if (exam.isSuccess && exam.data.tag === "EnrolledAndOpen") {
+    } else if (exam.isSuccess && exam.data.tag === "EnrolledAndStarted") {
       pageStateDispatch({
         // eslint-disable-next-line i18next/no-literal-string
         type: "setData",
@@ -65,11 +67,15 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
     await handleRefresh()
   }, [handleRefresh])
 
-  if (exam.isError) {
-    return <pre>{JSON.stringify(exam.error, undefined, 2)}</pre>
+  if (exam.isIdle || exam.isLoading) {
+    return <Spinner variant="medium" />
   }
 
-  if (exam.isSuccess && exam.data.tag === "NotEnrolled") {
+  if (exam.isError) {
+    return <ErrorBanner variant={"readOnly"} error={exam.error} />
+  }
+
+  if (exam.data.tag === "NotEnrolled") {
     return (
       <>
         <Layout organizationSlug={query.organizationSlug}>
@@ -86,27 +92,34 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
     )
   }
 
-  if (exam.isSuccess && exam.data.tag === "EnrolledAndClosed") {
-    return <div>{t("closed")}</div>
+  if (exam.data.tag === "EnrolledAndNotYetStarted") {
+    return (
+      <>
+        <Layout organizationSlug={query.organizationSlug}>
+          <div className={normalWidthCenteredComponentStyles}>
+            <div>{t("exam-has-not-started-yet")}</div>
+          </div>
+        </Layout>
+      </>
+    )
   }
 
-  if (exam.isSuccess && exam.data.tag === "OutOfTime") {
-    return <div>{t("closed")}</div>
-  }
-
+  const examHasNotEnded = false
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
       <CoursePageContext.Provider value={pageState}>
         <Layout organizationSlug={query.organizationSlug}>
-          {exam.isSuccess && exam.data.tag === "EnrolledAndOpen" && (
+          {
             <>
-              <ExamTimeOverModal
-                secondsLeft={differenceInSeconds(
-                  addMinutes(exam.data.enrollment.started_at, exam.data.time_minutes),
-                  now,
-                )}
-                onClose={handleTimeOverModalClose}
-              />
+              {examHasNotEnded && (
+                <ExamTimeOverModal
+                  secondsLeft={differenceInSeconds(
+                    addMinutes(exam.data.enrollment.started_at, exam.data.time_minutes),
+                    now,
+                  )}
+                  onClose={handleTimeOverModalClose}
+                />
+              )}
               <div
                 className={css`
                   background: #f6f6f6;
@@ -171,7 +184,7 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
                 maxScore={100}
               />
             </>
-          )}
+          }
           <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
         </Layout>
       </CoursePageContext.Provider>

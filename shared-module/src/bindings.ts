@@ -658,7 +658,7 @@ export interface PreviousSubmission {
 
 export type ExamData =
   | {
-      tag: "EnrolledAndOpen"
+      tag: "EnrolledAndStarted"
       id: string
       name: string
       instructions: string
@@ -670,9 +670,8 @@ export type ExamData =
       page: Page
       enrollment: ExamEnrollment
     }
-  | { tag: "EnrolledAndClosed" }
+  | { tag: "EnrolledAndNotYetStarted" }
   | { tag: "NotEnrolled" }
-  | { tag: "OutOfTime" }
 
 export interface ExamCourseInfo {
   course_id: string

@@ -1084,7 +1084,7 @@ export function isPreviousSubmission(obj: any, _argumentName?: string): obj is P
 export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
   return (
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "EnrolledAndOpen" &&
+      obj.tag === "EnrolledAndStarted" &&
       typeof obj.id === "string" &&
       typeof obj.name === "string" &&
       typeof obj.instructions === "string" &&
@@ -1097,11 +1097,9 @@ export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
       (isPage(obj.page) as boolean) &&
       (isExamEnrollment(obj.enrollment) as boolean)) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "EnrolledAndClosed") ||
+      obj.tag === "EnrolledAndNotYetStarted") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "NotEnrolled") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "OutOfTime")
+      obj.tag === "NotEnrolled")
   )
 }
 

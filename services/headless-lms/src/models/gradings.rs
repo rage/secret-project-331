@@ -123,6 +123,11 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Opt
 }
 
 pub async fn new_grading(conn: &mut PgConnection, submission: &Submission) -> ModelResult<Grading> {
+    let update_strategy = if submission.exam_id.is_some() {
+        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
+    } else {
+        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
+    };
     let grading = sqlx::query_as!(
         Grading,
         r#"
@@ -132,9 +137,10 @@ INSERT INTO gradings(
     exam_id,
     exercise_id,
     exercise_task_id,
+    user_points_update_strategy,
     grading_started_at
   )
-VALUES($1, $2, $3, $4, $5, now())
+VALUES($1, $2, $3, $4, $5, $6, now())
 RETURNING id,
   created_at,
   updated_at,
@@ -159,7 +165,8 @@ RETURNING id,
         submission.course_id,
         submission.exam_id,
         submission.exercise_id,
-        submission.exercise_task_id
+        submission.exercise_task_id,
+        update_strategy as UserPointsUpdateStrategy
     )
     .fetch_one(conn)
     .await?;

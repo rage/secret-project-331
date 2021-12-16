@@ -496,7 +496,7 @@ UPDATE user_exercise_states
 SET score_given = $4, grading_progress = $5, activity_progress = $6
 WHERE user_id = $1
 AND exercise_id = $2
-AND course_instance_id = $3
+AND (course_instance_id = $3 OR exam_id = $7)
 RETURNING user_id,
   exercise_id,
   course_instance_id,
@@ -515,6 +515,7 @@ RETURNING user_id,
         new_score_given,
         new_grading_progress as GradingProgress,
         new_activity_progress as ActivityProgress,
+        *exam_id
     )
     .fetch_one(conn)
     .await?;

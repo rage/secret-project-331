@@ -1,9 +1,36 @@
+import { css, cx } from "@emotion/css"
 import React from "react"
 
+import { quizTheme } from "../../styles/QuizStyles"
 import { QuizItemSubmissionComponentProps } from "../Submission"
 
-const EssayFeedback: React.FC<QuizItemSubmissionComponentProps> = ({ public_quiz_item }) => {
-  return <p>{public_quiz_item.title || public_quiz_item.body}</p>
+// eslint-disable-next-line i18next/no-literal-string
+const SubmissionMessageStyles = css`
+  display: flex;
+  flex: 1;
+  font-size: ${quizTheme.quizBodyFontSize};
+`
+
+const DEFAULT_SUBMIT_MESSAGE = "your answer has been submited"
+
+const EssayFeedback: React.FC<QuizItemSubmissionComponentProps> = ({ quiz_item_feedback }) => {
+  return (
+    quiz_item_feedback && (
+      <div
+        className={css`
+          display: flex;
+          flex: 1;
+          margin: 0.5;
+        `}
+      >
+        <div className={cx(SubmissionMessageStyles)}>
+          {quiz_item_feedback.quiz_item_feedback
+            ? quiz_item_feedback.quiz_item_feedback
+            : DEFAULT_SUBMIT_MESSAGE}
+        </div>
+      </div>
+    )
+  )
 }
 
 export default EssayFeedback

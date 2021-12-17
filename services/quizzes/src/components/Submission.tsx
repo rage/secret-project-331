@@ -11,6 +11,7 @@ import {
 import { ItemAnswerFeedback } from "../pages/api/grade"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 
+import EssayFeedback from "./SubmissionComponents/Essay"
 import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
 
 interface SubmissionProps {
@@ -22,7 +23,7 @@ interface SubmissionProps {
   feedback_json: ItemAnswerFeedback[] | null
 }
 
-interface QuizItemSubmissionComponentProps {
+export interface QuizItemSubmissionComponentProps {
   public_quiz_item: PublicQuizItem
   quiz_item_model_solution: ModelSolutionQuizItem
   quiz_item_feedback: ItemAnswerFeedback | null
@@ -39,7 +40,7 @@ type QuizItemType =
 
 const componentsByTypeNames = (typeName: QuizItemType) => {
   const mapTypeToComponent: { [key: string]: React.FC<QuizItemSubmissionComponentProps> } = {
-    essay: UnsupportedSubmissionViewComponent,
+    essay: EssayFeedback,
     "multiple-choice": UnsupportedSubmissionViewComponent,
     checkbox: UnsupportedSubmissionViewComponent,
     scale: UnsupportedSubmissionViewComponent,

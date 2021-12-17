@@ -126,7 +126,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
                 direction === DIRECTION_COLUMN && optionButtonColumn,
               )}
             >
-              {qo.title || qo.body}
+              <MarkdownText text={qo.title || qo.body || ""} />
             </button>
           )
         })}

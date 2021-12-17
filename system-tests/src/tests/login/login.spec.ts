@@ -91,7 +91,7 @@ test.describe("Login return_to", async () => {
     // Click text=Submit
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/organizations/f242f19e-6d6f-43d5-9186-d0424864146e' }*/),
-      page.click("text=Submit"),
+      page.click("id=login-button"),
     ])
     expect(page.url().startsWith("http://project-331.local/org/")).toBe(true)
   })

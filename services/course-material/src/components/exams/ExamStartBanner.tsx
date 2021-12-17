@@ -8,9 +8,14 @@ import { baseTheme } from "../../shared-module/styles"
 export interface ExamInstructionsProps {
   onStart: () => Promise<void>
   examHasStarted: boolean
+  examHasEnded: boolean
 }
 
-const ExamStartBanner: React.FC<ExamInstructionsProps> = ({ onStart, examHasStarted }) => {
+const ExamStartBanner: React.FC<ExamInstructionsProps> = ({
+  onStart,
+  examHasStarted,
+  examHasEnded,
+}) => {
   const [disabled, setDisabled] = useState(false)
   const { t } = useTranslation()
 
@@ -65,7 +70,7 @@ const ExamStartBanner: React.FC<ExamInstructionsProps> = ({ onStart, examHasStar
         >
           <Button
             onClick={handleStart}
-            disabled={!examHasStarted || disabled}
+            disabled={!examHasStarted || examHasEnded || disabled}
             variant="primary"
             size="medium"
           >

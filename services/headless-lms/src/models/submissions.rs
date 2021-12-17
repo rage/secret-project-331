@@ -1,6 +1,5 @@
 use super::{
     courses::Course,
-    exams,
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     gradings::{new_grading, Grading},
@@ -13,7 +12,7 @@ use crate::{
     },
     utils::pagination::Pagination,
 };
-use chrono::{DateTime, Duration, NaiveDate, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::PgConnection;
@@ -83,9 +82,9 @@ pub struct GradingResult {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct SubmissionResult {
-    submission: Submission,
-    grading: Option<Grading>,
-    model_solution_spec: Option<serde_json::Value>,
+    pub submission: Submission,
+    pub grading: Option<Grading>,
+    pub model_solution_spec: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
@@ -309,9 +308,9 @@ LIMIT 1
 
 pub async fn insert_submission(
     conn: &mut PgConnection,
-    new_submission: NewSubmission,
+    new_submission: &NewSubmission,
     user_id: Uuid,
-    exercise: Exercise,
+    exercise: &Exercise,
 ) -> ModelResult<SubmissionResult> {
     let submission = sqlx::query_as!(
         Submission,
@@ -348,33 +347,14 @@ RETURNING *
     )
     .fetch_one(&mut *conn)
     .await?;
-    let finished_grading =
-        grade_submission(conn, &submission, &exercise_task, &exercise, &grading).await?;
+    let grading = grade_submission(conn, &submission, &exercise_task, exercise, &grading).await?;
 
-    let (grading, model_solution_spec) = if let Some(exam_id) = exercise.exam_id {
-        // check if the submission is still valid for the exam
-        let exam = exams::get(conn, exam_id).await?;
-        let enrollment = exams::get_enrollment(conn, exam_id, user_id)
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("User has no enrollment for the exam"))?;
-        if Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
-            || exam.ends_at.map(|ea| Utc::now() > ea).unwrap_or_default()
-        {
-            return Err(anyhow::anyhow!("Exam is already over").into());
-        }
-        // exam, hide grading result and model solution spec
-        (None, None)
-    } else {
-        // not an exam, reveal grading result and model solution spec in return value
-        (
-            Some(finished_grading),
-            get_exercise_task_model_solution_spec_by_id(conn, submission.exercise_task_id).await?,
-        )
-    };
+    let model_solution_spec =
+        get_exercise_task_model_solution_spec_by_id(conn, submission.exercise_task_id).await?;
 
     Ok(SubmissionResult {
         submission: updated_submission,
-        grading,
+        grading: Some(grading),
         model_solution_spec,
     })
 }

@@ -1098,10 +1098,20 @@ export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
       (isExamEnrollment(obj.enrollment) as boolean)) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.tag === "NotEnrolled" &&
-      (obj.starts_at === null || obj.starts_at instanceof Date)) ||
+      typeof obj.id === "string" &&
+      typeof obj.name === "string" &&
+      typeof obj.instructions === "string" &&
+      (obj.starts_at === null || obj.starts_at instanceof Date) &&
+      (obj.ends_at === null || obj.ends_at instanceof Date) &&
+      typeof obj.time_minutes === "number") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.tag === "NotYetStarted" &&
-      (obj.starts_at === null || obj.starts_at instanceof Date))
+      typeof obj.id === "string" &&
+      typeof obj.name === "string" &&
+      typeof obj.instructions === "string" &&
+      (obj.starts_at === null || obj.starts_at instanceof Date) &&
+      (obj.ends_at === null || obj.ends_at instanceof Date) &&
+      typeof obj.time_minutes === "number")
   )
 }
 

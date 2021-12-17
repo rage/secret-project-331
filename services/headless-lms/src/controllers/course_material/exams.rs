@@ -31,15 +31,25 @@ pub async fn enroll(
 ) -> ControllerResult<Json<()>> {
     let mut conn = pool.acquire().await?;
 
-    // check if the exam has started yet
     let exam_id = id.into_inner();
     let exam = exams::get(&mut conn, exam_id).await?;
+
+    // check that the exam is not over
+    let now = dbg!(Utc::now());
+    if let Some(ends_at) = dbg!(exam.ends_at) {
+        if ends_at < now {
+            return Err(ControllerError::Forbidden("Exam is over".to_string()));
+        }
+    }
+
     if let Some(starts_at) = exam.starts_at {
-        if Utc::now() > starts_at {
+        if now > starts_at {
             exams::enroll(&mut conn, exam_id, user.id).await?;
             return Ok(Json(()));
         }
     }
+
+    // no start time defined or it's still upcoming
     Err(ControllerError::Forbidden(
         "Exam has not started yet".to_string(),
     ))
@@ -61,10 +71,20 @@ pub enum ExamData {
         enrollment: ExamEnrollment,
     },
     NotEnrolled {
+        id: Uuid,
+        name: String,
+        instructions: String,
         starts_at: Option<DateTime<Utc>>,
+        ends_at: Option<DateTime<Utc>>,
+        time_minutes: i32,
     },
     NotYetStarted {
+        id: Uuid,
+        name: String,
+        instructions: String,
         starts_at: Option<DateTime<Utc>>,
+        ends_at: Option<DateTime<Utc>>,
+        time_minutes: i32,
     },
 }
 
@@ -82,7 +102,12 @@ pub async fn fetch_exam_for_user(
             if starts_at > Utc::now() {
                 // exam has not started yet
                 return Ok(Json(ExamData::NotYetStarted {
+                    id: exam.id,
+                    name: exam.name,
+                    instructions: exam.instructions,
                     starts_at: exam.starts_at,
+                    ends_at: exam.ends_at,
+                    time_minutes: exam.time_minutes,
                 }));
             }
             starts_at
@@ -90,7 +115,12 @@ pub async fn fetch_exam_for_user(
         None => {
             // exam has no start time yet
             return Ok(Json(ExamData::NotYetStarted {
+                id: exam.id,
+                name: exam.name,
+                instructions: exam.instructions,
                 starts_at: exam.starts_at,
+                ends_at: exam.ends_at,
+                time_minutes: exam.time_minutes,
             }));
         }
     };
@@ -102,7 +132,12 @@ pub async fn fetch_exam_for_user(
     } else {
         // user has not started the exam
         return Ok(Json(ExamData::NotEnrolled {
+            id: exam.id,
+            name: exam.name,
+            instructions: exam.instructions,
             starts_at: exam.starts_at,
+            ends_at: exam.ends_at,
+            time_minutes: exam.time_minutes,
         }));
     };
 

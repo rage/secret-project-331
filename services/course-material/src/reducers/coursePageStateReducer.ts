@@ -1,10 +1,11 @@
-import { CourseInstance, Page, UserCourseSettings } from "../shared-module/bindings"
+import { CourseInstance, ExamData, Page, UserCourseSettings } from "../shared-module/bindings"
 
 interface PageStateLoading {
   state: "loading"
   pageData: null
   settings: null
   instance: null
+  exam: null
   error: null
 }
 
@@ -13,6 +14,7 @@ interface PageStateReady {
   pageData: Page
   settings: UserCourseSettings | null
   instance: CourseInstance | null
+  exam: ExamData | null
   error: null
 }
 
@@ -21,6 +23,7 @@ interface PageStateError {
   pageData: null
   settings: null
   instance: null
+  exam: null
   error: unknown
 }
 
@@ -33,7 +36,12 @@ interface RawSetStateAction {
 
 interface SetDataAction {
   type: "setData"
-  payload: { pageData: Page; instance: CourseInstance | null; settings: UserCourseSettings | null }
+  payload: {
+    pageData: Page
+    instance: CourseInstance | null
+    settings: UserCourseSettings | null
+    exam: ExamData | null
+  }
 }
 
 interface SetErrorAction {
@@ -59,9 +67,9 @@ export default function pageStateReducer(
     case "rawSetState":
       return action.payload
     case "setData": {
-      const { instance, pageData, settings } = action.payload
+      const { instance, pageData, settings, exam } = action.payload
       // eslint-disable-next-line i18next/no-literal-string
-      return { ...prev, state: "ready", instance, pageData, settings, error: null }
+      return { ...prev, state: "ready", instance, pageData, settings, exam, error: null }
     }
     case "setError":
       return {
@@ -72,6 +80,7 @@ export default function pageStateReducer(
         instance: null,
         pageData: null,
         settings: null,
+        exam: null,
       }
     case "setLoading":
       return {
@@ -82,6 +91,7 @@ export default function pageStateReducer(
         instance: null,
         pageData: null,
         settings: null,
+        exam: null,
       }
   }
 }

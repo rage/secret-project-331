@@ -255,6 +255,7 @@ pub async fn get_course_material_exercise(
     let exercise = get_by_id(conn, exercise_id).await?;
     let (selected_exercise_task, instance_or_exam_id) =
         get_or_select_exercise_task(&mut *conn, user_id, &exercise).await?;
+    info!("{:#?}", selected_exercise_task);
 
     let current_exercise_task_service_info = get_course_material_service_info_by_exercise_type(
         conn,
@@ -335,7 +336,7 @@ async fn get_or_select_exercise_task(
             let random_task = exercise_tasks::get_random_exercise_task(conn, exercise.id).await?;
             Ok((random_task, None))
         }
-        (Some(user_id), Some(course_id), _) => {
+        (Some(user_id), Some(course_id), None) => {
             // signed in, course exercise
             let user_course_settings = user_course_settings::get_user_course_settings_by_course_id(
                 conn, user_id, course_id,
@@ -401,6 +402,7 @@ async fn get_or_select_exercise_task(
             }
         }
         (Some(user_id), _, Some(exam_id)) => {
+            info!("selecting exam task");
             // signed in, exam exercise
             let task =
                 exercise_tasks::get_or_select_user_exercise_task_for_course_instance_or_exam(
@@ -411,6 +413,7 @@ async fn get_or_select_exercise_task(
                     Some(exam_id),
                 )
                 .await?;
+            info!("selecting exam task {:#?}", task);
             Ok((task, Some(InstanceOrExamId::Exam(exam_id))))
         }
         (Some(_), ..) => Err(anyhow::anyhow!(

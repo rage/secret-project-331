@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { addMinutes, differenceInSeconds, isPast } from "date-fns"
+import { addMinutes, differenceInSeconds, isPast, min } from "date-fns"
 import React, { useCallback, useEffect, useReducer } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
@@ -18,6 +18,7 @@ import coursePageStateReducer from "../../../reducers/coursePageStateReducer"
 import { enrollInExam, fetchExam } from "../../../services/backend"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
+import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
@@ -42,14 +43,15 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
     if (exam.isError) {
       // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setError", payload: exam.error })
-    } else if (exam.isSuccess && exam.data.tag === "EnrolledAndStarted") {
+    } else if (exam.isSuccess && exam.data.enrollment_data.tag === "EnrolledAndStarted") {
       pageStateDispatch({
         // eslint-disable-next-line i18next/no-literal-string
         type: "setData",
         payload: {
-          pageData: exam.data.page,
+          pageData: exam.data.enrollment_data.page,
           instance: null,
           settings: null,
+          exam: exam.data,
         },
       })
     } else {
@@ -119,15 +121,22 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
           color: #353535;
         `}
       >
-        <div>
-          {exam.data.starts_at
-            ? `Starts at ${exam.data.starts_at.toLocaleString()}`
-            : "No start time set"}
-        </div>
-        <div>
-          {exam.data.ends_at ? `Ends at ${exam.data.ends_at.toLocaleString()}` : "No end time set"}
-        </div>
-        <div>Time after starting: {exam.data.time_minutes} minutes</div>
+        {(exam.data.enrollment_data.tag === "NotEnrolled" ||
+          exam.data.enrollment_data.tag === "NotYetStarted") && (
+          <>
+            <div>
+              {exam.data.starts_at
+                ? `The exam can be started after ${exam.data.starts_at.toLocaleString()}`
+                : "No start time set"}
+            </div>
+            <div>
+              {exam.data.ends_at
+                ? `Submissions are no longer accepted after ${exam.data.ends_at.toLocaleString()}`
+                : "No end time set"}
+            </div>
+            <div>You have {exam.data.time_minutes} minutes to complete the exam after starting</div>
+          </>
+        )}
         {t("instructions")}:{" "}
         <span
           className={css`
@@ -140,7 +149,10 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
     </div>
   )
 
-  if (exam.data.tag === "NotEnrolled" || exam.data.tag === "NotYetStarted") {
+  if (
+    exam.data.enrollment_data.tag === "NotEnrolled" ||
+    exam.data.enrollment_data.tag === "NotYetStarted"
+  ) {
     return (
       <>
         <Layout organizationSlug={query.organizationSlug}>
@@ -153,6 +165,7 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
               }}
               examHasStarted={exam.data.starts_at ? isPast(exam.data.starts_at) : false}
               examHasEnded={exam.data.ends_at ? isPast(exam.data.ends_at) : false}
+              timeMinutes={exam.data.time_minutes}
             />
           </div>
         </Layout>
@@ -160,34 +173,41 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
     )
   }
 
-  const examHasEnded = exam.data.ends_at && exam.data.ends_at > new Date()
-  const studentsTimeIsUp =
-    addMinutes(exam.data.enrollment.started_at, exam.data.time_minutes) > new Date()
+  if (exam.data.enrollment_data.tag === "StudentTimeUp") {
+    return (
+      <>
+        <Layout organizationSlug={query.organizationSlug}>
+          {examInfo}
+          <div className={normalWidthCenteredComponentStyles}>
+            Your time has run out and the exam is now closed. Come back to see the results after{" "}
+            {exam.data.ends_at.toLocaleString()}.
+          </div>
+        </Layout>
+      </>
+    )
+  }
+
+  const endsAt = exam.data.ends_at
+    ? min([
+        addMinutes(exam.data.enrollment_data.enrollment.started_at, exam.data.time_minutes),
+        exam.data.ends_at,
+      ])
+    : addMinutes(exam.data.enrollment_data.enrollment.started_at, exam.data.time_minutes)
+  const secondsLeft = differenceInSeconds(endsAt, now)
+
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
       <CoursePageContext.Provider value={pageState}>
         <Layout organizationSlug={query.organizationSlug}>
           {
             <>
-              {!examHasEnded && !studentsTimeIsUp && (
-                <ExamTimeOverModal
-                  secondsLeft={differenceInSeconds(
-                    addMinutes(exam.data.enrollment.started_at, exam.data.time_minutes),
-                    now,
-                  )}
-                  onClose={handleTimeOverModalClose}
-                />
-              )}
+              <ExamTimeOverModal secondsLeft={secondsLeft} onClose={handleTimeOverModalClose} />
               {examInfo}
 
               <ExamTimer
-                startedAt={exam.data.enrollment.started_at}
-                endsAt={addMinutes(exam.data.enrollment.started_at, exam.data.time_minutes)}
-                secondsLeft={differenceInSeconds(
-                  addMinutes(exam.data.enrollment.started_at, exam.data.time_minutes),
-                  now,
-                )}
-                maxScore={100}
+                startedAt={exam.data.enrollment_data.enrollment.started_at}
+                endsAt={endsAt}
+                secondsLeft={secondsLeft}
               />
             </>
           }
@@ -198,4 +218,4 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(Exam))
+export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(Exam)))

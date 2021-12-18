@@ -42,7 +42,7 @@ export interface ExamTimerProps {
   endsAt: Date
   /** Define to override how time is displayed. */
   hour12?: boolean
-  maxScore: number
+  maxScore?: number
   startedAt: Date
   secondsLeft: number
 }
@@ -71,28 +71,30 @@ const ExamTimer: React.FC<ExamTimerProps> = ({
         `,
       )}
     >
-      <InfoBoxLightGreenMedium>
-        <FontAwesomeIcon
-          icon={faCheckCircle}
-          className={css`
-            color: ${baseTheme.colors.green[200]};
-            margin-right: 0.5rem;
-          `}
-        />
-        <div>
-          <Trans t={t} i18nKey="max-score-n-marks">
-            Max score:{" "}
-            <div
-              className={css`
-                color: ${baseTheme.colors.green[100]};
-                text-transform: lowercase;
-              `}
-            >
-              {{ marks: maxScore }} marks
-            </div>
-          </Trans>
-        </div>
-      </InfoBoxLightGreenMedium>
+      {maxScore && (
+        <InfoBoxLightGreenMedium>
+          <FontAwesomeIcon
+            icon={faCheckCircle}
+            className={css`
+              color: ${baseTheme.colors.green[200]};
+              margin-right: 0.5rem;
+            `}
+          />
+          <div>
+            <Trans t={t} i18nKey="max-score-n-marks">
+              Max score:{" "}
+              <div
+                className={css`
+                  color: ${baseTheme.colors.green[100]};
+                  text-transform: lowercase;
+                `}
+              >
+                {{ marks: maxScore }} marks
+              </div>
+            </Trans>
+          </div>
+        </InfoBoxLightGreenMedium>
+      )}
       <InfoBoxLightGreenMedium>
         <FontAwesomeIcon
           icon={faClock}

@@ -9,20 +9,28 @@ export interface ExamInstructionsProps {
   onStart: () => Promise<void>
   examHasStarted: boolean
   examHasEnded: boolean
+  timeMinutes: number
 }
 
 const ExamStartBanner: React.FC<ExamInstructionsProps> = ({
   onStart,
   examHasStarted,
   examHasEnded,
+  timeMinutes,
 }) => {
   const [disabled, setDisabled] = useState(false)
   const { t } = useTranslation()
 
   const handleStart = async () => {
-    setDisabled(false)
-    await onStart()
-    setDisabled(true)
+    if (
+      window.confirm(
+        `Are you sure you want to start the exam?\n\nPlease note that you cannot cancel the exam after starting it. You'll have ${timeMinutes} minutes to complete the exam.`,
+      )
+    ) {
+      setDisabled(false)
+      await onStart()
+      setDisabled(true)
+    }
   }
 
   return (

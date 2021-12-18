@@ -656,38 +656,21 @@ export interface PreviousSubmission {
   grading: Grading | null
 }
 
-export type ExamData =
-  | {
-      tag: "EnrolledAndStarted"
-      id: string
-      name: string
-      instructions: string
-      page_id: string
-      courses: Array<Course>
-      starts_at: Date
-      ends_at: Date | null
-      time_minutes: number
-      page: Page
-      enrollment: ExamEnrollment
-    }
-  | {
-      tag: "NotEnrolled"
-      id: string
-      name: string
-      instructions: string
-      starts_at: Date | null
-      ends_at: Date | null
-      time_minutes: number
-    }
-  | {
-      tag: "NotYetStarted"
-      id: string
-      name: string
-      instructions: string
-      starts_at: Date | null
-      ends_at: Date | null
-      time_minutes: number
-    }
+export interface ExamData {
+  id: string
+  name: string
+  instructions: string
+  starts_at: Date
+  ends_at: Date
+  time_minutes: number
+  enrollment_data: ExamEnrollmentData
+}
+
+export type ExamEnrollmentData =
+  | { tag: "EnrolledAndStarted"; page_id: string; page: Page; enrollment: ExamEnrollment }
+  | { tag: "NotEnrolled" }
+  | { tag: "NotYetStarted" }
+  | { tag: "StudentTimeUp" }
 
 export interface ExamCourseInfo {
   course_id: string

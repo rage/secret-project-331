@@ -4,19 +4,18 @@ import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useMutation, useQuery } from "react-query"
 
-import ContentRenderer, { BlockRendererProps } from "../.."
+import { BlockRendererProps } from "../.."
 import CoursePageContext from "../../../../contexts/CoursePageContext"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
-import { Block, fetchExerciseById, postSubmission } from "../../../../services/backend"
+import { fetchExerciseById, postSubmission } from "../../../../services/backend"
 import Button from "../../../../shared-module/components/Button"
 import DebugModal from "../../../../shared-module/components/DebugModal"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import { defaultContainerWidth } from "../../../../shared-module/styles/constants"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import GenericLoading from "../../../GenericLoading"
 
-import ExerciseTaskIframe from "./ExerciseTaskIframe"
+import ExerciseTask from "./ExerciseTask"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -37,7 +36,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const id = props.data.attributes.id
   // eslint-disable-next-line i18next/no-literal-string
   const queryUniqueKey = `exercise-${id}`
-  const exerciseTask = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
+  const courseMaterialExercise = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
     enabled: showExercise,
     onSuccess: (data) => {
       if (data.exercise_status?.score_given) {
@@ -60,7 +59,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         type: "submissionGraded",
         payload: {
           submissionResult: data,
-          publicSpec: exerciseTask.data?.current_exercise_task.public_spec,
+          publicSpec: courseMaterialExercise.data?.current_exercise_task.public_spec,
         },
       })
     },
@@ -69,8 +68,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const [answerValid, setAnswerValid] = useState(false)
   const [points, setPoints] = useState<number | null>(null)
 
-  if (exerciseTask.error) {
-    return <pre>{JSON.stringify(exerciseTask.error, undefined, 2)}</pre>
+  if (courseMaterialExercise.error) {
+    return <pre>{JSON.stringify(courseMaterialExercise.error, undefined, 2)}</pre>
   }
   if (postSubmissionMutation.isError) {
     return <pre>{JSON.stringify(postSubmissionMutation.error, undefined, 2)}</pre>
@@ -80,16 +79,17 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
   }
 
-  if (exerciseTask.isLoading || !exerciseTask.data) {
+  if (courseMaterialExercise.isLoading || !courseMaterialExercise.data) {
     return <GenericLoading />
   }
 
-  const url = exerciseTask.data.current_exercise_task_service_info?.exercise_iframe_url
-
-  const currentExerciseTaskAssignment = exerciseTask.data.current_exercise_task
-    .assignment as unknown as Block<unknown>[]
-
   const courseInstanceId = coursePageContext?.instance?.id
+
+  const inEndedExam = coursePageContext?.exam?.ends_at
+    ? coursePageContext?.exam?.ends_at < new Date()
+    : false
+  const noSubmission = courseMaterialExercise.data.previous_submission === null
+  const cannotAnswerButNoSubmission = inEndedExam && noSubmission
 
   return (
     <div
@@ -122,7 +122,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             font-weight: 400;
           `}
         >
-          {exerciseTask.data.exercise.name}
+          {courseMaterialExercise.data.exercise.name}
         </h2>
         <div
           className={css`
@@ -137,28 +137,16 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         >
           {t("points-label")}
           <br />
-          {points ?? 0}/{exerciseTask.data.exercise.score_maximum}
+          {points ?? 0}/{courseMaterialExercise.data.exercise.score_maximum}
         </div>
       </div>
-      {currentExerciseTaskAssignment && (
-        <ContentRenderer
-          data={currentExerciseTaskAssignment}
-          editing={false}
-          selectedBlockId={null}
-          setEdits={(map) => map}
-          isExam={props.isExam}
-        />
-      )}
-      {url ? (
-        <ExerciseTaskIframe
-          postThisStateToIFrame={postThisStateToIFrame}
-          url={`${url}?width=${defaultContainerWidth}`}
-          setAnswer={setAnswer}
-          setAnswerValid={setAnswerValid}
-        />
-      ) : (
-        t("dont-know-how-to-render-this-assignment")
-      )}
+      <ExerciseTask
+        exercise={courseMaterialExercise.data}
+        postThisStateToIFrame={postThisStateToIFrame}
+        setAnswer={setAnswer}
+        setAnswerValid={setAnswerValid}
+        cannotAnswerButNoSubmission={cannotAnswerButNoSubmission}
+      />
       <div
         className={css`
           ${normalWidthCenteredComponentStyles}
@@ -167,18 +155,18 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
           }
         `}
       >
-        {postThisStateToIFrame?.view_type !== "view-submission" && (
+        {!cannotAnswerButNoSubmission && postThisStateToIFrame?.view_type !== "view-submission" && (
           <Button
             size="medium"
             variant="primary"
             disabled={postSubmissionMutation.isLoading || !answerValid}
             onClick={() => {
-              if (!courseInstanceId && !exerciseTask.data.exercise.exam_id) {
+              if (!courseInstanceId && !courseMaterialExercise.data.exercise.exam_id) {
                 return
               }
               postSubmissionMutation.mutate({
                 course_instance_id: courseInstanceId || null,
-                exercise_task_id: exerciseTask.data.current_exercise_task.id,
+                exercise_task_id: courseMaterialExercise.data.current_exercise_task.id,
 
                 data_json: answer,
               })
@@ -194,20 +182,20 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             onClick={() => {
               dispatch({
                 type: "tryAgain",
-                payload: exerciseTask.data,
+                payload: courseMaterialExercise.data,
               })
               //exerciseTask.refetch()
               postSubmissionMutation.reset()
               setAnswerValid(false)
             }}
-            disabled={exerciseTask.isRefetching}
+            disabled={courseMaterialExercise.isRefetching}
           >
             {t("try-again")}
           </Button>
         )}
         {postSubmissionMutation.isError && <></>}
         <br />
-        <DebugModal data={exerciseTask.data} />
+        <DebugModal data={courseMaterialExercise.data} />
       </div>
     </div>
   )

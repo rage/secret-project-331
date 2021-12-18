@@ -257,13 +257,25 @@ async fn main() -> Result<()> {
     info!("inserting sample exams");
     create_exam(
         &mut conn,
-        "Ongoing",
+        "Ongoing ends soon",
         Some(Utc::now()),
-        Some(Utc::now() + Duration::minutes(30)),
-        5,
+        Some(Utc::now() + Duration::minutes(5)),
+        120,
         uh_cs,
         cs_intro,
         Uuid::parse_str("7d6ed843-2a94-445b-8ced-ab3c67290ad0")?,
+        teacher,
+    )
+    .await?;
+    create_exam(
+        &mut conn,
+        "Ongoing short timer",
+        Some(Utc::now()),
+        Some(Utc::now() + Duration::minutes(120)),
+        5,
+        uh_cs,
+        cs_intro,
+        Uuid::parse_str("6959e7af-6b78-4d37-b381-eef5b7aaad6c")?,
         teacher,
     )
     .await?;

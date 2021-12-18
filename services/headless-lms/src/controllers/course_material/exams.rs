@@ -2,13 +2,12 @@ use crate::{
     controllers::{ControllerError, ControllerResult},
     domain::authorization::AuthUser,
     models::{
-        courses::Course,
         exams::{self, ExamEnrollment},
         pages::{self, Page},
     },
 };
 use actix_web::web::{self, Json, ServiceConfig};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use serde::Serialize;
 use sqlx::PgPool;
 use ts_rs::TS;
@@ -56,36 +55,27 @@ pub async fn enroll(
 }
 
 #[derive(Debug, Serialize, TS)]
+pub struct ExamData {
+    id: Uuid,
+    name: String,
+    instructions: String,
+    starts_at: DateTime<Utc>,
+    ends_at: DateTime<Utc>,
+    time_minutes: i32,
+    enrollment_data: ExamEnrollmentData,
+}
+
+#[derive(Debug, Serialize, TS)]
 #[serde(tag = "tag")]
-pub enum ExamData {
+pub enum ExamEnrollmentData {
     EnrolledAndStarted {
-        id: Uuid,
-        name: String,
-        instructions: String,
         page_id: Uuid,
-        courses: Vec<Course>,
-        starts_at: DateTime<Utc>,
-        ends_at: Option<DateTime<Utc>>,
-        time_minutes: i32,
         page: Box<Page>,
         enrollment: ExamEnrollment,
     },
-    NotEnrolled {
-        id: Uuid,
-        name: String,
-        instructions: String,
-        starts_at: Option<DateTime<Utc>>,
-        ends_at: Option<DateTime<Utc>>,
-        time_minutes: i32,
-    },
-    NotYetStarted {
-        id: Uuid,
-        name: String,
-        instructions: String,
-        starts_at: Option<DateTime<Utc>>,
-        ends_at: Option<DateTime<Utc>>,
-        time_minutes: i32,
-    },
+    NotEnrolled,
+    NotYetStarted,
+    StudentTimeUp,
 }
 
 pub async fn fetch_exam_for_user(
@@ -97,63 +87,79 @@ pub async fn fetch_exam_for_user(
     let id = id.into_inner();
     let exam = exams::get(&mut conn, id).await?;
 
-    let starts_at = match exam.starts_at {
-        Some(starts_at) => {
-            if starts_at > Utc::now() {
-                // exam has not started yet
-                return Ok(Json(ExamData::NotYetStarted {
-                    id: exam.id,
-                    name: exam.name,
-                    instructions: exam.instructions,
-                    starts_at: exam.starts_at,
-                    ends_at: exam.ends_at,
-                    time_minutes: exam.time_minutes,
-                }));
-            }
-            starts_at
-        }
-        None => {
-            // exam has no start time yet
-            return Ok(Json(ExamData::NotYetStarted {
-                id: exam.id,
-                name: exam.name,
-                instructions: exam.instructions,
-                starts_at: exam.starts_at,
-                ends_at: exam.ends_at,
-                time_minutes: exam.time_minutes,
-            }));
-        }
+    let starts_at = if let Some(starts_at) = exam.starts_at {
+        starts_at
+    } else {
+        return Err(ControllerError::Forbidden(
+            "Cannot fetch exam that has no start time".to_string(),
+        ));
     };
+    let ends_at = if let Some(ends_at) = exam.ends_at {
+        ends_at
+    } else {
+        return Err(ControllerError::Forbidden(
+            "Cannot fetch exam that has no end time".to_string(),
+        ));
+    };
+
+    if starts_at > Utc::now() {
+        // exam has not started yet
+        return Ok(Json(ExamData {
+            id: exam.id,
+            name: exam.name,
+            instructions: exam.instructions,
+            starts_at,
+            ends_at,
+            time_minutes: exam.time_minutes,
+            enrollment_data: ExamEnrollmentData::NotYetStarted,
+        }));
+    }
 
     let enrollment = if let Some(enrollment) = exams::get_enrollment(&mut conn, id, user.id).await?
     {
         // user has started the exam
+        if Utc::now() < ends_at
+            && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
+        {
+            // exam is still open but the student's time has expired
+            return Ok(Json(ExamData {
+                id: exam.id,
+                name: exam.name,
+                instructions: exam.instructions,
+                starts_at,
+                ends_at,
+                time_minutes: exam.time_minutes,
+                enrollment_data: ExamEnrollmentData::StudentTimeUp,
+            }));
+        }
         enrollment
     } else {
         // user has not started the exam
-        return Ok(Json(ExamData::NotEnrolled {
+        return Ok(Json(ExamData {
             id: exam.id,
             name: exam.name,
             instructions: exam.instructions,
-            starts_at: exam.starts_at,
-            ends_at: exam.ends_at,
+            starts_at,
+            ends_at,
             time_minutes: exam.time_minutes,
+            enrollment_data: ExamEnrollmentData::NotEnrolled,
         }));
     };
 
     let page = pages::get_page(&mut conn, exam.page_id).await?;
 
-    Ok(Json(ExamData::EnrolledAndStarted {
+    Ok(Json(ExamData {
         id: exam.id,
         name: exam.name,
         instructions: exam.instructions,
-        page_id: exam.page_id,
-        courses: exam.courses,
         starts_at,
-        ends_at: exam.ends_at,
+        ends_at,
         time_minutes: exam.time_minutes,
-        page: Box::new(page),
-        enrollment,
+        enrollment_data: ExamEnrollmentData::EnrolledAndStarted {
+            page_id: exam.page_id,
+            page: Box::new(page),
+            enrollment,
+        },
     }))
 }
 

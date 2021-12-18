@@ -1,7 +1,10 @@
 use crate::{
     controllers::{
         auth::Login,
-        course_material::{exams::ExamData, submissions::PreviousSubmission},
+        course_material::{
+            exams::{ExamData, ExamEnrollmentData},
+            submissions::PreviousSubmission,
+        },
         main_frontend::{
             courses::GetFeedbackQuery, exams::ExamCourseInfo, exercises::ExerciseSubmissions,
             feedback::MarkAsRead, proposed_edits::GetEditProposalsQuery,
@@ -138,6 +141,7 @@ fn ts_binding_generator() {
 
         PreviousSubmission,
         ExamData,
+        ExamEnrollmentData,
         ExamCourseInfo,
         Login,
         UploadResult,

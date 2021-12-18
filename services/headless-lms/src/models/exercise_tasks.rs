@@ -17,19 +17,6 @@ pub struct CourseMaterialExerciseTask {
     pub model_solution_spec: Option<serde_json::Value>,
 }
 
-impl From<ExerciseTask> for CourseMaterialExerciseTask {
-    fn from(exercise_task: ExerciseTask) -> Self {
-        CourseMaterialExerciseTask {
-            id: exercise_task.id,
-            assignment: exercise_task.assignment,
-            exercise_slide_id: exercise_task.exercise_slide_id,
-            exercise_type: exercise_task.exercise_type,
-            public_spec: exercise_task.public_spec,
-            model_solution_spec: None,
-        }
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
 pub struct ExerciseTask {
     pub id: Uuid,
@@ -201,7 +188,14 @@ pub async fn get_existing_user_exercise_task_for_course_instance(
         if let Some(selected_exercise_task_id) = user_exercise_state.selected_exercise_slide_id {
             let exercise_task =
                 exercise_tasks::get_exercise_task_by_id(conn, selected_exercise_task_id).await?;
-            Some(exercise_task.into())
+            Some(CourseMaterialExerciseTask {
+                id: exercise_task.id,
+                assignment: exercise_task.assignment,
+                exercise_slide_id: exercise_task.exercise_slide_id,
+                exercise_type: exercise_task.exercise_type,
+                public_spec: exercise_task.public_spec,
+                model_solution_spec: None,
+            })
         } else {
             None
         }
@@ -226,10 +220,13 @@ pub async fn get_or_select_user_exercise_task_for_course_instance_or_exam(
         exam_id,
     )
     .await?;
+    info!("statestate {:#?}", user_exercise_state);
     let selected_exercise_slide_id =
         if let Some(selected_exercise_slide_id) = user_exercise_state.selected_exercise_slide_id {
+            info!("found {}", selected_exercise_slide_id);
             selected_exercise_slide_id
         } else {
+            info!("random");
             let exercise_slide_id =
                 exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise_id)
                     .await?
@@ -247,11 +244,19 @@ pub async fn get_or_select_user_exercise_task_for_course_instance_or_exam(
         };
     let exercise_tasks =
         get_exercise_tasks_by_exercise_slide_id(conn, selected_exercise_slide_id).await?;
+    info!("got tasks");
     // TODO: Return all tasks in the slide but for now we're still legacy mode.
     let exercise_task = exercise_tasks.into_iter().next().ok_or_else(|| {
         ModelError::PreconditionFailed("Missing exercise definition.".to_string())
     })?;
-    Ok(exercise_task.into())
+    Ok(CourseMaterialExerciseTask {
+        id: exercise_task.id,
+        assignment: exercise_task.assignment,
+        exercise_slide_id: exercise_task.exercise_slide_id,
+        exercise_type: exercise_task.exercise_type,
+        public_spec: exercise_task.public_spec,
+        model_solution_spec: None,
+    })
 }
 
 pub async fn get_exercise_tasks_by_exercise_id(

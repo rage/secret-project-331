@@ -318,6 +318,7 @@ pub async fn get_for_student(
             .await?
             .ok_or_else(|| anyhow::anyhow!("User has grading for exam but no enrollment"))?;
         if Utc::now() > enrollment.started_at + chrono::Duration::minutes(exam.time_minutes.into())
+            || exam.ends_at.map(|ea| Utc::now() > ea).unwrap_or_default()
         {
             // exam over, return grading
             Ok(Some(grading))

@@ -15,12 +15,14 @@ export interface ExamTimeOverModalProps {
 const ExamTimeOverModal: React.FC<ExamTimeOverModalProps> = ({ onClose, secondsLeft }) => {
   const [open, setOpen] = useState(false)
   const { t } = useTranslation()
+  const [showedExamIsOverPopup, setShowedExamIsOverPopup] = useState(false)
 
   useEffect(() => {
-    if (secondsLeft <= 0) {
+    if (!showedExamIsOverPopup && secondsLeft <= 0) {
       setOpen(true)
+      setShowedExamIsOverPopup(true)
     }
-  }, [secondsLeft])
+  }, [secondsLeft, showedExamIsOverPopup])
 
   const handleClose = async () => {
     setOpen(false)

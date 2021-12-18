@@ -675,9 +675,17 @@ GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of f
 pub async fn get_feedback_count(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<Json<FeedbackCount>> {
     let mut conn = pool.acquire().await?;
     let course_id = course_id.into_inner();
+    authorize(
+        &mut conn,
+        Action::View,
+        user.id,
+        Resource::Course(course_id),
+    )
+    .await?;
 
     let feedback_count = feedback::get_feedback_count_for_course(&mut conn, course_id).await?;
     Ok(Json(feedback_count))
@@ -687,8 +695,16 @@ async fn new_course_instance(
     form: Json<CourseInstanceForm>,
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<Json<Uuid>> {
     let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Action::Edit,
+        user.id,
+        Resource::Course(*course_id),
+    )
+    .await?;
     let form = form.into_inner();
     let new = NewCourseInstance {
         id: Uuid::new_v4(),

@@ -32,6 +32,7 @@ async fn update_email_template(
     user: AuthUser,
 ) -> ControllerResult<Json<EmailTemplate>> {
     let mut conn = pool.acquire().await?;
+
     let request_update_template = payload.0;
     let updated_template = crate::models::email_templates::update_email_template(
         &mut conn,

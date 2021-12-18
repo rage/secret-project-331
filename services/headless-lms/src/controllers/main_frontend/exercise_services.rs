@@ -1,5 +1,6 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercise-services/`.
 
+use crate::domain::authorization::{authorize, Action, Resource};
 use crate::models::exercise_services::ExerciseServiceNewOrUpdate;
 use crate::{
     controllers::ControllerResult, domain::authorization::AuthUser,
@@ -17,6 +18,8 @@ async fn delete_exercise_service(
     user: AuthUser,
 ) -> ControllerResult<Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Action::Edit, user.id, Resource::ExerciseService).await?;
+
     let deleted = crate::models::exercise_services::delete_exercise_service(
         &mut conn,
         *request_exercise_service_id,
@@ -32,6 +35,8 @@ async fn add_exercise_service(
     payload: web::Json<ExerciseServiceNewOrUpdate>,
 ) -> ControllerResult<Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Action::Edit, user.id, Resource::ExerciseService).await?;
+
     let exercise_service = payload.0;
     let created =
         crate::models::exercise_services::insert_exercise_service(&mut conn, &exercise_service)
@@ -73,6 +78,8 @@ async fn update_exercise_service(
     user: AuthUser,
 ) -> ControllerResult<Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Action::Edit, user.id, Resource::ExerciseService).await?;
+
     let updated_exercise_service = payload.0;
     let updated_service = crate::models::exercise_services::update_exercise_service(
         &mut conn,

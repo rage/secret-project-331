@@ -2,7 +2,7 @@
 
 use crate::controllers::helpers::media::{upload_media, StoreKind};
 use crate::controllers::{ControllerResult, UploadResult};
-use crate::domain::authorization::AuthUser;
+use crate::domain::authorization::{authorize, Action, AuthUser, Resource};
 use crate::utils::file_store::FileStore;
 use crate::ApplicationConfiguration;
 use actix_multipart as mp;
@@ -45,8 +45,16 @@ async fn add_media(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
+    let organization_id = request_organization_id.into_inner();
+    authorize(
+        &mut conn,
+        Action::Edit,
+        user.id,
+        Resource::Organization(organization_id),
+    )
+    .await?;
     let organization =
-        crate::models::organizations::get_organization(&mut conn, *request_organization_id).await?;
+        crate::models::organizations::get_organization(&mut conn, organization_id).await?;
 
     let media_path = upload_media(
         request.headers(),

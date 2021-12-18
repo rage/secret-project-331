@@ -142,7 +142,11 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
           >
             <SerializeGutenbergModal content={content} />
           </div>
-          <DebugModal data={content} />
+          <DebugModal
+            data={content}
+            readOnly={true}
+            updateDataOnClose={(data) => contentDispatch({ type: "setContent", payload: data })}
+          />
         </div>
       </div>
     </EditorContentDispatch.Provider>

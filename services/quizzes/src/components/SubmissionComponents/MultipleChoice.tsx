@@ -30,6 +30,12 @@ const gradingOptionWrong = css`
 `
 
 // eslint-disable-next-line i18next/no-literal-string
+const gradingOptionSelected = css`
+  background: ${quizTheme.gradingSelectedItemBackground};
+  color: ${quizTheme.gradingSelectedItemColor};
+`
+
+// eslint-disable-next-line i18next/no-literal-string
 const gradingOptionCorrect = css`
   background: ${quizTheme.gradingCorrectItemBackground};
   color: ${quizTheme.gradingCorrectItemColor};
@@ -83,19 +89,19 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
         `}
       >
         {public_quiz_item.options.map((qo) => {
-          const studentAnswer = user_quiz_item_answer.optionAnswers?.includes(qo.id)
-          const correctAnswer = quiz_item_model_solution?.options.some(
-            (x) => x.id === qo.id && x.correct,
-          )
+          const selectedAnswer = user_quiz_item_answer.optionAnswers?.includes(qo.id) ?? false
+          const correctAnswerExists = (quiz_item_model_solution?.options.length ?? 0) > 0
+          const correctAnswer =
+            quiz_item_model_solution?.options.some((x) => x.id === qo.id && x.correct) ?? false
 
           return (
             <div
               key={qo.id}
               className={cx(
                 gradingOption,
-                // Apply "wrong" style first, conditionally override afterwards
-                studentAnswer ? gradingOptionWrong : "",
-                correctAnswer ?? studentAnswer ? gradingOptionCorrect : "",
+                selectedAnswer ? gradingOptionSelected : "",
+                selectedAnswer && correctAnswerExists ? gradingOptionWrong : "",
+                correctAnswer ? gradingOptionCorrect : "",
               )}
             >
               <div
@@ -103,7 +109,7 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                   padding: 1rem 0;
                 `}
               >
-                {qo.title || qo.body}
+                <MarkdownText text={qo.title || qo.body || ""} />
               </div>
               <div
                 className={css`
@@ -111,8 +117,8 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                   flex-direction: column;
                 `}
               >
-                <div>{studentAnswer === true && t("student-answer")}</div>
-                <div>{correctAnswer === true && t("correct-answer")}</div>
+                <div>{selectedAnswer && t("student-answer")}</div>
+                <div>{correctAnswer && t("correct-answer")}</div>
               </div>
             </div>
           )

@@ -7,6 +7,8 @@ import { baseTheme } from "../shared-module/styles"
 export const quizTheme = {
   gradingCorrectItemBackground: baseTheme.colors.green[400],
   gradingCorrectItemColor: baseTheme.colors.neutral[800],
+  gradingSelectedItemBackground: baseTheme.colors.grey[700],
+  gradingSelectedItemColor: baseTheme.colors.neutral[200],
   gradingWrongItemBackground: "#fcc5cd",
   gradingWrongItemColor: baseTheme.colors.neutral[800],
   quizBodyColor: baseTheme.colors.grey[800],

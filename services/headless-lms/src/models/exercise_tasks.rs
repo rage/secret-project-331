@@ -1,5 +1,8 @@
 use super::{exercise_slides, exercise_tasks, user_exercise_states, ModelError, ModelResult};
-use crate::utils::document_schema_processor::GutenbergBlock;
+use crate::{
+    models::{exams, exercises},
+    utils::document_schema_processor::GutenbergBlock,
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -249,13 +252,26 @@ pub async fn get_or_select_user_exercise_task_for_course_instance_or_exam(
     let exercise_task = exercise_tasks.into_iter().next().ok_or_else(|| {
         ModelError::PreconditionFailed("Missing exercise definition.".to_string())
     })?;
+
+    let exercise = exercises::get_by_id(conn, exercise_id).await?;
+    let model_solution_spec = if let Some(exam_id) = exercise.exam_id {
+        let exam = exams::get(conn, exam_id).await?;
+        if exam.ends_at.map(|ea| ea < Utc::now()).unwrap_or_default() {
+            // if exam has ended, include model solution spec if any
+            exercise_task.model_solution_spec
+        } else {
+            None
+        }
+    } else {
+        None
+    };
     Ok(CourseMaterialExerciseTask {
         id: exercise_task.id,
         assignment: exercise_task.assignment,
         exercise_slide_id: exercise_task.exercise_slide_id,
         exercise_type: exercise_task.exercise_type,
         public_spec: exercise_task.public_spec,
-        model_solution_spec: None,
+        model_solution_spec,
     })
 }
 

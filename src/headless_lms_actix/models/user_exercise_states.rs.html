@@ -846,6 +846,14 @@
 <span id="846">846</span>
 <span id="847">847</span>
 <span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">exercises</span>::{<span class="ident">ActivityProgress</span>, <span class="ident">GradingProgress</span>},
     <span class="ident">gradings::Grading</span>,
@@ -1115,7 +1123,8 @@ WHERE user_id = $1
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">course_instance_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">UserExerciseState</span>,
@@ -1134,11 +1143,12 @@ SELECT user_id,
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
-  AND course_instance_id = $3
+  AND (course_instance_id = $3 OR exam_id = $4)
       &quot;#</span>,
         <span class="ident">user_id</span>,
         <span class="ident">exercise_id</span>,
-        <span class="ident">course_instance_id</span>
+        <span class="ident">course_instance_id</span>,
+        <span class="ident">exam_id</span>
     )
     .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1149,7 +1159,8 @@ WHERE user_id = $1
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">course_instance_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">selected_exercise_slide_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">existing</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
@@ -1158,11 +1169,12 @@ SELECT
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
-  AND course_instance_id = $3
+  AND (course_instance_id = $3 OR exam_id = $4)
 &quot;</span>,
         <span class="ident">user_id</span>,
         <span class="ident">exercise_id</span>,
-        <span class="ident">course_instance_id</span>
+        <span class="ident">course_instance_id</span>,
+        <span class="ident">exam_id</span>
     )
     .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1173,12 +1185,13 @@ UPDATE user_exercise_states
 SET selected_exercise_slide_id = $4
 WHERE user_id = $1
   AND exercise_id = $2
-  AND course_instance_id = $3
+  AND (course_instance_id = $3 OR exam_id = $5)
     &quot;</span>,
             <span class="ident">user_id</span>,
             <span class="ident">exercise_id</span>,
             <span class="ident">course_instance_id</span>,
             <span class="ident">selected_exercise_slide_id</span>,
+            <span class="ident">exam_id</span>
         )
         .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1189,14 +1202,16 @@ WHERE user_id = $1
         user_id,
         exercise_id,
         course_instance_id,
-        selected_exercise_slide_id
+        selected_exercise_slide_id,
+        exam_id
       )
-    VALUES ($1, $2, $3, $4)
+    VALUES ($1, $2, $3, $4, $5)
     &quot;</span>,
             <span class="ident">user_id</span>,
             <span class="ident">exercise_id</span>,
             <span class="ident">course_instance_id</span>,
             <span class="ident">selected_exercise_slide_id</span>,
+            <span class="ident">exam_id</span>
         )
         .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1337,7 +1352,7 @@ UPDATE user_exercise_states
 SET score_given = $4, grading_progress = $5, activity_progress = $6
 WHERE user_id = $1
 AND exercise_id = $2
-AND course_instance_id = $3
+AND (course_instance_id = $3 OR exam_id = $7)
 RETURNING user_id,
   exercise_id,
   course_instance_id,
@@ -1356,6 +1371,7 @@ RETURNING user_id,
         <span class="ident">new_score_given</span>,
         <span class="ident">new_grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,
         <span class="ident">new_activity_progress</span> <span class="kw">as</span> <span class="ident">ActivityProgress</span>,
+        <span class="kw-2">*</span><span class="ident">exam_id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

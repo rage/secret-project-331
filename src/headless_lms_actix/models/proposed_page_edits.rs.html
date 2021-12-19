@@ -510,6 +510,8 @@
 <span id="510">510</span>
 <span id="511">511</span>
 <span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">page_history::HistoryChangeReason</span>,
     <span class="ident">pages::CmsPageUpdate</span>,
@@ -839,6 +841,7 @@ WHERE id = $1
         <span class="ident">author</span>,
         <span class="bool-val">true</span>,
         <span class="ident">HistoryChangeReason::PageSaved</span>,
+        <span class="ident">page_with_exercises</span>.<span class="ident">page</span>.<span class="ident">exam_id</span>.<span class="ident">is_some</span>(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -915,6 +918,7 @@ WHERE id = $2
             <span class="ident">data</span>.<span class="ident">user</span>,
             <span class="bool-val">true</span>,
             <span class="ident">HistoryChangeReason::PageSaved</span>,
+            <span class="bool-val">false</span>,
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();

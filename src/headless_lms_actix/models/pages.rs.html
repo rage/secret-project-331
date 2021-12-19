@@ -1888,6 +1888,23 @@
 <span id="1888">1888</span>
 <span id="1889">1889</span>
 <span id="1890">1890</span>
+<span id="1891">1891</span>
+<span id="1892">1892</span>
+<span id="1893">1893</span>
+<span id="1894">1894</span>
+<span id="1895">1895</span>
+<span id="1896">1896</span>
+<span id="1897">1897</span>
+<span id="1898">1898</span>
+<span id="1899">1899</span>
+<span id="1900">1900</span>
+<span id="1901">1901</span>
+<span id="1902">1902</span>
+<span id="1903">1903</span>
+<span id="1904">1904</span>
+<span id="1905">1905</span>
+<span id="1906">1906</span>
+<span id="1907">1907</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">ChapterStatus</span>},
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>},
@@ -2487,15 +2504,17 @@ AND pages.deleted_at IS NULL
     <span class="ident">author</span>: <span class="ident">Uuid</span>,
     <span class="ident">retain_exercise_ids</span>: <span class="ident">bool</span>,
     <span class="ident">history_change_reason</span>: <span class="ident">HistoryChangeReason</span>,
+    <span class="ident">is_exam_page</span>: <span class="ident">bool</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ContentManagementPage</span><span class="op">&gt;</span> {
     <span class="ident">page_update</span>.<span class="ident">validate_exercise_data</span>()<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">parsed_content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">page_update</span>.<span class="ident">content</span>)<span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="ident">page_update</span>.<span class="ident">chapter_id</span>.<span class="ident">is_none</span>()
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">is_exam_page</span>
+        <span class="op">&amp;&amp;</span> <span class="ident">page_update</span>.<span class="ident">chapter_id</span>.<span class="ident">is_none</span>()
         <span class="op">&amp;&amp;</span> <span class="ident">contains_blocks_not_allowed_in_top_level_pages</span>(<span class="kw-2">&amp;</span><span class="ident">parsed_content</span>)
     {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::Generic</span>(
-                <span class="string">&quot;Top level pages cannot contain exercises, exercise tasks or list of exercises in the chapter&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter&quot;</span>.<span class="ident">to_string</span>(),
             ));
     }
 
@@ -2680,15 +2699,17 @@ INSERT INTO exercises(
     name,
     order_number,
     page_id,
-    chapter_id
+    chapter_id,
+    exam_id
   )
-VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO
+VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
 UPDATE
 SET course_id = $2,
   name = $3,
   order_number = $4,
   page_id = $5,
   chapter_id = $6,
+  exam_id = $7,
   deleted_at = NULL
 RETURNING id,
   name,
@@ -2700,6 +2721,7 @@ RETURNING id,
             <span class="ident">exercise_update</span>.<span class="ident">order_number</span>,
             <span class="ident">page</span>.<span class="ident">id</span>,
             <span class="ident">page</span>.<span class="ident">chapter_id</span>,
+            <span class="ident">page</span>.<span class="ident">exam_id</span>,
         )
         .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -3023,6 +3045,7 @@ RETURNING id,
         <span class="ident">author</span>,
         <span class="bool-val">false</span>,
         <span class="ident">HistoryChangeReason::PageSaved</span>,
+        <span class="ident">new_page</span>.<span class="ident">exam_id</span>.<span class="ident">is_some</span>(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -3631,24 +3654,24 @@ LIMIT 50;
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="comment">// fetch old content</span>
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">get_page</span>(<span class="ident">conn</span>, <span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> (<span class="ident">content_to_restore</span>, <span class="ident">title_to_restore</span>) <span class="op">=</span>
-        <span class="ident">page_history::get_history_content_and_title</span>(<span class="ident">conn</span>, <span class="ident">history_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">history_data</span> <span class="op">=</span> <span class="ident">page_history::get_history_data</span>(<span class="ident">conn</span>, <span class="ident">history_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="ident">update_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">page</span>.<span class="ident">id</span>,
         <span class="ident">CmsPageUpdate</span> {
-            <span class="ident">content</span>: <span class="ident">content_to_restore</span>.<span class="ident">content</span>,
-            <span class="ident">exercises</span>: <span class="ident">content_to_restore</span>.<span class="ident">exercises</span>,
-            <span class="ident">exercise_slides</span>: <span class="ident">content_to_restore</span>.<span class="ident">exercise_slides</span>,
-            <span class="ident">exercise_tasks</span>: <span class="ident">content_to_restore</span>.<span class="ident">exercise_tasks</span>,
+            <span class="ident">content</span>: <span class="ident">history_data</span>.<span class="ident">content</span>.<span class="ident">content</span>,
+            <span class="ident">exercises</span>: <span class="ident">history_data</span>.<span class="ident">content</span>.<span class="ident">exercises</span>,
+            <span class="ident">exercise_slides</span>: <span class="ident">history_data</span>.<span class="ident">content</span>.<span class="ident">exercise_slides</span>,
+            <span class="ident">exercise_tasks</span>: <span class="ident">history_data</span>.<span class="ident">content</span>.<span class="ident">exercise_tasks</span>,
             <span class="ident">url_path</span>: <span class="ident">page</span>.<span class="ident">url_path</span>,
-            <span class="ident">title</span>: <span class="ident">title_to_restore</span>,
+            <span class="ident">title</span>: <span class="ident">history_data</span>.<span class="ident">title</span>,
             <span class="ident">chapter_id</span>: <span class="ident">page</span>.<span class="ident">chapter_id</span>,
         },
         <span class="ident">author</span>,
         <span class="bool-val">true</span>,
         <span class="ident">HistoryChangeReason::HistoryRestored</span>,
+        <span class="ident">history_data</span>.<span class="ident">exam_id</span>.<span class="ident">is_some</span>(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -3676,7 +3699,7 @@ WHERE pages.id = $1
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_helper</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">models::exams::NewExam</span>, <span class="ident">test_helper</span>::<span class="kw-2">*</span>};
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">gets_organization_id</span>() {
@@ -3687,9 +3710,20 @@ WHERE pages.id = $1
         <span class="macro">assert_eq!</span>(<span class="ident">data</span>.<span class="ident">org</span>, <span class="ident">course_page_org</span>);
 
         <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>();
-        <span class="ident"><span class="kw">crate</span>::models::exams::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exam</span>, <span class="string">&quot;name&quot;</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="ident">data</span>.<span class="ident">org</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="ident"><span class="kw">crate</span>::models::exams::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">NewExam</span> {
+                <span class="ident">id</span>: <span class="ident">exam</span>,
+                <span class="ident">name</span>: <span class="string">&quot;name&quot;</span>,
+                <span class="ident">instructions</span>: <span class="string">&quot;instr&quot;</span>,
+                <span class="ident">starts_at</span>: <span class="prelude-val">None</span>,
+                <span class="ident">ends_at</span>: <span class="prelude-val">None</span>,
+                <span class="ident">time_minutes</span>: <span class="number">120</span>,
+                <span class="ident">organization_id</span>: <span class="ident">data</span>.<span class="ident">org</span>,
+            },
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::pages::insert_page</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">NewPage</span> {

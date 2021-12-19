@@ -133,6 +133,17 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">models</span>::{
         <span class="ident">pages</span>::{<span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>},
@@ -207,22 +218,33 @@ RETURNING id
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_history_content_and_title</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">PageHistoryContent</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageHistoryData</span> {
+    <span class="kw">pub</span> <span class="ident">content</span>: <span class="ident">PageHistoryContent</span>,
+    <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_history_data</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PageHistoryData</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
-SELECT content, title
+SELECT page_history.content,
+  page_history.title,
+  pages.exam_id
 FROM page_history
-WHERE id = $1
-  AND deleted_at IS NULL;
+  JOIN pages ON pages.id = page_history.page_id
+WHERE page_history.id = $1
+  AND pages.deleted_at IS NULL
+  AND page_history.deleted_at IS NULL
         &quot;</span>,
         <span class="ident">id</span>,
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>((<span class="ident">serde_json::from_value</span>(<span class="ident">record</span>.<span class="ident">content</span>)<span class="question-mark">?</span>, <span class="ident">record</span>.<span class="ident">title</span>))
+    <span class="prelude-val">Ok</span>(<span class="ident">PageHistoryData</span> {
+        <span class="ident">content</span>: <span class="ident">serde_json::from_value</span>(<span class="ident">record</span>.<span class="ident">content</span>)<span class="question-mark">?</span>,
+        <span class="ident">title</span>: <span class="ident">record</span>.<span class="ident">title</span>,
+        <span class="ident">exam_id</span>: <span class="ident">record</span>.<span class="ident">exam_id</span>,
+    })
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">history</span>(

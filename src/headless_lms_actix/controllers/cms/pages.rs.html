@@ -154,6 +154,7 @@
 <span id="154">154</span>
 <span id="155">155</span>
 <span id="156">156</span>
+<span id="157">157</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/pages`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers::ControllerResult</span>,
@@ -294,6 +295,7 @@ Response:
         <span class="ident">user</span>.<span class="ident">id</span>,
         <span class="bool-val">false</span>,
         <span class="ident">HistoryChangeReason::PageSaved</span>,
+        <span class="ident">exam_id</span>.<span class="ident">is_some</span>(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">saved</span>))

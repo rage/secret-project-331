@@ -758,6 +758,22 @@
 <span id="758">758</span>
 <span id="759">759</span>
 <span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers</span>::{
@@ -1435,9 +1451,17 @@ GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of f
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_feedback_count</span>(
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">FeedbackCount</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">course_id</span>.<span class="ident">into_inner</span>();
+    <span class="ident">authorize</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">Action::View</span>,
+        <span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="ident">Resource::Course</span>(<span class="ident">course_id</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">feedback_count</span> <span class="op">=</span> <span class="ident">feedback::get_feedback_count_for_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">feedback_count</span>))
@@ -1447,8 +1471,16 @@ GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of f
     <span class="ident">form</span>: <span class="ident">Json</span><span class="op">&lt;</span><span class="ident">CourseInstanceForm</span><span class="op">&gt;</span>,
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">Action::Edit</span>,
+        <span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="ident">Resource::Course</span>(<span class="kw-2">*</span><span class="ident">course_id</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">form</span> <span class="op">=</span> <span class="ident">form</span>.<span class="ident">into_inner</span>();
     <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">NewCourseInstance</span> {
         <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),

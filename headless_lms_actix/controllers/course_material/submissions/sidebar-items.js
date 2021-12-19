@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_submissions_routes","Add a route for each controller in this module."],["post_submission","POST `/api/v0/course-material/submissions` - Post a new submission."]]});
+initSidebarItems({"fn":[["_add_submissions_routes","Add a route for each controller in this module."],["post_submission","POST `/api/v0/course-material/submissions` - Post a new submission."],["previous_submission",""]],"struct":[["PreviousSubmission",""]]});

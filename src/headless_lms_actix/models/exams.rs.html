@@ -271,6 +271,11 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::models</span>::{<span class="ident">courses::Course</span>, <span class="ident">ModelError</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::ModelResult</span>;
@@ -284,16 +289,12 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Exam</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">courses</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">TS</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseExam</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">starts_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">ends_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">time_minutes</span>: <span class="ident">i32</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Exam</span><span class="op">&gt;</span> {
@@ -301,7 +302,11 @@
         <span class="string">&quot;
 SELECT exams.id,
   exams.name,
-  pages.id AS page_id
+  exams.instructions,
+  pages.id AS page_id,
+  exams.starts_at,
+  exams.ends_at,
+  exams.time_minutes
 FROM exams
   JOIN pages ON pages.exam_id = exams.id
 WHERE exams.id = $1
@@ -310,6 +315,7 @@ WHERE exams.id = $1
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">let</span> <span class="ident">courses</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Course</span>,
         <span class="string">&quot;
@@ -332,41 +338,59 @@ WHERE course_exams.exam_id = $1
     )
     .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="prelude-val">Ok</span>(<span class="ident">Exam</span> {
         <span class="ident">id</span>: <span class="ident">exam</span>.<span class="ident">id</span>,
         <span class="ident">name</span>: <span class="ident">exam</span>.<span class="ident">name</span>,
+        <span class="ident">instructions</span>: <span class="ident">exam</span>.<span class="ident">instructions</span>,
         <span class="ident">page_id</span>: <span class="ident">exam</span>.<span class="ident">page_id</span>,
+        <span class="ident">starts_at</span>: <span class="ident">exam</span>.<span class="ident">starts_at</span>,
+        <span class="ident">ends_at</span>: <span class="ident">exam</span>.<span class="ident">ends_at</span>,
+        <span class="ident">time_minutes</span>: <span class="ident">exam</span>.<span class="ident">time_minutes</span>,
         <span class="ident">courses</span>,
     })
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">starts_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">ends_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">time_minutes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">TS</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseExam</span> {
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">course_name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewExam</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
+    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
+    <span class="kw">pub</span> <span class="ident">starts_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">ends_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">time_minutes</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">exam</span>: <span class="ident">NewExam</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO exams (
     id,
     name,
+    instructions,
     starts_at,
     ends_at,
     time_minutes,
     organization_id
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 &quot;</span>,
-        <span class="ident">id</span>,
-        <span class="ident">name</span>,
-        <span class="ident">starts_at</span>,
-        <span class="ident">ends_at</span>,
-        <span class="ident">time_minutes</span>,
-        <span class="ident">organization_id</span>
+        <span class="ident">exam</span>.<span class="ident">id</span>,
+        <span class="ident">exam</span>.<span class="ident">name</span>,
+        <span class="ident">exam</span>.<span class="ident">instructions</span>,
+        <span class="ident">exam</span>.<span class="ident">starts_at</span>,
+        <span class="ident">exam</span>.<span class="ident">ends_at</span>,
+        <span class="ident">exam</span>.<span class="ident">time_minutes</span>,
+        <span class="ident">exam</span>.<span class="ident">organization_id</span>
     )
     .<span class="ident">execute</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -377,6 +401,7 @@ VALUES ($1, $2, $3, $4, $5, $6)
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
+    <span class="ident">instructions</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
     <span class="ident">starts_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">ends_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">time_minutes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
@@ -390,13 +415,15 @@ VALUES ($1, $2, $3, $4, $5, $6)
         <span class="string">&quot;
 UPDATE exams
 SET name = COALESCE($2, name),
-  starts_at = $3,
-  ends_at = $4,
-  time_minutes = $5
+instructions = COALESCE($3, instructions),
+  starts_at = $4,
+  ends_at = $5,
+  time_minutes = $6
 WHERE id = $1
 &quot;</span>,
         <span class="ident">id</span>,
         <span class="ident">name</span>,
+        <span class="ident">instructions</span>,
         <span class="ident">starts_at</span>,
         <span class="ident">ends_at</span>,
         <span class="ident">time_minutes</span>,
@@ -498,28 +525,11 @@ VALUES ($1, $2)
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">start</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">exam_id</span>: <span class="ident">Uuid</span>, <span class="ident">user_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
-UPDATE exam_enrollments
-SET started_at = now()
-WHERE exam_id = $1
-  AND user_id = $2
-  AND started_at IS NULL
-&quot;</span>,
-        <span class="ident">exam_id</span>,
-        <span class="ident">user_id</span>
-    )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(())
-}
-
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExamEnrollment</span> {
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">started_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">started_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_enrollment</span>(

@@ -69,11 +69,19 @@
 <span id="69">69</span>
 <span id="70">70</span>
 <span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/organizations`.</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::helpers::media</span>::{<span class="ident">upload_media</span>, <span class="ident">StoreKind</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers</span>::{<span class="ident">ControllerResult</span>, <span class="ident">UploadResult</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization::AuthUser</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization</span>::{<span class="ident">authorize</span>, <span class="ident">Action</span>, <span class="ident">AuthUser</span>, <span class="ident">Resource</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::file_store::FileStore</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ApplicationConfiguration</span>;
 <span class="kw">use</span> <span class="ident">actix_multipart</span> <span class="kw">as</span> <span class="ident">mp</span>;
@@ -117,6 +125,14 @@ Response:
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">UploadResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::courses::get_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">authorize</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+        <span class="ident">Action::Edit</span>,
+        <span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="ident">Resource::Course</span>(<span class="ident">course</span>.<span class="ident">id</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">media_path</span> <span class="op">=</span> <span class="ident">upload_media</span>(
         <span class="ident">request</span>.<span class="ident">headers</span>(),

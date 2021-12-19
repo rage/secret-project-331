@@ -219,6 +219,9 @@
 <span id="219">219</span>
 <span id="220">220</span>
 <span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers::ControllerError</span>,
     <span class="ident">controllers::ControllerResult</span>,
@@ -323,6 +326,7 @@
     <span class="ident">Role</span>,
     <span class="ident">User</span>,
     <span class="ident">PlaygroundExample</span>,
+    <span class="ident">ExerciseService</span>,
 }
 
 <span class="doccomment">/// Can user_id action the resource?</span>
@@ -385,9 +389,11 @@
             (<span class="ident">exam_id</span>, <span class="ident">course_id</span>, <span class="prelude-val">None</span>)
         }
         <span class="ident">Resource::Exam</span>(<span class="ident">exam_id</span>) =&gt; (<span class="prelude-val">Some</span>(<span class="ident">exam_id</span>), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>),
-        <span class="ident">Resource::Role</span> <span class="op">|</span> <span class="ident">Resource::User</span> <span class="op">|</span> <span class="ident">Resource::AnyCourse</span> <span class="op">|</span> <span class="ident">Resource::PlaygroundExample</span> =&gt; {
-            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
-        }
+        <span class="ident">Resource::Role</span>
+        <span class="op">|</span> <span class="ident">Resource::User</span>
+        <span class="op">|</span> <span class="ident">Resource::AnyCourse</span>
+        <span class="op">|</span> <span class="ident">Resource::PlaygroundExample</span>
+        <span class="op">|</span> <span class="ident">Resource::ExerciseService</span> =&gt; (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>),
     };
 
     <span class="comment">// check exam role</span>

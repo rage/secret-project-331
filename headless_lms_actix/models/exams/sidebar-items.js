@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["edit",""],["enroll",""],["get",""],["get_enrollment",""],["get_exams_for_course",""],["get_exams_for_organization",""],["insert",""],["set_course",""],["start",""],["unset_course",""]],"struct":[["CourseExam",""],["Exam",""],["ExamEnrollment",""]]});
+initSidebarItems({"fn":[["edit",""],["enroll",""],["get",""],["get_enrollment",""],["get_exams_for_course",""],["get_exams_for_organization",""],["insert",""],["set_course",""],["unset_course",""]],"struct":[["CourseExam",""],["Exam",""],["ExamEnrollment",""],["NewExam",""]]});

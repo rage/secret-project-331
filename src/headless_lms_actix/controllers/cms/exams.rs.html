@@ -69,11 +69,12 @@
 <span id="69">69</span>
 <span id="70">70</span>
 <span id="71">71</span>
+<span id="72">72</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/organizations`.</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::helpers::media</span>::{<span class="ident">upload_media</span>, <span class="ident">StoreKind</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers</span>::{<span class="ident">ControllerResult</span>, <span class="ident">UploadResult</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization::AuthUser</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization</span>::{<span class="ident">authorize</span>, <span class="ident">Action</span>, <span class="ident">AuthUser</span>, <span class="ident">Resource</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::file_store::FileStore</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ApplicationConfiguration</span>;
 <span class="kw">use</span> <span class="ident">actix_multipart</span> <span class="kw">as</span> <span class="ident">mp</span>;
@@ -105,23 +106,24 @@ Response:
 
 ```
 */</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">payload</span>, <span class="ident">request</span>, <span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">payload</span>, <span class="ident">request</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">add_media</span>(
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">exam_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">payload</span>: <span class="ident">mp::Multipart</span>,
     <span class="ident">request</span>: <span class="ident">HttpRequest</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
     <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
     <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">UploadResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::exams::get</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exam_id</span> <span class="op">=</span> <span class="ident">exam_id</span>.<span class="ident">into_inner</span>();
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Action::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Resource::Exam</span>(<span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">media_path</span> <span class="op">=</span> <span class="ident">upload_media</span>(
         <span class="ident">request</span>.<span class="ident">headers</span>(),
         <span class="ident">payload</span>,
-        <span class="ident">StoreKind::Exam</span>(<span class="ident">exam</span>.<span class="ident">id</span>),
+        <span class="ident">StoreKind::Exam</span>(<span class="ident">exam_id</span>),
         <span class="kw-2">&amp;</span><span class="ident">file_store</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

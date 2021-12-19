@@ -292,6 +292,44 @@
 <span id="292">292</span>
 <span id="293">293</span>
 <span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">exercise_services</span>::{<span class="ident">get_exercise_service_by_exercise_type</span>, <span class="ident">get_internal_grade_url</span>},
     <span class="ident">exercise_tasks::ExerciseTask</span>,
@@ -302,13 +340,14 @@
 };
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">models</span>::{
-        <span class="ident">exercise_service_info::get_service_info_by_exercise_type</span>, <span class="ident">submissions::GradingRequest</span>,
-        <span class="ident">ModelError</span>,
+        <span class="ident">exams</span>, <span class="ident">exercise_service_info::get_service_info_by_exercise_type</span>,
+        <span class="ident">submissions::GradingRequest</span>, <span class="ident">ModelError</span>,
     },
     <span class="ident">utils::numbers::f32_to_two_decimals</span>,
 };
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 
+<span class="kw">use</span> <span class="ident">futures::Future</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
@@ -416,6 +455,11 @@ WHERE id = $1
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new_grading</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>, <span class="ident">submission</span>: <span class="kw-2">&amp;</span><span class="ident">Submission</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Grading</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">update_strategy</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">submission</span>.<span class="ident">exam_id</span>.<span class="ident">is_some</span>() {
+        <span class="ident">UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints</span>
+    } <span class="kw">else</span> {
+        <span class="ident">UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints</span>
+    };
     <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Grading</span>,
         <span class="string">r#&quot;
@@ -425,9 +469,10 @@ INSERT INTO gradings(
     exam_id,
     exercise_id,
     exercise_task_id,
+    user_points_update_strategy,
     grading_started_at
   )
-VALUES($1, $2, $3, $4, $5, now())
+VALUES($1, $2, $3, $4, $5, $6, now())
 RETURNING id,
   created_at,
   updated_at,
@@ -452,7 +497,8 @@ RETURNING id,
         <span class="ident">submission</span>.<span class="ident">course_id</span>,
         <span class="ident">submission</span>.<span class="ident">exam_id</span>,
         <span class="ident">submission</span>.<span class="ident">exercise_id</span>,
-        <span class="ident">submission</span>.<span class="ident">exercise_task_id</span>
+        <span class="ident">submission</span>.<span class="ident">exercise_task_id</span>,
+        <span class="ident">update_strategy</span> <span class="kw">as</span> <span class="ident">UserPointsUpdateStrategy</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -480,44 +526,47 @@ WHERE id = $2
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">grade_submission</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">submission</span>: <span class="ident">Submission</span>,
-    <span class="ident">exercise_task</span>: <span class="ident">ExerciseTask</span>,
-    <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
-    <span class="ident">grading</span>: <span class="ident">Grading</span>,
+    <span class="ident">submission</span>: <span class="kw-2">&amp;</span><span class="ident">Submission</span>,
+    <span class="ident">exercise_task</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTask</span>,
+    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
+    <span class="ident">grading</span>: <span class="kw-2">&amp;</span><span class="ident">Grading</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Grading</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">exercise_service_info</span> <span class="op">=</span>
         <span class="ident">get_service_info_by_exercise_type</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">exercise_type</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">exercise_service</span> <span class="op">=</span>
         <span class="ident">get_exercise_service_by_exercise_type</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">exercise_type</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">grade_url</span> <span class="op">=</span> <span class="ident">get_internal_grade_url</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_service_info</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">send_grading_request</span>(<span class="ident">grade_url</span>, <span class="ident">exercise_task</span>, <span class="ident">submission</span>.<span class="ident">clone</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">updated_grading</span> <span class="op">=</span> <span class="ident">update_grading</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">obj</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">update_user_exercise_state</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">updated_grading</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">send_grading_request</span>(<span class="ident">grade_url</span>, <span class="ident">exercise_task</span>, <span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">updated_grading</span> <span class="op">=</span> <span class="ident">update_grading</span>(<span class="ident">conn</span>, <span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">obj</span>, <span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">update_user_exercise_state</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">updated_grading</span>, <span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">updated_grading</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send_grading_request</span>(
+<span class="comment">// does not use async fn because the arguments should only be borrowed</span>
+<span class="comment">// for the part before any async stuff happens</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send_grading_request</span>(
     <span class="ident">grade_url</span>: <span class="ident">Url</span>,
-    <span class="ident">exercise_task</span>: <span class="ident">ExerciseTask</span>,
-    <span class="ident">submission</span>: <span class="ident">Submission</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">GradingResult</span><span class="op">&gt;</span> {
+    <span class="ident">exercise_task</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTask</span>,
+    <span class="ident">submission</span>: <span class="kw-2">&amp;</span><span class="ident">Submission</span>,
+) -&gt; <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">GradingResult</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
     <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>();
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">client</span>
+    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">client</span>
         .<span class="ident">post</span>(<span class="ident">grade_url</span>)
         .<span class="ident">timeout</span>(<span class="ident">Duration::from_secs</span>(<span class="number">120</span>))
         .<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">GradingRequest</span> {
-            <span class="ident">exercise_spec</span>: <span class="ident">exercise_task</span>.<span class="ident">private_spec</span>,
-            <span class="ident">submission_data</span>: <span class="ident">submission</span>.<span class="ident">data_json</span>,
-        })
-        .<span class="ident">send</span>()
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">status</span>();
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">status</span>.<span class="ident">is_success</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::Generic</span>(<span class="string">&quot;Grading failed&quot;</span>.<span class="ident">to_string</span>()));
+            <span class="ident">exercise_spec</span>: <span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">private_spec</span>,
+            <span class="ident">submission_data</span>: <span class="kw-2">&amp;</span><span class="ident">submission</span>.<span class="ident">data_json</span>,
+        });
+    <span class="kw">async</span> {
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">send</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">status</span>();
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">status</span>.<span class="ident">is_success</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::Generic</span>(<span class="string">&quot;Grading failed&quot;</span>.<span class="ident">to_string</span>()));
+        }
+        <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">GradingResult</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="macro">info!</span>(<span class="string">&quot;Received a grading result: {:#?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">obj</span>);
+        <span class="prelude-val">Ok</span>(<span class="ident">obj</span>)
     }
-    <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">GradingResult</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="macro">info!</span>(<span class="string">&quot;Received a grading result: {:#?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">obj</span>);
-    <span class="prelude-val">Ok</span>(<span class="ident">obj</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_grading</span>(
@@ -585,6 +634,33 @@ RETURNING id,
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(<span class="ident">grading</span>)
+}
+
+<span class="doccomment">/// Fetches the grading for the student, but hides the result in some circumstances.</span>
+<span class="doccomment">/// For example, for an ongoing exam.</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_for_student</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">grading_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Grading</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>, <span class="ident">grading_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">grading</span>.<span class="ident">exam_id</span> {
+        <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="ident">exams::get_enrollment</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>, <span class="ident">user_id</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;User has grading for exam but no enrollment&quot;</span>))<span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="ident">Utc::now</span>() <span class="op">&gt;</span> <span class="ident">enrollment</span>.<span class="ident">started_at</span> <span class="op">+</span> <span class="ident">chrono::Duration::minutes</span>(<span class="ident">exam</span>.<span class="ident">time_minutes</span>.<span class="ident">into</span>())
+            <span class="op">|</span><span class="op">|</span> <span class="ident">exam</span>.<span class="ident">ends_at</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ea</span><span class="op">|</span> <span class="ident">Utc::now</span>() <span class="op">&gt;</span> <span class="ident">ea</span>).<span class="ident">unwrap_or_default</span>()
+        {
+            <span class="comment">// exam over, return grading</span>
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">grading</span>))
+        } <span class="kw">else</span> {
+            <span class="comment">// exam still ongoing, do not return grading</span>
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+        }
+    } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">grading</span>))
+    }
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_actix" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

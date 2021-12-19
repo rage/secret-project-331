@@ -431,6 +431,15 @@
 <span id="431">431</span>
 <span id="432">432</span>
 <span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">courses::Course</span>,
     <span class="ident">exercise_tasks::ExerciseTask</span>,
@@ -456,7 +465,8 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewSubmission</span> {
     <span class="kw">pub</span> <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
+    <span class="doccomment">/// Required when submitting non-exam exercises</span>
+    <span class="kw">pub</span> <span class="ident">course_instance_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">data_json</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
 }
 
@@ -497,10 +507,10 @@
     <span class="kw">pub</span> <span class="ident">exercise_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GradingRequest</span> {
-    <span class="kw">pub</span> <span class="ident">exercise_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">submission_data</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GradingRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="ident">exercise_spec</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">submission_data</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
@@ -514,9 +524,9 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SubmissionResult</span> {
-    <span class="ident">submission</span>: <span class="ident">Submission</span>,
-    <span class="ident">grading</span>: <span class="ident">Grading</span>,
-    <span class="ident">model_solution_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">submission</span>: <span class="ident">Submission</span>,
+    <span class="kw">pub</span> <span class="ident">grading</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Grading</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">model_solution_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -740,24 +750,32 @@ LIMIT 1
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_submission</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">new_submission</span>: <span class="ident">NewSubmission</span>,
+    <span class="ident">new_submission</span>: <span class="kw-2">&amp;</span><span class="ident">NewSubmission</span>,
     <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
+    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">SubmissionResult</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">submission</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Submission</span>,
         <span class="string">r#&quot;
-  INSERT INTO
-    submissions(exercise_task_id, data_json, exercise_id, course_id, user_id, course_instance_id)
-  VALUES($1, $2, $3, $4, $5, $6)
-  RETURNING *
-          &quot;#</span>,
+INSERT INTO submissions(
+    exercise_task_id,
+    data_json,
+    exercise_id,
+    course_id,
+    user_id,
+    course_instance_id,
+    exam_id
+  )
+VALUES($1, $2, $3, $4, $5, $6, $7)
+RETURNING *
+&quot;#</span>,
         <span class="ident">new_submission</span>.<span class="ident">exercise_task_id</span>,
         <span class="ident">new_submission</span>.<span class="ident">data_json</span>,
         <span class="ident">exercise</span>.<span class="ident">id</span>,
         <span class="ident">exercise</span>.<span class="ident">course_id</span>,
         <span class="ident">user_id</span>,
-        <span class="ident">new_submission</span>.<span class="ident">course_instance_id</span>
+        <span class="ident">new_submission</span>.<span class="ident">course_instance_id</span>,
+        <span class="ident">exercise</span>.<span class="ident">exam_id</span>,
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -771,14 +789,14 @@ LIMIT 1
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">updated_grading</span> <span class="op">=</span>
-        <span class="ident">grade_submission</span>(<span class="ident">conn</span>, <span class="ident">submission</span>.<span class="ident">clone</span>(), <span class="ident">exercise_task</span>, <span class="ident">exercise</span>, <span class="ident">grading</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">grade_submission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_task</span>, <span class="ident">exercise</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">let</span> <span class="ident">model_solution_spec</span> <span class="op">=</span>
         <span class="ident">get_exercise_task_model_solution_spec_by_id</span>(<span class="ident">conn</span>, <span class="ident">submission</span>.<span class="ident">exercise_task_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(<span class="ident">SubmissionResult</span> {
         <span class="ident">submission</span>: <span class="ident">updated_submission</span>,
-        <span class="ident">grading</span>: <span class="ident">updated_grading</span>,
+        <span class="ident">grading</span>: <span class="prelude-val">Some</span>(<span class="ident">grading</span>),
         <span class="ident">model_solution_spec</span>,
     })
 }

@@ -21,17 +21,15 @@ export const Renderer: React.FC<RendererProps> = ({ state, setState, port, maxWi
   if (state.view_type === "exercise") {
     return <Exercise maxWidth={maxWidth} port={port} state={state.public_spec} />
   } else if (state.view_type === "view-submission") {
+    const feedbackJson: unknown | null = state.grading?.feedback_json
+    const exerciseFeedback = feedbackJson ? (feedbackJson as ExerciseFeedback) : null
     return (
       <Submission
         port={port}
         maxWidth={maxWidth}
         publicAlternatives={state.public_spec}
         selectedId={state.selectedOptionId}
-        selectedOptionIsCorrect={
-          state.grading
-            ? (state.grading.feedback_json as ExerciseFeedback).selectedOptionIsCorrect
-            : null
-        }
+        selectedOptionIsCorrect={exerciseFeedback?.selectedOptionIsCorrect || null}
         modelSolutions={state.model_solution_spec ? state.model_solution_spec : null}
       />
     )

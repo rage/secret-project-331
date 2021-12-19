@@ -1,6 +1,6 @@
 use crate::{
     controllers::ControllerResult,
-    domain::authorization::AuthUser,
+    domain::authorization::{authorize, Action, AuthUser, Resource},
     models::proposed_page_edits::{self, EditProposalInfo, PageProposal, ProposalCount},
     utils::pagination::Pagination,
 };
@@ -28,9 +28,17 @@ pub async fn get_edit_proposals(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     query: web::Query<GetEditProposalsQuery>,
+    user: AuthUser,
 ) -> ControllerResult<Json<Vec<PageProposal>>> {
     let mut conn = pool.acquire().await?;
     let course_id = course_id.into_inner();
+    authorize(
+        &mut conn,
+        Action::View,
+        user.id,
+        Resource::Course(course_id),
+    )
+    .await?;
 
     let feedback = proposed_page_edits::get_proposals_for_course(
         &mut conn,
@@ -49,9 +57,17 @@ GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount
 pub async fn get_edit_proposal_count(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<Json<ProposalCount>> {
     let mut conn = pool.acquire().await?;
     let course_id = course_id.into_inner();
+    authorize(
+        &mut conn,
+        Action::View,
+        user.id,
+        Resource::Course(course_id),
+    )
+    .await?;
 
     let edit_proposal_count =
         proposed_page_edits::get_proposal_count_for_course(&mut conn, course_id).await?;
@@ -64,17 +80,25 @@ POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes th
 #[instrument(skip(pool))]
 pub async fn process_edit_proposal(
     proposal: Json<EditProposalInfo>,
-    auth: AuthUser,
+    user: AuthUser,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let proposal = proposal.into_inner();
+    authorize(
+        &mut conn,
+        Action::Edit,
+        user.id,
+        Resource::Page(proposal.page_id),
+    )
+    .await?;
+
     proposed_page_edits::process_proposal(
         &mut conn,
         proposal.page_id,
         proposal.page_proposal_id,
         proposal.block_proposals,
-        auth.id,
+        user.id,
     )
     .await?;
     Ok(HttpResponse::Ok().finish())

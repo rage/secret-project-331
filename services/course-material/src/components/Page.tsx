@@ -79,6 +79,7 @@ const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
           editing={editingMaterial}
           selectedBlockId={selectedBlockId}
           setEdits={setEdits}
+          isExam={pageContext.pageData?.exam_id !== null}
         />
       </div>
       {pageContext.pageData?.chapter_id && <NavigationContainer />}

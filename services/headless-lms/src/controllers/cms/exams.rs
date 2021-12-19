@@ -2,7 +2,7 @@
 
 use crate::controllers::helpers::media::{upload_media, StoreKind};
 use crate::controllers::{ControllerResult, UploadResult};
-use crate::domain::authorization::AuthUser;
+use crate::domain::authorization::{authorize, Action, AuthUser, Resource};
 use crate::utils::file_store::FileStore;
 use crate::ApplicationConfiguration;
 use actix_multipart as mp;
@@ -34,23 +34,24 @@ Response:
 
 ```
 */
-#[instrument(skip(payload, request, pool, file_store, app_conf))]
+#[instrument(skip(payload, request, file_store, app_conf))]
 async fn add_media(
+    pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
     payload: mp::Multipart,
     request: HttpRequest,
-    pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
-    let exam = crate::models::exams::get(&mut conn, *exam_id).await?;
+    let exam_id = exam_id.into_inner();
+    authorize(&mut conn, Action::Edit, user.id, Resource::Exam(exam_id)).await?;
 
     let media_path = upload_media(
         request.headers(),
         payload,
-        StoreKind::Exam(exam.id),
+        StoreKind::Exam(exam_id),
         &file_store,
     )
     .await?;

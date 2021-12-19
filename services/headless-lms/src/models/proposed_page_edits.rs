@@ -327,6 +327,7 @@ WHERE id = $1
         author,
         true,
         HistoryChangeReason::PageSaved,
+        page_with_exercises.page.exam_id.is_some(),
     )
     .await?;
 
@@ -403,6 +404,7 @@ mod test {
             data.user,
             true,
             HistoryChangeReason::PageSaved,
+            false,
         )
         .await
         .unwrap();

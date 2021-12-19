@@ -44,6 +44,7 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
           pageData: data.page,
           instance: data.instance ?? null,
           settings: data.settings ?? null,
+          exam: null,
         },
       })
     } else {

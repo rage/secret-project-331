@@ -38,7 +38,9 @@ import {
   ErrorResponse,
   Exam,
   ExamCourseInfo,
+  ExamData,
   ExamEnrollment,
+  ExamEnrollmentData,
   Exercise,
   ExerciseService,
   ExerciseServiceInfoApi,
@@ -79,6 +81,7 @@ import {
   PlaygroundExampleData,
   PointMap,
   Points,
+  PreviousSubmission,
   ProposalCount,
   ProposalStatus,
   Submission,
@@ -357,9 +360,13 @@ export function isExam(obj: any, _argumentName?: string): obj is Exam {
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.name === "string" &&
+    typeof obj.instructions === "string" &&
     typeof obj.page_id === "string" &&
     Array.isArray(obj.courses) &&
-    obj.courses.every((e: any) => isCourse(e) as boolean)
+    obj.courses.every((e: any) => isCourse(e) as boolean) &&
+    (obj.starts_at === null || obj.starts_at instanceof Date) &&
+    (obj.ends_at === null || obj.ends_at instanceof Date) &&
+    typeof obj.time_minutes === "number"
   )
 }
 
@@ -368,7 +375,7 @@ export function isExamEnrollment(obj: any, _argumentName?: string): obj is ExamE
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.user_id === "string" &&
     typeof obj.exam_id === "string" &&
-    (obj.started_at === null || obj.started_at instanceof Date)
+    obj.started_at instanceof Date
   )
 }
 
@@ -499,7 +506,7 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     (obj.course_id === null || typeof obj.course_id === "string") &&
     (obj.exam_id === null || typeof obj.exam_id === "string") &&
     typeof obj.page_id === "string" &&
-    typeof obj.chapter_id === "string" &&
+    (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.score_maximum === "number" &&
@@ -1006,7 +1013,7 @@ export function isSubmissionResult(obj: any, _argumentName?: string): obj is Sub
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isSubmission(obj.submission) as boolean) &&
-    (isGrading(obj.grading) as boolean)
+    (obj.grading === null || (isGrading(obj.grading) as boolean))
   )
 }
 
@@ -1014,7 +1021,7 @@ export function isNewSubmission(obj: any, _argumentName?: string): obj is NewSub
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.exercise_task_id === "string" &&
-    typeof obj.course_instance_id === "string"
+    (obj.course_instance_id === null || typeof obj.course_instance_id === "string")
   )
 }
 
@@ -1064,6 +1071,43 @@ export function isUser(obj: any, _argumentName?: string): obj is User {
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     (obj.upstream_id === null || typeof obj.upstream_id === "number") &&
     typeof obj.email === "string"
+  )
+}
+
+export function isPreviousSubmission(obj: any, _argumentName?: string): obj is PreviousSubmission {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isSubmission(obj.submission) as boolean) &&
+    (obj.grading === null || (isGrading(obj.grading) as boolean))
+  )
+}
+
+export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.instructions === "string" &&
+    obj.starts_at instanceof Date &&
+    obj.ends_at instanceof Date &&
+    typeof obj.time_minutes === "number" &&
+    (isExamEnrollmentData(obj.enrollment_data) as boolean)
+  )
+}
+
+export function isExamEnrollmentData(obj: any, _argumentName?: string): obj is ExamEnrollmentData {
+  return (
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "EnrolledAndStarted" &&
+      typeof obj.page_id === "string" &&
+      (isPage(obj.page) as boolean) &&
+      (isExamEnrollment(obj.enrollment) as boolean)) ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "NotEnrolled") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "NotYetStarted") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "StudentTimeUp")
   )
 }
 

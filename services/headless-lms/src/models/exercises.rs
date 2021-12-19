@@ -30,7 +30,7 @@ pub struct Exercise {
     pub course_id: Option<Uuid>,
     pub exam_id: Option<Uuid>,
     pub page_id: Uuid,
-    pub chapter_id: Uuid,
+    pub chapter_id: Option<Uuid>,
     pub deadline: Option<DateTime<Utc>>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub score_maximum: i32,
@@ -253,69 +253,9 @@ pub async fn get_course_material_exercise(
     exercise_id: Uuid,
 ) -> ModelResult<CourseMaterialExercise> {
     let exercise = get_by_id(conn, exercise_id).await?;
-    let course_id = if let Some(course_id) = exercise.course_id {
-        course_id
-    } else {
-        return Err(anyhow::anyhow!("The selected exercise is not attached to any course").into());
-    };
-
-    let (selected_exercise_task, current_course_instance_id) = if let Some(user_id) = user_id {
-        let user_course_settings =
-            user_course_settings::get_user_course_settings_by_course_id(conn, user_id, course_id)
-                .await?;
-        match user_course_settings {
-            Some(settings) if settings.current_course_id == course_id => {
-                // User is enrolled on an instance of the given course.
-                let task = exercise_tasks::get_or_select_user_exercise_task_for_course_instance(
-                    conn,
-                    user_id,
-                    exercise_id,
-                    settings.current_course_instance_id,
-                )
-                .await?;
-                Ok((task, Some(settings.current_course_id)))
-            }
-            Some(_) => {
-                // User is enrolled on a different language version of the course. Show exercise
-                // task based on their latest enrollment or a random one.
-                let latest_instance = course_instances::course_instance_by_users_latest_enrollment(
-                    conn, user_id, course_id,
-                )
-                .await?;
-                if let Some(instance) = latest_instance {
-                    let exercise_task = get_existing_user_exercise_task_for_course_instance(
-                        conn,
-                        user_id,
-                        exercise.id,
-                        instance.id,
-                    )
-                    .await?;
-                    if let Some(exercise_task) = exercise_task {
-                        Ok((exercise_task, Some(instance.id)))
-                    } else {
-                        let random_task =
-                            exercise_tasks::get_random_exercise_task(conn, exercise_id).await?;
-                        Ok((random_task, None))
-                    }
-                } else {
-                    let random_task =
-                        exercise_tasks::get_random_exercise_task(conn, exercise_id).await?;
-                    Ok((random_task, None))
-                }
-            }
-            None => {
-                // User is not enrolled on any course version. This is not a valid scenario because
-                // tasks are based on a specific instance.
-                Err(ModelError::PreconditionFailed(
-                    "User must be enrolled to the course".to_string(),
-                ))
-            }
-        }?
-    } else {
-        // No signed in user. Show random exercise.
-        let random_task = exercise_tasks::get_random_exercise_task(conn, exercise_id).await?;
-        (random_task, None)
-    };
+    let (selected_exercise_task, instance_or_exam_id) =
+        get_or_select_exercise_task(&mut *conn, user_id, &exercise).await?;
+    info!("{:#?}", selected_exercise_task);
 
     let current_exercise_task_service_info = get_course_material_service_info_by_exercise_type(
         conn,
@@ -323,20 +263,16 @@ pub async fn get_course_material_exercise(
     )
     .await?;
 
-    let user_exercise_state = if let Some(logged_in_user_id) = user_id {
-        if let Some(current_course_instance_id) = current_course_instance_id {
-            get_user_exercise_state_if_exits(
-                conn,
-                logged_in_user_id,
-                exercise.id,
-                current_course_instance_id,
-            )
-            .await?
-        } else {
-            None
+    let user_exercise_state = match (user_id, instance_or_exam_id) {
+        (Some(user_id), Some(InstanceOrExamId::Instance(instance_id))) => {
+            get_user_exercise_state_if_exits(conn, user_id, exercise.id, Some(instance_id), None)
+                .await?
         }
-    } else {
-        None
+        (Some(user_id), Some(InstanceOrExamId::Exam(exam_id))) => {
+            get_user_exercise_state_if_exits(conn, user_id, exercise.id, None, Some(exam_id))
+                .await?
+        }
+        _ => None,
     };
 
     let mut score_given = None;
@@ -356,7 +292,20 @@ pub async fn get_course_material_exercise(
     };
     let grading = if let Some(grading_id) = previous_submission.as_ref().and_then(|s| s.grading_id)
     {
-        Some(crate::models::gradings::get_by_id(conn, grading_id).await?)
+        if let Some(user_id) = user_id {
+            crate::models::gradings::get_for_student(conn, grading_id, user_id).await?
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+    let exercise_status = if grading.is_some() {
+        Some(ExerciseStatus {
+            score_given,
+            activity_progress,
+            grading_progress,
+        })
     } else {
         None
     };
@@ -364,15 +313,114 @@ pub async fn get_course_material_exercise(
     Ok(CourseMaterialExercise {
         exercise,
         current_exercise_task: selected_exercise_task,
-        exercise_status: Some(ExerciseStatus {
-            score_given,
-            activity_progress,
-            grading_progress,
-        }),
+        exercise_status,
         current_exercise_task_service_info,
         previous_submission,
         grading,
     })
+}
+
+enum InstanceOrExamId {
+    Instance(Uuid),
+    Exam(Uuid),
+}
+
+async fn get_or_select_exercise_task(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    exercise: &Exercise,
+) -> ModelResult<(CourseMaterialExerciseTask, Option<InstanceOrExamId>)> {
+    match (user_id, exercise.course_id, exercise.exam_id) {
+        (None, ..) => {
+            // No signed in user. Show random exercise.
+            let random_task = exercise_tasks::get_random_exercise_task(conn, exercise.id).await?;
+            Ok((random_task, None))
+        }
+        (Some(user_id), Some(course_id), None) => {
+            // signed in, course exercise
+            let user_course_settings = user_course_settings::get_user_course_settings_by_course_id(
+                conn, user_id, course_id,
+            )
+            .await?;
+            match user_course_settings {
+                Some(settings) if settings.current_course_id == course_id => {
+                    // User is enrolled on an instance of the given course.
+                    let task =
+                        exercise_tasks::get_or_select_user_exercise_task_for_course_instance_or_exam(
+                            conn,
+                            user_id,
+                            exercise.id,
+                            Some(settings.current_course_instance_id),
+                            None,
+                        )
+                        .await?;
+                    Ok((
+                        task,
+                        Some(InstanceOrExamId::Instance(
+                            settings.current_course_instance_id,
+                        )),
+                    ))
+                }
+                Some(_) => {
+                    // User is enrolled on a different language version of the course. Show exercise
+                    // task based on their latest enrollment or a random one.
+                    let latest_instance =
+                        course_instances::course_instance_by_users_latest_enrollment(
+                            conn, user_id, course_id,
+                        )
+                        .await?;
+                    if let Some(instance) = latest_instance {
+                        let exercise_task = get_existing_user_exercise_task_for_course_instance(
+                            conn,
+                            user_id,
+                            exercise.id,
+                            instance.id,
+                        )
+                        .await?;
+                        if let Some(exercise_task) = exercise_task {
+                            Ok((exercise_task, Some(InstanceOrExamId::Instance(instance.id))))
+                        } else {
+                            // no exercise task has been chosen for the user
+                            let random_task =
+                                exercise_tasks::get_random_exercise_task(conn, exercise.id).await?;
+                            Ok((random_task, None))
+                        }
+                    } else {
+                        // user is not enrolled on any instance related to the course
+                        let random_task =
+                            exercise_tasks::get_random_exercise_task(conn, exercise.id).await?;
+                        Ok((random_task, None))
+                    }
+                }
+                None => {
+                    // User is not enrolled on any course version. This is not a valid scenario because
+                    // tasks are based on a specific instance.
+                    Err(ModelError::PreconditionFailed(
+                        "User must be enrolled to the course".to_string(),
+                    ))
+                }
+            }
+        }
+        (Some(user_id), _, Some(exam_id)) => {
+            info!("selecting exam task");
+            // signed in, exam exercise
+            let task =
+                exercise_tasks::get_or_select_user_exercise_task_for_course_instance_or_exam(
+                    conn,
+                    user_id,
+                    exercise.id,
+                    None,
+                    Some(exam_id),
+                )
+                .await?;
+            info!("selecting exam task {:#?}", task);
+            Ok((task, Some(InstanceOrExamId::Exam(exam_id))))
+        }
+        (Some(_), ..) => Err(anyhow::anyhow!(
+            "The selected exercise is not attached to any course or exam"
+        )
+        .into()),
+    }
 }
 
 pub async fn delete_exercises_by_page_id(

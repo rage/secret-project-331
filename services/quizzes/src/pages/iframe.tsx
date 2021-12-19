@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import ReactDOM from "react-dom"
@@ -23,7 +24,7 @@ export type State =
   | {
       viewType: "view-submission"
       publicSpec: PublicQuiz
-      modelSolutions: ModelSolutionQuiz
+      modelSolutions: ModelSolutionQuiz | null
       userAnswer: QuizAnswer
       feedbackJson: ItemAnswerFeedback[] | null
     }
@@ -73,14 +74,14 @@ const IFrame: React.FC = () => {
                 } else {
                   setState({
                     viewType: data.view_type,
-                    privateSpec: data.data.private_spec as Quiz,
+                    privateSpec: JSON.parse(data.data.private_spec as string),
                   })
                 }
               } else if (data.view_type === "view-submission") {
                 setState({
                   viewType: data.view_type,
                   publicSpec: data.data.public_spec as PublicQuiz,
-                  modelSolutions: data.data.model_solution_spec as ModelSolutionQuiz,
+                  modelSolutions: data.data.model_solution_spec as ModelSolutionQuiz | null,
                   userAnswer: data.data.user_answer as QuizAnswer,
                   feedbackJson: data.data.grading?.feedback_json as ItemAnswerFeedback[] | null,
                 })
@@ -120,7 +121,15 @@ const IFrame: React.FC = () => {
   }
   return (
     <HeightTrackingContainer port={port}>
-      <Renderer maxWidth={maxWidth} port={port} setState={setState} state={state} />
+      <div
+        className={css`
+          width: 100%;
+          ${maxWidth && `max-width: ${maxWidth}rem;`}
+          margin: 0 auto;
+        `}
+      >
+        <Renderer maxWidth={maxWidth} port={port} setState={setState} state={state} />
+      </div>
     </HeightTrackingContainer>
   )
 }

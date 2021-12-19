@@ -1,10 +1,13 @@
+#![allow(clippy::too_many_arguments)]
+
 use anyhow::Result;
-use chrono::{Duration, TimeZone, Utc};
+use chrono::{DateTime, Duration, TimeZone, Utc};
 use headless_lms_actix::attributes;
 use headless_lms_actix::models::chapters::NewChapter;
 use headless_lms_actix::models::course_instance_enrollments::NewCourseInstanceEnrollment;
 use headless_lms_actix::models::course_instances::NewCourseInstance;
 use headless_lms_actix::models::courses::NewCourse;
+use headless_lms_actix::models::exams::NewExam;
 use headless_lms_actix::models::exercises::GradingProgress;
 use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
 use headless_lms_actix::models::page_history::HistoryChangeReason;
@@ -172,7 +175,6 @@ async fn main() -> Result<()> {
         "Introduction to everything",
         "introduction-to-everything",
         admin,
-        teacher,
         student,
         &users,
     )
@@ -184,7 +186,6 @@ async fn main() -> Result<()> {
         "Introduction to feedback",
         "introduction-to-feedback",
         admin,
-        teacher,
         student,
         &users,
     )
@@ -196,7 +197,6 @@ async fn main() -> Result<()> {
         "Introduction to history",
         "introduction-to-history",
         admin,
-        teacher,
         student,
         &users,
     )
@@ -208,7 +208,6 @@ async fn main() -> Result<()> {
         "Introduction to edit proposals",
         "introduction-to-edit-proposals",
         admin,
-        teacher,
         student,
         &users,
     )
@@ -220,7 +219,6 @@ async fn main() -> Result<()> {
         "Introduction to localizing",
         "introduction-to-localizing",
         admin,
-        teacher,
         student,
         &users,
     )
@@ -232,7 +230,6 @@ async fn main() -> Result<()> {
         "Point view for teachers",
         "point-view-for-teachers",
         admin,
-        teacher,
         student,
         &users,
     )
@@ -244,7 +241,6 @@ async fn main() -> Result<()> {
         "Advanced course instance management",
         "advanced-course-instance-management",
         admin,
-        teacher,
         student,
         &users,
     )
@@ -258,6 +254,57 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    info!("inserting sample exams");
+    create_exam(
+        &mut conn,
+        "Ongoing ends soon",
+        Some(Utc::now()),
+        Some(Utc::now() + Duration::minutes(1)),
+        120,
+        uh_cs,
+        cs_intro,
+        Uuid::parse_str("7d6ed843-2a94-445b-8ced-ab3c67290ad0")?,
+        teacher,
+    )
+    .await?;
+    create_exam(
+        &mut conn,
+        "Ongoing short timer",
+        Some(Utc::now()),
+        Some(Utc::now() + Duration::minutes(120)),
+        1,
+        uh_cs,
+        cs_intro,
+        Uuid::parse_str("6959e7af-6b78-4d37-b381-eef5b7aaad6c")?,
+        teacher,
+    )
+    .await?;
+    create_exam(
+        &mut conn,
+        "Starting soon",
+        Some(Utc::now() + Duration::minutes(5)),
+        Some(Utc::now() + Duration::days(30)),
+        1,
+        uh_cs,
+        cs_intro,
+        Uuid::parse_str("65f5c3f3-b5fd-478d-8858-a45cdcb16b86")?,
+        teacher,
+    )
+    .await?;
+    create_exam(
+        &mut conn,
+        "Over",
+        Some(Utc::now() - Duration::days(7)),
+        Some(Utc::now() - Duration::minutes(30)),
+        1,
+        uh_cs,
+        cs_intro,
+        Uuid::parse_str("5c4fca1f-f0d6-471f-a0fd-eac552f5fb84")?,
+        teacher,
+    )
+    .await?;
+
+    info!("cs");
     let _cs_design = seed_cs_course_material(&mut conn, uh_cs, admin).await?;
     let new_course = NewCourse {
         name: "Introduction to Computer Science".to_string(),
@@ -293,6 +340,7 @@ async fn main() -> Result<()> {
     .await?;
 
     // uh-mathstat
+    info!("uh-mathstat");
     let uh_mathstat = organizations::insert(
         &mut conn,
         "University of Helsinki, Department of Mathematics and Statistics",
@@ -336,6 +384,7 @@ async fn main() -> Result<()> {
     .await?;
 
     // roles
+    info!("roles");
     roles::insert(&mut conn, admin, None, None, UserRole::Admin).await?;
     roles::insert(&mut conn, teacher, Some(uh_cs), None, UserRole::Teacher).await?;
     roles::insert(
@@ -347,6 +396,7 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    info!("playground examples");
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
@@ -1042,7 +1092,6 @@ async fn seed_sample_course(
     course_name: &str,
     course_slug: &str,
     admin: Uuid,
-    teacher: Uuid,
     student: Uuid,
     users: &[Uuid],
 ) -> Result<Uuid> {
@@ -1140,6 +1189,7 @@ async fn seed_sample_course(
     )
     .await?;
 
+    info!("sample exercises");
     let block_id_1 = Uuid::new_v5(&course_id, b"af3b467a-f5db-42ad-9b21-f42ca316b3c6");
     let block_id_2 = Uuid::new_v5(&course_id, b"465f1f95-22a1-43e1-b4a3-7d18e525dc12");
     let block_id_3 = Uuid::new_v5(&course_id, b"46aad5a8-71bd-49cd-8d86-3368ee8bb7ac");
@@ -1295,6 +1345,7 @@ async fn seed_sample_course(
     .await?;
 
     // enrollments, user exercise states, submissions, grades
+    info!("sample enrollments, user exercise states, submissions, grades");
     for &user_id in users {
         course_instance_enrollments::insert_enrollment_and_set_as_current(
             conn,
@@ -1394,6 +1445,7 @@ async fn seed_sample_course(
     }
 
     // feedback
+    info!("sample feedback");
     let new_feedback = NewFeedback {
         feedback_given: "this part was unclear to me".to_string(),
         selected_text: Some("blanditiis".to_string()),
@@ -1453,6 +1505,7 @@ async fn seed_sample_course(
     .await?;
 
     // edit proposals
+    info!("sample edit proposals");
     let edits = NewProposedPageEdits {
         page_id: page_c1_1,
         block_edits: vec![NewProposedBlockEdit {
@@ -1483,67 +1536,6 @@ async fn seed_sample_course(
     proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
 
     // exams
-    let exam_id = Uuid::new_v5(&course_id, b"7d6ed843-2a94-445b-8ced-ab3c67290ad0");
-    exams::insert(
-        conn,
-        exam_id,
-        "Course exam",
-        Some(Utc::now()),
-        Some(Utc::now() + Duration::days(30)),
-        Some(120),
-        org,
-    )
-    .await?;
-    pages::insert_page(
-        conn,
-        NewPage {
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
-            content: Value::Array(vec![]),
-            url_path: "".to_string(),
-            title: "".to_string(),
-            course_id: None,
-            exam_id: Some(exam_id),
-            chapter_id: None,
-            front_page_of_chapter_id: None,
-            content_search_language: None,
-        },
-        teacher,
-    )
-    .await?;
-    exams::set_course(conn, exam_id, course.id).await?;
-
-    let exam_id = Uuid::new_v5(&course_id, b"94393cf5-1814-4d57-80d5-e5af93790967");
-    exams::insert(
-        conn,
-        exam_id,
-        "Repeat exam",
-        Some(Utc::now()),
-        Some(Utc::now() + Duration::days(30)),
-        Some(120),
-        org,
-    )
-    .await?;
-    pages::insert_page(
-        conn,
-        NewPage {
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
-            content: Value::Array(vec![]),
-            url_path: "".to_string(),
-            title: "".to_string(),
-            course_id: None,
-            exam_id: Some(exam_id),
-            chapter_id: None,
-            front_page_of_chapter_id: None,
-            content_search_language: None,
-        },
-        teacher,
-    )
-    .await?;
-    exams::set_course(conn, exam_id, course.id).await?;
 
     Ok(course.id)
 }
@@ -1592,6 +1584,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         admin,
         true,
         HistoryChangeReason::PageSaved,
+        false,
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
@@ -1632,6 +1625,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         admin,
         true,
         HistoryChangeReason::PageSaved,
+        false,
     )
     .await?;
 
@@ -1747,7 +1741,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         },
         admin,
         true,
-        HistoryChangeReason::PageSaved
+        HistoryChangeReason::PageSaved,
+        false,
     )
     .await?;
     // /chapter-2/user-research
@@ -1847,6 +1842,7 @@ async fn create_page(
         author,
         true,
         HistoryChangeReason::PageSaved,
+        false,
     )
     .await?;
     Ok(page.id)
@@ -1928,7 +1924,6 @@ fn example_exercise(
     (block, exercise, exercise_slide, exercise_task)
 }
 
-#[allow(clippy::too_many_arguments)]
 async fn submit_and_grade(
     conn: &mut PgConnection,
     id: &[u8],
@@ -1969,5 +1964,73 @@ async fn submit_and_grade(
     let grading = gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
     submissions::set_grading_id(conn, grading.id, submission.id).await?;
     user_exercise_states::update_user_exercise_state(conn, &grading, &submission).await?;
+    Ok(())
+}
+
+async fn create_exam(
+    conn: &mut PgConnection,
+    name: &str,
+    starts_at: Option<DateTime<Utc>>,
+    ends_at: Option<DateTime<Utc>>,
+    time_minutes: i32,
+    organization_id: Uuid,
+    course_id: Uuid,
+    exam_id: Uuid,
+    teacher: Uuid,
+) -> Result<()> {
+    exams::insert(
+        conn,
+        NewExam {
+            id: exam_id,
+            name,
+            instructions: "Do your best!",
+            starts_at,
+            ends_at,
+            time_minutes,
+            organization_id,
+        },
+    )
+    .await?;
+    let (exam_exercise_block_1, exam_exercise_1, exam_exercise_slide_1, exam_exercise_task_1) =
+        example_exercise(
+            Uuid::new_v5(&course_id, b"b1b16970-60bc-426e-9537-b29bd2185db3"),
+            Uuid::new_v5(&course_id, b"ea461a21-e0b4-4e09-a811-231f583b3dcb"),
+            Uuid::new_v5(&course_id, b"9d8ccf47-3e83-4459-8f2f-8e546a75f372"),
+            Uuid::new_v5(&course_id, b"a4edb4e5-507d-43f1-8058-9d95941dbf09"),
+            Uuid::new_v5(&course_id, b"eced4875-ece9-4c3d-ad0a-2443e61b3e78"),
+            Uuid::new_v5(&course_id, b"8870d951-1a27-4544-ad1d-6e0ac19ec5ee"),
+            Uuid::new_v5(&course_id, b"59029dbd-b6bc-42c2-ad18-3d62b1844a23"),
+            Uuid::new_v5(&course_id, b"0b3098e1-c1f1-4b7b-87f8-ef38826cac79"),
+        );
+    let (exam_exercise_block_2, exam_exercise_2, exam_exercise_slide_2, exam_exercise_task_2) =
+        example_exercise(
+            Uuid::new_v5(&course_id, b"44f472e5-b726-4c50-89a1-93f4170673f5"),
+            Uuid::new_v5(&course_id, b"23182b3d-fbf4-4c0d-93fa-e9ddc199cc52"),
+            Uuid::new_v5(&course_id, b"ca105826-5007-439f-87be-c25f9c79506e"),
+            Uuid::new_v5(&course_id, b"96a9e586-cf88-4cb2-b7c9-efc2bc47e90b"),
+            Uuid::new_v5(&course_id, b"fe5bb5a9-d0ab-4072-abe1-119c9c1e4f4a"),
+            Uuid::new_v5(&course_id, b"22959aad-26fc-4212-8259-c128cdab8b08"),
+            Uuid::new_v5(&course_id, b"d8ba9e92-4530-4a74-9b11-eb708fa54d40"),
+            Uuid::new_v5(&course_id, b"846f4895-f573-41e2-9926-cd700723ac18"),
+        );
+    pages::insert_page(
+        conn,
+        NewPage {
+            exercises: vec![exam_exercise_1, exam_exercise_2],
+            exercise_slides: vec![exam_exercise_slide_1, exam_exercise_slide_2],
+            exercise_tasks: vec![exam_exercise_task_1, exam_exercise_task_2],
+            content: serde_json::json!([exam_exercise_block_1, exam_exercise_block_2,]),
+            url_path: "".to_string(),
+            title: "".to_string(),
+            course_id: None,
+            exam_id: Some(exam_id),
+            chapter_id: None,
+            front_page_of_chapter_id: None,
+            content_search_language: None,
+        },
+        teacher,
+    )
+    .await?;
+    exams::set_course(conn, exam_id, course_id).await?;
     Ok(())
 }

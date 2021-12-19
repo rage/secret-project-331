@@ -146,7 +146,7 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
         sharedOptionFeedbackMessage: null,
         options: [],
         allAnswersCorrect: false,
-        direction: "row",
+        direction: "column",
         feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem",
       }
       draftState[action.payload.itemId] = newItem

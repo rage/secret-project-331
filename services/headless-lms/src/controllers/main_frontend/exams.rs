@@ -1,5 +1,6 @@
 use crate::{
     controllers::ControllerResult,
+    domain::authorization::{authorize, Action, AuthUser, Resource},
     models::exams::{self, Exam},
 };
 use actix_web::web::{self, Json, ServiceConfig};
@@ -11,8 +12,10 @@ use uuid::Uuid;
 pub async fn get_exam(
     pool: web::Data<PgPool>,
     id: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ControllerResult<Json<Exam>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Action::View, user.id, Resource::Exam(*id)).await?;
     let exam = exams::get(&mut conn, id.into_inner()).await?;
     Ok(Json(exam))
 }
@@ -26,8 +29,11 @@ pub async fn set_course(
     pool: web::Data<PgPool>,
     id: web::Path<Uuid>,
     course_id: web::Json<ExamCourseInfo>,
+    user: AuthUser,
 ) -> ControllerResult<Json<()>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Action::Edit, user.id, Resource::Exam(*id)).await?;
+
     exams::set_course(&mut conn, id.into_inner(), course_id.into_inner().course_id).await?;
     Ok(Json(()))
 }
@@ -36,8 +42,11 @@ pub async fn unset_course(
     pool: web::Data<PgPool>,
     id: web::Path<Uuid>,
     course_id: web::Json<ExamCourseInfo>,
+    user: AuthUser,
 ) -> ControllerResult<Json<()>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Action::Edit, user.id, Resource::Exam(*id)).await?;
+
     exams::unset_course(&mut conn, id.into_inner(), course_id.into_inner().course_id).await?;
     Ok(Json(()))
 }

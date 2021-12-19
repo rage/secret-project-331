@@ -3,11 +3,19 @@
 use crate::{
     controllers::{ControllerError, ControllerResult},
     domain::authorization::AuthUser,
-    models::submissions::{NewSubmission, SubmissionResult},
+    models::{
+        exams,
+        gradings::{self, Grading},
+        submissions::{self, NewSubmission, Submission, SubmissionResult},
+    },
 };
 use actix_web::web::ServiceConfig;
 use actix_web::web::{self, Json};
+use chrono::{Duration, Utc};
+use serde::Serialize;
 use sqlx::PgPool;
+use ts_rs::TS;
+use uuid::Uuid;
 
 /**
 POST `/api/v0/course-material/submissions` - Post a new submission.
@@ -74,6 +82,7 @@ async fn post_submission(
     user: AuthUser,
 ) -> ControllerResult<Json<SubmissionResult>> {
     let mut conn = pool.acquire().await?;
+
     let exercise_task_id = payload.0.exercise_task_id;
     let exercise_slide = crate::models::exercise_slides::get_exercise_slide_by_exercise_task_id(
         &mut conn,
@@ -83,10 +92,64 @@ async fn post_submission(
     .ok_or_else(|| ControllerError::NotFound("Exercise definition not found.".to_string()))?;
     let exercise =
         crate::models::exercises::get_by_id(&mut conn, exercise_slide.exercise_id).await?;
-    let submission =
-        crate::models::submissions::insert_submission(&mut conn, payload.0, user.id, exercise)
+
+    if let Some(exam_id) = exercise.exam_id.as_ref().copied() {
+        // check if the submission is still valid for the exam
+        let exam = exams::get(&mut conn, exam_id).await?;
+        let enrollment = exams::get_enrollment(&mut conn, exam_id, user.id)
+            .await?
+            .ok_or_else(|| anyhow::anyhow!("User has no enrollment for the exam"))?;
+        let student_time_is_up =
+            Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into());
+        let exam_is_over = exam.ends_at.map(|ea| Utc::now() > ea).unwrap_or_default();
+        if student_time_is_up || exam_is_over {
+            return Err(anyhow::anyhow!("Cannot submit for this exam anymore").into());
+        }
+    }
+
+    let mut submission =
+        crate::models::submissions::insert_submission(&mut conn, &payload.0, user.id, &exercise)
             .await?;
+    if exercise.exam_id.is_some() {
+        // remove grading information from submission
+        submission.grading = None;
+        submission.model_solution_spec = None;
+        submission.submission.grading_id = None;
+    }
     Ok(Json(submission))
+}
+
+#[derive(Debug, Serialize, TS)]
+pub struct PreviousSubmission {
+    pub submission: Submission,
+    pub grading: Option<Grading>,
+}
+
+async fn previous_submission(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<Json<Option<PreviousSubmission>>> {
+    let mut conn = pool.acquire().await?;
+    if let Some(submission) = submissions::get_latest_user_exercise_submission(
+        &mut conn,
+        user.id,
+        exercise_id.into_inner(),
+    )
+    .await?
+    {
+        let grading = if let Some(grading_id) = submission.grading_id {
+            gradings::get_for_student(&mut conn, grading_id, user.id).await?
+        } else {
+            None
+        };
+        Ok(Json(Some(PreviousSubmission {
+            submission,
+            grading,
+        })))
+    } else {
+        Ok(Json(None))
+    }
 }
 
 /**
@@ -97,5 +160,8 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_submissions_routes(cfg: &mut ServiceConfig) {
-    cfg.route("", web::post().to(post_submission));
+    cfg.route("", web::post().to(post_submission)).route(
+        "/previous-for-exercise/{exercise_id}",
+        web::get().to(previous_submission),
+    );
 }

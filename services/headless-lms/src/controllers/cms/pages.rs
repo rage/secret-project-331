@@ -138,6 +138,7 @@ async fn update_page(
         user.id,
         false,
         HistoryChangeReason::PageSaved,
+        exam_id.is_some(),
     )
     .await?;
     Ok(Json(saved))

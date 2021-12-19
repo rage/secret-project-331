@@ -132,6 +132,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
         border: 0;
         border-top: 1px solid black;
         border-bottom: 1px solid black;
+        margin-bottom: 1rem;
       `}
     >
       <iframe

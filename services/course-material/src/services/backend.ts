@@ -4,6 +4,7 @@ import {
   CourseInstance,
   CourseMaterialExercise,
   CoursePageWithUserData,
+  ExamData,
   ExamEnrollment,
   NewFeedback,
   NewProposedPageEdits,
@@ -13,6 +14,7 @@ import {
   PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
+  PreviousSubmission,
   SubmissionResult,
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
@@ -25,10 +27,12 @@ import {
   isCourseInstance,
   isCourseMaterialExercise,
   isCoursePageWithUserData,
+  isExamData,
   isPage,
   isPageRoutingDataWithChapterStatus,
   isPageSearchResult,
   isPageWithExercises,
+  isPreviousSubmission,
   isSubmissionResult,
   isUserCourseInstanceChapterExerciseProgress,
   isUserCourseInstanceChapterProgress,
@@ -243,6 +247,25 @@ export const enrollInExam = async (examId: string): Promise<void> => {
   await courseMaterialClient.post(`/exams/${examId}/enroll`, { responseType: "json" })
 }
 
-export const startExam = async (examId: string): Promise<void> => {
-  await courseMaterialClient.post(`/exams/${examId}/start`, { responseType: "json" })
+export const fetchExam = async (examId: string): Promise<ExamData> => {
+  const response = await courseMaterialClient.get(`/exams/${examId}`, { responseType: "json" })
+  return validateResponse(response, isExamData)
+}
+
+export const saveExamAnswer = async (
+  examId: string,
+  exerciseId: string,
+  dataJson: unknown,
+): Promise<void> => {
+  await courseMaterialClient.post(`/exams/${examId}/save-answer/${exerciseId}`, dataJson)
+}
+
+export const fetchPreviousSubmission = async (
+  exerciseId: string,
+): Promise<PreviousSubmission | null> => {
+  const response = await courseMaterialClient.get(
+    `/submissions/previous-for-exercise/${exerciseId}`,
+    { responseType: "json" },
+  )
+  return validateResponse(response, isUnion(isNull, isPreviousSubmission))
 }

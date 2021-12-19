@@ -20,7 +20,7 @@ interface LayoutProps {
   title?: string
   licenseUrl?: string
   returnToPath?: string
-  courseSlug: string
+  courseSlug?: string
   organizationSlug: string
 }
 
@@ -69,7 +69,7 @@ const Layout: React.FC<LayoutProps> = ({
             // Return to path can be override per page
             returnToPath={returnToPath ?? returnPath}
           >
-            {courseId && (
+            {courseId && courseSlug && (
               <SearchDialog
                 courseId={courseId}
                 courseSlug={courseSlug}

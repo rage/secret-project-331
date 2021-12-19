@@ -1,7 +1,6 @@
 import { css, cx } from "@emotion/css"
 import _ from "lodash"
 import React from "react"
-import { useTranslation } from "react-i18next"
 
 import { QuizItemAnswer } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
@@ -46,8 +45,6 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItem,
   setQuizItemAnswerState,
 }) => {
-  const { t } = useTranslation()
-
   // Column means that all the options are always diplayed on top of each other, regardless of the
   // device width. Sanitized since the value is used in CSS.
   const direction: "row" | "column" =
@@ -62,10 +59,11 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
     let newItemAnswer: QuizItemAnswer
     // multi is set to true then student can select multiple options for an answer
     if (quizItem.multi) {
+      const optionAnswers = _.xor(quizItemAnswerState.optionAnswers, [selectedOptionId])
       newItemAnswer = {
         ...quizItemAnswerState,
-        optionAnswers: _.xor(quizItemAnswerState.optionAnswers, [selectedOptionId]),
-        valid: true,
+        optionAnswers,
+        valid: optionAnswers.length > 0,
       }
     } else {
       newItemAnswer = {
@@ -109,8 +107,9 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
             flex-direction: ${direction};
           }
         `}
+        role={quizItem.multi ? "group" : "radiogroup"}
       >
-        {quizItem.options.map((qo) => {
+        {quizItem.options.map((qo, i) => {
           const selected = quizItemAnswerState?.optionAnswers?.includes(qo.id)
 
           return (
@@ -118,14 +117,16 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
               key={qo.id}
               value={qo.id}
               onClick={handleOptionSelect}
-              aria-label={selected ? t("selected-option") : t("unselected-option")}
+              tabIndex={quizItem.multi ? 0 : i === 0 ? 0 : -1}
+              role={quizItem.multi ? "checkbox" : "radio"}
+              aria-checked={selected ?? false}
               className={cx(
                 optionButton,
-                selected ? optionButtonSelected : "",
-                direction === DIRECTION_COLUMN ? optionButtonColumn : "",
+                selected && optionButtonSelected,
+                direction === DIRECTION_COLUMN && optionButtonColumn,
               )}
             >
-              {qo.title || qo.body}
+              <MarkdownText text={qo.title || qo.body || ""} />
             </button>
           )
         })}

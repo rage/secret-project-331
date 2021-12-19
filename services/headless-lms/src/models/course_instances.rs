@@ -338,9 +338,12 @@ pub async fn get_points(
     let mut exercise_to_chapter_id = HashMap::new();
     let exercises = exercises::get_exercises_by_course_instance_id(&mut *conn, instance_id).await?;
     for exercise in exercises {
-        let total = chapter_point_totals.entry(exercise.chapter_id).or_default();
-        *total += exercise.score_maximum;
-        exercise_to_chapter_id.insert(exercise.id, exercise.chapter_id);
+        if let Some(chapter_id) = exercise.chapter_id {
+            // exercises without chapter ids (i.e. exams) are not counted
+            let total = chapter_point_totals.entry(chapter_id).or_default();
+            *total += exercise.score_maximum;
+            exercise_to_chapter_id.insert(exercise.id, chapter_id);
+        }
     }
 
     let users: HashMap<Uuid, User> = sqlx::query_as!(

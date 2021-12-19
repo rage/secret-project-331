@@ -42,6 +42,7 @@ export interface ContentRendererProps {
   editing: boolean
   selectedBlockId: string | null
   setEdits: (m: Map<string, NewProposedBlockEdit>) => void
+  isExam: boolean
 }
 
 export interface BlockRendererProps<T> {
@@ -50,6 +51,7 @@ export interface BlockRendererProps<T> {
   selectedBlockId: string | null
   setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
   id: string
+  isExam: boolean
 }
 
 const LatexBlock = dynamic(() => import("./moocfi/LatexBlock"))
@@ -161,6 +163,7 @@ const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
               editing={props.editing}
               selectedBlockId={props.selectedBlockId}
               setEdits={props.setEdits}
+              isExam={props.isExam}
             />
           </div>
         )

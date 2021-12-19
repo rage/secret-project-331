@@ -26,7 +26,6 @@ export const Renderer: React.FC<RendererProps> = ({ state, port, maxWidth }) => 
   } else if (state.viewType === "view-submission") {
     return (
       <Submission
-        port={port}
         maxWidth={maxWidth}
         publicAlternatives={state.publicSpec}
         modelSolutions={state.modelSolutions}

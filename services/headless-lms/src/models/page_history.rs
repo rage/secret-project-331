@@ -72,22 +72,33 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn get_history_content_and_title(
-    conn: &mut PgConnection,
-    id: Uuid,
-) -> ModelResult<(PageHistoryContent, String)> {
+pub struct PageHistoryData {
+    pub content: PageHistoryContent,
+    pub title: String,
+    pub exam_id: Option<Uuid>,
+}
+
+pub async fn get_history_data(conn: &mut PgConnection, id: Uuid) -> ModelResult<PageHistoryData> {
     let record = sqlx::query!(
         "
-SELECT content, title
+SELECT page_history.content,
+  page_history.title,
+  pages.exam_id
 FROM page_history
-WHERE id = $1
-  AND deleted_at IS NULL;
+  JOIN pages ON pages.id = page_history.page_id
+WHERE page_history.id = $1
+  AND pages.deleted_at IS NULL
+  AND page_history.deleted_at IS NULL
         ",
         id,
     )
     .fetch_one(conn)
     .await?;
-    Ok((serde_json::from_value(record.content)?, record.title))
+    Ok(PageHistoryData {
+        content: serde_json::from_value(record.content)?,
+        title: record.title,
+        exam_id: record.exam_id,
+    })
 }
 
 pub async fn history(

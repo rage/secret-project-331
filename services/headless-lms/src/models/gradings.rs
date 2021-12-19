@@ -8,13 +8,14 @@ use super::{
 };
 use crate::{
     models::{
-        exercise_service_info::get_service_info_by_exercise_type, submissions::GradingRequest,
-        ModelError,
+        exams, exercise_service_info::get_service_info_by_exercise_type,
+        submissions::GradingRequest, ModelError,
     },
     utils::numbers::f32_to_two_decimals,
 };
 use chrono::{DateTime, Utc};
 
+use futures::Future;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use std::time::Duration;
@@ -122,6 +123,11 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Opt
 }
 
 pub async fn new_grading(conn: &mut PgConnection, submission: &Submission) -> ModelResult<Grading> {
+    let update_strategy = if submission.exam_id.is_some() {
+        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
+    } else {
+        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
+    };
     let grading = sqlx::query_as!(
         Grading,
         r#"
@@ -131,9 +137,10 @@ INSERT INTO gradings(
     exam_id,
     exercise_id,
     exercise_task_id,
+    user_points_update_strategy,
     grading_started_at
   )
-VALUES($1, $2, $3, $4, $5, now())
+VALUES($1, $2, $3, $4, $5, $6, now())
 RETURNING id,
   created_at,
   updated_at,
@@ -158,7 +165,8 @@ RETURNING id,
         submission.course_id,
         submission.exam_id,
         submission.exercise_id,
-        submission.exercise_task_id
+        submission.exercise_task_id,
+        update_strategy as UserPointsUpdateStrategy
     )
     .fetch_one(conn)
     .await?;
@@ -186,44 +194,47 @@ WHERE id = $2
 
 pub async fn grade_submission(
     conn: &mut PgConnection,
-    submission: Submission,
-    exercise_task: ExerciseTask,
-    exercise: Exercise,
-    grading: Grading,
+    submission: &Submission,
+    exercise_task: &ExerciseTask,
+    exercise: &Exercise,
+    grading: &Grading,
 ) -> ModelResult<Grading> {
     let exercise_service_info =
         get_service_info_by_exercise_type(conn, &exercise_task.exercise_type).await?;
     let exercise_service =
         get_exercise_service_by_exercise_type(conn, &exercise_task.exercise_type).await?;
     let grade_url = get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
-    let obj = send_grading_request(grade_url, exercise_task, submission.clone()).await?;
-    let updated_grading = update_grading(conn, &grading, &obj, &exercise).await?;
-    update_user_exercise_state(conn, &updated_grading, &submission).await?;
+    let obj = send_grading_request(grade_url, exercise_task, submission).await?;
+    let updated_grading = update_grading(conn, grading, &obj, exercise).await?;
+    update_user_exercise_state(conn, &updated_grading, submission).await?;
     Ok(updated_grading)
 }
 
-pub async fn send_grading_request(
+// does not use async fn because the arguments should only be borrowed
+// for the part before any async stuff happens
+pub fn send_grading_request(
     grade_url: Url,
-    exercise_task: ExerciseTask,
-    submission: Submission,
-) -> ModelResult<GradingResult> {
+    exercise_task: &ExerciseTask,
+    submission: &Submission,
+) -> impl Future<Output = ModelResult<GradingResult>> + 'static {
     let client = reqwest::Client::new();
-    let res = client
+    let req = client
         .post(grade_url)
         .timeout(Duration::from_secs(120))
         .json(&GradingRequest {
-            exercise_spec: exercise_task.private_spec,
-            submission_data: submission.data_json,
-        })
-        .send()
-        .await?;
-    let status = res.status();
-    if !status.is_success() {
-        return Err(ModelError::Generic("Grading failed".to_string()));
+            exercise_spec: &exercise_task.private_spec,
+            submission_data: &submission.data_json,
+        });
+    async {
+        let res = req.send().await?;
+        let status = res.status();
+        if !status.is_success() {
+            return Err(ModelError::Generic("Grading failed".to_string()));
+        }
+        let obj = res.json::<GradingResult>().await?;
+        info!("Received a grading result: {:#?}", &obj);
+        Ok(obj)
     }
-    let obj = res.json::<GradingResult>().await?;
-    info!("Received a grading result: {:#?}", &obj);
-    Ok(obj)
 }
 
 pub async fn update_grading(
@@ -291,4 +302,31 @@ RETURNING id,
     .await?;
 
     Ok(grading)
+}
+
+/// Fetches the grading for the student, but hides the result in some circumstances.
+/// For example, for an ongoing exam.
+pub async fn get_for_student(
+    conn: &mut PgConnection,
+    grading_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Option<Grading>> {
+    let grading = get_by_id(conn, grading_id).await?;
+    if let Some(exam_id) = grading.exam_id {
+        let exam = exams::get(conn, exam_id).await?;
+        let enrollment = exams::get_enrollment(conn, exam_id, user_id)
+            .await?
+            .ok_or_else(|| anyhow::anyhow!("User has grading for exam but no enrollment"))?;
+        if Utc::now() > enrollment.started_at + chrono::Duration::minutes(exam.time_minutes.into())
+            || exam.ends_at.map(|ea| Utc::now() > ea).unwrap_or_default()
+        {
+            // exam over, return grading
+            Ok(Some(grading))
+        } else {
+            // exam still ongoing, do not return grading
+            Ok(None)
+        }
+    } else {
+        Ok(Some(grading))
+    }
 }

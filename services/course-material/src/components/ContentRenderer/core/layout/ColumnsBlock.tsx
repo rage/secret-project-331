@@ -11,7 +11,7 @@ import colorMapper from "../../../../styles/colorMapper"
 
 import ColumnBlock from "./ColumnBlock"
 
-const ColumnsBlock: React.FC<BlockRendererProps<ColumnsAttributes>> = ({ data }) => {
+const ColumnsBlock: React.FC<BlockRendererProps<ColumnsAttributes>> = ({ data, isExam }) => {
   const innerBlocks = data.innerBlocks as Block<ColumnAttributes>[]
   const {
     isStackedOnMobile,
@@ -75,6 +75,7 @@ const ColumnsBlock: React.FC<BlockRendererProps<ColumnsAttributes>> = ({ data })
               throw new Error("Function not implemented.")
             }}
             id={block.clientId}
+            isExam={isExam}
           />
         )
       })}

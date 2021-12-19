@@ -37,7 +37,7 @@ const ExerciseBase: React.FC<Props> = ({
         }
         const selected = selectedId === option.id
         // Border colors
-        const green = baseTheme.colors.green[300]
+        const green = baseTheme.colors.green[400]
         const red = baseTheme.colors.red[300]
         // Background of the buttons
         // eslint-disable-next-line i18next/no-literal-string

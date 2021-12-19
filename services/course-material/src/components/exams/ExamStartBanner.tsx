@@ -22,11 +22,7 @@ const ExamStartBanner: React.FC<ExamInstructionsProps> = ({
   const { t } = useTranslation()
 
   const handleStart = async () => {
-    if (
-      window.confirm(
-        `Are you sure you want to start the exam?\n\nPlease note that you cannot cancel the exam after starting it. You'll have ${timeMinutes} minutes to complete the exam.`,
-      )
-    ) {
+    if (window.confirm(t("exam-start-confirmation", { "time-minutes": timeMinutes }))) {
       setDisabled(false)
       await onStart()
       setDisabled(true)

@@ -126,15 +126,19 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
           <>
             <div>
               {exam.data.starts_at
-                ? `The exam can be started after ${exam.data.starts_at.toLocaleString()}`
-                : "No start time set"}
+                ? t("exam-can-be-started-after", {
+                    "starts-at": exam.data.starts_at.toLocaleString(),
+                  })
+                : t("exam-no-start-time")}
             </div>
             <div>
               {exam.data.ends_at
-                ? `Submissions are no longer accepted after ${exam.data.ends_at.toLocaleString()}`
-                : "No end time set"}
+                ? t("exam-submissions-not-accepted-after", {
+                    "ends-at": exam.data.ends_at.toLocaleString(),
+                  })
+                : t("exam-no-end-time")}
             </div>
-            <div>You have {exam.data.time_minutes} minutes to complete the exam after starting</div>
+            <div> {t("exam-time-to-complete", { "time-minutes": exam.data.time_minutes })}</div>
           </>
         )}
         {t("instructions")}:{" "}
@@ -179,8 +183,7 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
         <Layout organizationSlug={query.organizationSlug}>
           {examInfo}
           <div className={normalWidthCenteredComponentStyles}>
-            Your time has run out and the exam is now closed. Come back to see the results after{" "}
-            {exam.data.ends_at.toLocaleString()}.
+            {t("exam-time-up", { "ends-at": exam.data.ends_at.toLocaleString() })}
           </div>
         </Layout>
       </>

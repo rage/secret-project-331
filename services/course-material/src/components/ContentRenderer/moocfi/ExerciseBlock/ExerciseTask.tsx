@@ -45,7 +45,7 @@ const ExerciseTask: React.FC<Props> = ({
       )}
       {cannotAnswerButNoSubmission && (
         <div className={normalWidthCenteredComponentStyles}>
-          No submission received for this exercise.
+          {t("no-submission-received-for-this-exercise")}
         </div>
       )}
       {!cannotAnswerButNoSubmission &&

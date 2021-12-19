@@ -1,4 +1,12 @@
 {
+  "exam-time-up": "Your time has run out and the exam is now closed. Come back to see the results after {{ ends-at }}.",
+  "exam-time-to-complete": "You have {{ time-minutes }} minutes to complete the exam after starting",
+  "exam-submissions-not-accepted-after": "Submissions are no longer accepted after {{ ends-at }}",
+  "exam-no-end-time": "No end time set",
+  "exam-no-start-time": "No start time set",
+  "exam-can-be-started-after": "The exam can be started after {{ starts-at }}",
+  "exam-start-confirmation": "Are you sure you want to start the exam?\n\nPlease note that you cannot cancel the exam after starting it. You'll have {{ time-minutes }} minutes to complete the exam.",
+  "no-submission-received-for-this-exercise": "No submission received for this exercise.",
   "course-overview": "Course overview",
   "student-progress": "Student progress",
   "select-course-version-to-see-your-progress": "Select course version to see your progress.",

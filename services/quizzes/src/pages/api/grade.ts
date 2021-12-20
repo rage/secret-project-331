@@ -13,7 +13,7 @@ interface OptionAnswerFeedback {
   option_feedback: string | null
 }
 
-interface ItemAnswerFeedback {
+export interface ItemAnswerFeedback {
   quiz_item_id: string | null
   quiz_item_feedback: string | null
   quiz_item_option_feedbacks: OptionAnswerFeedback[] | null

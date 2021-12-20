@@ -389,9 +389,7 @@ export function isExerciseServiceInfoApi(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.service_name === "string" &&
-    typeof obj.editor_iframe_path === "string" &&
-    typeof obj.exercise_iframe_path === "string" &&
-    typeof obj.submission_iframe_path === "string" &&
+    typeof obj.exercise_type_specific_user_interface_iframe === "string" &&
     typeof obj.grade_endpoint_path === "string" &&
     typeof obj.public_spec_endpoint_path === "string" &&
     typeof obj.model_solution_path === "string"
@@ -485,7 +483,9 @@ export function isCourseMaterialExercise(
     (isCourseMaterialExerciseTask(obj.current_exercise_task) as boolean) &&
     (obj.current_exercise_task_service_info === null ||
       (isCourseMaterialExerciseServiceInfo(obj.current_exercise_task_service_info) as boolean)) &&
-    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean))
+    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
+    (obj.previous_submission === null || (isSubmission(obj.previous_submission) as boolean)) &&
+    (obj.grading === null || (isGrading(obj.grading) as boolean))
   )
 }
 
@@ -998,7 +998,7 @@ export function isSubmissionInfo(obj: any, _argumentName?: string): obj is Submi
     (isExercise(obj.exercise) as boolean) &&
     (isExerciseTask(obj.exercise_task) as boolean) &&
     (obj.grading === null || (isGrading(obj.grading) as boolean)) &&
-    typeof obj.submission_iframe_path === "string"
+    typeof obj.iframe_path === "string"
   )
 }
 

@@ -1,12 +1,39 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import _ from "lodash"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { QuizItemAnswer } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import { quizTheme } from "../../styles/QuizStyles"
 import { MarkdownText } from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
+
+const DIRECTION_COLUMN = "column"
+const DIRECTION_ROW = "row"
+
+const optionButton = css`
+  align-items: center;
+  border: none;
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  margin: 0.3rem;
+  padding: 1rem;
+`
+
+const optionButtonColumn = css`
+  ${respondToOrLarger.xs} {
+    justify-content: left;
+  }
+`
+
+// eslint-disable-next-line i18next/no-literal-string
+const optionButtonSelected = css`
+  background: ${quizTheme.selectedItemBackground};
+  color: ${quizTheme.selectedItemColor};
+`
 
 export interface LeftBorderedDivProps {
   correct: boolean | undefined
@@ -19,8 +46,12 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItem,
   setQuizItemAnswerState,
 }) => {
-  // eslint-disable-next-line i18next/no-literal-string
-  const direction = quizItem.direction || "row"
+  const { t } = useTranslation()
+
+  // Column means that all the options are always diplayed on top of each other, regardless of the
+  // device width. Sanitized since the value is used in CSS.
+  const direction: "row" | "column" =
+    quizItem.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
 
   const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!quizItemAnswerState) {
@@ -46,114 +77,59 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
     setQuizItemAnswerState(newItemAnswer)
   }
 
-  // 2 directions
-  // render title and body
-  // render options
-
-  // direction row = everything in one row
-
-  if (direction === "row") {
-    return (
-      <div
-        className={css`
-          display: flex;
-          flex-direction: column;
-          ${respondToOrLarger.md} {
-            flex-direction: row;
-          }
-        `}
-      >
-        <div
-          className={css`
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            margin: 0.5rem;
-          `}
-        >
-          {quizItem.title && <MarkdownText text={quizItem.title} />}
-          {quizItem.body && <MarkdownText text={quizItem.body} />}
-        </div>
-        <div
-          className={css`
-            display: flex;
-            flex: 2;
-            flex-direction: column;
-            justify-content: space-between;
-            ${respondToOrLarger.sm} {
-              flex-direction: row;
-            }
-          `}
-        >
-          {quizItem.options.map((qo) => {
-            return (
-              <button
-                key={qo.id}
-                value={qo.id}
-                onClick={handleOptionSelect}
-                className={css`
-                  display: flex;
-                  margin: 0.5rem;
-                  flex: 2;
-                  justify-content: center;
-                  align-items: center;
-                  ${quizItemAnswerState?.optionAnswers?.includes(qo.id) &&
-                  "border: 2px solid #4caf50; /* Green */"}
-                `}
-              >
-                {qo.title || qo.body}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-    )
-  }
-
-  // direction column = everything stacked
-
   return (
     <div
       className={css`
-        display: flex;
-        flex-direction: column;
+        margin: 0.5rem;
       `}
     >
       <div
         className={css`
-          display: flex;
-          margin: 0.5rem;
+          font-size: ${quizTheme.quizTitleFontSize};
+          font-weight: bold;
         `}
       >
         {quizItem.title && <MarkdownText text={quizItem.title} />}
       </div>
-      <div
+      <p
         className={css`
-          display: flex;
-          margin: 0.5rem;
+          color: ${quizTheme.quizBodyColor};
+          font-size: ${quizTheme.quizBodyFontSize};
+          margin: 0.5rem 0;
         `}
       >
         {quizItem.body && <MarkdownText text={quizItem.body} />}
+      </p>
+      <div
+        className={css`
+          display: flex;
+          flex-direction: column;
+
+          ${respondToOrLarger.sm} {
+            flex-direction: ${direction};
+          }
+        `}
+      >
+        {quizItem.options.map((qo) => {
+          const selected = quizItemAnswerState?.optionAnswers?.includes(qo.id)
+
+          return (
+            <button
+              key={qo.id}
+              value={qo.id}
+              onClick={handleOptionSelect}
+              aria-label={selected ? t("selected-option") : t("unselected-option")}
+              className={cx(
+                optionButton,
+                selected ? optionButtonSelected : "",
+                direction === DIRECTION_COLUMN ? optionButtonColumn : "",
+              )}
+            >
+              {qo.title || qo.body}
+            </button>
+          )
+        })}
       </div>
-      {quizItem.options.map((qo) => {
-        return (
-          <button
-            key={qo.id}
-            value={qo.id}
-            onClick={handleOptionSelect}
-            className={css`
-              display: flex;
-              margin: 0.5rem;
-              flex: 1;
-              justify-content: center;
-              ${quizItemAnswerState?.optionAnswers?.includes(qo.id) &&
-              "border: 2px solid #4caf50; /* Green */"}
-            `}
-          >
-            {qo.title || qo.body}
-          </button>
-        )
-      })}
     </div>
   )
 }

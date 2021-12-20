@@ -1,0 +1,169 @@
+name: System tests and deploy
+
+on:
+  push:
+    branches:
+      - master
+      - canary
+  pull_request:
+    branches:
+      - master
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  system-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+        # This would cause all other tests to be skipped
+      - name: Make sure we have no focused system-tests
+        run: |
+          test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
+
+      - name: Install kustomize, kubectl & skaffold
+        uses: yokawasa/action-setup-kube-tools@v0.7.1
+        with:
+          kubectl: "1.22.4"
+          kustomize: "4.4.0"
+          skaffold: "1.35.0"
+      - name: Workaround for kube-proxy set nf_conntrack_max permission denied
+        run: |
+          # Workarounds this issue when starting up kube-system/kube-proxy:
+          # I0719 17:18:25.711233       1 conntrack.go:100] Set sysctl 'net/netfilter/nf_conntrack_max' to 131072
+          # F0719 17:18:25.711251       1 server.go:489] open /proc/sys/net/netfilter/nf_conntrack_max: permission denied
+          sudo sysctl net/netfilter/nf_conntrack_max=131072
+
+      - name: Install, start & configure minikube
+        uses: manusa/actions-setup-minikube@v2.4.2
+        with:
+          minikube version: "v1.23.2"
+          kubernetes version: "v1.22.4"
+          start args: "--addons ingress --memory max"
+          driver: "docker"
+
+      - name: Debug kube-system
+        run: |
+          kubectl get pods --namespace kube-system
+          PODS=$(kubectl get pods --namespace kube-system -o name | cut -d '/' -f 2)
+          for pod in $PODS
+          do
+            echo "------------------"
+            kubectl describe pod "$pod" --namespace kube-system
+          done
+
+      - name: Debug ingress
+        run: |
+          kubectl get pods --namespace ingress-nginx
+          PODS=$(kubectl get pods --namespace ingress-nginx -o name | cut -d '/' -f 2)
+          for pod in $PODS
+          do
+            echo "------------------"
+            kubectl describe pod "$pod" --namespace ingress-nginx
+          done
+
+      - name: Run npm ci for shared-modules
+        run: npm ci
+
+      - name: Build and deploy
+        run: |
+          skaffold build --filename ./skaffold.production.yml
+          skaffold run --port-forward --force --filename ./skaffold.production.yml --tail &
+          sleep 10
+          kubectl get pods -o name --selector='waitToBeReady!=false' | xargs kubectl wait --timeout=600s --for=condition=ready
+          echo "All pods ready"
+
+      - name: Configure ingress
+        run: echo "$(minikube ip) project-331.local" | sudo tee --append /etc/hosts
+
+      - name: Setup system test environment
+        run: npm ci
+        working-directory: ./system-tests/
+
+      - name: Run system tests
+        run: npm run test
+        working-directory: ./system-tests/
+
+      - name: Run system tests again to make sure they're stable
+        run: npm run test
+        working-directory: ./system-tests/
+
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: test-results
+          path: ./system-tests/test-results/
+          if-no-files-found: ignore
+
+      - name: Authenticate to Google Cloud
+        env:
+          GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
+        run: |
+          echo Authenticating to Google Cloud
+          echo $GCLOUD_SERVICE_KEY | python -m base64 -d > /tmp/key.json
+          gcloud auth activate-service-account --key-file=/tmp/key.json
+          if gcloud auth configure-docker -q; then
+              echo "Authenticated to Google Cloud..."
+          else
+              echo "Authentication to Google Cloud failed. Exiting..."
+              exit 1
+          fi
+        if: ${{ github.ref == 'refs/heads/master' }}
+
+      - name: Push images if master
+        run: skaffold build -p push-images --filename ./skaffold.production.yml --file-output=skaffold-build-output.json
+        if: ${{ github.ref == 'refs/heads/master' }}
+
+      - name: Store skaffold output json if master
+        uses: actions/upload-artifact@v2
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          name: skaffold-build-output
+          path: ./skaffold-build-output.json
+
+  deploy:
+    needs: system-tests
+    if: ${{ github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://courses.mooc.fi
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Download skaffold build output artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: skaffold-build-output
+          path: skaffold-build-output
+
+      - name: Install kustomize, kubectl & skaffold
+        uses: yokawasa/action-setup-kube-tools@v0.7.1
+        with:
+          kubectl: "1.22.4"
+          kustomize: "4.4.0"
+          skaffold: "1.35.0"
+      - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
+        with:
+          service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}
+          project_id: ${{ secrets.GKE_PROJECT }}
+      - run: |-
+          gcloud --quiet auth configure-docker
+
+      # Get the GKE credentials so we can deploy to the cluster
+      - uses: google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e
+        with:
+          cluster_name: ${{ secrets.GKE_CLUSTER }}
+          location: ${{ secrets.GKE_ZONE }}
+          credentials: ${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}
+
+      - name: Masking
+        run: |
+          IPS=$(kubectl config view | grep server | tr -s ' ' | cut -d ' ' -f 3 | xargs echo)
+          echo "::add-mask::$IPS"
+
+      - name: Deploy with Skaffold
+        run: skaffold deploy --force --filename ./skaffold.production.yml -p production --build-artifacts=./skaffold-build-output/skaffold-build-output.json --namespace courses-moocfi

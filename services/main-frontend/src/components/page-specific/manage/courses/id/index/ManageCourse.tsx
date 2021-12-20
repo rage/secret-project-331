@@ -14,13 +14,13 @@ import { deleteCourse, postNewCourseTranslation } from "../../../../../../servic
 import { Course, NewCourse } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import NewCourseForm from "../../../../../forms/NewCourseForm"
-import UpdateCourseForm from "../../../../../forms/UpdateCourseForm"
-import ExerciseList from "../../../../../lists/ExerciseList"
 
 import CourseInstancesList from "./CourseInstancesList"
 import CourseLanguageVersionsList, {
   formatLanguageVersionsQueryKey,
 } from "./CourseLanguageVersionsList"
+import ExerciseList from "./ExerciseList"
+import UpdateCourseForm from "./UpdateCourseForm"
 
 interface Props {
   course: Course

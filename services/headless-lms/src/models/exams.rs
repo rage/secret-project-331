@@ -11,16 +11,12 @@ use uuid::Uuid;
 pub struct Exam {
     pub id: Uuid,
     pub name: String,
+    pub instructions: String,
     pub page_id: Uuid,
     pub courses: Vec<Course>,
-}
-
-#[derive(Debug, Serialize, TS)]
-pub struct CourseExam {
-    pub id: Uuid,
-    pub course_id: Uuid,
-    pub course_name: String,
-    pub name: String,
+    pub starts_at: Option<DateTime<Utc>>,
+    pub ends_at: Option<DateTime<Utc>>,
+    pub time_minutes: i32,
 }
 
 pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exam> {
@@ -28,7 +24,11 @@ pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exam> {
         "
 SELECT exams.id,
   exams.name,
-  pages.id AS page_id
+  exams.instructions,
+  pages.id AS page_id,
+  exams.starts_at,
+  exams.ends_at,
+  exams.time_minutes
 FROM exams
   JOIN pages ON pages.exam_id = exams.id
 WHERE exams.id = $1
@@ -37,6 +37,7 @@ WHERE exams.id = $1
     )
     .fetch_one(&mut *conn)
     .await?;
+
     let courses = sqlx::query_as!(
         Course,
         "
@@ -59,41 +60,59 @@ WHERE course_exams.exam_id = $1
     )
     .fetch_all(&mut *conn)
     .await?;
+
     Ok(Exam {
         id: exam.id,
         name: exam.name,
+        instructions: exam.instructions,
         page_id: exam.page_id,
+        starts_at: exam.starts_at,
+        ends_at: exam.ends_at,
+        time_minutes: exam.time_minutes,
         courses,
     })
 }
 
-pub async fn insert(
-    conn: &mut PgConnection,
-    id: Uuid,
-    name: &str,
-    starts_at: Option<DateTime<Utc>>,
-    ends_at: Option<DateTime<Utc>>,
-    time_minutes: Option<i32>,
-    organization_id: Uuid,
-) -> ModelResult<()> {
+#[derive(Debug, Serialize, TS)]
+pub struct CourseExam {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub name: String,
+}
+
+#[derive(Debug)]
+pub struct NewExam<'a> {
+    pub id: Uuid,
+    pub name: &'a str,
+    pub instructions: &'a str,
+    pub starts_at: Option<DateTime<Utc>>,
+    pub ends_at: Option<DateTime<Utc>>,
+    pub time_minutes: i32,
+    pub organization_id: Uuid,
+}
+
+pub async fn insert(conn: &mut PgConnection, exam: NewExam<'_>) -> ModelResult<()> {
     sqlx::query!(
         "
 INSERT INTO exams (
     id,
     name,
+    instructions,
     starts_at,
     ends_at,
     time_minutes,
     organization_id
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 ",
-        id,
-        name,
-        starts_at,
-        ends_at,
-        time_minutes,
-        organization_id
+        exam.id,
+        exam.name,
+        exam.instructions,
+        exam.starts_at,
+        exam.ends_at,
+        exam.time_minutes,
+        exam.organization_id
     )
     .execute(conn)
     .await?;
@@ -104,6 +123,7 @@ pub async fn edit(
     conn: &mut PgConnection,
     id: Uuid,
     name: Option<&str>,
+    instructions: Option<&str>,
     starts_at: Option<DateTime<Utc>>,
     ends_at: Option<DateTime<Utc>>,
     time_minutes: Option<i32>,
@@ -117,13 +137,15 @@ pub async fn edit(
         "
 UPDATE exams
 SET name = COALESCE($2, name),
-  starts_at = $3,
-  ends_at = $4,
-  time_minutes = $5
+instructions = COALESCE($3, instructions),
+  starts_at = $4,
+  ends_at = $5,
+  time_minutes = $6
 WHERE id = $1
 ",
         id,
         name,
+        instructions,
         starts_at,
         ends_at,
         time_minutes,
@@ -225,28 +247,11 @@ VALUES ($1, $2)
     Ok(())
 }
 
-pub async fn start(conn: &mut PgConnection, exam_id: Uuid, user_id: Uuid) -> ModelResult<()> {
-    sqlx::query!(
-        "
-UPDATE exam_enrollments
-SET started_at = now()
-WHERE exam_id = $1
-  AND user_id = $2
-  AND started_at IS NULL
-",
-        exam_id,
-        user_id
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
 #[derive(Debug, Serialize, TS)]
 pub struct ExamEnrollment {
-    user_id: Uuid,
-    exam_id: Uuid,
-    started_at: Option<DateTime<Utc>>,
+    pub user_id: Uuid,
+    pub exam_id: Uuid,
+    pub started_at: DateTime<Utc>,
 }
 
 pub async fn get_enrollment(

@@ -102,6 +102,7 @@ pub enum Resource {
     Role,
     User,
     PlaygroundExample,
+    ExerciseService,
 }
 
 /// Can user_id action the resource?
@@ -164,9 +165,11 @@ pub async fn authorize(
             (exam_id, course_id, None)
         }
         Resource::Exam(exam_id) => (Some(exam_id), None, None),
-        Resource::Role | Resource::User | Resource::AnyCourse | Resource::PlaygroundExample => {
-            (None, None, None)
-        }
+        Resource::Role
+        | Resource::User
+        | Resource::AnyCourse
+        | Resource::PlaygroundExample
+        | Resource::ExerciseService => (None, None, None),
     };
 
     // check exam role

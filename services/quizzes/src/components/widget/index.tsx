@@ -3,7 +3,6 @@ import { v4 } from "uuid"
 
 import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../../types/types"
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
-import HeightTrackingContainer from "../../shared-module/components/HeightTrackingContainer"
 
 import Checkbox from "./Checkbox"
 import Essay from "./Essay"
@@ -122,7 +121,7 @@ const Widget: React.FC<WidgetProps> = ({ port, quiz }) => {
   useSendQuizAnswerOnChange(port, state)
 
   return (
-    <HeightTrackingContainer port={port}>
+    <>
       {state.quiz.items
         .sort((i1, i2) => i1.order - i2.order)
         .map((quizItem) => {
@@ -146,7 +145,7 @@ const Widget: React.FC<WidgetProps> = ({ port, quiz }) => {
             />
           )
         })}
-    </HeightTrackingContainer>
+    </>
   )
 }
 

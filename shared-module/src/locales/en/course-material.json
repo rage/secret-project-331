@@ -1,4 +1,12 @@
 {
+  "exam-time-up": "Your time has run out and the exam is now closed. Come back to see the results after {{ ends-at }}.",
+  "exam-time-to-complete": "You have {{ time-minutes }} minutes to complete the exam after starting",
+  "exam-submissions-not-accepted-after": "Submissions are no longer accepted after {{ ends-at }}",
+  "exam-no-end-time": "No end time set",
+  "exam-no-start-time": "No start time set",
+  "exam-can-be-started-after": "The exam can be started after {{ starts-at }}",
+  "exam-start-confirmation": "Are you sure you want to start the exam?\n\nPlease note that you cannot cancel the exam after starting it. You'll have {{ time-minutes }} minutes to complete the exam.",
+  "no-submission-received-for-this-exercise": "No submission received for this exercise.",
   "course-overview": "Course overview",
   "student-progress": "Student progress",
   "select-course-version-to-see-your-progress": "Select course version to see your progress.",
@@ -78,6 +86,17 @@
   "search-pages-container": "Search pages container",
   "available-in-languages": "Available in {{num}} languages",
   "screen-reader-opens-in-new-tab": "(opens in a new tab)",
+  "error-page-without-course": "Error: Page is not associated with any course",
+  "course-title": "Course: {{title}}",
+  "things-to-know-before-you-start": "Things to know before you start!",
+  "max-score-n-marks": "Max score: <2>{{marks}} marks</2>",
+  "started-at-time": "Started: {{time}}",
+  "ends-at-time": "Ends: {{time}}",
+  "enroll": "Enroll",
+  "start-the-exam": "Start the exam!",
+  "instructions": "Instructions",
+  "template-exercise-instructions": "You can submit your answer to each question to save their state before submitting the exam. You will see the results after you submit the exam or the timer runs out.",
+  "exam-timer-has-run-out": "Time has run out and the exam is now closed.",
   "try-again": "try again",
-  "error-page-without-course": "Error: Page is not associated with any course"
+  "exam-has-not-started-yet": "The exam has not started yet"
 }

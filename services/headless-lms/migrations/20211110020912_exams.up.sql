@@ -6,12 +6,13 @@ CREATE TABLE exams (
   deleted_at TIMESTAMP WITH TIME ZONE,
   organization_id UUID NOT NULL REFERENCES organizations,
   name VARCHAR(255) NOT NULL,
+  instructions TEXT NOT NULL,
   starts_at TIMESTAMP WITH TIME ZONE,
   ends_at TIMESTAMP WITH TIME ZONE,
   language VARCHAR(15) CHECK (
     language ~ '^[a-z]{2,3}(-[A-Z][a-z]{3})?-[A-Z]{2}$'
   ),
-  time_minutes INTEGER,
+  time_minutes INTEGER NOT NULL,
   CHECK (TRIM(name) <> ''),
   CHECK (time_minutes > 0)
 );
@@ -37,7 +38,7 @@ COMMENT ON COLUMN course_exams.exam_id IS 'The id of an exam.';
 CREATE TABLE exam_enrollments (
   user_id UUID NOT NULL REFERENCES users,
   exam_id UUID NOT NULL REFERENCES exams,
-  started_at TIMESTAMP WITH TIME ZONE,
+  started_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
@@ -57,6 +58,7 @@ COMMENT ON COLUMN pages.course_id IS 'The course the page is associated with.';
 COMMENT ON COLUMN pages.exam_id IS 'The exam the page is associated with.';
 COMMENT ON CONSTRAINT course_or_exam_id_set ON pages IS 'A page must be associated with either a course or an exam.';
 ALTER TABLE exercises ALTER course_id DROP NOT NULL,
+  ALTER chapter_id DROP NOT NULL,
   ADD exam_id UUID REFERENCES exams,
   ADD CONSTRAINT course_or_exam_id_set CHECK ((course_id IS NULL) <> (exam_id IS NULL));
 COMMENT ON COLUMN exercises.exam_id IS 'The exam the exercise is associated with.';

@@ -9,7 +9,7 @@ FROM debian:bullseye-slim
 RUN useradd -ms /usr/sbin/nologin user
 
 RUN apt-get update \
-  && apt-get install -yy wait-for-it postgresql-client \
+  && apt-get install -yy wait-for-it postgresql-client ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=source /usr/local/cargo/bin/sqlx /usr/local/bin/sqlx

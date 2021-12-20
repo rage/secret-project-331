@@ -152,7 +152,7 @@ where
 
     let mut exercises = exercises::get_exercises_by_exam_id(conn, exam_id).await?;
     // I's fine to sort just by order number because exams have no chapters
-    exercises.sort_by(|a, b| return a.order_number.cmp(&b.order_number));
+    exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
 
     let mut exercise_id_to_header_idx = HashMap::new();
     for (idx, exercise) in exercises.iter().enumerate() {
@@ -221,7 +221,7 @@ where
             next.score_given.unwrap_or(0.0).to_string(),
             next.data_json
                 .map(|o| o.to_string())
-                .unwrap_or("".to_string()),
+                .unwrap_or_else(|| "".to_string()),
         ];
         writer.write_record(csv_row);
     }

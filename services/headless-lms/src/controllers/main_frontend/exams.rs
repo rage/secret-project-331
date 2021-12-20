@@ -84,7 +84,7 @@ pub async fn export_points(
             csv_export::export_exam_points(&mut handle_conn, exam_id, CSVExportAdapter { sender })
                 .await;
         if let Err(err) = res {
-            tracing::error!("Failed to export course instance points: {}", err);
+            tracing::error!("Failed to export exam points: {}", err);
         }
     });
 
@@ -130,7 +130,7 @@ pub async fn export_submissions(
         )
         .await;
         if let Err(err) = res {
-            tracing::error!("Failed to export course instance points: {}", err);
+            tracing::error!("Failed to export exam submissions: {}", err);
         }
     });
 

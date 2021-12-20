@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 import { QuizItemComponentProps } from ".."
 import { MatrixItemAnswer, QuizItemAnswer } from "../../../../types/types"
@@ -17,6 +17,7 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItem,
   setQuizItemAnswerState,
 }) => {
+  const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [column, row]
   const [matrixVariable, setMatrixVariable] = useState<MatrixItemAnswer[][]>(() => {
     const quizAnswers: MatrixItemAnswer[][] = []
     for (let j = 0; j < 6; j++) {
@@ -40,6 +41,25 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
     }
     return quizAnswers
   })
+
+  const handleMatrixSizeChange = React.useCallback(() => {
+    const sizeOfTheMatrix = [0, 0]
+    for (let j = 0; j < 6; j++) {
+      for (let i = 0; i < 6; i++) {
+        if (matrixVariable[j][i].textData !== "" && sizeOfTheMatrix[0] < j) {
+          sizeOfTheMatrix[0] = j
+        }
+        if (matrixVariable[j][i].textData !== "" && sizeOfTheMatrix[1] < i) {
+          sizeOfTheMatrix[1] = i
+        }
+      }
+    }
+    setMatrixActiveSize(sizeOfTheMatrix)
+  }, [matrixVariable])
+
+  useEffect(() => {
+    handleMatrixSizeChange()
+  }, [handleMatrixSizeChange, matrixVariable])
 
   if (!quizItemAnswerState) {
     return <div></div>
@@ -65,13 +85,24 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
     } else {
       newOptionCells = matrixVariable
     }
-
+    let isValid = null
+    for (let j = 0; j <= matrixActiveSize[0]; j++) {
+      for (let i = 0; i <= matrixActiveSize[1]; i++) {
+        if (newOptionCells[j][i].textData === "") {
+          isValid = false
+        }
+      }
+    }
+    if (isValid === null) {
+      isValid = true
+    }
     const newItemAnswer: QuizItemAnswer = {
       ...quizItemAnswerState,
       optionCells: newOptionCells,
-      valid: true,
+      valid: isValid,
     }
     setQuizItemAnswerState(newItemAnswer)
+    handleMatrixSizeChange()
   }
 
   const findOptionText = (column: number, row: number): string => {
@@ -123,6 +154,7 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
                           option={cellOption}
                           findOptionText={findOptionText}
                           handleOptionSelect={handleOptionSelect}
+                          matrixSize={matrixActiveSize}
                         >
                           {" "}
                         </MatrixCell>

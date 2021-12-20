@@ -26,7 +26,8 @@ const TableCellContent: React.FC<TableCellContentProps> = ({
         key={`cell ${rowLoop} ${columnLoop}`}
         className={css`
           padding: 0;
-          font-size: 30px;
+          font-size: 22px;
+          font-family: Josefin Sans, sans-serif;
         `}
       >
         <input

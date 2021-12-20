@@ -9,6 +9,7 @@ export interface MatrixCellProps {
   option: MatrixItemAnswer
   findOptionText: (column: number, row: number) => string
   handleOptionSelect: (text: string, option: MatrixItemAnswer, column: number, row: number) => void
+  matrixSize: number[]
 }
 
 const MatrixCell: React.FunctionComponent<MatrixCellProps> = ({
@@ -17,6 +18,7 @@ const MatrixCell: React.FunctionComponent<MatrixCellProps> = ({
   findOptionText,
   option,
   handleOptionSelect,
+  matrixSize,
 }) => {
   const [isActive, setIsActive] = useState(false)
 
@@ -25,7 +27,8 @@ const MatrixCell: React.FunctionComponent<MatrixCellProps> = ({
       key={`cell ${row} ${column}`}
       className={css`
         padding: 0;
-        font-size: 30px;
+        font-size: 22px;
+        font-family: Josefin Sans, sans-serif;
       `}
     >
       {
@@ -41,14 +44,18 @@ const MatrixCell: React.FunctionComponent<MatrixCellProps> = ({
             text-align: center;
             resize: none;
             ${findOptionText(column, row).length === 0 &&
+            (column > matrixSize[0] || row > matrixSize[1]) &&
             `
                               background-color: #ECECEC;
                             `}
-            ${isActive &&
-            findOptionText(column, row).length === 0 &&
-            `
+            ${(option.textData !== "" && column > matrixSize[0]) ||
+            (option.textData !== "" &&
+              row > matrixSize[1] &&
+              isActive &&
+              findOptionText(column, row).length === 0 &&
+              `
                                 background-color: #DBDBDB;
-                                `}
+                                `)}
           `}
           value={findOptionText(column, row) ?? ""}
           onSelect={() => setIsActive(!isActive)}

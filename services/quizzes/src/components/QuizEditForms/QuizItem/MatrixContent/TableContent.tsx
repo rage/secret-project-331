@@ -48,21 +48,14 @@ const TableContent: React.FC<TableContentProps> = ({ item }) => {
   })
 
   const handleMatrixSizeChange = React.useCallback(() => {
-    let sizeOfTheMatrix = [0, 0]
+    const sizeOfTheMatrix = [0, 0]
     for (let j = 0; j < 6; j++) {
       for (let i = 0; i < 6; i++) {
-        if (
-          (matrixVariable[j][i].textData !== "" &&
-            sizeOfTheMatrix[0] < j &&
-            sizeOfTheMatrix[1] < i) ||
-          (matrixVariable[j][i].textData !== "" &&
-            sizeOfTheMatrix[0] === j &&
-            sizeOfTheMatrix[1] < i) ||
-          (matrixVariable[j][i].textData !== "" &&
-            sizeOfTheMatrix[0] < j &&
-            sizeOfTheMatrix[1] === i)
-        ) {
-          sizeOfTheMatrix = [j, i]
+        if (matrixVariable[j][i].textData !== "" && sizeOfTheMatrix[0] < j) {
+          sizeOfTheMatrix[0] = j
+        }
+        if (matrixVariable[j][i].textData !== "" && sizeOfTheMatrix[1] < i) {
+          sizeOfTheMatrix[1] = i
         }
       }
     }

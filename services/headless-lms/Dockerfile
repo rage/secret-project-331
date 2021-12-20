@@ -10,10 +10,13 @@ USER user
 ENV CARGO_HOME=/home/user/.cargo \
   PATH=/home/user/.cargo/bin:$PATH
 
-# Copying only Cargo.toml and Cargo.lock will allow the compilation of dependencies
+# Copying only Cargo.tomls and Cargo.lock will allow the compilation of dependencies
 # to be cached as long as these two files don't change
 COPY --chown=user Cargo.toml .
 COPY --chown=user Cargo.lock .
+COPY --chown=user server/Cargo.toml .
+COPY --chown=user models/Cargo.toml .
+COPY --chown=user utils/Cargo.toml .
 
 # Compile dependencies
 RUN cargo build && rm src/main.rs

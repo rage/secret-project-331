@@ -14,6 +14,9 @@ ENV CARGO_HOME=/home/user/.cargo \
 # to be cached as long as these two files don't change
 COPY --chown=user Cargo.toml .
 COPY --chown=user Cargo.lock .
+COPY --chown=user server/Cargo.toml .
+COPY --chown=user models/Cargo.toml .
+COPY --chown=user utils/Cargo.toml .
 
 # Compile dependencies
 RUN cargo build --release && rm src/main.rs

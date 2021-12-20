@@ -19,12 +19,17 @@ export interface ItemAnswerFeedback {
   quiz_item_option_feedbacks: OptionAnswerFeedback[] | null
 }
 
+export interface EssayItemAnswerFeedback {
+  quiz_item_id: string | null
+  submit_message: string | null
+}
+
 interface QuizzesGradingResult {
   grading_progress: "FullyGraded" | "Pending" | "PendingManual" | "Failed"
   score_given: number
   score_maximum: number
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  feedback_json: ItemAnswerFeedback[]
+  feedback_json: (ItemAnswerFeedback | EssayItemAnswerFeedback)[]
 }
 
 interface QuizItemAnswerGrading {
@@ -152,36 +157,43 @@ function submissionFeedback(
   submission: QuizAnswer,
   quiz: Quiz,
   quizItemgradings: QuizItemAnswerGrading[],
-): ItemAnswerFeedback[] {
-  const feedbacks: ItemAnswerFeedback[] = submission.itemAnswers.map((ia) => {
-    const item = quiz.items.find((i) => i.id === ia.quizItemId)
-    const itemGrading = quizItemgradings.find((ig) => ig.quizItemId === ia.quizItemId)
-    if (!item || !itemGrading) {
-      return { quiz_item_id: null, quiz_item_feedback: null, quiz_item_option_feedbacks: null }
-    }
-    if (
-      item.type === "multiple-choice" ||
-      item.type === "clickable-multiple-choice" ||
-      item.type === "multiple-choice-dropdown"
-    ) {
-      return {
-        quiz_item_id: item.id,
-        quiz_item_feedback: null,
-        quiz_item_option_feedbacks: itemGrading.correct
-          ? item.options
-              .filter((o) => o.correct)
-              .map((o) => {
-                return { option_id: o.id, option_feedback: o.successMessage }
-              })
-          : null,
+): (ItemAnswerFeedback | EssayItemAnswerFeedback)[] {
+  const feedbacks: (ItemAnswerFeedback | EssayItemAnswerFeedback)[] = submission.itemAnswers.map(
+    (ia) => {
+      const item = quiz.items.find((i) => i.id === ia.quizItemId)
+      const itemGrading = quizItemgradings.find((ig) => ig.quizItemId === ia.quizItemId)
+      if (!item || !itemGrading) {
+        return { quiz_item_id: null, quiz_item_feedback: null, quiz_item_option_feedbacks: null }
       }
-    } else {
-      return {
-        quiz_item_id: item.id,
-        quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
-        quiz_item_option_feedbacks: null,
+      if (
+        item.type === "multiple-choice" ||
+        item.type === "clickable-multiple-choice" ||
+        item.type === "multiple-choice-dropdown"
+      ) {
+        return {
+          quiz_item_id: item.id,
+          quiz_item_feedback: null,
+          quiz_item_option_feedbacks: itemGrading.correct
+            ? item.options
+                .filter((o) => o.correct)
+                .map((o) => {
+                  return { option_id: o.id, option_feedback: o.successMessage }
+                })
+            : null,
+        }
+      } else if (item.type === "essay") {
+        return {
+          quiz_item_id: item.id,
+          submit_message: quiz.submitMessage,
+        }
+      } else {
+        return {
+          quiz_item_id: item.id,
+          quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
+          quiz_item_option_feedbacks: null,
+        }
       }
-    }
-  })
+    },
+  )
   return feedbacks
 }

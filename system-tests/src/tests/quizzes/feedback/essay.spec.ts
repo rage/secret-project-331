@@ -55,11 +55,13 @@ test("test", async ({ headless, page }) => {
   Morbi tristique senectus et netus et malesuada fames ac turpis. Sollicitudin ac orci phasellus egestas tellus rutrum tellus. Facilisis volutpat est velit egestas dui id ornare. Nisl nisi scelerisque eu ultrices vitae auctor eu augue. Elementum facilisis leo vel fringilla est ullamcorper eget nulla. Scelerisque purus semper eget duis at tellus at urna condimentum. Gravida dictum fusce ut placerat orci nulla pellentesque. Curabitur vitae nunc sed velit dignissim sodales. Magna fermentum iaculis eu non. Tincidunt id aliquet risus feugiat in ante metus dictum at. Augue eget arcu dictum varius. Aliquet eget sit amet tellus cras adipiscing enim eu turpis.`,
   )
 
+  await page.click("text=Submit")
+
   await expectScreenshotsToMatchSnapshots({
     frame,
     headless,
     snapshotName: "essay-feedback",
-    waitForThisToBeVisibleAndStable: `text=write an essay`,
+    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 })

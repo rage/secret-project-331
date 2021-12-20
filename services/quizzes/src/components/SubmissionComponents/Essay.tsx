@@ -1,6 +1,7 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
 
+import { EssayItemAnswerFeedback } from "../../pages/api/grade"
 import { quizTheme } from "../../styles/QuizStyles"
 import { QuizItemSubmissionComponentProps } from "../Submission"
 
@@ -24,8 +25,8 @@ const EssayFeedback: React.FC<QuizItemSubmissionComponentProps> = ({ quiz_item_f
         `}
       >
         <div className={cx(SubmissionMessageStyles)}>
-          {quiz_item_feedback.quiz_item_feedback
-            ? quiz_item_feedback.quiz_item_feedback
+          {(quiz_item_feedback as EssayItemAnswerFeedback).submit_message
+            ? (quiz_item_feedback as EssayItemAnswerFeedback).submit_message
             : DEFAULT_SUBMIT_MESSAGE}
         </div>
       </div>

@@ -8,7 +8,7 @@ import {
   QuizAnswer,
   QuizItemAnswer,
 } from "../../types/types"
-import { ItemAnswerFeedback } from "../pages/api/grade"
+import { EssayItemAnswerFeedback, ItemAnswerFeedback } from "../pages/api/grade"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 
 import EssayFeedback from "./SubmissionComponents/Essay"
@@ -20,13 +20,13 @@ interface SubmissionProps {
   user_answer: QuizAnswer
   publicAlternatives: PublicQuiz
   modelSolutions: ModelSolutionQuiz
-  feedback_json: ItemAnswerFeedback[] | null
+  feedback_json: (ItemAnswerFeedback | EssayItemAnswerFeedback)[] | null
 }
 
 export interface QuizItemSubmissionComponentProps {
   public_quiz_item: PublicQuizItem
   quiz_item_model_solution: ModelSolutionQuizItem
-  quiz_item_feedback: ItemAnswerFeedback | null
+  quiz_item_feedback: ItemAnswerFeedback | EssayItemAnswerFeedback | null
   user_quiz_item_answer: QuizItemAnswer
 }
 

@@ -523,21 +523,34 @@ RETURNING user_id,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct CourseInstancePoints {
+pub struct CourseInstanceUserPoints {
     pub user_id: Uuid,
-    pub points_for_each_chapter: Vec<Inner>,
+    pub points_for_each_chapter: Vec<CourseInstanceUserPointsInner>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct Inner {
+pub struct CourseInstanceUserPointsInner {
     pub chapter_number: i32,
     pub points_for_chapter: f32,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct ExamUserPoints {
+    pub user_id: Uuid,
+    pub email: String,
+    pub points_for_exercise: Vec<ExamUserPointsInner>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct ExamUserPointsInner {
+    pub exercise_id: Uuid,
+    pub score_given: f32,
 }
 
 pub fn stream_course_instance_points(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
-) -> impl Stream<Item = sqlx::Result<CourseInstancePoints>> + '_ {
+) -> impl Stream<Item = sqlx::Result<CourseInstanceUserPoints>> + '_ {
     sqlx::query!(
         "
 SELECT user_id,
@@ -569,9 +582,50 @@ GROUP BY user_id
         let user_id = i.user_id;
         let points_for_each_chapter = i.points_for_each_chapter.unwrap_or(Value::Null);
         serde_json::from_value(points_for_each_chapter)
-            .map(|points_for_each_chapter| CourseInstancePoints {
+            .map(|points_for_each_chapter| CourseInstanceUserPoints {
                 user_id,
                 points_for_each_chapter,
+            })
+            .map_err(|e| sqlx::Error::Decode(Box::new(e)))
+    })
+    .fetch(conn)
+}
+
+pub fn stream_exam_points(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+) -> impl Stream<Item = sqlx::Result<ExamUserPoints>> + '_ {
+    sqlx::query!(
+        "
+SELECT user_id,
+  email,
+  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_exercises
+FROM (
+    SELECT u.id AS user_id,
+      u.email,
+      exercise_id,
+      COALESCE(score_given, 0) as score_given
+    FROM user_exercise_states ues
+      JOIN users u ON u.id = ues.user_id
+      JOIN exercises e ON e.id = ues.exercise_id
+    WHERE ues.exam_id = $1
+      AND ues.deleted_at IS NULL
+      AND u.deleted_at IS NULL
+      AND e.deleted_at IS NULL
+  ) as uue
+GROUP BY user_id,
+  email
+",
+        exam_id
+    )
+    .try_map(|i| {
+        let user_id = i.user_id;
+        let points_for_exercises = i.points_for_exercises.unwrap_or(Value::Null);
+        serde_json::from_value(points_for_exercises)
+            .map(|points_for_exercise| ExamUserPoints {
+                user_id,
+                points_for_exercise,
+                email: i.email,
             })
             .map_err(|e| sqlx::Error::Decode(Box::new(e)))
     })

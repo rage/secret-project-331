@@ -1,12 +1,17 @@
-use crate::models::{chapters, course_instances, user_exercise_states};
+use crate::{
+    controllers::ControllerResult,
+    models::{chapters, course_instances, exercises, submissions, user_exercise_states},
+};
 use anyhow::{Context, Result};
+use bytes::Bytes;
 use csv::Writer;
 use futures::stream::FuturesUnordered;
 use sqlx::PgConnection;
-use std::array::IntoIter;
 use std::collections::HashMap;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
+use std::{array::IntoIter, io};
+use tokio::sync::mpsc::UnboundedSender;
 use tokio::task::JoinHandle;
 use tokio_stream::StreamExt;
 use uuid::Uuid;
@@ -136,6 +141,110 @@ where
     }
     let writer = writer.finish().await?;
     Ok(writer)
+}
+
+// Writes the points as csv into the writer
+pub async fn export_exam_points<W>(conn: &mut PgConnection, exam_id: Uuid, writer: W) -> Result<W>
+where
+    W: Write + Send + 'static,
+{
+    let csv_fields_before_headers = 2;
+
+    let mut exercises = exercises::get_exercises_by_exam_id(conn, exam_id).await?;
+    // I's fine to sort just by order number because exams have no chapters
+    exercises.sort_by(|a, b| return a.order_number.cmp(&b.order_number));
+
+    let mut exercise_id_to_header_idx = HashMap::new();
+    for (idx, exercise) in exercises.iter().enumerate() {
+        exercise_id_to_header_idx.insert(exercise.id, csv_fields_before_headers + idx);
+    }
+
+    let header_count = csv_fields_before_headers + exercises.len();
+    // remember to update csv_fields_before_headers if this changes!
+    let headers = IntoIter::new(["user_id".to_string(), "email".to_string()]).chain(
+        exercises
+            .into_iter()
+            .map(|e| format!("{}: {}", e.order_number, e.name)),
+    );
+
+    let mut stream = user_exercise_states::stream_exam_points(conn, exam_id);
+
+    let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
+    while let Some(next) = stream.try_next().await? {
+        let mut csv_row = vec!["0".to_string(); header_count];
+        csv_row[0] = next.user_id.to_string();
+        csv_row[1] = next.email;
+        for points in next.points_for_exercise {
+            let idx = exercise_id_to_header_idx
+                .get(&points.exercise_id)
+                .with_context(|| format!("Unexpected exercise id {}", points.exercise_id))?;
+            let item = csv_row
+                .get_mut(*idx)
+                .with_context(|| format!("Invalid index {}", idx))?;
+            *item = points.score_given.to_string();
+        }
+        writer.write_record(csv_row);
+    }
+    let writer = writer.finish().await?;
+    Ok(writer)
+}
+
+// Writes the submissions as csv into the writer
+pub async fn export_exam_submissions<W>(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    writer: W,
+) -> Result<W>
+where
+    W: Write + Send + 'static,
+{
+    let headers = IntoIter::new([
+        "id".to_string(),
+        "user_id".to_string(),
+        "created_at".to_string(),
+        "exercise_id".to_string(),
+        "exercise_task_id".to_string(),
+        "score_given".to_string(),
+        "data_json".to_string(),
+    ]);
+
+    let mut stream = submissions::stream_exam_submissions(conn, exam_id);
+
+    let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
+    while let Some(next) = stream.try_next().await? {
+        let csv_row = vec![
+            next.id.to_string(),
+            next.user_id.to_string(),
+            next.created_at.to_string(),
+            next.exercise_id.to_string(),
+            next.exercise_task_id.to_string(),
+            next.score_given.unwrap_or(0.0).to_string(),
+            next.data_json
+                .map(|o| o.to_string())
+                .unwrap_or("".to_string()),
+        ];
+        writer.write_record(csv_row);
+    }
+    let writer = writer.finish().await?;
+    Ok(writer)
+}
+
+pub struct CSVExportAdapter {
+    pub sender: UnboundedSender<ControllerResult<Bytes>>,
+}
+
+impl Write for CSVExportAdapter {
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        let bytes = Bytes::copy_from_slice(buf);
+        self.sender
+            .send(Ok(bytes))
+            .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
+        Ok(buf.len())
+    }
 }
 
 #[cfg(test)]

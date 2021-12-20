@@ -32,7 +32,8 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
           .course_id as NonNullable<string>,
       ),
     {
-      enabled: open && coursePageState.state === "ready",
+      enabled:
+        coursePageState.pageData?.course_id !== null && open && coursePageState.state === "ready",
     },
   )
 
@@ -57,6 +58,11 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
     },
     [onClose],
   )
+
+  if (coursePageState.pageData?.course_id === null) {
+    // No course id
+    return <></>
+  }
 
   if (!open) {
     return null

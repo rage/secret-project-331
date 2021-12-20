@@ -123,7 +123,7 @@ function assesMultipleChoiceQuizzes(
   quizItem: QuizItem,
 ): QuizItemAnswerGrading {
   // Throws an error if no option answers
-  if (!quizItemAnswer.optionAnswers) {
+  if (!quizItemAnswer.optionAnswers || quizItemAnswer.optionAnswers.length === 0) {
     throw new Error("No option answers")
   }
 

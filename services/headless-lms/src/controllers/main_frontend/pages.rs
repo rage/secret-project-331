@@ -146,8 +146,11 @@ async fn history(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
     pagination: web::Query<Pagination>,
+    user: AuthUser,
 ) -> ControllerResult<Json<Vec<PageHistory>>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Action::View, user.id, Resource::Page(*page_id)).await?;
+
     let res =
         crate::models::page_history::history(&mut conn, page_id.into_inner(), &pagination).await?;
     Ok(Json(res))
@@ -159,8 +162,11 @@ GET /api/v0/main-frontend/pages/:page_id/history_count
 async fn history_count(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ControllerResult<Json<i64>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Action::View, user.id, Resource::Page(*page_id)).await?;
+
     let res = crate::models::page_history::history_count(&mut conn, page_id.into_inner()).await?;
     Ok(Json(res))
 }
@@ -175,6 +181,8 @@ async fn restore(
     user: AuthUser,
 ) -> ControllerResult<Json<Uuid>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Action::Edit, user.id, Resource::Page(*page_id)).await?;
+
     let res = crate::models::pages::restore(
         &mut conn,
         page_id.into_inner(),

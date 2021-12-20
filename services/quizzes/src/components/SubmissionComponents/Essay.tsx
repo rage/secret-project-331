@@ -3,7 +3,8 @@ import React from "react"
 
 import { EssayItemAnswerFeedback } from "../../pages/api/grade"
 import { quizTheme } from "../../styles/QuizStyles"
-import { QuizItemSubmissionComponentProps } from "../Submission"
+
+import { QuizItemSubmissionComponentProps } from "."
 
 // eslint-disable-next-line i18next/no-literal-string
 const SubmissionMessageStyles = css`

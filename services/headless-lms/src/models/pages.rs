@@ -972,6 +972,7 @@ SET exercise_slide_id = $2,
   assignment = $4,
   public_spec = $5,
   private_spec = $6,
+  model_solution_spec = $7,
   deleted_at = NULL
 RETURNING id,
   exercise_slide_id,

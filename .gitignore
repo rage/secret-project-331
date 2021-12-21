@@ -135,3 +135,6 @@ system-tests/src/states/
 
 # Typescript
 *.tsbuildinfo
+
+# Super secret folders
+hidden/

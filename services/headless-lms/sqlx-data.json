@@ -7325,6 +7325,42 @@
       "nullable": [false, false, false, true, true, false, true, true, true, false]
     }
   },
+  "c50665dd8a1d79db9c17472c71ae34e34c8b51fac261959d30f58e93abf2a689": {
+    "query": "\nINSERT INTO exercise_tasks(\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    public_spec,\n    private_spec,\n    model_solution_spec\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO\nUPDATE\nSET exercise_slide_id = $2,\n  exercise_type = $3,\n  assignment = $4,\n  public_spec = $5,\n  private_spec = $6,\n  model_solution_spec = $7,\n  deleted_at = NULL\nRETURNING id,\n  exercise_slide_id,\n  assignment,\n  exercise_type,\n  private_spec;\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_slide_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "assignment",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 3,
+          "name": "exercise_type",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "private_spec",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb", "Jsonb"]
+      },
+      "nullable": [false, false, false, false, true]
+    }
+  },
   "c515ee82610c997f53c83f72ddf8426145e47cf0d9476d2281506c139af86cb6": {
     "query": "\nUPDATE pages\nSET content = $1\nWHERE id = $2;\n",
     "describe": {
@@ -7580,42 +7616,6 @@
         "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid"]
       },
       "nullable": []
-    }
-  },
-  "d2945d7876bf8cf7ab482b20d07cdb72308a89d9d8316653a60af1fbd9a2c1fd": {
-    "query": "\nINSERT INTO exercise_tasks(\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    public_spec,\n    private_spec,\n    model_solution_spec\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO\nUPDATE\nSET exercise_slide_id = $2,\n  exercise_type = $3,\n  assignment = $4,\n  public_spec = $5,\n  private_spec = $6,\n  deleted_at = NULL\nRETURNING id,\n  exercise_slide_id,\n  assignment,\n  exercise_type,\n  private_spec;\n                ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "exercise_slide_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "assignment",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 3,
-          "name": "exercise_type",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "private_spec",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb", "Jsonb"]
-      },
-      "nullable": [false, false, false, false, true]
     }
   },
   "d309be59564d69ecad6e11cc6976649092966ea2236abd7c8ca72e64f78f8fcc": {

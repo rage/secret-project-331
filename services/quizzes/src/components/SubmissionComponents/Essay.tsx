@@ -1,37 +1,44 @@
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
-import { EssayItemAnswerFeedback } from "../../pages/api/grade"
-import { quizTheme } from "../../styles/QuizStyles"
+import { baseTheme } from "../../shared-module/styles"
+import { wordCount } from "../../shared-module/utils/strings"
 
 import { QuizItemSubmissionComponentProps } from "."
 
-// eslint-disable-next-line i18next/no-literal-string
-const SubmissionMessageStyles = css`
-  display: flex;
-  flex: 1;
-  font-size: ${quizTheme.quizBodyFontSize};
-`
-
-const DEFAULT_SUBMIT_MESSAGE = "your answer has been submited"
-
-const EssayFeedback: React.FC<QuizItemSubmissionComponentProps> = ({ quiz_item_feedback }) => {
+const EssayFeedback: React.FC<QuizItemSubmissionComponentProps> = ({ user_quiz_item_answer }) => {
+  const { t } = useTranslation()
+  const text = user_quiz_item_answer.textData
   return (
-    quiz_item_feedback && (
-      <div
+    <div
+      className={css`
+        display: flex;
+        flex: 1;
+        flex-wrap: wrap;
+        margin: 0.5;
+        background: ${baseTheme.colors.grey[300]};
+      `}
+    >
+      <pre
         className={css`
           display: flex;
-          flex: 1;
-          margin: 0.5;
+          white-space: pre-wrap;
+          font-family: josefin sans, sans-serif;
         `}
       >
-        <div className={cx(SubmissionMessageStyles)}>
-          {(quiz_item_feedback as EssayItemAnswerFeedback).submit_message
-            ? (quiz_item_feedback as EssayItemAnswerFeedback).submit_message
-            : DEFAULT_SUBMIT_MESSAGE}
-        </div>
-      </div>
-    )
+        {`${t("word-count")}: ${wordCount(text)}`}
+      </pre>
+      <pre
+        className={css`
+          display: flex;
+          font-family: josefin sans, sans-serif;
+          white-space: pre-wrap;
+        `}
+      >
+        {text}
+      </pre>
+    </div>
   )
 }
 

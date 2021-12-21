@@ -1905,6 +1905,7 @@
 <span id="1905">1905</span>
 <span id="1906">1906</span>
 <span id="1907">1907</span>
+<span id="1908">1908</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">ChapterStatus</span>},
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>},
@@ -2879,6 +2880,7 @@ SET exercise_slide_id = $2,
   assignment = $4,
   public_spec = $5,
   private_spec = $6,
+  model_solution_spec = $7,
   deleted_at = NULL
 RETURNING id,
   exercise_slide_id,

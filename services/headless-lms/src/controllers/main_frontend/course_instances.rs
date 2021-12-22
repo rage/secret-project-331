@@ -2,7 +2,10 @@
 
 use crate::{
     controllers::ControllerResult,
-    domain::{authorization::AuthUser, csv_export},
+    domain::{
+        authorization::AuthUser,
+        csv_export::{self, CSVExportAdapter},
+    },
     models::{
         course_instances::{self, CourseInstance, CourseInstanceForm, Points},
         courses,
@@ -17,8 +20,6 @@ use actix_web::{
 use bytes::Bytes;
 use chrono::Utc;
 use sqlx::PgPool;
-use std::io::{self, Write};
-use tokio::sync::mpsc::UnboundedSender;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use uuid::Uuid;
 
@@ -72,24 +73,6 @@ async fn get_email_templates_by_course_instance_id(
     Ok(Json(email_templates))
 }
 
-struct Adapter {
-    sender: UnboundedSender<ControllerResult<Bytes>>,
-}
-
-impl Write for Adapter {
-    fn flush(&mut self) -> std::io::Result<()> {
-        Ok(())
-    }
-
-    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        let bytes = Bytes::copy_from_slice(buf);
-        self.sender
-            .send(Ok(bytes))
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
-        Ok(buf.len())
-    }
-}
-
 #[instrument(skip(pool))]
 pub async fn point_export(
     course_instance_id: web::Path<Uuid>,
@@ -106,7 +89,7 @@ pub async fn point_export(
         let res = csv_export::export_course_instance_points(
             &mut handle_conn,
             course_instance_id,
-            Adapter { sender },
+            CSVExportAdapter { sender },
         )
         .await;
         if let Err(err) = res {

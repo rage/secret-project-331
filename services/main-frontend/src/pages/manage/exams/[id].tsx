@@ -7,7 +7,9 @@ import Layout from "../../../components/Layout"
 import { fetchExam, setCourse, unsetCourse } from "../../../services/backend/exams"
 import { ErrorResponse } from "../../../shared-module/bindings"
 import { isErrorResponse } from "../../../shared-module/bindings.guard"
+import Button from "../../../shared-module/components/Button"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
+import TextField from "../../../shared-module/components/InputFields/TextField"
 import Spinner from "../../../shared-module/components/Spinner"
 import { wideWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
@@ -70,38 +72,63 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             <h1>
               {getExam.data.name} {getExam.data.id}
             </h1>
-            <div>
-              <a href={`/cms/pages/${getExam.data.page_id}`}>{t("manage-page")}</a> (
-              {getExam.data.page_id})
-            </div>
+            <ul
+              className={css`
+                list-style-type: none;
+                padding-left: 0;
+              `}
+            >
+              <li>
+                <a href={`/cms/pages/${getExam.data.page_id}`}>{t("manage-page")}</a> (
+                {getExam.data.page_id})
+              </li>
+              <li>
+                <a href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-points`}>
+                  {t("link-export-points")}
+                </a>
+              </li>
+              <li>
+                <a href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-submissions`}>
+                  {t("link-export-submissions")}
+                </a>
+              </li>
+            </ul>
             <h2>{t("courses")}</h2>
             {getExam.data.courses.map((c) => (
               <div key={c.id}>
                 <a href={`/manage/courses/${c.id}`}>{c.name}</a> ({c.id}){" "}
-                <button
+                <Button
                   onClick={() => {
                     unsetCourseMutation.mutate({ examId: getExam.data.id, courseId: c.id })
                   }}
+                  variant={"secondary"}
+                  size={"medium"}
                 >
                   {t("button-text-remove")}
-                </button>
+                </Button>
               </div>
             ))}
-            <label htmlFor={"input"}>{t("add-course")}:</label>
-            <input
-              id={"input"}
+            <TextField
+              label={t("add-course")}
+              onChange={function (value: string): void {
+                setNewCourse(value)
+              }}
               placeholder={t("course-id")}
-              value={newCourse}
-              onChange={(ev) => setNewCourse(ev.target.value)}
-            />
-            <button
+              className={css`
+                margin-bottom: 1rem;
+              `}
+            ></TextField>
+
+            <Button
               onClick={() => {
                 setCourseMutation.mutate({ examId: getExam.data.id, courseId: newCourse })
                 setNewCourse("")
               }}
+              variant={"secondary"}
+              size={"medium"}
             >
               {t("add-course")}
-            </button>
+            </Button>
             {errorResponse && <div>{JSON.stringify(errorResponse, undefined, 2)}</div>}
           </>
         )}

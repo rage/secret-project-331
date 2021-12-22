@@ -13,6 +13,7 @@ use crate::{
     utils::pagination::Pagination,
 };
 use chrono::{DateTime, NaiveDate, Utc};
+use futures::Stream;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::PgConnection;
@@ -105,6 +106,17 @@ pub struct SubmissionData {
     pub course_instance_id: Uuid,
     pub data_json: Value,
     pub id: Uuid,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+pub struct ExportedSubmission {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub exercise_id: Uuid,
+    pub exercise_task_id: Uuid,
+    pub score_given: Option<f32>,
+    pub data_json: Option<serde_json::Value>,
 }
 
 pub async fn get_submission(
@@ -439,4 +451,31 @@ WHERE id = $2
     .execute(conn)
     .await?;
     Ok(())
+}
+
+pub fn stream_exam_submissions(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+) -> impl Stream<Item = sqlx::Result<ExportedSubmission>> + '_ {
+    sqlx::query_as!(
+        ExportedSubmission,
+        "
+SELECT submissions.id,
+  user_id,
+  submissions.created_at,
+  submissions.exercise_id,
+  submissions.exercise_task_id,
+  gradings.score_given,
+  submissions.data_json
+FROM submissions
+  JOIN gradings on submissions.grading_id = gradings.id
+  JOIN exercises on submissions.exercise_id = exercises.id
+WHERE submissions.exam_id = $1
+  AND submissions.deleted_at IS NULL
+  AND gradings.deleted_at IS NULL
+  AND exercises.deleted_at IS NULL;
+",
+        exam_id
+    )
+    .fetch(conn)
 }

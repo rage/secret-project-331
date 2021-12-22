@@ -14,6 +14,7 @@ interface TextFieldExtraProps {
   value?: string
   /* onBlur?: (event: React.FocusEvent<HTMLSelectElement>) => void */
   onChange: (value: string, name?: string) => void
+  className?: string
 }
 
 const ERRORCOLOR = "#F76D82"
@@ -62,9 +63,9 @@ const ERROR = "Please check the secret box"
 
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldExtraProps
 
-const TextField = ({ onChange, ...rest }: TextFieldExtraProps) => {
+const TextField = ({ onChange, className, ...rest }: TextFieldExtraProps) => {
   return (
-    <>
+    <div className={className}>
       <label>
         <span className={cx(label)}>{rest.label}</span>
         <Input
@@ -78,7 +79,7 @@ const TextField = ({ onChange, ...rest }: TextFieldExtraProps) => {
           {ERROR}
         </span>
       )}
-    </>
+    </div>
   )
 }
 

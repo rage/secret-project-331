@@ -10,15 +10,17 @@ RUN apt-get update \
 RUN git clone https://github.com/rui314/mold.git \
   && cd mold \
   && git checkout v1.0.0 \
-  && make -j$(nproc) \
-  && sudo make install
+  && make -j$(nproc)
 
 FROM rust:bullseye
 
-# Switch to use the mold linker for better compile times
-ENV RUSTFLAGS='-C link-arg=/usr/local/bin/mold'
+COPY --from=mold-builder /mold/mold /usr/local/bin/
 
-COPY --from=mold-builder /usr/local/bin/mold /usr/local/bin/
+# Switch to use the mold linker for better compile times
+# Using workaround described in https://github.com/rui314/mold#how-to-use
+RUN mkdir /workaround \
+  && ln -s /usr/local/bin/mold /workaround/ld
+ENV RUSTFLAGS='-C link-arg=-Bworkaround'
 
 RUN apt-get update \
   && apt-get install -yy wait-for-it postgresql-client \

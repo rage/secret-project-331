@@ -121,7 +121,7 @@ mod tests {
     use crate::file_store::FileStore;
     use tempdir::TempDir;
 
-    #[actix_rt::test]
+    #[tokio::test]
     async fn upload_download_delete_works() {
         let dir = TempDir::new("test-local-filestore").expect("Failed to create a temp dir");
         let base_path = dir.into_path();
@@ -152,7 +152,7 @@ mod tests {
         assert!(retrivied_file2.is_err());
     }
 
-    #[actix_rt::test]
+    #[tokio::test]
     async fn get_download_url_works() {
         let dir = TempDir::new("test-local-filestore").expect("Failed to create a temp dir");
         let base_path = dir.into_path();

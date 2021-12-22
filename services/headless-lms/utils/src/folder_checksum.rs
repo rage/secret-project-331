@@ -106,7 +106,7 @@ mod tests {
     use super::*;
 
     #[cfg(not(target_os = "windows"))]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn it_works() {
         let dir = TempDir::new("test-folder-checksum").expect("Failed to create a temp dir");
         File::open(dir.path())

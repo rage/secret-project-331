@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["export_course_instance_points",""]],"struct":[["CsvWriter","Convenience struct for creating CSV data."]]});
+initSidebarItems({"fn":[["export_course_instance_points",""],["export_exam_points",""],["export_exam_submissions",""]],"struct":[["CSVExportAdapter",""],["CsvWriter","Convenience struct for creating CSV data."]]});

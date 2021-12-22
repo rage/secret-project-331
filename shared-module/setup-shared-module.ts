@@ -22,7 +22,7 @@ async function main() {
 
   const promises = targetFolders.map(async (targetFolder) => {
     // rsync is better than cp because it handles deletions and does not trigger a full skaffold rebuild
-    const command = `rsync -a --checksum --delete  '${projectRoot}/shared-module/src/' '${projectRoot}/${targetFolder}/'`
+    const command = `rsync -a --checksum --delete --link-dest='${projectRoot}/shared-module/src/'  '${projectRoot}/shared-module/src/' '${projectRoot}/${targetFolder}/'`
     console.log(`> ${command}`)
     await exec(command)
   })

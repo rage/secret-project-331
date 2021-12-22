@@ -13,6 +13,6 @@ pub async fn get_user(
     Ok(Json(user))
 }
 
-pub fn _add_users_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{user_id}", web::get().to(get_user));
 }

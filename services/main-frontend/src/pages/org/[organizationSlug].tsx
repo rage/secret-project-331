@@ -135,7 +135,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
         event.preventDefault()
         event.stopPropagation()
         // eslint-disable-next-line i18next/no-literal-string
-        router.push(`/courses/${course.slug}`)
+        router.push(`/org/${query.organizationSlug}/courses/${course.slug}`)
       }}
     />
   ))

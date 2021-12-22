@@ -18,9 +18,9 @@ COPY --from=mold-builder /mold/mold /usr/local/bin/
 
 # Switch to use the mold linker for better compile times
 # Using workaround described in https://github.com/rui314/mold#how-to-use
-RUN mkdir /workaround \
-  && ln -s /usr/local/bin/mold /workaround/ld
-ENV RUSTFLAGS='-C link-arg=-Bworkaround'
+RUN mkdir /mold-ld-workaround \
+  && ln -s /usr/local/bin/mold /mold-ld-workaround/ld
+ENV RUSTFLAGS='-C link-arg=-B/mold-ld-workaround'
 
 RUN apt-get update \
   && apt-get install -yy wait-for-it postgresql-client \

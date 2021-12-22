@@ -94,6 +94,7 @@ impl Write for Adapter {
 pub async fn point_export(
     course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();

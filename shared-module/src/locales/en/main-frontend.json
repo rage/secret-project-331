@@ -184,5 +184,9 @@
   "add-course": "Add course",
   "course-id": "Course id",
   "no-submissions": "No submissions found",
-  "playground-examples": "Playground examples"
+  "playground-examples": "Playground examples",
+  "login-description": "This site uses",
+  "login-description2": "accounts. If you have previously done mooc.fi -courses, you can log in with your existing account. On this page you can create a new account, which works on majority of mooc.fi courses and services.",
+  "create-new-account": "Create new account",
+  "forgot-password": "Forgot your password?"
 }

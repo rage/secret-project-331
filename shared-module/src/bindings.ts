@@ -187,14 +187,18 @@ export interface CourseExam {
 export interface Exam {
   id: string
   name: string
+  instructions: string
   page_id: string
   courses: Array<Course>
+  starts_at: Date | null
+  ends_at: Date | null
+  time_minutes: number
 }
 
 export interface ExamEnrollment {
   user_id: string
   exam_id: string
-  started_at: Date | null
+  started_at: Date
 }
 
 export interface CourseMaterialExerciseServiceInfo {
@@ -281,7 +285,7 @@ export interface Exercise {
   course_id: string | null
   exam_id: string | null
   page_id: string
-  chapter_id: string
+  chapter_id: string | null
   deadline: Date | null
   deleted_at: Date | null
   score_maximum: number
@@ -611,13 +615,13 @@ export interface SubmissionInfo {
 
 export interface SubmissionResult {
   submission: Submission
-  grading: Grading
+  grading: Grading | null
   model_solution_spec: unknown | null
 }
 
 export interface NewSubmission {
   exercise_task_id: string
-  course_instance_id: string
+  course_instance_id: string | null
   data_json: unknown | null
 }
 
@@ -651,6 +655,27 @@ export interface User {
   upstream_id: number | null
   email: string
 }
+
+export interface PreviousSubmission {
+  submission: Submission
+  grading: Grading | null
+}
+
+export interface ExamData {
+  id: string
+  name: string
+  instructions: string
+  starts_at: Date
+  ends_at: Date
+  time_minutes: number
+  enrollment_data: ExamEnrollmentData
+}
+
+export type ExamEnrollmentData =
+  | { tag: "EnrolledAndStarted"; page_id: string; page: Page; enrollment: ExamEnrollment }
+  | { tag: "NotEnrolled" }
+  | { tag: "NotYetStarted" }
+  | { tag: "StudentTimeUp" }
 
 export interface ExamCourseInfo {
   course_id: string

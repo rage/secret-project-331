@@ -1,6 +1,5 @@
 import Link from "next/link"
 import React from "react"
-import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchCourseLanguageVersions } from "../../../../../../services/backend/courses"

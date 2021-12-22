@@ -1,32 +1,18 @@
 import React from "react"
 
-import {
-  ModelSolutionQuiz,
-  ModelSolutionQuizItem,
-  PublicQuiz,
-  PublicQuizItem,
-  QuizAnswer,
-  QuizItemAnswer,
-} from "../../types/types"
+import { ModelSolutionQuiz, PublicQuiz, QuizAnswer } from "../../types/types"
 import { ItemAnswerFeedback } from "../pages/api/grade"
-import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 
+import { QuizItemSubmissionComponentProps } from "./SubmissionComponents"
+import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
 import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
 
 interface SubmissionProps {
-  port: MessagePort
   maxWidth: number | null
   user_answer: QuizAnswer
   publicAlternatives: PublicQuiz
-  modelSolutions: ModelSolutionQuiz
+  modelSolutions: ModelSolutionQuiz | null
   feedback_json: ItemAnswerFeedback[] | null
-}
-
-interface QuizItemSubmissionComponentProps {
-  public_quiz_item: PublicQuizItem
-  quiz_item_model_solution: ModelSolutionQuizItem
-  quiz_item_feedback: ItemAnswerFeedback | null
-  user_quiz_item_answer: QuizItemAnswer
 }
 
 type QuizItemType =
@@ -40,7 +26,7 @@ type QuizItemType =
 const componentsByTypeNames = (typeName: QuizItemType) => {
   const mapTypeToComponent: { [key: string]: React.FC<QuizItemSubmissionComponentProps> } = {
     essay: UnsupportedSubmissionViewComponent,
-    "multiple-choice": UnsupportedSubmissionViewComponent,
+    "multiple-choice": MultipleChoiceSubmission,
     checkbox: UnsupportedSubmissionViewComponent,
     scale: UnsupportedSubmissionViewComponent,
     open: UnsupportedSubmissionViewComponent,
@@ -53,22 +39,21 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
 }
 
 const Submission: React.FC<SubmissionProps> = ({
-  port,
   publicAlternatives,
   modelSolutions,
   feedback_json,
   user_answer,
 }) => {
   return (
-    <HeightTrackingContainer port={port}>
+    <>
       {publicAlternatives.items.map((item) => {
         const Component = componentsByTypeNames(item.type as QuizItemType)
         const itemFeedback = feedback_json
           ? feedback_json.filter((itemFeedback) => itemFeedback.quiz_item_id === item.id)[0]
           : null
-        const itemModelSolution = modelSolutions.items.filter(
-          (itemModelSolution) => itemModelSolution.id === item.id,
-        )[0]
+        const itemModelSolution = modelSolutions
+          ? modelSolutions.items.filter((itemModelSolution) => itemModelSolution.id === item.id)[0]
+          : null
         const quizItemAnswer = user_answer.itemAnswers.filter((ia) => ia.quizItemId === item.id)[0]
         return (
           <Component
@@ -80,7 +65,7 @@ const Submission: React.FC<SubmissionProps> = ({
           />
         )
       })}
-    </HeightTrackingContainer>
+    </>
   )
 }
 

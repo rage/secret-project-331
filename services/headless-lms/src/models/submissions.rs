@@ -23,7 +23,8 @@ use uuid::Uuid;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewSubmission {
     pub exercise_task_id: Uuid,
-    pub course_instance_id: Uuid,
+    /// Required when submitting non-exam exercises
+    pub course_instance_id: Option<Uuid>,
     pub data_json: Option<serde_json::Value>,
 }
 
@@ -64,10 +65,10 @@ pub struct SubmissionCountByExercise {
     pub exercise_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct GradingRequest {
-    pub exercise_spec: Option<serde_json::Value>,
-    pub submission_data: Option<serde_json::Value>,
+#[derive(Debug, Serialize, PartialEq, Eq, Clone)]
+pub struct GradingRequest<'a> {
+    pub exercise_spec: &'a Option<serde_json::Value>,
+    pub submission_data: &'a Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -81,9 +82,9 @@ pub struct GradingResult {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct SubmissionResult {
-    submission: Submission,
-    grading: Grading,
-    model_solution_spec: Option<serde_json::Value>,
+    pub submission: Submission,
+    pub grading: Option<Grading>,
+    pub model_solution_spec: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
@@ -307,24 +308,32 @@ LIMIT 1
 
 pub async fn insert_submission(
     conn: &mut PgConnection,
-    new_submission: NewSubmission,
+    new_submission: &NewSubmission,
     user_id: Uuid,
-    exercise: Exercise,
+    exercise: &Exercise,
 ) -> ModelResult<SubmissionResult> {
     let submission = sqlx::query_as!(
         Submission,
         r#"
-  INSERT INTO
-    submissions(exercise_task_id, data_json, exercise_id, course_id, user_id, course_instance_id)
-  VALUES($1, $2, $3, $4, $5, $6)
-  RETURNING *
-          "#,
+INSERT INTO submissions(
+    exercise_task_id,
+    data_json,
+    exercise_id,
+    course_id,
+    user_id,
+    course_instance_id,
+    exam_id
+  )
+VALUES($1, $2, $3, $4, $5, $6, $7)
+RETURNING *
+"#,
         new_submission.exercise_task_id,
         new_submission.data_json,
         exercise.id,
         exercise.course_id,
         user_id,
-        new_submission.course_instance_id
+        new_submission.course_instance_id,
+        exercise.exam_id,
     )
     .fetch_one(&mut *conn)
     .await?;
@@ -338,14 +347,14 @@ pub async fn insert_submission(
     )
     .fetch_one(&mut *conn)
     .await?;
-    let updated_grading =
-        grade_submission(conn, submission.clone(), exercise_task, exercise, grading).await?;
+    let grading = grade_submission(conn, &submission, &exercise_task, exercise, &grading).await?;
+
     let model_solution_spec =
         get_exercise_task_model_solution_spec_by_id(conn, submission.exercise_task_id).await?;
 
     Ok(SubmissionResult {
         submission: updated_submission,
-        grading: updated_grading,
+        grading: Some(grading),
         model_solution_spec,
     })
 }

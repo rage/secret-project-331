@@ -59,6 +59,6 @@ async fn get_submission_info(
     }))
 }
 
-pub fn _add_submissions_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{submission_id}/info", web::get().to(get_submission_info));
 }

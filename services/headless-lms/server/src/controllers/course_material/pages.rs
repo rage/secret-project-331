@@ -61,7 +61,7 @@ async fn get_url_path(
     Ok(page.url_path)
 }
 
-pub fn _add_pages_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/exam/{page_id}", web::get().to(get_by_exam_id))
         .route("/{current_page_id}/next-page", web::get().to(get_next_page))
         .route("/{current_page_id}/url-path", web::get().to(get_url_path));

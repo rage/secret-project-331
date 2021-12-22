@@ -127,7 +127,7 @@ pub async fn logged_in(session: Session) -> Json<bool> {
     Json(logged_in)
 }
 
-pub fn add_auth_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/login", web::post().to(login))
         .route("/logout", web::post().to(logout))
         .route("/logged-in", web::get().to(logged_in));

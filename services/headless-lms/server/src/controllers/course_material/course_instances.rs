@@ -164,7 +164,7 @@ async fn add_user_enrollment(
     Ok(Json(enrollment))
 }
 
-pub fn _add_user_progress_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/{course_instance_id}/enroll",
         web::post().to(add_user_enrollment),

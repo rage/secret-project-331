@@ -110,7 +110,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_files_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/uploads/{tail:.*}", web::get().to(serve_upload))
         .route("{tail:.*}", web::get().to(redirect_to_storage_service));
 }

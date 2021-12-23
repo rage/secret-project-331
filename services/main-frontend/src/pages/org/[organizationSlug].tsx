@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@material-ui/core"
 import router from "next/router"
-import React, { useContext, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
@@ -86,6 +86,13 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     },
     { enabled: !!dataOrg },
   )
+
+  useEffect(() => {
+    const updateCourseList = async () => {
+      await refetchOrgCourses()
+    }
+    updateCourseList()
+  }, [page, dataOrgCourseCount, refetchOrgCourses])
 
   const loginStateContext = useContext(LoginStateContext)
 
@@ -187,10 +194,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
               >
                 {t("button-text-close")}
               </Button>
-              <NewCourseForm
-                organizationId={query.organizationSlug}
-                onSubmitForm={handleSubmitNewCourse}
-              />
+              <NewCourseForm organizationId={dataOrg.id} onSubmitForm={handleSubmitNewCourse} />
             </div>
           </Dialog>
         </div>

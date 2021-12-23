@@ -63,7 +63,7 @@ async fn main() -> Result<()> {
     let mut conn = PgConnection::connect(&db_url).await?;
     if clean {
         info!("running migrations");
-        sqlx::migrate!("./migrations").run(&mut conn).await?;
+        sqlx::migrate!("../migrations").run(&mut conn).await?;
     }
 
     // exercise services

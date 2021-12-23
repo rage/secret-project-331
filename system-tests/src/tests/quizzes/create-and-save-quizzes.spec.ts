@@ -20,7 +20,7 @@ test.describe("quizzes tests", () => {
     expectPath(page, "/org/uh-cs")
 
     // Click text=Add course
-    await page.click(`button:text("New")`)
+    await page.click(`button:text("Create")`)
 
     // Click input[type="text"]
     await page.click('input[type="text"]')

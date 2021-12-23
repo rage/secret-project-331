@@ -203,7 +203,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
               variant="primary"
               onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
             >
-              {t("button-text-new")}
+              {t("button-text-create")}
             </Button>
             <br />
             <br />

@@ -149,7 +149,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           organization={dataOrg}
           onOrganizationUpdated={() => refetchOrg()}
         />
-        <h2>{t("courses", { courses: courseCount })}</h2>
+        <h2>{t("course-list", { courses: courseCount })}</h2>
         <CourseGrid>{courses}</CourseGrid>
         <br />
         <Pagination

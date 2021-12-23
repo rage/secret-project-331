@@ -31,7 +31,7 @@ interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"organizationSlug">
 }
 
-const PAGE_LIMIT = 12
+const PAGE_LIMIT = 15
 const NO_DESCRIPTION = "No description available"
 
 const Organization: React.FC<OrganizationPageProps> = ({ query }) => {

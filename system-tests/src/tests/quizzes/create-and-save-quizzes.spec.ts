@@ -299,7 +299,7 @@ test.describe("quizzes tests", () => {
     // Click :nth-match(:text("Manage"), 4)
     await Promise.all([
       page.waitForNavigation(),
-      await page.click("text=quizzes test, multiple choice Manage >> :nth-match(a, 2)"),
+      await page.click("[aria-label=\"Manage course 'quizzes test, multiple choice'\"]"),
     ])
     expectPath(page, "/manage/courses/[id]")
 

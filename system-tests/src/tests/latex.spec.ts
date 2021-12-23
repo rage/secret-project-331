@@ -16,7 +16,7 @@ test("latex-block renders", async ({ headless, page }) => {
     await page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
   ])
   // Click text=Add course
-  await page.click(`button:text("New")`)
+  await page.click(`button:text("Create")`)
   // Click input[type="text"]
   await page.click('input[type="text"]')
   // Fill input[type="text"]

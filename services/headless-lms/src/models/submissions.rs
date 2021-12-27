@@ -72,7 +72,7 @@ pub struct GradingRequest<'a> {
     pub submission_data: &'a Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct GradingResult {
     pub grading_progress: GradingProgress,
     pub score_given: f32,

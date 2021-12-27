@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
 import { Quiz, QuizAnswer, QuizItem, QuizItemAnswer } from "../../../types/types"
+import { GradingResult } from "../../shared-module/bindings"
 
 interface QuizzesGradingRequest {
   exercise_spec: Quiz
@@ -19,12 +20,9 @@ export interface ItemAnswerFeedback {
   quiz_item_option_feedbacks: OptionAnswerFeedback[] | null
 }
 
-interface QuizzesGradingResult {
-  grading_progress: "FullyGraded" | "Pending" | "PendingManual" | "Failed"
-  score_given: number
-  score_maximum: number
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  feedback_json: ItemAnswerFeedback[]
+export interface EssayItemAnswerFeedback {
+  quiz_item_id: string | null
+  submit_message: string | null
 }
 
 interface QuizItemAnswerGrading {
@@ -40,15 +38,21 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
   return handlePost(req, res)
 }
 
-const handlePost = (req: NextApiRequest, res: NextApiResponse<QuizzesGradingResult>) => {
+const handlePost = (req: NextApiRequest, res: NextApiResponse<GradingResult>) => {
   const gradingRedquest: QuizzesGradingRequest = req.body
   const { exercise_spec, submission_data } = gradingRedquest
 
   const assessedAnswers = asssesAnswers(submission_data, exercise_spec)
+
   const score = gradeAnswer(assessedAnswers, exercise_spec)
-  const feedbacks = submissionFeedback(submission_data, exercise_spec, assessedAnswers)
+  const feedbacks: ItemAnswerFeedback[] = submissionFeedback(
+    submission_data,
+    exercise_spec,
+    assessedAnswers,
+  )
   return res.status(200).json({
     feedback_json: feedbacks,
+    feedback_text: exercise_spec.submitMessage,
     grading_progress: "FullyGraded",
     score_given: score,
     score_maximum: exercise_spec.points,

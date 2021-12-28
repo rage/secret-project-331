@@ -193,13 +193,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         {postSubmissionMutation.isError && (
           <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
         )}
-        {(postSubmissionMutation.isLoading || postSubmissionMutation.isIdle) && (
-          <Spinner variant={"small"} />
-        )}
         <br />
         <DebugModal data={getCourseMaterialExercise.data} />
       </div>
-      )
     </div>
   )
 }

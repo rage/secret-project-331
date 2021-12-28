@@ -240,7 +240,7 @@ export interface ExerciseSlide {
 export interface CourseMaterialExerciseTask {
   id: string
   exercise_slide_id: string
-  exercise_type: string
+  exercise_iframe_url: string
   assignment: unknown
   public_spec: unknown | null
   model_solution_spec: unknown | null
@@ -265,8 +265,7 @@ export type ActivityProgress = "Initialized" | "Started" | "InProgress" | "Submi
 
 export interface CourseMaterialExercise {
   exercise: Exercise
-  current_exercise_task: CourseMaterialExerciseTask
-  current_exercise_task_service_info: CourseMaterialExerciseServiceInfo | null
+  current_exercise_tasks: Array<CourseMaterialExerciseTask>
   exercise_status: ExerciseStatus | null
   previous_submission: Submission | null
   grading: Grading | null

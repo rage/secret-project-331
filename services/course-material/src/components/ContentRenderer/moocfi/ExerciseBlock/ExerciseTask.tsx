@@ -27,8 +27,8 @@ const ExerciseTask: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation()
 
-  const url = exercise.current_exercise_task_service_info?.exercise_iframe_url
-  const currentExerciseTaskAssignment = exercise.current_exercise_task
+  const url = exercise.current_exercise_tasks[0].exercise_iframe_url
+  const currentExerciseTaskAssignment = exercise.current_exercise_tasks[0]
     .assignment as unknown as Block<unknown>[]
   const isExam = exercise.exercise.exam_id !== null
 

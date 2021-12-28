@@ -1,4 +1,7 @@
-use super::{exercise_slides, exercise_tasks, user_exercise_states, ModelError, ModelResult};
+use super::{
+    exercise_service_info, exercise_slides, exercise_tasks, user_exercise_states, ModelError,
+    ModelResult,
+};
 use crate::{
     models::{exams, exercises},
     utils::document_schema_processor::GutenbergBlock,
@@ -14,10 +17,36 @@ use uuid::Uuid;
 pub struct CourseMaterialExerciseTask {
     pub id: Uuid,
     pub exercise_slide_id: Uuid,
-    pub exercise_type: String,
+    /**
+    If none, the task is not completable at the moment because the service needs to
+    be configured to the system.
+    */
+    pub exercise_iframe_url: String,
     pub assignment: serde_json::Value,
     pub public_spec: Option<serde_json::Value>,
     pub model_solution_spec: Option<serde_json::Value>,
+}
+
+impl CourseMaterialExerciseTask {
+    pub fn from_exercise_task(
+        exercise_task: ExerciseTask,
+        exercise_iframe_url: String,
+        expose_model_solution_spec: bool,
+    ) -> Self {
+        let model_solution_spec = if expose_model_solution_spec {
+            exercise_task.model_solution_spec
+        } else {
+            None
+        };
+        CourseMaterialExerciseTask {
+            id: exercise_task.id,
+            exercise_slide_id: exercise_task.exercise_slide_id,
+            exercise_iframe_url,
+            assignment: exercise_task.assignment,
+            public_spec: exercise_task.public_spec,
+            model_solution_spec,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
@@ -93,34 +122,6 @@ WHERE id = (
     Ok(course_id)
 }
 
-pub async fn get_random_exercise_task(
-    conn: &mut PgConnection,
-    exercise_id: Uuid,
-) -> ModelResult<CourseMaterialExerciseTask> {
-    let mut exercise_task = sqlx::query_as!(
-        CourseMaterialExerciseTask,
-        r#"
-SELECT t.id,
-  t.exercise_slide_id,
-  t.exercise_type,
-  t.assignment,
-  t.public_spec,
-  t.model_solution_spec
-FROM exercise_tasks t
-  JOIN exercise_slides s ON (t.exercise_slide_id = s.id)
-WHERE s.exercise_id = $1
-  AND s.deleted_at IS NULL
-  AND t.deleted_at IS NULL
-ORDER BY random();
-        "#,
-        exercise_id
-    )
-    .fetch_one(conn)
-    .await?;
-    exercise_task.model_solution_spec = None;
-    Ok(exercise_task)
-}
-
 pub async fn get_exercise_task_by_id(
     conn: &mut PgConnection,
     id: Uuid,
@@ -133,6 +134,29 @@ pub async fn get_exercise_task_by_id(
     .fetch_one(conn)
     .await?;
     Ok(exercise_task)
+}
+
+pub async fn get_course_material_exercise_tasks_by_exercise_slide_id(
+    conn: &mut PgConnection,
+    exercise_slide_id: Uuid,
+    expose_model_solution_spec: bool,
+) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
+    let exercise_tasks = get_exercise_tasks_by_exercise_slide_id(conn, exercise_slide_id).await?;
+    let mut material_tasks = Vec::with_capacity(exercise_tasks.len());
+    for exercise_task in exercise_tasks.into_iter() {
+        let exercise_iframe_url = exercise_service_info::get_service_info_by_exercise_type(
+            conn,
+            &exercise_task.exercise_type,
+        )
+        .await?
+        .exercise_type_specific_user_interface_iframe;
+        material_tasks.push(CourseMaterialExerciseTask::from_exercise_task(
+            exercise_task,
+            exercise_iframe_url,
+            expose_model_solution_spec,
+        ));
+    }
+    Ok(material_tasks)
 }
 
 pub async fn get_exercise_tasks_by_exercise_slide_id(
@@ -173,12 +197,12 @@ WHERE exercise_slide_id = ANY($1)
     Ok(exercise_tasks)
 }
 
-pub async fn get_existing_user_exercise_task_for_course_instance(
+pub async fn get_existing_user_exercise_tasks_for_course_instance(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
     course_instance_id: Uuid,
-) -> ModelResult<Option<CourseMaterialExerciseTask>> {
+) -> ModelResult<Option<Vec<CourseMaterialExerciseTask>>> {
     let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exits(
         conn,
         user_id,
@@ -187,34 +211,32 @@ pub async fn get_existing_user_exercise_task_for_course_instance(
         None,
     )
     .await?;
-    let exercise_task = if let Some(user_exercise_state) = user_exercise_state {
-        if let Some(selected_exercise_task_id) = user_exercise_state.selected_exercise_slide_id {
-            let exercise_task =
-                exercise_tasks::get_exercise_task_by_id(conn, selected_exercise_task_id).await?;
-            Some(CourseMaterialExerciseTask {
-                id: exercise_task.id,
-                assignment: exercise_task.assignment,
-                exercise_slide_id: exercise_task.exercise_slide_id,
-                exercise_type: exercise_task.exercise_type,
-                public_spec: exercise_task.public_spec,
-                model_solution_spec: None,
-            })
+    let exercise_tasks = if let Some(user_exercise_state) = user_exercise_state {
+        if let Some(selected_exercise_slide_id) = user_exercise_state.selected_exercise_slide_id {
+            let exercise_tasks =
+                exercise_tasks::get_course_material_exercise_tasks_by_exercise_slide_id(
+                    conn,
+                    selected_exercise_slide_id,
+                    false,
+                )
+                .await?;
+            Some(exercise_tasks)
         } else {
             None
         }
     } else {
         None
     };
-    Ok(exercise_task)
+    Ok(exercise_tasks)
 }
 
-pub async fn get_or_select_user_exercise_task_for_course_instance_or_exam(
+pub async fn get_or_select_user_exercise_tasks_for_course_instance_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
     course_instance_id: Option<Uuid>,
     exam_id: Option<Uuid>,
-) -> ModelResult<CourseMaterialExerciseTask> {
+) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
     let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
         conn,
         user_id,
@@ -245,34 +267,28 @@ pub async fn get_or_select_user_exercise_task_for_course_instance_or_exam(
             .await?;
             exercise_slide_id
         };
-    let exercise_tasks =
-        get_exercise_tasks_by_exercise_slide_id(conn, selected_exercise_slide_id).await?;
-    info!("got tasks");
-    // TODO: Return all tasks in the slide but for now we're still legacy mode.
-    let exercise_task = exercise_tasks.into_iter().next().ok_or_else(|| {
-        ModelError::PreconditionFailed("Missing exercise definition.".to_string())
-    })?;
 
     let exercise = exercises::get_by_id(conn, exercise_id).await?;
-    let model_solution_spec = if let Some(exam_id) = exercise.exam_id {
+    let exam_and_ended = if let Some(exam_id) = exercise.exam_id {
         let exam = exams::get(conn, exam_id).await?;
-        if exam.ends_at.map(|ea| ea < Utc::now()).unwrap_or_default() {
-            // if exam has ended, include model solution spec if any
-            exercise_task.model_solution_spec
-        } else {
-            None
-        }
+        exam.ends_at.map(|ea| ea < Utc::now()).unwrap_or_default()
     } else {
-        None
+        false
     };
-    Ok(CourseMaterialExerciseTask {
-        id: exercise_task.id,
-        assignment: exercise_task.assignment,
-        exercise_slide_id: exercise_task.exercise_slide_id,
-        exercise_type: exercise_task.exercise_type,
-        public_spec: exercise_task.public_spec,
-        model_solution_spec,
-    })
+    let exercise_tasks = get_course_material_exercise_tasks_by_exercise_slide_id(
+        conn,
+        selected_exercise_slide_id,
+        exam_and_ended,
+    )
+    .await?;
+    info!("got tasks");
+    if exercise_tasks.is_empty() {
+        return Err(ModelError::PreconditionFailed(
+            "Missing exercise definition.".to_string(),
+        ));
+    }
+
+    Ok(exercise_tasks)
 }
 
 pub async fn get_exercise_tasks_by_exercise_id(

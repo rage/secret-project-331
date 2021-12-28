@@ -452,7 +452,7 @@ export function isCourseMaterialExerciseTask(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.exercise_slide_id === "string" &&
-    typeof obj.exercise_type === "string"
+    typeof obj.exercise_iframe_url === "string"
   )
 }
 
@@ -487,9 +487,8 @@ export function isCourseMaterialExercise(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isExercise(obj.exercise) as boolean) &&
-    (isCourseMaterialExerciseTask(obj.current_exercise_task) as boolean) &&
-    (obj.current_exercise_task_service_info === null ||
-      (isCourseMaterialExerciseServiceInfo(obj.current_exercise_task_service_info) as boolean)) &&
+    Array.isArray(obj.current_exercise_tasks) &&
+    obj.current_exercise_tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean) &&
     (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
     (obj.previous_submission === null || (isSubmission(obj.previous_submission) as boolean)) &&
     (obj.grading === null || (isGrading(obj.grading) as boolean))

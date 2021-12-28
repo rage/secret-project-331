@@ -59,7 +59,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         type: "submissionGraded",
         payload: {
           submissionResult: data,
-          publicSpec: courseMaterialExercise.data?.current_exercise_task.public_spec,
+          publicSpec: courseMaterialExercise.data?.current_exercise_tasks[0].public_spec,
         },
       })
     },
@@ -166,7 +166,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               }
               postSubmissionMutation.mutate({
                 course_instance_id: courseInstanceId || null,
-                exercise_task_id: courseMaterialExercise.data.current_exercise_task.id,
+                exercise_task_id: courseMaterialExercise.data.current_exercise_tasks[0].id,
 
                 data_json: answer,
               })

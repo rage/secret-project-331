@@ -41,15 +41,15 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
           data: {
             grading: action.payload.grading,
             user_answer: action.payload.previous_submission.data_json,
-            public_spec: action.payload.current_exercise_task.public_spec,
-            model_solution_spec: action.payload.current_exercise_task.model_solution_spec,
+            public_spec: action.payload.current_exercise_tasks[0].public_spec,
+            model_solution_spec: action.payload.current_exercise_tasks[0].model_solution_spec,
           },
         }
       } else {
         return {
           view_type: "exercise",
           data: {
-            public_spec: action.payload.current_exercise_task.public_spec,
+            public_spec: action.payload.current_exercise_tasks[0].public_spec,
             previous_submission: action.payload.previous_submission,
           },
         }
@@ -69,7 +69,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
       return {
         view_type: "exercise",
         data: {
-          public_spec: action.payload.current_exercise_task.public_spec,
+          public_spec: action.payload.current_exercise_tasks[0].public_spec,
           previous_submission: action.payload.previous_submission,
         },
       }

@@ -3017,47 +3017,6 @@
       "nullable": [false, true]
     }
   },
-  "5405fedcc383aa9c5f50b65874cbe438dcd7eff2408884bd9482db9e4319882a": {
-    "query": "\nSELECT t.id,\n  t.exercise_slide_id,\n  t.exercise_type,\n  t.assignment,\n  t.public_spec,\n  t.model_solution_spec\nFROM exercise_tasks t\n  JOIN exercise_slides s ON (t.exercise_slide_id = s.id)\nWHERE s.exercise_id = $1\n  AND s.deleted_at IS NULL\n  AND t.deleted_at IS NULL\nORDER BY random();\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "exercise_slide_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "exercise_type",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 3,
-          "name": "assignment",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 4,
-          "name": "public_spec",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 5,
-          "name": "model_solution_spec",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, true, true]
-    }
-  },
   "55d2baac7d8ce3670047a6388219d46faaac72bb6f7f6769b28fa320d601652c": {
     "query": "\nINSERT INTO exercise_service_info (\n    exercise_service_id,\n    exercise_type_specific_user_interface_iframe,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_path\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n",
     "describe": {

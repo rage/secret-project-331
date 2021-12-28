@@ -1,9 +1,8 @@
-use std::collections::HashMap;
-
-use anyhow::Result;
+use crate::UtilError;
 use serde::{Deserialize, Serialize};
 use serde_json::Map;
 use serde_json::Value;
+use std::collections::HashMap;
 use uuid::Uuid;
 
 static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
@@ -197,7 +196,7 @@ pub fn contains_blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) 
 pub fn remap_ids_in_content(
     content: &serde_json::Value,
     chaged_ids: HashMap<Uuid, Uuid>,
-) -> Result<serde_json::Value> {
+) -> Result<serde_json::Value, UtilError> {
     // naive implementation for now because the structure of the content was not decided at the time of writing this.
     // In the future we could only edit the necessary fields.
     let mut content_str = serde_json::to_string(content)?;

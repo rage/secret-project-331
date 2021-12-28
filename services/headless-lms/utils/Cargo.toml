@@ -17,10 +17,8 @@ tokio = { version = "1.2.0", features = ["fs", "io-util"] }
 tokio-util = { version = "0.6.3", features = ["io"] }
 # Utilities to work with `Stream` and `tokio`.
 tokio-stream = "0.1.6"
-# An implementation of futures and streams featuring zero allocations, composability, and itera…
+# An implementation of future and streams featuring zero allocations, composability, and itera…
 futures = "0.3.13"
-# Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.38"
 # A library to generate and parse UUIDs.
 uuid = { version = "0.8.2", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
@@ -60,6 +58,8 @@ regex = "1.5.4"
 once_cell = "1.8.0"
 # An LCS based slice and string diffing implementation.
 diff = "0.1"
+# This library provides a convenient derive macro for the standard library's std::error::Error trait.
+thiserror = "1"
 
 # Workaround for this issue: https://github.com/tkaitchuck/aHash/issues/95. Once the issue has been resolved, this dependency can be removed.
 indexmap = "=1.6.2"

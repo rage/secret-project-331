@@ -26,6 +26,8 @@ pub enum ModelError {
     Reqwest(#[from] reqwest::Error),
     #[error(transparent)]
     Anyhow(#[from] anyhow::Error),
+    #[error(transparent)]
+    Util(#[from] headless_lms_utils::UtilError),
     #[error("{0}")]
     Generic(String),
 }

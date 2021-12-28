@@ -426,10 +426,9 @@ async fn get_or_select_exercise_task(
             info!("selecting exam task {:#?}", task);
             Ok((task, Some(InstanceOrExamId::Exam(exam_id))))
         }
-        (Some(_), ..) => Err(anyhow::anyhow!(
-            "The selected exercise is not attached to any course or exam"
-        )
-        .into()),
+        (Some(_), ..) => Err(ModelError::Generic(
+            "The selected exercise is not attached to any course or exam".to_string(),
+        )),
     }
 }
 

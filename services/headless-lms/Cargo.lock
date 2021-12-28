@@ -1325,7 +1325,6 @@ dependencies = [
 name = "headless-lms-models"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "chrono",
  "derive_more",
  "dotenv",

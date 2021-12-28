@@ -15,7 +15,6 @@ use crate::{
         contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
     },
 };
-use anyhow::Context;
 use futures::future::OptionFuture;
 use itertools::Itertools;
 use std::{
@@ -736,8 +735,7 @@ RETURNING id,
         author,
         None,
     )
-    .await
-    .context("Failed to create a page history entry")?;
+    .await?;
     let organization_id = get_organization_id(&mut tx, page.id).await?;
 
     tx.commit().await?;

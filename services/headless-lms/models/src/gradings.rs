@@ -306,7 +306,9 @@ pub async fn get_for_student(
         let exam = exams::get(conn, exam_id).await?;
         let enrollment = exams::get_enrollment(conn, exam_id, user_id)
             .await?
-            .ok_or_else(|| anyhow::anyhow!("User has grading for exam but no enrollment"))?;
+            .ok_or_else(|| {
+                ModelError::Generic("User has grading for exam but no enrollment".to_string())
+            })?;
         if Utc::now() > enrollment.started_at + chrono::Duration::minutes(exam.time_minutes.into())
             || exam.ends_at.map(|ea| Utc::now() > ea).unwrap_or_default()
         {

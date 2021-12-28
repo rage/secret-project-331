@@ -1,6 +1,5 @@
 use crate::exercises::GradingProgress;
 use crate::prelude::*;
-use anyhow::Result;
 
 pub struct Regrading {
     pub id: Uuid,
@@ -9,7 +8,7 @@ pub struct Regrading {
     pub total_grading_progress: GradingProgress,
 }
 
-pub async fn insert(conn: &mut PgConnection) -> Result<Uuid> {
+pub async fn insert(conn: &mut PgConnection) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO regradings DEFAULT
@@ -22,7 +21,7 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> Result<Regrading> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Regrading> {
     let res = sqlx::query_as!(
         Regrading,
         r#"
@@ -42,7 +41,7 @@ WHERE id = $1
 
 pub async fn get_uncompleted_regradings_and_mark_as_started(
     conn: &mut PgConnection,
-) -> Result<Vec<Uuid>> {
+) -> ModelResult<Vec<Uuid>> {
     let res = sqlx::query!(
         r#"
 UPDATE regradings
@@ -68,7 +67,7 @@ pub async fn set_total_grading_progress(
     conn: &mut PgConnection,
     regrading_id: Uuid,
     progress: GradingProgress,
-) -> Result<()> {
+) -> ModelResult<()> {
     sqlx::query!(
         "
 UPDATE regradings
@@ -83,7 +82,7 @@ WHERE id = $2
     Ok(())
 }
 
-pub async fn complete_regrading(conn: &mut PgConnection, regrading_id: Uuid) -> Result<()> {
+pub async fn complete_regrading(conn: &mut PgConnection, regrading_id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
 UPDATE regradings
@@ -102,7 +101,7 @@ pub async fn set_error_message(
     conn: &mut PgConnection,
     regrading_id: Uuid,
     error_message: &str,
-) -> Result<()> {
+) -> ModelResult<()> {
     sqlx::query!(
         "
 UPDATE regradings

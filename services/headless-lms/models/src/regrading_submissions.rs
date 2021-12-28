@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use anyhow::Result;
 
 pub struct RegradingSubmission {
     pub id: Uuid,
@@ -13,7 +12,7 @@ pub async fn insert(
     regrading_id: Uuid,
     submission_id: Uuid,
     grading_before_regrading_id: Uuid,
-) -> Result<Uuid> {
+) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO regrading_submissions (
@@ -36,7 +35,7 @@ RETURNING id
 pub async fn get_regrading_submission(
     conn: &mut PgConnection,
     regrading_submission_id: Uuid,
-) -> Result<RegradingSubmission> {
+) -> ModelResult<RegradingSubmission> {
     let res = sqlx::query_as!(
         RegradingSubmission,
         "
@@ -57,7 +56,7 @@ WHERE id = $1
 pub async fn get_regrading_submissions(
     conn: &mut PgConnection,
     regrading_id: Uuid,
-) -> Result<Vec<RegradingSubmission>> {
+) -> ModelResult<Vec<RegradingSubmission>> {
     let res = sqlx::query_as!(
         RegradingSubmission,
         "
@@ -79,7 +78,7 @@ pub async fn set_grading_after_regrading(
     conn: &mut PgConnection,
     regrading_submission_id: Uuid,
     new_grading_id: Uuid,
-) -> Result<()> {
+) -> ModelResult<()> {
     sqlx::query!(
         "
 UPDATE regrading_submissions

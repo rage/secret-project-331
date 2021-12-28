@@ -7,7 +7,6 @@ use crate::{
     },
     utils::{document_schema_processor::GutenbergBlock, merge_edits},
 };
-use anyhow::Context;
 use serde_json::Value;
 use std::collections::{hash_map::Entry, HashMap};
 
@@ -150,19 +149,27 @@ WHERE proposed_block_edits.deleted_at IS NULL
         let block = content
             .iter()
             .find(|b| b.client_id == r.block_id)
-            .context("Failed to find block that the edit was for")?;
+            .ok_or_else(|| {
+                ModelError::Generic(
+                    "Failed to find the block which the proposal was for".to_string(),
+                )
+            })?;
         let content = block
             .attributes
             .get(&r.block_attribute)
-            .context(format!(
-                "Missing expected attribute '{}' in edited block",
-                r.block_attribute
-            ))?
+            .ok_or_else(|| {
+                ModelError::Generic(format!(
+                    "Missing expected attribute '{}' in edited block",
+                    r.block_attribute
+                ))
+            })?
             .as_str()
-            .context(format!(
-                "Attribute '{}' did not contain a string",
-                r.block_attribute
-            ))?
+            .ok_or_else(|| {
+                ModelError::Generic(format!(
+                    "Attribute '{}' did not contain a string",
+                    r.block_attribute
+                ))
+            })?
             .to_string();
         let page_proposal_id = r.page_proposal_id;
         let page_id = r.page_id;
@@ -264,25 +271,28 @@ RETURNING block_id,
                 let block = blocks
                     .iter_mut()
                     .find(|b| b.client_id == res.block_id)
-                    .context("Failed to find block for edit proposal")?;
+                    .ok_or_else(|| {
+                        ModelError::Generic(
+                            "Failed to find the block which the proposal was for".to_string(),
+                        )
+                    })?;
                 let current_content =
                     block
                         .attributes
                         .get_mut(&res.block_attribute)
                         .ok_or_else(|| {
-                            anyhow::anyhow!(
+                            ModelError::Generic(format!(
                                 "Edited block has no attribute {}",
                                 &res.block_attribute
-                            )
+                            ))
                         })?;
                 if let Value::String(s) = current_content {
                     *s = contents;
                 } else {
-                    return Err(anyhow::anyhow!(
+                    return Err(ModelError::Generic(format!(
                         "Block attribute {} did not contain a string",
                         res.block_attribute
-                    )
-                    .into());
+                    )));
                 }
             }
             BlockProposalAction::Reject => {

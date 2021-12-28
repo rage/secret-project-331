@@ -7,7 +7,6 @@ has changed after a refresh.
 
 use std::{fs::Permissions, path::Path, u32};
 
-use anyhow::Result;
 use blake3::Hash;
 use futures::StreamExt;
 #[cfg(unix)]
@@ -15,6 +14,8 @@ use std::os::unix::fs::PermissionsExt;
 use tokio::{fs::File, io::BufReader};
 use tokio_util::io::ReaderStream;
 use walkdir::WalkDir;
+
+use crate::UtilError;
 
 /**
 Recursively hashes a folder returning a checksum.
@@ -25,7 +26,7 @@ contents, the file type, and the unix file mode are included as well.
 Please note that if you have very large files in the directory, the running time
 might take a while since reading a lot of data from disk is not fast.
 */
-pub async fn hash_folder(root_path: &Path) -> Result<Hash> {
+pub async fn hash_folder(root_path: &Path) -> Result<Hash, UtilError> {
     // Blake3 hasher lets us build the hash incrementally, avoiding the need to load everything to be hashed to memory at once.
     let mut hasher = blake3::Hasher::new();
 

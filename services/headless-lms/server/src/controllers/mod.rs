@@ -26,6 +26,7 @@ use actix_web::{
 };
 use actix_web::{http::StatusCode, HttpResponseBuilder};
 use derive_more::Display;
+use headless_lms_utils::UtilError;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -156,6 +157,12 @@ impl From<ModelError> for ControllerError {
             ModelError::InvalidRequest(msg) => Self::BadRequest(msg),
             _ => Self::InternalServerError(err.to_string()),
         }
+    }
+}
+
+impl From<UtilError> for ControllerError {
+    fn from(err: UtilError) -> Self {
+        Self::InternalServerError(err.to_string())
     }
 }
 

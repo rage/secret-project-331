@@ -1,4 +1,3 @@
-use anyhow::Result;
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
@@ -18,14 +17,15 @@ pub struct Pagination {
 }
 
 impl Pagination {
-    pub fn new(page: u32, limit: u32) -> Result<Self> {
+    /// Panics on non-positive page or limit values.
+    pub fn new(page: u32, limit: u32) -> Self {
         if page == 0 {
-            return Err(anyhow::anyhow!("Page must be a positive value."));
+            panic!("Page must be a positive value.");
         }
         if limit == 0 {
-            return Err(anyhow::anyhow!("Limit must be a positive value."));
+            panic!("Limit must be a positive value.");
         }
-        Ok(Pagination { page, limit })
+        Pagination { page, limit }
     }
 
     /// Guaranteed to be positive.

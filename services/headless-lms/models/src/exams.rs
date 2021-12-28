@@ -1,11 +1,5 @@
-use crate::{courses::Course, ModelError};
-
-use super::ModelResult;
-use chrono::{DateTime, Utc};
-use serde::Serialize;
-use sqlx::PgConnection;
-use ts_rs::TS;
-use uuid::Uuid;
+use crate::courses::Course;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, TS)]
 pub struct Exam {

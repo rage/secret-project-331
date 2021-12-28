@@ -1,11 +1,9 @@
-use super::{exercise_slides, exercise_tasks, user_exercise_states, ModelError, ModelResult};
-use crate::{exams, exercises, utils::document_schema_processor::GutenbergBlock};
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use crate::prelude::*;
+use crate::{
+    exams, exercise_slides, exercise_tasks, exercises, user_exercise_states,
+    utils::document_schema_processor::GutenbergBlock,
+};
 use serde_json::Value;
-use sqlx::{FromRow, PgConnection};
-use ts_rs::TS;
-use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, TS)]
 pub struct CourseMaterialExerciseTask {

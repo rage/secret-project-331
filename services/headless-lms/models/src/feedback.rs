@@ -1,9 +1,4 @@
-use crate::{utils::pagination::Pagination, ModelResult};
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::{Connection, PgConnection};
-use ts_rs::TS;
-use uuid::Uuid;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct NewFeedback {

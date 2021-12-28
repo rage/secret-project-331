@@ -1,20 +1,12 @@
-use super::{
-    pages::Page, user_exercise_states::get_user_course_instance_chapter_metrics, ModelResult,
-};
+use crate::prelude::*;
 use crate::{
-    pages::NewPage,
+    pages::PageWithExercises,
+    pages::{NewPage, Page},
+    user_exercise_states::get_user_course_instance_chapter_metrics,
     utils::{document_schema_processor::GutenbergBlock, numbers::option_f32_to_f32_two_decimals},
+    utils::{file_store::FileStore, ApplicationConfiguration},
 };
 use std::{path::PathBuf, sync::Arc};
-
-use crate::utils::{file_store::FileStore, ApplicationConfiguration};
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, PgConnection, PgPool};
-use ts_rs::TS;
-use uuid::Uuid;
-
-use super::pages::PageWithExercises;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct DatabaseChapter {

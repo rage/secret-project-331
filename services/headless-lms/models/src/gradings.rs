@@ -1,24 +1,17 @@
-use super::{
+use crate::prelude::*;
+use crate::{
+    exams,
+    exercise_service_info::get_service_info_by_exercise_type,
     exercise_services::{get_exercise_service_by_exercise_type, get_internal_grade_url},
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
+    submissions::GradingRequest,
     submissions::{GradingResult, Submission},
     user_exercise_states::update_user_exercise_state,
-    ModelResult,
+    utils::numbers::f32_to_two_decimals,
 };
-use crate::{
-    exams, exercise_service_info::get_service_info_by_exercise_type, submissions::GradingRequest,
-    utils::numbers::f32_to_two_decimals, ModelError,
-};
-use chrono::{DateTime, Utc};
-
-use futures::Future;
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
 use std::time::Duration;
-use ts_rs::TS;
 use url::Url;
-use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct Grading {

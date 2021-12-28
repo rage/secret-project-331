@@ -1,11 +1,8 @@
-use super::{chapters::DatabaseChapter, users::User, ModelResult};
-use crate::{chapters, exercises, utils::pagination::Pagination};
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::{PgConnection, Type};
+use crate::prelude::*;
+use crate::{
+    chapters, chapters::DatabaseChapter, exercises, users::User, utils::pagination::Pagination,
+};
 use std::collections::HashMap;
-use ts_rs::TS;
-use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, TS)]
 #[sqlx(type_name = "variant_status", rename_all = "snake_case")]

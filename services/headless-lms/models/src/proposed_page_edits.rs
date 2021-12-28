@@ -1,21 +1,15 @@
-use super::{
+use crate::prelude::*;
+use crate::{
     page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
-    proposed_block_edits::{BlockProposal, BlockProposalInfo, NewProposedBlockEdit},
-};
-use crate::{
-    proposed_block_edits::{BlockProposalAction, ProposalStatus},
-    utils::{document_schema_processor::GutenbergBlock, merge_edits, pagination::Pagination},
-    ModelError, ModelResult,
+    proposed_block_edits::{
+        BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit, ProposalStatus,
+    },
+    utils::{document_schema_processor::GutenbergBlock, merge_edits},
 };
 use anyhow::Context;
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use sqlx::{Connection, PgConnection};
 use std::collections::{hash_map::Entry, HashMap};
-use ts_rs::TS;
-use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct NewProposedPageEdits {

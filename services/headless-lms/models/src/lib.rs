@@ -10,7 +10,6 @@ pub mod course_language_groups;
 pub mod courses;
 pub mod email_deliveries;
 pub mod email_templates;
-mod error;
 pub mod exams;
 pub mod exercise_service_info;
 pub mod exercise_services;
@@ -32,6 +31,9 @@ pub mod submissions;
 pub mod user_course_settings;
 pub mod user_exercise_states;
 pub mod users;
+
+mod error;
+mod prelude;
 
 #[cfg(test)]
 pub mod test_helper;

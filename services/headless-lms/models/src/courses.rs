@@ -1,26 +1,15 @@
-use std::{collections::HashMap, sync::Arc};
-
-use super::{course_instances::CourseInstance, ModelResult};
+use crate::prelude::*;
 use crate::{
-    course_instances::{self, NewCourseInstance, VariantStatus},
+    chapters::{course_chapters, Chapter},
+    course_instances::{self, CourseInstance, NewCourseInstance, VariantStatus},
     course_language_groups,
-    pages::NewPage,
+    pages::{course_pages, NewPage, Page},
     utils::{
         document_schema_processor::GutenbergBlock, file_store::FileStore, ApplicationConfiguration,
     },
-    ModelError,
 };
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use sqlx::{Acquire, PgConnection};
-use ts_rs::TS;
-use uuid::Uuid;
-
-use super::{
-    chapters::{course_chapters, Chapter},
-    pages::{course_pages, Page},
-};
+use std::{collections::HashMap, sync::Arc};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Course {

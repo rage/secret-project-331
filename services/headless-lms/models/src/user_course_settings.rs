@@ -1,10 +1,5 @@
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use ts_rs::TS;
-use uuid::Uuid;
-
-use super::{course_instance_enrollments::CourseInstanceEnrollment, ModelResult};
+use crate::prelude::*;
+use crate::{course_instance_enrollments::CourseInstanceEnrollment, ModelResult};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct UserCourseSettings {

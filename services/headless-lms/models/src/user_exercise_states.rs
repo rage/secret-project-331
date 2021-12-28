@@ -1,18 +1,12 @@
-use super::{
+use crate::prelude::*;
+use crate::{
     exercises::{ActivityProgress, GradingProgress},
     gradings::Grading,
+    gradings::UserPointsUpdateStrategy,
     submissions::Submission,
-    ModelResult,
+    utils::numbers::option_f32_to_f32_two_decimals,
 };
-use crate::{gradings::UserPointsUpdateStrategy, utils::numbers::option_f32_to_f32_two_decimals};
-use chrono::{DateTime, Utc};
-use core::f32;
-use futures::{future, Stream};
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use sqlx::{FromRow, PgConnection, PgPool};
-use ts_rs::TS;
-use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct UserExerciseState {

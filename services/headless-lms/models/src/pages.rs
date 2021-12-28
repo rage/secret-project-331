@@ -1,37 +1,28 @@
-use super::{
+use crate::prelude::*;
+use crate::{
+    chapters::DatabaseChapter,
     chapters::{self, ChapterStatus},
     course_instances::{self, CourseInstance},
     courses::Course,
-    exercise_slides::ExerciseSlide,
-    user_course_settings::{self, UserCourseSettings},
-    ModelResult,
-};
-use crate::{
-    chapters::DatabaseChapter,
     exercise_service_info,
     exercise_services::{get_internal_public_spec_url, get_model_solution_url},
+    exercise_slides::ExerciseSlide,
     exercise_tasks::ExerciseTask,
     exercises::Exercise,
     page_history::{self, HistoryChangeReason, PageHistoryContent},
+    user_course_settings::{self, UserCourseSettings},
     utils::document_schema_processor::{
         contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
     },
-    ModelError,
 };
-
 use anyhow::Context;
-use chrono::{DateTime, Utc};
 use futures::future::OptionFuture;
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, FromRow, PgConnection};
 use std::{
     collections::{hash_map, HashMap},
     time::Duration,
 };
-use ts_rs::TS;
 use url::Url;
-use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Page {

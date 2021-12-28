@@ -1,21 +1,15 @@
-use super::{
+use crate::prelude::*;
+use crate::{
     course_instances,
-    exercise_tasks::{self, get_existing_user_exercise_task_for_course_instance},
+    exercise_service_info::{
+        get_course_material_service_info_by_exercise_type, CourseMaterialExerciseServiceInfo,
+    },
+    exercise_tasks::{
+        self, get_existing_user_exercise_task_for_course_instance, CourseMaterialExerciseTask,
+    },
     gradings::Grading,
     submissions::Submission,
-    user_course_settings, ModelResult,
-};
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use ts_rs::TS;
-use uuid::Uuid;
-
-use crate::{exercise_service_info::get_course_material_service_info_by_exercise_type, ModelError};
-
-use super::{
-    exercise_service_info::CourseMaterialExerciseServiceInfo,
-    exercise_tasks::CourseMaterialExerciseTask,
+    user_course_settings,
     user_exercise_states::get_user_exercise_state_if_exits,
 };
 

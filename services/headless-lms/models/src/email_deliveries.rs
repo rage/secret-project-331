@@ -1,10 +1,6 @@
-use lettre::transport::smtp::Error;
-
+use crate::prelude::*;
 use anyhow::Result;
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use uuid::Uuid;
+use lettre::transport::smtp::Error;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct EmailDelivery {

@@ -1,27 +1,15 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.
 
-use crate::{
-    controllers::ControllerResult,
-    domain::{
-        authorization::AuthUser,
-        csv_export::{self, CSVExportAdapter},
-    },
-    models::{
-        course_instances::{self, CourseInstance, CourseInstanceForm, Points},
-        courses,
-        email_templates::{EmailTemplate, EmailTemplateNew},
-    },
-    utils::pagination::Pagination,
-};
-use actix_web::{
-    web::{self, Json, ServiceConfig},
-    HttpResponse,
-};
+use crate::controllers::prelude::*;
+use crate::domain::csv_export::{self, CSVExportAdapter};
 use bytes::Bytes;
 use chrono::Utc;
-use sqlx::PgPool;
+use models::{
+    course_instances::{self, CourseInstance, CourseInstanceForm, Points},
+    courses,
+    email_templates::{EmailTemplate, EmailTemplateNew},
+};
 use tokio_stream::wrappers::UnboundedReceiverStream;
-use uuid::Uuid;
 
 /**
 GET /course-instances/:id
@@ -30,14 +18,14 @@ GET /course-instances/:id
 async fn get_course_instance(
     request_course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<CourseInstance>> {
+) -> ControllerResult<web::Json<CourseInstance>> {
     let mut conn = pool.acquire().await?;
-    let course_instance = crate::models::course_instances::get_course_instance(
+    let course_instance = models::course_instances::get_course_instance(
         &mut conn,
         request_course_instance_id.into_inner(),
     )
     .await?;
-    Ok(Json(course_instance))
+    Ok(web::Json(course_instance))
 }
 
 #[instrument(skip(payload, pool))]
@@ -46,17 +34,17 @@ async fn post_new_email_template(
     payload: web::Json<EmailTemplateNew>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<EmailTemplate>> {
+) -> ControllerResult<web::Json<EmailTemplate>> {
     let mut conn = pool.acquire().await?;
     let new_email_template = payload.0;
-    let email_template = crate::models::email_templates::insert_email_template(
+    let email_template = models::email_templates::insert_email_template(
         &mut conn,
         *request_course_instance_id,
         new_email_template,
         None,
     )
     .await?;
-    Ok(Json(email_template))
+    Ok(web::Json(email_template))
 }
 
 #[instrument(skip(pool))]
@@ -64,13 +52,13 @@ async fn get_email_templates_by_course_instance_id(
     request_course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<Vec<EmailTemplate>>> {
+) -> ControllerResult<web::Json<Vec<EmailTemplate>>> {
     let mut conn = pool.acquire().await?;
 
     let email_templates =
-        crate::models::email_templates::get_email_templates(&mut conn, *request_course_instance_id)
+        models::email_templates::get_email_templates(&mut conn, *request_course_instance_id)
             .await?;
-    Ok(Json(email_templates))
+    Ok(web::Json(email_templates))
 }
 
 #[instrument(skip(pool))]
@@ -120,12 +108,12 @@ async fn points(
     course_instance_id: web::Path<Uuid>,
     pagination: web::Query<Pagination>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Points>> {
+) -> ControllerResult<web::Json<Points>> {
     let mut conn = pool.acquire().await?;
     let points =
         course_instances::get_points(&mut conn, course_instance_id.into_inner(), &pagination)
             .await?;
-    Ok(Json(points))
+    Ok(web::Json(points))
 }
 
 /**
@@ -153,7 +141,7 @@ POST /course-instances/:id/delete
 #[instrument(skip(pool))]
 async fn delete(id: web::Path<Uuid>, pool: web::Data<PgPool>) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    crate::models::course_instances::delete(&mut conn, *id).await?;
+    models::course_instances::delete(&mut conn, *id).await?;
     Ok(HttpResponse::Ok().finish())
 }
 

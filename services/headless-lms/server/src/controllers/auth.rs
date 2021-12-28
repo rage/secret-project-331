@@ -2,31 +2,18 @@
 Handlers for HTTP requests to `/api/v0/login`.
 */
 
-use crate::{
-    controllers::{ControllerError, ControllerResult},
-    domain::authorization,
-    models::{self, users::User},
-    utils::ApplicationConfiguration,
-    OAuthClient,
-};
+use crate::OAuthClient;
+use crate::{controllers::prelude::*, domain::authorization};
 use actix_session::Session;
-use actix_web::{
-    web::{self, Json, ServiceConfig},
-    HttpResponse,
-};
-use anyhow::Context;
+use models::users::User;
 use oauth2::{
     basic::{BasicErrorResponseType, BasicTokenType},
     EmptyExtraTokenFields, RequestTokenError, ResourceOwnerPassword, ResourceOwnerUsername,
     StandardErrorResponse, StandardTokenResponse, TokenResponse,
 };
 use reqwest::Client;
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use sqlx::PgPool;
-use ts_rs::TS;
 use url::form_urlencoded::Target;
-use uuid::Uuid;
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct Login {
     email: String,
@@ -122,9 +109,9 @@ pub async fn logout(session: Session) -> HttpResponse {
 GET `/api/v0/auth/logged-in` Returns the current user's login status.
 **/
 #[instrument(skip(session))]
-pub async fn logged_in(session: Session) -> Json<bool> {
+pub async fn logged_in(session: Session) -> web::Json<bool> {
     let logged_in = authorization::has_auth_user_session(&session);
-    Json(logged_in)
+    web::Json(logged_in)
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
@@ -162,14 +149,12 @@ pub async fn get_user_from_tmc(
         let email = current_user.email;
 
         // fetch existing user or create new one
-        let user = match crate::models::users::find_by_upstream_id(conn, upstream_id)
+        let user = match models::users::find_by_upstream_id(conn, upstream_id)
             .await
             .context("Error while trying to find user")?
         {
             Some(existing_user) => existing_user,
-            None => {
-                crate::models::users::insert_with_upstream_id(conn, &email, upstream_id).await?
-            }
+            None => models::users::insert_with_upstream_id(conn, &email, upstream_id).await?,
         };
         Ok(user)
     } else {

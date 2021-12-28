@@ -1,13 +1,5 @@
-use crate::{
-    controllers::ControllerResult, domain::authorization::AuthUser,
-    models::proposed_page_edits::NewProposedPageEdits,
-};
-use actix_web::{
-    web::{self, ServiceConfig},
-    HttpResponse,
-};
-use sqlx::PgPool;
-use uuid::Uuid;
+use crate::controllers::prelude::*;
+use models::proposed_page_edits::NewProposedPageEdits;
 
 /**
 POST `/api/v0/course-material/proposed-edits/:course-id`
@@ -20,7 +12,7 @@ async fn post_proposed_edits(
     user: Option<AuthUser>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    crate::models::proposed_page_edits::insert(
+    models::proposed_page_edits::insert(
         &mut conn,
         course_id.into_inner(),
         user.map(|u| u.id),

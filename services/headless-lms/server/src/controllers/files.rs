@@ -3,17 +3,10 @@ Handlers for HTTP requests to `/api/v0/files`.
 
 */
 
-use std::path::{Path, PathBuf};
-
-use actix_web::{
-    web::{self, ServiceConfig},
-    HttpRequest, HttpResponse,
-};
-
+use crate::controllers::prelude::*;
 use actix_files::NamedFile;
+use std::path::{Path, PathBuf};
 use tokio::fs::read;
-
-use super::{ControllerError, ControllerResult};
 
 /**
 

@@ -1,16 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
-use crate::{
-    controllers::ControllerResult,
-    domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::submissions::Submission,
-    utils::pagination::Pagination,
-};
-use actix_web::web::{self, Json, ServiceConfig};
-use futures::future;
-use serde::Serialize;
-use sqlx::PgPool;
-use ts_rs::TS;
-use uuid::Uuid;
+
+use crate::controllers::prelude::*;
+use models::submissions::Submission;
 
 #[derive(Debug, Serialize, TS)]
 pub struct ExerciseSubmissions {
@@ -49,30 +40,20 @@ async fn get_exercise_submissions(
     request_exercise_id: web::Path<Uuid>,
     pagination: web::Query<Pagination>,
     user: AuthUser,
-) -> ControllerResult<Json<ExerciseSubmissions>> {
+) -> ControllerResult<web::Json<ExerciseSubmissions>> {
     let mut conn = pool.acquire().await?;
     let submission_count =
-        crate::models::submissions::exercise_submission_count(&mut conn, &request_exercise_id);
+        models::submissions::exercise_submission_count(&mut conn, &request_exercise_id);
     let mut conn = pool.acquire().await?;
-    let course_id =
-        crate::models::exercises::get_course_id(&mut conn, *request_exercise_id).await?;
-    authorize(
-        &mut conn,
-        Action::View,
-        user.id,
-        Resource::Course(course_id),
-    )
-    .await?;
-    let submissions = crate::models::submissions::exercise_submissions(
-        &mut conn,
-        &request_exercise_id,
-        &pagination,
-    );
+    let course_id = models::exercises::get_course_id(&mut conn, *request_exercise_id).await?;
+    authorize(&mut conn, Act::View, user.id, Res::Course(course_id)).await?;
+    let submissions =
+        models::submissions::exercise_submissions(&mut conn, &request_exercise_id, &pagination);
     let (submission_count, submissions) = future::try_join(submission_count, submissions).await?;
 
     let total_pages = pagination.total_pages(submission_count);
 
-    Ok(Json(ExerciseSubmissions {
+    Ok(web::Json(ExerciseSubmissions {
         data: submissions,
         total_pages,
     }))

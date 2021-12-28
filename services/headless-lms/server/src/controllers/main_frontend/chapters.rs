@@ -1,18 +1,8 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/chapters`.
-use std::{path::PathBuf, str::FromStr};
 
-use crate::{
-    controllers::helpers::media::{upload_media, StoreKind},
-    controllers::{ControllerError, ControllerResult},
-    domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::chapters::{Chapter, ChapterUpdate, NewChapter},
-    utils::{file_store::FileStore, ApplicationConfiguration},
-};
-use actix_multipart as mp;
-use actix_web::web::{self, Json};
-use actix_web::{web::ServiceConfig, HttpRequest};
-use sqlx::PgPool;
-use uuid::Uuid;
+use crate::controllers::prelude::*;
+use models::chapters::{Chapter, ChapterUpdate, NewChapter};
+use std::{path::PathBuf, str::FromStr};
 
 /**
 POST `/api/v0/main-frontend/chapters` - Create a new course part.
@@ -53,19 +43,19 @@ async fn post_new_chapter(
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<Json<Chapter>> {
+) -> ControllerResult<web::Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     authorize(
         &mut conn,
-        Action::Edit,
+        Act::Edit,
         user.id,
-        Resource::Course(payload.course_id),
+        Res::Course(payload.course_id),
     )
     .await?;
     let new_chapter = payload.0;
     let (database_chapter, ..) =
-        crate::models::chapters::insert_chapter(&mut conn, new_chapter, user.id).await?;
-    Ok(Json(Chapter::from_database_chapter(
+        models::chapters::insert_chapter(&mut conn, new_chapter, user.id).await?;
+    Ok(web::Json(Chapter::from_database_chapter(
         &database_chapter,
         &file_store,
         app_conf.as_ref(),
@@ -97,18 +87,12 @@ async fn delete_chapter(
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<Json<Chapter>> {
+) -> ControllerResult<web::Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&request_chapter_id)?;
-    authorize(
-        &mut conn,
-        Action::Edit,
-        user.id,
-        Resource::Course(course_id),
-    )
-    .await?;
-    let deleted_chapter = crate::models::chapters::delete_chapter(&mut conn, course_id).await?;
-    Ok(Json(Chapter::from_database_chapter(
+    authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
+    let deleted_chapter = models::chapters::delete_chapter(&mut conn, course_id).await?;
+    Ok(web::Json(Chapter::from_database_chapter(
         &deleted_chapter,
         &file_store,
         app_conf.as_ref(),
@@ -156,24 +140,17 @@ async fn update_chapter(
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<Json<Chapter>> {
+) -> ControllerResult<web::Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let chapter_id = Uuid::from_str(&request_chapter_id)?;
-    let course_id = crate::models::chapters::get_course_id(&mut conn, chapter_id).await?;
-    authorize(
-        &mut conn,
-        Action::Edit,
-        user.id,
-        Resource::Course(course_id),
-    )
-    .await?;
+    let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
+    authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
     let course_update = payload.0;
-    let chapter =
-        crate::models::chapters::update_chapter(&mut conn, chapter_id, course_update).await?;
+    let chapter = models::chapters::update_chapter(&mut conn, chapter_id, course_update).await?;
 
     let response = Chapter::from_database_chapter(&chapter, &file_store, app_conf.as_ref());
 
-    Ok(Json(response))
+    Ok(web::Json(response))
 }
 
 /**
@@ -207,24 +184,24 @@ Response:
 #[instrument(skip(request, payload, pool, file_store, app_conf))]
 async fn set_chapter_image(
     request: HttpRequest,
-    payload: mp::Multipart,
+    payload: Multipart,
     request_chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<Json<Chapter>> {
+) -> ControllerResult<web::Json<Chapter>> {
     let mut conn = pool.acquire().await?;
-    let chapter = crate::models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
+    let chapter = models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
     authorize(
         &mut conn,
-        Action::Edit,
+        Act::Edit,
         user.id,
-        Resource::Course(chapter.course_id),
+        Res::Course(chapter.course_id),
     )
     .await?;
 
-    let course = crate::models::courses::get_course(&mut conn, chapter.course_id).await?;
+    let course = models::courses::get_course(&mut conn, chapter.course_id).await?;
     let chapter_image = upload_media(
         request.headers(),
         payload,
@@ -234,12 +211,9 @@ async fn set_chapter_image(
     .await?
     .to_string_lossy()
     .to_string();
-    let updated_chapter = crate::models::chapters::update_chapter_image_path(
-        &mut conn,
-        chapter.id,
-        Some(chapter_image),
-    )
-    .await?;
+    let updated_chapter =
+        models::chapters::update_chapter_image_path(&mut conn, chapter.id, Some(chapter_image))
+            .await?;
 
     // Remove old image if one exists.
     if let Some(old_image_path) = chapter.chapter_image_path {
@@ -253,7 +227,7 @@ async fn set_chapter_image(
 
     let response = Chapter::from_database_chapter(&updated_chapter, &file_store, app_conf.as_ref());
 
-    Ok(Json(response))
+    Ok(web::Json(response))
 }
 
 /**
@@ -272,27 +246,26 @@ async fn remove_chapter_image(
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
-) -> ControllerResult<Json<()>> {
+) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    let chapter = crate::models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
+    let chapter = models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
     authorize(
         &mut conn,
-        Action::Edit,
+        Act::Edit,
         user.id,
-        Resource::Course(chapter.course_id),
+        Res::Course(chapter.course_id),
     )
     .await?;
     if let Some(chapter_image_path) = chapter.chapter_image_path {
         let file = PathBuf::from_str(&chapter_image_path).map_err(|original_error| {
             ControllerError::InternalServerError(original_error.to_string())
         })?;
-        let _res =
-            crate::models::chapters::update_chapter_image_path(&mut conn, chapter.id, None).await?;
+        let _res = models::chapters::update_chapter_image_path(&mut conn, chapter.id, None).await?;
         file_store.delete(&file).await.map_err(|original_error| {
             ControllerError::InternalServerError(original_error.to_string())
         })?;
     }
-    Ok(Json(()))
+    Ok(web::Json(()))
 }
 
 /**

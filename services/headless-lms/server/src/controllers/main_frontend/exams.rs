@@ -1,32 +1,19 @@
-use crate::{
-    controllers::ControllerResult,
-    domain::{
-        authorization::{authorize, Action, AuthUser, Resource},
-        csv_export::{self, CSVExportAdapter},
-    },
-    models::exams::{self, Exam},
-};
-use actix_web::{
-    web::{self, Json, ServiceConfig},
-    HttpResponse,
-};
+use crate::controllers::prelude::*;
+use crate::domain::csv_export::{self, CSVExportAdapter};
 use bytes::Bytes;
 use chrono::Utc;
-use serde::Deserialize;
-use sqlx::PgPool;
+use models::exams::{self, Exam};
 use tokio_stream::wrappers::UnboundedReceiverStream;
-use ts_rs::TS;
-use uuid::Uuid;
 
 pub async fn get_exam(
     pool: web::Data<PgPool>,
     id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<Exam>> {
+) -> ControllerResult<web::Json<Exam>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Action::View, user.id, Resource::Exam(*id)).await?;
+    authorize(&mut conn, Act::View, user.id, Res::Exam(*id)).await?;
     let exam = exams::get(&mut conn, id.into_inner()).await?;
-    Ok(Json(exam))
+    Ok(web::Json(exam))
 }
 
 #[derive(Debug, Deserialize, TS)]
@@ -39,12 +26,12 @@ pub async fn set_course(
     id: web::Path<Uuid>,
     course_id: web::Json<ExamCourseInfo>,
     user: AuthUser,
-) -> ControllerResult<Json<()>> {
+) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Action::Edit, user.id, Resource::Exam(*id)).await?;
+    authorize(&mut conn, Act::Edit, user.id, Res::Exam(*id)).await?;
 
     exams::set_course(&mut conn, id.into_inner(), course_id.into_inner().course_id).await?;
-    Ok(Json(()))
+    Ok(web::Json(()))
 }
 
 pub async fn unset_course(
@@ -52,12 +39,12 @@ pub async fn unset_course(
     id: web::Path<Uuid>,
     course_id: web::Json<ExamCourseInfo>,
     user: AuthUser,
-) -> ControllerResult<Json<()>> {
+) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Action::Edit, user.id, Resource::Exam(*id)).await?;
+    authorize(&mut conn, Act::Edit, user.id, Res::Exam(*id)).await?;
 
     exams::unset_course(&mut conn, id.into_inner(), course_id.into_inner().course_id).await?;
-    Ok(Json(()))
+    Ok(web::Json(()))
 }
 
 #[instrument(skip(pool))]
@@ -67,13 +54,7 @@ pub async fn export_points(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    authorize(
-        &mut conn,
-        Action::Teach,
-        user.id,
-        Resource::Exam(*exam_id_path),
-    )
-    .await?;
+    authorize(&mut conn, Act::Teach, user.id, Res::Exam(*exam_id_path)).await?;
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
     let exam_id = exam_id_path.into_inner();
 
@@ -110,13 +91,7 @@ pub async fn export_submissions(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    authorize(
-        &mut conn,
-        Action::Teach,
-        user.id,
-        Resource::Exam(*exam_id_path),
-    )
-    .await?;
+    authorize(&mut conn, Act::Teach, user.id, Res::Exam(*exam_id_path)).await?;
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
     let exam_id = exam_id_path.into_inner();
 

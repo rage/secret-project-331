@@ -472,6 +472,7 @@ mod test {
             course_instance_enrollments::{self, NewCourseInstanceEnrollment},
             course_instances::{self, NewCourseInstance},
             course_language_groups, courses,
+            exercise_service_info::{self, PathInfo},
             exercise_services::{self, ExerciseServiceNewOrUpdate},
             exercise_slides, exercise_tasks, organizations, pages, users,
         },
@@ -533,7 +534,7 @@ mod test {
         )
         .await
         .unwrap();
-        let _exercise_service = exercise_services::insert_exercise_service(
+        let exercise_service = exercise_services::insert_exercise_service(
             tx.as_mut(),
             &ExerciseServiceNewOrUpdate {
                 name: "text-exercise".to_string(),
@@ -541,6 +542,18 @@ mod test {
                 public_url: "".to_string(),
                 internal_url: None,
                 max_reprocessing_submissions_at_once: 1,
+            },
+        )
+        .await
+        .unwrap();
+        let _exercise_service_info = exercise_service_info::insert(
+            tx.as_mut(),
+            &PathInfo {
+                exercise_service_id: exercise_service.id,
+                exercise_type_specific_user_interface_iframe: "".to_string(),
+                grade_endpoint_path: "".to_string(),
+                public_spec_endpoint_path: "".to_string(),
+                model_solution_path: "test-only-empty-path".to_string(),
             },
         )
         .await

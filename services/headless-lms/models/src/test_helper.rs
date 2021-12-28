@@ -1,8 +1,8 @@
-use anyhow::Result;
 use rand::Rng;
 use serde_json::Value;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::env;
+use std::error::Error;
 use tokio::sync::Mutex;
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 use crate::{course_instances::NewCourseInstance, course_language_groups};
 
-pub fn setup_tracing() -> Result<()> {
+pub fn setup_tracing() -> Result<(), Box<dyn Error>> {
     let subscriber = tracing_subscriber::Registry::default()
         .with(
             tracing_subscriber::fmt::layer()
@@ -102,7 +102,10 @@ pub struct Data {
     pub task: Uuid,
 }
 
-pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result<Data> {
+pub async fn insert_data(
+    conn: &mut PgConnection,
+    exercise_type: &str,
+) -> Result<Data, Box<dyn Error>> {
     let random_string: String = rand::thread_rng()
         .sample_iter(&rand::distributions::Alphanumeric)
         .take(32)

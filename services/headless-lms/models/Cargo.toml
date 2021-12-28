@@ -17,8 +17,6 @@ tokio = { version = "1.2.0", features = ["fs", "io-util"] }
 futures = "0.3.13"
 # A `dotenv` implementation for Rust
 dotenv = "0.15.0"
-# Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.38"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx = { version = "0.5.1", features = [
   "postgres",

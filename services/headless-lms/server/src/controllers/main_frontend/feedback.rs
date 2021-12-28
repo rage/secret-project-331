@@ -1,12 +1,5 @@
-use crate::{controllers::ControllerResult, models::feedback};
-use actix_web::{
-    web::{self, ServiceConfig},
-    HttpResponse,
-};
-use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
-use ts_rs::TS;
-use uuid::Uuid;
+use crate::controllers::prelude::*;
+use models::feedback;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct MarkAsRead {

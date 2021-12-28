@@ -1,33 +1,25 @@
-use crate::{
-    controllers::{ControllerError, ControllerResult},
-    domain::authorization::AuthUser,
-    models::{
-        exams::{self, ExamEnrollment},
-        pages::{self, Page},
-    },
-};
-use actix_web::web::{self, Json, ServiceConfig};
+use crate::controllers::prelude::*;
 use chrono::{DateTime, Duration, Utc};
-use serde::Serialize;
-use sqlx::PgPool;
-use ts_rs::TS;
-use uuid::Uuid;
+use models::{
+    exams::{self, ExamEnrollment},
+    pages::{self, Page},
+};
 
 pub async fn enrollment(
     pool: web::Data<PgPool>,
     id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<Option<ExamEnrollment>>> {
+) -> ControllerResult<web::Json<Option<ExamEnrollment>>> {
     let mut conn = pool.acquire().await?;
     let enrollment = exams::get_enrollment(&mut conn, id.into_inner(), user.id).await?;
-    Ok(Json(enrollment))
+    Ok(web::Json(enrollment))
 }
 
 pub async fn enroll(
     pool: web::Data<PgPool>,
     id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<()>> {
+) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
 
     let exam_id = id.into_inner();
@@ -44,7 +36,7 @@ pub async fn enroll(
     if let Some(starts_at) = exam.starts_at {
         if now > starts_at {
             exams::enroll(&mut conn, exam_id, user.id).await?;
-            return Ok(Json(()));
+            return Ok(web::Json(()));
         }
     }
 
@@ -82,7 +74,7 @@ pub async fn fetch_exam_for_user(
     pool: web::Data<PgPool>,
     id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<ExamData>> {
+) -> ControllerResult<web::Json<ExamData>> {
     let mut conn = pool.acquire().await?;
     let id = id.into_inner();
     let exam = exams::get(&mut conn, id).await?;
@@ -104,7 +96,7 @@ pub async fn fetch_exam_for_user(
 
     if starts_at > Utc::now() {
         // exam has not started yet
-        return Ok(Json(ExamData {
+        return Ok(web::Json(ExamData {
             id: exam.id,
             name: exam.name,
             instructions: exam.instructions,
@@ -122,7 +114,7 @@ pub async fn fetch_exam_for_user(
             && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
         {
             // exam is still open but the student's time has expired
-            return Ok(Json(ExamData {
+            return Ok(web::Json(ExamData {
                 id: exam.id,
                 name: exam.name,
                 instructions: exam.instructions,
@@ -135,7 +127,7 @@ pub async fn fetch_exam_for_user(
         enrollment
     } else {
         // user has not started the exam
-        return Ok(Json(ExamData {
+        return Ok(web::Json(ExamData {
             id: exam.id,
             name: exam.name,
             instructions: exam.instructions,
@@ -148,7 +140,7 @@ pub async fn fetch_exam_for_user(
 
     let page = pages::get_page(&mut conn, exam.page_id).await?;
 
-    Ok(Json(ExamData {
+    Ok(web::Json(ExamData {
         id: exam.id,
         name: exam.name,
         instructions: exam.instructions,

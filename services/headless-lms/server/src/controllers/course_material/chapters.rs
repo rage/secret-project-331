@@ -1,12 +1,7 @@
 //! Controllers for requests starting with `/api/v0/course_material/chapters`.
 
-use crate::controllers::ControllerResult;
-use crate::models::pages::Page;
-use crate::models::pages::PageWithExercises;
-use actix_web::web::ServiceConfig;
-use actix_web::web::{self, Json};
-use sqlx::PgPool;
-use uuid::Uuid;
+use crate::controllers::prelude::*;
+use models::pages::{Page, PageWithExercises};
 
 /**
 GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.
@@ -61,11 +56,11 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pag
 async fn get_chapters_pages(
     request_chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<Page>>> {
+) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let chapter_pages: Vec<Page> =
-        crate::models::pages::chapter_pages(&mut conn, *request_chapter_id).await?;
-    Ok(Json(chapter_pages))
+        models::pages::chapter_pages(&mut conn, *request_chapter_id).await?;
+    Ok(web::Json(chapter_pages))
 }
 
 /**
@@ -124,12 +119,11 @@ GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of
 async fn get_chapters_exercises(
     request_chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<PageWithExercises>>> {
+) -> ControllerResult<web::Json<Vec<PageWithExercises>>> {
     let mut conn = pool.acquire().await?;
     let chapter_pages_with_exercises =
-        crate::models::pages::get_chapters_pages_with_exercises(&mut conn, *request_chapter_id)
-            .await?;
-    Ok(Json(chapter_pages_with_exercises))
+        models::pages::get_chapters_pages_with_exercises(&mut conn, *request_chapter_id).await?;
+    Ok(web::Json(chapter_pages_with_exercises))
 }
 
 /**
@@ -156,14 +150,12 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` -
 async fn get_chapters_pages_without_main_frontpage(
     request_chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<Page>>> {
+) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
-    let chapter_pages = crate::models::pages::get_chapters_pages_exclude_main_frontpage(
-        &mut conn,
-        *request_chapter_id,
-    )
-    .await?;
-    Ok(Json(chapter_pages))
+    let chapter_pages =
+        models::pages::get_chapters_pages_exclude_main_frontpage(&mut conn, *request_chapter_id)
+            .await?;
+    Ok(web::Json(chapter_pages))
 }
 
 /**

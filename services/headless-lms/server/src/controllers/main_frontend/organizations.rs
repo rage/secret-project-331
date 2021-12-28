@@ -1,19 +1,9 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/organizations`.
-use std::{path::PathBuf, str::FromStr};
 
-use crate::{
-    controllers::{
-        helpers::media::upload_image_for_organization, ControllerError, ControllerResult,
-    },
-    domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::{courses::Course, exams::CourseExam, organizations::Organization},
-    utils::{file_store::FileStore, ApplicationConfiguration},
-};
-use actix_multipart as mp;
-use actix_web::web::{self, Json};
-use actix_web::{web::ServiceConfig, HttpRequest};
-use sqlx::PgPool;
-use uuid::Uuid;
+use crate::controllers::helpers::media::upload_image_for_organization;
+use crate::controllers::prelude::*;
+use models::{courses::Course, exams::CourseExam, organizations::Organization};
+use std::{path::PathBuf, str::FromStr};
 
 /**
 GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
@@ -37,14 +27,14 @@ async fn get_all_organizations(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<Json<Vec<Organization>>> {
+) -> ControllerResult<web::Json<Vec<Organization>>> {
     let mut conn = pool.acquire().await?;
-    let organizations = crate::models::organizations::all_organizations(&mut conn)
+    let organizations = models::organizations::all_organizations(&mut conn)
         .await?
         .into_iter()
         .map(|org| Organization::from_database_organization(&org, &file_store, &app_conf))
         .collect();
-    Ok(Json(organizations))
+    Ok(web::Json(organizations))
 }
 
 /**
@@ -67,11 +57,11 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a
 async fn get_organization_courses(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<Course>>> {
+) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
     let courses =
-        crate::models::courses::organization_courses(&mut conn, &*request_organization_id).await?;
-    Ok(Json(courses))
+        models::courses::organization_courses(&mut conn, &*request_organization_id).await?;
+    Ok(web::Json(courses))
 }
 
 /**
@@ -103,21 +93,21 @@ Response:
 #[instrument(skip(request, payload, pool, file_store, app_conf))]
 async fn set_organization_image(
     request: HttpRequest,
-    payload: mp::Multipart,
+    payload: Multipart,
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<Json<Organization>> {
+) -> ControllerResult<web::Json<Organization>> {
     let mut conn = pool.acquire().await?;
     let organization =
-        crate::models::organizations::get_organization(&mut conn, *request_organization_id).await?;
+        models::organizations::get_organization(&mut conn, *request_organization_id).await?;
     authorize(
         &mut conn,
-        Action::Edit,
+        Act::Edit,
         user.id,
-        Resource::Organization(organization.id),
+        Res::Organization(organization.id),
     )
     .await?;
     let organization_image =
@@ -125,7 +115,7 @@ async fn set_organization_image(
             .await?
             .to_string_lossy()
             .to_string();
-    let updated_organization = crate::models::organizations::update_organization_image_path(
+    let updated_organization = models::organizations::update_organization_image_path(
         &mut conn,
         organization.id,
         Some(organization_image),
@@ -148,7 +138,7 @@ async fn set_organization_image(
         app_conf.as_ref(),
     );
 
-    Ok(Json(response))
+    Ok(web::Json(response))
 }
 
 /**
@@ -167,32 +157,29 @@ async fn remove_organization_image(
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
-) -> ControllerResult<Json<()>> {
+) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let organization =
-        crate::models::organizations::get_organization(&mut conn, *request_organization_id).await?;
+        models::organizations::get_organization(&mut conn, *request_organization_id).await?;
     authorize(
         &mut conn,
-        Action::Edit,
+        Act::Edit,
         user.id,
-        Resource::Organization(organization.id),
+        Res::Organization(organization.id),
     )
     .await?;
     if let Some(organization_image_path) = organization.organization_image_path {
         let file = PathBuf::from_str(&organization_image_path).map_err(|original_error| {
             ControllerError::InternalServerError(original_error.to_string())
         })?;
-        let _res = crate::models::organizations::update_organization_image_path(
-            &mut conn,
-            organization.id,
-            None,
-        )
-        .await?;
+        let _res =
+            models::organizations::update_organization_image_path(&mut conn, organization.id, None)
+                .await?;
         file_store.delete(&file).await.map_err(|original_error| {
             ControllerError::InternalServerError(original_error.to_string())
         })?;
     }
-    Ok(Json(()))
+    Ok(web::Json(()))
 }
 
 /**
@@ -220,24 +207,23 @@ async fn get_organization(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<Json<Organization>> {
+) -> ControllerResult<web::Json<Organization>> {
     let mut conn = pool.acquire().await?;
     let db_organization =
-        crate::models::organizations::get_organization(&mut conn, *request_organization_id).await?;
+        models::organizations::get_organization(&mut conn, *request_organization_id).await?;
     let organization =
         Organization::from_database_organization(&db_organization, &file_store, &app_conf);
-    Ok(Json(organization))
+    Ok(web::Json(organization))
 }
 
 async fn get_exams(
     pool: web::Data<PgPool>,
     organization: web::Path<Uuid>,
-) -> ControllerResult<Json<Vec<CourseExam>>> {
+) -> ControllerResult<web::Json<Vec<CourseExam>>> {
     let mut conn = pool.acquire().await?;
     let exams =
-        crate::models::exams::get_exams_for_organization(&mut conn, organization.into_inner())
-            .await?;
-    Ok(Json(exams))
+        models::exams::get_exams_for_organization(&mut conn, organization.into_inner()).await?;
+    Ok(web::Json(exams))
 }
 
 /**

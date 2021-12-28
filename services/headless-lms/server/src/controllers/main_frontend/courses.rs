@@ -1,29 +1,14 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
-use crate::{
-    controllers::{
-        helpers::media::{upload_media, StoreKind},
-        ControllerError, ControllerResult, UploadResult,
-    },
-    domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::{
-        course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
-        courses::{Course, CourseStructure, CourseUpdate, NewCourse},
-        exercises::Exercise,
-        feedback::{self, Feedback, FeedbackCount},
-        submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
-    },
-    utils::{
-        file_store::FileStore, pagination::Pagination, strings::is_ietf_language_code_like,
-        ApplicationConfiguration,
-    },
+
+use crate::controllers::prelude::*;
+use models::{
+    course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
+    courses::{Course, CourseStructure, CourseUpdate, NewCourse},
+    exercises::Exercise,
+    feedback::{self, Feedback, FeedbackCount},
+    submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
 };
-use actix_multipart as mp;
-use actix_web::web::{self, Json};
-use actix_web::{web::ServiceConfig, HttpRequest};
-use serde::Deserialize;
-use sqlx::PgPool;
-use ts_rs::TS;
-use uuid::Uuid;
+use utils::strings::is_ietf_language_code_like;
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
@@ -50,17 +35,17 @@ async fn get_course(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<Course>> {
+) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     authorize(
         &mut conn,
-        Action::Edit,
+        Act::Edit,
         user.id,
-        Resource::Course(*request_course_id),
+        Res::Course(*request_course_id),
     )
     .await?;
-    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
-    Ok(Json(course))
+    let course = models::courses::get_course(&mut conn, *request_course_id).await?;
+    Ok(web::Json(course))
 }
 
 /**
@@ -100,7 +85,7 @@ async fn post_new_course(
     pool: web::Data<PgPool>,
     payload: web::Json<NewCourse>,
     user: AuthUser,
-) -> ControllerResult<Json<Course>> {
+) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     let new_course = payload.0;
     if !is_ietf_language_code_like(&new_course.language_code) {
@@ -110,12 +95,12 @@ async fn post_new_course(
     }
     authorize(
         &mut conn,
-        Action::Teach,
+        Act::Teach,
         user.id,
-        Resource::Organization(new_course.organization_id),
+        Res::Organization(new_course.organization_id),
     )
     .await?;
-    let (course, ..) = crate::models::courses::insert_course(
+    let (course, ..) = models::courses::insert_course(
         &mut conn,
         Uuid::new_v4(),
         Uuid::new_v4(),
@@ -123,7 +108,7 @@ async fn post_new_course(
         user.id,
     )
     .await?;
-    Ok(Json(course))
+    Ok(web::Json(course))
 }
 
 /**
@@ -163,19 +148,19 @@ async fn update_course(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<Course>> {
+) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     authorize(
         &mut conn,
-        Action::Edit,
+        Act::Edit,
         user.id,
-        Resource::Course(*request_course_id),
+        Res::Course(*request_course_id),
     )
     .await?;
     let course_update = payload.0;
     let course =
-        crate::models::courses::update_course(&mut conn, *request_course_id, course_update).await?;
-    Ok(Json(course))
+        models::courses::update_course(&mut conn, *request_course_id, course_update).await?;
+    Ok(web::Json(course))
 }
 
 /**
@@ -202,17 +187,17 @@ async fn delete_course(
     request_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<Course>> {
+) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     authorize(
         &mut conn,
-        Action::Edit,
+        Act::Edit,
         user.id,
-        Resource::Course(*request_course_id),
+        Res::Course(*request_course_id),
     )
     .await?;
-    let course = crate::models::courses::delete_course(&mut conn, *request_course_id).await?;
-    Ok(Json(course))
+    let course = models::courses::delete_course(&mut conn, *request_course_id).await?;
+    Ok(web::Json(course))
 }
 
 /**
@@ -268,23 +253,23 @@ async fn get_course_structure(
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<Json<CourseStructure>> {
+) -> ControllerResult<web::Json<CourseStructure>> {
     let mut conn = pool.acquire().await?;
     authorize(
         &mut conn,
-        Action::View,
+        Act::View,
         user.id,
-        Resource::Course(*request_course_id),
+        Res::Course(*request_course_id),
     )
     .await?;
-    let course_structure = crate::models::courses::get_course_structure(
+    let course_structure = models::courses::get_course_structure(
         &mut conn,
         *request_course_id,
         &file_store,
         app_conf.as_ref(),
     )
     .await?;
-    Ok(Json(course_structure))
+    Ok(web::Json(course_structure))
 }
 
 /**
@@ -312,20 +297,20 @@ Response:
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media_for_course(
     request_course_id: web::Path<Uuid>,
-    payload: mp::Multipart,
+    payload: Multipart,
     request: HttpRequest,
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<Json<UploadResult>> {
+) -> ControllerResult<web::Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
-    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
+    let course = models::courses::get_course(&mut conn, *request_course_id).await?;
     authorize(
         &mut conn,
-        Action::Edit,
+        Act::Edit,
         user.id,
-        Resource::Course(*request_course_id),
+        Res::Course(*request_course_id),
     )
     .await?;
     let media_path = upload_media(
@@ -337,7 +322,7 @@ async fn add_media_for_course(
     .await?;
     let download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());
 
-    Ok(Json(UploadResult { url: download_url }))
+    Ok(web::Json(UploadResult { url: download_url }))
 }
 
 /**
@@ -366,18 +351,18 @@ async fn get_all_exercises(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<Vec<Exercise>>> {
+) -> ControllerResult<web::Json<Vec<Exercise>>> {
     let mut conn = pool.acquire().await?;
     authorize(
         &mut conn,
-        Action::Edit,
+        Act::Edit,
         user.id,
-        Resource::Course(*request_course_id),
+        Res::Course(*request_course_id),
     )
     .await?;
     let exercises =
-        crate::models::exercises::get_exercises_by_course_id(&mut conn, *request_course_id).await?;
-    Ok(Json(exercises))
+        models::exercises::get_exercises_by_course_id(&mut conn, *request_course_id).await?;
+    Ok(web::Json(exercises))
 }
 
 /**
@@ -425,12 +410,12 @@ Response:
 async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
-) -> ControllerResult<Json<Vec<Course>>> {
+) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
+    let course = models::courses::get_course(&mut conn, *request_course_id).await?;
     let language_versions =
-        crate::models::courses::get_all_language_versions_of_course(&mut conn, course).await?;
-    Ok(Json(language_versions))
+        models::courses::get_all_language_versions_of_course(&mut conn, course).await?;
+    Ok(web::Json(language_versions))
 }
 
 /**
@@ -472,22 +457,22 @@ pub async fn post_new_course_language_version(
     request_course_id: web::Path<Uuid>,
     payload: web::Json<NewCourse>,
     user: AuthUser,
-) -> ControllerResult<Json<Course>> {
+) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     authorize(
         &mut conn,
-        Action::Duplicate,
+        Act::Duplicate,
         user.id,
-        Resource::Course(*request_course_id),
+        Res::Course(*request_course_id),
     )
     .await?;
-    let copied_course = crate::models::courses::copy_course_as_language_version_of_course(
+    let copied_course = models::courses::copy_course_as_language_version_of_course(
         &mut conn,
         *request_course_id,
         payload.0,
     )
     .await?;
-    Ok(Json(copied_course))
+    Ok(web::Json(copied_course))
 }
 
 /**
@@ -512,19 +497,18 @@ async fn get_daily_submission_counts(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<Vec<SubmissionCount>>> {
+) -> ControllerResult<web::Json<Vec<SubmissionCount>>> {
     let mut conn = pool.acquire().await?;
     authorize(
         &mut conn,
-        Action::View,
+        Act::View,
         user.id,
-        Resource::Course(*request_course_id),
+        Res::Course(*request_course_id),
     )
     .await?;
-    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
-    let res =
-        crate::models::submissions::get_course_daily_submission_counts(&mut conn, &course).await?;
-    Ok(Json(res))
+    let course = models::courses::get_course(&mut conn, *request_course_id).await?;
+    let res = models::submissions::get_course_daily_submission_counts(&mut conn, &course).await?;
+    Ok(web::Json(res))
 }
 
 /**
@@ -551,21 +535,20 @@ async fn get_weekday_hour_submission_counts(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<Vec<SubmissionCountByWeekAndHour>>> {
+) -> ControllerResult<web::Json<Vec<SubmissionCountByWeekAndHour>>> {
     let mut conn = pool.acquire().await?;
     authorize(
         &mut conn,
-        Action::View,
+        Act::View,
         user.id,
-        Resource::Course(*request_course_id),
+        Res::Course(*request_course_id),
     )
     .await?;
-    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
-    let res = crate::models::submissions::get_course_submission_counts_by_weekday_and_hour(
-        &mut conn, &course,
-    )
-    .await?;
-    Ok(Json(res))
+    let course = models::courses::get_course(&mut conn, *request_course_id).await?;
+    let res =
+        models::submissions::get_course_submission_counts_by_weekday_and_hour(&mut conn, &course)
+            .await?;
+    Ok(web::Json(res))
 }
 
 /**
@@ -586,20 +569,19 @@ async fn get_submission_counts_by_exercise(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<Vec<SubmissionCountByExercise>>> {
+) -> ControllerResult<web::Json<Vec<SubmissionCountByExercise>>> {
     let mut conn = pool.acquire().await?;
     authorize(
         &mut conn,
-        Action::View,
+        Act::View,
         user.id,
-        Resource::Course(*request_course_id),
+        Res::Course(*request_course_id),
     )
     .await?;
-    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
+    let course = models::courses::get_course(&mut conn, *request_course_id).await?;
     let res =
-        crate::models::submissions::get_course_submission_counts_by_exercise(&mut conn, &course)
-            .await?;
-    Ok(Json(res))
+        models::submissions::get_course_submission_counts_by_exercise(&mut conn, &course).await?;
+    Ok(web::Json(res))
 }
 
 /**
@@ -628,21 +610,19 @@ async fn get_course_instances(
     pool: web::Data<PgPool>,
     request_course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<Vec<CourseInstance>>> {
+) -> ControllerResult<web::Json<Vec<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
     authorize(
         &mut conn,
-        Action::View,
+        Act::View,
         user.id,
-        Resource::Course(*request_course_id),
+        Res::Course(*request_course_id),
     )
     .await?;
-    let course_instances = crate::models::course_instances::get_course_instances_for_course(
-        &mut conn,
-        *request_course_id,
-    )
-    .await?;
-    Ok(Json(course_instances))
+    let course_instances =
+        models::course_instances::get_course_instances_for_course(&mut conn, *request_course_id)
+            .await?;
+    Ok(web::Json(course_instances))
 }
 
 #[derive(Debug, Deserialize, TS)]
@@ -660,14 +640,14 @@ pub async fn get_feedback(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     read: web::Query<GetFeedbackQuery>,
-) -> ControllerResult<Json<Vec<Feedback>>> {
+) -> ControllerResult<web::Json<Vec<Feedback>>> {
     let mut conn = pool.acquire().await?;
     let course_id = course_id.into_inner();
 
     let feedback =
         feedback::get_feedback_for_course(&mut conn, course_id, read.read, &read.pagination)
             .await?;
-    Ok(Json(feedback))
+    Ok(web::Json(feedback))
 }
 
 /**
@@ -678,35 +658,23 @@ pub async fn get_feedback_count(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<FeedbackCount>> {
+) -> ControllerResult<web::Json<FeedbackCount>> {
     let mut conn = pool.acquire().await?;
     let course_id = course_id.into_inner();
-    authorize(
-        &mut conn,
-        Action::View,
-        user.id,
-        Resource::Course(course_id),
-    )
-    .await?;
+    authorize(&mut conn, Act::View, user.id, Res::Course(course_id)).await?;
 
     let feedback_count = feedback::get_feedback_count_for_course(&mut conn, course_id).await?;
-    Ok(Json(feedback_count))
+    Ok(web::Json(feedback_count))
 }
 
 async fn new_course_instance(
-    form: Json<CourseInstanceForm>,
+    form: web::Json<CourseInstanceForm>,
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<Uuid>> {
+) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
-    authorize(
-        &mut conn,
-        Action::Edit,
-        user.id,
-        Resource::Course(*course_id),
-    )
-    .await?;
+    authorize(&mut conn, Act::Edit, user.id, Res::Course(*course_id)).await?;
     let form = form.into_inner();
     let new = NewCourseInstance {
         id: Uuid::new_v4(),
@@ -720,8 +688,8 @@ async fn new_course_instance(
         opening_time: form.opening_time,
         closing_time: form.closing_time,
     };
-    let ci = crate::models::course_instances::insert(&mut conn, new).await?;
-    Ok(Json(ci.id))
+    let ci = models::course_instances::insert(&mut conn, new).await?;
+    Ok(web::Json(ci.id))
 }
 
 /**

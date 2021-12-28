@@ -1,31 +1,21 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercise-services/`.
 
-use crate::domain::authorization::{authorize, Action, Resource};
-use crate::models::exercise_services::ExerciseServiceNewOrUpdate;
-use crate::{
-    controllers::ControllerResult, domain::authorization::AuthUser,
-    models::exercise_services::ExerciseService,
-};
-use actix_web::web::ServiceConfig;
-use actix_web::web::{self, Json};
-use sqlx::PgPool;
-use uuid::Uuid;
+use crate::controllers::prelude::*;
+use models::exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate};
 
 #[instrument(skip(pool))]
 async fn delete_exercise_service(
     request_exercise_service_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<ExerciseService>> {
+) -> ControllerResult<web::Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Action::Edit, user.id, Resource::ExerciseService).await?;
+    authorize(&mut conn, Act::Edit, user.id, Res::ExerciseService).await?;
 
-    let deleted = crate::models::exercise_services::delete_exercise_service(
-        &mut conn,
-        *request_exercise_service_id,
-    )
-    .await?;
-    Ok(Json(deleted))
+    let deleted =
+        models::exercise_services::delete_exercise_service(&mut conn, *request_exercise_service_id)
+            .await?;
+    Ok(web::Json(deleted))
 }
 
 #[instrument(skip(pool))]
@@ -33,15 +23,14 @@ async fn add_exercise_service(
     pool: web::Data<PgPool>,
     user: AuthUser,
     payload: web::Json<ExerciseServiceNewOrUpdate>,
-) -> ControllerResult<Json<ExerciseService>> {
+) -> ControllerResult<web::Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Action::Edit, user.id, Resource::ExerciseService).await?;
+    authorize(&mut conn, Act::Edit, user.id, Res::ExerciseService).await?;
 
     let exercise_service = payload.0;
     let created =
-        crate::models::exercise_services::insert_exercise_service(&mut conn, &exercise_service)
-            .await?;
-    Ok(Json(created))
+        models::exercise_services::insert_exercise_service(&mut conn, &exercise_service).await?;
+    Ok(web::Json(created))
 }
 
 #[instrument(skip(pool))]
@@ -49,25 +38,22 @@ async fn get_exercise_service_by_id(
     request_exercise_service_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<ExerciseService>> {
+) -> ControllerResult<web::Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
-    let exercise_service = crate::models::exercise_services::get_exercise_service(
-        &mut conn,
-        *request_exercise_service_id,
-    )
-    .await?;
-    Ok(Json(exercise_service))
+    let exercise_service =
+        models::exercise_services::get_exercise_service(&mut conn, *request_exercise_service_id)
+            .await?;
+    Ok(web::Json(exercise_service))
 }
 
 #[instrument(skip(pool))]
 async fn get_exercise_services(
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<Vec<ExerciseService>>> {
+) -> ControllerResult<web::Json<Vec<ExerciseService>>> {
     let mut conn = pool.acquire().await?;
-    let exercise_services =
-        crate::models::exercise_services::get_exercise_services(&mut conn).await?;
-    Ok(Json(exercise_services))
+    let exercise_services = models::exercise_services::get_exercise_services(&mut conn).await?;
+    Ok(web::Json(exercise_services))
 }
 
 #[instrument(skip(pool))]
@@ -76,18 +62,18 @@ async fn update_exercise_service(
     request_exercise_service_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<ExerciseService>> {
+) -> ControllerResult<web::Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Action::Edit, user.id, Resource::ExerciseService).await?;
+    authorize(&mut conn, Act::Edit, user.id, Res::ExerciseService).await?;
 
     let updated_exercise_service = payload.0;
-    let updated_service = crate::models::exercise_services::update_exercise_service(
+    let updated_service = models::exercise_services::update_exercise_service(
         &mut conn,
         *request_exercise_service_id,
         &updated_exercise_service,
     )
     .await?;
-    Ok(Json(updated_service))
+    Ok(web::Json(updated_service))
 }
 
 /**

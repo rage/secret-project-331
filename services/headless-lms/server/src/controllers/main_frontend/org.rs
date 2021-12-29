@@ -15,7 +15,7 @@ async fn get_organization_by_slug(
         models::organizations::get_organization_by_slug(&mut conn, &*request_organization_slug)
             .await?;
     let organization =
-        Organization::from_database_organization(&db_organization, &file_store, &app_conf);
+        Organization::from_database_organization(&db_organization, file_store.as_ref(), &app_conf);
     Ok(web::Json(organization))
 }
 
@@ -27,7 +27,7 @@ async fn get_organization_courses_by_slug(
     let organization =
         models::organizations::get_organization_by_slug(&mut conn, &*request_organization_slug)
             .await?;
-    let courses = models::courses::organization_courses(&mut conn, &organization.id).await?;
+    let courses = models::courses::organization_courses(&mut conn, organization.id).await?;
     Ok(web::Json(courses))
 }
 

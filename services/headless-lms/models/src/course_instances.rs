@@ -327,7 +327,7 @@ pub struct Points {
 pub async fn get_points(
     conn: &mut PgConnection,
     instance_id: Uuid,
-    _pagination: &Pagination, // TODO
+    _pagination: Pagination, // TODO
 ) -> ModelResult<Points> {
     let mut chapter_point_totals = HashMap::<Uuid, i32>::new();
     let mut exercise_to_chapter_id = HashMap::new();

@@ -133,7 +133,7 @@ async fn history(
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::View, user.id, Res::Page(*page_id)).await?;
 
-    let res = models::page_history::history(&mut conn, page_id.into_inner(), &pagination).await?;
+    let res = models::page_history::history(&mut conn, page_id.into_inner(), *pagination).await?;
     Ok(web::Json(res))
 }
 

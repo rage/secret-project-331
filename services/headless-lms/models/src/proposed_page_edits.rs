@@ -97,7 +97,7 @@ pub async fn get_proposals_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
     pending: bool,
-    pagination: &Pagination,
+    pagination: Pagination,
 ) -> ModelResult<Vec<PageProposal>> {
     let res = sqlx::query!(
         r#"
@@ -437,7 +437,7 @@ mod test {
         };
         insert(tx.as_mut(), data.course, None, &new).await.unwrap();
         let mut ps =
-            get_proposals_for_course(tx.as_mut(), data.course, true, &Pagination::default())
+            get_proposals_for_course(tx.as_mut(), data.course, true, Pagination::default())
                 .await
                 .unwrap();
         let mut p = ps.pop().unwrap();
@@ -457,7 +457,7 @@ mod test {
         .unwrap();
 
         let mut ps =
-            get_proposals_for_course(tx.as_mut(), data.course, false, &Pagination::default())
+            get_proposals_for_course(tx.as_mut(), data.course, false, Pagination::default())
                 .await
                 .unwrap();
         let _ = ps.pop().unwrap();
@@ -483,7 +483,7 @@ mod test {
         insert(tx.as_mut(), data.course, None, &new).await.unwrap();
 
         let mut ps =
-            get_proposals_for_course(tx.as_mut(), data.course, true, &Pagination::default())
+            get_proposals_for_course(tx.as_mut(), data.course, true, Pagination::default())
                 .await
                 .unwrap();
         let mut p = ps.pop().unwrap();
@@ -505,7 +505,7 @@ mod test {
         .unwrap();
 
         let mut ps =
-            get_proposals_for_course(tx.as_mut(), data.course, false, &Pagination::default())
+            get_proposals_for_course(tx.as_mut(), data.course, false, Pagination::default())
                 .await
                 .unwrap();
         let _ = ps.pop().unwrap();

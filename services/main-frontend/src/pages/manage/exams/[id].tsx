@@ -66,7 +66,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
         `}
       >
         {getExam.isError && <ErrorBanner variant={"readOnly"} error={getExam.error} />}
-        {getExam.isLoading && <Spinner variant={"medium"} />}
+        {(getExam.isLoading || getExam.isIdle) && <Spinner variant={"medium"} />}
         {getExam.isSuccess && (
           <>
             <h1>
@@ -129,7 +129,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             >
               {t("add-course")}
             </Button>
-            {errorResponse && <div>{JSON.stringify(errorResponse, undefined, 2)}</div>}
+            {errorResponse && <ErrorBanner variant={"readOnly"} error={errorResponse} />}
           </>
         )}
       </div>

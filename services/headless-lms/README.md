@@ -27,5 +27,11 @@ bin/dev
 Viewing the documentation:
 
 ```sh
-cargo doc --open
+cargo doc --open --document-private-items
+```
+
+The docs use automatically generated JSON files which can be regenerated with
+
+```sh
+cargo run --bin json-response-docs
 ```

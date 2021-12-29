@@ -24,6 +24,10 @@ Response:
 
 ```
 */
+/// Response:
+/// ```json
+#[cfg_attr(doc, doc = json_doc!(UploadResult))]
+/// ```
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media(
     course_id: web::Path<Uuid>,

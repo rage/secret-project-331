@@ -210,29 +210,17 @@ pub async fn some_endpoint(user: Option<AuthUser>) -> String {
 
 ### Adding documentation to an endpoint
 
-When you have finished coding the endpoint you should add documentations to it so they can be easily read by anyone. Documentation should include short description about the endpoint
-and an example response data from it. For an example
+When you have finished coding the endpoint you should add documentations to it so they can be easily read by anyone. Documentation should include short description about the endpoint and an example response data from it. The `json-response-docs` binary can be used to generate JSON from Rust code, ensuring they stay up to date. The server crate provides a `json_doc!` macro which can be used to include the JSON in the documentation using `#[cfg_attr(doc, doc = json_doc!(MyType))]` For an example
 
 ````
 /**
 GET `/:course_slug/page-by-path/...` - Returns a course page by path
 
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
-
-"```json
-{
-  "id": "d32cc3cd-adfe-456a-a25f-032ee02db4c2",
-  "created_at": "2021-03-12T09:20:16.381347",
-  "updated_at": "2021-03-19T15:12:33.603977",
-  "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
-  "content": [],
-  "url_path": "/part-2/hello-world",
-  "title": "Hello world!",
-  "deleted_at": null,
-  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
-}
-```"
-*/
+**/
+///```json
+#[cfg_attr(doc, doc = json_doc!(MyType))]
+///```
 ````
 
 Easiest way to get the example response data and double check that endpoint works as itended is to write request to an **requests.rest** file and run the request. Before this, if needed, remember to update **seed.sql** file so that the needed data exists in a database.

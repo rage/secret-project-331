@@ -1,14 +1,15 @@
 //! Shared helper functions for multiple controllers.
 
-use crate::controllers::prelude::*;
-use crate::models::organizations::DatabaseOrganization;
+use std::{path::PathBuf, sync::Arc};
+
 use actix_multipart::Field;
 use actix_web::http::{header, HeaderMap};
-use std::{path::PathBuf, sync::Arc};
 use utils::{
     file_store::file_utils::{get_extension_from_filename, upload_media_to_storage},
     strings::generate_random_string,
 };
+
+use crate::{controllers::prelude::*, models::organizations::DatabaseOrganization};
 
 #[derive(Debug, Clone, Copy, Deserialize, TS)]
 pub enum StoreKind {

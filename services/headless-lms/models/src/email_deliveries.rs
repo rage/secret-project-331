@@ -1,5 +1,6 @@
-use crate::prelude::*;
 use lettre::transport::smtp::Error;
+
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct EmailDelivery {

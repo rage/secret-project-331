@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate tracing;
 
+use std::{env, sync::Arc};
+
 use actix_session::CookieSession;
 use actix_web::{cookie::SameSite, middleware::Logger, web::Data, App, HttpServer};
 use anyhow::Result;
@@ -20,7 +22,6 @@ use headless_lms_actix::{
 use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
 use sqlx::PgPool;
-use std::{env, sync::Arc};
 use url::Url;
 
 /// The entrypoint to the application.

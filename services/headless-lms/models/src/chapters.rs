@@ -1,12 +1,14 @@
-use crate::prelude::*;
-use crate::{
-    pages::PageWithExercises,
-    pages::{NewPage, Page},
-    user_exercise_states::get_user_course_instance_chapter_metrics,
-    utils::{document_schema_processor::GutenbergBlock, numbers::option_f32_to_f32_two_decimals},
-    utils::{file_store::FileStore, ApplicationConfiguration},
-};
 use std::{path::PathBuf, sync::Arc};
+
+use crate::{
+    pages::{NewPage, Page, PageWithExercises},
+    prelude::*,
+    user_exercise_states::get_user_course_instance_chapter_metrics,
+    utils::{
+        document_schema_processor::GutenbergBlock, file_store::FileStore,
+        numbers::option_f32_to_f32_two_decimals, ApplicationConfiguration,
+    },
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct DatabaseChapter {

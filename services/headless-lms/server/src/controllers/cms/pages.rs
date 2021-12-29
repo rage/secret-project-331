@@ -1,10 +1,11 @@
 //! Controllers for requests starting with `/api/v0/cms/pages`.
 
-use crate::controllers::prelude::*;
 use models::{
     page_history::HistoryChangeReason,
     pages::{CmsPageUpdate, ContentManagementPage},
 };
+
+use crate::controllers::prelude::*;
 
 /**
 GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id.

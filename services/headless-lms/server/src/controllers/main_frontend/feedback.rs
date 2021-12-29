@@ -1,5 +1,6 @@
-use crate::controllers::prelude::*;
 use models::feedback;
+
+use crate::controllers::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct MarkAsRead {

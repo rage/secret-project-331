@@ -1,3 +1,19 @@
+use std::{
+    collections::{HashMap, HashSet},
+    convert::TryFrom,
+    future::Future,
+    pin::Pin,
+};
+
+use anyhow::Result;
+use futures::{
+    future::FutureExt,
+    stream::{FuturesUnordered, StreamExt},
+};
+use itertools::Itertools;
+use sqlx::PgConnection;
+use uuid::Uuid;
+
 use crate::models::{
     self,
     exercise_service_info::ExerciseServiceInfo,
@@ -8,20 +24,6 @@ use crate::models::{
     submissions::GradingResult,
     ModelResult,
 };
-use anyhow::Result;
-use futures::{
-    future::FutureExt,
-    stream::{FuturesUnordered, StreamExt},
-};
-use itertools::Itertools;
-use sqlx::PgConnection;
-use std::{
-    collections::{HashMap, HashSet},
-    convert::TryFrom,
-    future::Future,
-    pin::Pin,
-};
-use uuid::Uuid;
 
 type GradingFutures =
     HashMap<String, Vec<Pin<Box<dyn Future<Output = GradingData> + Send + 'static>>>>;

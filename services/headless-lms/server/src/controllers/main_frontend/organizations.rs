@@ -1,9 +1,10 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/organizations`.
 
-use crate::controllers::helpers::media::upload_image_for_organization;
-use crate::controllers::prelude::*;
-use models::{courses::Course, exams::CourseExam, organizations::Organization};
 use std::{path::PathBuf, str::FromStr};
+
+use models::{courses::Course, exams::CourseExam, organizations::Organization};
+
+use crate::controllers::{helpers::media::upload_image_for_organization, prelude::*};
 
 /**
 GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.

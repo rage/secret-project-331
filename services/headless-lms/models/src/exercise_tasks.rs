@@ -1,9 +1,9 @@
-use crate::prelude::*;
+use serde_json::Value;
+
 use crate::{
-    exams, exercise_slides, exercise_tasks, exercises, user_exercise_states,
+    exams, exercise_slides, exercise_tasks, exercises, prelude::*, user_exercise_states,
     utils::document_schema_processor::GutenbergBlock,
 };
-use serde_json::Value;
 
 #[derive(Debug, Serialize, Deserialize, TS)]
 pub struct CourseMaterialExerciseTask {

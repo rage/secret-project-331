@@ -2,8 +2,6 @@
 Handlers for HTTP requests to `/api/v0/login`.
 */
 
-use crate::OAuthClient;
-use crate::{controllers::prelude::*, domain::authorization};
 use actix_session::Session;
 use models::users::User;
 use oauth2::{
@@ -13,6 +11,8 @@ use oauth2::{
 };
 use reqwest::Client;
 use url::form_urlencoded::Target;
+
+use crate::{controllers::prelude::*, domain::authorization, OAuthClient};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct Login {

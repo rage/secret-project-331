@@ -1,12 +1,12 @@
-use crate::prelude::*;
+use serde_json::Value;
+
 use crate::{
     exercises::{ActivityProgress, GradingProgress},
-    gradings::Grading,
-    gradings::UserPointsUpdateStrategy,
+    gradings::{Grading, UserPointsUpdateStrategy},
+    prelude::*,
     submissions::Submission,
     utils::numbers::option_f32_to_f32_two_decimals,
 };
-use serde_json::Value;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct UserExerciseState {

@@ -1,6 +1,5 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
-use crate::controllers::prelude::*;
 use models::{
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
@@ -9,6 +8,8 @@ use models::{
     submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
 };
 use utils::strings::is_ietf_language_code_like;
+
+use crate::controllers::prelude::*;
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.

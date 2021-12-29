@@ -1,6 +1,6 @@
-use crate::exercise_service_info::ExerciseServiceInfo;
-use crate::prelude::*;
 use url::Url;
+
+use crate::{exercise_service_info::ExerciseServiceInfo, prelude::*};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct ExerciseService {

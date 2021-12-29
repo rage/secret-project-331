@@ -1,6 +1,5 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
 
-use crate::controllers::prelude::*;
 use chrono::Utc;
 use models::{
     chapters::{ChapterStatus, ChapterWithStatus},
@@ -9,12 +8,12 @@ use models::{
     courses::Course,
     feedback,
     feedback::NewFeedback,
-    pages::Page,
-    pages::PageSearchResult,
-    pages::{CoursePageWithUserData, PageSearchRequest},
+    pages::{CoursePageWithUserData, Page, PageSearchRequest, PageSearchResult},
     proposed_page_edits::{self, NewProposedPageEdits},
     user_course_settings::UserCourseSettings,
 };
+
+use crate::controllers::prelude::*;
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.

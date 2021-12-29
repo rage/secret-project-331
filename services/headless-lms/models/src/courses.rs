@@ -1,15 +1,17 @@
-use crate::prelude::*;
+use std::{collections::HashMap, sync::Arc};
+
+use serde_json::Value;
+
 use crate::{
     chapters::{course_chapters, Chapter},
     course_instances::{self, CourseInstance, NewCourseInstance, VariantStatus},
     course_language_groups,
     pages::{course_pages, NewPage, Page},
+    prelude::*,
     utils::{
         document_schema_processor::GutenbergBlock, file_store::FileStore, ApplicationConfiguration,
     },
 };
-use serde_json::Value;
-use std::{collections::HashMap, sync::Arc};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Course {

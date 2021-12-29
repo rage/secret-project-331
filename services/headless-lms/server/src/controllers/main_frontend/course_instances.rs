@@ -1,7 +1,5 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.
 
-use crate::controllers::prelude::*;
-use crate::domain::csv_export::{self, CSVExportAdapter};
 use bytes::Bytes;
 use chrono::Utc;
 use models::{
@@ -10,6 +8,11 @@ use models::{
     email_templates::{EmailTemplate, EmailTemplateNew},
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
+
+use crate::{
+    controllers::prelude::*,
+    domain::csv_export::{self, CSVExportAdapter},
+};
 
 /**
 GET /course-instances/:id

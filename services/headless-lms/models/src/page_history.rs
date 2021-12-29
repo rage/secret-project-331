@@ -1,6 +1,9 @@
-use crate::pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask};
-use crate::prelude::*;
 use serde_json::Value;
+
+use crate::{
+    pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
+    prelude::*,
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, TS)]
 #[sqlx(type_name = "history_change_reason", rename_all = "kebab-case")]

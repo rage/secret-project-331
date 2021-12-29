@@ -1,4 +1,5 @@
 use std::num::TryFromIntError;
+
 use thiserror::Error;
 
 pub type ModelResult<T> = Result<T, ModelError>;

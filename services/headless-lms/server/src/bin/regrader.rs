@@ -1,8 +1,8 @@
-use anyhow::Result;
-use headless_lms_actix::models;
-use headless_lms_actix::regrading;
-use sqlx::{Connection, PgConnection};
 use std::{env, time::Duration};
+
+use anyhow::Result;
+use headless_lms_actix::{models, regrading};
+use sqlx::{Connection, PgConnection};
 
 /**
 Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading.

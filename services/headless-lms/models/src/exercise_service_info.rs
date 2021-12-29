@@ -1,10 +1,14 @@
-use crate::exercise_services::{
-    get_exercise_service_by_exercise_type, get_exercise_services, ExerciseService,
-};
-use crate::prelude::*;
-use reqwest::IntoUrl;
 use std::{collections::HashMap, time::Duration};
+
+use reqwest::IntoUrl;
 use url::Url;
+
+use crate::{
+    exercise_services::{
+        get_exercise_service_by_exercise_type, get_exercise_services, ExerciseService,
+    },
+    prelude::*,
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct ExerciseServiceInfo {

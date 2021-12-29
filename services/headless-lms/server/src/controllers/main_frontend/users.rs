@@ -1,5 +1,6 @@
-use crate::controllers::prelude::*;
 use models::users::User;
+
+use crate::controllers::prelude::*;
 
 #[instrument(skip(pool))]
 pub async fn get_user(

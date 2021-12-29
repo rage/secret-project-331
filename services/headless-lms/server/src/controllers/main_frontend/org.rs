@@ -1,7 +1,8 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/org`.
 
-use crate::controllers::prelude::*;
 use models::{courses::Course, organizations::Organization};
+
+use crate::controllers::prelude::*;
 
 async fn get_organization_by_slug(
     pool: web::Data<PgPool>,

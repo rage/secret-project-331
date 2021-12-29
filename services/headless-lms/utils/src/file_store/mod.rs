@@ -3,17 +3,17 @@ pub mod file_utils;
 pub mod google_cloud_file_store;
 pub mod local_file_store;
 
-use crate::UtilError;
-use async_trait::async_trait;
-use bytes::Bytes;
-use futures::Stream;
 use std::{
     path::{Path, PathBuf},
     pin::Pin,
 };
+
+use async_trait::async_trait;
+use bytes::Bytes;
+use futures::Stream;
 use uuid::Uuid;
 
-use crate::ApplicationConfiguration;
+use crate::{ApplicationConfiguration, UtilError};
 
 pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes, UtilError>>>>;
 /**

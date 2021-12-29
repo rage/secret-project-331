@@ -1,4 +1,6 @@
-use crate::prelude::*;
+use chrono::NaiveDate;
+use serde_json::Value;
+
 use crate::{
     courses::Course,
     exercise_tasks::{
@@ -6,9 +8,8 @@ use crate::{
     },
     exercises::{Exercise, GradingProgress},
     gradings::{grade_submission, new_grading, Grading},
+    prelude::*,
 };
-use chrono::NaiveDate;
-use serde_json::Value;
 
 // Represents the subset of page fields that are required to create a new course.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]

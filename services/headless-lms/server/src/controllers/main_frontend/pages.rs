@@ -1,10 +1,11 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/pages`.
 
-use crate::controllers::prelude::*;
 use models::{
     page_history::PageHistory,
     pages::{HistoryRestoreData, NewPage, Page},
 };
+
+use crate::controllers::prelude::*;
 
 /**
 POST `/api/v0/main-frontend/pages` - Create a new page.

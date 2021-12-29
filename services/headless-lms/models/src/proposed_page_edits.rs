@@ -1,14 +1,16 @@
-use crate::prelude::*;
+use std::collections::{hash_map::Entry, HashMap};
+
+use serde_json::Value;
+
 use crate::{
     page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
+    prelude::*,
     proposed_block_edits::{
         BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit, ProposalStatus,
     },
     utils::{document_schema_processor::GutenbergBlock, merge_edits},
 };
-use serde_json::Value;
-use std::collections::{hash_map::Entry, HashMap};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct NewProposedPageEdits {
@@ -372,8 +374,7 @@ mod test {
     use crate::{
         proposed_block_edits::*,
         test_helper::{insert_data, Conn, Data},
-        utils::document_schema_processor::attributes,
-        utils::document_schema_processor::GutenbergBlock,
+        utils::document_schema_processor::{attributes, GutenbergBlock},
     };
 
     async fn init_content(conn: &mut PgConnection, content: &str) -> (Data, Uuid) {

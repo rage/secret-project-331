@@ -1,7 +1,8 @@
 //! Controllers for requests starting with `/api/v0/cms/email-templates`.
 
-use crate::controllers::prelude::*;
 use models::email_templates::{EmailTemplate, EmailTemplateUpdate};
+
+use crate::controllers::prelude::*;
 
 #[instrument(skip(pool))]
 async fn get_email_template(

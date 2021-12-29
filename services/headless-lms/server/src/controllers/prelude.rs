@@ -4,6 +4,7 @@
 pub use crate::controllers::helpers::media::{upload_media, StoreKind};
 pub use crate::controllers::{ControllerError, ControllerResult, UploadResult};
 pub use crate::domain::authorization::{authorize, Action as Act, AuthUser, Resource as Res};
+pub use crate::json_doc;
 pub use headless_lms_models as models;
 pub use headless_lms_utils as utils;
 pub use headless_lms_utils::{

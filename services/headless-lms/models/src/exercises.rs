@@ -48,7 +48,7 @@ pub struct CourseMaterialExercise {
 /**
 Indicates what is the user's completion status for a exercise.
 
-As close as possible to LTI's activity progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress.
+As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
 */
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
 #[sqlx(type_name = "activity_progress", rename_all = "snake_case")]
@@ -69,7 +69,7 @@ pub enum ActivityProgress {
 
 Tells what's the status of the grading progress for a user and exercise.
 
-As close as possible LTI's grading progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress
+As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
 */
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
 #[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]

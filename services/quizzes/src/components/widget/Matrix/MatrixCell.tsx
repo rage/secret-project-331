@@ -1,22 +1,18 @@
 import { css } from "@emotion/css"
 import { useState } from "react"
 
-import { MatrixItemAnswer } from "../../../../types/types"
-
 export interface MatrixCellProps {
   row: number
   column: number
-  option: MatrixItemAnswer
-  findOptionText: (column: number, row: number) => string
-  handleOptionSelect: (text: string, option: MatrixItemAnswer, column: number, row: number) => void
+  cellText: string
+  handleOptionSelect: (text: string, column: number, row: number) => void
   matrixSize: number[]
 }
 
 const MatrixCell: React.FunctionComponent<MatrixCellProps> = ({
   row,
   column,
-  findOptionText,
-  option,
+  cellText,
   handleOptionSelect,
   matrixSize,
 }) => {
@@ -43,24 +39,24 @@ const MatrixCell: React.FunctionComponent<MatrixCellProps> = ({
             outline: none;
             text-align: center;
             resize: none;
-            ${findOptionText(column, row).length === 0 &&
-            (column > matrixSize[0] || row > matrixSize[1]) &&
+            ${cellText.length === 0 &&
+            (column > matrixSize[1] || row > matrixSize[0]) &&
             `
                               background-color: #ECECEC;
                             `}
-            ${(option.textData !== "" && column > matrixSize[0]) ||
-            (option.textData !== "" &&
-              row > matrixSize[1] &&
+            ${(cellText !== "" && column > matrixSize[1]) ||
+            (cellText !== "" &&
+              row > matrixSize[0] &&
               isActive &&
-              findOptionText(column, row).length === 0 &&
+              cellText.length === 0 &&
               `
                                 background-color: #DBDBDB;
                                 `)}
           `}
-          value={findOptionText(column, row) ?? ""}
+          value={cellText ?? ""}
           onSelect={() => setIsActive(!isActive)}
           onBlur={() => setIsActive(!isActive)}
-          onChange={(event) => handleOptionSelect(event.target.value, option, column, row)}
+          onChange={(event) => handleOptionSelect(event.target.value, column, row)}
         ></input>
       }
     </td>

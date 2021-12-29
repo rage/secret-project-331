@@ -4,6 +4,7 @@ import { ModelSolutionQuiz, PublicQuiz, QuizAnswer } from "../../types/types"
 import { ItemAnswerFeedback } from "../pages/api/grade"
 
 import { QuizItemSubmissionComponentProps } from "./SubmissionComponents"
+import MatrixSubmission from "./SubmissionComponents/Matrix"
 import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
 import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
 
@@ -22,6 +23,7 @@ type QuizItemType =
   | "checkbox"
   | "open"
   | "custom-frontend-accept-data"
+  | "matrix"
 
 const componentsByTypeNames = (typeName: QuizItemType) => {
   const mapTypeToComponent: { [key: string]: React.FC<QuizItemSubmissionComponentProps> } = {
@@ -33,6 +35,7 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
     "custom-frontend-accept-data": UnsupportedSubmissionViewComponent,
     "multiple-choice-dropdown": UnsupportedSubmissionViewComponent,
     "clickable-multiple-choice": UnsupportedSubmissionViewComponent,
+    matrix: MatrixSubmission,
   }
 
   return mapTypeToComponent[typeName]

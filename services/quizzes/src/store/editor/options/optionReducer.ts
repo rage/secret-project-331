@@ -14,7 +14,6 @@ import {
 
 import {
   addOptionLocationToPublicQuiz,
-  editedOptionCorrectAnswer,
   editedOptionCorrectness,
   editedOptionFailureMessage,
   editedOptionSuccessMessage,
@@ -30,12 +29,6 @@ export const optionReducer = createReducer<
   .handleAction(editedOptionTitle, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.optionId].title = action.payload.newTitle
-    })
-  })
-
-  .handleAction(editedOptionCorrectAnswer, (state, action) => {
-    return produce(state, (draftState) => {
-      draftState[action.payload.optionId].correctAnswer = action.payload.newCorrectAnswer
     })
   })
 
@@ -74,7 +67,6 @@ export const optionReducer = createReducer<
         title: "",
         body: "",
         correct: false,
-        correctAnswer: "",
         order: 0,
         successMessage: "",
         failureMessage: "",

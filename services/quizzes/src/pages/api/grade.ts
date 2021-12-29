@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import { MatrixItemAnswer, Quiz, QuizAnswer, QuizItem, QuizItemAnswer } from "../../../types/types"
+import { Quiz, QuizAnswer, QuizItem, QuizItemAnswer } from "../../../types/types"
 
 interface QuizzesGradingRequest {
   exercise_spec: Quiz
@@ -155,31 +155,26 @@ function assessMatrixQuiz(
   quizItem: QuizItem,
 ): QuizItemAnswerGrading {
   const studentAnswers = quizItemAnswer.optionCells
-  const correctAnswers = quizItem.options
+  const correctAnswers = quizItem.optionCells
 
   if (!studentAnswers) {
-    throw new Error("No option answers")
+    throw new Error("No student answers")
   }
 
-  const isMatrixCorrect = correctAnswers.every((answers) => {
-    let itemOption: MatrixItemAnswer | null = null
-    for (let i = 0; i < 6; i++) {
-      for (let j = 0; j < 6; j++) {
-        if (answers.id === studentAnswers[j][i].optionId) {
-          itemOption = studentAnswers[j][i]
-        }
-      }
+  if (!correctAnswers) {
+    throw new Error("No correct answers")
+  }
+
+  const isMatrixCorrect: boolean[] = []
+  for (let i = 0; i < 6; i++) {
+    for (let j = 0; j < 6; j++) {
+      isMatrixCorrect.push(correctAnswers[i][j] === studentAnswers[i][j])
     }
-    const textData = removeNonPrintingCharacters(answers.correctAnswer ? answers.correctAnswer : "")
-      .replace(/\0/g, "")
-      .trim()
-    if (itemOption && itemOption.textData === textData) {
-      return true
-    }
-    return false
-  })
-  console.log(isMatrixCorrect)
-  return { quizItemId: quizItem.id, correct: isMatrixCorrect }
+  }
+
+  const includesSingleFalse = !isMatrixCorrect.includes(false)
+
+  return { quizItemId: quizItem.id, correct: includesSingleFalse }
 }
 
 function submissionFeedback(

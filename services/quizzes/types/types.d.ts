@@ -110,6 +110,7 @@ export interface QuizItem {
   minLabel: string | null
   usesSharedOptionFeedbackMessage: boolean
   options: QuizItemOption[]
+  optionCells: string[][] | null
   title: string
   body: string
   successMessage: string | null
@@ -149,6 +150,7 @@ export interface NormalizedQuizItem {
   minValue: number | null
   usesSharedOptionFeedbackMessage: boolean
   options: string[]
+  optionCells: string[][] | null
   title: string
   body: string
   successMessage: string | null
@@ -206,7 +208,6 @@ export interface QuizItemOption {
   correct: boolean
   row: number | null
   column: number | null
-  correctAnswer: string
   createdAt: Date
   updatedAt: Date
   title: string
@@ -220,7 +221,6 @@ export interface NormalizedQuizItemOption {
   quizItemId: string
   order: number
   correct: boolean
-  correctAnswer: string
   createdAt: string
   updatedAt: string
   title: string
@@ -267,12 +267,7 @@ export interface QuizItemAnswer {
   valid: boolean
   /** Only contains an id of a selected option */
   optionAnswers: string[] | null
-  optionCells: MatrixItemAnswer[][] | null
-}
-
-export interface MatrixItemAnswer {
-  optionId: string
-  textData: string
+  optionCells: string[][] | null
 }
 
 export interface UserQuizState {

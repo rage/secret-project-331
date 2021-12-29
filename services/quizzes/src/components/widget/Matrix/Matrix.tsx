@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 
 import { QuizItemComponentProps } from ".."
-import { MatrixItemAnswer, QuizItemAnswer } from "../../../../types/types"
+import { QuizItemAnswer } from "../../../../types/types"
 
 import MatrixCell from "./MatrixCell"
 
@@ -14,81 +14,66 @@ export interface LeftBorderedDivProps {
 
 const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItemAnswerState,
-  quizItem,
   setQuizItemAnswerState,
 }) => {
   const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [column, row]
-  const [matrixVariable, setMatrixVariable] = useState<MatrixItemAnswer[][]>(() => {
-    const quizAnswers: MatrixItemAnswer[][] = []
-    for (let j = 0; j < 6; j++) {
-      const columnArray: MatrixItemAnswer[] = []
-      for (let i = 0; i < 6; i++) {
-        const correctColumnOption = quizItem.options.find(
-          (option) => option.row === i && option.column === j,
-        )
-
-        if (correctColumnOption) {
-          columnArray.push({
-            optionId: correctColumnOption.id,
-            textData: "",
-          })
-        } else {
-          // eslint-disable-next-line i18next/no-literal-string
-          columnArray.push({ optionId: "not-correct", textData: "" })
-        }
+  const [matrixVariable, setMatrixVariable] = useState<string[][]>(() => {
+    const quizAnswers: string[][] = []
+    for (let i = 0; i < 6; i++) {
+      const columnArray: string[] = []
+      for (let j = 0; j < 6; j++) {
+        columnArray.push("")
       }
       quizAnswers.push(columnArray)
     }
     return quizAnswers
   })
 
-  const handleMatrixSizeChange = React.useCallback(() => {
+  const handleSizeChange = useCallback((matrix: string[][]) => {
     const sizeOfTheMatrix = [0, 0]
-    for (let j = 0; j < 6; j++) {
-      for (let i = 0; i < 6; i++) {
-        if (matrixVariable[j][i].textData !== "" && sizeOfTheMatrix[0] < j) {
-          sizeOfTheMatrix[0] = j
+    for (let i = 0; i < 6; i++) {
+      for (let j = 0; j < 6; j++) {
+        if (matrix[i][j] !== "" && sizeOfTheMatrix[0] < i) {
+          sizeOfTheMatrix[0] = i
         }
-        if (matrixVariable[j][i].textData !== "" && sizeOfTheMatrix[1] < i) {
-          sizeOfTheMatrix[1] = i
+        if (matrix[i][j] !== "" && sizeOfTheMatrix[1] < j) {
+          sizeOfTheMatrix[1] = j
         }
       }
     }
     setMatrixActiveSize(sizeOfTheMatrix)
-  }, [matrixVariable])
+    return sizeOfTheMatrix
+  }, [])
 
   useEffect(() => {
-    handleMatrixSizeChange()
-  }, [handleMatrixSizeChange, matrixVariable])
+    handleSizeChange(matrixVariable)
+  }, [handleSizeChange, matrixVariable])
 
   if (!quizItemAnswerState) {
     return <div></div>
   }
-  const handleOptionSelect = (
-    text: string,
-    option: MatrixItemAnswer,
-    column: number,
-    row: number,
-  ) => {
-    const selectedOptionId = option.optionId
-    const newMatrixItemAnswer = {
-      optionId: selectedOptionId,
-      textData: text,
-    }
-
-    matrixVariable[column][row] = newMatrixItemAnswer
-    setMatrixVariable(matrixVariable)
-
-    let newOptionCells: MatrixItemAnswer[][] = [[]]
-    if (quizItemAnswerState?.optionCells) {
+  const handleOptionSelect = (text: string, column: number, row: number) => {
+    const newMatrix = matrixVariable.map((rowArray, rowIndex) => {
+      return rowArray.map((cell, columnIndex) => {
+        if (column === columnIndex && row === rowIndex) {
+          return text
+        } else {
+          return cell
+        }
+      })
+    })
+    setMatrixVariable(newMatrix)
+    const tempMatrixActiveSize = handleSizeChange(newMatrix)
+    let newOptionCells: string[][] = [[]]
+    if (newMatrix) {
+      newOptionCells = newMatrix
+    } else if (quizItemAnswerState?.optionCells) {
       newOptionCells = quizItemAnswerState?.optionCells
-    } else {
-      newOptionCells = matrixVariable
     }
     let isValid = null
-    for (let j = 0; j <= matrixActiveSize[0]; j++) {
-      for (let i = 0; i <= matrixActiveSize[1]; i++) {
-        if (newOptionCells[j][i].textData === "") {
+    for (let i = 0; i <= tempMatrixActiveSize[0]; i++) {
+      for (let j = 0; j <= tempMatrixActiveSize[1]; j++) {
+        if (newOptionCells[i][j] === "") {
           isValid = false
         }
       }
@@ -102,15 +87,10 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
       valid: isValid,
     }
     setQuizItemAnswerState(newItemAnswer)
-    handleMatrixSizeChange()
   }
 
   const findOptionText = (column: number, row: number): string => {
-    return matrixVariable[column][row].textData
-  }
-
-  const findOption = (column: number, row: number) => {
-    return matrixVariable[column][row]
+    return matrixVariable[row][column]
   }
 
   const tempArray = [0, 1, 2, 3, 4, 5]
@@ -144,15 +124,14 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
               return (
                 <tr key={`row${rowIndex}`}>
                   {tempArray.map((columnIndex) => {
-                    const cellOption = findOption(columnIndex, rowIndex)
-                    if (cellOption !== null) {
+                    const cellText = findOptionText(columnIndex, rowIndex)
+                    if (cellText !== null) {
                       return (
                         <MatrixCell
                           key={`${columnIndex} ${rowIndex}`}
                           column={columnIndex}
                           row={rowIndex}
-                          option={cellOption}
-                          findOptionText={findOptionText}
+                          cellText={cellText}
                           handleOptionSelect={handleOptionSelect}
                           matrixSize={matrixActiveSize}
                         >

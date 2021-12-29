@@ -2,9 +2,8 @@ import { css } from "@emotion/css"
 import React, { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 
-import { MatrixItemAnswer, NormalizedQuizItem } from "../../../../../types/types"
-import { createdNewOption, deletedOption } from "../../../../store/editor/editorActions"
-import { editedOptionCorrectAnswer } from "../../../../store/editor/options/optionActions"
+import { NormalizedQuizItem } from "../../../../../types/types"
+import { editedQuizItemOptionCells } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
 
 import TableCellContent from "./TableCellContent"
@@ -14,81 +13,56 @@ interface TableContentProps {
 }
 
 const TableContent: React.FC<TableContentProps> = ({ item }) => {
-  const storeOptions = useTypedSelector((state) => state.editor.options)
-  const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
   const dispatch = useDispatch()
 
-  const options = storeItem.options.map((option) => {
-    return storeOptions[option]
-  })
-
   const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [column, row]
-  const [matrixVariable, setMatrixVariable] = useState<MatrixItemAnswer[][]>(() => {
-    const quizAnswers: MatrixItemAnswer[][] = []
-    for (let j = 0; j < 6; j++) {
-      const columnArray: MatrixItemAnswer[] = []
-      for (let i = 0; i < 6; i++) {
-        const correctColumnOption = options.find(
-          (option) => option.row === i && option.column === j,
-        )
-        if (correctColumnOption) {
-          columnArray.push({
-            optionId: correctColumnOption.id,
-            textData: correctColumnOption.correctAnswer ?? "",
-          })
-        } else {
-          // eslint-disable-next-line i18next/no-literal-string
-          columnArray.push({ optionId: "", textData: "" })
-        }
+  const [matrixVariable, setMatrixVariable] = useState<string[][]>(() => {
+    if (item.optionCells) {
+      return item.optionCells
+    }
+    const quizAnswers: string[][] = []
+    for (let i = 0; i < 6; i++) {
+      const columnArray: string[] = []
+      for (let j = 0; j < 6; j++) {
+        columnArray.push("")
       }
       quizAnswers.push(columnArray)
     }
     return quizAnswers
   })
 
-  const handleMatrixSizeChange = React.useCallback(() => {
+  useEffect(() => {
     const sizeOfTheMatrix = [0, 0]
-    for (let j = 0; j < 6; j++) {
-      for (let i = 0; i < 6; i++) {
-        if (matrixVariable[j][i].textData !== "" && sizeOfTheMatrix[0] < j) {
-          sizeOfTheMatrix[0] = j
+    for (let i = 0; i < 6; i++) {
+      for (let j = 0; j < 6; j++) {
+        if (matrixVariable[i][j] !== "" && sizeOfTheMatrix[0] < i) {
+          sizeOfTheMatrix[0] = i
         }
-        if (matrixVariable[j][i].textData !== "" && sizeOfTheMatrix[1] < i) {
-          sizeOfTheMatrix[1] = i
+        if (matrixVariable[i][j] !== "" && sizeOfTheMatrix[1] < j) {
+          sizeOfTheMatrix[1] = j
         }
       }
     }
     setMatrixActiveSize(sizeOfTheMatrix)
   }, [matrixVariable])
 
-  useEffect(() => {
-    handleMatrixSizeChange()
-  }, [handleMatrixSizeChange, matrixVariable])
-
   const checkNeighbourCells = (column: number, row: number) => {
-    return matrixVariable[column][row]
+    return matrixVariable[row][column]
   }
 
   const handleTextarea = (text: string, column: number, row: number) => {
-    const option = matrixVariable[column][row]
-    if (option.optionId !== "") {
-      if (text === "") {
-        dispatch(deletedOption(option.optionId, item.id))
-        matrixVariable[column][row] = { textData: "", optionId: "" }
-      } else {
-        dispatch(editedOptionCorrectAnswer(text, option.optionId))
-        matrixVariable[column][row].textData = text
-      }
-    } else {
-      const createdStuff = dispatch(createdNewOption(storeItem.id, "", column, row))
-      if (createdStuff) {
-        matrixVariable[column][row] = { optionId: createdStuff.payload.optionId, textData: text }
-        setMatrixVariable(matrixVariable)
-        dispatch(editedOptionCorrectAnswer(text, createdStuff.payload.optionId))
-      }
-    }
-    handleMatrixSizeChange()
+    const newMatrix = matrixVariable.map((rowArray, rowIndex) => {
+      return rowArray.map((cell, columnIndex) => {
+        if (column === columnIndex && row === rowIndex) {
+          return text
+        } else {
+          return cell
+        }
+      })
+    })
+    setMatrixVariable(newMatrix)
+    dispatch(editedQuizItemOptionCells(item.id, newMatrix))
   }
 
   const tempArray = [0, 1, 2, 3, 4, 5]
@@ -125,8 +99,9 @@ const TableContent: React.FC<TableContentProps> = ({ item }) => {
                     <>
                       {checkNeighbour !== null ? (
                         <TableCellContent
+                          key={`row ${rowIndex} column: ${columnIndex}`}
                           matrixSize={matrixActiveSize}
-                          option={checkNeighbour}
+                          cellText={checkNeighbour}
                           columnLoop={columnIndex}
                           rowLoop={rowIndex}
                           variables={variables}

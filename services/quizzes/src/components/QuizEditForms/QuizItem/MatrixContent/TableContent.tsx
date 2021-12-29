@@ -16,7 +16,7 @@ const TableContent: React.FC<TableContentProps> = ({ item }) => {
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
   const dispatch = useDispatch()
 
-  const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [column, row]
+  const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [row, column]
   const [matrixVariable, setMatrixVariable] = useState<string[][]>(() => {
     if (item.optionCells) {
       return item.optionCells

@@ -53,7 +53,9 @@ const MatrixCell: React.FunctionComponent<MatrixCellProps> = ({
                                 background-color: #DBDBDB;
                                 `)}
           `}
+          name={cellText}
           value={cellText ?? ""}
+          type="text"
           onSelect={() => setIsActive(!isActive)}
           onBlur={() => setIsActive(!isActive)}
           onChange={(event) => handleOptionSelect(event.target.value, column, row)}

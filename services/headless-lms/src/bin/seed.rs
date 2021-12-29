@@ -1,4 +1,5 @@
 #![allow(clippy::too_many_arguments)]
+#![recursion_limit = "256"]
 
 use anyhow::Result;
 use chrono::{DateTime, Duration, TimeZone, Utc};
@@ -1118,7 +1119,7 @@ async fn main() -> Result<()> {
         &mut conn,
         PlaygroundExampleData {
             name: "Quizzes example, matrix".to_string(),
-            url: "http://project-331.local/quizzes/exercise".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
             width: 500,
             data: serde_json::json!(
             {
@@ -1131,7 +1132,7 @@ async fn main() -> Result<()> {
                 "section": 1,
                 "title": "Something about matrices and numbers",
                 "tries": 1,
-                "triesLimited": false,
+                "triesLimited": true,
                 "items": [
                     {
                         "id": "b17f3965-2223-48c9-9063-50f1ebafcf08",
@@ -1149,8 +1150,8 @@ async fn main() -> Result<()> {
                         "quizId": "91cf86bd-39f1-480f-a16c-5b0ad36dc787",
                         "title": "Matrices are interesting",
                         "type": "matrix",
-                        "options": [
-                            ],
+                        "options": [],
+                        "optionCells": [[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]]],
                         }
                         ]}),
         },

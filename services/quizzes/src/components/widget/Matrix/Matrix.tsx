@@ -16,7 +16,7 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItemAnswerState,
   setQuizItemAnswerState,
 }) => {
-  const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [column, row]
+  const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [row, column]
   const [matrixVariable, setMatrixVariable] = useState<string[][]>(() => {
     const quizAnswers: string[][] = []
     for (let i = 0; i < 6; i++) {

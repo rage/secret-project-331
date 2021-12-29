@@ -1,5 +1,6 @@
-use crate::controllers::prelude::*;
 use models::proposed_page_edits::{self, EditProposalInfo, PageProposal, ProposalCount};
+
+use crate::controllers::prelude::*;
 
 #[derive(Debug, Deserialize, TS)]
 pub struct GetEditProposalsQuery {

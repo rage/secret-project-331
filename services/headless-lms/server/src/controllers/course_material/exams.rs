@@ -1,9 +1,10 @@
-use crate::controllers::prelude::*;
 use chrono::{DateTime, Duration, Utc};
 use models::{
     exams::{self, ExamEnrollment},
     pages::{self, Page},
 };
+
+use crate::controllers::prelude::*;
 
 pub async fn enrollment(
     pool: web::Data<PgPool>,

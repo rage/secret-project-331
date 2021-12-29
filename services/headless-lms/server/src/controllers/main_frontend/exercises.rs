@@ -1,7 +1,8 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 
-use crate::controllers::prelude::*;
 use models::submissions::Submission;
+
+use crate::controllers::prelude::*;
 
 #[derive(Debug, Serialize, TS)]
 pub struct ExerciseSubmissions {

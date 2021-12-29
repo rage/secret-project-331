@@ -1,7 +1,8 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercise-services/`.
 
-use crate::controllers::prelude::*;
 use models::exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate};
+
+use crate::controllers::prelude::*;
 
 #[instrument(skip(pool))]
 async fn delete_exercise_service(

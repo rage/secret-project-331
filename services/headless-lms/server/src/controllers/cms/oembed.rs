@@ -1,6 +1,6 @@
-use crate::controllers::prelude::*;
-use crate::utils::url_to_oembed_endpoint::url_to_oembed_endpoint;
 use std::time::Duration;
+
+use crate::{controllers::prelude::*, utils::url_to_oembed_endpoint::url_to_oembed_endpoint};
 
 #[derive(Deserialize)]
 pub struct OEmbedRequest {

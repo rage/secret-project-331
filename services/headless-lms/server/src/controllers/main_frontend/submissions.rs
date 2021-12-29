@@ -1,6 +1,6 @@
-use crate::controllers::prelude::*;
-
 use models::submissions::SubmissionInfo;
+
+use crate::controllers::prelude::*;
 
 /**
 GET `/api/v0/main-frontend/submissions/{submission_id}/info"` - Returns data necessary for rendering a submission.

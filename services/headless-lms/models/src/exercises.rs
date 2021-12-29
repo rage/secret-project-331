@@ -1,4 +1,3 @@
-use crate::prelude::*;
 use crate::{
     course_instances,
     exercise_service_info::{
@@ -8,6 +7,7 @@ use crate::{
         self, get_existing_user_exercise_task_for_course_instance, CourseMaterialExerciseTask,
     },
     gradings::Grading,
+    prelude::*,
     submissions::Submission,
     user_course_settings,
     user_exercise_states::get_user_exercise_state_if_exits,

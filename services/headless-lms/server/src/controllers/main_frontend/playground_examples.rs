@@ -1,5 +1,6 @@
-use crate::controllers::prelude::*;
 use models::playground_examples::{PlaygroundExample, PlaygroundExampleData};
+
+use crate::controllers::prelude::*;
 
 /**
 GET `/api/v0/main-frontend/playground_examples` - Returns all playground examples that are not deleted.

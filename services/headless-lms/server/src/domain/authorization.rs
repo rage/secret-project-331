@@ -1,8 +1,3 @@
-use crate::{
-    controllers::ControllerError,
-    controllers::ControllerResult,
-    models::{self, roles::UserRole},
-};
 use actix_http::Payload;
 use actix_session::{Session, UserSession};
 use actix_web::{FromRequest, HttpRequest};
@@ -12,6 +7,11 @@ use futures::future::{err, ok, Ready};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use uuid::Uuid;
+
+use crate::{
+    controllers::{ControllerError, ControllerResult},
+    models::{self, roles::UserRole},
+};
 
 const SESSION_KEY: &str = "user";
 

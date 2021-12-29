@@ -1,5 +1,6 @@
-use crate::UtilError;
 use url::Url;
+
+use crate::UtilError;
 
 // https://github.com/WordPress/wordpress-develop/blob/master/src/wp-includes/class-wp-oembed.php
 pub fn url_to_oembed_endpoint(url: String) -> Result<Url, UtilError> {
@@ -86,8 +87,9 @@ fn oembed_url_builder(url: &str, query_params: &str) -> Result<Url, UtilError> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use url::Url;
+
+    use super::*;
     #[test]
     fn works_with_youtu_be() {
         assert_eq!(

@@ -1,5 +1,4 @@
-use crate::exercises::GradingProgress;
-use crate::prelude::*;
+use crate::{exercises::GradingProgress, prelude::*};
 
 pub struct Regrading {
     pub id: Uuid,

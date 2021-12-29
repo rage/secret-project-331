@@ -1,6 +1,9 @@
-use crate::prelude::*;
-use crate::utils::{file_store::FileStore, ApplicationConfiguration};
 use std::{path::PathBuf, sync::Arc};
+
+use crate::{
+    prelude::*,
+    utils::{file_store::FileStore, ApplicationConfiguration},
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct DatabaseOrganization {

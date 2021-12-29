@@ -1,7 +1,8 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
-use crate::controllers::prelude::*;
 use models::exercises::CourseMaterialExercise;
+
+use crate::controllers::prelude::*;
 
 /**
 GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes

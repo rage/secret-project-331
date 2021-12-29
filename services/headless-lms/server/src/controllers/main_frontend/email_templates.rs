@@ -1,7 +1,8 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/email-templates/`.
 
-use crate::controllers::prelude::*;
 use models::email_templates::EmailTemplate;
+
+use crate::controllers::prelude::*;
 
 #[instrument(skip(pool))]
 async fn delete_email_template(

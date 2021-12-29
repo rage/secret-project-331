@@ -1,8 +1,9 @@
-use crate::prelude::*;
-use crate::{
-    chapters, chapters::DatabaseChapter, exercises, users::User, utils::pagination::Pagination,
-};
 use std::collections::HashMap;
+
+use crate::{
+    chapters, chapters::DatabaseChapter, exercises, prelude::*, users::User,
+    utils::pagination::Pagination,
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, TS)]
 #[sqlx(type_name = "variant_status", rename_all = "snake_case")]

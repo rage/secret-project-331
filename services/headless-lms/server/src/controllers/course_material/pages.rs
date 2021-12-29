@@ -1,7 +1,8 @@
 //! Controllers for requests starting with `/api/v0/course-material/pages`.
 
-use crate::controllers::prelude::*;
 use models::pages::{Page, PageRoutingDataWithChapterStatus};
+
+use crate::controllers::prelude::*;
 
 async fn get_by_exam_id(
     id: web::Path<Uuid>,

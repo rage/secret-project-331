@@ -1,13 +1,16 @@
+use std::{env, usize};
+
 use anyhow::Result;
 use dotenv::dotenv;
 use futures::stream::{self, StreamExt};
-use headless_lms_actix::models::exercise_services::ExerciseService;
 use headless_lms_actix::{
-    models::exercise_service_info::{fetch_and_upsert_service_info, ExerciseServiceInfo},
+    models::{
+        exercise_service_info::{fetch_and_upsert_service_info, ExerciseServiceInfo},
+        exercise_services::ExerciseService,
+    },
     setup_tracing,
 };
 use sqlx::PgPool;
-use std::{env, usize};
 use tokio::time::{sleep, Duration};
 use tracing::info;
 

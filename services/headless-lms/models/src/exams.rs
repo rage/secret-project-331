@@ -1,5 +1,4 @@
-use crate::courses::Course;
-use crate::prelude::*;
+use crate::{courses::Course, prelude::*};
 
 #[derive(Debug, Serialize, TS)]
 pub struct Exam {

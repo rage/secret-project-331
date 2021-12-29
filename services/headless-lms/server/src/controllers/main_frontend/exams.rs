@@ -1,9 +1,12 @@
-use crate::controllers::prelude::*;
-use crate::domain::csv_export::{self, CSVExportAdapter};
 use bytes::Bytes;
 use chrono::Utc;
 use models::exams::{self, Exam};
 use tokio_stream::wrappers::UnboundedReceiverStream;
+
+use crate::{
+    controllers::prelude::*,
+    domain::csv_export::{self, CSVExportAdapter},
+};
 
 pub async fn get_exam(
     pool: web::Data<PgPool>,

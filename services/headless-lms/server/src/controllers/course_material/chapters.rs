@@ -1,7 +1,8 @@
 //! Controllers for requests starting with `/api/v0/course_material/chapters`.
 
-use crate::controllers::prelude::*;
 use models::pages::{Page, PageWithExercises};
+
+use crate::controllers::prelude::*;
 
 /**
 GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.

@@ -1,8 +1,10 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/chapters`.
 
-use crate::controllers::prelude::*;
-use models::chapters::{Chapter, ChapterUpdate, NewChapter};
 use std::{path::PathBuf, str::FromStr};
+
+use models::chapters::{Chapter, ChapterUpdate, NewChapter};
+
+use crate::controllers::prelude::*;
 
 /**
 POST `/api/v0/main-frontend/chapters` - Create a new course part.

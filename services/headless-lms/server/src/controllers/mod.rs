@@ -20,11 +20,10 @@ use std::error::Error;
 
 use actix_web::{
     error,
-    http::header::ContentType,
+    http::{header::ContentType, StatusCode},
     web::{self, ServiceConfig},
-    HttpResponse,
+    HttpResponse, HttpResponseBuilder,
 };
-use actix_web::{http::StatusCode, HttpResponseBuilder};
 use derive_more::Display;
 use headless_lms_utils::UtilError;
 use itertools::Itertools;

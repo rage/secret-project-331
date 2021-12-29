@@ -1,12 +1,13 @@
 //! Controllers for requests starting with `/api/v0/course-material/course-instances`.
 
-use crate::controllers::prelude::*;
 use models::{
     chapters::UserCourseInstanceChapterProgress,
     course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
 };
 use utils::numbers::option_f32_to_f32_two_decimals;
+
+use crate::controllers::prelude::*;
 
 /**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.

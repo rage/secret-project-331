@@ -1,11 +1,13 @@
-use super::{path_to_str, FileStore, GenericPayload};
-use crate::UtilError;
+use std::path::Path;
+
 use async_trait::async_trait;
 use bytes::Bytes;
 use cloud_storage::Client;
 use futures::{future::try_join, StreamExt};
-use std::path::Path;
 use tokio_stream::wrappers::ReceiverStream;
+
+use super::{path_to_str, FileStore, GenericPayload};
+use crate::UtilError;
 
 const BUFFER_SIZE: usize = 512;
 

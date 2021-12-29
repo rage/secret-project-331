@@ -1,12 +1,13 @@
 //! Controllers for requests starting with `/api/v0/course-material/submissions`.
 
-use crate::controllers::prelude::*;
 use chrono::{Duration, Utc};
 use models::{
     exams,
     gradings::{self, Grading},
     submissions::{self, NewSubmission, Submission, SubmissionResult},
 };
+
+use crate::controllers::prelude::*;
 
 /**
 POST `/api/v0/course-material/submissions` - Post a new submission.

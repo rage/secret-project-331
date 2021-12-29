@@ -266,7 +266,7 @@ async fn get_course_structure(
     let course_structure = models::courses::get_course_structure(
         &mut conn,
         *request_course_id,
-        &file_store,
+        file_store.as_ref(),
         app_conf.as_ref(),
     )
     .await?;
@@ -415,7 +415,7 @@ async fn get_all_course_language_versions(
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *request_course_id).await?;
     let language_versions =
-        models::courses::get_all_language_versions_of_course(&mut conn, course).await?;
+        models::courses::get_all_language_versions_of_course(&mut conn, &course).await?;
     Ok(web::Json(language_versions))
 }
 
@@ -470,7 +470,7 @@ pub async fn post_new_course_language_version(
     let copied_course = models::courses::copy_course_as_language_version_of_course(
         &mut conn,
         *request_course_id,
-        payload.0,
+        &payload.0,
     )
     .await?;
     Ok(web::Json(copied_course))
@@ -646,8 +646,7 @@ pub async fn get_feedback(
     let course_id = course_id.into_inner();
 
     let feedback =
-        feedback::get_feedback_for_course(&mut conn, course_id, read.read, &read.pagination)
-            .await?;
+        feedback::get_feedback_for_course(&mut conn, course_id, read.read, read.pagination).await?;
     Ok(web::Json(feedback))
 }
 

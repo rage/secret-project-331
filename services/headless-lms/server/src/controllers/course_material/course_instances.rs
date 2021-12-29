@@ -27,11 +27,12 @@ async fn get_user_progress_for_course_instance(
     request_course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<UserCourseInstanceProgress>> {
+    let mut conn = pool.acquire().await?;
     let user_course_instance_progress =
         models::user_exercise_states::get_user_course_instance_progress(
-            pool.get_ref(),
-            &request_course_instance_id,
-            &user.id,
+            &mut conn,
+            *request_course_instance_id,
+            user.id,
         )
         .await?;
     Ok(web::Json(user_course_instance_progress))
@@ -57,13 +58,14 @@ async fn get_user_progress_for_course_instance_chapter(
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<UserCourseInstanceChapterProgress>> {
+    let mut conn = pool.acquire().await?;
     let (course_instance_id, chapter_id) = params.into_inner();
     let user_course_instance_chapter_progress =
         models::chapters::get_user_course_instance_chapter_progress(
-            pool.get_ref(),
-            &course_instance_id,
-            &chapter_id,
-            &user.id,
+            &mut conn,
+            course_instance_id,
+            chapter_id,
+            user.id,
         )
         .await?;
     Ok(web::Json(user_course_instance_chapter_progress))
@@ -91,15 +93,15 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
     let mut conn = pool.acquire().await?;
     let (course_instance_id, chapter_id) = params.into_inner();
     let chapter_exercises =
-        models::exercises::get_exercises_by_chapter_id(&mut conn, &chapter_id).await?;
+        models::exercises::get_exercises_by_chapter_id(&mut conn, chapter_id).await?;
     let exercise_ids: Vec<Uuid> = chapter_exercises.into_iter().map(|e| e.id).collect();
 
     let user_course_instance_exercise_progress =
         models::user_exercise_states::get_user_course_instance_chapter_exercises_progress(
-            pool.get_ref(),
-            &course_instance_id,
+            &mut conn,
+            course_instance_id,
             &exercise_ids,
-            &user.id,
+            user.id,
         )
         .await?;
     let rounded_score_given_instances: Vec<UserCourseInstanceChapterExerciseProgress> =

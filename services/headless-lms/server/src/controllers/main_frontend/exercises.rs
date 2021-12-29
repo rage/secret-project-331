@@ -44,12 +44,12 @@ async fn get_exercise_submissions(
 ) -> ControllerResult<web::Json<ExerciseSubmissions>> {
     let mut conn = pool.acquire().await?;
     let submission_count =
-        models::submissions::exercise_submission_count(&mut conn, &request_exercise_id);
+        models::submissions::exercise_submission_count(&mut conn, *request_exercise_id);
     let mut conn = pool.acquire().await?;
     let course_id = models::exercises::get_course_id(&mut conn, *request_exercise_id).await?;
     authorize(&mut conn, Act::View, user.id, Res::Course(course_id)).await?;
     let submissions =
-        models::submissions::exercise_submissions(&mut conn, &request_exercise_id, &pagination);
+        models::submissions::exercise_submissions(&mut conn, *request_exercise_id, *pagination);
     let (submission_count, submissions) = future::try_join(submission_count, submissions).await?;
 
     let total_pages = pagination.total_pages(submission_count);

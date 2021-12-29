@@ -81,7 +81,7 @@ pub async fn get_feedback_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
     read: bool,
-    pagination: &Pagination,
+    pagination: Pagination,
 ) -> ModelResult<Vec<Feedback>> {
     let res = sqlx::query!(
         r#"

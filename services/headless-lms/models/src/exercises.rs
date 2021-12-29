@@ -192,7 +192,7 @@ ORDER BY order_number ASC
 
 pub async fn get_exercises_by_chapter_id(
     conn: &mut PgConnection,
-    chapter_id: &Uuid,
+    chapter_id: Uuid,
 ) -> ModelResult<Vec<Exercise>> {
     let exercises = sqlx::query_as!(
         Exercise,

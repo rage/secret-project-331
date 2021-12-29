@@ -60,10 +60,9 @@ pub struct CourseInstanceExerciseMetrics {
 }
 
 pub async fn get_course_instance_metrics(
-    pool: &PgPool,
-    course_instance_id: &Uuid,
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
 ) -> ModelResult<CourseInstanceExerciseMetrics> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         CourseInstanceExerciseMetrics,
         r#"
@@ -76,17 +75,16 @@ WHERE e.deleted_at IS NULL
         "#,
         course_instance_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
 
 pub async fn get_user_course_instance_metrics(
-    pool: &PgPool,
-    course_instance_id: &Uuid,
-    user_id: &Uuid,
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
 ) -> ModelResult<UserCourseInstanceMetrics> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         UserCourseInstanceMetrics,
         r#"
@@ -100,18 +98,17 @@ WHERE ues.course_instance_id = $1
         course_instance_id,
         user_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
 
 pub async fn get_user_course_instance_chapter_metrics(
-    pool: &PgPool,
-    course_instance_id: &Uuid,
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
     exercise_ids: &[Uuid],
-    user_id: &Uuid,
+    user_id: Uuid,
 ) -> ModelResult<UserChapterMetrics> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         UserChapterMetrics,
         r#"
@@ -128,21 +125,19 @@ WHERE ues.exercise_id IN (
         user_id,
         course_instance_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
 
 pub async fn get_user_course_instance_progress(
-    pool: &PgPool,
-    course_instance_id: &Uuid,
-    user_id: &Uuid,
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
 ) -> ModelResult<UserCourseInstanceProgress> {
-    let (course_metrics, user_metrics) = future::try_join(
-        get_course_instance_metrics(pool, course_instance_id),
-        get_user_course_instance_metrics(pool, course_instance_id, user_id),
-    )
-    .await?;
+    let course_metrics = get_course_instance_metrics(&mut *conn, course_instance_id).await?;
+    let user_metrics = get_user_course_instance_metrics(conn, course_instance_id, user_id).await?;
+
     let result = UserCourseInstanceProgress {
         score_given: option_f32_to_f32_two_decimals(user_metrics.score_given),
         completed_exercises: user_metrics
@@ -162,12 +157,11 @@ pub async fn get_user_course_instance_progress(
 }
 
 pub async fn get_user_course_instance_chapter_exercises_progress(
-    pool: &PgPool,
-    course_instance_id: &Uuid,
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
     exercise_ids: &[Uuid],
-    user_id: &Uuid,
+    user_id: Uuid,
 ) -> ModelResult<Vec<DatabaseUserCourseInstanceChapterExerciseProgress>> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         DatabaseUserCourseInstanceChapterExerciseProgress,
         r#"
@@ -185,7 +179,7 @@ WHERE ues.deleted_at IS NULL
         course_instance_id,
         user_id,
     )
-    .fetch_all(&mut connection)
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }

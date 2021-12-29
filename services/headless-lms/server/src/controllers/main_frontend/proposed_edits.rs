@@ -27,7 +27,7 @@ pub async fn get_edit_proposals(
         &mut conn,
         course_id,
         query.pending,
-        &query.pagination,
+        query.pagination,
     )
     .await?;
     Ok(web::Json(feedback))

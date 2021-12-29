@@ -114,7 +114,7 @@ async fn points(
 ) -> ControllerResult<web::Json<Points>> {
     let mut conn = pool.acquire().await?;
     let points =
-        course_instances::get_points(&mut conn, course_instance_id.into_inner(), &pagination)
+        course_instances::get_points(&mut conn, course_instance_id.into_inner(), *pagination)
             .await?;
     Ok(web::Json(points))
 }

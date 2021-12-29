@@ -7,7 +7,7 @@ use serde::{
 use ts_rs::TS;
 
 /// Represents the URL query parameters `page` and `limit`, used for paginating database queries.
-#[derive(Debug, TS)]
+#[derive(Debug, Clone, Copy, TS)]
 pub struct Pagination {
     // the deserialize implementation contains a default value for page
     #[ts(rename = "page?")]

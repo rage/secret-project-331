@@ -49,7 +49,7 @@ pub async fn insert_email_template(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     email_template: EmailTemplateNew,
-    subject: Option<String>,
+    subject: Option<&'_ str>,
 ) -> ModelResult<EmailTemplate> {
     let res = sqlx::query_as!(
         EmailTemplate,

@@ -59,7 +59,7 @@ async fn post_new_chapter(
         models::chapters::insert_chapter(&mut conn, new_chapter, user.id).await?;
     Ok(web::Json(Chapter::from_database_chapter(
         &database_chapter,
-        &file_store,
+        file_store.as_ref(),
         app_conf.as_ref(),
     )))
 }
@@ -96,7 +96,7 @@ async fn delete_chapter(
     let deleted_chapter = models::chapters::delete_chapter(&mut conn, course_id).await?;
     Ok(web::Json(Chapter::from_database_chapter(
         &deleted_chapter,
-        &file_store,
+        file_store.as_ref(),
         app_conf.as_ref(),
     )))
 }
@@ -150,7 +150,7 @@ async fn update_chapter(
     let course_update = payload.0;
     let chapter = models::chapters::update_chapter(&mut conn, chapter_id, course_update).await?;
 
-    let response = Chapter::from_database_chapter(&chapter, &file_store, app_conf.as_ref());
+    let response = Chapter::from_database_chapter(&chapter, file_store.as_ref(), app_conf.as_ref());
 
     Ok(web::Json(response))
 }
@@ -227,7 +227,8 @@ async fn set_chapter_image(
         })?;
     }
 
-    let response = Chapter::from_database_chapter(&updated_chapter, &file_store, app_conf.as_ref());
+    let response =
+        Chapter::from_database_chapter(&updated_chapter, file_store.as_ref(), app_conf.as_ref());
 
     Ok(web::Json(response))
 }

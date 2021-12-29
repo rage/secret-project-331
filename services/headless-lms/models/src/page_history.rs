@@ -97,7 +97,7 @@ WHERE page_history.id = $1
 pub async fn history(
     conn: &mut PgConnection,
     page_id: Uuid,
-    pagination: &Pagination,
+    pagination: Pagination,
 ) -> ModelResult<Vec<PageHistory>> {
     let res = sqlx::query_as!(
         PageHistory,

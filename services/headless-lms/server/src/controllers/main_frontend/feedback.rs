@@ -16,12 +16,7 @@ pub async fn mark_as_read(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    feedback::mark_as_read(
-        &mut conn,
-        feedback_id.into_inner(),
-        mark_as_read.into_inner().read,
-    )
-    .await?;
+    feedback::mark_as_read(&mut conn, *feedback_id, mark_as_read.into_inner().read).await?;
     Ok(HttpResponse::Ok().finish())
 }
 

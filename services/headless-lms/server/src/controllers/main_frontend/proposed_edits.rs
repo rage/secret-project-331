@@ -20,12 +20,11 @@ pub async fn get_edit_proposals(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<PageProposal>>> {
     let mut conn = pool.acquire().await?;
-    let course_id = course_id.into_inner();
-    authorize(&mut conn, Act::View, user.id, Res::Course(course_id)).await?;
+    authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
 
     let feedback = proposed_page_edits::get_proposals_for_course(
         &mut conn,
-        course_id,
+        *course_id,
         query.pending,
         query.pagination,
     )
@@ -43,11 +42,10 @@ pub async fn get_edit_proposal_count(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ProposalCount>> {
     let mut conn = pool.acquire().await?;
-    let course_id = course_id.into_inner();
-    authorize(&mut conn, Act::View, user.id, Res::Course(course_id)).await?;
+    authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
 
     let edit_proposal_count =
-        proposed_page_edits::get_proposal_count_for_course(&mut conn, course_id).await?;
+        proposed_page_edits::get_proposal_count_for_course(&mut conn, *course_id).await?;
     Ok(web::Json(edit_proposal_count))
 }
 

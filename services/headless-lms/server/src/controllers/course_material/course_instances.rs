@@ -24,14 +24,14 @@ use crate::controllers::prelude::*;
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance(
     user: AuthUser,
-    request_course_instance_id: web::Path<Uuid>,
+    course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<UserCourseInstanceProgress>> {
     let mut conn = pool.acquire().await?;
     let user_course_instance_progress =
         models::user_exercise_states::get_user_course_instance_progress(
             &mut conn,
-            *request_course_instance_id,
+            *course_instance_id,
             user.id,
         )
         .await?;
@@ -136,14 +136,13 @@ Response:
 #[instrument(skip(pool))]
 async fn add_user_enrollment(
     pool: web::Data<PgPool>,
-    request_course_instance_id: web::Path<Uuid>,
+    course_instance_id: web::Path<Uuid>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseInstanceEnrollment>> {
     let mut conn = pool.acquire().await?;
 
     let instance =
-        models::course_instances::get_course_instance(&mut conn, *request_course_instance_id)
-            .await?;
+        models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
     let enrollment = models::course_instance_enrollments::insert_enrollment_and_set_as_current(
         &mut conn,
         NewCourseInstanceEnrollment {

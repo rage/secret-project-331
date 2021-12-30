@@ -35,13 +35,12 @@ Response:
 */
 #[instrument(skip(pool))]
 async fn get_page(
-    request_page_id: web::Path<Uuid>,
+    page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
-    let (course_id, exam_id) =
-        models::pages::get_course_and_exam_id(&mut conn, *request_page_id).await?;
+    let (course_id, exam_id) = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
     if let Some(course_id) = course_id {
         authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
     } else if let Some(exam_id) = exam_id {
@@ -49,7 +48,7 @@ async fn get_page(
     } else {
         return Err(anyhow::anyhow!("No course or exam associated with page").into());
     }
-    let cms_page = models::pages::get_page_with_exercises(&mut conn, *request_page_id).await?;
+    let cms_page = models::pages::get_page_with_exercises(&mut conn, *page_id).await?;
     Ok(web::Json(cms_page))
 }
 
@@ -100,14 +99,13 @@ Response:
 #[instrument(skip(pool))]
 async fn update_page(
     payload: web::Json<CmsPageUpdate>,
-    request_page_id: web::Path<Uuid>,
+    page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
     let page_update = payload.0;
-    let (course_id, exam_id) =
-        models::pages::get_course_and_exam_id(&mut conn, *request_page_id).await?;
+    let (course_id, exam_id) = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
     if let Some(course_id) = course_id {
         authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
     } else if let Some(exam_id) = exam_id {
@@ -115,7 +113,7 @@ async fn update_page(
     }
     let saved = models::pages::update_page(
         &mut conn,
-        *request_page_id,
+        *page_id,
         page_update,
         user.id,
         false,

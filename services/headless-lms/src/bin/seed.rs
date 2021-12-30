@@ -1391,7 +1391,7 @@ async fn seed_sample_course(
                 "type": "open",
                 "multi": false,
                 "order": 0,
-                "title": "When you started studying at the uni? Give the date in yyyy/mm/dd format.",
+                "title": "When you started studying at the uni? Give the date in yyyy-mm-dd format.",
                 "quizId": "690c69e2-9275-4cfa-aba4-63ac917e59f6",
                 "options": [],
                 "maxValue": null,
@@ -1403,8 +1403,8 @@ async fn seed_sample_course(
                 "updatedAt": "2021-12-17T07:16:23.202Z",
                 "formatRegex": null,
                 "validityRegex": r#"^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$"#.to_string(),
-                "failureMessage": null,
-                "successMessage": null,
+                "failureMessage": "Oh no! Your answer is not in yyyy-mm-dd format :(".to_string(),
+                "successMessage": "Gongrats! your answer is in yyyy-mm-dd format!".to_string(),
                 "allAnswersCorrect": false,
                 "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                 "sharedOptionFeedbackMessage": null,
@@ -1436,15 +1436,37 @@ async fn seed_sample_course(
             url_path: "/chapter-1/page-3".to_string(),
             title: "page 3".to_string(),
             chapter_id: Some(chapter_1.id),
-            exercises: vec![quizzes_exercise_1, quizzes_exercise_2],
-            exercise_slides: vec![quizzes_exercise_slide_1, quizzes_exercise_slide_2],
-            exercise_tasks: vec![quizzes_exercise_task_1, quizzes_exercise_task_2],
+            exercises: vec![quizzes_exercise_1],
+            exercise_slides: vec![quizzes_exercise_slide_1],
+            exercise_tasks: vec![quizzes_exercise_task_1],
             content: serde_json::json!([
                 paragraph(
-                    "First chapters last page.",
+                    "First chapters essay page.",
                     Uuid::new_v5(&course_id, b"6e4ab83a-2ae8-4bd2-a6ea-0e0d1eeabe23")
                 ),
                 quizzes_exercise_block_1,
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        chapter_1.id,
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-4".to_string(),
+            title: "page 4".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_2],
+            exercise_slides: vec![quizzes_exercise_slide_2],
+            exercise_tasks: vec![quizzes_exercise_task_2],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters open page.",
+                    Uuid::new_v5(&course_id, b"771b9c61-dbc9-4266-a980-dadc853455c9")
+                ),
                 quizzes_exercise_block_2
             ]),
         },

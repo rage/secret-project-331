@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test", async ({ headless, page }) => {
+test.only("test", async ({ headless, page }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
@@ -21,10 +21,10 @@ test("test", async ({ headless, page }) => {
   await Promise.all([page.waitForNavigation(), page.click("text=Introduction to everything")])
 
   // probably shouldn't comment out :/
-  // await page.click('label:has-text("default")')
+  await page.click('label:has-text("default")')
 
   // Click button:has-text("Continue")
-  // await page.click('button:has-text("Continue")')
+  await page.click('button:has-text("Continue")')
 
   await Promise.all([page.waitForNavigation(), await page.click("text=The Basics")])
   expect(page.url()).toBe(
@@ -44,11 +44,11 @@ test("test", async ({ headless, page }) => {
   )
 
   await frame.waitForSelector(
-    "text=When you started studying at the uni? Give the date in yyyy/mm/dd format.",
+    "text=When you started studying at the uni? Give the date in yyyy-mm-dd format.",
   )
 
   await frame.fill(
-    `input:below(:text("When you started studying at the uni? Give the date in yyyy/mm/dd format."))`,
+    `input:below(:text("When you started studying at the uni? Give the date in yyyy-mm-dd format."))`,
     "1999-01-01",
   )
 

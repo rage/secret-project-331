@@ -6,6 +6,7 @@ import { ItemAnswerFeedback } from "../pages/api/grade"
 import { QuizItemSubmissionComponentProps } from "./SubmissionComponents"
 import EssayFeedback from "./SubmissionComponents/Essay"
 import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
+import OpenFeedback from "./SubmissionComponents/Open"
 import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
 
 interface SubmissionProps {
@@ -30,7 +31,7 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
     "multiple-choice": MultipleChoiceSubmission,
     checkbox: UnsupportedSubmissionViewComponent,
     scale: UnsupportedSubmissionViewComponent,
-    open: UnsupportedSubmissionViewComponent,
+    open: OpenFeedback,
     "custom-frontend-accept-data": UnsupportedSubmissionViewComponent,
     "multiple-choice-dropdown": UnsupportedSubmissionViewComponent,
     "clickable-multiple-choice": UnsupportedSubmissionViewComponent,

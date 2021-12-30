@@ -84,14 +84,14 @@ DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a course part.
 */
 #[instrument(skip(pool, file_store, app_conf))]
 async fn delete_chapter(
-    request_chapter_id: web::Path<String>,
+    chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<Chapter>> {
     let mut conn = pool.acquire().await?;
-    let course_id = Uuid::from_str(&request_chapter_id)?;
+    let course_id = Uuid::from_str(&chapter_id)?;
     authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
     let deleted_chapter = models::chapters::delete_chapter(&mut conn, course_id).await?;
     Ok(web::Json(Chapter::from_database_chapter(
@@ -137,14 +137,14 @@ Response:
 #[instrument(skip(payload, pool, file_store, app_conf))]
 async fn update_chapter(
     payload: web::Json<ChapterUpdate>,
-    request_chapter_id: web::Path<String>,
+    chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<Chapter>> {
     let mut conn = pool.acquire().await?;
-    let chapter_id = Uuid::from_str(&request_chapter_id)?;
+    let chapter_id = Uuid::from_str(&chapter_id)?;
     let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
     authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
     let course_update = payload.0;
@@ -187,14 +187,14 @@ Response:
 async fn set_chapter_image(
     request: HttpRequest,
     payload: Multipart,
-    request_chapter_id: web::Path<Uuid>,
+    chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<Chapter>> {
     let mut conn = pool.acquire().await?;
-    let chapter = models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
+    let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
     authorize(
         &mut conn,
         Act::Edit,
@@ -245,13 +245,13 @@ DELETE /api/v0/main-frontend/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image
 */
 #[instrument(skip(pool, file_store))]
 async fn remove_chapter_image(
-    request_chapter_id: web::Path<Uuid>,
+    chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    let chapter = models::chapters::get_chapter(&mut conn, *request_chapter_id).await?;
+    let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
     authorize(
         &mut conn,
         Act::Edit,

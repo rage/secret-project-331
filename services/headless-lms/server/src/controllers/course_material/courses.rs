@@ -20,12 +20,12 @@ GET `/api/v0/main-frontend/courses/:course_id` - Get course.
 */
 #[instrument(skip(pool))]
 async fn get_course(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    let course = models::courses::get_course(&mut conn, *request_course_id).await?;
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
     Ok(web::Json(course))
 }
 
@@ -97,15 +97,13 @@ GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the 
 #[instrument(skip(pool))]
 async fn get_current_course_instance(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Option<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
     if let Some(user) = user {
         let instance = models::course_instances::current_course_instance_of_user(
-            &mut conn,
-            user.id,
-            *request_course_id,
+            &mut conn, user.id, *course_id,
         )
         .await?;
         Ok(web::Json(instance))
@@ -137,12 +135,11 @@ GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all 
 */
 async fn get_course_instances(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<Vec<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
     let instances =
-        models::course_instances::get_course_instances_for_course(&mut conn, *request_course_id)
-            .await?;
+        models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
     Ok(web::Json(instances))
 }
 
@@ -170,11 +167,11 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages
 */
 #[instrument(skip(pool))]
 async fn get_course_pages(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
-    let pages: Vec<Page> = models::pages::course_pages(&mut conn, *request_course_id).await?;
+    let pages: Vec<Page> = models::pages::course_pages(&mut conn, *course_id).await?;
     Ok(web::Json(pages))
 }
 
@@ -200,11 +197,11 @@ GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of ch
 */
 #[instrument(skip(pool))]
 async fn get_chapters(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<ChapterWithStatus>>> {
     let mut conn = pool.acquire().await?;
-    let chapters = models::chapters::course_chapters(&mut conn, *request_course_id).await?;
+    let chapters = models::chapters::course_chapters(&mut conn, *course_id).await?;
     let chapters = chapters
         .into_iter()
         .map(|chapter| {
@@ -236,15 +233,13 @@ GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user se
 */
 async fn get_user_course_settings(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Option<UserCourseSettings>>> {
     let mut conn = pool.acquire().await?;
     if let Some(user) = user {
         let settings = models::user_course_settings::get_user_course_settings_by_course_id(
-            &mut conn,
-            user.id,
-            *request_course_id,
+            &mut conn, user.id, *course_id,
         )
         .await?;
         Ok(web::Json(settings))
@@ -308,14 +303,13 @@ Response:
 */
 #[instrument(skip(pool))]
 async fn search_pages_with_phrase(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     payload: web::Json<PageSearchRequest>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
     let res =
-        models::pages::get_page_search_results_for_phrase(&mut conn, *request_course_id, &*payload)
-            .await?;
+        models::pages::get_page_search_results_for_phrase(&mut conn, *course_id, &*payload).await?;
     Ok(web::Json(res))
 }
 
@@ -374,14 +368,13 @@ Response:
 */
 #[instrument(skip(pool))]
 async fn search_pages_with_words(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     payload: web::Json<PageSearchRequest>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
     let res =
-        models::pages::get_page_search_results_for_words(&mut conn, *request_course_id, &*payload)
-            .await?;
+        models::pages::get_page_search_results_for_words(&mut conn, *course_id, &*payload).await?;
     Ok(web::Json(res))
 }
 
@@ -420,10 +413,9 @@ pub async fn feedback(
 
     let mut tx = conn.begin().await?;
     let user_id = user.as_ref().map(|u| u.id);
-    let course_id = course_id.into_inner();
     let mut ids = vec![];
     for f in fs {
-        let id = feedback::insert(&mut tx, user_id, course_id, f).await?;
+        let id = feedback::insert(&mut tx, user_id, *course_id, f).await?;
         ids.push(id.to_string());
     }
     tx.commit().await?;

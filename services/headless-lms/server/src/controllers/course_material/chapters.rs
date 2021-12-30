@@ -55,12 +55,11 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pag
 */
 #[instrument(skip(pool))]
 async fn get_chapters_pages(
-    request_chapter_id: web::Path<Uuid>,
+    chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
-    let chapter_pages: Vec<Page> =
-        models::pages::chapter_pages(&mut conn, *request_chapter_id).await?;
+    let chapter_pages: Vec<Page> = models::pages::chapter_pages(&mut conn, *chapter_id).await?;
     Ok(web::Json(chapter_pages))
 }
 
@@ -118,12 +117,12 @@ GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of
 */
 #[instrument(skip(pool))]
 async fn get_chapters_exercises(
-    request_chapter_id: web::Path<Uuid>,
+    chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<PageWithExercises>>> {
     let mut conn = pool.acquire().await?;
     let chapter_pages_with_exercises =
-        models::pages::get_chapters_pages_with_exercises(&mut conn, *request_chapter_id).await?;
+        models::pages::get_chapters_pages_with_exercises(&mut conn, *chapter_id).await?;
     Ok(web::Json(chapter_pages_with_exercises))
 }
 
@@ -149,13 +148,12 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` -
 */
 #[instrument(skip(pool))]
 async fn get_chapters_pages_without_main_frontpage(
-    request_chapter_id: web::Path<Uuid>,
+    chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let chapter_pages =
-        models::pages::get_chapters_pages_exclude_main_frontpage(&mut conn, *request_chapter_id)
-            .await?;
+        models::pages::get_chapters_pages_exclude_main_frontpage(&mut conn, *chapter_id).await?;
     Ok(web::Json(chapter_pages))
 }
 

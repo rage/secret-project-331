@@ -5,11 +5,11 @@ use models::pages::{Page, PageRoutingDataWithChapterStatus};
 use crate::controllers::prelude::*;
 
 async fn get_by_exam_id(
-    id: web::Path<Uuid>,
+    exam_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
-    let page = models::pages::get_by_exam_id(&mut conn, id.into_inner()).await?;
+    let page = models::pages::get_by_exam_id(&mut conn, *exam_id).await?;
     Ok(web::Json(page))
 }
 
@@ -30,11 +30,11 @@ async fn get_by_exam_id(
 */
 #[instrument(skip(pool))]
 async fn get_next_page(
-    request_page_id: web::Path<Uuid>,
+    page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Option<PageRoutingDataWithChapterStatus>>> {
     let mut conn = pool.acquire().await?;
-    let next_page_data = models::pages::get_next_page(&mut conn, *request_page_id).await?;
+    let next_page_data = models::pages::get_next_page(&mut conn, *page_id).await?;
     let next_page_data_with_status =
         models::pages::get_next_page_with_chapter_status(next_page_data).await?;
 

@@ -102,13 +102,12 @@ Response:
 */
 #[instrument(skip(pool))]
 async fn delete_page(
-    request_page_id: web::Path<Uuid>,
+    page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
-    let (course_id, exam_id) =
-        models::pages::get_course_and_exam_id(&mut conn, *request_page_id).await?;
+    let (course_id, exam_id) = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
     if let Some(course_id) = course_id {
         authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
     } else if let Some(exam_id) = exam_id {
@@ -116,8 +115,7 @@ async fn delete_page(
     } else {
         return Err(anyhow::anyhow!("Page not associated with course or exam").into());
     }
-    let deleted_page =
-        models::pages::delete_page_and_exercises(&mut conn, *request_page_id).await?;
+    let deleted_page = models::pages::delete_page_and_exercises(&mut conn, *page_id).await?;
     Ok(web::Json(deleted_page))
 }
 
@@ -133,7 +131,7 @@ async fn history(
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::View, user.id, Res::Page(*page_id)).await?;
 
-    let res = models::page_history::history(&mut conn, page_id.into_inner(), *pagination).await?;
+    let res = models::page_history::history(&mut conn, *page_id, *pagination).await?;
     Ok(web::Json(res))
 }
 
@@ -148,7 +146,7 @@ async fn history_count(
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::View, user.id, Res::Page(*page_id)).await?;
 
-    let res = models::page_history::history_count(&mut conn, page_id.into_inner()).await?;
+    let res = models::page_history::history_count(&mut conn, *page_id).await?;
     Ok(web::Json(res))
 }
 
@@ -164,13 +162,7 @@ async fn restore(
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::Edit, user.id, Res::Page(*page_id)).await?;
 
-    let res = models::pages::restore(
-        &mut conn,
-        page_id.into_inner(),
-        restore_data.history_id,
-        user.id,
-    )
-    .await?;
+    let res = models::pages::restore(&mut conn, *page_id, restore_data.history_id, user.id).await?;
     Ok(web::Json(res))
 }
 

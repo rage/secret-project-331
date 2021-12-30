@@ -6,7 +6,7 @@ use crate::controllers::prelude::*;
 
 #[instrument(skip(pool))]
 async fn delete_exercise_service(
-    request_exercise_service_id: web::Path<Uuid>,
+    exercise_service_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ExerciseService>> {
@@ -14,8 +14,7 @@ async fn delete_exercise_service(
     authorize(&mut conn, Act::Edit, user.id, Res::ExerciseService).await?;
 
     let deleted =
-        models::exercise_services::delete_exercise_service(&mut conn, *request_exercise_service_id)
-            .await?;
+        models::exercise_services::delete_exercise_service(&mut conn, *exercise_service_id).await?;
     Ok(web::Json(deleted))
 }
 
@@ -36,14 +35,13 @@ async fn add_exercise_service(
 
 #[instrument(skip(pool))]
 async fn get_exercise_service_by_id(
-    request_exercise_service_id: web::Path<Uuid>,
+    exercise_service_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
     let exercise_service =
-        models::exercise_services::get_exercise_service(&mut conn, *request_exercise_service_id)
-            .await?;
+        models::exercise_services::get_exercise_service(&mut conn, *exercise_service_id).await?;
     Ok(web::Json(exercise_service))
 }
 
@@ -60,7 +58,7 @@ async fn get_exercise_services(
 #[instrument(skip(pool))]
 async fn update_exercise_service(
     payload: web::Json<ExerciseServiceNewOrUpdate>,
-    request_exercise_service_id: web::Path<Uuid>,
+    exercise_service_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ExerciseService>> {
@@ -70,7 +68,7 @@ async fn update_exercise_service(
     let updated_exercise_service = payload.0;
     let updated_service = models::exercise_services::update_exercise_service(
         &mut conn,
-        *request_exercise_service_id,
+        *exercise_service_id,
         &updated_exercise_service,
     )
     .await?;

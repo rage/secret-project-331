@@ -8,23 +8,22 @@ use crate::controllers::prelude::*;
 
 pub async fn enrollment(
     pool: web::Data<PgPool>,
-    id: web::Path<Uuid>,
+    exam_id: web::Path<Uuid>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Option<ExamEnrollment>>> {
     let mut conn = pool.acquire().await?;
-    let enrollment = exams::get_enrollment(&mut conn, id.into_inner(), user.id).await?;
+    let enrollment = exams::get_enrollment(&mut conn, *exam_id, user.id).await?;
     Ok(web::Json(enrollment))
 }
 
 pub async fn enroll(
     pool: web::Data<PgPool>,
-    id: web::Path<Uuid>,
+    exam_id: web::Path<Uuid>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
 
-    let exam_id = id.into_inner();
-    let exam = exams::get(&mut conn, exam_id).await?;
+    let exam = exams::get(&mut conn, *exam_id).await?;
 
     // check that the exam is not over
     let now = dbg!(Utc::now());
@@ -36,7 +35,7 @@ pub async fn enroll(
 
     if let Some(starts_at) = exam.starts_at {
         if now > starts_at {
-            exams::enroll(&mut conn, exam_id, user.id).await?;
+            exams::enroll(&mut conn, *exam_id, user.id).await?;
             return Ok(web::Json(()));
         }
     }
@@ -73,12 +72,11 @@ pub enum ExamEnrollmentData {
 
 pub async fn fetch_exam_for_user(
     pool: web::Data<PgPool>,
-    id: web::Path<Uuid>,
+    exam_id: web::Path<Uuid>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ExamData>> {
     let mut conn = pool.acquire().await?;
-    let id = id.into_inner();
-    let exam = exams::get(&mut conn, id).await?;
+    let exam = exams::get(&mut conn, *exam_id).await?;
 
     let starts_at = if let Some(starts_at) = exam.starts_at {
         starts_at
@@ -108,13 +106,26 @@ pub async fn fetch_exam_for_user(
         }));
     }
 
-    let enrollment = if let Some(enrollment) = exams::get_enrollment(&mut conn, id, user.id).await?
-    {
-        // user has started the exam
-        if Utc::now() < ends_at
-            && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
-        {
-            // exam is still open but the student's time has expired
+    let enrollment =
+        if let Some(enrollment) = exams::get_enrollment(&mut conn, *exam_id, user.id).await? {
+            // user has started the exam
+            if Utc::now() < ends_at
+                && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
+            {
+                // exam is still open but the student's time has expired
+                return Ok(web::Json(ExamData {
+                    id: exam.id,
+                    name: exam.name,
+                    instructions: exam.instructions,
+                    starts_at,
+                    ends_at,
+                    time_minutes: exam.time_minutes,
+                    enrollment_data: ExamEnrollmentData::StudentTimeUp,
+                }));
+            }
+            enrollment
+        } else {
+            // user has not started the exam
             return Ok(web::Json(ExamData {
                 id: exam.id,
                 name: exam.name,
@@ -122,22 +133,9 @@ pub async fn fetch_exam_for_user(
                 starts_at,
                 ends_at,
                 time_minutes: exam.time_minutes,
-                enrollment_data: ExamEnrollmentData::StudentTimeUp,
+                enrollment_data: ExamEnrollmentData::NotEnrolled,
             }));
-        }
-        enrollment
-    } else {
-        // user has not started the exam
-        return Ok(web::Json(ExamData {
-            id: exam.id,
-            name: exam.name,
-            instructions: exam.instructions,
-            starts_at,
-            ends_at,
-            time_minutes: exam.time_minutes,
-            enrollment_data: ExamEnrollmentData::NotEnrolled,
-        }));
-    };
+        };
 
     let page = pages::get_page(&mut conn, exam.page_id).await?;
 

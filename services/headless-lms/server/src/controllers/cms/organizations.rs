@@ -26,7 +26,7 @@ Response:
 */
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media(
-    request_organization_id: web::Path<Uuid>,
+    organization_id: web::Path<Uuid>,
     payload: Multipart,
     request: HttpRequest,
     pool: web::Data<PgPool>,
@@ -35,15 +35,14 @@ async fn add_media(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
-    let organization_id = request_organization_id.into_inner();
     authorize(
         &mut conn,
         Act::Edit,
         user.id,
-        Res::Organization(organization_id),
+        Res::Organization(*organization_id),
     )
     .await?;
-    let organization = models::organizations::get_organization(&mut conn, organization_id).await?;
+    let organization = models::organizations::get_organization(&mut conn, *organization_id).await?;
 
     let media_path = upload_media(
         request.headers(),

@@ -1,5 +1,6 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 
+use futures::future;
 use models::submissions::Submission;
 
 use crate::controllers::prelude::*;

@@ -8,16 +8,12 @@ use actix_web::{cookie::SameSite, middleware::Logger, web::Data, App, HttpServer
 use anyhow::Result;
 use chrono::Duration;
 use dotenv::dotenv;
-use headless_lms_actix::{
-    setup_tracing,
-    utils::{
-        file_store::{
-            google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore,
-            FileStore,
-        },
-        ApplicationConfiguration,
+use headless_lms_actix::{setup_tracing, OAuthClient};
+use headless_lms_utils::{
+    file_store::{
+        google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
     },
-    OAuthClient,
+    ApplicationConfiguration,
 };
 use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};

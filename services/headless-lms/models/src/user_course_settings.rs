@@ -1,4 +1,4 @@
-use crate::{course_instance_enrollments::CourseInstanceEnrollment, prelude::*, ModelResult};
+use crate::{course_instance_enrollments::CourseInstanceEnrollment, prelude::*};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct UserCourseSettings {

@@ -1,4 +1,6 @@
-use crate::{prelude::*, utils::ApplicationConfiguration};
+use headless_lms_utils::ApplicationConfiguration;
+
+use crate::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 pub struct User {

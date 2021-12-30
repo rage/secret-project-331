@@ -1,7 +1,8 @@
 use std::{env, time::Duration};
 
 use anyhow::Result;
-use headless_lms_actix::{models, regrading};
+use headless_lms_actix::regrading;
+use headless_lms_models as models;
 use sqlx::{Connection, PgConnection};
 
 /**

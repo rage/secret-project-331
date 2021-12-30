@@ -4,6 +4,9 @@ use std::{
 };
 
 use futures::future::OptionFuture;
+use headless_lms_utils::document_schema_processor::{
+    contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
+};
 use itertools::Itertools;
 use url::Url;
 
@@ -19,9 +22,6 @@ use crate::{
     page_history::{self, HistoryChangeReason, PageHistoryContent},
     prelude::*,
     user_course_settings::{self, UserCourseSettings},
-    utils::document_schema_processor::{
-        contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
-    },
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -686,7 +686,7 @@ RETURNING id,
     .await?;
 
     // Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well
-    let new_content = crate::utils::document_schema_processor::remap_ids_in_content(
+    let new_content = headless_lms_utils::document_schema_processor::remap_ids_in_content(
         &page.content,
         remapped_exercises
             .iter()

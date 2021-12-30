@@ -4,10 +4,10 @@ use crate::{
     pages::{NewPage, Page, PageWithExercises},
     prelude::*,
     user_exercise_states::get_user_course_instance_chapter_metrics,
-    utils::{
-        document_schema_processor::GutenbergBlock, file_store::FileStore,
-        numbers::option_f32_to_f32_two_decimals, ApplicationConfiguration,
-    },
+};
+use headless_lms_utils::{
+    document_schema_processor::GutenbergBlock, file_store::FileStore,
+    numbers::option_f32_to_f32_two_decimals, ApplicationConfiguration,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]

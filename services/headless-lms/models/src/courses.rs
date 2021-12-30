@@ -1,5 +1,8 @@
 use std::collections::HashMap;
 
+use headless_lms_utils::{
+    document_schema_processor::GutenbergBlock, file_store::FileStore, ApplicationConfiguration,
+};
 use serde_json::Value;
 
 use crate::{
@@ -8,9 +11,6 @@ use crate::{
     course_language_groups,
     pages::{course_pages, NewPage, Page},
     prelude::*,
-    utils::{
-        document_schema_processor::GutenbergBlock, file_store::FileStore, ApplicationConfiguration,
-    },
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]

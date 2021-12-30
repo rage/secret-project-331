@@ -1,3 +1,5 @@
+use futures::Stream;
+use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use serde_json::Value;
 
 use crate::{
@@ -5,7 +7,6 @@ use crate::{
     gradings::{Grading, UserPointsUpdateStrategy},
     prelude::*,
     submissions::Submission,
-    utils::numbers::option_f32_to_f32_two_decimals,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -628,9 +629,10 @@ mod tests {
     };
 
     mod figure_out_new_score_given {
+        use headless_lms_utils::numbers::f32_approx_eq;
+
         use crate::{
             gradings::UserPointsUpdateStrategy, user_exercise_states::figure_out_new_score_given,
-            utils::numbers::f32_approx_eq,
         };
 
         #[test]

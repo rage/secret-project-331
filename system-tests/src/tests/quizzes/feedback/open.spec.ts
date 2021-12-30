@@ -4,7 +4,7 @@ import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 import waitForFunction from "../../../utils/waitForFunction"
 
 test.use({
-  storageState: "src/states/user@example.com.json",
+  storageState: "src/states/admin@example.com.json",
 })
 
 test("test", async ({ headless, page }) => {

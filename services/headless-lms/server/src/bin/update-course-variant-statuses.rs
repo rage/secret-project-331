@@ -3,11 +3,9 @@ use std::env;
 use anyhow::Result;
 use chrono::Utc;
 use dotenv::dotenv;
-use headless_lms_actix::{
-    models::course_instances::{
-        get_all_course_instances, update_course_instance_variant_status, VariantStatus,
-    },
-    setup_tracing,
+use headless_lms_actix::setup_tracing;
+use headless_lms_models::course_instances::{
+    get_all_course_instances, update_course_instance_variant_status, VariantStatus,
 };
 use sqlx::PgPool;
 

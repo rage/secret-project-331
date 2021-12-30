@@ -14,8 +14,8 @@ use itertools::Itertools;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use crate::models::{
-    self,
+use headless_lms_models::{
+    self as models,
     exercise_service_info::ExerciseServiceInfo,
     exercise_services::{get_internal_grade_url, ExerciseService},
     exercises::{Exercise, GradingProgress},
@@ -266,13 +266,11 @@ struct GradingData {
 #[cfg(test)]
 mod test {
     use mockito::Matcher;
+    use models::{exercise_services, exercises::GradingProgress};
     use serde_json::Value;
 
     use super::*;
-    use crate::{
-        models::{exercise_services, exercises::GradingProgress},
-        test_helper::{self, Data},
-    };
+    use crate::test_helper::{self, Data};
 
     #[tokio::test]
     async fn regrades_submission() {

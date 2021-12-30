@@ -1,5 +1,7 @@
 use std::time::Duration;
 
+use futures::Future;
+use headless_lms_utils::numbers::f32_to_two_decimals;
 use url::Url;
 
 use crate::{
@@ -11,7 +13,6 @@ use crate::{
     prelude::*,
     submissions::{GradingRequest, GradingResult, Submission},
     user_exercise_states::update_user_exercise_state,
-    utils::numbers::f32_to_two_decimals,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]

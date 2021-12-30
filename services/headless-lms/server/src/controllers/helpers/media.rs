@@ -4,12 +4,14 @@ use std::{path::PathBuf, sync::Arc};
 
 use actix_multipart::Field;
 use actix_web::http::{header, HeaderMap};
-use utils::{
+use futures::StreamExt;
+use headless_lms_utils::{
     file_store::file_utils::{get_extension_from_filename, upload_media_to_storage},
     strings::generate_random_string,
 };
+use models::organizations::DatabaseOrganization;
 
-use crate::{controllers::prelude::*, models::organizations::DatabaseOrganization};
+use crate::controllers::prelude::*;
 
 #[derive(Debug, Clone, Copy, Deserialize, TS)]
 pub enum StoreKind {

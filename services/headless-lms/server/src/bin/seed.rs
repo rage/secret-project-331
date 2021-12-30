@@ -4,43 +4,38 @@ use std::{env, process::Command};
 
 use anyhow::Result;
 use chrono::{DateTime, Duration, TimeZone, Utc};
-use headless_lms_actix::{
-    models::{
-        chapters,
-        chapters::NewChapter,
-        course_instance_enrollments,
-        course_instance_enrollments::NewCourseInstanceEnrollment,
-        course_instances,
-        course_instances::{NewCourseInstance, VariantStatus},
-        courses,
-        courses::NewCourse,
-        exams,
-        exams::NewExam,
-        exercise_services, exercises,
-        exercises::GradingProgress,
-        feedback,
-        feedback::{FeedbackBlock, NewFeedback},
-        gradings, organizations,
-        page_history::HistoryChangeReason,
-        pages,
-        pages::{
-            CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
-        },
-        playground_examples,
-        playground_examples::PlaygroundExampleData,
-        proposed_block_edits::NewProposedBlockEdit,
-        proposed_page_edits,
-        proposed_page_edits::NewProposedPageEdits,
-        roles,
-        roles::UserRole,
-        submissions,
-        submissions::GradingResult,
-        user_exercise_states, users,
-    },
-    setup_tracing,
-    utils::document_schema_processor::GutenbergBlock,
+use headless_lms_actix::setup_tracing;
+use headless_lms_models::{
+    chapters,
+    chapters::NewChapter,
+    course_instance_enrollments,
+    course_instance_enrollments::NewCourseInstanceEnrollment,
+    course_instances,
+    course_instances::{NewCourseInstance, VariantStatus},
+    courses,
+    courses::NewCourse,
+    exams,
+    exams::NewExam,
+    exercise_services, exercises,
+    exercises::GradingProgress,
+    feedback,
+    feedback::{FeedbackBlock, NewFeedback},
+    gradings, organizations,
+    page_history::HistoryChangeReason,
+    pages,
+    pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage},
+    playground_examples,
+    playground_examples::PlaygroundExampleData,
+    proposed_block_edits::NewProposedBlockEdit,
+    proposed_page_edits,
+    proposed_page_edits::NewProposedPageEdits,
+    roles,
+    roles::UserRole,
+    submissions,
+    submissions::GradingResult,
+    user_exercise_states, users,
 };
-use headless_lms_utils::attributes;
+use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::Value;
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, Postgres};
 use tracing::info;

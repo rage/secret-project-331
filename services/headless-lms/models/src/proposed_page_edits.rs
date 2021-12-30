@@ -1,5 +1,6 @@
 use std::collections::{hash_map::Entry, HashMap};
 
+use headless_lms_utils::{document_schema_processor::GutenbergBlock, merge_edits};
 use serde_json::Value;
 
 use crate::{
@@ -9,7 +10,6 @@ use crate::{
     proposed_block_edits::{
         BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit, ProposalStatus,
     },
-    utils::{document_schema_processor::GutenbergBlock, merge_edits},
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
@@ -370,11 +370,12 @@ WHERE id = $2
 
 #[cfg(test)]
 mod test {
+    use headless_lms_utils::document_schema_processor::{attributes, GutenbergBlock};
+
     use super::*;
     use crate::{
         proposed_block_edits::*,
         test_helper::{insert_data, Conn, Data},
-        utils::document_schema_processor::{attributes, GutenbergBlock},
     };
 
     async fn init_content(conn: &mut PgConnection, content: &str) -> (Data, Uuid) {

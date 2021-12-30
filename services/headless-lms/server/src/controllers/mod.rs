@@ -25,12 +25,11 @@ use actix_web::{
     HttpResponse, HttpResponseBuilder,
 };
 use derive_more::Display;
+use headless_lms_models::ModelError;
 use headless_lms_utils::UtilError;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
-
-use crate::models::ModelError;
 
 /**
 Represents error messages that are sent in responses.

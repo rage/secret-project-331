@@ -17,14 +17,12 @@ use actix_web::{
     HttpResponse,
 };
 use anyhow::Result;
-pub use headless_lms_models as models;
-pub use headless_lms_utils as utils;
 use oauth2::basic::BasicClient;
 // use tracing_actix_web::TracingLogger;
+use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, EnvFilter};
-use utils::{file_store::FileStore, ApplicationConfiguration};
 
 pub type OAuthClient = Arc<BasicClient>;
 

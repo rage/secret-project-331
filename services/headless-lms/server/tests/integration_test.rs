@@ -3,11 +3,9 @@ use std::{env, sync::Arc};
 use actix_http::{body::AnyBody, Request};
 use actix_session::CookieSession;
 use actix_web::{dev::ServiceResponse, test, web::Data, App};
-use headless_lms_actix::{
-    models::organizations::{self, Organization},
-    setup_tracing,
-    utils::{file_store::local_file_store::LocalFileStore, ApplicationConfiguration},
-};
+use headless_lms_actix::setup_tracing;
+use headless_lms_models::organizations::{self, Organization};
+use headless_lms_utils::{file_store::local_file_store::LocalFileStore, ApplicationConfiguration};
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
 use tokio::sync::Mutex;
 use uuid::Uuid;

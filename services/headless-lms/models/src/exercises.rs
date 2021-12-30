@@ -455,6 +455,7 @@ RETURNING id;
 
 #[cfg(test)]
 mod test {
+    use headless_lms_utils::document_schema_processor::GutenbergBlock;
     use serde_json::{Map, Value};
 
     use super::*;
@@ -465,7 +466,6 @@ mod test {
         course_language_groups, courses, exercise_slides, exercise_tasks, organizations, pages,
         test_helper::Conn,
         users,
-        utils::document_schema_processor::GutenbergBlock,
     };
 
     #[tokio::test]

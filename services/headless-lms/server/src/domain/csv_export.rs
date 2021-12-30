@@ -10,15 +10,15 @@ use anyhow::{Context, Result};
 use bytes::Bytes;
 use csv::Writer;
 use futures::stream::FuturesUnordered;
+use headless_lms_models::{
+    chapters, course_instances, exercises, submissions, user_exercise_states,
+};
 use sqlx::PgConnection;
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
 use tokio_stream::StreamExt;
 use uuid::Uuid;
 
-use crate::{
-    controllers::ControllerResult,
-    models::{chapters, course_instances, exercises, submissions, user_exercise_states},
-};
+use crate::controllers::ControllerResult;
 
 /// Convenience struct for creating CSV data.
 struct CsvWriter<W: Write> {
@@ -259,19 +259,17 @@ mod test {
     };
 
     use bytes::Bytes;
+    use headless_lms_models::{
+        exercise_slides, exercise_tasks,
+        exercises::{self, GradingProgress},
+        gradings,
+        submissions::{self, GradingResult},
+        users,
+    };
     use serde_json::Value;
 
     use super::*;
-    use crate::{
-        models::{
-            exercise_slides, exercise_tasks,
-            exercises::{self, GradingProgress},
-            gradings,
-            submissions::{self, GradingResult},
-            users,
-        },
-        test_helper::{insert_data, Conn, Data},
-    };
+    use crate::test_helper::{insert_data, Conn, Data};
 
     #[tokio::test]
     async fn exports() {

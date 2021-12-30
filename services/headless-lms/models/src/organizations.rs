@@ -1,9 +1,7 @@
+use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
 use std::path::PathBuf;
 
-use crate::{
-    prelude::*,
-    utils::{file_store::FileStore, ApplicationConfiguration},
-};
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct DatabaseOrganization {

@@ -196,9 +196,11 @@ export const fetchPageUrl = async (pageId: string): Promise<string> => {
   return validateResponse(response, isString)
 }
 
-export const postSubmission = async (newSubmission: NewSubmission): Promise<SubmissionResult> => {
+export const postSubmission = async (
+  newSubmission: NewSubmission[],
+): Promise<SubmissionResult[]> => {
   const response = await courseMaterialClient.post(`/submissions`, newSubmission)
-  return validateResponse(response, isSubmissionResult)
+  return validateResponse(response, isArray(isSubmissionResult))
 }
 
 export const searchPagesWithPhrase = async (

@@ -52,13 +52,14 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const postSubmissionMutation = useMutation(postSubmission, {
     retry: 3,
     onSuccess: (data) => {
-      if (data.grading) {
-        setPoints(data.grading.score_given)
+      const data2 = data[0]
+      if (data2.grading) {
+        setPoints(data2.grading.score_given)
       }
       dispatch({
         type: "submissionGraded",
         payload: {
-          submissionResult: data,
+          submissionResult: data2,
           publicSpec: courseMaterialExercise.data?.current_exercise_tasks[0].public_spec,
         },
       })
@@ -141,11 +142,12 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         </div>
       </div>
       <ExerciseTask
-        exercise={courseMaterialExercise.data}
+        cannotAnswerButNoSubmission={cannotAnswerButNoSubmission}
+        exerciseTask={courseMaterialExercise.data.current_exercise_tasks[0]}
+        isExam={courseMaterialExercise.data.exercise.exam_id !== null}
         postThisStateToIFrame={postThisStateToIFrame}
         setAnswer={setAnswer}
         setAnswerValid={setAnswerValid}
-        cannotAnswerButNoSubmission={cannotAnswerButNoSubmission}
       />
       <div
         className={css`
@@ -164,12 +166,13 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               if (!courseInstanceId && !courseMaterialExercise.data.exercise.exam_id) {
                 return
               }
-              postSubmissionMutation.mutate({
-                course_instance_id: courseInstanceId || null,
-                exercise_task_id: courseMaterialExercise.data.current_exercise_tasks[0].id,
-
-                data_json: answer,
-              })
+              postSubmissionMutation.mutate([
+                {
+                  course_instance_id: courseInstanceId || null,
+                  exercise_task_id: courseMaterialExercise.data.current_exercise_tasks[0].id,
+                  data_json: answer,
+                },
+              ])
             }}
           >
             {t("submit-button")}

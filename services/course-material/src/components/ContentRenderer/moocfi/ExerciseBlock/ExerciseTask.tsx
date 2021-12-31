@@ -3,34 +3,34 @@ import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "../.."
 import { Block } from "../../../../services/backend"
-import { CourseMaterialExercise } from "../../../../shared-module/bindings"
+import { CourseMaterialExerciseTask } from "../../../../shared-module/bindings"
 import { IframeState } from "../../../../shared-module/iframe-protocol-types"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { defaultContainerWidth } from "../../../../shared-module/styles/constants"
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
 
-interface Props {
-  exercise: CourseMaterialExercise
+interface ExerciseTaskProps {
+  cannotAnswerButNoSubmission: boolean
+  exerciseTask: CourseMaterialExerciseTask
+  isExam: boolean
   postThisStateToIFrame: IframeState | null
   setAnswer: Dispatch<unknown>
   setAnswerValid: Dispatch<SetStateAction<boolean>>
-  cannotAnswerButNoSubmission: boolean
 }
 
-const ExerciseTask: React.FC<Props> = ({
-  exercise,
+const ExerciseTask: React.FC<ExerciseTaskProps> = ({
+  cannotAnswerButNoSubmission,
+  exerciseTask,
+  isExam,
   postThisStateToIFrame,
   setAnswer,
   setAnswerValid,
-  cannotAnswerButNoSubmission,
 }) => {
   const { t } = useTranslation()
 
-  const url = exercise.current_exercise_tasks[0].exercise_iframe_url
-  const currentExerciseTaskAssignment = exercise.current_exercise_tasks[0]
-    .assignment as unknown as Block<unknown>[]
-  const isExam = exercise.exercise.exam_id !== null
+  const currentExerciseTaskAssignment = exerciseTask.assignment as Block<unknown>[]
+  const url = exerciseTask.exercise_iframe_url
 
   return (
     <div>

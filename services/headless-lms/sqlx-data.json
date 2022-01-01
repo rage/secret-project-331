@@ -2328,6 +2328,32 @@
       ]
     }
   },
+  "3cfa60a3aa02306a61d9a0fc8faadefde42a9c78b5c3a71b12ed35e17f7dd9f3": {
+    "query": "\nSELECT user_id,\n  email,\n  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_exercises\nFROM (\n    SELECT u.id AS user_id,\n      u.email,\n      exercise_id,\n      COALESCE(score_given, 0) as score_given\n    FROM user_exercise_states ues\n      JOIN users u ON u.id = ues.user_id\n      JOIN exercises e ON e.id = ues.exercise_id\n    WHERE ues.exam_id = $1\n      AND ues.deleted_at IS NULL\n      AND u.deleted_at IS NULL\n      AND e.deleted_at IS NULL\n  ) as uue\nGROUP BY user_id,\n  email\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "points_for_exercises",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, null]
+    }
+  },
   "3e428bdd951fadaeac24cab7e991c4928f8c58df8dd45c61fbb8779b5ddcbe85": {
     "query": "\nINSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id)\nVALUES ($1, $2, $3)\n",
     "describe": {
@@ -7192,6 +7218,96 @@
       "nullable": [false, false, true, true, false, false, true, true, false, false, true]
     }
   },
+  "bfa02fde6602f70bb732851aaa2e194cdff03a3562341959cc4b2791bc5176fb": {
+    "query": "\nSELECT *\nFROM exercises\nWHERE exam_id = $1\n  AND deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "deadline",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_maximum",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 10,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 11,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 12,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true
+      ]
+    }
+  },
   "c00028f92949b3e8d712a87d620c60b033e48b43583ed796d2e73d219df2931b": {
     "query": "\nSELECT COUNT(*) filter (\n  where proposed_page_edits.pending = true\n) AS pending,\nCOUNT(*) filter (\n  where proposed_page_edits.pending = false\n) AS handled\nFROM proposed_page_edits\nWHERE proposed_page_edits.course_id = $1\nAND proposed_page_edits.deleted_at IS NULL\n",
     "describe": {
@@ -7323,6 +7439,42 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, true, false, true, true, true, false]
+    }
+  },
+  "c50665dd8a1d79db9c17472c71ae34e34c8b51fac261959d30f58e93abf2a689": {
+    "query": "\nINSERT INTO exercise_tasks(\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    public_spec,\n    private_spec,\n    model_solution_spec\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO\nUPDATE\nSET exercise_slide_id = $2,\n  exercise_type = $3,\n  assignment = $4,\n  public_spec = $5,\n  private_spec = $6,\n  model_solution_spec = $7,\n  deleted_at = NULL\nRETURNING id,\n  exercise_slide_id,\n  assignment,\n  exercise_type,\n  private_spec;\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "exercise_slide_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "assignment",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 3,
+          "name": "exercise_type",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "private_spec",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb", "Jsonb"]
+      },
+      "nullable": [false, false, false, false, true]
     }
   },
   "c515ee82610c997f53c83f72ddf8426145e47cf0d9476d2281506c139af86cb6": {
@@ -7580,42 +7732,6 @@
         "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid"]
       },
       "nullable": []
-    }
-  },
-  "d2945d7876bf8cf7ab482b20d07cdb72308a89d9d8316653a60af1fbd9a2c1fd": {
-    "query": "\nINSERT INTO exercise_tasks(\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    public_spec,\n    private_spec,\n    model_solution_spec\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO\nUPDATE\nSET exercise_slide_id = $2,\n  exercise_type = $3,\n  assignment = $4,\n  public_spec = $5,\n  private_spec = $6,\n  deleted_at = NULL\nRETURNING id,\n  exercise_slide_id,\n  assignment,\n  exercise_type,\n  private_spec;\n                ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "exercise_slide_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "assignment",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 3,
-          "name": "exercise_type",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "private_spec",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb", "Jsonb"]
-      },
-      "nullable": [false, false, false, false, true]
     }
   },
   "d309be59564d69ecad6e11cc6976649092966ea2236abd7c8ca72e64f78f8fcc": {
@@ -8016,6 +8132,52 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true]
+    }
+  },
+  "ddaf33187cb11fd6f723155ba3d6047336596a9cf98cb8920a83caf5eae3c356": {
+    "query": "\nSELECT submissions.id,\n  user_id,\n  submissions.created_at,\n  submissions.exercise_id,\n  submissions.exercise_task_id,\n  gradings.score_given,\n  submissions.data_json\nFROM submissions\n  JOIN gradings on submissions.grading_id = gradings.id\n  JOIN exercises on submissions.exercise_id = exercises.id\nWHERE submissions.exam_id = $1\n  AND submissions.deleted_at IS NULL\n  AND gradings.deleted_at IS NULL\n  AND exercises.deleted_at IS NULL;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exercise_task_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 6,
+          "name": "data_json",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, false, true, true]
     }
   },
   "ddf7fa1dca876b806f407c7bdd5b40d3318c7d01e3664399accedb2bd5856855": {

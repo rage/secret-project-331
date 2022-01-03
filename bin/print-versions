@@ -1,0 +1,81 @@
+#!/bin/bash
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+NC=$(tput sgr0)
+
+
+## Rust related
+echo "-------[ Rust ]-------"
+printf "Rust:\t\t"
+if command -v rustc 1> "/dev/null"; then
+    rust_version=$(rustc --version | cut -d ' ' -f 2)
+    echo "${GREEN}${rust_version}${NC}"
+else
+    echo "${RED}Not installed${NC}"
+fi
+
+printf "Sqlx-cli:\t"
+if command -v sqlx 1> "/dev/null"; then
+    rust_version=$(sqlx --version | cut -d ' ' -f 2)
+    echo "${GREEN}${rust_version}${NC}"
+else
+    echo "${RED}Not installed${NC}"
+fi
+
+## Docker related
+echo "------[ Docker ]------"
+printf "Docker:\t\t"
+if command -v docker 1> "/dev/null"; then
+    docker_version=$(docker --version | cut -d ' ' -f 3 | cut -d ',' -f 1)
+    echo "${GREEN}${docker_version}${NC}"
+else
+    echo "${RED}Not installed${NC}"
+fi
+
+printf "Compose:\t"
+if command -v docker-compose 1> "/dev/null"; then
+    docker_compose_version=$(docker-compose version | grep 'docker-compose' | cut -d ' ' -f 3 | cut -d ',' -f 1)
+    echo "${GREEN}${docker_compose_version}${NC}"
+else
+    echo "${RED}Not installed${NC}"
+fi
+
+
+## Binaries
+echo "-----[ Binaries ]-----"
+# Skaffold
+printf "Skaffold:\t"
+if command -v skaffold 1> "/dev/null"; then
+    skaffold_version=$(skaffold version | cut -d 'v' -f 2)
+    echo "${GREEN}${skaffold_version}${NC}"
+else
+    echo "${RED}Not installed${NC}"
+fi
+
+# Kubectl
+printf "Kubectl:\t"
+if command -v kubectl 1> "/dev/null"; then
+    skaffold_output=$(kubectl version --short=true 2> /dev/null)
+    skaffold_version=$(echo "$skaffold_output" | grep 'Client' | cut -d "v" -f 2)
+    echo "${GREEN}${skaffold_version}${NC}"
+else
+    echo "${RED}Not installed${NC}"
+fi
+
+# Kustomize
+printf "Kustomize:\t"
+if command -v kustomize 1> "/dev/null"; then
+    kustomize_version=$(kustomize version --short | cut -d 'v' -f 2 | cut -d ' ' -f 1)
+    echo "${GREEN}${kustomize_version}${NC}"
+else
+    echo "${RED}Not installed${NC}"
+fi
+
+# Minikube
+printf "Minikube:\t"
+if command -v minikube 1> "/dev/null"; then
+    minikube_version=$(minikube version | grep 'version' | cut -d ' ' -f 3 | cut -d 'v' -f 2)
+    echo "${GREEN}${minikube_version}${NC}"
+else
+    echo "${RED}Not installed${NC}"
+fi

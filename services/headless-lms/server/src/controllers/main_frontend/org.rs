@@ -14,7 +14,7 @@ async fn get_organization_by_slug(
     let db_organization =
         models::organizations::get_organization_by_slug(&mut conn, &*organization_slug).await?;
     let organization =
-        Organization::from_database_organization(&db_organization, file_store.as_ref(), &app_conf);
+        Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
     Ok(web::Json(organization))
 }
 

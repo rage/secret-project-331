@@ -36,11 +36,9 @@ const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
       <div>{public_quiz_item.title && <MarkdownText text={public_quiz_item.title} />}</div>
       <div>{public_quiz_item.body && <MarkdownText text={public_quiz_item.body} />}</div>
       <div>
-        <input
-          className={cx(correct ? correctAnswer : incorrectAnswer)}
-          readOnly
-          value={user_quiz_item_answer.textData ?? ""}
-        />
+        <p className={cx(correct ? correctAnswer : incorrectAnswer)}>
+          {user_quiz_item_answer.textData ?? ""}
+        </p>
         <p>{item_feedback ?? ""}</p>
       </div>
     </div>

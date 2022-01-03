@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["authorization",""],["csv_export",""],["merge_edits",""]]});
+initSidebarItems({"mod":[["authorization",""],["csv_export",""]]});

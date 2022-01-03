@@ -4,6 +4,8 @@ pub mod regrading;
 
 #[cfg(test)]
 pub mod test_helper;
+#[cfg(test)]
+pub mod ts_binding_generator;
 
 #[macro_use]
 extern crate tracing;

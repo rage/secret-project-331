@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ headless, page }) => {
+test("test quizzes open feedback", async ({ headless, page }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
@@ -20,11 +20,14 @@ test("test", async ({ headless, page }) => {
 
   await Promise.all([page.waitForNavigation(), page.click("text=Introduction to everything")])
 
-  // probably shouldn't comment out :/
-  await page.click('label:has-text("default")')
+  const courseVariantSelector = await page.$$("text=Select course version to continue.")
 
-  // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  if (courseVariantSelector.length > 0) {
+    await page.click('label:has-text("default")')
+
+    // Click button:has-text("Continue")
+    await page.click('button:has-text("Continue")')
+  }
 
   await Promise.all([page.waitForNavigation(), await page.click("text=The Basics")])
   expect(page.url()).toBe(

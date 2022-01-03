@@ -1,20 +1,14 @@
-use super::{
-    pages::Page, user_exercise_states::get_user_course_instance_chapter_metrics, ModelResult,
-};
+use std::path::PathBuf;
+
 use crate::{
-    pages::NewPage,
-    utils::{document_schema_processor::GutenbergBlock, numbers::option_f32_to_f32_two_decimals},
+    pages::{NewPage, Page, PageWithExercises},
+    prelude::*,
+    user_exercise_states::get_user_course_instance_chapter_metrics,
 };
-use std::{path::PathBuf, sync::Arc};
-
-use crate::utils::{file_store::FileStore, ApplicationConfiguration};
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, PgConnection, PgPool};
-use ts_rs::TS;
-use uuid::Uuid;
-
-use super::pages::PageWithExercises;
+use headless_lms_utils::{
+    document_schema_processor::GutenbergBlock, file_store::FileStore,
+    numbers::option_f32_to_f32_two_decimals, ApplicationConfiguration,
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct DatabaseChapter {
@@ -49,7 +43,7 @@ pub struct Chapter {
 impl Chapter {
     pub fn from_database_chapter(
         chapter: &DatabaseChapter,
-        file_store: &Arc<dyn FileStore>,
+        file_store: &dyn FileStore,
         app_conf: &ApplicationConfiguration,
     ) -> Self {
         let chapter_image_url = chapter.chapter_image_path.as_ref().map(|image| {
@@ -391,21 +385,18 @@ RETURNING *;
 }
 
 pub async fn get_user_course_instance_chapter_progress(
-    pool: &PgPool,
-    course_instance_id: &Uuid,
-    chapter_id: &Uuid,
-    user_id: &Uuid,
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    chapter_id: Uuid,
+    user_id: Uuid,
 ) -> ModelResult<UserCourseInstanceChapterProgress> {
-    let mut connection = pool.acquire().await?;
-
-    let mut exercises =
-        crate::exercises::get_exercises_by_chapter_id(&mut connection, chapter_id).await?;
+    let mut exercises = crate::exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
 
     let exercise_ids: Vec<Uuid> = exercises.iter_mut().map(|e| e.id).collect();
     let score_maximum: i32 = exercises.into_iter().map(|e| e.score_maximum).sum();
 
     let user_chapter_metrics =
-        get_user_course_instance_chapter_metrics(pool, course_instance_id, &exercise_ids, user_id)
+        get_user_course_instance_chapter_metrics(conn, course_instance_id, &exercise_ids, user_id)
             .await?;
 
     let result = UserCourseInstanceChapterProgress {

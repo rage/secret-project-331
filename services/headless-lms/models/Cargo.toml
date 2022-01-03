@@ -11,30 +11,12 @@ rust-version = "1.56.0"  # minimum required Rust version, update if you use a ne
 [dependencies]
 headless-lms-utils = { path = "../utils" }
 
-# Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
-actix-web = "=4.0.0-beta.13"
-# Tokio-based single-threaded async runtime for the Actix ecosystem
-actix-rt = "2.1.0"
-# Static file serving for Actix Web
-actix-files = "=0.6.0-beta.9"
-# Multipart form support for Actix web.
-actix-multipart = "=0.4.0-beta.7"
-# Strongly Typed Mimes
-mime = "0.3.16"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio = { version = "1.2.0", features = ["fs", "io-util"] }
-# Additional utilities for working with Tokio.
-tokio-util = { version = "0.6.3", features = ["io"] }
-# Utilities to work with `Stream` and `tokio`.
-tokio-stream = "0.1.6"
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
 futures = "0.3.13"
 # A `dotenv` implementation for Rust
 dotenv = "0.15.0"
-# A simple library to work with listenfds passed from the outside (systemd/catflap socket activation)
-listenfd = "0.3.3"
-# Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.38"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx = { version = "0.5.1", features = [
   "postgres",
@@ -54,40 +36,14 @@ chrono = { version = "0.4.19", features = ["serde"] }
 serde_json = "1.0.62"
 # Adds #[derive(x)] macros for more traits
 derive_more = "0.99.11"
-# A crate for uploading files to Google cloud storage, and for generating download urls.
-cloud-storage = "0.10.2"
-# A library for managing a temporary directory and deleting all contents when it's dropped.
-tempdir = "0.3.7"
-# Type erasure for async trait methods
-async-trait = "0.1.42"
-# Types and traits for working with bytes
-bytes = "1.0.1"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.10.0"
-# Random number generators and other randomness functionality.
-rand = "0.8.3"
-# the BLAKE3 hash function
-blake3 = "1.0.0"
-# Recursively walk a directory.
-walkdir = "2.3.2"
 # higher level HTTP client library
 reqwest = { version = "0.11.3", features = ["brotli", "gzip", "json"] }
-# Sessions for Actix web
-actix-session = "=0.5.0-beta.4"
-# An extensible, strongly-typed implementation of OAuth2
-oauth2 = "4"
 # URL library for Rust, based on the WHATWG URL Standard
 url = "2"
 # Application-level tracing for Rust.
 tracing = "0.1"
-# Utilities for implementing and composing `tracing` subscribers.
-tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
-# Structured logging middleware for actix-web.
-tracing-actix-web = "=0.5.0-beta.4"
-# Utilities for enriching errors with `tracing`.
-tracing-error = "0.2.0"
-# Provides compatibility between `tracing` and the `log` crate.
-tracing-log = "0.1"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
 thiserror = "1"
 # generate typescript bindings from rust types
@@ -97,21 +53,8 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "3d0fd4f71fd1698e4236
   "serde-json-impl",
   "uuid-impl",
 ] }
-# restricting the transitive dependencies of actix-web during beta.
-# HTTP primitives for the Actix ecosystem .
-actix-http = "=3.0.0-beta.14"
-# Service trait and combinators for representing asynchronous request/response operations.
-actix-service = "2.0"
-# Fast CSV parsing with support for serde.
-csv = "1"
 # Email client
 lettre = "0.10.0-rc.4"
-# An implementation of regular expressions for Rust.
-regex = "1.5.4"
-# Single assignment cells and lazy values.
-once_cell = "1.8.0"
-# An LCS based slice and string diffing implementation.
-diff = "0.1"
 
 # Workaround for this issue: https://github.com/tkaitchuck/aHash/issues/95. Once the issue has been resolved, this dependency can be removed.
 indexmap = "=1.6.2"
@@ -119,5 +62,11 @@ indexmap = "=1.6.2"
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "1.0.0"
-# HTTP mocking for Rust.
-mockito = "0.30"
+# Provides compatibility between `tracing` and the `log` crate.
+tracing-log = "0.1"
+# Utilities for enriching errors with `tracing`.
+tracing-error = "0.2.0"
+# Utilities for implementing and composing `tracing` subscribers.
+tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
+# Random number generators and other randomness functionality.
+rand = "0.8.3"

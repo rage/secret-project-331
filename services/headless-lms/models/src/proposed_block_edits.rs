@@ -1,6 +1,4 @@
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
-use uuid::Uuid;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct NewProposedBlockEdit {

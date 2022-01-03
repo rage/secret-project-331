@@ -1,10 +1,6 @@
-use super::{exercise_service_info::ExerciseServiceInfo, ModelError, ModelResult};
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use ts_rs::TS;
 use url::Url;
-use uuid::Uuid;
+
+use crate::{exercise_service_info::ExerciseServiceInfo, prelude::*};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct ExerciseService {

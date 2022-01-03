@@ -1,37 +1,29 @@
-use crate::{
-    controllers::{ControllerError, ControllerResult},
-    domain::authorization::AuthUser,
-    models::{
-        exams::{self, ExamEnrollment},
-        pages::{self, Page},
-    },
-};
-use actix_web::web::{self, Json, ServiceConfig};
 use chrono::{DateTime, Duration, Utc};
-use serde::Serialize;
-use sqlx::PgPool;
-use ts_rs::TS;
-use uuid::Uuid;
+use models::{
+    exams::{self, ExamEnrollment},
+    pages::{self, Page},
+};
+
+use crate::controllers::prelude::*;
 
 pub async fn enrollment(
     pool: web::Data<PgPool>,
-    id: web::Path<Uuid>,
+    exam_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<Option<ExamEnrollment>>> {
+) -> ControllerResult<web::Json<Option<ExamEnrollment>>> {
     let mut conn = pool.acquire().await?;
-    let enrollment = exams::get_enrollment(&mut conn, id.into_inner(), user.id).await?;
-    Ok(Json(enrollment))
+    let enrollment = exams::get_enrollment(&mut conn, *exam_id, user.id).await?;
+    Ok(web::Json(enrollment))
 }
 
 pub async fn enroll(
     pool: web::Data<PgPool>,
-    id: web::Path<Uuid>,
+    exam_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<()>> {
+) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
 
-    let exam_id = id.into_inner();
-    let exam = exams::get(&mut conn, exam_id).await?;
+    let exam = exams::get(&mut conn, *exam_id).await?;
 
     // check that the exam is not over
     let now = dbg!(Utc::now());
@@ -43,8 +35,8 @@ pub async fn enroll(
 
     if let Some(starts_at) = exam.starts_at {
         if now > starts_at {
-            exams::enroll(&mut conn, exam_id, user.id).await?;
-            return Ok(Json(()));
+            exams::enroll(&mut conn, *exam_id, user.id).await?;
+            return Ok(web::Json(()));
         }
     }
 
@@ -80,12 +72,11 @@ pub enum ExamEnrollmentData {
 
 pub async fn fetch_exam_for_user(
     pool: web::Data<PgPool>,
-    id: web::Path<Uuid>,
+    exam_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<ExamData>> {
+) -> ControllerResult<web::Json<ExamData>> {
     let mut conn = pool.acquire().await?;
-    let id = id.into_inner();
-    let exam = exams::get(&mut conn, id).await?;
+    let exam = exams::get(&mut conn, *exam_id).await?;
 
     let starts_at = if let Some(starts_at) = exam.starts_at {
         starts_at
@@ -104,7 +95,7 @@ pub async fn fetch_exam_for_user(
 
     if starts_at > Utc::now() {
         // exam has not started yet
-        return Ok(Json(ExamData {
+        return Ok(web::Json(ExamData {
             id: exam.id,
             name: exam.name,
             instructions: exam.instructions,
@@ -115,40 +106,40 @@ pub async fn fetch_exam_for_user(
         }));
     }
 
-    let enrollment = if let Some(enrollment) = exams::get_enrollment(&mut conn, id, user.id).await?
-    {
-        // user has started the exam
-        if Utc::now() < ends_at
-            && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
-        {
-            // exam is still open but the student's time has expired
-            return Ok(Json(ExamData {
+    let enrollment =
+        if let Some(enrollment) = exams::get_enrollment(&mut conn, *exam_id, user.id).await? {
+            // user has started the exam
+            if Utc::now() < ends_at
+                && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
+            {
+                // exam is still open but the student's time has expired
+                return Ok(web::Json(ExamData {
+                    id: exam.id,
+                    name: exam.name,
+                    instructions: exam.instructions,
+                    starts_at,
+                    ends_at,
+                    time_minutes: exam.time_minutes,
+                    enrollment_data: ExamEnrollmentData::StudentTimeUp,
+                }));
+            }
+            enrollment
+        } else {
+            // user has not started the exam
+            return Ok(web::Json(ExamData {
                 id: exam.id,
                 name: exam.name,
                 instructions: exam.instructions,
                 starts_at,
                 ends_at,
                 time_minutes: exam.time_minutes,
-                enrollment_data: ExamEnrollmentData::StudentTimeUp,
+                enrollment_data: ExamEnrollmentData::NotEnrolled,
             }));
-        }
-        enrollment
-    } else {
-        // user has not started the exam
-        return Ok(Json(ExamData {
-            id: exam.id,
-            name: exam.name,
-            instructions: exam.instructions,
-            starts_at,
-            ends_at,
-            time_minutes: exam.time_minutes,
-            enrollment_data: ExamEnrollmentData::NotEnrolled,
-        }));
-    };
+        };
 
     let page = pages::get_page(&mut conn, exam.page_id).await?;
 
-    Ok(Json(ExamData {
+    Ok(web::Json(ExamData {
         id: exam.id,
         name: exam.name,
         instructions: exam.instructions,
@@ -170,7 +161,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_exams_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{id}/enrollment", web::get().to(enrollment))
         .route("/{id}/enroll", web::post().to(enroll))
         .route("/{id}", web::get().to(fetch_exam_for_user));

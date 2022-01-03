@@ -1,19 +1,13 @@
 //! Controllers for requests starting with `/api/v0/course-material/course-instances`.
-use crate::{
-    controllers::ControllerResult,
-    domain::authorization::AuthUser,
-    models::{
-        chapters::UserCourseInstanceChapterProgress,
-        course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
-        user_exercise_states::{
-            UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
-        },
-    },
-    utils::numbers::option_f32_to_f32_two_decimals,
+
+use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
+use models::{
+    chapters::UserCourseInstanceChapterProgress,
+    course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
+    user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
 };
-use actix_web::web::{self, Json, ServiceConfig};
-use sqlx::PgPool;
-use uuid::Uuid;
+
+use crate::controllers::prelude::*;
 
 /**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
@@ -30,17 +24,18 @@ use uuid::Uuid;
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance(
     user: AuthUser,
-    request_course_instance_id: web::Path<Uuid>,
+    course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<UserCourseInstanceProgress>> {
+) -> ControllerResult<web::Json<UserCourseInstanceProgress>> {
+    let mut conn = pool.acquire().await?;
     let user_course_instance_progress =
-        crate::models::user_exercise_states::get_user_course_instance_progress(
-            pool.get_ref(),
-            &request_course_instance_id,
-            &user.id,
+        models::user_exercise_states::get_user_course_instance_progress(
+            &mut conn,
+            *course_instance_id,
+            user.id,
         )
         .await?;
-    Ok(Json(user_course_instance_progress))
+    Ok(web::Json(user_course_instance_progress))
 }
 
 /**
@@ -62,17 +57,18 @@ async fn get_user_progress_for_course_instance_chapter(
     user: AuthUser,
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<UserCourseInstanceChapterProgress>> {
+) -> ControllerResult<web::Json<UserCourseInstanceChapterProgress>> {
+    let mut conn = pool.acquire().await?;
     let (course_instance_id, chapter_id) = params.into_inner();
     let user_course_instance_chapter_progress =
-        crate::models::chapters::get_user_course_instance_chapter_progress(
-            pool.get_ref(),
-            &course_instance_id,
-            &chapter_id,
-            &user.id,
+        models::chapters::get_user_course_instance_chapter_progress(
+            &mut conn,
+            course_instance_id,
+            chapter_id,
+            user.id,
         )
         .await?;
-    Ok(Json(user_course_instance_chapter_progress))
+    Ok(web::Json(user_course_instance_chapter_progress))
 }
 
 /**
@@ -93,19 +89,19 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
     user: AuthUser,
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<UserCourseInstanceChapterExerciseProgress>>> {
+) -> ControllerResult<web::Json<Vec<UserCourseInstanceChapterExerciseProgress>>> {
     let mut conn = pool.acquire().await?;
     let (course_instance_id, chapter_id) = params.into_inner();
     let chapter_exercises =
-        crate::models::exercises::get_exercises_by_chapter_id(&mut conn, &chapter_id).await?;
+        models::exercises::get_exercises_by_chapter_id(&mut conn, chapter_id).await?;
     let exercise_ids: Vec<Uuid> = chapter_exercises.into_iter().map(|e| e.id).collect();
 
     let user_course_instance_exercise_progress =
-        crate::models::user_exercise_states::get_user_course_instance_chapter_exercises_progress(
-            pool.get_ref(),
-            &course_instance_id,
+        models::user_exercise_states::get_user_course_instance_chapter_exercises_progress(
+            &mut conn,
+            course_instance_id,
             &exercise_ids,
-            &user.id,
+            user.id,
         )
         .await?;
     let rounded_score_given_instances: Vec<UserCourseInstanceChapterExerciseProgress> =
@@ -116,7 +112,7 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
                 exercise_id: i.exercise_id,
             })
             .collect();
-    Ok(Json(rounded_score_given_instances))
+    Ok(web::Json(rounded_score_given_instances))
 }
 
 /**
@@ -140,31 +136,27 @@ Response:
 #[instrument(skip(pool))]
 async fn add_user_enrollment(
     pool: web::Data<PgPool>,
-    request_course_instance_id: web::Path<Uuid>,
+    course_instance_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<CourseInstanceEnrollment>> {
+) -> ControllerResult<web::Json<CourseInstanceEnrollment>> {
     let mut conn = pool.acquire().await?;
 
-    let instance = crate::models::course_instances::get_course_instance(
+    let instance =
+        models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
+    let enrollment = models::course_instance_enrollments::insert_enrollment_and_set_as_current(
         &mut conn,
-        *request_course_instance_id,
+        NewCourseInstanceEnrollment {
+            course_id: instance.course_id,
+            course_instance_id: instance.id,
+            user_id: user.id,
+        },
     )
     .await?;
-    let enrollment =
-        crate::models::course_instance_enrollments::insert_enrollment_and_set_as_current(
-            &mut conn,
-            NewCourseInstanceEnrollment {
-                course_id: instance.course_id,
-                course_instance_id: instance.id,
-                user_id: user.id,
-            },
-        )
-        .await?;
 
-    Ok(Json(enrollment))
+    Ok(web::Json(enrollment))
 }
 
-pub fn _add_user_progress_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/{course_instance_id}/enroll",
         web::post().to(add_user_enrollment),

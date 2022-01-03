@@ -1,8 +1,4 @@
-use super::ModelResult;
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use sqlx::Type;
-use uuid::Uuid;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]

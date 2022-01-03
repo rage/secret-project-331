@@ -1,9 +1,4 @@
-use crate::{utils::pagination::Pagination, ModelResult};
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::{Connection, PgConnection};
-use ts_rs::TS;
-use uuid::Uuid;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct NewFeedback {
@@ -86,7 +81,7 @@ pub async fn get_feedback_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
     read: bool,
-    pagination: &Pagination,
+    pagination: Pagination,
 ) -> ModelResult<Vec<Feedback>> {
     let res = sqlx::query!(
         r#"

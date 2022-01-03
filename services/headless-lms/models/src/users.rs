@@ -1,11 +1,6 @@
-use crate::utils::ApplicationConfiguration;
+use headless_lms_utils::ApplicationConfiguration;
 
-use super::{ModelError, ModelResult};
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use ts_rs::TS;
-use uuid::Uuid;
+use crate::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 pub struct User {

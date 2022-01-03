@@ -52,28 +52,38 @@ test("latex-block renders", async ({ headless, page }) => {
   await page.click(
     "text=Chapter Progress PlaceholderThis block is used to display Chapter progress. To d",
   )
+  await page.waitForTimeout(100)
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
+  await page.waitForTimeout(100)
   // Click text=Remove blockShift+Alt+Z
   await page.click("text=Remove Chapter Progress")
+  await page.waitForTimeout(100)
   // - CHAPTER GRID
   await page.click("text=Pages in chapter placeholder")
+  await page.waitForTimeout(100)
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
   // Click text=Remove blockShift+Alt+Z
   await page.click("text=Remove Pages In Chapter")
+  await page.waitForTimeout(100)
   // - EXERCISES
   await page.click(
     "text=Exercises In Chapter PlaceholderThis block is placed on each chapter front page,",
   )
+  await page.waitForTimeout(100)
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
+  await page.waitForTimeout(100)
   // Click text=Remove blockShift+Alt+Z
   await page.click("text=Remove Exercises In Chapter")
+  await page.waitForTimeout(100)
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
+  await page.waitForTimeout(100)
   // Click text=Remove blockShift+Alt+Z
   await page.click("text=Remove Hero Section")
+  await page.waitForTimeout(100)
   // - CREATE LATEX BLOCK
   // Click text=No block selected.Pages In Chapter Grid PlaceholderThis block is placed on each  >> button
   await page.click('[aria-label="Add block"]')

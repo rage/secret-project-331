@@ -18,104 +18,94 @@ build:
     - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache
       context: services/headless-lms
       docker:
-        dockerfile: Dockerfile.production.dockerfile
-        target: "builder"
+        dockerfile: Dockerfile.production.cache.dockerfile
         cacheFrom:
           - eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache:latest
     - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-slim
       requires:
         - image: eu.gcr.io/moocfi-public/secret-project-headless-lms-production-build-cache
-          alias: HEADLESS_LMS_BUILD_CACHE
+          alias: BUILD_CACHE
       context: services/headless-lms
       docker:
-        dockerfile: Dockerfile.production.dockerfile
-        target: "runtime"
+        dockerfile: Dockerfile.production.slim.dockerfile
 
     # CMS
     - image: eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache
       context: services/cms
       docker:
-        dockerfile: Dockerfile.production.dockerfile
-        target: "builder"
+        dockerfile: Dockerfile.production.cache.dockerfile
         cacheFrom:
           - eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache:latest
     - image: eu.gcr.io/moocfi-public/secret-project-cms-production-slim
       requires:
         - image: eu.gcr.io/moocfi-public/secret-project-cms-production-build-cache
-          alias: CMS_BUILD_CACHE
+          alias: BUILD_CACHE
       context: services/cms
       docker:
-        dockerfile: Dockerfile.production.dockerfile
-        target: "runtime"
+        dockerfile: Dockerfile.production.slim.dockerfile
 
     # course-material
     - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache
       context: services/course-material
       docker:
-        dockerfile: Dockerfile.production.dockerfile
-        target: "builder"
+        dockerfile: Dockerfile.production.cache.dockerfile
         cacheFrom:
           - eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache:latest
     - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-slim
       requires:
         - image: eu.gcr.io/moocfi-public/secret-project-course-material-production-build-cache
-          alias: COURSE_MATERIAL_BUILD_CACHE
+          alias: BUILD_CACHE
       context: services/course-material
       docker:
-        dockerfile: Dockerfile.production.dockerfile
-        target: "runtime"
+        dockerfile: Dockerfile.production.slim.dockerfile
 
     # main-frontend
     - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache
       context: services/main-frontend
       docker:
-        dockerfile: Dockerfile.production.dockerfile
-        target: "builder"
+        dockerfile: Dockerfile.production.cache.dockerfile
         cacheFrom:
           - eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache:latest
     - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-slim
       requires:
         - image: eu.gcr.io/moocfi-public/secret-project-main-frontend-production-build-cache
-          alias: MAIN_FRONTEND_BUILD_CACHE
+          alias: BUILD_CACHE
       context: services/main-frontend
       docker:
-        dockerfile: Dockerfile.production.dockerfile
-        target: "runtime"
+        dockerfile: Dockerfile.production.slim.dockerfile
 
 
     # example-exercise
     - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache
       context: services/example-exercise
       docker:
-        dockerfile: Dockerfile.production.dockerfile
-        target: "builder"
+        dockerfile: Dockerfile.production.cache.dockerfile
+
         cacheFrom:
           - eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache:latest
     - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-slim
       requires:
         - image: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-build-cache
-          alias: EXAMPLE_EXERCISE_BUILD_CACHE
+          alias: BUILD_CACHE
       context: services/example-exercise
       docker:
-        dockerfile: Dockerfile.production.dockerfile
-        target: "runtime"
+        dockerfile: Dockerfile.production.slim.dockerfile
 
     # quizzes
     - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache
       context: services/quizzes
       docker:
-        dockerfile: Dockerfile.production.dockerfile
-        target: "builder"
+        dockerfile: Dockerfile.production.cache.dockerfile
         cacheFrom:
           - eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache:latest
     - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-slim
       requires:
         - image: eu.gcr.io/moocfi-public/secret-project-quizzes-production-build-cache
-          alias: QUIZZES_BUILD_CACHE
+          alias: BUILD_CACHE
       context: services/quizzes
       docker:
-        dockerfile: Dockerfile.production.dockerfile
-        target: "runtime"
+        dockerfile: Dockerfile.production.slim.dockerfile
+
 
   local:
     # Allow parallel builds

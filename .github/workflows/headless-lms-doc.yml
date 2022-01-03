@@ -19,7 +19,7 @@ jobs:
 
       - name: Install and build
         run: |
-          cargo run --bin json-response-docs
+          cargo run --bin doc-file-generator
           cargo doc --document-private-items
         working-directory: services/headless-lms
 

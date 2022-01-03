@@ -7,12 +7,8 @@ GET `/api/v8/course-instances/:course_instance` - Gets a course instance by id.
 
 # Example
 Request: `GET /api/v8/course-instances/e051ddb5-2128-4215-adda-ebd74a0ea46b`
-
-Response:
 */
-///```json
-#[cfg_attr(doc, doc = json_doc!(Uuid))]
-///```
+#[cfg_attr(doc, doc = generated_docs!(Uuid))]
 #[instrument(skip(pool))]
 async fn get_organization_id(
     course_instance_id: web::Path<Uuid>,

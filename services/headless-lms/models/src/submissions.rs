@@ -1,4 +1,7 @@
-use crate::prelude::*;
+use chrono::NaiveDate;
+use futures::Stream;
+use serde_json::Value;
+
 use crate::{
     courses::Course,
     exercise_tasks::{
@@ -6,9 +9,8 @@ use crate::{
     },
     exercises::{Exercise, GradingProgress},
     gradings::{grade_submission, new_grading, Grading},
+    prelude::*,
 };
-use chrono::NaiveDate;
-use serde_json::Value;
 
 // Represents the subset of page fields that are required to create a new course.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -222,7 +224,7 @@ pub async fn get_course_and_exam_id(
 
 pub async fn exercise_submission_count(
     conn: &mut PgConnection,
-    exercise_id: &Uuid,
+    exercise_id: Uuid,
 ) -> ModelResult<u32> {
     let count = sqlx::query!(
         "SELECT COUNT(*) as count FROM submissions WHERE exercise_id = $1",
@@ -235,8 +237,8 @@ pub async fn exercise_submission_count(
 
 pub async fn exercise_submissions(
     conn: &mut PgConnection,
-    exercise_id: &Uuid,
-    pagination: &Pagination,
+    exercise_id: Uuid,
+    pagination: Pagination,
 ) -> ModelResult<Vec<Submission>> {
     let submissions = sqlx::query_as!(
         Submission,
@@ -259,9 +261,9 @@ OFFSET $3;
 
 pub async fn get_user_exercise_submissions(
     conn: &mut PgConnection,
-    user_id: &Uuid,
-    exercise_id: &Uuid,
-    pagination: &Pagination,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    pagination: Pagination,
 ) -> ModelResult<Vec<Submission>> {
     let submissions = sqlx::query_as!(
         Submission,

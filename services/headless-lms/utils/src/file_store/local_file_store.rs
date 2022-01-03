@@ -1,15 +1,16 @@
-use super::{path_to_str, FileStore, GenericPayload};
-use crate::UtilError;
+use std::path::{Path, PathBuf};
+
 use async_trait::async_trait;
 use bytes::Bytes;
 use futures::{Stream, StreamExt};
-use std::path::{Path, PathBuf};
-use tokio::io::{self, AsyncWriteExt};
 use tokio::{
     fs::{self, OpenOptions},
-    io::BufWriter,
+    io::{self, AsyncWriteExt, BufWriter},
 };
 use tokio_util::io::ReaderStream;
+
+use super::{path_to_str, FileStore, GenericPayload};
+use crate::UtilError;
 
 #[derive(Debug, Clone)]
 pub struct LocalFileStore {
@@ -122,9 +123,10 @@ impl FileStore for LocalFileStore {
 mod tests {
     use std::path::Path;
 
+    use tempdir::TempDir;
+
     use super::LocalFileStore;
     use crate::file_store::FileStore;
-    use tempdir::TempDir;
 
     #[tokio::test]
     async fn upload_download_delete_works() {

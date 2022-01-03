@@ -1,15 +1,16 @@
+use std::env;
+
 use anyhow::Result;
+use headless_lms_models::{
+    self as models, course_instances::NewCourseInstance, course_language_groups,
+};
 use rand::Rng;
 use serde_json::Value;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
-use std::env;
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
-use crate::{
-    models::{self, course_instances::NewCourseInstance, course_language_groups},
-    setup_tracing,
-};
+use crate::setup_tracing;
 
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);

@@ -1,8 +1,9 @@
-use crate::{file_store::FileStore, UtilError};
+use std::{ffi::OsStr, path::Path, sync::Arc};
+
 use actix_multipart as mp;
 use futures::TryStreamExt;
-use std::path::Path;
-use std::{ffi::OsStr, sync::Arc};
+
+use crate::{file_store::FileStore, UtilError};
 
 pub fn get_extension_from_filename(filename: &str) -> Option<&str> {
     Path::new(filename).extension().and_then(OsStr::to_str)

@@ -1,9 +1,10 @@
-use crate::UtilError;
-use serde::{Deserialize, Serialize};
-use serde_json::Map;
-use serde_json::Value;
 use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
+use serde_json::{Map, Value};
 use uuid::Uuid;
+
+use crate::UtilError;
 
 static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
     "moocfi/exercise",

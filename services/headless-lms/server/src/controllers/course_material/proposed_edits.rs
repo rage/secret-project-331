@@ -1,5 +1,6 @@
-use crate::controllers::prelude::*;
 use models::proposed_page_edits::NewProposedPageEdits;
+
+use crate::controllers::prelude::*;
 
 /**
 POST `/api/v0/course-material/proposed-edits/:course-id`
@@ -12,13 +13,8 @@ async fn post_proposed_edits(
     user: Option<AuthUser>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    models::proposed_page_edits::insert(
-        &mut conn,
-        course_id.into_inner(),
-        user.map(|u| u.id),
-        &payload,
-    )
-    .await?;
+    models::proposed_page_edits::insert(&mut conn, *course_id, user.map(|u| u.id), &payload)
+        .await?;
     Ok(HttpResponse::Ok().finish())
 }
 

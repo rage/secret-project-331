@@ -1,8 +1,6 @@
-use crate::prelude::*;
-use crate::{
-    chapters, chapters::DatabaseChapter, exercises, users::User, utils::pagination::Pagination,
-};
 use std::collections::HashMap;
+
+use crate::{chapters, chapters::DatabaseChapter, exercises, prelude::*, users::User};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, TS)]
 #[sqlx(type_name = "variant_status", rename_all = "snake_case")]
@@ -326,7 +324,7 @@ pub struct Points {
 pub async fn get_points(
     conn: &mut PgConnection,
     instance_id: Uuid,
-    _pagination: &Pagination, // TODO
+    _pagination: Pagination, // TODO
 ) -> ModelResult<Points> {
     let mut chapter_point_totals = HashMap::<Uuid, i32>::new();
     let mut exercise_to_chapter_id = HashMap::new();

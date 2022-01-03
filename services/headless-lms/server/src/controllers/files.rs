@@ -3,10 +3,12 @@ Handlers for HTTP requests to `/api/v0/files`.
 
 */
 
-use crate::controllers::prelude::*;
-use actix_files::NamedFile;
 use std::path::{Path, PathBuf};
+
+use actix_files::NamedFile;
 use tokio::fs::read;
+
+use crate::controllers::prelude::*;
 
 /**
 

@@ -1,8 +1,8 @@
+use std::{env, error::Error};
+
 use rand::Rng;
 use serde_json::Value;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
-use std::env;
-use std::error::Error;
 use tokio::sync::Mutex;
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;

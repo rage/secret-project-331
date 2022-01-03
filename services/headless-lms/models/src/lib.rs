@@ -39,7 +39,6 @@ mod prelude;
 pub mod test_helper;
 
 pub use self::error::{ModelError, ModelResult};
-pub use headless_lms_utils as utils;
 
 #[macro_use]
 extern crate tracing;

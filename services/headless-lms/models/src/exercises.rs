@@ -1,4 +1,3 @@
-use crate::prelude::*;
 use crate::{
     course_instances,
     exercise_service_info::{
@@ -8,6 +7,7 @@ use crate::{
         self, get_existing_user_exercise_task_for_course_instance, CourseMaterialExerciseTask,
     },
     gradings::Grading,
+    prelude::*,
     submissions::Submission,
     user_course_settings,
     user_exercise_states::get_user_exercise_state_if_exits,
@@ -192,7 +192,7 @@ ORDER BY order_number ASC
 
 pub async fn get_exercises_by_chapter_id(
     conn: &mut PgConnection,
-    chapter_id: &Uuid,
+    chapter_id: Uuid,
 ) -> ModelResult<Vec<Exercise>> {
     let exercises = sqlx::query_as!(
         Exercise,
@@ -455,6 +455,7 @@ RETURNING id;
 
 #[cfg(test)]
 mod test {
+    use headless_lms_utils::document_schema_processor::GutenbergBlock;
     use serde_json::{Map, Value};
 
     use super::*;
@@ -465,7 +466,6 @@ mod test {
         course_language_groups, courses, exercise_slides, exercise_tasks, organizations, pages,
         test_helper::Conn,
         users,
-        utils::document_schema_processor::GutenbergBlock,
     };
 
     #[tokio::test]

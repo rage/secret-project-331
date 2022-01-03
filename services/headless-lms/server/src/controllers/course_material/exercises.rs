@@ -1,7 +1,8 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
-use crate::controllers::prelude::*;
 use models::exercises::CourseMaterialExercise;
+
+use crate::controllers::prelude::*;
 
 /**
 GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes
@@ -68,14 +69,13 @@ expose the correct answers to the user.
 #[instrument(skip(pool))]
 async fn get_exercise(
     pool: web::Data<PgPool>,
-    request_exercise_id: web::Path<Uuid>,
+    exercise_id: web::Path<Uuid>,
     user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<CourseMaterialExercise>> {
     let mut conn = pool.acquire().await?;
     let user_id = user.map(|u| u.id);
     let exercise =
-        models::exercises::get_course_material_exercise(&mut conn, user_id, *request_exercise_id)
-            .await?;
+        models::exercises::get_course_material_exercise(&mut conn, user_id, *exercise_id).await?;
     Ok(web::Json(exercise))
 }
 

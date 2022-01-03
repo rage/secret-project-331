@@ -1,9 +1,8 @@
-use crate::prelude::*;
-use crate::{
-    exams, exercise_slides, exercise_tasks, exercises, user_exercise_states,
-    utils::document_schema_processor::GutenbergBlock,
-};
 use serde_json::Value;
+
+use headless_lms_utils::document_schema_processor::GutenbergBlock;
+
+use crate::{exams, exercise_slides, exercise_tasks, exercises, prelude::*, user_exercise_states};
 
 #[derive(Debug, Serialize, Deserialize, TS)]
 pub struct CourseMaterialExerciseTask {

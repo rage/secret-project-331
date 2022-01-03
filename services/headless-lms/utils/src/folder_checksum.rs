@@ -5,12 +5,12 @@ This is meant for checking whether a exercise in a exercise template repository
 has changed after a refresh.
 */
 
+#[cfg(unix)]
+use std::os::unix::fs::PermissionsExt;
 use std::{fs::Permissions, path::Path, u32};
 
 use blake3::Hash;
 use futures::StreamExt;
-#[cfg(unix)]
-use std::os::unix::fs::PermissionsExt;
 use tokio::{fs::File, io::BufReader};
 use tokio_util::io::ReaderStream;
 use walkdir::WalkDir;

@@ -1,12 +1,13 @@
 //! Controllers for requests starting with `/api/v0/course-material/course-instances`.
 
-use crate::controllers::prelude::*;
+use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use models::{
     chapters::UserCourseInstanceChapterProgress,
     course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
 };
-use utils::numbers::option_f32_to_f32_two_decimals;
+
+use crate::controllers::prelude::*;
 
 /**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
@@ -23,14 +24,15 @@ use utils::numbers::option_f32_to_f32_two_decimals;
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance(
     user: AuthUser,
-    request_course_instance_id: web::Path<Uuid>,
+    course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<UserCourseInstanceProgress>> {
+    let mut conn = pool.acquire().await?;
     let user_course_instance_progress =
         models::user_exercise_states::get_user_course_instance_progress(
-            pool.get_ref(),
-            &request_course_instance_id,
-            &user.id,
+            &mut conn,
+            *course_instance_id,
+            user.id,
         )
         .await?;
     Ok(web::Json(user_course_instance_progress))
@@ -56,13 +58,14 @@ async fn get_user_progress_for_course_instance_chapter(
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<UserCourseInstanceChapterProgress>> {
+    let mut conn = pool.acquire().await?;
     let (course_instance_id, chapter_id) = params.into_inner();
     let user_course_instance_chapter_progress =
         models::chapters::get_user_course_instance_chapter_progress(
-            pool.get_ref(),
-            &course_instance_id,
-            &chapter_id,
-            &user.id,
+            &mut conn,
+            course_instance_id,
+            chapter_id,
+            user.id,
         )
         .await?;
     Ok(web::Json(user_course_instance_chapter_progress))
@@ -90,15 +93,15 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
     let mut conn = pool.acquire().await?;
     let (course_instance_id, chapter_id) = params.into_inner();
     let chapter_exercises =
-        models::exercises::get_exercises_by_chapter_id(&mut conn, &chapter_id).await?;
+        models::exercises::get_exercises_by_chapter_id(&mut conn, chapter_id).await?;
     let exercise_ids: Vec<Uuid> = chapter_exercises.into_iter().map(|e| e.id).collect();
 
     let user_course_instance_exercise_progress =
         models::user_exercise_states::get_user_course_instance_chapter_exercises_progress(
-            pool.get_ref(),
-            &course_instance_id,
+            &mut conn,
+            course_instance_id,
             &exercise_ids,
-            &user.id,
+            user.id,
         )
         .await?;
     let rounded_score_given_instances: Vec<UserCourseInstanceChapterExerciseProgress> =
@@ -133,14 +136,13 @@ Response:
 #[instrument(skip(pool))]
 async fn add_user_enrollment(
     pool: web::Data<PgPool>,
-    request_course_instance_id: web::Path<Uuid>,
+    course_instance_id: web::Path<Uuid>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseInstanceEnrollment>> {
     let mut conn = pool.acquire().await?;
 
     let instance =
-        models::course_instances::get_course_instance(&mut conn, *request_course_instance_id)
-            .await?;
+        models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
     let enrollment = models::course_instance_enrollments::insert_enrollment_and_set_as_current(
         &mut conn,
         NewCourseInstanceEnrollment {

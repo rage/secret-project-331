@@ -1,5 +1,6 @@
-use crate::controllers::prelude::*;
 use models::playground_examples::{PlaygroundExample, PlaygroundExampleData};
+
+use crate::controllers::prelude::*;
 
 /**
 GET `/api/v0/main-frontend/playground_examples` - Returns all playground examples that are not deleted.
@@ -52,11 +53,11 @@ DELETE `/api/v0/main-frontend/playground_examples` - Deletes a playground exampl
 #[instrument(skip(pool))]
 async fn delete_playground_example(
     pool: web::Data<PgPool>,
-    request_playground_example_id: web::Path<Uuid>,
+    playground_example_id: web::Path<Uuid>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<PlaygroundExample>> {
     let mut conn = pool.acquire().await?;
-    let example_id = *request_playground_example_id;
+    let example_id = *playground_example_id;
     authorize(&mut conn, Act::Edit, user.id, Res::PlaygroundExample).await?;
     let res = models::playground_examples::delete_playground_example(&mut conn, example_id).await?;
     Ok(web::Json(res))

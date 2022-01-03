@@ -1,6 +1,8 @@
+use std::path::PathBuf;
+
+use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
+
 use crate::prelude::*;
-use crate::utils::{file_store::FileStore, ApplicationConfiguration};
-use std::{path::PathBuf, sync::Arc};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct DatabaseOrganization {
@@ -28,8 +30,8 @@ pub struct Organization {
 
 impl Organization {
     pub fn from_database_organization(
-        organization: &DatabaseOrganization,
-        file_store: &Arc<dyn FileStore>,
+        organization: DatabaseOrganization,
+        file_store: &dyn FileStore,
         app_conf: &ApplicationConfiguration,
     ) -> Self {
         let organization_image_url = organization.organization_image_path.as_ref().map(|image| {
@@ -40,11 +42,11 @@ impl Organization {
             id: organization.id,
             created_at: organization.created_at,
             updated_at: organization.updated_at,
-            name: organization.name.clone(),
-            slug: organization.slug.clone(),
+            name: organization.name,
+            slug: organization.slug,
             deleted_at: organization.deleted_at,
             organization_image_url,
-            description: organization.description.clone(),
+            description: organization.description,
         }
     }
 }

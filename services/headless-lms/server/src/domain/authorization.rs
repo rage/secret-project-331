@@ -1,17 +1,15 @@
-use crate::{
-    controllers::ControllerError,
-    controllers::ControllerResult,
-    models::{self, roles::UserRole},
-};
 use actix_http::Payload;
 use actix_session::{Session, UserSession};
 use actix_web::{FromRequest, HttpRequest};
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use futures::future::{err, ok, Ready};
+use headless_lms_models::{self as models, roles::UserRole};
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use uuid::Uuid;
+
+use crate::controllers::{ControllerError, ControllerResult};
 
 const SESSION_KEY: &str = "user";
 
@@ -112,7 +110,7 @@ pub async fn authorize(
     user_id: Uuid,
     resource: Resource,
 ) -> ControllerResult<()> {
-    let user_roles = crate::models::roles::get_roles(conn, user_id)
+    let user_roles = models::roles::get_roles(conn, user_id)
         .await
         .map_err(|original_err| ControllerError::InternalServerError(original_err.to_string()))?;
 
@@ -134,34 +132,29 @@ pub async fn authorize(
     let (exam_id, course_id, organization_id) = match resource {
         Resource::Chapter(chapter_id) => (
             None,
-            Some(crate::models::chapters::get_course_id(conn, chapter_id).await?),
+            Some(models::chapters::get_course_id(conn, chapter_id).await?),
             None,
         ),
         Resource::Course(course_id) => (None, Some(course_id), None),
         Resource::ExerciseTask(id) => (
             None,
-            Some(crate::models::exercise_tasks::get_course_id(conn, id).await?),
+            Some(models::exercise_tasks::get_course_id(conn, id).await?),
             None,
         ),
         Resource::Exercise(id) => (
             None,
-            Some(crate::models::exercises::get_course_id(conn, id).await?),
+            Some(models::exercises::get_course_id(conn, id).await?),
             None,
         ),
-        Resource::Grading(id) => (
-            None,
-            crate::models::gradings::get_course_id(conn, id).await?,
-            None,
-        ),
+        Resource::Grading(id) => (None, models::gradings::get_course_id(conn, id).await?, None),
         Resource::Organization(id) => (None, None, Some(id)),
         Resource::Page(id) => {
-            let (course_id, exam_id) =
-                crate::models::pages::get_course_and_exam_id(conn, id).await?;
+            let (course_id, exam_id) = models::pages::get_course_and_exam_id(conn, id).await?;
             (exam_id, course_id, None)
         }
         Resource::Submission(id) => {
             let (course_id, exam_id) =
-                crate::models::submissions::get_course_and_exam_id(conn, id).await?;
+                models::submissions::get_course_and_exam_id(conn, id).await?;
             (exam_id, course_id, None)
         }
         Resource::Exam(exam_id) => (Some(exam_id), None, None),
@@ -193,7 +186,7 @@ pub async fn authorize(
     // check organization role
     // if we didn't get an organization id yet, get one from the course id if we have one
     let organization_id = if let (None, Some(course_id)) = (organization_id, course_id) {
-        Some(crate::models::courses::get_organization_id(conn, course_id).await?)
+        Some(models::courses::get_organization_id(conn, course_id).await?)
     } else {
         organization_id
     };

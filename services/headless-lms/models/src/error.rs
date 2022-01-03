@@ -1,4 +1,5 @@
 use std::num::TryFromIntError;
+
 use thiserror::Error;
 
 pub type ModelResult<T> = Result<T, ModelError>;
@@ -78,7 +79,7 @@ mod test {
             EmailTemplateNew {
                 name: "".to_string(),
             },
-            Some("".to_string()),
+            Some(""),
         )
         .await
         .unwrap_err();

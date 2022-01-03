@@ -1,6 +1,9 @@
-use crate::pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask};
-use crate::prelude::*;
 use serde_json::Value;
+
+use crate::{
+    pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
+    prelude::*,
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, TS)]
 #[sqlx(type_name = "history_change_reason", rename_all = "kebab-case")]
@@ -94,7 +97,7 @@ WHERE page_history.id = $1
 pub async fn history(
     conn: &mut PgConnection,
     page_id: Uuid,
-    pagination: &Pagination,
+    pagination: Pagination,
 ) -> ModelResult<Vec<PageHistory>> {
     let res = sqlx::query_as!(
         PageHistory,

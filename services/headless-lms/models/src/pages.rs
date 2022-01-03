@@ -1,7 +1,17 @@
-use crate::prelude::*;
+use std::{
+    collections::{hash_map, HashMap},
+    time::Duration,
+};
+
+use futures::future::OptionFuture;
+use headless_lms_utils::document_schema_processor::{
+    contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
+};
+use itertools::Itertools;
+use url::Url;
+
 use crate::{
-    chapters::DatabaseChapter,
-    chapters::{self, ChapterStatus},
+    chapters::{self, ChapterStatus, DatabaseChapter},
     course_instances::{self, CourseInstance},
     courses::Course,
     exercise_service_info,
@@ -10,18 +20,9 @@ use crate::{
     exercise_tasks::ExerciseTask,
     exercises::Exercise,
     page_history::{self, HistoryChangeReason, PageHistoryContent},
+    prelude::*,
     user_course_settings::{self, UserCourseSettings},
-    utils::document_schema_processor::{
-        contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
-    },
 };
-use futures::future::OptionFuture;
-use itertools::Itertools;
-use std::{
-    collections::{hash_map, HashMap},
-    time::Duration,
-};
-use url::Url;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Page {
@@ -685,7 +686,7 @@ RETURNING id,
     .await?;
 
     // Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well
-    let new_content = crate::utils::document_schema_processor::remap_ids_in_content(
+    let new_content = headless_lms_utils::document_schema_processor::remap_ids_in_content(
         &page.content,
         remapped_exercises
             .iter()

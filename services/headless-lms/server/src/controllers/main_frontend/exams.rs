@@ -1,18 +1,21 @@
-use crate::controllers::prelude::*;
-use crate::domain::csv_export::{self, CSVExportAdapter};
 use bytes::Bytes;
 use chrono::Utc;
 use models::exams::{self, Exam};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
+use crate::{
+    controllers::prelude::*,
+    domain::csv_export::{self, CSVExportAdapter},
+};
+
 pub async fn get_exam(
     pool: web::Data<PgPool>,
-    id: web::Path<Uuid>,
+    exam_id: web::Path<Uuid>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Exam>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, user.id, Res::Exam(*id)).await?;
-    let exam = exams::get(&mut conn, id.into_inner()).await?;
+    authorize(&mut conn, Act::View, user.id, Res::Exam(*exam_id)).await?;
+    let exam = exams::get(&mut conn, *exam_id).await?;
     Ok(web::Json(exam))
 }
 
@@ -23,27 +26,27 @@ pub struct ExamCourseInfo {
 
 pub async fn set_course(
     pool: web::Data<PgPool>,
-    id: web::Path<Uuid>,
-    course_id: web::Json<ExamCourseInfo>,
+    exam_id: web::Path<Uuid>,
+    exam: web::Json<ExamCourseInfo>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Exam(*id)).await?;
+    authorize(&mut conn, Act::Edit, user.id, Res::Exam(*exam_id)).await?;
 
-    exams::set_course(&mut conn, id.into_inner(), course_id.into_inner().course_id).await?;
+    exams::set_course(&mut conn, *exam_id, exam.course_id).await?;
     Ok(web::Json(()))
 }
 
 pub async fn unset_course(
     pool: web::Data<PgPool>,
-    id: web::Path<Uuid>,
-    course_id: web::Json<ExamCourseInfo>,
+    exam_id: web::Path<Uuid>,
+    exam: web::Json<ExamCourseInfo>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Exam(*id)).await?;
+    authorize(&mut conn, Act::Edit, user.id, Res::Exam(*exam_id)).await?;
 
-    exams::unset_course(&mut conn, id.into_inner(), course_id.into_inner().course_id).await?;
+    exams::unset_course(&mut conn, *exam_id, exam.course_id).await?;
     Ok(web::Json(()))
 }
 

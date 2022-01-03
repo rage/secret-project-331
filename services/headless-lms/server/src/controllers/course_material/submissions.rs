@@ -1,12 +1,13 @@
 //! Controllers for requests starting with `/api/v0/course-material/submissions`.
 
-use crate::controllers::prelude::*;
 use chrono::{Duration, Utc};
 use models::{
     exams,
     gradings::{self, Grading},
     submissions::{self, NewSubmission, Submission, SubmissionResult},
 };
+
+use crate::controllers::prelude::*;
 
 /**
 POST `/api/v0/course-material/submissions` - Post a new submission.
@@ -120,12 +121,8 @@ async fn previous_submission(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Option<PreviousSubmission>>> {
     let mut conn = pool.acquire().await?;
-    if let Some(submission) = submissions::get_latest_user_exercise_submission(
-        &mut conn,
-        user.id,
-        exercise_id.into_inner(),
-    )
-    .await?
+    if let Some(submission) =
+        submissions::get_latest_user_exercise_submission(&mut conn, user.id, *exercise_id).await?
     {
         let grading = if let Some(grading_id) = submission.grading_id {
             gradings::get_for_student(&mut conn, grading_id, user.id).await?

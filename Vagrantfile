@@ -37,7 +37,7 @@ Vagrant.configure("2") do |config|
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
   # your network.
-  # config.vm.network "public_network"
+  config.vm.network "private_network", ip: "55.55.55.5"
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
@@ -54,7 +54,14 @@ Vagrant.configure("2") do |config|
     # vb.gui = true
 
     # Customize the amount of memory on the VM:
-    vb.memory = "4096"
+    vb.memory = "16096"
+    vb.cpus = 8
+    # CPU usage and virtual cpus
+    vb.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+    vb.customize ["modifyvm", :id, "--ioapic", "on"]
+    # Network access
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
   end
   #
   # View the documentation for the provider you are using for more
@@ -63,27 +70,5 @@ Vagrant.configure("2") do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
   # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    sudo pacman -Syu --noconfirm
-    sudo pacman -S --noconfirm --needed base-devel skaffold kubernetes-tools minikube kustomize docker postgresql sudo patch fakeroot git
-    sudo systemctl enable docker
-    sudo usermod -a -G docker vagrant
-    # nvm
-    mkdir -p aur-build
-    cd aur-build
-    git clone https://aur.archlinux.org/nvm.git
-    cd nvm
-    # Commit hash verified to be safe. If you update this, verify the files in the commit so that we don't accidentally execute malicious code code.
-    git checkout 98091c0759162b1032722896d7443530151ab9c8
-    makepkg --syncdeps --install --noconfirm
-    echo 'source /usr/share/nvm/init-nvm.sh' >> ~/.bashrc
-    cd ../../
-    rm -rf aur-build
-    # install lts node
-    source /usr/share/nvm/init-nvm.sh
-    nvm install --lts
-    # Loading this kernel module gives better docker performance
-    echo "overlay" > sudo tee /etc/modules-load.d/overlay.conf
-    reboot
-  SHELL
+  config.vm.provision "shell", privileged: false, path: "vagrant/install.sh"
 end

@@ -33,7 +33,7 @@ async fn get_all_organizations(
     let organizations = models::organizations::all_organizations(&mut conn)
         .await?
         .into_iter()
-        .map(|org| Organization::from_database_organization(&org, file_store.as_ref(), &app_conf))
+        .map(|org| Organization::from_database_organization(org, file_store.as_ref(), &app_conf))
         .collect();
     Ok(web::Json(organizations))
 }
@@ -132,7 +132,7 @@ async fn set_organization_image(
     }
 
     let response = Organization::from_database_organization(
-        &updated_organization,
+        updated_organization,
         file_store.as_ref(),
         app_conf.as_ref(),
     );
@@ -210,7 +210,7 @@ async fn get_organization(
     let db_organization =
         models::organizations::get_organization(&mut conn, *organization_id).await?;
     let organization =
-        Organization::from_database_organization(&db_organization, file_store.as_ref(), &app_conf);
+        Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
     Ok(web::Json(organization))
 }
 

@@ -1,5 +1,6 @@
-use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
 use std::path::PathBuf;
+
+use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
 
 use crate::prelude::*;
 
@@ -29,7 +30,7 @@ pub struct Organization {
 
 impl Organization {
     pub fn from_database_organization(
-        organization: &DatabaseOrganization,
+        organization: DatabaseOrganization,
         file_store: &dyn FileStore,
         app_conf: &ApplicationConfiguration,
     ) -> Self {
@@ -41,11 +42,11 @@ impl Organization {
             id: organization.id,
             created_at: organization.created_at,
             updated_at: organization.updated_at,
-            name: organization.name.clone(),
-            slug: organization.slug.clone(),
+            name: organization.name,
+            slug: organization.slug,
             deleted_at: organization.deleted_at,
             organization_image_url,
-            description: organization.description.clone(),
+            description: organization.description,
         }
     }
 }

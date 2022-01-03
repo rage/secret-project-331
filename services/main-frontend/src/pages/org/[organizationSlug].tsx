@@ -132,18 +132,10 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
       title={course.name}
       description={course.description ?? NO_DESCRIPTION}
       languageCode={course.language_code}
-      manageCourseManagementNavigation={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
-        // eslint-disable-next-line i18next/no-literal-string
-        router.push(`/manage/courses/${course.id}`)
-      }}
-      manageCourseNavigation={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
-        // eslint-disable-next-line i18next/no-literal-string
-        router.push(`/org/${query.organizationSlug}/courses/${course.slug}`)
-      }}
+      // eslint-disable-next-line i18next/no-literal-string
+      manageHref={`/manage/courses/${course.id}`}
+      // eslint-disable-next-line i18next/no-literal-string
+      navigateToCourseHref={`/org/${query.organizationSlug}/courses/${course.slug}`}
     />
   ))
 
@@ -219,7 +211,10 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           exams.data.map((e) => (
             <div key={e.id}>
               <a href={`/org/${query.organizationSlug}/exams/${e.id}`}>{e.name}</a> ({e.course_name}
-              ) <a href={`/manage/exams/${e.id}`}>{t("link-manage")}</a>
+              ){" "}
+              <a href={`/manage/exams/${e.id}`} aria-label={`${t("link-manage")} ${e.name}`}>
+                {t("link-manage")}
+              </a>
             </div>
           ))}
         {exams.isLoading && <div>{t("loading-text")}</div>}

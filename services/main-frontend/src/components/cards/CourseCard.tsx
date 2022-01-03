@@ -16,7 +16,7 @@ const CourseGrid = styled.div`
   gap: 20px;
 `
 
-const CourseCard = styled.div`
+const CourseCard = styled.a`
   margin-bottom: 5px;
 
   position: relative;
@@ -25,6 +25,7 @@ const CourseCard = styled.div`
   height: 320px;
   background: #ededed;
   border-radius: 1px;
+  text-decoration: none;
 
   :hover {
     cursor: pointer;
@@ -85,7 +86,7 @@ const LanguageLabel = styled.div`
 const LanguageCode = styled.div`
   font-family: ${primaryFont};
   font-weight: ${fontWeights["semibold"]};
-  color: #898989;
+  color: #6b6b6b;
 `
 
 const FlagStyle = css`
@@ -99,12 +100,12 @@ interface CourseCardProps {
   title: string
   description: string
   languageCode: string
-  manageCourseNavigation: (event: React.MouseEvent<HTMLElement>) => unknown
-  manageCourseManagementNavigation: (event: React.MouseEvent<HTMLElement>) => unknown
+  manageHref: string
+  navigateToCourseHref: string
 }
 
-const capitalize: (language: string) => string = (language) => {
-  return language.charAt(0).toUpperCase() + language.substr(1).toLowerCase()
+const capitalizeFirstLetter: (language: string) => string = (language) => {
+  return language.charAt(0).toUpperCase() + language.substring(1).toLowerCase()
 }
 
 const LANGUAGE_TEXT = "Language"
@@ -113,20 +114,19 @@ const CourseComponent: React.FC<CourseCardProps> = ({
   title,
   description,
   languageCode,
-  manageCourseNavigation,
-  manageCourseManagementNavigation,
+  manageHref,
+  navigateToCourseHref,
 }) => {
   const loginStateContext = useContext(LoginStateContext)
   const LanguageComponent = Language[languageCode]
   const { t } = useTranslation()
 
   return (
-    <CourseCard onClick={manageCourseNavigation} aria-label={t("course-navigation", { title })}>
+    <CourseCard href={navigateToCourseHref} aria-label={t("course-navigation", { title })}>
       {loginStateContext.signedIn && (
-        <StyledSettingIcon
-          aria-label={t("manage-course", { title })}
-          onClick={manageCourseManagementNavigation}
-        />
+        <a aria-label={t("manage-course", { title })} href={manageHref}>
+          <StyledSettingIcon />
+        </a>
       )}
 
       <CourseContent>
@@ -136,7 +136,7 @@ const CourseComponent: React.FC<CourseCardProps> = ({
       <CourseLanguageContent>
         <LanguageLabel>{LANGUAGE_TEXT}</LanguageLabel>
         <LanguageComponent.image className={FlagStyle} />
-        <LanguageCode>{capitalize(LanguageComponent.humanReadableName)} </LanguageCode>
+        <LanguageCode>{capitalizeFirstLetter(LanguageComponent.humanReadableName)} </LanguageCode>
       </CourseLanguageContent>
     </CourseCard>
   )

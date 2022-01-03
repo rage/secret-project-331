@@ -15,19 +15,8 @@ Content-Type: multipart/form-data
 
 BINARY_DATA
 ```
-
-Response:
-```json
-{
-    "url": "http://project-331.local/api/v0/files/courses/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
-}
-
-```
 */
-/// Response:
-/// ```json
-#[cfg_attr(doc, doc = json_doc!(UploadResult))]
-/// ```
+#[cfg_attr(doc, doc = generated_docs!(UploadResult))]
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media(
     course_id: web::Path<Uuid>,

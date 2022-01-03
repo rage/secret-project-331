@@ -1,26 +1,41 @@
 use headless_lms_actix::controllers::UploadResult;
 use serde::Serialize;
 use serde_json::{ser::PrettyFormatter, Serializer};
+use ts_rs::TS;
 use uuid::Uuid;
 
 macro_rules! write_docs {
     ($t: ident :: $($e: tt)*) => {
-        let path = concat!(
+        let json_path = concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/json-docs/",
+            "/generated-docs/",
             stringify!($t),
             ".json"
         );
-        write(path, $t::$($e)*);
+        let ts_path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/generated-docs/",
+            stringify!($t),
+            ".ts"
+        );
+        write_json(json_path, $t::$($e)*);
+        write_ts::<$t>(ts_path, stringify!($t));
     };
     ($t: ident  $($e: tt)*) => {
-        let path = concat!(
+        let json_path = concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/json-docs/",
+            "/generated-docs/",
             stringify!($t),
             ".json"
         );
-        write(path, $t $($e)*);
+        let ts_path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/generated-docs/",
+            stringify!($t),
+            ".ts"
+        );
+        write_json(json_path, $t $($e)*);
+        write_ts::<$t>(ts_path, stringify!($t));
     };
 }
 
@@ -31,9 +46,14 @@ fn main() {
     write_docs!(Uuid::parse_str("307fa56f-9853-4f5c-afb9-a6736c232f32").unwrap());
 }
 
-fn write<T: Serialize>(path: &str, value: T) {
+fn write_json<T: Serialize>(path: &str, value: T) {
     let mut file = std::fs::File::create(path).unwrap();
     let formatter = PrettyFormatter::with_indent(b"    ");
     let mut serializer = Serializer::with_formatter(&mut file, formatter);
     serde::Serialize::serialize(&value, &mut serializer).unwrap();
+}
+
+fn write_ts<T: TS>(path: &str, type_name: &str) {
+    let contents = format!("type {} = {}", type_name, T::inline());
+    std::fs::write(path, contents).unwrap();
 }

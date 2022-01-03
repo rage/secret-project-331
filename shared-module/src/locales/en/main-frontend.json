@@ -96,6 +96,7 @@
   "title-chapter": "Chapter {{chapter-number}}: {{chapter-name}}",
   "title-statistics": "Statistics",
   "title-number-of-submissions-per-day": "Number of submissions per day",
+  "title-course-users-counts-by-exercise": "Count of users for each exercise",
   "title-number-of-submissions-per-weekday-and-hour": "Number of submissions per weekday and hour",
   "title-manage-exercise-services": "Manage exercise services",
   "header-slug": "Slug: {{slug}}",
@@ -181,5 +182,8 @@
   "login-description": "This site uses",
   "login-description2": "accounts. If you have previously done mooc.fi -courses, you can log in with your existing account. On this page you can create a new account, which works on majority of mooc.fi courses and services.",
   "create-new-account": "Create new account",
-  "forgot-password": "Forgot your password?"
+  "forgot-password": "Forgot your password?",
+  "number-of-users-attempted-the-exercise": "Number of users attempted the exercise",
+  "number-of-users-with-some-points": "Number of users with some points",
+  "number-of-users-with-max-points": "Number of users with max points"
 }

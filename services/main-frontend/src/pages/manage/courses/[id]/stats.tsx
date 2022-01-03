@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import Layout from "../../../../components/Layout"
 import CourseSubmissionsByDay from "../../../../components/page-specific/manage/courses/id/stats/CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "../../../../components/page-specific/manage/courses/id/stats/CourseSubmissionsByWeekdayAndHour"
+import CourseUsersCountsByExercise from "../../../../components/page-specific/manage/courses/id/stats/CourseUsersCountsByExercise"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
   dontRenderUntilQueryParametersReady,
@@ -28,6 +29,8 @@ const StatsPage: React.FC<StatsPageProps> = ({ query }) => {
         `}
       >
         <h1>{t("title-statistics")}</h1>
+        <h2>{t("title-course-users-counts-by-exercise")}</h2>
+        <CourseUsersCountsByExercise courseId={id} />
         <h2>{t("title-number-of-submissions-per-day")}</h2>
         <CourseSubmissionsByDay courseId={id} />
         <h2>{t("title-number-of-submissions-per-weekday-and-hour")}</h2>

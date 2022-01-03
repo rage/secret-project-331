@@ -82,6 +82,7 @@
   "title-chapter": "Luku {{chapter-number}}: {{chapter-name}}",
   "title-statistics": "Tilastot",
   "title-number-of-submissions-per-day": "Palautusten määrä päivittäin",
+  "title-course-users-counts-by-exercise": "Käyttäjien määrä tehtävän mukaan",
   "title-number-of-submissions-per-weekday-and-hour": "Palautusten määrä viikonpäivän ja tunnin mukaan",
   "title-manage-exercise-services": "Hallinnoi tehtäväpalveluita",
   "header-slug": "Lyhyt nimi: {{slug}}",

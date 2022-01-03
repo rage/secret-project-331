@@ -11,6 +11,7 @@ use crate::{
         exercises::Exercise,
         feedback::{self, Feedback, FeedbackCount},
         submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
+        user_exercise_states::ExerciseUserCounts,
     },
     utils::{file_store::FileStore, pagination::Pagination, strings::is_ietf_language_code_like},
     ApplicationConfiguration,
@@ -691,6 +692,32 @@ pub async fn get_feedback_count(
     Ok(Json(feedback_count))
 }
 
+/**
+GET `/api/v0/main-frontend/courses/:id/course-users-counts-by-exercise` - Returns the amount of users for each exercise.
+*/
+#[instrument(skip(pool))]
+pub async fn get_course_users_counts_by_exercise(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<Json<Vec<ExerciseUserCounts>>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    authorize(
+        &mut conn,
+        Action::Teach,
+        user.id,
+        Resource::Course(course_id),
+    )
+    .await?;
+
+    let res = crate::models::user_exercise_states::get_course_users_counts_by_exercise(
+        &mut conn, course_id,
+    )
+    .await?;
+    Ok(Json(res))
+}
+
 async fn new_course_instance(
     form: Json<CourseInstanceForm>,
     course_id: web::Path<Uuid>,
@@ -772,5 +799,9 @@ pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/new-course-instance",
             web::post().to(new_course_instance),
+        )
+        .route(
+            "/{course_id}/course-users-counts-by-exercise",
+            web::get().to(get_course_users_counts_by_exercise),
         );
 }

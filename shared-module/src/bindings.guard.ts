@@ -49,6 +49,7 @@ import {
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
+  ExerciseUserCounts,
   ExerciseWithExerciseTasks,
   Feedback,
   FeedbackBlock,
@@ -1059,6 +1060,20 @@ export function isUserCourseInstanceProgress(
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
     (obj.completed_exercises === null || typeof obj.completed_exercises === "number")
+  )
+}
+
+export function isExerciseUserCounts(obj: any, _argumentName?: string): obj is ExerciseUserCounts {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.exercise_name === null || typeof obj.exercise_name === "string") &&
+    (obj.exercise_order_number === null || typeof obj.exercise_order_number === "number") &&
+    (obj.page_order_number === null || typeof obj.page_order_number === "number") &&
+    (obj.chapter_number === null || typeof obj.chapter_number === "number") &&
+    (obj.exercise_id === null || typeof obj.exercise_id === "string") &&
+    typeof obj.n_users_attempted === "number" &&
+    typeof obj.n_users_with_some_points === "number" &&
+    typeof obj.n_users_with_max_points === "number"
   )
 }
 

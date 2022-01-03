@@ -5,8 +5,9 @@ import {
   CourseStructure,
   CourseUpdate,
   Exercise,
+  ExerciseUserCounts,
   NewCourse,
-  SubmissionCountByExercise,
+  SubmissionCount,
   SubmissionCountByWeekAndHour,
 } from "../../shared-module/bindings"
 import {
@@ -14,7 +15,7 @@ import {
   isCourseInstance,
   isCourseStructure,
   isExercise,
-  isSubmissionCountByExercise,
+  isExerciseUserCounts,
   isSubmissionCountByWeekAndHour,
 } from "../../shared-module/bindings.guard"
 import { isArray, isString, validateResponse } from "../../shared-module/utils/fetching"
@@ -63,11 +64,25 @@ export const updateCourse = async (courseId: string, data: CourseUpdate): Promis
 
 export const fetchCourseDailySubmissionCounts = async (
   courseId: string,
-): Promise<Array<SubmissionCountByExercise>> => {
+): Promise<Array<SubmissionCount>> => {
   const response = await mainFrontendClient.get(`/courses/${courseId}/daily-submission-counts`, {
     responseType: "json",
   })
-  return validateResponse(response, isArray(isSubmissionCountByExercise))
+  // return validateResponse(response, isArray(isSubmissionCount))
+  // TODO: validating does not work because the date does not contain a time
+  return response.data
+}
+
+export const fetchCourseUsersCountByExercise = async (
+  courseId: string,
+): Promise<Array<ExerciseUserCounts>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/course-users-counts-by-exercise`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isExerciseUserCounts))
 }
 
 export const fetchCourseExercises = async (courseId: string): Promise<Array<Exercise>> => {

@@ -180,47 +180,14 @@
 <span id="180">180</span>
 <span id="181">181</span>
 <span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/pages`.</span>
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers</span>::{<span class="ident">ControllerError</span>, <span class="ident">ControllerResult</span>},
-    <span class="ident">domain::authorization</span>::{<span class="ident">authorize</span>, <span class="ident">Action</span>, <span class="ident">AuthUser</span>, <span class="ident">Resource</span>},
-    <span class="ident">models</span>::{
-        <span class="ident">page_history::PageHistory</span>,
-        <span class="ident">pages</span>::{<span class="ident">HistoryRestoreData</span>, <span class="ident">NewPage</span>, <span class="ident">Page</span>},
-    },
-    <span class="ident">utils::pagination::Pagination</span>,
+
+<span class="kw">use</span> <span class="ident">models</span>::{
+    <span class="ident">page_history::PageHistory</span>,
+    <span class="ident">pages</span>::{<span class="ident">HistoryRestoreData</span>, <span class="ident">NewPage</span>, <span class="ident">Page</span>},
 };
-<span class="kw">use</span> <span class="ident">actix_web::web::ServiceConfig</span>;
-<span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">Json</span>};
-<span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/pages` - Create a new page.
@@ -277,21 +244,15 @@ Response:
     <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewPage</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">new_page</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
     <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">new_page</span>.<span class="ident">course_id</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
         <span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Cannot create a new page without a course id&quot;</span>.<span class="ident">to_string</span>())
     })<span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">Action::Edit</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
-        <span class="ident">Resource::Course</span>(<span class="ident">course_id</span>),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::pages::insert_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">new_page</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">page</span>))
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Course</span>(<span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">models::pages::insert_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">new_page</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">page</span>))
 }
 
 <span class="doccomment">/**
@@ -323,29 +284,21 @@ Response:
 */</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_page</span>(
-    <span class="ident">request_page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> (<span class="ident">course_id</span>, <span class="ident">exam_id</span>) <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::models::pages::get_course_and_exam_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> (<span class="ident">course_id</span>, <span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">models::pages::get_course_and_exam_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">course_id</span>) <span class="op">=</span> <span class="ident">course_id</span> {
-        <span class="ident">authorize</span>(
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-            <span class="ident">Action::Edit</span>,
-            <span class="ident">user</span>.<span class="ident">id</span>,
-            <span class="ident">Resource::Course</span>(<span class="ident">course_id</span>),
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Course</span>(<span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">exam_id</span> {
-        <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Action::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Resource::Exam</span>(<span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Exam</span>(<span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
     } <span class="kw">else</span> {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Page not associated with course or exam&quot;</span>).<span class="ident">into</span>());
     }
-    <span class="kw">let</span> <span class="ident">deleted_page</span> <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::models::pages::delete_page_and_exercises</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">deleted_page</span>))
+    <span class="kw">let</span> <span class="ident">deleted_page</span> <span class="op">=</span> <span class="ident">models::pages::delete_page_and_exercises</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">deleted_page</span>))
 }
 
 <span class="doccomment">/**
@@ -356,13 +309,12 @@ GET /api/v0/main-frontend/pages/:page_id/history
     <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pagination</span>: <span class="ident">web::Query</span><span class="op">&lt;</span><span class="ident">Pagination</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageHistory</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageHistory</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Action::View</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Resource::Page</span>(<span class="kw-2">*</span><span class="ident">page_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Page</span>(<span class="kw-2">*</span><span class="ident">page_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::models::page_history::history</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">page_id</span>.<span class="ident">into_inner</span>(), <span class="kw-2">&amp;</span><span class="ident">pagination</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">res</span>))
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">models::page_history::history</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>, <span class="kw-2">*</span><span class="ident">pagination</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
 }
 
 <span class="doccomment">/**
@@ -372,12 +324,12 @@ GET /api/v0/main-frontend/pages/:page_id/history_count
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Action::View</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Resource::Page</span>(<span class="kw-2">*</span><span class="ident">page_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Page</span>(<span class="kw-2">*</span><span class="ident">page_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::page_history::history_count</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">page_id</span>.<span class="ident">into_inner</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">res</span>))
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">models::page_history::history_count</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
 }
 
 <span class="doccomment">/**
@@ -388,18 +340,12 @@ POST /api/v0/main-frontend/pages/:page_id/restore
     <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">restore_data</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">HistoryRestoreData</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Action::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Resource::Page</span>(<span class="kw-2">*</span><span class="ident">page_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Page</span>(<span class="kw-2">*</span><span class="ident">page_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::pages::restore</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">page_id</span>.<span class="ident">into_inner</span>(),
-        <span class="ident">restore_data</span>.<span class="ident">history_id</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">res</span>))
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">models::pages::restore</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>, <span class="ident">restore_data</span>.<span class="ident">history_id</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
 }
 
 <span class="doccomment">/**
@@ -409,7 +355,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_pages_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_new_page</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{page_id}&quot;</span>, <span class="ident">web::delete</span>().<span class="ident">to</span>(<span class="ident">delete_page</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{page_id}/history&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">history</span>))

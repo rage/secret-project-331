@@ -169,16 +169,17 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span id="172">172</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">num::ParseIntError</span>};
+
 <span class="kw">use</span> <span class="ident">serde</span>::{
     <span class="ident">de</span>::{<span class="self">self</span>, <span class="ident">MapAccess</span>, <span class="ident">Visitor</span>},
     <span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>,
 };
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">num::ParseIntError</span>};
 <span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
 
 <span class="doccomment">/// Represents the URL query parameters `page` and `limit`, used for paginating database queries.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">TS</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pagination</span> {
     <span class="comment">// the deserialize implementation contains a default value for page</span>
     <span class="attribute">#[<span class="ident">ts</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;page?&quot;</span>)]</span>
@@ -189,14 +190,15 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Pagination</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">page</span>: <span class="ident">u32</span>, <span class="ident">limit</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Panics on non-positive page or limit values.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">page</span>: <span class="ident">u32</span>, <span class="ident">limit</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">if</span> <span class="ident">page</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Page must be a positive value.&quot;</span>));
+            <span class="macro">panic!</span>(<span class="string">&quot;Page must be a positive value.&quot;</span>);
         }
         <span class="kw">if</span> <span class="ident">limit</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Limit must be a positive value.&quot;</span>));
+            <span class="macro">panic!</span>(<span class="string">&quot;Limit must be a positive value.&quot;</span>);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">Pagination</span> { <span class="ident">page</span>, <span class="ident">limit</span> })
+        <span class="ident">Pagination</span> { <span class="ident">page</span>, <span class="ident">limit</span> }
     }
 
     <span class="doccomment">/// Guaranteed to be positive.</span>

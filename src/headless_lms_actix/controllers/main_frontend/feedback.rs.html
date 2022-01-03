@@ -30,26 +30,9 @@
 <span id="30">30</span>
 <span id="31">31</span>
 <span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
-<span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">controllers::ControllerResult</span>, <span class="ident">models::feedback</span>};
-<span class="kw">use</span> <span class="ident">actix_web</span>::{
-    <span class="ident">web</span>::{<span class="self">self</span>, <span class="ident">ServiceConfig</span>},
-    <span class="ident">HttpResponse</span>,
-};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
-<span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">models::feedback</span>;
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MarkAsRead</span> {
@@ -65,12 +48,7 @@ POST `/api/v0/main-frontend/feedback/:id` - Creates new feedback.
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">feedback::mark_as_read</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">feedback_id</span>.<span class="ident">into_inner</span>(),
-        <span class="ident">mark_as_read</span>.<span class="ident">into_inner</span>().<span class="ident">read</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">feedback::mark_as_read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">feedback_id</span>, <span class="ident">mark_as_read</span>.<span class="ident">into_inner</span>().<span class="ident">read</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse::Ok</span>().<span class="ident">finish</span>())
 }
 
@@ -81,7 +59,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_feedback_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{feedback_id}&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">mark_as_read</span>));
 }
 </code></pre></div>

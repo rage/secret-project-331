@@ -100,18 +100,18 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">time::Duration</span>};
+
+<span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">FutureExt</span>, <span class="ident">StreamExt</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::email_deliveries</span>::{
-    <span class="ident">fetch_emails</span>, <span class="ident">mark_as_sent</span>, <span class="ident">save_err_to_email</span>, <span class="ident">Email</span>,
+<span class="kw">use</span> <span class="ident">headless_lms_models::email_deliveries</span>::{<span class="ident">fetch_emails</span>, <span class="ident">mark_as_sent</span>, <span class="ident">save_err_to_email</span>, <span class="ident">Email</span>};
+<span class="kw">use</span> <span class="ident">headless_lms_utils::email_processor</span>::{<span class="self">self</span>, <span class="ident">EmailGutenbergBlock</span>};
+<span class="kw">use</span> <span class="ident">lettre</span>::{
+    <span class="ident">message</span>::{<span class="ident">header</span>, <span class="ident">MultiPart</span>, <span class="ident">SinglePart</span>},
+    <span class="ident">Message</span>, <span class="ident">SmtpTransport</span>, <span class="ident">Transport</span>,
 };
-<span class="kw">use</span> <span class="ident">headless_lms_actix::utils::email_processor</span>::{<span class="self">self</span>, <span class="ident">EmailGutenbergBlock</span>};
-<span class="kw">use</span> <span class="ident">lettre::message</span>::{<span class="ident">header</span>, <span class="ident">MultiPart</span>, <span class="ident">SinglePart</span>};
-<span class="kw">use</span> <span class="ident">lettre</span>::{<span class="ident">Message</span>, <span class="ident">SmtpTransport</span>, <span class="ident">Transport</span>};
 <span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
 <span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
-<span class="kw">use</span> <span class="ident">std::env</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
 <span class="kw">const</span> <span class="ident">BATCH_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">100</span>;
 

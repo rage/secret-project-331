@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_users_routes",""],["get_user",""]]});
+initSidebarItems({"fn":[["_add_routes",""],["get_user",""]]});

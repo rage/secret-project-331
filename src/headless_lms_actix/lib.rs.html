@@ -80,8 +80,6 @@
 <span id="80">80</span>
 <span id="81">81</span>
 <span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">controllers</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">domain</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">regrading</span>;
@@ -94,8 +92,7 @@
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">tracing</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">headless_lms_models</span> <span class="kw">as</span> <span class="ident">models</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">headless_lms_utils</span> <span class="kw">as</span> <span class="ident">utils</span>;
+<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 
 <span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">body::AnyBody</span>, <span class="ident">StatusCode</span>};
 <span class="kw">use</span> <span class="ident">actix_web</span>::{
@@ -105,12 +102,11 @@
 };
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">oauth2::basic::BasicClient</span>;
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 <span class="comment">// use tracing_actix_web::TracingLogger;</span>
+<span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{<span class="ident">file_store::FileStore</span>, <span class="ident">ApplicationConfiguration</span>};
 <span class="kw">use</span> <span class="ident">tracing_error::ErrorLayer</span>;
 <span class="kw">use</span> <span class="ident">tracing_log::LogTracer</span>;
 <span class="kw">use</span> <span class="ident">tracing_subscriber</span>::{<span class="ident">prelude::__tracing_subscriber_SubscriberExt</span>, <span class="ident">EnvFilter</span>};
-<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">file_store::FileStore</span>, <span class="ident">ApplicationConfiguration</span>};
 
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OAuthClient</span> <span class="op">=</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">BasicClient</span><span class="op">&gt;</span>;
 

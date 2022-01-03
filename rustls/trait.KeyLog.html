@@ -9,7 +9,7 @@ sensitive and can break the security of past, present and
 future sessions.</p>
 <p>You’ll likely want some interior mutability in your
 implementation to make this useful.</p>
-<p>See <code>KeyLogFile</code> that implements the standard <code>SSLKEYLOGFILE</code>
+<p>See <a href="struct.KeyLogFile.html" title="KeyLogFile"><code>KeyLogFile</code></a> that implements the standard <code>SSLKEYLOGFILE</code>
 environment variable behaviour.</p>
 </div></details><h2 id="required-methods" class="small-section-header">Required methods<a href="#required-methods" class="anchor"></a></h2><div class="methods"><details class="rustdoc-toggle" open><summary><div id="tymethod.log" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/rustls/keylog.rs.html#44" title="goto source code">[src]</a></div><h4 class="code-header">fn <a href="#tymethod.log" class="fnname">log</a>(&amp;self, label: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.57.0/std/primitive.str.html">str</a>, client_random: <a class="primitive" href="https://doc.rust-lang.org/1.57.0/std/primitive.slice.html">&amp;[</a><a class="primitive" href="https://doc.rust-lang.org/1.57.0/std/primitive.u8.html">u8</a><a class="primitive" href="https://doc.rust-lang.org/1.57.0/std/primitive.slice.html">]</a>, secret: <a class="primitive" href="https://doc.rust-lang.org/1.57.0/std/primitive.slice.html">&amp;[</a><a class="primitive" href="https://doc.rust-lang.org/1.57.0/std/primitive.u8.html">u8</a><a class="primitive" href="https://doc.rust-lang.org/1.57.0/std/primitive.slice.html">]</a>)</h4></div></summary><div class="docblock"><p>Log the given <code>secret</code>.  <code>client_random</code> is provided for
 session identification.  <code>label</code> describes precisely what
@@ -30,7 +30,7 @@ from the client in a TLSv1.3 session.</li>
 in a TLSv1.3 session.</li>
 </ul>
 <p>These strings are selected to match the NSS key log format:
-https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Key_Log_Format</p>
+<a href="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Key_Log_Format">https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Key_Log_Format</a></p>
 </div></details></div><h2 id="provided-methods" class="small-section-header">Provided methods<a href="#provided-methods" class="anchor"></a></h2><div class="methods"><details class="rustdoc-toggle" open><summary><div id="method.will_log" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/rustls/keylog.rs.html#51-53" title="goto source code">[src]</a></div><h4 class="code-header">fn <a href="#method.will_log" class="fnname">will_log</a>(&amp;self, _label: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.57.0/std/primitive.str.html">str</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.57.0/std/primitive.bool.html">bool</a></h4></div></summary><div class="docblock"><p>Indicates whether the secret with label <code>label</code> will be logged.</p>
 <p>If <code>will_log</code> returns true then <code>log</code> will be called with the secret.
 Otherwise, <code>log</code> will not be called for the secret. This is a

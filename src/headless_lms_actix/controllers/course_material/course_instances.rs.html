@@ -174,30 +174,16 @@
 <span id="174">174</span>
 <span id="175">175</span>
 <span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/course-instances`.</span>
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers::ControllerResult</span>,
-    <span class="ident">domain::authorization::AuthUser</span>,
-    <span class="ident">models</span>::{
-        <span class="ident">chapters::UserCourseInstanceChapterProgress</span>,
-        <span class="ident">course_instance_enrollments</span>::{<span class="ident">CourseInstanceEnrollment</span>, <span class="ident">NewCourseInstanceEnrollment</span>},
-        <span class="ident">user_exercise_states</span>::{
-            <span class="ident">UserCourseInstanceChapterExerciseProgress</span>, <span class="ident">UserCourseInstanceProgress</span>,
-        },
-    },
-    <span class="ident">utils::numbers::option_f32_to_f32_two_decimals</span>,
+
+<span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals</span>;
+<span class="kw">use</span> <span class="ident">models</span>::{
+    <span class="ident">chapters::UserCourseInstanceChapterProgress</span>,
+    <span class="ident">course_instance_enrollments</span>::{<span class="ident">CourseInstanceEnrollment</span>, <span class="ident">NewCourseInstanceEnrollment</span>},
+    <span class="ident">user_exercise_states</span>::{<span class="ident">UserCourseInstanceChapterExerciseProgress</span>, <span class="ident">UserCourseInstanceProgress</span>},
 };
-<span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">Json</span>, <span class="ident">ServiceConfig</span>};
-<span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
@@ -214,17 +200,18 @@
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_progress_for_course_instance</span>(
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">request_course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceProgress</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceProgress</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">user_course_instance_progress</span> <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::models::user_exercise_states::get_user_course_instance_progress</span>(
-            <span class="ident">pool</span>.<span class="ident">get_ref</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">request_course_instance_id</span>,
-            <span class="kw-2">&amp;</span><span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="ident">models::user_exercise_states::get_user_course_instance_progress</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+            <span class="kw-2">*</span><span class="ident">course_instance_id</span>,
+            <span class="ident">user</span>.<span class="ident">id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">user_course_instance_progress</span>))
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">user_course_instance_progress</span>))
 }
 
 <span class="doccomment">/**
@@ -246,17 +233,18 @@ Response:
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
     <span class="ident">params</span>: <span class="ident">web::Path</span><span class="op">&lt;</span>(<span class="ident">Uuid</span>, <span class="ident">Uuid</span>)<span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceChapterProgress</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceChapterProgress</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> (<span class="ident">course_instance_id</span>, <span class="ident">chapter_id</span>) <span class="op">=</span> <span class="ident">params</span>.<span class="ident">into_inner</span>();
     <span class="kw">let</span> <span class="ident">user_course_instance_chapter_progress</span> <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::models::chapters::get_user_course_instance_chapter_progress</span>(
-            <span class="ident">pool</span>.<span class="ident">get_ref</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">course_instance_id</span>,
-            <span class="kw-2">&amp;</span><span class="ident">chapter_id</span>,
-            <span class="kw-2">&amp;</span><span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="ident">models::chapters::get_user_course_instance_chapter_progress</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+            <span class="ident">course_instance_id</span>,
+            <span class="ident">chapter_id</span>,
+            <span class="ident">user</span>.<span class="ident">id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">user_course_instance_chapter_progress</span>))
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">user_course_instance_chapter_progress</span>))
 }
 
 <span class="doccomment">/**
@@ -277,19 +265,19 @@ Response:
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
     <span class="ident">params</span>: <span class="ident">web::Path</span><span class="op">&lt;</span>(<span class="ident">Uuid</span>, <span class="ident">Uuid</span>)<span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceChapterExerciseProgress</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceChapterExerciseProgress</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> (<span class="ident">course_instance_id</span>, <span class="ident">chapter_id</span>) <span class="op">=</span> <span class="ident">params</span>.<span class="ident">into_inner</span>();
     <span class="kw">let</span> <span class="ident">chapter_exercises</span> <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::models::exercises::get_exercises_by_chapter_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">models::exercises::get_exercises_by_chapter_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">exercise_ids</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">chapter_exercises</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">id</span>).<span class="ident">collect</span>();
 
     <span class="kw">let</span> <span class="ident">user_course_instance_exercise_progress</span> <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::models::user_exercise_states::get_user_course_instance_chapter_exercises_progress</span>(
-            <span class="ident">pool</span>.<span class="ident">get_ref</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">course_instance_id</span>,
+        <span class="ident">models::user_exercise_states::get_user_course_instance_chapter_exercises_progress</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
+            <span class="ident">course_instance_id</span>,
             <span class="kw-2">&amp;</span><span class="ident">exercise_ids</span>,
-            <span class="kw-2">&amp;</span><span class="ident">user</span>.<span class="ident">id</span>,
+            <span class="ident">user</span>.<span class="ident">id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">rounded_score_given_instances</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceChapterExerciseProgress</span><span class="op">&gt;</span> <span class="op">=</span>
@@ -300,7 +288,7 @@ Response:
                 <span class="ident">exercise_id</span>: <span class="ident">i</span>.<span class="ident">exercise_id</span>,
             })
             .<span class="ident">collect</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">rounded_score_given_instances</span>))
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">rounded_score_given_instances</span>))
 }
 
 <span class="doccomment">/**
@@ -324,31 +312,27 @@ Response:
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">add_user_enrollment</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">request_course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">CourseInstanceEnrollment</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">CourseInstanceEnrollment</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">instance</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::course_instances::get_course_instance</span>(
+    <span class="kw">let</span> <span class="ident">instance</span> <span class="op">=</span>
+        <span class="ident">models::course_instances::get_course_instance</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="ident">models::course_instance_enrollments::insert_enrollment_and_set_as_current</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">*</span><span class="ident">request_course_instance_id</span>,
+        <span class="ident">NewCourseInstanceEnrollment</span> {
+            <span class="ident">course_id</span>: <span class="ident">instance</span>.<span class="ident">course_id</span>,
+            <span class="ident">course_instance_id</span>: <span class="ident">instance</span>.<span class="ident">id</span>,
+            <span class="ident">user_id</span>: <span class="ident">user</span>.<span class="ident">id</span>,
+        },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::models::course_instance_enrollments::insert_enrollment_and_set_as_current</span>(
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-            <span class="ident">NewCourseInstanceEnrollment</span> {
-                <span class="ident">course_id</span>: <span class="ident">instance</span>.<span class="ident">course_id</span>,
-                <span class="ident">course_instance_id</span>: <span class="ident">instance</span>.<span class="ident">id</span>,
-                <span class="ident">user_id</span>: <span class="ident">user</span>.<span class="ident">id</span>,
-            },
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">enrollment</span>))
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">enrollment</span>))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_user_progress_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(
         <span class="string">&quot;/{course_instance_id}/enroll&quot;</span>,
         <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">add_user_enrollment</span>),

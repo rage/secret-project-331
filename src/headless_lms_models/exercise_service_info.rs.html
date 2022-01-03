@@ -255,23 +255,17 @@
 <span id="255">255</span>
 <span id="256">256</span>
 <span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">time::Duration</span>};
+
+<span class="kw">use</span> <span class="ident">reqwest::IntoUrl</span>;
+<span class="kw">use</span> <span class="ident">url::Url</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exercise_services</span>::{
         <span class="ident">get_exercise_service_by_exercise_type</span>, <span class="ident">get_exercise_services</span>, <span class="ident">ExerciseService</span>,
     },
-    <span class="ident">ModelError</span>, <span class="ident">ModelResult</span>,
+    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
 };
-<span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
-<span class="kw">use</span> <span class="ident">reqwest::IntoUrl</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">time::Duration</span>};
-<span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
-<span class="kw">use</span> <span class="ident">url::Url</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseServiceInfo</span> {

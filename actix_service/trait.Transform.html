@@ -22,7 +22,7 @@ service lifecycle. It may modify request and/or response.</p>
 
     <span class="macro">actix_service::forward_ready!</span>(<span class="ident">service</span>);
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">S::Request</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
         <span class="ident">TimeoutServiceResponse</span> {
             <span class="ident">fut</span>: <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>),
             <span class="ident">sleep</span>: <span class="ident">Sleep::new</span>(<span class="ident">clock::now</span>() <span class="op">+</span> <span class="self">self</span>.<span class="ident">timeout</span>),

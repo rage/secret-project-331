@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;nom-7.0.0&#x2F;src&#x2F;bytes&#x2F;streaming.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>streaming.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../nom/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;nom-7.1.0&#x2F;src&#x2F;bytes&#x2F;streaming.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>streaming.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../nom/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -698,20 +698,6 @@
 <span id="698">698</span>
 <span id="699">699</span>
 <span id="700">700</span>
-<span id="701">701</span>
-<span id="702">702</span>
-<span id="703">703</span>
-<span id="704">704</span>
-<span id="705">705</span>
-<span id="706">706</span>
-<span id="707">707</span>
-<span id="708">708</span>
-<span id="709">709</span>
-<span id="710">710</span>
-<span id="711">711</span>
-<span id="712">712</span>
-<span id="713">713</span>
-<span id="714">714</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Parsers recognizing bytes streams, streaming version</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::ErrorKind</span>;
@@ -730,7 +716,6 @@
 <span class="doccomment">/// the input that matches the argument.</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, Needed, IResult};</span>
 <span class="doccomment">/// use nom::bytes::streaming::tag;</span>
 <span class="doccomment">///</span>
@@ -772,7 +757,6 @@
 <span class="doccomment">/// the input that matches the argument with no regard to case.</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, Needed, IResult};</span>
 <span class="doccomment">/// use nom::bytes::streaming::tag_no_case;</span>
 <span class="doccomment">///</span>
@@ -818,7 +802,6 @@
 <span class="doccomment">/// It will return a `Err::Incomplete(Needed::new(1))` if the pattern wasn&#39;t met.</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, Needed, IResult};</span>
 <span class="doccomment">/// use nom::bytes::streaming::is_not;</span>
 <span class="doccomment">///</span>
@@ -854,7 +837,6 @@
 <span class="doccomment">/// or if the pattern reaches the end of the input.</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, Needed, IResult};</span>
 <span class="doccomment">/// use nom::bytes::streaming::is_a;</span>
 <span class="doccomment">///</span>
@@ -890,7 +872,6 @@
 <span class="doccomment">/// *Streaming version* will return a `Err::Incomplete(Needed::new(1))` if the pattern reaches the end of the input.</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, Needed, IResult};</span>
 <span class="doccomment">/// use nom::bytes::streaming::take_while;</span>
 <span class="doccomment">/// use nom::character::is_alphabetic;</span>
@@ -926,7 +907,6 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, Needed, IResult};</span>
 <span class="doccomment">/// use nom::bytes::streaming::take_while1;</span>
 <span class="doccomment">/// use nom::character::is_alphabetic;</span>
@@ -963,7 +943,6 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, Needed, IResult};</span>
 <span class="doccomment">/// use nom::bytes::streaming::take_while_m_n;</span>
 <span class="doccomment">/// use nom::character::is_alphabetic;</span>
@@ -1049,7 +1028,6 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, Needed, IResult};</span>
 <span class="doccomment">/// use nom::bytes::streaming::take_till;</span>
 <span class="doccomment">///</span>
@@ -1082,7 +1060,6 @@
 <span class="doccomment">/// end of input or if there was not match.</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, Needed, IResult};</span>
 <span class="doccomment">/// use nom::bytes::streaming::take_till1;</span>
 <span class="doccomment">///</span>
@@ -1120,7 +1097,6 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, Needed, IResult};</span>
 <span class="doccomment">/// use nom::bytes::streaming::take;</span>
 <span class="doccomment">///</span>
@@ -1155,7 +1131,6 @@
 <span class="doccomment">/// contain the pattern or if the input is smaller than the pattern.</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, Needed, IResult};</span>
 <span class="doccomment">/// use nom::bytes::streaming::take_until;</span>
 <span class="doccomment">///</span>
@@ -1195,7 +1170,6 @@
 <span class="doccomment">/// contain the pattern or if the input is smaller than the pattern.</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, Needed, IResult};</span>
 <span class="doccomment">/// use nom::bytes::streaming::take_until1;</span>
 <span class="doccomment">///</span>
@@ -1235,7 +1209,6 @@
 <span class="doccomment">/// * The third argument matches the escaped characters</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, Needed, IResult};</span>
 <span class="doccomment">/// # use nom::character::complete::digit1;</span>
 <span class="doccomment">/// use nom::bytes::streaming::escaped;</span>
@@ -1328,7 +1301,6 @@
 <span class="doccomment">/// As an example, the chain `abc\tdef` could be `abc    def` (it also consumes the control character)</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, Needed, IResult};</span>
 <span class="doccomment">/// # use std::str::from_utf8;</span>
 <span class="doccomment">/// use nom::bytes::streaming::{escaped_transform, tag};</span>
@@ -1343,7 +1315,7 @@
 <span class="doccomment">///     alt((</span>
 <span class="doccomment">///       value(&quot;\\&quot;, tag(&quot;\\&quot;)),</span>
 <span class="doccomment">///       value(&quot;\&quot;&quot;, tag(&quot;\&quot;&quot;)),</span>
-<span class="doccomment">///       value(&quot;n&quot;, tag(&quot;\n&quot;)),</span>
+<span class="doccomment">///       value(&quot;\n&quot;, tag(&quot;n&quot;)),</span>
 <span class="doccomment">///     ))</span>
 <span class="doccomment">///   )(input)</span>
 <span class="doccomment">/// }</span>

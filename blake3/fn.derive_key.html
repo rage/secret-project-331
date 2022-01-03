@@ -13,7 +13,8 @@ damage from one part of your application accidentally leaking its key.</p>
 another algorithm. You might need to do this if you’re adding features to
 an existing application, which does not yet use key derivation internally.
 However, you still must not share key material with algorithms that forbid
-key reuse entirely, like a one-time pad.</p>
+key reuse entirely, like a one-time pad. For more on this, see sections 6.2
+and 7.8 of the <a href="https://github.com/BLAKE3-team/BLAKE3-specs/blob/master/blake3.pdf">BLAKE3 paper</a>.</p>
 <p>Note that BLAKE3 is not a password hash, and <strong><code>derive_key</code> should never be
 used with passwords.</strong> Instead, use a dedicated password hash like
 <a href="https://en.wikipedia.org/wiki/Argon2">Argon2</a>. Password hashes are entirely different from generic hash

@@ -41,6 +41,7 @@
 <span id="41">41</span>
 <span id="42">42</span>
 <span id="43">43</span>
+<span id="44">44</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Functions and structs for interacting with the database.
 
@@ -53,7 +54,6 @@ Each submodule corresponds to a database table.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">courses</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">email_deliveries</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">email_templates</span>;
-<span class="kw">mod</span> <span class="ident">error</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exams</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_service_info</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_services</span>;
@@ -76,11 +76,13 @@ Each submodule corresponds to a database table.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">user_exercise_states</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">users</span>;
 
+<span class="kw">mod</span> <span class="ident">error</span>;
+<span class="kw">mod</span> <span class="ident">prelude</span>;
+
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">test_helper</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::error</span>::{<span class="ident">ModelError</span>, <span class="ident">ModelResult</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">headless_lms_utils</span> <span class="kw">as</span> <span class="ident">utils</span>;
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">tracing</span>;

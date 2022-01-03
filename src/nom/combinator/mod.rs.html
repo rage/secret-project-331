@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;nom-7.0.0&#x2F;src&#x2F;combinator&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../nom/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;nom-7.1.0&#x2F;src&#x2F;combinator&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../nom/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -766,25 +766,6 @@
 <span id="766">766</span>
 <span id="767">767</span>
 <span id="768">768</span>
-<span id="769">769</span>
-<span id="770">770</span>
-<span id="771">771</span>
-<span id="772">772</span>
-<span id="773">773</span>
-<span id="774">774</span>
-<span id="775">775</span>
-<span id="776">776</span>
-<span id="777">777</span>
-<span id="778">778</span>
-<span id="779">779</span>
-<span id="780">780</span>
-<span id="781">781</span>
-<span id="782">782</span>
-<span id="783">783</span>
-<span id="784">784</span>
-<span id="785">785</span>
-<span id="786">786</span>
-<span id="787">787</span>
 </pre><pre class="rust"><code><span class="doccomment">//! General purpose combinators</span>
 
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
@@ -843,7 +824,6 @@
 <span class="doccomment">/// Maps a function on the result of a parser.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// use nom::{Err,error::ErrorKind, IResult,Parser};</span>
 <span class="doccomment">/// use nom::character::complete::digit1;</span>
 <span class="doccomment">/// use nom::combinator::map;</span>
@@ -872,7 +852,6 @@
 <span class="doccomment">/// Applies a function returning a `Result` over the result of a parser.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::character::complete::digit1;</span>
 <span class="doccomment">/// use nom::combinator::map_res;</span>
@@ -911,7 +890,6 @@
 <span class="doccomment">/// Applies a function returning an `Option` over the result of a parser.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::character::complete::digit1;</span>
 <span class="doccomment">/// use nom::combinator::map_opt;</span>
@@ -950,7 +928,6 @@
 <span class="doccomment">/// Applies a parser over the result of another one.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::character::complete::digit1;</span>
 <span class="doccomment">/// use nom::bytes::complete::take;</span>
@@ -982,7 +959,6 @@
 <span class="doccomment">/// Creates a new parser from the output of the first parser, then apply that parser over the rest of the input.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::bytes::complete::take;</span>
 <span class="doccomment">/// use nom::number::complete::u8;</span>
@@ -997,11 +973,11 @@
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flat_map</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O1</span>, <span class="ident">O2</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span><span class="op">&gt;</span>(
   <span class="kw-2">mut</span> <span class="ident">parser</span>: <span class="ident">F</span>,
-  <span class="ident">applied_parser</span>: <span class="ident">G</span>,
+  <span class="kw-2">mut</span> <span class="ident">applied_parser</span>: <span class="ident">G</span>,
 ) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O2</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O1</span>, <span class="ident">E</span><span class="op">&gt;</span>,
-  <span class="ident">G</span>: <span class="ident">Fn</span>(<span class="ident">O1</span>) -&gt; <span class="ident">H</span>,
+  <span class="ident">G</span>: <span class="ident">FnMut</span>(<span class="ident">O1</span>) -&gt; <span class="ident">H</span>,
   <span class="ident">H</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O2</span>, <span class="ident">E</span><span class="op">&gt;</span>,
 {
   <span class="kw">move</span> <span class="op">|</span><span class="ident">input</span>: <span class="ident">I</span><span class="op">|</span> {
@@ -1013,7 +989,6 @@
 <span class="doccomment">/// Optional parser: Will return `None` if not successful.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::combinator::opt;</span>
 <span class="doccomment">/// use nom::character::complete::alpha1;</span>
@@ -1044,7 +1019,6 @@
 <span class="doccomment">/// Calls the parser if the condition is met.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, IResult};</span>
 <span class="doccomment">/// use nom::combinator::cond;</span>
 <span class="doccomment">/// use nom::character::complete::alpha1;</span>
@@ -1082,7 +1056,6 @@
 <span class="doccomment">/// Tries to apply its parser without consuming the input.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::combinator::peek;</span>
 <span class="doccomment">/// use nom::character::complete::alpha1;</span>
@@ -1113,7 +1086,6 @@
 <span class="doccomment">/// will succeed</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use std::str;</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult};</span>
 <span class="doccomment">/// # use nom::combinator::eof;</span>
@@ -1136,7 +1108,6 @@
 <span class="doccomment">/// Transforms Incomplete into `Error`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::bytes::streaming::take;</span>
 <span class="doccomment">/// use nom::combinator::complete;</span>
@@ -1164,7 +1135,6 @@
 <span class="doccomment">/// Succeeds if all the input has been consumed by its child parser.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::combinator::all_consuming;</span>
 <span class="doccomment">/// use nom::character::complete::alpha1;</span>
@@ -1198,7 +1168,6 @@
 <span class="doccomment">/// parser.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::combinator::verify;</span>
 <span class="doccomment">/// use nom::character::complete::alpha1;</span>
@@ -1236,7 +1205,6 @@
 <span class="doccomment">/// Returns the provided value if the child parser succeeds.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::combinator::value;</span>
 <span class="doccomment">/// use nom::character::complete::alpha1;</span>
@@ -1261,7 +1229,6 @@
 <span class="doccomment">/// Succeeds if the child parser returns an error.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::combinator::not;</span>
 <span class="doccomment">/// use nom::character::complete::alpha1;</span>
@@ -1290,7 +1257,6 @@
 <span class="doccomment">/// If the child parser was successful, return the consumed input as produced value.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::combinator::recognize;</span>
 <span class="doccomment">/// use nom::character::complete::{char, alpha1};</span>
@@ -1331,7 +1297,6 @@
 <span class="doccomment">/// Returned tuple is of the format `(consumed input, produced output)`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::combinator::{consumed, value, recognize, map};</span>
 <span class="doccomment">/// use nom::character::complete::{char, alpha1};</span>
@@ -1381,7 +1346,6 @@
 <span class="doccomment">/// transforms an error to failure</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::combinator::cut;</span>
 <span class="doccomment">/// use nom::character::complete::alpha1;</span>
@@ -1409,7 +1373,6 @@
 <span class="doccomment">/// as long as the `Into` implementations are available</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::IResult;</span>
 <span class="doccomment">/// use nom::combinator::into;</span>
 <span class="doccomment">/// use nom::character::complete::alpha1;</span>
@@ -1540,7 +1503,6 @@
 <span class="doccomment">/// specify the default case.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::{Err,error::ErrorKind, IResult};</span>
 <span class="doccomment">/// use nom::branch::alt;</span>
 <span class="doccomment">/// use nom::combinator::{success, value};</span>

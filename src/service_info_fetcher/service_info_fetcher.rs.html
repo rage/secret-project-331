@@ -58,16 +58,18 @@
 <span id="58">58</span>
 <span id="59">59</span>
 <span id="60">60</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span id="61">61</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">usize</span>};
+
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">dotenv::dotenv</span>;
 <span class="kw">use</span> <span class="ident">futures::stream</span>::{<span class="self">self</span>, <span class="ident">StreamExt</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::exercise_services::ExerciseService</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix</span>::{
-    <span class="ident">models::exercise_service_info</span>::{<span class="ident">fetch_and_upsert_service_info</span>, <span class="ident">ExerciseServiceInfo</span>},
-    <span class="ident">setup_tracing</span>,
+<span class="kw">use</span> <span class="ident">headless_lms_actix::setup_tracing</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
+    <span class="ident">exercise_service_info</span>::{<span class="ident">fetch_and_upsert_service_info</span>, <span class="ident">ExerciseServiceInfo</span>},
+    <span class="ident">exercise_services::ExerciseService</span>,
 };
 <span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">usize</span>};
 <span class="kw">use</span> <span class="ident">tokio::time</span>::{<span class="ident">sleep</span>, <span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">tracing::info</span>;
 
@@ -90,7 +92,7 @@
 
     <span class="kw">loop</span> {
         <span class="kw">let</span> <span class="ident">exercise_services</span> <span class="op">=</span>
-            <span class="ident">headless_lms_actix::models::exercise_services::get_exercise_services</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">headless_lms_models::exercise_services::get_exercise_services</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="macro">info!</span>(
             <span class="string">&quot;Fetching and updating statuses from {} services&quot;</span>,
             <span class="ident">exercise_services</span>.<span class="ident">len</span>()

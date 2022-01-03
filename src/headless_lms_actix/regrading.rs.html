@@ -651,8 +651,24 @@
 <span id="651">651</span>
 <span id="652">652</span>
 <span id="653">653</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::models</span>::{
-    <span class="self">self</span>,
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
+    <span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>},
+    <span class="ident">convert::TryFrom</span>,
+    <span class="ident">future::Future</span>,
+    <span class="ident">pin::Pin</span>,
+};
+
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">futures</span>::{
+    <span class="ident">future::FutureExt</span>,
+    <span class="ident">stream</span>::{<span class="ident">FuturesUnordered</span>, <span class="ident">StreamExt</span>},
+};
+<span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
+<span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
+<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+
+<span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
+    <span class="self">self</span> <span class="kw">as</span> <span class="ident">models</span>,
     <span class="ident">exercise_service_info::ExerciseServiceInfo</span>,
     <span class="ident">exercise_services</span>::{<span class="ident">get_internal_grade_url</span>, <span class="ident">ExerciseService</span>},
     <span class="ident">exercises</span>::{<span class="ident">Exercise</span>, <span class="ident">GradingProgress</span>},
@@ -661,20 +677,6 @@
     <span class="ident">submissions::GradingResult</span>,
     <span class="ident">ModelResult</span>,
 };
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">futures</span>::{
-    <span class="ident">future::FutureExt</span>,
-    <span class="ident">stream</span>::{<span class="ident">FuturesUnordered</span>, <span class="ident">StreamExt</span>},
-};
-<span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
-<span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>},
-    <span class="ident">convert::TryFrom</span>,
-    <span class="ident">future::Future</span>,
-    <span class="ident">pin::Pin</span>,
-};
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="kw">type</span> <span class="ident">GradingFutures</span> <span class="op">=</span>
     <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">GradingData</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
@@ -917,13 +919,11 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
     <span class="kw">use</span> <span class="ident">mockito::Matcher</span>;
+    <span class="kw">use</span> <span class="ident">models</span>::{<span class="ident">exercise_services</span>, <span class="ident">exercises::GradingProgress</span>};
     <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">models</span>::{<span class="ident">exercise_services</span>, <span class="ident">exercises::GradingProgress</span>},
-        <span class="ident">test_helper</span>::{<span class="self">self</span>, <span class="ident">Data</span>},
-    };
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_helper</span>::{<span class="self">self</span>, <span class="ident">Data</span>};
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">regrades_submission</span>() {

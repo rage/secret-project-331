@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;reqwest-0.11.4&#x2F;src&#x2F;async_impl&#x2F;client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../reqwest/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;reqwest-0.11.8&#x2F;src&#x2F;async_impl&#x2F;client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../reqwest/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1710,6 +1710,182 @@
 <span id="1710">1710</span>
 <span id="1711">1711</span>
 <span id="1712">1712</span>
+<span id="1713">1713</span>
+<span id="1714">1714</span>
+<span id="1715">1715</span>
+<span id="1716">1716</span>
+<span id="1717">1717</span>
+<span id="1718">1718</span>
+<span id="1719">1719</span>
+<span id="1720">1720</span>
+<span id="1721">1721</span>
+<span id="1722">1722</span>
+<span id="1723">1723</span>
+<span id="1724">1724</span>
+<span id="1725">1725</span>
+<span id="1726">1726</span>
+<span id="1727">1727</span>
+<span id="1728">1728</span>
+<span id="1729">1729</span>
+<span id="1730">1730</span>
+<span id="1731">1731</span>
+<span id="1732">1732</span>
+<span id="1733">1733</span>
+<span id="1734">1734</span>
+<span id="1735">1735</span>
+<span id="1736">1736</span>
+<span id="1737">1737</span>
+<span id="1738">1738</span>
+<span id="1739">1739</span>
+<span id="1740">1740</span>
+<span id="1741">1741</span>
+<span id="1742">1742</span>
+<span id="1743">1743</span>
+<span id="1744">1744</span>
+<span id="1745">1745</span>
+<span id="1746">1746</span>
+<span id="1747">1747</span>
+<span id="1748">1748</span>
+<span id="1749">1749</span>
+<span id="1750">1750</span>
+<span id="1751">1751</span>
+<span id="1752">1752</span>
+<span id="1753">1753</span>
+<span id="1754">1754</span>
+<span id="1755">1755</span>
+<span id="1756">1756</span>
+<span id="1757">1757</span>
+<span id="1758">1758</span>
+<span id="1759">1759</span>
+<span id="1760">1760</span>
+<span id="1761">1761</span>
+<span id="1762">1762</span>
+<span id="1763">1763</span>
+<span id="1764">1764</span>
+<span id="1765">1765</span>
+<span id="1766">1766</span>
+<span id="1767">1767</span>
+<span id="1768">1768</span>
+<span id="1769">1769</span>
+<span id="1770">1770</span>
+<span id="1771">1771</span>
+<span id="1772">1772</span>
+<span id="1773">1773</span>
+<span id="1774">1774</span>
+<span id="1775">1775</span>
+<span id="1776">1776</span>
+<span id="1777">1777</span>
+<span id="1778">1778</span>
+<span id="1779">1779</span>
+<span id="1780">1780</span>
+<span id="1781">1781</span>
+<span id="1782">1782</span>
+<span id="1783">1783</span>
+<span id="1784">1784</span>
+<span id="1785">1785</span>
+<span id="1786">1786</span>
+<span id="1787">1787</span>
+<span id="1788">1788</span>
+<span id="1789">1789</span>
+<span id="1790">1790</span>
+<span id="1791">1791</span>
+<span id="1792">1792</span>
+<span id="1793">1793</span>
+<span id="1794">1794</span>
+<span id="1795">1795</span>
+<span id="1796">1796</span>
+<span id="1797">1797</span>
+<span id="1798">1798</span>
+<span id="1799">1799</span>
+<span id="1800">1800</span>
+<span id="1801">1801</span>
+<span id="1802">1802</span>
+<span id="1803">1803</span>
+<span id="1804">1804</span>
+<span id="1805">1805</span>
+<span id="1806">1806</span>
+<span id="1807">1807</span>
+<span id="1808">1808</span>
+<span id="1809">1809</span>
+<span id="1810">1810</span>
+<span id="1811">1811</span>
+<span id="1812">1812</span>
+<span id="1813">1813</span>
+<span id="1814">1814</span>
+<span id="1815">1815</span>
+<span id="1816">1816</span>
+<span id="1817">1817</span>
+<span id="1818">1818</span>
+<span id="1819">1819</span>
+<span id="1820">1820</span>
+<span id="1821">1821</span>
+<span id="1822">1822</span>
+<span id="1823">1823</span>
+<span id="1824">1824</span>
+<span id="1825">1825</span>
+<span id="1826">1826</span>
+<span id="1827">1827</span>
+<span id="1828">1828</span>
+<span id="1829">1829</span>
+<span id="1830">1830</span>
+<span id="1831">1831</span>
+<span id="1832">1832</span>
+<span id="1833">1833</span>
+<span id="1834">1834</span>
+<span id="1835">1835</span>
+<span id="1836">1836</span>
+<span id="1837">1837</span>
+<span id="1838">1838</span>
+<span id="1839">1839</span>
+<span id="1840">1840</span>
+<span id="1841">1841</span>
+<span id="1842">1842</span>
+<span id="1843">1843</span>
+<span id="1844">1844</span>
+<span id="1845">1845</span>
+<span id="1846">1846</span>
+<span id="1847">1847</span>
+<span id="1848">1848</span>
+<span id="1849">1849</span>
+<span id="1850">1850</span>
+<span id="1851">1851</span>
+<span id="1852">1852</span>
+<span id="1853">1853</span>
+<span id="1854">1854</span>
+<span id="1855">1855</span>
+<span id="1856">1856</span>
+<span id="1857">1857</span>
+<span id="1858">1858</span>
+<span id="1859">1859</span>
+<span id="1860">1860</span>
+<span id="1861">1861</span>
+<span id="1862">1862</span>
+<span id="1863">1863</span>
+<span id="1864">1864</span>
+<span id="1865">1865</span>
+<span id="1866">1866</span>
+<span id="1867">1867</span>
+<span id="1868">1868</span>
+<span id="1869">1869</span>
+<span id="1870">1870</span>
+<span id="1871">1871</span>
+<span id="1872">1872</span>
+<span id="1873">1873</span>
+<span id="1874">1874</span>
+<span id="1875">1875</span>
+<span id="1876">1876</span>
+<span id="1877">1877</span>
+<span id="1878">1878</span>
+<span id="1879">1879</span>
+<span id="1880">1880</span>
+<span id="1881">1881</span>
+<span id="1882">1882</span>
+<span id="1883">1883</span>
+<span id="1884">1884</span>
+<span id="1885">1885</span>
+<span id="1886">1886</span>
+<span id="1887">1887</span>
+<span id="1888">1888</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>,))]</span>
 <span class="kw">use</span> <span class="ident">std::any::Any</span>;
 <span class="kw">use</span> <span class="ident">std::net::IpAddr</span>;
@@ -1729,8 +1905,6 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls-crate&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">native_tls_crate::TlsConnector</span>;
 <span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls-native-roots&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">rustls::RootCertStore</span>;
 <span class="kw">use</span> <span class="ident">std::future::Future</span>;
 <span class="kw">use</span> <span class="ident">std::pin::Pin</span>;
 <span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
@@ -1749,7 +1923,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::into_url</span>::{<span class="ident">expect_uri</span>, <span class="ident">try_uri</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::redirect</span>::{<span class="self">self</span>, <span class="ident">remove_sensitive_headers</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__tls&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tls::TlsBackend</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tls</span>::{<span class="self">self</span>, <span class="ident">TlsBackend</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__tls&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Certificate</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>))]</span>
@@ -1780,6 +1954,12 @@
     <span class="ident">config</span>: <span class="ident">Config</span>,
 }
 
+<span class="kw">enum</span> <span class="ident">HttpVersionPref</span> {
+    <span class="ident">Http1</span>,
+    <span class="ident">Http2</span>,
+    <span class="ident">All</span>,
+}
+
 <span class="kw">struct</span> <span class="ident">Config</span> {
     <span class="comment">// NOTE: When adding a new field, update `fmt::Debug for ClientBuilder`</span>
     <span class="ident">accepts</span>: <span class="ident">Accepts</span>,
@@ -1805,8 +1985,12 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__tls&quot;</span>)]</span>
     <span class="ident">tls_built_in_root_certs</span>: <span class="ident">bool</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__tls&quot;</span>)]</span>
+    <span class="ident">min_tls_version</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">tls::Version</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__tls&quot;</span>)]</span>
+    <span class="ident">max_tls_version</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">tls::Version</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__tls&quot;</span>)]</span>
     <span class="ident">tls</span>: <span class="ident">TlsBackend</span>,
-    <span class="ident">http2_only</span>: <span class="ident">bool</span>,
+    <span class="ident">http_version_pref</span>: <span class="ident">HttpVersionPref</span>,
     <span class="ident">http1_title_case_headers</span>: <span class="ident">bool</span>,
     <span class="ident">http2_initial_stream_window_size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
     <span class="ident">http2_initial_connection_window_size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
@@ -1864,8 +2048,12 @@
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>))]</span>
                 <span class="ident">identity</span>: <span class="prelude-val">None</span>,
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__tls&quot;</span>)]</span>
+                <span class="ident">min_tls_version</span>: <span class="prelude-val">None</span>,
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__tls&quot;</span>)]</span>
+                <span class="ident">max_tls_version</span>: <span class="prelude-val">None</span>,
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__tls&quot;</span>)]</span>
                 <span class="ident">tls</span>: <span class="ident">TlsBackend::default</span>(),
-                <span class="ident">http2_only</span>: <span class="bool-val">false</span>,
+                <span class="ident">http_version_pref</span>: <span class="ident">HttpVersionPref::All</span>,
                 <span class="ident">http1_title_case_headers</span>: <span class="bool-val">false</span>,
                 <span class="ident">http2_initial_stream_window_size</span>: <span class="prelude-val">None</span>,
                 <span class="ident">http2_initial_connection_window_size</span>: <span class="prelude-val">None</span>,
@@ -1935,10 +2123,16 @@
 
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls-alpn&quot;</span>)]</span>
                     {
-                        <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">http2_only</span> {
-                            <span class="ident">tls</span>.<span class="ident">request_alpns</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;h2&quot;</span>]);
-                        } <span class="kw">else</span> {
-                            <span class="ident">tls</span>.<span class="ident">request_alpns</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;h2&quot;</span>, <span class="string">&quot;http/1.1&quot;</span>]);
+                        <span class="kw">match</span> <span class="ident">config</span>.<span class="ident">http_version_pref</span> {
+                            <span class="ident">HttpVersionPref::Http1</span> =&gt; {
+                                <span class="ident">tls</span>.<span class="ident">request_alpns</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;http/1.1&quot;</span>]);
+                            }
+                            <span class="ident">HttpVersionPref::Http2</span> =&gt; {
+                                <span class="ident">tls</span>.<span class="ident">request_alpns</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;h2&quot;</span>]);
+                            }
+                            <span class="ident">HttpVersionPref::All</span> =&gt; {
+                                <span class="ident">tls</span>.<span class="ident">request_alpns</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;h2&quot;</span>, <span class="string">&quot;http/1.1&quot;</span>]);
+                            }
                         }
                     }
 
@@ -1960,6 +2154,27 @@
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">config</span>.<span class="ident">identity</span> {
                             <span class="ident">id</span>.<span class="ident">add_to_native_tls</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tls</span>)<span class="question-mark">?</span>;
                         }
+                    }
+
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">min_tls_version</span>) <span class="op">=</span> <span class="ident">config</span>.<span class="ident">min_tls_version</span> {
+                        <span class="kw">let</span> <span class="ident">protocol</span> <span class="op">=</span> <span class="ident">min_tls_version</span>.<span class="ident">to_native_tls</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                            <span class="comment">// TLS v1.3. This would be entirely reasonable,</span>
+                            <span class="comment">// native-tls just doesn&#39;t support it.</span>
+                            <span class="comment">// https://github.com/sfackler/rust-native-tls/issues/140</span>
+                            <span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="string">&quot;invalid minimum TLS version for backend&quot;</span>)
+                        })<span class="question-mark">?</span>;
+                        <span class="ident">tls</span>.<span class="ident">min_protocol_version</span>(<span class="prelude-val">Some</span>(<span class="ident">protocol</span>));
+                    }
+
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max_tls_version</span>) <span class="op">=</span> <span class="ident">config</span>.<span class="ident">max_tls_version</span> {
+                        <span class="kw">let</span> <span class="ident">protocol</span> <span class="op">=</span> <span class="ident">max_tls_version</span>.<span class="ident">to_native_tls</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                            <span class="comment">// TLS v1.3.</span>
+                            <span class="comment">// We could arguably do max_protocol_version(None), given</span>
+                            <span class="comment">// that 1.4 does not exist yet, but that&#39;d get messy in the</span>
+                            <span class="comment">// future.</span>
+                            <span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="string">&quot;invalid maximum TLS version for backend&quot;</span>)
+                        })<span class="question-mark">?</span>;
+                        <span class="ident">tls</span>.<span class="ident">max_protocol_version</span>(<span class="prelude-val">Some</span>(<span class="ident">protocol</span>));
                     }
 
                     <span class="ident">Connector::new_default_tls</span>(
@@ -1993,34 +2208,94 @@
                 <span class="ident">TlsBackend::Rustls</span> =&gt; {
                     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tls::NoVerifier</span>;
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tls</span> <span class="op">=</span> <span class="ident">rustls::ClientConfig::new</span>();
-                    <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">http2_only</span> {
-                        <span class="ident">tls</span>.<span class="ident">set_protocols</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;h2&quot;</span>.<span class="ident">into</span>()]);
-                    } <span class="kw">else</span> {
-                        <span class="ident">tls</span>.<span class="ident">set_protocols</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;h2&quot;</span>.<span class="ident">into</span>(), <span class="string">&quot;http/1.1&quot;</span>.<span class="ident">into</span>()]);
-                    }
-                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls-webpki-roots&quot;</span>)]</span>
-                    <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">tls_built_in_root_certs</span> {
-                        <span class="ident">tls</span>.<span class="ident">root_store</span>
-                            .<span class="ident">add_server_trust_anchors</span>(<span class="kw-2">&amp;</span><span class="ident">webpki_roots::TLS_SERVER_ROOTS</span>);
-                    }
-                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls-native-roots&quot;</span>)]</span>
-                    <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">tls_built_in_root_certs</span> {
-                        <span class="kw">let</span> <span class="ident">roots_slice</span> <span class="op">=</span> <span class="ident">NATIVE_ROOTS</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">roots</span>.<span class="ident">as_slice</span>();
-                        <span class="ident">tls</span>.<span class="ident">root_store</span>.<span class="ident">roots</span>.<span class="ident">extend_from_slice</span>(<span class="ident">roots_slice</span>);
+                    <span class="comment">// Set root certificates.</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">root_cert_store</span> <span class="op">=</span> <span class="ident">rustls::RootCertStore::empty</span>();
+                    <span class="kw">for</span> <span class="ident">cert</span> <span class="kw">in</span> <span class="ident">config</span>.<span class="ident">root_certs</span> {
+                        <span class="ident">cert</span>.<span class="ident">add_to_rustls</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">root_cert_store</span>)<span class="question-mark">?</span>;
                     }
 
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls-webpki-roots&quot;</span>)]</span>
+                    <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">tls_built_in_root_certs</span> {
+                        <span class="kw">use</span> <span class="ident">rustls::OwnedTrustAnchor</span>;
+
+                        <span class="kw">let</span> <span class="ident">trust_anchors</span> <span class="op">=</span>
+                            <span class="ident">webpki_roots::TLS_SERVER_ROOTS</span>.<span class="number">0</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">trust_anchor</span><span class="op">|</span> {
+                                <span class="ident">OwnedTrustAnchor::from_subject_spki_name_constraints</span>(
+                                    <span class="ident">trust_anchor</span>.<span class="ident">subject</span>,
+                                    <span class="ident">trust_anchor</span>.<span class="ident">spki</span>,
+                                    <span class="ident">trust_anchor</span>.<span class="ident">name_constraints</span>,
+                                )
+                            });
+
+                        <span class="ident">root_cert_store</span>.<span class="ident">add_server_trust_anchors</span>(<span class="ident">trust_anchors</span>);
+                    }
+
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls-native-roots&quot;</span>)]</span>
+                    <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">tls_built_in_root_certs</span> {
+                        <span class="kw">for</span> <span class="ident">cert</span> <span class="kw">in</span> <span class="ident">rustls_native_certs::load_native_certs</span>()
+                            .<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>)<span class="question-mark">?</span>
+                        {
+                            <span class="ident">root_cert_store</span>
+                                .<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="ident">rustls::Certificate</span>(<span class="ident">cert</span>.<span class="number">0</span>))
+                                .<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>)<span class="question-mark">?</span>
+                        }
+                    }
+
+                    <span class="comment">// Set TLS versions.</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">versions</span> <span class="op">=</span> <span class="ident">rustls::ALL_VERSIONS</span>.<span class="ident">to_vec</span>();
+
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">min_tls_version</span>) <span class="op">=</span> <span class="ident">config</span>.<span class="ident">min_tls_version</span> {
+                        <span class="ident">versions</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">supported_version</span><span class="op">|</span> {
+                            <span class="kw">match</span> <span class="ident">tls::Version::from_rustls</span>(<span class="ident">supported_version</span>.<span class="ident">version</span>) {
+                                <span class="prelude-val">Some</span>(<span class="ident">version</span>) =&gt; <span class="ident">version</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">min_tls_version</span>,
+                                <span class="comment">// Assume it&#39;s so new we don&#39;t know about it, allow it</span>
+                                <span class="comment">// (as of writing this is unreachable)</span>
+                                <span class="prelude-val">None</span> =&gt; <span class="bool-val">true</span>,
+                            }
+                        });
+                    }
+
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max_tls_version</span>) <span class="op">=</span> <span class="ident">config</span>.<span class="ident">max_tls_version</span> {
+                        <span class="ident">versions</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">supported_version</span><span class="op">|</span> {
+                            <span class="kw">match</span> <span class="ident">tls::Version::from_rustls</span>(<span class="ident">supported_version</span>.<span class="ident">version</span>) {
+                                <span class="prelude-val">Some</span>(<span class="ident">version</span>) =&gt; <span class="ident">version</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">max_tls_version</span>,
+                                <span class="prelude-val">None</span> =&gt; <span class="bool-val">false</span>,
+                            }
+                        });
+                    }
+
+                    <span class="comment">// Build TLS config</span>
+                    <span class="kw">let</span> <span class="ident">config_builder</span> <span class="op">=</span> <span class="ident">rustls::ClientConfig::builder</span>()
+                        .<span class="ident">with_safe_default_cipher_suites</span>()
+                        .<span class="ident">with_safe_default_kx_groups</span>()
+                        .<span class="ident">with_protocol_versions</span>(<span class="kw-2">&amp;</span><span class="ident">versions</span>)
+                        .<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>)<span class="question-mark">?</span>
+                        .<span class="ident">with_root_certificates</span>(<span class="ident">root_cert_store</span>);
+
+                    <span class="comment">// Finalize TLS config</span>
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tls</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">config</span>.<span class="ident">identity</span> {
+                        <span class="ident">id</span>.<span class="ident">add_to_rustls</span>(<span class="ident">config_builder</span>)<span class="question-mark">?</span>
+                    } <span class="kw">else</span> {
+                        <span class="ident">config_builder</span>.<span class="ident">with_no_client_auth</span>()
+                    };
+
+                    <span class="comment">// Certificate verifier</span>
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">config</span>.<span class="ident">certs_verification</span> {
                         <span class="ident">tls</span>.<span class="ident">dangerous</span>()
                             .<span class="ident">set_certificate_verifier</span>(<span class="ident">Arc::new</span>(<span class="ident">NoVerifier</span>));
                     }
 
-                    <span class="kw">for</span> <span class="ident">cert</span> <span class="kw">in</span> <span class="ident">config</span>.<span class="ident">root_certs</span> {
-                        <span class="ident">cert</span>.<span class="ident">add_to_rustls</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tls</span>)<span class="question-mark">?</span>;
-                    }
-
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">config</span>.<span class="ident">identity</span> {
-                        <span class="ident">id</span>.<span class="ident">add_to_rustls</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tls</span>)<span class="question-mark">?</span>;
+                    <span class="comment">// ALPN protocol</span>
+                    <span class="kw">match</span> <span class="ident">config</span>.<span class="ident">http_version_pref</span> {
+                        <span class="ident">HttpVersionPref::Http1</span> =&gt; {
+                            <span class="ident">tls</span>.<span class="ident">alpn_protocols</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;http/1.1&quot;</span>.<span class="ident">into</span>()];
+                        }
+                        <span class="ident">HttpVersionPref::Http2</span> =&gt; {
+                            <span class="ident">tls</span>.<span class="ident">alpn_protocols</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;h2&quot;</span>.<span class="ident">into</span>()];
+                        }
+                        <span class="ident">HttpVersionPref::All</span> =&gt; {
+                            <span class="ident">tls</span>.<span class="ident">alpn_protocols</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;h2&quot;</span>.<span class="ident">into</span>(), <span class="string">&quot;http/1.1&quot;</span>.<span class="ident">into</span>()];
+                        }
                     }
 
                     <span class="ident">Connector::new_rustls_tls</span>(
@@ -2048,7 +2323,7 @@
         <span class="ident">connector</span>.<span class="ident">set_verbose</span>(<span class="ident">config</span>.<span class="ident">connection_verbose</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">hyper::Client::builder</span>();
-        <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">http2_only</span> {
+        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">config</span>.<span class="ident">http_version_pref</span>, <span class="ident">HttpVersionPref::Http2</span>) {
             <span class="ident">builder</span>.<span class="ident">http2_only</span>(<span class="bool-val">true</span>);
         }
 
@@ -2443,15 +2718,21 @@
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Enable case sensitive headers.</span>
+    <span class="doccomment">/// Send headers as title case instead of lowercase.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http1_title_case_headers</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">http1_title_case_headers</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
+    <span class="doccomment">/// Only use HTTP/1.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http1_only</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
+        <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">http_version_pref</span> <span class="op">=</span> <span class="ident">HttpVersionPref::Http1</span>;
+        <span class="self">self</span>
+    }
+
     <span class="doccomment">/// Only use HTTP/2.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http2_prior_knowledge</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
-        <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">http2_only</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">http_version_pref</span> <span class="op">=</span> <span class="ident">HttpVersionPref::Http2</span>;
         <span class="self">self</span>
     }
 
@@ -2642,6 +2923,64 @@
     )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">danger_accept_invalid_certs</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">accept_invalid_certs</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">certs_verification</span> <span class="op">=</span> <span class="op">!</span><span class="ident">accept_invalid_certs</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Set the minimum required TLS version for connections.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By default the TLS backend&#39;s own default is used.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// A value of `tls::Version::TLS_1_3` will cause an error with the</span>
+    <span class="doccomment">/// `native-tls`/`default-tls` backend. This does not mean the version</span>
+    <span class="doccomment">/// isn&#39;t supported, just that it can&#39;t be set as a minimum due to</span>
+    <span class="doccomment">/// technical limitations.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Optional</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This requires the optional `default-tls`, `native-tls`, or `rustls-tls(-...)`</span>
+    <span class="doccomment">/// feature to be enabled.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__tls&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;default-tls&quot;</span>,
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>,
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>
+        )))
+    )]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min_tls_version</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">version</span>: <span class="ident">tls::Version</span>) -&gt; <span class="ident">ClientBuilder</span> {
+        <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">min_tls_version</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">version</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Set the maximum allowed TLS version for connections.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By default there&#39;s no maximum.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// A value of `tls::Version::TLS_1_3` will cause an error with the</span>
+    <span class="doccomment">/// `native-tls`/`default-tls` backend. This does not mean the version</span>
+    <span class="doccomment">/// isn&#39;t supported, just that it can&#39;t be set as a maximum due to</span>
+    <span class="doccomment">/// technical limitations.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Optional</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This requires the optional `default-tls`, `native-tls`, or `rustls-tls(-...)`</span>
+    <span class="doccomment">/// feature to be enabled.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__tls&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">docsrs</span>,
+        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;default-tls&quot;</span>,
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>,
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>
+        )))
+    )]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_tls_version</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">version</span>: <span class="ident">tls::Version</span>) -&gt; <span class="ident">ClientBuilder</span> {
+        <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">max_tls_version</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">version</span>);
         <span class="self">self</span>
     }
 
@@ -3051,7 +3390,11 @@
             <span class="ident">f</span>.<span class="ident">field</span>(<span class="string">&quot;http1_title_case_headers&quot;</span>, <span class="kw-2">&amp;</span><span class="bool-val">true</span>);
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">http2_only</span> {
+        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">http_version_pref</span>, <span class="ident">HttpVersionPref::Http1</span>) {
+            <span class="ident">f</span>.<span class="ident">field</span>(<span class="string">&quot;http1_only&quot;</span>, <span class="kw-2">&amp;</span><span class="bool-val">true</span>);
+        }
+
+        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">http_version_pref</span>, <span class="ident">HttpVersionPref::Http2</span>) {
             <span class="ident">f</span>.<span class="ident">field</span>(<span class="string">&quot;http2_prior_knowledge&quot;</span>, <span class="kw-2">&amp;</span><span class="bool-val">true</span>);
         }
 
@@ -3082,6 +3425,14 @@
         {
             <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">certs_verification</span> {
                 <span class="ident">f</span>.<span class="ident">field</span>(<span class="string">&quot;danger_accept_invalid_certs&quot;</span>, <span class="kw-2">&amp;</span><span class="bool-val">true</span>);
+            }
+
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">min_tls_version</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">min_tls_version</span> {
+                <span class="ident">f</span>.<span class="ident">field</span>(<span class="string">&quot;min_tls_version&quot;</span>, <span class="ident">min_tls_version</span>);
+            }
+
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">max_tls_version</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_tls_version</span> {
+                <span class="ident">f</span>.<span class="ident">field</span>(<span class="string">&quot;max_tls_version&quot;</span>, <span class="ident">max_tls_version</span>);
             }
         }
 
@@ -3318,8 +3669,15 @@
                     <span class="kw">match</span> <span class="ident">action</span> {
                         <span class="ident">redirect::ActionKind::Follow</span> =&gt; {
                             <span class="macro">debug!</span>(<span class="string">&quot;redirecting &#39;{}&#39; to &#39;{}&#39;&quot;</span>, <span class="self">self</span>.<span class="ident">url</span>, <span class="ident">loc</span>);
-                            <span class="self">self</span>.<span class="ident">url</span> <span class="op">=</span> <span class="ident">loc</span>;
 
+                            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">https_only</span> <span class="op">&amp;&amp;</span> <span class="ident">loc</span>.<span class="ident">scheme</span>() <span class="op">!</span><span class="op">=</span> <span class="string">&quot;https&quot;</span> {
+                                <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">error::redirect</span>(
+                                    <span class="ident">error::url_bad_scheme</span>(<span class="ident">loc</span>.<span class="ident">clone</span>()),
+                                    <span class="ident">loc</span>,
+                                )));
+                            }
+
+                            <span class="self">self</span>.<span class="ident">url</span> <span class="op">=</span> <span class="ident">loc</span>;
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span>
                                 <span class="ident">std::mem::replace</span>(<span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">headers</span>(), <span class="ident">HeaderMap::new</span>());
 
@@ -3400,12 +3758,6 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">header</span>) <span class="op">=</span> <span class="ident">cookie_store</span>.<span class="ident">cookies</span>(<span class="ident">url</span>) {
         <span class="ident">headers</span>.<span class="ident">insert</span>(<span class="ident"><span class="kw">crate</span>::header::COOKIE</span>, <span class="ident">header</span>);
     }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls-native-roots&quot;</span>)]</span>
-<span class="macro">lazy_static!</span> {
-    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NATIVE_ROOTS</span>: <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="ident">RootCertStore</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">rustls_native_certs::load_native_certs</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="number">1</span>);
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>

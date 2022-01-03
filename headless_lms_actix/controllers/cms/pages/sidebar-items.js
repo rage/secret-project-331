@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_pages_routes","Add a route for each controller in this module."],["get_page","GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id."],["update_page","PUT `/api/v0/cms/pages/:page_id` - Update a page by id."]]});
+initSidebarItems({"fn":[["_add_routes","Add a route for each controller in this module."],["get_page","GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id."],["update_page","PUT `/api/v0/cms/pages/:page_id` - Update a page by id."]]});

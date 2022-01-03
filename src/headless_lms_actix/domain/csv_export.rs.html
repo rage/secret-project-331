@@ -395,23 +395,33 @@
 <span id="395">395</span>
 <span id="396">396</span>
 <span id="397">397</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers::ControllerResult</span>,
-    <span class="ident">models</span>::{<span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">exercises</span>, <span class="ident">submissions</span>, <span class="ident">user_exercise_states</span>},
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
+    <span class="ident">array::IntoIter</span>,
+    <span class="ident">collections::HashMap</span>,
+    <span class="ident">io</span>,
+    <span class="ident">io::Write</span>,
+    <span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>},
 };
+
 <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
 <span class="kw">use</span> <span class="ident">csv::Writer</span>;
 <span class="kw">use</span> <span class="ident">futures::stream::FuturesUnordered</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
+    <span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">exercises</span>, <span class="ident">submissions</span>, <span class="ident">user_exercise_states</span>,
+};
 <span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
-<span class="kw">use</span> <span class="ident">std::io::Write</span>;
-<span class="kw">use</span> <span class="ident">std::sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">array::IntoIter</span>, <span class="ident">io</span>};
-<span class="kw">use</span> <span class="ident">tokio::sync::mpsc::UnboundedSender</span>;
-<span class="kw">use</span> <span class="ident">tokio::task::JoinHandle</span>;
+<span class="kw">use</span> <span class="ident">tokio</span>::{<span class="ident">sync::mpsc::UnboundedSender</span>, <span class="ident">task::JoinHandle</span>};
 <span class="kw">use</span> <span class="ident">tokio_stream::StreamExt</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::ControllerResult</span>;
 
 <span class="doccomment">/// Convenience struct for creating CSV data.</span>
 <span class="kw">struct</span> <span class="ident">CsvWriter</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> {
@@ -646,21 +656,23 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">models</span>::{
-            <span class="ident">exercise_slides</span>, <span class="ident">exercise_tasks</span>,
-            <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">GradingProgress</span>},
-            <span class="ident">gradings</span>,
-            <span class="ident">submissions</span>::{<span class="self">self</span>, <span class="ident">GradingResult</span>},
-            <span class="ident">users</span>,
-        },
-        <span class="ident">test_helper</span>::{<span class="ident">insert_data</span>, <span class="ident">Conn</span>, <span class="ident">Data</span>},
+    <span class="kw">use</span> <span class="ident">std</span>::{
+        <span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">Cursor</span>},
+        <span class="ident">sync::mpsc::Sender</span>,
     };
+
     <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
+    <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
+        <span class="ident">exercise_slides</span>, <span class="ident">exercise_tasks</span>,
+        <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">GradingProgress</span>},
+        <span class="ident">gradings</span>,
+        <span class="ident">submissions</span>::{<span class="self">self</span>, <span class="ident">GradingResult</span>},
+        <span class="ident">users</span>,
+    };
     <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
-    <span class="kw">use</span> <span class="ident">std::io</span>::{<span class="self">self</span>};
-    <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">io::Cursor</span>, <span class="ident">sync::mpsc::Sender</span>};
+
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_helper</span>::{<span class="ident">insert_data</span>, <span class="ident">Conn</span>, <span class="ident">Data</span>};
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">exports</span>() {

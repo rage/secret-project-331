@@ -50,27 +50,9 @@
 <span id="50">50</span>
 <span id="51">51</span>
 <span id="52">52</span>
-<span id="53">53</span>
-<span id="54">54</span>
-<span id="55">55</span>
-<span id="56">56</span>
-<span id="57">57</span>
-<span id="58">58</span>
-<span id="59">59</span>
-<span id="60">60</span>
-<span id="61">61</span>
-<span id="62">62</span>
-<span id="63">63</span>
-<span id="64">64</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">Json</span>, <span class="ident">ServiceConfig</span>};
-<span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">models::submissions::SubmissionInfo</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers::ControllerResult</span>,
-    <span class="ident">domain::authorization</span>::{<span class="ident">authorize</span>, <span class="ident">Action</span>, <span class="ident">AuthUser</span>, <span class="ident">Resource</span>},
-    <span class="ident">models</span>::{<span class="self">self</span>, <span class="ident">submissions::SubmissionInfo</span>},
-};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/submissions/{submission_id}/info&quot;` - Returns data necessary for rendering a submission.
@@ -80,20 +62,14 @@ GET `/api/v0/main-frontend/submissions/{submission_id}/info&quot;` - Returns dat
     <span class="ident">submission_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">SubmissionInfo</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">SubmissionInfo</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> (<span class="ident">course_id</span>, <span class="ident">exam_id</span>) <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::models::submissions::get_course_and_exam_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">submission_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">models::submissions::get_course_and_exam_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">submission_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">course_id</span>) <span class="op">=</span> <span class="ident">course_id</span> {
-        <span class="ident">authorize</span>(
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-            <span class="ident">Action::View</span>,
-            <span class="ident">user</span>.<span class="ident">id</span>,
-            <span class="ident">Resource::Course</span>(<span class="ident">course_id</span>),
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Course</span>(<span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">exam_id</span> {
-        <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Action::View</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Resource::Exam</span>(<span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Exam</span>(<span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
     } <span class="kw">else</span> {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Submission not associated with course or exam&quot;</span>).<span class="ident">into</span>());
     }
@@ -114,7 +90,7 @@ GET `/api/v0/main-frontend/submissions/{submission_id}/info&quot;` - Returns dat
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">SubmissionInfo</span> {
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">SubmissionInfo</span> {
         <span class="ident">submission</span>,
         <span class="ident">exercise</span>,
         <span class="ident">exercise_task</span>,
@@ -123,7 +99,7 @@ GET `/api/v0/main-frontend/submissions/{submission_id}/info&quot;` - Returns dat
     }))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_submissions_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{submission_id}/info&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_submission_info</span>));
 }
 </code></pre></div>

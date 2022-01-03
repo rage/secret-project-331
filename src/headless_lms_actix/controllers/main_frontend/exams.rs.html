@@ -144,57 +144,25 @@
 <span id="144">144</span>
 <span id="145">145</span>
 <span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
-<span id="168">168</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers::ControllerResult</span>,
-    <span class="ident">domain</span>::{
-        <span class="ident">authorization</span>::{<span class="ident">authorize</span>, <span class="ident">Action</span>, <span class="ident">AuthUser</span>, <span class="ident">Resource</span>},
-        <span class="ident">csv_export</span>::{<span class="self">self</span>, <span class="ident">CSVExportAdapter</span>},
-    },
-    <span class="ident">models::exams</span>::{<span class="self">self</span>, <span class="ident">Exam</span>},
-};
-<span class="kw">use</span> <span class="ident">actix_web</span>::{
-    <span class="ident">web</span>::{<span class="self">self</span>, <span class="ident">Json</span>, <span class="ident">ServiceConfig</span>},
-    <span class="ident">HttpResponse</span>,
-};
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
-<span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
+<span class="kw">use</span> <span class="ident">models::exams</span>::{<span class="self">self</span>, <span class="ident">Exam</span>};
 <span class="kw">use</span> <span class="ident">tokio_stream::wrappers::UnboundedReceiverStream</span>;
-<span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">controllers::prelude</span>::<span class="kw-2">*</span>,
+    <span class="ident">domain::csv_export</span>::{<span class="self">self</span>, <span class="ident">CSVExportAdapter</span>},
+};
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exam</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">exam_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Exam</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Exam</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Action::View</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Resource::Exam</span>(<span class="kw-2">*</span><span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">id</span>.<span class="ident">into_inner</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">exam</span>))
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Exam</span>(<span class="kw-2">*</span><span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">exam</span>))
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">TS</span>)]</span>
@@ -204,28 +172,28 @@
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_course</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">course_id</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ExamCourseInfo</span><span class="op">&gt;</span>,
+    <span class="ident">exam_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">exam</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ExamCourseInfo</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Action::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Resource::Exam</span>(<span class="kw-2">*</span><span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Exam</span>(<span class="kw-2">*</span><span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">exams::set_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">id</span>.<span class="ident">into_inner</span>(), <span class="ident">course_id</span>.<span class="ident">into_inner</span>().<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(()))
+    <span class="ident">exams::set_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>, <span class="ident">exam</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(()))
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">unset_course</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">course_id</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ExamCourseInfo</span><span class="op">&gt;</span>,
+    <span class="ident">exam_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">exam</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ExamCourseInfo</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Action::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Resource::Exam</span>(<span class="kw-2">*</span><span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Exam</span>(<span class="kw-2">*</span><span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">exams::unset_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">id</span>.<span class="ident">into_inner</span>(), <span class="ident">course_id</span>.<span class="ident">into_inner</span>().<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(()))
+    <span class="ident">exams::unset_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>, <span class="ident">exam</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(()))
 }
 
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
@@ -235,13 +203,7 @@
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">Action::Teach</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
-        <span class="ident">Resource::Exam</span>(<span class="kw-2">*</span><span class="ident">exam_id_path</span>),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Exam</span>(<span class="kw-2">*</span><span class="ident">exam_id_path</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> (<span class="ident">sender</span>, <span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">tokio::sync::mpsc::unbounded_channel</span>::<span class="op">&lt;</span><span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span>();
     <span class="kw">let</span> <span class="ident">exam_id</span> <span class="op">=</span> <span class="ident">exam_id_path</span>.<span class="ident">into_inner</span>();
 
@@ -278,13 +240,7 @@
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">Action::Teach</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
-        <span class="ident">Resource::Exam</span>(<span class="kw-2">*</span><span class="ident">exam_id_path</span>),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Exam</span>(<span class="kw-2">*</span><span class="ident">exam_id_path</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> (<span class="ident">sender</span>, <span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">tokio::sync::mpsc::unbounded_channel</span>::<span class="op">&lt;</span><span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span>();
     <span class="kw">let</span> <span class="ident">exam_id</span> <span class="op">=</span> <span class="ident">exam_id_path</span>.<span class="ident">into_inner</span>();
 
@@ -324,7 +280,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_exams_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{id}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_exam</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{id}/set&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">set_course</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{id}/unset&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">unset_course</span>))

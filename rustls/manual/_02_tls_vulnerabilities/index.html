@@ -92,7 +92,7 @@ the design was poor; it reused design for an unrelated security setting proposed
 with a given key.  The design specified by RFC5288 left two-thirds of the nonce construction up to implementations:</p>
 <ul>
 <li>wasting 8 bytes per TLS ciphertext,</li>
-<li>meaning correct operation cannot be tested for (eg, in protocol-level test vectors).</li>
+<li>meaning correct operation cannot be tested for (e.g., in protocol-level test vectors).</li>
 </ul>
 <p>There were no trade-offs here: TLS has a 64-bit sequence number that is not allowed to wrap and would make an ideal nonce.</p>
 <p>As a result, a <a href="https://eprint.iacr.org/2016/475.pdf">2016 study</a> found:</p>

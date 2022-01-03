@@ -179,18 +179,26 @@
 <span id="179">179</span>
 <span id="180">180</span>
 <span id="181">181</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">path_to_str</span>, <span class="ident">FileStore</span>, <span class="ident">GenericPayload</span>};
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
+
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
 <span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">Stream</span>, <span class="ident">StreamExt</span>};
-<span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
-<span class="kw">use</span> <span class="ident">tokio::io</span>::{<span class="self">self</span>, <span class="ident">AsyncWriteExt</span>};
 <span class="kw">use</span> <span class="ident">tokio</span>::{
     <span class="ident">fs</span>::{<span class="self">self</span>, <span class="ident">OpenOptions</span>},
-    <span class="ident">io::BufWriter</span>,
+    <span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">AsyncWriteExt</span>, <span class="ident">BufWriter</span>},
 };
 <span class="kw">use</span> <span class="ident">tokio_util::io::ReaderStream</span>;
+
+<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">path_to_str</span>, <span class="ident">FileStore</span>, <span class="ident">GenericPayload</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::UtilError</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LocalFileStore</span> {
@@ -200,10 +208,10 @@
 
 <span class="kw">impl</span> <span class="ident">LocalFileStore</span> {
     <span class="doccomment">/// Needs to not be async because of how this is used in worker factories</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">base_path</span>: <span class="ident">PathBuf</span>, <span class="ident">base_url</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">base_path</span>: <span class="ident">PathBuf</span>, <span class="ident">base_url</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">UtilError</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">base_path</span>.<span class="ident">exists</span>() {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">base_path</span>.<span class="ident">is_dir</span>() {
-                <span class="macro">anyhow::bail!</span>(<span class="string">&quot;Base path should be a folder&quot;</span>);
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">UtilError::Other</span>(<span class="string">&quot;Base path should be a folder&quot;</span>));
             }
         } <span class="kw">else</span> {
             <span class="ident">std::fs::create_dir_all</span>(<span class="kw-2">&amp;</span><span class="ident">base_path</span>)<span class="question-mark">?</span>;
@@ -216,27 +224,32 @@
 }
 <span class="attribute">#[<span class="ident">async_trait</span>(<span class="question-mark">?</span><span class="ident">Send</span>)]</span>
 <span class="kw">impl</span> <span class="ident">FileStore</span> <span class="kw">for</span> <span class="ident">LocalFileStore</span> {
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">contents</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">_mime_type</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
+        <span class="ident">contents</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
+        <span class="ident">_mime_type</span>: <span class="ident">String</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UtilError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">base_path</span>.<span class="ident">join</span>(<span class="ident">path</span>);
         <span class="ident">fs::write</span>(<span class="ident">full_path</span>, <span class="ident">contents</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">UtilError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">base_path</span>.<span class="ident">join</span>(<span class="ident">path</span>);
         <span class="prelude-val">Ok</span>(<span class="ident">fs::read</span>(<span class="ident">full_path</span>).<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UtilError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">base_path</span>.<span class="ident">join</span>(<span class="ident">path</span>);
         <span class="ident">fs::remove_file</span>(<span class="ident">full_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_direct_download_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_direct_download_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">UtilError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">base_path</span>.<span class="ident">join</span>(<span class="ident">path</span>);
         <span class="kw">if</span> <span class="op">!</span><span class="ident">full_path</span>.<span class="ident">exists</span>() {
-            <span class="macro">anyhow::bail!</span>(<span class="string">&quot;File does not exist&quot;</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">UtilError::Other</span>(<span class="string">&quot;File does not exist.&quot;</span>));
         }
         <span class="kw">let</span> <span class="ident">path_str</span> <span class="op">=</span> <span class="ident">path_to_str</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">base_url</span>.<span class="ident">ends_with</span>(<span class="string">&#39;/&#39;</span>) {
@@ -250,16 +263,16 @@
         <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
         <span class="kw-2">mut</span> <span class="ident">contents</span>: <span class="ident">GenericPayload</span>,
         <span class="ident">_mime_type</span>: <span class="ident">String</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UtilError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">base_path</span>.<span class="ident">join</span>(<span class="ident">path</span>);
         <span class="kw">let</span> <span class="ident">parent_option</span> <span class="op">=</span> <span class="ident">full_path</span>.<span class="ident">parent</span>();
         <span class="kw">if</span> <span class="ident">parent_option</span>.<span class="ident">is_none</span>() {
-            <span class="macro">anyhow::bail!</span>(<span class="string">&quot;Media path did not have a parent folder&quot;</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">UtilError::Other</span>(<span class="string">&quot;Media path did not have a parent folder&quot;</span>));
         }
         <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="ident">parent_option</span>.<span class="ident">unwrap</span>();
         <span class="kw">if</span> <span class="ident">parent</span>.<span class="ident">exists</span>() {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">parent</span>.<span class="ident">is_dir</span>() {
-                <span class="macro">anyhow::bail!</span>(<span class="string">&quot;Base path should be a folder&quot;</span>);
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">UtilError::Other</span>(<span class="string">&quot;Base path should be a folder&quot;</span>));
             }
         } <span class="kw">else</span> {
             <span class="ident">fs::create_dir_all</span>(<span class="kw-2">&amp;</span><span class="ident">parent</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -285,7 +298,7 @@
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download_stream</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">UtilError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">base_path</span>.<span class="ident">join</span>(<span class="ident">path</span>);
         <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">fs::File::open</span>(<span class="ident">full_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">io::BufReader::new</span>(<span class="ident">file</span>);
@@ -298,11 +311,12 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="ident">std::path::Path</span>;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::LocalFileStore</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::file_store::FileStore</span>;
     <span class="kw">use</span> <span class="ident">tempdir::TempDir</span>;
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
+    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::LocalFileStore</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::file_store::FileStore</span>;
+
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload_download_delete_works</span>() {
         <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">TempDir::new</span>(<span class="string">&quot;test-local-filestore&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;Failed to create a temp dir&quot;</span>);
         <span class="kw">let</span> <span class="ident">base_path</span> <span class="op">=</span> <span class="ident">dir</span>.<span class="ident">into_path</span>();
@@ -333,7 +347,7 @@
         <span class="macro">assert!</span>(<span class="ident">retrivied_file2</span>.<span class="ident">is_err</span>());
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_download_url_works</span>() {
         <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">TempDir::new</span>(<span class="string">&quot;test-local-filestore&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;Failed to create a temp dir&quot;</span>);
         <span class="kw">let</span> <span class="ident">base_path</span> <span class="op">=</span> <span class="ident">dir</span>.<span class="ident">into_path</span>();

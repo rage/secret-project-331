@@ -324,30 +324,22 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+
+<span class="kw">use</span> <span class="ident">futures::Future</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::f32_to_two_decimals</span>;
+<span class="kw">use</span> <span class="ident">url::Url</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">exams</span>,
+    <span class="ident">exercise_service_info::get_service_info_by_exercise_type</span>,
     <span class="ident">exercise_services</span>::{<span class="ident">get_exercise_service_by_exercise_type</span>, <span class="ident">get_internal_grade_url</span>},
     <span class="ident">exercise_tasks::ExerciseTask</span>,
     <span class="ident">exercises</span>::{<span class="ident">Exercise</span>, <span class="ident">GradingProgress</span>},
-    <span class="ident">submissions</span>::{<span class="ident">GradingResult</span>, <span class="ident">Submission</span>},
+    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+    <span class="ident">submissions</span>::{<span class="ident">GradingRequest</span>, <span class="ident">GradingResult</span>, <span class="ident">Submission</span>},
     <span class="ident">user_exercise_states::update_user_exercise_state</span>,
-    <span class="ident">ModelResult</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">exams</span>, <span class="ident">exercise_service_info::get_service_info_by_exercise_type</span>, <span class="ident">submissions::GradingRequest</span>,
-    <span class="ident">utils::numbers::f32_to_two_decimals</span>, <span class="ident">ModelError</span>,
-};
-<span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
-
-<span class="kw">use</span> <span class="ident">futures::Future</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
-<span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
-<span class="kw">use</span> <span class="ident">url::Url</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Grading</span> {
@@ -642,7 +634,9 @@ RETURNING id,
         <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="ident">exams::get_enrollment</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>, <span class="ident">user_id</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;User has grading for exam but no enrollment&quot;</span>))<span class="question-mark">?</span>;
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                <span class="ident">ModelError::Generic</span>(<span class="string">&quot;User has grading for exam but no enrollment&quot;</span>.<span class="ident">to_string</span>())
+            })<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">Utc::now</span>() <span class="op">&gt;</span> <span class="ident">enrollment</span>.<span class="ident">started_at</span> <span class="op">+</span> <span class="ident">chrono::Duration::minutes</span>(<span class="ident">exam</span>.<span class="ident">time_minutes</span>.<span class="ident">into</span>())
             <span class="op">|</span><span class="op">|</span> <span class="ident">exam</span>.<span class="ident">ends_at</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ea</span><span class="op">|</span> <span class="ident">Utc::now</span>() <span class="op">&gt;</span> <span class="ident">ea</span>).<span class="ident">unwrap_or_default</span>()
         {

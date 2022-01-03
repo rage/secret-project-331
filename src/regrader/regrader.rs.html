@@ -31,11 +31,13 @@
 <span id="31">31</span>
 <span id="32">32</span>
 <span id="33">33</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>;
+<span id="34">34</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">time::Duration</span>};
+
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_actix::regrading</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_models</span> <span class="kw">as</span> <span class="ident">models</span>;
 <span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Connection</span>, <span class="ident">PgConnection</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">time::Duration</span>};
 
 <span class="doccomment">/**
 Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading.

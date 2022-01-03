@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;futures-util-0.3.17&#x2F;src&#x2F;stream&#x2F;futures_unordered&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../futures_util/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;futures-util-0.3.19&#x2F;src&#x2F;stream&#x2F;futures_unordered&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../futures_util/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -657,6 +657,21 @@
 <span id="657">657</span>
 <span id="658">658</span>
 <span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
 </pre><pre class="rust"><code><span class="doccomment">//! An unbounded set of futures.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This module is only available when the `std` or `alloc` feature of this</span>
@@ -665,6 +680,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::task::AtomicWaker</span>;
 <span class="kw">use</span> <span class="ident">alloc::sync</span>::{<span class="ident">Arc</span>, <span class="ident">Weak</span>};
 <span class="kw">use</span> <span class="ident">core::cell::UnsafeCell</span>;
+<span class="kw">use</span> <span class="ident">core::cmp</span>;
 <span class="kw">use</span> <span class="ident">core::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>};
 <span class="kw">use</span> <span class="ident">core::iter::FromIterator</span>;
 <span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
@@ -688,6 +704,33 @@
 
 <span class="kw">mod</span> <span class="ident">ready_to_run_queue</span>;
 <span class="kw">use</span> <span class="ident"><span class="self">self</span>::ready_to_run_queue</span>::{<span class="ident">Dequeue</span>, <span class="ident">ReadyToRunQueue</span>};
+
+<span class="doccomment">/// Constant used for a `FuturesUnordered` to determine how many times it is</span>
+<span class="doccomment">/// allowed to poll underlying futures without yielding.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// A single call to `poll_next` may potentially do a lot of work before</span>
+<span class="doccomment">/// yielding. This happens in particular if the underlying futures are awoken</span>
+<span class="doccomment">/// frequently but continue to return `Pending`. This is problematic if other</span>
+<span class="doccomment">/// tasks are waiting on the executor, since they do not get to run. This value</span>
+<span class="doccomment">/// caps the number of calls to `poll` on underlying futures a single call to</span>
+<span class="doccomment">/// `poll_next` is allowed to make.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The value itself is chosen somewhat arbitrarily. It needs to be high enough</span>
+<span class="doccomment">/// that amortize wakeup and scheduling costs, but low enough that we do not</span>
+<span class="doccomment">/// starve other tasks for long.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// See also https://github.com/rust-lang/futures-rs/issues/2047.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note that using the length of the `FuturesUnordered` instead of this value</span>
+<span class="doccomment">/// may cause problems if the number of futures is large.</span>
+<span class="doccomment">/// See also https://github.com/rust-lang/futures-rs/pull/2527.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Additionally, polling the same future twice per iteration may cause another</span>
+<span class="doccomment">/// problem. So, when using this value, it is necessary to limit the max value</span>
+<span class="doccomment">/// based on the length of the `FuturesUnordered`.</span>
+<span class="doccomment">/// (e.g., `cmp::min(self.len(), YIELD_EVERY)`)</span>
+<span class="doccomment">/// See also https://github.com/rust-lang/futures-rs/pull/2333.</span>
+<span class="kw">const</span> <span class="ident">YIELD_EVERY</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">32</span>;
 
 <span class="doccomment">/// A set of futures which may complete in any order.</span>
 <span class="doccomment">///</span>
@@ -1042,21 +1085,8 @@
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Fut::Output</span>;
 
     <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// Variable to determine how many times it is allowed to poll underlying</span>
-        <span class="comment">// futures without yielding.</span>
-        <span class="comment">//</span>
-        <span class="comment">// A single call to `poll_next` may potentially do a lot of work before</span>
-        <span class="comment">// yielding. This happens in particular if the underlying futures are awoken</span>
-        <span class="comment">// frequently but continue to return `Pending`. This is problematic if other</span>
-        <span class="comment">// tasks are waiting on the executor, since they do not get to run. This value</span>
-        <span class="comment">// caps the number of calls to `poll` on underlying futures a single call to</span>
-        <span class="comment">// `poll_next` is allowed to make.</span>
-        <span class="comment">//</span>
-        <span class="comment">// The value is the length of FuturesUnordered. This ensures that each</span>
-        <span class="comment">// future is polled only once at most per iteration.</span>
-        <span class="comment">//</span>
-        <span class="comment">// See also https://github.com/rust-lang/futures-rs/issues/2047.</span>
-        <span class="kw">let</span> <span class="ident">yield_every</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>();
+        <span class="comment">// See YIELD_EVERY docs　for more.</span>
+        <span class="kw">let</span> <span class="ident">yield_every</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="self">self</span>.<span class="ident">len</span>(), <span class="ident">YIELD_EVERY</span>);
 
         <span class="comment">// Keep track of how many child futures we have polled,</span>
         <span class="comment">// in case we want to forcibly yield.</span>

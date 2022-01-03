@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ExamEnrollmentData",""]],"fn":[["_add_exams_routes","Add a route for each controller in this module."],["enroll",""],["enrollment",""],["fetch_exam_for_user",""]],"struct":[["ExamData",""]]});
+initSidebarItems({"enum":[["ExamEnrollmentData",""]],"fn":[["_add_routes","Add a route for each controller in this module."],["enroll",""],["enrollment",""],["fetch_exam_for_user",""]],"struct":[["ExamData",""]]});

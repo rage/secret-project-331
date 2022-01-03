@@ -151,38 +151,16 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/submissions`.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers</span>::{<span class="ident">ControllerError</span>, <span class="ident">ControllerResult</span>},
-    <span class="ident">domain::authorization::AuthUser</span>,
-    <span class="ident">models</span>::{
-        <span class="ident">exams</span>,
-        <span class="ident">gradings</span>::{<span class="self">self</span>, <span class="ident">Grading</span>},
-        <span class="ident">submissions</span>::{<span class="self">self</span>, <span class="ident">NewSubmission</span>, <span class="ident">Submission</span>, <span class="ident">SubmissionResult</span>},
-    },
-};
-<span class="kw">use</span> <span class="ident">actix_web::web::ServiceConfig</span>;
-<span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">Json</span>};
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">Duration</span>, <span class="ident">Utc</span>};
-<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
-<span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
-<span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+<span class="kw">use</span> <span class="ident">models</span>::{
+    <span class="ident">exams</span>,
+    <span class="ident">gradings</span>::{<span class="self">self</span>, <span class="ident">Grading</span>},
+    <span class="ident">submissions</span>::{<span class="self">self</span>, <span class="ident">NewSubmission</span>, <span class="ident">Submission</span>, <span class="ident">SubmissionResult</span>},
+};
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/**
 POST `/api/v0/course-material/submissions` - Post a new submission.
@@ -247,18 +225,17 @@ Response:
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewSubmission</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">SubmissionResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">SubmissionResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">exercise_task_id</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>.<span class="ident">exercise_task_id</span>;
-    <span class="kw">let</span> <span class="ident">exercise_slide</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::exercise_slides::get_exercise_slide_by_exercise_task_id</span>(
+    <span class="kw">let</span> <span class="ident">exercise_slide</span> <span class="op">=</span> <span class="ident">models::exercise_slides::get_exercise_slide_by_exercise_task_id</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="ident">exercise_task_id</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>
     .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ControllerError::NotFound</span>(<span class="string">&quot;Exercise definition not found.&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::models::exercises::get_by_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">exercise_slide</span>.<span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">models::exercises::get_by_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">exercise_slide</span>.<span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">exam_id</span>.<span class="ident">as_ref</span>().<span class="ident">copied</span>() {
         <span class="comment">// check if the submission is still valid for the exam</span>
@@ -275,15 +252,14 @@ Response:
     }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">submission</span> <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::models::submissions::insert_submission</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">payload</span>.<span class="number">0</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">models::submissions::insert_submission</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">payload</span>.<span class="number">0</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="ident">exercise</span>.<span class="ident">exam_id</span>.<span class="ident">is_some</span>() {
         <span class="comment">// remove grading information from submission</span>
         <span class="ident">submission</span>.<span class="ident">grading</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="ident">submission</span>.<span class="ident">model_solution_spec</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="ident">submission</span>.<span class="ident">submission</span>.<span class="ident">grading_id</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">submission</span>))
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">submission</span>))
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">TS</span>)]</span>
@@ -296,26 +272,22 @@ Response:
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">exercise_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PreviousSubmission</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PreviousSubmission</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">submission</span>) <span class="op">=</span> <span class="ident">submissions::get_latest_user_exercise_submission</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
-        <span class="ident">exercise_id</span>.<span class="ident">into_inner</span>(),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">submission</span>) <span class="op">=</span>
+        <span class="ident">submissions::get_latest_user_exercise_submission</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>
     {
         <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">grading_id</span>) <span class="op">=</span> <span class="ident">submission</span>.<span class="ident">grading_id</span> {
             <span class="ident">gradings::get_for_student</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">grading_id</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         };
-        <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="prelude-val">Some</span>(<span class="ident">PreviousSubmission</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="prelude-val">Some</span>(<span class="ident">PreviousSubmission</span> {
             <span class="ident">submission</span>,
             <span class="ident">grading</span>,
         })))
     } <span class="kw">else</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="prelude-val">None</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="prelude-val">None</span>))
     }
 }
 
@@ -326,7 +298,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_submissions_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_submission</span>)).<span class="ident">route</span>(
         <span class="string">&quot;/previous-for-exercise/{exercise_id}&quot;</span>,
         <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">previous_submission</span>),

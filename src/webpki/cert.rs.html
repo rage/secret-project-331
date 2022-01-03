@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;webpki-0.21.4&#x2F;src&#x2F;cert.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cert.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../webpki/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;webpki-0.22.0&#x2F;src&#x2F;cert.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cert.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../webpki/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -220,6 +220,10 @@
 <span id="220">220</span>
 <span id="221">221</span>
 <span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2015 Brian Smith.</span>
 <span class="comment">//</span>
 <span class="comment">// Permission to use, copy, modify, and/or distribute this software for any</span>
@@ -236,13 +240,13 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">der</span>, <span class="ident">signed_data</span>, <span class="ident">Error</span>};
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EndEntityOrCA</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EndEntityOrCa</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">EndEntity</span>,
-    <span class="ident">CA</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Cert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="ident">Ca</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Cert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Cert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="ident">ee_or_ca</span>: <span class="ident">EndEntityOrCA</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">ee_or_ca</span>: <span class="ident">EndEntityOrCa</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 
     <span class="kw">pub</span> <span class="ident">signed_data</span>: <span class="ident">signed_data::SignedData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">issuer</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
@@ -257,7 +261,8 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_cert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-    <span class="ident">cert_der</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">ee_or_ca</span>: <span class="ident">EndEntityOrCA</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="ident">cert_der</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="ident">ee_or_ca</span>: <span class="ident">EndEntityOrCa</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Cert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="ident">parse_cert_internal</span>(<span class="ident">cert_der</span>, <span class="ident">ee_or_ca</span>, <span class="ident">certificate_serial_number</span>)
 }
@@ -266,19 +271,20 @@
 <span class="doccomment">/// and by `cert_der_as_trust_anchor` for trust anchors encoded as</span>
 <span class="doccomment">/// certificates.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_cert_internal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-    <span class="ident">cert_der</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">ee_or_ca</span>: <span class="ident">EndEntityOrCA</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="ident">cert_der</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="ident">ee_or_ca</span>: <span class="ident">EndEntityOrCa</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="ident">serial_number</span>: <span class="kw">fn</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">untrusted::Reader</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Cert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="ident">tbs</span>, <span class="ident">signed_data</span>) <span class="op">=</span> <span class="ident">cert_der</span>.<span class="ident">read_all</span>(<span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">cert_der</span><span class="op">|</span> {
+    <span class="kw">let</span> (<span class="ident">tbs</span>, <span class="ident">signed_data</span>) <span class="op">=</span> <span class="ident">cert_der</span>.<span class="ident">read_all</span>(<span class="ident">Error::BadDer</span>, <span class="op">|</span><span class="ident">cert_der</span><span class="op">|</span> {
         <span class="ident">der::nested</span>(
             <span class="ident">cert_der</span>,
             <span class="ident">der::Tag::Sequence</span>,
-            <span class="ident">Error::BadDER</span>,
+            <span class="ident">Error::BadDer</span>,
             <span class="ident">signed_data::parse_signed_data</span>,
         )
     })<span class="question-mark">?</span>;
 
-    <span class="ident">tbs</span>.<span class="ident">read_all</span>(<span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">tbs</span><span class="op">|</span> {
+    <span class="ident">tbs</span>.<span class="ident">read_all</span>(<span class="ident">Error::BadDer</span>, <span class="op">|</span><span class="ident">tbs</span><span class="op">|</span> {
         <span class="ident">version3</span>(<span class="ident">tbs</span>)<span class="question-mark">?</span>;
         <span class="ident">serial_number</span>(<span class="ident">tbs</span>)<span class="question-mark">?</span>;
 
@@ -321,16 +327,16 @@
         <span class="comment">// special logic for handling critical Netscape Cert Type extensions.</span>
         <span class="comment">// That has been intentionally omitted.</span>
 
-        <span class="ident">der::nested_mut</span>(
+        <span class="ident">der::nested</span>(
             <span class="ident">tbs</span>,
             <span class="ident">der::Tag::ContextSpecificConstructed3</span>,
-            <span class="ident">Error::BadDER</span>,
+            <span class="ident">Error::MissingOrMalformedExtensions</span>,
             <span class="op">|</span><span class="ident">tagged</span><span class="op">|</span> {
                 <span class="ident">der::nested_of_mut</span>(
                     <span class="ident">tagged</span>,
                     <span class="ident">der::Tag::Sequence</span>,
                     <span class="ident">der::Tag::Sequence</span>,
-                    <span class="ident">Error::BadDER</span>,
+                    <span class="ident">Error::BadDer</span>,
                     <span class="op">|</span><span class="ident">extension</span><span class="op">|</span> {
                         <span class="kw">let</span> <span class="ident">extn_id</span> <span class="op">=</span> <span class="ident">der::expect_tag_and_get_value</span>(<span class="ident">extension</span>, <span class="ident">der::Tag::OID</span>)<span class="question-mark">?</span>;
                         <span class="kw">let</span> <span class="ident">critical</span> <span class="op">=</span> <span class="ident">der::optional_boolean</span>(<span class="ident">extension</span>)<span class="question-mark">?</span>;
@@ -355,7 +361,7 @@
     <span class="ident">der::nested</span>(
         <span class="ident">input</span>,
         <span class="ident">der::Tag::ContextSpecificConstructed0</span>,
-        <span class="ident">Error::BadDER</span>,
+        <span class="ident">Error::UnsupportedCertVersion</span>,
         <span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">der::small_nonnegative_integer</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
             <span class="kw">if</span> <span class="ident">version</span> <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
@@ -374,7 +380,7 @@
 
     <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">der::positive_integer</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">big_endian_without_leading_zero</span>().<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">20</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::BadDER</span>);
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::BadDer</span>);
     }
     <span class="prelude-val">Ok</span>(())
 }
@@ -385,7 +391,9 @@
 }
 
 <span class="kw">fn</span> <span class="ident">remember_extension</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-    <span class="ident">cert</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Cert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">extn_id</span>: <span class="ident">untrusted::Input</span>, <span class="ident">value</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="ident">cert</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Cert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="ident">extn_id</span>: <span class="ident">untrusted::Input</span>,
+    <span class="ident">value</span>: <span class="ident">untrusted::Input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Understood</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="comment">// We don&#39;t do anything with certificate policies so we can safely ignore</span>
     <span class="comment">// all policy-related stuff. We assume that the policy-related extensions</span>
@@ -406,7 +414,7 @@
         <span class="comment">// the keyEncipherment bit could not be used for RSA key exchange.</span>
         <span class="number">15</span> =&gt; {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Understood::Yes</span>);
-        },
+        }
 
         <span class="comment">// id-ce-subjectAltName 2.5.29.17</span>
         <span class="number">17</span> =&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cert</span>.<span class="ident">subject_alt_name</span>,
@@ -422,7 +430,7 @@
 
         <span class="kw">_</span> =&gt; {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Understood::No</span>);
-        },
+        }
     };
 
     <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">out</span> {
@@ -430,14 +438,14 @@
             <span class="comment">// The certificate contains more than one instance of this</span>
             <span class="comment">// extension.</span>
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::ExtensionValueInvalid</span>);
-        },
+        }
         <span class="prelude-val">None</span> =&gt; {
             <span class="comment">// All the extensions that we care about are wrapped in a SEQUENCE.</span>
-            <span class="kw">let</span> <span class="ident">sequence_value</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">read_all</span>(<span class="ident">Error::BadDER</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">sequence_value</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">read_all</span>(<span class="ident">Error::BadDer</span>, <span class="op">|</span><span class="ident">value</span><span class="op">|</span> {
                 <span class="ident">der::expect_tag_and_get_value</span>(<span class="ident">value</span>, <span class="ident">der::Tag::Sequence</span>)
             })<span class="question-mark">?</span>;
             <span class="kw-2">*</span><span class="ident">out</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sequence_value</span>);
-        },
+        }
     }
 
     <span class="prelude-val">Ok</span>(<span class="ident">Understood::Yes</span>)

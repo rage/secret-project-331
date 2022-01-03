@@ -14,7 +14,7 @@ in the range [`b’0’, b’9’].</li>
 <h2 id="panics" class="section-header"><a href="#panics">Panics</a></h2>
 <p>Although passing garbage input will not cause memory safety issues,
 it is very likely to cause a panic with a large number of digits, or
-in debug mode. The big-integer arithmetic with the <code>no_alloc</code> feature
+in debug mode. The big-integer arithmetic without the <code>alloc</code> feature
 assumes a maximum, fixed-width input, which assumes at maximum a
 value of <code>10^(769 + 342)</code>, or ~4000 bits of storage. Passing in
 nonsensical digits may require up to ~6000 bits of storage, which will

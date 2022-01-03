@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_exams_routes","Add a route for each controller in this module."],["export_points",""],["export_submissions",""],["get_exam",""],["set_course",""],["unset_course",""]],"struct":[["ExamCourseInfo",""]]});
+initSidebarItems({"fn":[["_add_routes","Add a route for each controller in this module."],["export_points",""],["export_submissions",""],["get_exam",""],["set_course",""],["unset_course",""]],"struct":[["ExamCourseInfo",""]]});

@@ -166,49 +166,32 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers</span>::{<span class="ident">ControllerError</span>, <span class="ident">ControllerResult</span>},
-    <span class="ident">domain::authorization::AuthUser</span>,
-    <span class="ident">models</span>::{
-        <span class="ident">exams</span>::{<span class="self">self</span>, <span class="ident">ExamEnrollment</span>},
-        <span class="ident">pages</span>::{<span class="self">self</span>, <span class="ident">Page</span>},
-    },
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Duration</span>, <span class="ident">Utc</span>};
+<span class="kw">use</span> <span class="ident">models</span>::{
+    <span class="ident">exams</span>::{<span class="self">self</span>, <span class="ident">ExamEnrollment</span>},
+    <span class="ident">pages</span>::{<span class="self">self</span>, <span class="ident">Page</span>},
 };
-<span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">Json</span>, <span class="ident">ServiceConfig</span>};
-<span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Duration</span>, <span class="ident">Utc</span>};
-<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
-<span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
-<span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">enrollment</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">exam_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExamEnrollment</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExamEnrollment</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="ident">exams::get_enrollment</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">id</span>.<span class="ident">into_inner</span>(), <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">enrollment</span>))
+    <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="ident">exams::get_enrollment</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">enrollment</span>))
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">enroll</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">exam_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">exam_id</span> <span class="op">=</span> <span class="ident">id</span>.<span class="ident">into_inner</span>();
-    <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// check that the exam is not over</span>
     <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="macro">dbg!</span>(<span class="ident">Utc::now</span>());
@@ -220,8 +203,8 @@
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">starts_at</span>) <span class="op">=</span> <span class="ident">exam</span>.<span class="ident">starts_at</span> {
         <span class="kw">if</span> <span class="ident">now</span> <span class="op">&gt;</span> <span class="ident">starts_at</span> {
-            <span class="ident">exams::enroll</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">exam_id</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(()));
+            <span class="ident">exams::enroll</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(()));
         }
     }
 
@@ -257,12 +240,11 @@
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_exam_for_user</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">exam_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">ExamData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ExamData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">id</span>.<span class="ident">into_inner</span>();
-    <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">starts_at</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">starts_at</span>) <span class="op">=</span> <span class="ident">exam</span>.<span class="ident">starts_at</span> {
         <span class="ident">starts_at</span>
@@ -281,7 +263,7 @@
 
     <span class="kw">if</span> <span class="ident">starts_at</span> <span class="op">&gt;</span> <span class="ident">Utc::now</span>() {
         <span class="comment">// exam has not started yet</span>
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">ExamData</span> {
+        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">ExamData</span> {
             <span class="ident">id</span>: <span class="ident">exam</span>.<span class="ident">id</span>,
             <span class="ident">name</span>: <span class="ident">exam</span>.<span class="ident">name</span>,
             <span class="ident">instructions</span>: <span class="ident">exam</span>.<span class="ident">instructions</span>,
@@ -292,40 +274,40 @@
         }));
     }
 
-    <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">enrollment</span>) <span class="op">=</span> <span class="ident">exams::get_enrollment</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">id</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>
-    {
-        <span class="comment">// user has started the exam</span>
-        <span class="kw">if</span> <span class="ident">Utc::now</span>() <span class="op">&lt;</span> <span class="ident">ends_at</span>
-            <span class="op">&amp;&amp;</span> <span class="ident">Utc::now</span>() <span class="op">&gt;</span> <span class="ident">enrollment</span>.<span class="ident">started_at</span> <span class="op">+</span> <span class="ident">Duration::minutes</span>(<span class="ident">exam</span>.<span class="ident">time_minutes</span>.<span class="ident">into</span>())
-        {
-            <span class="comment">// exam is still open but the student&#39;s time has expired</span>
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">ExamData</span> {
+    <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">enrollment</span>) <span class="op">=</span> <span class="ident">exams::get_enrollment</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
+            <span class="comment">// user has started the exam</span>
+            <span class="kw">if</span> <span class="ident">Utc::now</span>() <span class="op">&lt;</span> <span class="ident">ends_at</span>
+                <span class="op">&amp;&amp;</span> <span class="ident">Utc::now</span>() <span class="op">&gt;</span> <span class="ident">enrollment</span>.<span class="ident">started_at</span> <span class="op">+</span> <span class="ident">Duration::minutes</span>(<span class="ident">exam</span>.<span class="ident">time_minutes</span>.<span class="ident">into</span>())
+            {
+                <span class="comment">// exam is still open but the student&#39;s time has expired</span>
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">ExamData</span> {
+                    <span class="ident">id</span>: <span class="ident">exam</span>.<span class="ident">id</span>,
+                    <span class="ident">name</span>: <span class="ident">exam</span>.<span class="ident">name</span>,
+                    <span class="ident">instructions</span>: <span class="ident">exam</span>.<span class="ident">instructions</span>,
+                    <span class="ident">starts_at</span>,
+                    <span class="ident">ends_at</span>,
+                    <span class="ident">time_minutes</span>: <span class="ident">exam</span>.<span class="ident">time_minutes</span>,
+                    <span class="ident">enrollment_data</span>: <span class="ident">ExamEnrollmentData::StudentTimeUp</span>,
+                }));
+            }
+            <span class="ident">enrollment</span>
+        } <span class="kw">else</span> {
+            <span class="comment">// user has not started the exam</span>
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">ExamData</span> {
                 <span class="ident">id</span>: <span class="ident">exam</span>.<span class="ident">id</span>,
                 <span class="ident">name</span>: <span class="ident">exam</span>.<span class="ident">name</span>,
                 <span class="ident">instructions</span>: <span class="ident">exam</span>.<span class="ident">instructions</span>,
                 <span class="ident">starts_at</span>,
                 <span class="ident">ends_at</span>,
                 <span class="ident">time_minutes</span>: <span class="ident">exam</span>.<span class="ident">time_minutes</span>,
-                <span class="ident">enrollment_data</span>: <span class="ident">ExamEnrollmentData::StudentTimeUp</span>,
+                <span class="ident">enrollment_data</span>: <span class="ident">ExamEnrollmentData::NotEnrolled</span>,
             }));
-        }
-        <span class="ident">enrollment</span>
-    } <span class="kw">else</span> {
-        <span class="comment">// user has not started the exam</span>
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">ExamData</span> {
-            <span class="ident">id</span>: <span class="ident">exam</span>.<span class="ident">id</span>,
-            <span class="ident">name</span>: <span class="ident">exam</span>.<span class="ident">name</span>,
-            <span class="ident">instructions</span>: <span class="ident">exam</span>.<span class="ident">instructions</span>,
-            <span class="ident">starts_at</span>,
-            <span class="ident">ends_at</span>,
-            <span class="ident">time_minutes</span>: <span class="ident">exam</span>.<span class="ident">time_minutes</span>,
-            <span class="ident">enrollment_data</span>: <span class="ident">ExamEnrollmentData::NotEnrolled</span>,
-        }));
-    };
+        };
 
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">pages::get_page</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">exam</span>.<span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">ExamData</span> {
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">ExamData</span> {
         <span class="ident">id</span>: <span class="ident">exam</span>.<span class="ident">id</span>,
         <span class="ident">name</span>: <span class="ident">exam</span>.<span class="ident">name</span>,
         <span class="ident">instructions</span>: <span class="ident">exam</span>.<span class="ident">instructions</span>,
@@ -347,7 +329,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_exams_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{id}/enrollment&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">enrollment</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{id}/enroll&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">enroll</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{id}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">fetch_exam_for_user</span>));

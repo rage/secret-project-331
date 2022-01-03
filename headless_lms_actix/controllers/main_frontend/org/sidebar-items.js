@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_org_routes","Add a route for each controller in this module."],["get_organization_by_slug",""],["get_organization_courses_by_slug",""]]});
+initSidebarItems({"fn":[["_add_routes","Add a route for each controller in this module."],["get_organization_by_slug",""],["get_organization_courses_by_slug",""]]});

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-router-0.5.0-beta.2&#x2F;src&#x2F;resource.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>resource.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_router/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-router-0.5.0-beta.3&#x2F;src&#x2F;resource.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>resource.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_router/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1816,6 +1816,8 @@
 <span id="1816">1816</span>
 <span id="1817">1817</span>
 <span id="1818">1818</span>
+<span id="1819">1819</span>
+<span id="1820">1820</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">borrow</span>::{<span class="ident">Borrow</span>, <span class="ident">Cow</span>},
     <span class="ident">collections::HashMap</span>,
@@ -1986,7 +1988,7 @@
 <span class="doccomment">/// extracted in the same way as non-tail dynamic segments.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ## Examples</span>
-<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use actix_router::{Path, ResourceDef};</span>
 <span class="doccomment">/// let resource = ResourceDef::new(&quot;/blob/{tail}*&quot;);</span>
 <span class="doccomment">/// assert!(resource.is_match(&quot;/blob/HEAD/Cargo.toml&quot;));</span>
@@ -2009,7 +2011,7 @@
 <span class="doccomment">/// expectations in the router using these definitions and cause runtime panics.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ## Examples</span>
-<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use actix_router::ResourceDef;</span>
 <span class="doccomment">/// let resource = ResourceDef::new([&quot;/home&quot;, &quot;/index&quot;]);</span>
 <span class="doccomment">/// assert!(resource.is_match(&quot;/home&quot;));</span>
@@ -2024,7 +2026,7 @@
 <span class="doccomment">/// resource-path pairs that would not be compatible.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ## Examples</span>
-<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use actix_router::ResourceDef;</span>
 <span class="doccomment">/// assert!(!ResourceDef::new(&quot;/root&quot;).is_match(&quot;/root/&quot;));</span>
 <span class="doccomment">/// assert!(!ResourceDef::new(&quot;/root/&quot;).is_match(&quot;/root&quot;));</span>
@@ -2212,9 +2214,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">into</span>();
 
-        <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">is_empty</span>() {
-            <span class="macro">panic!</span>(<span class="string">&quot;resource name should not be empty&quot;</span>);
-        }
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">name</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;resource name should not be empty&quot;</span>);
 
         <span class="self">self</span>.<span class="ident">name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>)
     }
@@ -2796,9 +2796,7 @@
 
         <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">pattern</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">param</span>.<span class="ident">find</span>(<span class="string">&#39;:&#39;</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">idx</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">tail</span> {
-                    <span class="macro">panic!</span>(<span class="string">&quot;custom regex is not supported for tail match&quot;</span>);
-                }
+                <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">tail</span>, <span class="string">&quot;custom regex is not supported for tail match&quot;</span>);
 
                 <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">pattern</span>) <span class="op">=</span> <span class="ident">param</span>.<span class="ident">split_at</span>(<span class="ident">idx</span>);
                 (<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">pattern</span>[<span class="number">1</span>..])
@@ -2905,12 +2903,12 @@
             <span class="ident">re</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">escape</span>(<span class="ident">unprocessed</span>));
         }
 
-        <span class="kw">if</span> <span class="ident">dyn_segment_count</span> <span class="op">&gt;</span> <span class="ident">MAX_DYNAMIC_SEGMENTS</span> {
-            <span class="macro">panic!</span>(
-                <span class="string">&quot;Only {} dynamic segments are allowed, provided: {}&quot;</span>,
-                <span class="ident">MAX_DYNAMIC_SEGMENTS</span>, <span class="ident">dyn_segment_count</span>
-            );
-        }
+        <span class="macro">assert!</span>(
+            <span class="ident">dyn_segment_count</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">MAX_DYNAMIC_SEGMENTS</span>,
+            <span class="string">&quot;Only {} dynamic segments are allowed, provided: {}&quot;</span>,
+            <span class="ident">MAX_DYNAMIC_SEGMENTS</span>,
+            <span class="ident">dyn_segment_count</span>
+        );
 
         <span class="comment">// Store the pattern in capture group #1 to have context info outside it</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">re</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;({})&quot;</span>, <span class="ident">re</span>);
@@ -3590,6 +3588,12 @@
         <span class="macro">match_methods_agree!</span>(<span class="ident">prefix</span> <span class="string">&quot;/user&quot;</span> =&gt; <span class="string">&quot;user&quot;</span>, <span class="string">&quot;/user&quot;</span>, <span class="string">&quot;/users&quot;</span>, <span class="string">&quot;/user/123&quot;</span>, <span class="string">&quot;/foo&quot;</span>);
         <span class="macro">match_methods_agree!</span>(<span class="ident">prefix</span> <span class="string">r&quot;/id/{id:\d{3}}&quot;</span> =&gt; <span class="string">&quot;/id/123&quot;</span>, <span class="string">&quot;/id/1234&quot;</span>);
         <span class="macro">match_methods_agree!</span>([<span class="string">&quot;/v{v}&quot;</span>, <span class="string">&quot;/ver/{v}&quot;</span>] =&gt; <span class="string">&quot;&quot;</span>, <span class="string">&quot;s/v&quot;</span>, <span class="string">&quot;/v1&quot;</span>, <span class="string">&quot;/v1/xx&quot;</span>, <span class="string">&quot;/ver/i3/5&quot;</span>, <span class="string">&quot;/ver/1&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
+    <span class="kw">fn</span> <span class="ident">duplicate_segment_name</span>() {
+        <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/user/{id}/post/{id}&quot;</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>

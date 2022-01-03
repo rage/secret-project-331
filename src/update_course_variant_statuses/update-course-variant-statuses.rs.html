@@ -51,15 +51,17 @@
 <span id="51">51</span>
 <span id="52">52</span>
 <span id="53">53</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span id="54">54</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::env</span>;
+
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
 <span class="kw">use</span> <span class="ident">dotenv::dotenv</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::course_instances</span>::{
+<span class="kw">use</span> <span class="ident">headless_lms_actix::setup_tracing</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_models::course_instances</span>::{
     <span class="ident">get_all_course_instances</span>, <span class="ident">update_course_instance_variant_status</span>, <span class="ident">VariantStatus</span>,
 };
-<span class="kw">use</span> <span class="ident">headless_lms_actix::setup_tracing</span>;
 <span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
-<span class="kw">use</span> <span class="ident">std::env</span>;
 
 <span class="attribute">#[<span class="ident">tokio::main</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {

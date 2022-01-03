@@ -39,10 +39,8 @@
 <span id="39">39</span>
 <span id="40">40</span>
 <span id="41">41</span>
-<span id="42">42</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
-<span class="kw">use</span> <span class="ident">rand::distributions::Alphanumeric</span>;
-<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">thread_rng</span>, <span class="ident">Rng</span>};
+<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">distributions::Alphanumeric</span>, <span class="ident">thread_rng</span>, <span class="ident">Rng</span>};
 <span class="kw">use</span> <span class="ident">regex::Regex</span>;
 
 <span class="kw">static</span> <span class="ident">IETF_LANGUAGE_CODE_REGEX</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Regex</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> {

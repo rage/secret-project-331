@@ -200,18 +200,18 @@
 <span id="200">200</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Shared helper functions for multiple controllers.</span>
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers</span>::{<span class="ident">ControllerError</span>, <span class="ident">ControllerResult</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::models::organizations::DatabaseOrganization</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::file_store::file_utils</span>::{<span class="ident">get_extension_from_filename</span>, <span class="ident">upload_media_to_storage</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::file_store::FileStore</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::strings::generate_random_string</span>;
-<span class="kw">use</span> <span class="ident">actix_multipart</span> <span class="kw">as</span> <span class="ident">mp</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">path::PathBuf</span>, <span class="ident">sync::Arc</span>};
+
+<span class="kw">use</span> <span class="ident">actix_multipart::Field</span>;
 <span class="kw">use</span> <span class="ident">actix_web::http</span>::{<span class="ident">header</span>, <span class="ident">HeaderMap</span>};
 <span class="kw">use</span> <span class="ident">futures::StreamExt</span>;
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">path::PathBuf</span>, <span class="ident">sync::Arc</span>};
-<span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
+    <span class="ident">file_store::file_utils</span>::{<span class="ident">get_extension_from_filename</span>, <span class="ident">upload_media_to_storage</span>},
+    <span class="ident">strings::generate_random_string</span>,
+};
+<span class="kw">use</span> <span class="ident">models::organizations::DatabaseOrganization</span>;
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Deserialize</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">StoreKind</span> {
@@ -222,7 +222,7 @@
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload_media</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
     <span class="ident">headers</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span>,
-    <span class="kw-2">mut</span> <span class="ident">payload</span>: <span class="ident">mp::Multipart</span>,
+    <span class="kw-2">mut</span> <span class="ident">payload</span>: <span class="ident">Multipart</span>,
     <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>,
     <span class="ident">file_store</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
@@ -248,7 +248,7 @@
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload_image_for_organization</span>(
     <span class="ident">headers</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span>,
-    <span class="kw-2">mut</span> <span class="ident">payload</span>: <span class="ident">mp::Multipart</span>,
+    <span class="kw-2">mut</span> <span class="ident">payload</span>: <span class="ident">Multipart</span>,
     <span class="ident">organization</span>: <span class="kw-2">&amp;</span><span class="ident">DatabaseOrganization</span>,
     <span class="ident">file_store</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
@@ -276,7 +276,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">generate_audio_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">mp::Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">generate_audio_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">to_string</span>().<span class="ident">as_str</span>() {
         <span class="string">&quot;audio/aac&quot;</span> =&gt; <span class="string">&quot;.aac&quot;</span>,
         <span class="string">&quot;audio/mpeg&quot;</span> =&gt; <span class="string">&quot;.mp3&quot;</span>,
@@ -300,7 +300,7 @@
     <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">generate_file_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">mp::Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">generate_file_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">field_content</span> <span class="op">=</span> <span class="ident">field</span>
         .<span class="ident">content_disposition</span>()
         .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Missing field content-disposition&quot;</span>.<span class="ident">into</span>()))<span class="question-mark">?</span>;
@@ -319,7 +319,7 @@
     <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">generate_image_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">mp::Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">generate_image_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">to_string</span>().<span class="ident">as_str</span>() {
         <span class="string">&quot;image/jpeg&quot;</span> =&gt; <span class="string">&quot;.jpg&quot;</span>,
         <span class="string">&quot;image/png&quot;</span> =&gt; <span class="string">&quot;.png&quot;</span>,

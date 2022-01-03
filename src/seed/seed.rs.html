@@ -2034,41 +2034,51 @@
 <span id="2034">2034</span>
 <span id="2035">2035</span>
 <span id="2036">2036</span>
+<span id="2037">2037</span>
+<span id="2038">2038</span>
+<span id="2039">2039</span>
+<span id="2040">2040</span>
+<span id="2041">2041</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
+
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Duration</span>, <span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::chapters::NewChapter</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::course_instance_enrollments::NewCourseInstanceEnrollment</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::course_instances::NewCourseInstance</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::courses::NewCourse</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::exams::NewExam</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::exercises::GradingProgress</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::feedback</span>::{<span class="ident">FeedbackBlock</span>, <span class="ident">NewFeedback</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::page_history::HistoryChangeReason</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::pages</span>::{
-    <span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">CmsPageUpdate</span>, <span class="ident">NewPage</span>,
-};
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::playground_examples::PlaygroundExampleData</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::proposed_block_edits::NewProposedBlockEdit</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::proposed_page_edits::NewProposedPageEdits</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models::submissions::GradingResult</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{
-    <span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">course_instances::VariantStatus</span>, <span class="ident">courses</span>, <span class="ident">exercise_services</span>,
-    <span class="ident">exercises</span>, <span class="ident">organizations</span>, <span class="ident">pages</span>, <span class="ident">roles</span>, <span class="ident">roles::UserRole</span>, <span class="ident">submissions</span>, <span class="ident">user_exercise_states</span>,
-    <span class="ident">users</span>,
-};
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{
-    <span class="ident">course_instance_enrollments</span>, <span class="ident">exams</span>, <span class="ident">feedback</span>, <span class="ident">playground_examples</span>,
-};
-<span class="kw">use</span> <span class="ident">headless_lms_actix::models</span>::{<span class="ident">gradings</span>, <span class="ident">proposed_page_edits</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::setup_tracing</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_actix::utils::document_schema_processor::GutenbergBlock</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_utils::attributes</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
+    <span class="ident">chapters</span>,
+    <span class="ident">chapters::NewChapter</span>,
+    <span class="ident">course_instance_enrollments</span>,
+    <span class="ident">course_instance_enrollments::NewCourseInstanceEnrollment</span>,
+    <span class="ident">course_instances</span>,
+    <span class="ident">course_instances</span>::{<span class="ident">NewCourseInstance</span>, <span class="ident">VariantStatus</span>},
+    <span class="ident">courses</span>,
+    <span class="ident">courses::NewCourse</span>,
+    <span class="ident">exams</span>,
+    <span class="ident">exams::NewExam</span>,
+    <span class="ident">exercise_services</span>, <span class="ident">exercises</span>,
+    <span class="ident">exercises::GradingProgress</span>,
+    <span class="ident">feedback</span>,
+    <span class="ident">feedback</span>::{<span class="ident">FeedbackBlock</span>, <span class="ident">NewFeedback</span>},
+    <span class="ident">gradings</span>, <span class="ident">organizations</span>,
+    <span class="ident">page_history::HistoryChangeReason</span>,
+    <span class="ident">pages</span>,
+    <span class="ident">pages</span>::{<span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">CmsPageUpdate</span>, <span class="ident">NewPage</span>},
+    <span class="ident">playground_examples</span>,
+    <span class="ident">playground_examples::PlaygroundExampleData</span>,
+    <span class="ident">proposed_block_edits::NewProposedBlockEdit</span>,
+    <span class="ident">proposed_page_edits</span>,
+    <span class="ident">proposed_page_edits::NewProposedPageEdits</span>,
+    <span class="ident">roles</span>,
+    <span class="ident">roles::UserRole</span>,
+    <span class="ident">submissions</span>,
+    <span class="ident">submissions::GradingResult</span>,
+    <span class="ident">user_exercise_states</span>, <span class="ident">users</span>,
+};
+<span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{<span class="ident">attributes</span>, <span class="ident">document_schema_processor::GutenbergBlock</span>};
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
-<span class="kw">use</span> <span class="ident">sqlx::migrate::MigrateDatabase</span>;
-<span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Connection</span>, <span class="ident">PgConnection</span>, <span class="ident">Postgres</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
+<span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">migrate::MigrateDatabase</span>, <span class="ident">Connection</span>, <span class="ident">PgConnection</span>, <span class="ident">Postgres</span>};
 <span class="kw">use</span> <span class="ident">tracing::info</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 

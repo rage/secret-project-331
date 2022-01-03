@@ -481,58 +481,35 @@
 <span id="481">481</span>
 <span id="482">482</span>
 <span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.</span>
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers</span>::{<span class="ident">ControllerError</span>, <span class="ident">ControllerResult</span>},
-    <span class="ident">domain::authorization::AuthUser</span>,
-    <span class="ident">models</span>::{
-        <span class="ident">chapters</span>::{<span class="ident">ChapterStatus</span>, <span class="ident">ChapterWithStatus</span>},
-        <span class="ident">courses::Course</span>,
-        <span class="ident">feedback</span>,
-        <span class="ident">pages</span>::{<span class="ident">CoursePageWithUserData</span>, <span class="ident">PageSearchRequest</span>},
-        <span class="ident">proposed_page_edits</span>::{<span class="self">self</span>, <span class="ident">NewProposedPageEdits</span>},
-        <span class="ident">user_course_settings::UserCourseSettings</span>,
-    },
-    <span class="ident">models</span>::{<span class="ident">course_instances::CourseInstance</span>, <span class="ident">courses</span>, <span class="ident">pages::PageSearchResult</span>},
-    <span class="ident">models</span>::{<span class="ident">feedback::NewFeedback</span>, <span class="ident">pages::Page</span>},
-};
-<span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">Json</span>, <span class="ident">ServiceConfig</span>};
+
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
-<span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Connection</span>, <span class="ident">PgPool</span>};
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+<span class="kw">use</span> <span class="ident">models</span>::{
+    <span class="ident">chapters</span>::{<span class="ident">ChapterStatus</span>, <span class="ident">ChapterWithStatus</span>},
+    <span class="ident">course_instances::CourseInstance</span>,
+    <span class="ident">courses</span>,
+    <span class="ident">courses::Course</span>,
+    <span class="ident">feedback</span>,
+    <span class="ident">feedback::NewFeedback</span>,
+    <span class="ident">pages</span>::{<span class="ident">CoursePageWithUserData</span>, <span class="ident">Page</span>, <span class="ident">PageSearchRequest</span>, <span class="ident">PageSearchResult</span>},
+    <span class="ident">proposed_page_edits</span>::{<span class="self">self</span>, <span class="ident">NewProposedPageEdits</span>},
+    <span class="ident">user_course_settings::UserCourseSettings</span>,
+};
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
 */</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course</span>(
-    <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::courses::get_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">course</span>))
+    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">models::courses::get_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">course</span>))
 }
 
 <span class="doccomment">/**
@@ -561,7 +538,7 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
     <span class="ident">params</span>: <span class="ident">web::Path</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">CoursePageWithUserData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">CoursePageWithUserData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> (<span class="ident">course_slug</span>, <span class="ident">raw_page_path</span>) <span class="op">=</span> <span class="ident">params</span>.<span class="ident">into_inner</span>();
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">raw_page_path</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>) {
@@ -570,7 +547,7 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
         <span class="macro">format!</span>(<span class="string">&quot;/{}&quot;</span>, <span class="ident">raw_page_path</span>)
     };
 
-    <span class="kw">let</span> <span class="ident">page_with_user_data</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::pages::get_page_with_user_data_by_path</span>(
+    <span class="kw">let</span> <span class="ident">page_with_user_data</span> <span class="op">=</span> <span class="ident">models::pages::get_page_with_user_data_by_path</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
         <span class="ident">user</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="ident">u</span>.<span class="ident">id</span>),
         <span class="kw-2">&amp;</span><span class="ident">course_slug</span>,
@@ -578,7 +555,7 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">page_with_user_data</span>))
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">page_with_user_data</span>))
 }
 
 <span class="doccomment">/**
@@ -603,20 +580,18 @@ GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the 
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_current_course_instance</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user</span>) <span class="op">=</span> <span class="ident">user</span> {
-        <span class="kw">let</span> <span class="ident">instance</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::course_instances::current_course_instance_of_user</span>(
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-            <span class="ident">user</span>.<span class="ident">id</span>,
-            <span class="kw-2">*</span><span class="ident">request_course_id</span>,
+        <span class="kw">let</span> <span class="ident">instance</span> <span class="op">=</span> <span class="ident">models::course_instances::current_course_instance_of_user</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">course_id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">instance</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">instance</span>))
     } <span class="kw">else</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="prelude-val">None</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="prelude-val">None</span>))
     }
 }
 
@@ -643,15 +618,12 @@ GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all 
 */</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_instances</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">instances</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::course_instances::get_course_instances_for_course</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">*</span><span class="ident">request_course_id</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">instances</span>))
+    <span class="kw">let</span> <span class="ident">instances</span> <span class="op">=</span>
+        <span class="ident">models::course_instances::get_course_instances_for_course</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">instances</span>))
 }
 
 <span class="doccomment">/**
@@ -678,13 +650,12 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages
 */</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_pages</span>(
-    <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">pages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::models::pages::course_pages</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">pages</span>))
+    <span class="kw">let</span> <span class="ident">pages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">models::pages::course_pages</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">pages</span>))
 }
 
 <span class="doccomment">/**
@@ -709,11 +680,11 @@ GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of ch
 */</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters</span>(
-    <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ChapterWithStatus</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ChapterWithStatus</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapters</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::chapters::course_chapters</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">chapters</span> <span class="op">=</span> <span class="ident">models::chapters::course_chapters</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">chapters</span> <span class="op">=</span> <span class="ident">chapters</span>
         .<span class="ident">into_iter</span>()
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">chapter</span><span class="op">|</span> {
@@ -737,7 +708,7 @@ GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of ch
             }
         })
         .<span class="ident">collect</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">chapters</span>))
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">chapters</span>))
 }
 
 <span class="doccomment">/**
@@ -745,20 +716,18 @@ GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user se
 */</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_course_settings</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserCourseSettings</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserCourseSettings</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user</span>) <span class="op">=</span> <span class="ident">user</span> {
-        <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::user_course_settings::get_user_course_settings_by_course_id</span>(
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-            <span class="ident">user</span>.<span class="ident">id</span>,
-            <span class="kw-2">*</span><span class="ident">request_course_id</span>,
+        <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">models::user_course_settings::get_user_course_settings_by_course_id</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">course_id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">settings</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">settings</span>))
     } <span class="kw">else</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="prelude-val">None</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="prelude-val">None</span>))
     }
 }
 
@@ -817,18 +786,14 @@ Response:
 */</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search_pages_with_phrase</span>(
-    <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">PageSearchRequest</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::pages::get_page_search_results_for_phrase</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">*</span><span class="ident">request_course_id</span>,
-        <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">payload</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">res</span>))
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span>
+        <span class="ident">models::pages::get_page_search_results_for_phrase</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">payload</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
 }
 
 <span class="doccomment">/**
@@ -886,18 +851,14 @@ Response:
 */</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search_pages_with_words</span>(
-    <span class="ident">request_course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">PageSearchRequest</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::models::pages::get_page_search_results_for_words</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">*</span><span class="ident">request_course_id</span>,
-        <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">payload</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">res</span>))
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span>
+        <span class="ident">models::pages::get_page_search_results_for_words</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">payload</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
 }
 
 <span class="doccomment">/**
@@ -908,7 +869,7 @@ POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedbac
     <span class="ident">new_feedback</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NewFeedback</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">fs</span> <span class="op">=</span> <span class="ident">new_feedback</span>.<span class="ident">into_inner</span>();
 
@@ -935,14 +896,13 @@ POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedbac
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">user</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="ident">u</span>.<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">course_id</span>.<span class="ident">into_inner</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ids</span> <span class="op">=</span> <span class="macro">vec!</span>[];
     <span class="kw">for</span> <span class="ident">f</span> <span class="kw">in</span> <span class="ident">fs</span> {
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">feedback::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">user_id</span>, <span class="ident">course_id</span>, <span class="ident">f</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">feedback::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">user_id</span>, <span class="kw-2">*</span><span class="ident">course_id</span>, <span class="ident">f</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="ident">ids</span>.<span class="ident">push</span>(<span class="ident">id</span>.<span class="ident">to_string</span>());
     }
     <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Json</span>(<span class="ident">ids</span>))
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">ids</span>))
 }
 
 <span class="doccomment">/**
@@ -973,7 +933,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_courses_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{course_id}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/chapters&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_chapters</span>))
         .<span class="ident">route</span>(

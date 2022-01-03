@@ -1,24 +1,19 @@
-use super::{
+use std::time::Duration;
+
+use futures::Future;
+use headless_lms_utils::numbers::f32_to_two_decimals;
+use url::Url;
+
+use crate::{
+    exams,
+    exercise_service_info::get_service_info_by_exercise_type,
     exercise_services::{get_exercise_service_by_exercise_type, get_internal_grade_url},
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
-    submissions::{GradingResult, Submission},
+    prelude::*,
+    submissions::{GradingRequest, GradingResult, Submission},
     user_exercise_states::update_user_exercise_state,
-    ModelResult,
 };
-use crate::{
-    exams, exercise_service_info::get_service_info_by_exercise_type, submissions::GradingRequest,
-    utils::numbers::f32_to_two_decimals, ModelError,
-};
-use chrono::{DateTime, Utc};
-
-use futures::Future;
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use std::time::Duration;
-use ts_rs::TS;
-use url::Url;
-use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct Grading {
@@ -313,7 +308,9 @@ pub async fn get_for_student(
         let exam = exams::get(conn, exam_id).await?;
         let enrollment = exams::get_enrollment(conn, exam_id, user_id)
             .await?
-            .ok_or_else(|| anyhow::anyhow!("User has grading for exam but no enrollment"))?;
+            .ok_or_else(|| {
+                ModelError::Generic("User has grading for exam but no enrollment".to_string())
+            })?;
         if Utc::now() > enrollment.started_at + chrono::Duration::minutes(exam.time_minutes.into())
             || exam.ends_at.map(|ea| Utc::now() > ea).unwrap_or_default()
         {

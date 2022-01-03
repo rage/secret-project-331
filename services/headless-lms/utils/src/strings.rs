@@ -1,6 +1,5 @@
 use once_cell::sync::Lazy;
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
+use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use regex::Regex;
 
 static IETF_LANGUAGE_CODE_REGEX: Lazy<Regex> = Lazy::new(|| {

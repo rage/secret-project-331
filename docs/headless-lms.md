@@ -139,8 +139,8 @@ This said, the endpoint should be used for the `bogus` microservice and endpoint
 
 1. Create `foo.rs` in folder `src/models/`, if not present
 2. Create `foo.rs` in folder `src/controllers/bogus/`, if not present
-3. In `src/controllers/mod.rs` add the new microservice to `configure_controllers` -> `.service(web::scope("/bogus").configure(_add_bogus_routes))`, if not present.
-4. Write the new `_add_bogus_routes` function in the `src/controllers/bogus/mod.rs` file and create necessary submodules. (Hint: See existing, example below).
+3. In `src/controllers/mod.rs` add the new microservice to `configure_controllers` -> `.service(web::scope("/bogus").configure(bogus::_add_routes))`, if not present.
+4. Write the new `_add_routes` function in the `src/controllers/bogus/mod.rs` file and create necessary submodules. (Hint: See existing, example below).
 
 ```rust
 /*!
@@ -154,20 +154,18 @@ pub mod foo;
 
 use actix_web::web::{self, ServiceConfig};
 
-use self::{foo::_add_foo_routes};
-
 /// Add controllers from all the submodules.
 pub fn add_bogus_routes(cfg: &mut ServiceConfig) {
-    cfg.service(web::scope("/foo").configure(_add_foo_routes));
+    cfg.service(web::scope("/foo").configure(foo::_add_routes));
 }
 
 
 ```
 
-5. In `src/controllers/bogus/foo.rs` add the routes in e.g. `_add_foo_routes`, so if you would like to create a CRUD for `foo`, you would add 4 routes as following:
+5. In `src/controllers/bogus/foo.rs` add the routes in e.g. `_add_routes`, so if you would like to create a CRUD for `foo`, you would add 4 routes as following:
 
 ```rust
-pub fn _add_foo_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
   cfg.route("", web::get().to(get_all_foos))
       .route("", web::post().to(post_new_foo))
       .route("/{foo_id}", web::put().to(update_foo))

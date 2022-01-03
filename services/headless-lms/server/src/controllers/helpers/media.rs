@@ -1,17 +1,17 @@
 //! Shared helper functions for multiple controllers.
 
-use crate::controllers::{ControllerError, ControllerResult};
-use crate::models::organizations::DatabaseOrganization;
-use crate::utils::file_store::file_utils::{get_extension_from_filename, upload_media_to_storage};
-use crate::utils::file_store::FileStore;
-use crate::utils::strings::generate_random_string;
-use actix_multipart as mp;
+use std::{path::PathBuf, sync::Arc};
+
+use actix_multipart::Field;
 use actix_web::http::{header, HeaderMap};
 use futures::StreamExt;
-use serde::Deserialize;
-use std::{path::PathBuf, sync::Arc};
-use ts_rs::TS;
-use uuid::Uuid;
+use headless_lms_utils::{
+    file_store::file_utils::{get_extension_from_filename, upload_media_to_storage},
+    strings::generate_random_string,
+};
+use models::organizations::DatabaseOrganization;
+
+use crate::controllers::prelude::*;
 
 #[derive(Debug, Clone, Copy, Deserialize, TS)]
 pub enum StoreKind {
@@ -22,7 +22,7 @@ pub enum StoreKind {
 
 pub async fn upload_media<'a>(
     headers: &HeaderMap,
-    mut payload: mp::Multipart,
+    mut payload: Multipart,
     store_kind: StoreKind,
     file_store: &Arc<dyn FileStore>,
 ) -> ControllerResult<PathBuf> {
@@ -48,7 +48,7 @@ pub async fn upload_media<'a>(
 
 pub async fn upload_image_for_organization(
     headers: &HeaderMap,
-    mut payload: mp::Multipart,
+    mut payload: Multipart,
     organization: &DatabaseOrganization,
     file_store: &Arc<dyn FileStore>,
 ) -> ControllerResult<PathBuf> {
@@ -76,7 +76,7 @@ pub async fn upload_image_for_organization(
     }
 }
 
-fn generate_audio_path(field: &mp::Field, store_kind: StoreKind) -> ControllerResult<PathBuf> {
+fn generate_audio_path(field: &Field, store_kind: StoreKind) -> ControllerResult<PathBuf> {
     let extension = match field.content_type().to_string().as_str() {
         "audio/aac" => ".aac",
         "audio/mpeg" => ".mp3",
@@ -100,7 +100,7 @@ fn generate_audio_path(field: &mp::Field, store_kind: StoreKind) -> ControllerRe
     Ok(path)
 }
 
-fn generate_file_path(field: &mp::Field, store_kind: StoreKind) -> ControllerResult<PathBuf> {
+fn generate_file_path(field: &Field, store_kind: StoreKind) -> ControllerResult<PathBuf> {
     let field_content = field
         .content_disposition()
         .ok_or_else(|| ControllerError::BadRequest("Missing field content-disposition".into()))?;
@@ -119,7 +119,7 @@ fn generate_file_path(field: &mp::Field, store_kind: StoreKind) -> ControllerRes
     Ok(path)
 }
 
-fn generate_image_path(field: &mp::Field, store_kind: StoreKind) -> ControllerResult<PathBuf> {
+fn generate_image_path(field: &Field, store_kind: StoreKind) -> ControllerResult<PathBuf> {
     let extension = match field.content_type().to_string().as_str() {
         "image/jpeg" => ".jpg",
         "image/png" => ".png",

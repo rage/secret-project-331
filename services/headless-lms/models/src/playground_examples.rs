@@ -1,10 +1,4 @@
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use ts_rs::TS;
-use uuid::Uuid;
-
-use super::ModelResult;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct PlaygroundExample {

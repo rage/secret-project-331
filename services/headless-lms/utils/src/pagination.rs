@@ -1,13 +1,13 @@
-use anyhow::Result;
+use std::{fmt, num::ParseIntError};
+
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
 };
-use std::{fmt, num::ParseIntError};
 use ts_rs::TS;
 
 /// Represents the URL query parameters `page` and `limit`, used for paginating database queries.
-#[derive(Debug, TS)]
+#[derive(Debug, Clone, Copy, TS)]
 pub struct Pagination {
     // the deserialize implementation contains a default value for page
     #[ts(rename = "page?")]
@@ -18,14 +18,15 @@ pub struct Pagination {
 }
 
 impl Pagination {
-    pub fn new(page: u32, limit: u32) -> Result<Self> {
+    /// Panics on non-positive page or limit values.
+    pub fn new(page: u32, limit: u32) -> Self {
         if page == 0 {
-            return Err(anyhow::anyhow!("Page must be a positive value."));
+            panic!("Page must be a positive value.");
         }
         if limit == 0 {
-            return Err(anyhow::anyhow!("Limit must be a positive value."));
+            panic!("Limit must be a positive value.");
         }
-        Ok(Pagination { page, limit })
+        Pagination { page, limit }
     }
 
     /// Guaranteed to be positive.

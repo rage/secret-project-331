@@ -1,25 +1,16 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
-use super::{course_instances::CourseInstance, ModelResult};
-use crate::{
-    course_instances::{self, NewCourseInstance, VariantStatus},
-    course_language_groups,
-    pages::NewPage,
-    utils::{
-        document_schema_processor::GutenbergBlock, file_store::FileStore, ApplicationConfiguration,
-    },
-    ModelError,
+use headless_lms_utils::{
+    document_schema_processor::GutenbergBlock, file_store::FileStore, ApplicationConfiguration,
 };
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use sqlx::{Acquire, PgConnection};
-use ts_rs::TS;
-use uuid::Uuid;
 
-use super::{
+use crate::{
     chapters::{course_chapters, Chapter},
-    pages::{course_pages, Page},
+    course_instances::{self, CourseInstance, NewCourseInstance, VariantStatus},
+    course_language_groups,
+    pages::{course_pages, NewPage, Page},
+    prelude::*,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -95,7 +86,7 @@ WHERE deleted_at IS NULL;
 
 pub async fn get_all_language_versions_of_course(
     conn: &mut PgConnection,
-    course: Course,
+    course: &Course,
 ) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
@@ -124,7 +115,7 @@ WHERE course_language_group_id = $1;
 pub async fn copy_course(
     conn: &mut PgConnection,
     course_id: Uuid,
-    new_course: NewCourse,
+    new_course: &NewCourse,
 ) -> ModelResult<Course> {
     let course = get_course(conn, course_id).await?;
     copy_course_internal(conn, course, new_course, false).await
@@ -133,7 +124,7 @@ pub async fn copy_course(
 pub async fn copy_course_as_language_version_of_course(
     conn: &mut PgConnection,
     course_id: Uuid,
-    new_course: NewCourse,
+    new_course: &NewCourse,
 ) -> ModelResult<Course> {
     let course = get_course(conn, course_id).await?;
     copy_course_internal(conn, course, new_course, true).await
@@ -142,7 +133,7 @@ pub async fn copy_course_as_language_version_of_course(
 async fn copy_course_internal(
     conn: &mut PgConnection,
     parent_course: Course,
-    new_course: NewCourse,
+    new_course: &NewCourse,
     same_language_group: bool,
 ) -> ModelResult<Course> {
     let mut tx = conn.begin().await?;
@@ -460,7 +451,7 @@ pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> ModelResu
 pub async fn get_course_structure(
     conn: &mut PgConnection,
     course_id: Uuid,
-    file_store: &Arc<dyn FileStore>,
+    file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseStructure> {
     let course = get_course(conn, course_id).await?;
@@ -479,7 +470,7 @@ pub async fn get_course_structure(
 
 pub async fn organization_courses(
     conn: &mut PgConnection,
-    organization_id: &Uuid,
+    organization_id: Uuid,
 ) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
@@ -878,7 +869,7 @@ mod test {
         let copied_course = copy_course_as_language_version_of_course(
             tx.as_mut(),
             course.id,
-            NewCourse {
+            &NewCourse {
                 language_code: "fi-FI".to_string(),
                 name: "Kurssi".to_string(),
                 organization_id,

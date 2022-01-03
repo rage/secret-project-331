@@ -1,4 +1,5 @@
 use std::num::TryFromIntError;
+
 use thiserror::Error;
 
 pub type ModelResult<T> = Result<T, ModelError>;
@@ -25,7 +26,7 @@ pub enum ModelError {
     #[error(transparent)]
     Reqwest(#[from] reqwest::Error),
     #[error(transparent)]
-    Anyhow(#[from] anyhow::Error),
+    Util(#[from] headless_lms_utils::UtilError),
     #[error("{0}")]
     Generic(String),
 }
@@ -78,7 +79,7 @@ mod test {
             EmailTemplateNew {
                 name: "".to_string(),
             },
-            Some("".to_string()),
+            Some(""),
         )
         .await
         .unwrap_err();

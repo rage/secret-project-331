@@ -1,16 +1,8 @@
 use std::time::Duration;
 
-use crate::controllers::ControllerError;
-use crate::controllers::ControllerResult;
-use crate::domain::authorization::authorize;
-use crate::domain::authorization::Action;
-use crate::domain::authorization::AuthUser;
-use crate::domain::authorization::Resource;
-use crate::utils::url_to_oembed_endpoint::url_to_oembed_endpoint;
-use actix_web::web::ServiceConfig;
-use actix_web::web::{self, Json};
-use serde::Deserialize;
-use sqlx::PgPool;
+use headless_lms_utils::url_to_oembed_endpoint::url_to_oembed_endpoint;
+
+use crate::controllers::prelude::*;
 
 #[derive(Deserialize)]
 pub struct OEmbedRequest {
@@ -56,9 +48,9 @@ async fn get_oembed_data_from_provider(
     query_params: web::Query<OEmbedRequest>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<serde_json::Value>> {
+) -> ControllerResult<web::Json<serde_json::Value>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Action::Teach, user.id, Resource::AnyCourse).await?;
+    authorize(&mut conn, Act::Teach, user.id, Res::AnyCourse).await?;
     let endpoint = url_to_oembed_endpoint(query_params.url.to_string())?;
     let client = reqwest::Client::builder()
         .user_agent(APP_USER_AGENT)
@@ -86,7 +78,7 @@ async fn get_oembed_data_from_provider(
         .json::<serde_json::Value>()
         .await
         .map_err(|oe| ControllerError::BadRequest(oe.to_string()))?;
-    Ok(Json(res))
+    Ok(web::Json(res))
 }
 
 /**
@@ -96,6 +88,6 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_oembed_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/preview", web::get().to(get_oembed_data_from_provider));
 }

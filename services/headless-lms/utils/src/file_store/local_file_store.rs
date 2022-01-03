@@ -1,15 +1,16 @@
-use super::{path_to_str, FileStore, GenericPayload};
-use anyhow::Result;
+use std::path::{Path, PathBuf};
+
 use async_trait::async_trait;
 use bytes::Bytes;
 use futures::{Stream, StreamExt};
-use std::path::{Path, PathBuf};
-use tokio::io::{self, AsyncWriteExt};
 use tokio::{
     fs::{self, OpenOptions},
-    io::BufWriter,
+    io::{self, AsyncWriteExt, BufWriter},
 };
 use tokio_util::io::ReaderStream;
+
+use super::{path_to_str, FileStore, GenericPayload};
+use crate::UtilError;
 
 #[derive(Debug, Clone)]
 pub struct LocalFileStore {
@@ -19,10 +20,10 @@ pub struct LocalFileStore {
 
 impl LocalFileStore {
     /// Needs to not be async because of how this is used in worker factories
-    pub fn new(base_path: PathBuf, base_url: String) -> Result<Self> {
+    pub fn new(base_path: PathBuf, base_url: String) -> Result<Self, UtilError> {
         if base_path.exists() {
             if !base_path.is_dir() {
-                anyhow::bail!("Base path should be a folder");
+                return Err(UtilError::Other("Base path should be a folder"));
             }
         } else {
             std::fs::create_dir_all(&base_path)?;
@@ -35,27 +36,32 @@ impl LocalFileStore {
 }
 #[async_trait(?Send)]
 impl FileStore for LocalFileStore {
-    async fn upload(&self, path: &Path, contents: Vec<u8>, _mime_type: String) -> Result<()> {
+    async fn upload(
+        &self,
+        path: &Path,
+        contents: Vec<u8>,
+        _mime_type: String,
+    ) -> Result<(), UtilError> {
         let full_path = self.base_path.join(path);
         fs::write(full_path, contents).await?;
         Ok(())
     }
 
-    async fn download(&self, path: &Path) -> Result<Vec<u8>> {
+    async fn download(&self, path: &Path) -> Result<Vec<u8>, UtilError> {
         let full_path = self.base_path.join(path);
         Ok(fs::read(full_path).await?)
     }
 
-    async fn delete(&self, path: &Path) -> Result<()> {
+    async fn delete(&self, path: &Path) -> Result<(), UtilError> {
         let full_path = self.base_path.join(path);
         fs::remove_file(full_path).await?;
         Ok(())
     }
 
-    async fn get_direct_download_url(&self, path: &Path) -> Result<String> {
+    async fn get_direct_download_url(&self, path: &Path) -> Result<String, UtilError> {
         let full_path = self.base_path.join(path);
         if !full_path.exists() {
-            anyhow::bail!("File does not exist");
+            return Err(UtilError::Other("File does not exist."));
         }
         let path_str = path_to_str(path)?;
         if self.base_url.ends_with('/') {
@@ -69,16 +75,16 @@ impl FileStore for LocalFileStore {
         path: &Path,
         mut contents: GenericPayload,
         _mime_type: String,
-    ) -> Result<()> {
+    ) -> Result<(), UtilError> {
         let full_path = self.base_path.join(path);
         let parent_option = full_path.parent();
         if parent_option.is_none() {
-            anyhow::bail!("Media path did not have a parent folder");
+            return Err(UtilError::Other("Media path did not have a parent folder"));
         }
         let parent = parent_option.unwrap();
         if parent.exists() {
             if !parent.is_dir() {
-                anyhow::bail!("Base path should be a folder");
+                return Err(UtilError::Other("Base path should be a folder"));
             }
         } else {
             fs::create_dir_all(&parent).await?;
@@ -104,7 +110,7 @@ impl FileStore for LocalFileStore {
     async fn download_stream(
         &self,
         path: &Path,
-    ) -> Result<Box<dyn Stream<Item = std::io::Result<Bytes>>>> {
+    ) -> Result<Box<dyn Stream<Item = std::io::Result<Bytes>>>, UtilError> {
         let full_path = self.base_path.join(path);
         let file = fs::File::open(full_path).await?;
         let reader = io::BufReader::new(file);
@@ -117,11 +123,12 @@ impl FileStore for LocalFileStore {
 mod tests {
     use std::path::Path;
 
-    use super::LocalFileStore;
-    use crate::file_store::FileStore;
     use tempdir::TempDir;
 
-    #[actix_rt::test]
+    use super::LocalFileStore;
+    use crate::file_store::FileStore;
+
+    #[tokio::test]
     async fn upload_download_delete_works() {
         let dir = TempDir::new("test-local-filestore").expect("Failed to create a temp dir");
         let base_path = dir.into_path();
@@ -152,7 +159,7 @@ mod tests {
         assert!(retrivied_file2.is_err());
     }
 
-    #[actix_rt::test]
+    #[tokio::test]
     async fn get_download_url_works() {
         let dir = TempDir::new("test-local-filestore").expect("Failed to create a temp dir");
         let base_path = dir.into_path();

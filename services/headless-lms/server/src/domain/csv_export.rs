@@ -1,20 +1,24 @@
-use crate::{
-    controllers::ControllerResult,
-    models::{chapters, course_instances, exercises, submissions, user_exercise_states},
+use std::{
+    array::IntoIter,
+    collections::HashMap,
+    io,
+    io::Write,
+    sync::{Arc, Mutex},
 };
+
 use anyhow::{Context, Result};
 use bytes::Bytes;
 use csv::Writer;
 use futures::stream::FuturesUnordered;
+use headless_lms_models::{
+    chapters, course_instances, exercises, submissions, user_exercise_states,
+};
 use sqlx::PgConnection;
-use std::collections::HashMap;
-use std::io::Write;
-use std::sync::{Arc, Mutex};
-use std::{array::IntoIter, io};
-use tokio::sync::mpsc::UnboundedSender;
-use tokio::task::JoinHandle;
+use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
 use tokio_stream::StreamExt;
 use uuid::Uuid;
+
+use crate::controllers::ControllerResult;
 
 /// Convenience struct for creating CSV data.
 struct CsvWriter<W: Write> {
@@ -249,21 +253,23 @@ impl Write for CSVExportAdapter {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use crate::{
-        models::{
-            exercise_slides, exercise_tasks,
-            exercises::{self, GradingProgress},
-            gradings,
-            submissions::{self, GradingResult},
-            users,
-        },
-        test_helper::{insert_data, Conn, Data},
+    use std::{
+        io::{self, Cursor},
+        sync::mpsc::Sender,
     };
+
     use bytes::Bytes;
+    use headless_lms_models::{
+        exercise_slides, exercise_tasks,
+        exercises::{self, GradingProgress},
+        gradings,
+        submissions::{self, GradingResult},
+        users,
+    };
     use serde_json::Value;
-    use std::io::{self};
-    use std::{io::Cursor, sync::mpsc::Sender};
+
+    use super::*;
+    use crate::test_helper::{insert_data, Conn, Data};
 
     #[tokio::test]
     async fn exports() {

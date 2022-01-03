@@ -1,12 +1,6 @@
-use crate::{controllers::ControllerResult, models::feedback};
-use actix_web::{
-    web::{self, ServiceConfig},
-    HttpResponse,
-};
-use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
-use ts_rs::TS;
-use uuid::Uuid;
+use models::feedback;
+
+use crate::controllers::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct MarkAsRead {
@@ -22,12 +16,7 @@ pub async fn mark_as_read(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    feedback::mark_as_read(
-        &mut conn,
-        feedback_id.into_inner(),
-        mark_as_read.into_inner().read,
-    )
-    .await?;
+    feedback::mark_as_read(&mut conn, *feedback_id, mark_as_read.into_inner().read).await?;
     Ok(HttpResponse::Ok().finish())
 }
 
@@ -38,6 +27,6 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_feedback_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{feedback_id}", web::post().to(mark_as_read));
 }

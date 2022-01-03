@@ -1,11 +1,8 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
-use crate::domain::authorization::AuthUser;
-use crate::{controllers::ControllerResult, models::exercises::CourseMaterialExercise};
-use actix_web::web::ServiceConfig;
-use actix_web::web::{self, Json};
-use sqlx::PgPool;
-use uuid::Uuid;
+use models::exercises::CourseMaterialExercise;
+
+use crate::controllers::prelude::*;
 
 /**
 GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes
@@ -72,18 +69,14 @@ expose the correct answers to the user.
 #[instrument(skip(pool))]
 async fn get_exercise(
     pool: web::Data<PgPool>,
-    request_exercise_id: web::Path<Uuid>,
+    exercise_id: web::Path<Uuid>,
     user: Option<AuthUser>,
-) -> ControllerResult<Json<CourseMaterialExercise>> {
+) -> ControllerResult<web::Json<CourseMaterialExercise>> {
     let mut conn = pool.acquire().await?;
     let user_id = user.map(|u| u.id);
-    let exercise = crate::models::exercises::get_course_material_exercise(
-        &mut conn,
-        user_id,
-        *request_exercise_id,
-    )
-    .await?;
-    Ok(Json(exercise))
+    let exercise =
+        models::exercises::get_course_material_exercise(&mut conn, user_id, *exercise_id).await?;
+    Ok(web::Json(exercise))
 }
 
 /**
@@ -93,6 +86,6 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_exercises_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{exercise_id}", web::get().to(get_exercise));
 }

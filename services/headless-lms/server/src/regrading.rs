@@ -1,5 +1,21 @@
-use crate::models::{
-    self,
+use std::{
+    collections::{HashMap, HashSet},
+    convert::TryFrom,
+    future::Future,
+    pin::Pin,
+};
+
+use anyhow::Result;
+use futures::{
+    future::FutureExt,
+    stream::{FuturesUnordered, StreamExt},
+};
+use itertools::Itertools;
+use sqlx::PgConnection;
+use uuid::Uuid;
+
+use headless_lms_models::{
+    self as models,
     exercise_service_info::ExerciseServiceInfo,
     exercise_services::{get_internal_grade_url, ExerciseService},
     exercises::{Exercise, GradingProgress},
@@ -8,20 +24,6 @@ use crate::models::{
     submissions::GradingResult,
     ModelResult,
 };
-use anyhow::Result;
-use futures::{
-    future::FutureExt,
-    stream::{FuturesUnordered, StreamExt},
-};
-use itertools::Itertools;
-use sqlx::PgConnection;
-use std::{
-    collections::{HashMap, HashSet},
-    convert::TryFrom,
-    future::Future,
-    pin::Pin,
-};
-use uuid::Uuid;
 
 type GradingFutures =
     HashMap<String, Vec<Pin<Box<dyn Future<Output = GradingData> + Send + 'static>>>>;
@@ -264,13 +266,11 @@ struct GradingData {
 #[cfg(test)]
 mod test {
     use mockito::Matcher;
+    use models::{exercise_services, exercises::GradingProgress};
     use serde_json::Value;
 
     use super::*;
-    use crate::{
-        models::{exercise_services, exercises::GradingProgress},
-        test_helper::{self, Data},
-    };
+    use crate::test_helper::{self, Data};
 
     #[tokio::test]
     async fn regrades_submission() {

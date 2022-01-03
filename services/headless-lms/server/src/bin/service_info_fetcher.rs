@@ -1,13 +1,14 @@
+use std::{env, usize};
+
 use anyhow::Result;
 use dotenv::dotenv;
 use futures::stream::{self, StreamExt};
-use headless_lms_actix::models::exercise_services::ExerciseService;
-use headless_lms_actix::{
-    models::exercise_service_info::{fetch_and_upsert_service_info, ExerciseServiceInfo},
-    setup_tracing,
+use headless_lms_actix::setup_tracing;
+use headless_lms_models::{
+    exercise_service_info::{fetch_and_upsert_service_info, ExerciseServiceInfo},
+    exercise_services::ExerciseService,
 };
 use sqlx::PgPool;
-use std::{env, usize};
 use tokio::time::{sleep, Duration};
 use tracing::info;
 
@@ -30,7 +31,7 @@ async fn main() -> Result<()> {
 
     loop {
         let exercise_services =
-            headless_lms_actix::models::exercise_services::get_exercise_services(&mut conn).await?;
+            headless_lms_models::exercise_services::get_exercise_services(&mut conn).await?;
         info!(
             "Fetching and updating statuses from {} services",
             exercise_services.len()

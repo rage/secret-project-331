@@ -10,8 +10,7 @@ pub mod ts_binding_generator;
 #[macro_use]
 extern crate tracing;
 
-pub use headless_lms_models as models;
-pub use headless_lms_utils as utils;
+use std::sync::Arc;
 
 use actix_http::{body::AnyBody, StatusCode};
 use actix_web::{
@@ -21,12 +20,11 @@ use actix_web::{
 };
 use anyhow::Result;
 use oauth2::basic::BasicClient;
-use std::sync::Arc;
 // use tracing_actix_web::TracingLogger;
+use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, EnvFilter};
-use utils::{file_store::FileStore, ApplicationConfiguration};
 
 pub type OAuthClient = Arc<BasicClient>;
 

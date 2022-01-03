@@ -1,7 +1,8 @@
+use std::collections::HashMap;
+
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use uuid::Uuid;
 
 static LI_START_TAG_REGEX: Lazy<Regex> =
@@ -128,9 +129,10 @@ pub fn process_content_to_html(blocks: &[EmailGutenbergBlock]) -> String {
 
 #[cfg(test)]
 mod email_processor_tests {
-    use super::*;
     use pretty_assertions::assert_eq;
     use uuid::Uuid;
+
+    use super::*;
 
     #[test]
     fn it_converts_paragraph_correctly_to_plain_text() {

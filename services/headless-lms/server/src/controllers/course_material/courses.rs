@@ -1,35 +1,32 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
-use crate::{
-    controllers::{ControllerError, ControllerResult},
-    domain::authorization::AuthUser,
-    models::{
-        chapters::{ChapterStatus, ChapterWithStatus},
-        courses::Course,
-        feedback,
-        pages::{CoursePageWithUserData, PageSearchRequest},
-        proposed_page_edits::{self, NewProposedPageEdits},
-        user_course_settings::UserCourseSettings,
-    },
-    models::{course_instances::CourseInstance, courses, pages::PageSearchResult},
-    models::{feedback::NewFeedback, pages::Page},
-};
-use actix_web::web::{self, Json, ServiceConfig};
+
 use chrono::Utc;
-use sqlx::{Connection, PgPool};
-use uuid::Uuid;
+use models::{
+    chapters::{ChapterStatus, ChapterWithStatus},
+    course_instances::CourseInstance,
+    courses,
+    courses::Course,
+    feedback,
+    feedback::NewFeedback,
+    pages::{CoursePageWithUserData, Page, PageSearchRequest, PageSearchResult},
+    proposed_page_edits::{self, NewProposedPageEdits},
+    user_course_settings::UserCourseSettings,
+};
+
+use crate::controllers::prelude::*;
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
 */
 #[instrument(skip(pool))]
 async fn get_course(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<Course>> {
+) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
-    Ok(Json(course))
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
+    Ok(web::Json(course))
 }
 
 /**
@@ -58,7 +55,7 @@ async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
-) -> ControllerResult<Json<CoursePageWithUserData>> {
+) -> ControllerResult<web::Json<CoursePageWithUserData>> {
     let mut conn = pool.acquire().await?;
     let (course_slug, raw_page_path) = params.into_inner();
     let path = if raw_page_path.starts_with('/') {
@@ -67,7 +64,7 @@ async fn get_course_page_by_path(
         format!("/{}", raw_page_path)
     };
 
-    let page_with_user_data = crate::models::pages::get_page_with_user_data_by_path(
+    let page_with_user_data = models::pages::get_page_with_user_data_by_path(
         &mut conn,
         user.map(|u| u.id),
         &course_slug,
@@ -75,7 +72,7 @@ async fn get_course_page_by_path(
     )
     .await?;
 
-    Ok(Json(page_with_user_data))
+    Ok(web::Json(page_with_user_data))
 }
 
 /**
@@ -100,20 +97,18 @@ GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the 
 #[instrument(skip(pool))]
 async fn get_current_course_instance(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     user: Option<AuthUser>,
-) -> ControllerResult<Json<Option<CourseInstance>>> {
+) -> ControllerResult<web::Json<Option<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
     if let Some(user) = user {
-        let instance = crate::models::course_instances::current_course_instance_of_user(
-            &mut conn,
-            user.id,
-            *request_course_id,
+        let instance = models::course_instances::current_course_instance_of_user(
+            &mut conn, user.id, *course_id,
         )
         .await?;
-        Ok(Json(instance))
+        Ok(web::Json(instance))
     } else {
-        Ok(Json(None))
+        Ok(web::Json(None))
     }
 }
 
@@ -140,15 +135,12 @@ GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all 
 */
 async fn get_course_instances(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<Uuid>,
-) -> ControllerResult<Json<Vec<CourseInstance>>> {
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
-    let instances = crate::models::course_instances::get_course_instances_for_course(
-        &mut conn,
-        *request_course_id,
-    )
-    .await?;
-    Ok(Json(instances))
+    let instances =
+        models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
+    Ok(web::Json(instances))
 }
 
 /**
@@ -175,13 +167,12 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages
 */
 #[instrument(skip(pool))]
 async fn get_course_pages(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<Page>>> {
+) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
-    let pages: Vec<Page> =
-        crate::models::pages::course_pages(&mut conn, *request_course_id).await?;
-    Ok(Json(pages))
+    let pages: Vec<Page> = models::pages::course_pages(&mut conn, *course_id).await?;
+    Ok(web::Json(pages))
 }
 
 /**
@@ -206,11 +197,11 @@ GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of ch
 */
 #[instrument(skip(pool))]
 async fn get_chapters(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<ChapterWithStatus>>> {
+) -> ControllerResult<web::Json<Vec<ChapterWithStatus>>> {
     let mut conn = pool.acquire().await?;
-    let chapters = crate::models::chapters::course_chapters(&mut conn, *request_course_id).await?;
+    let chapters = models::chapters::course_chapters(&mut conn, *course_id).await?;
     let chapters = chapters
         .into_iter()
         .map(|chapter| {
@@ -234,7 +225,7 @@ async fn get_chapters(
             }
         })
         .collect();
-    Ok(Json(chapters))
+    Ok(web::Json(chapters))
 }
 
 /**
@@ -242,20 +233,18 @@ GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user se
 */
 async fn get_user_course_settings(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     user: Option<AuthUser>,
-) -> ControllerResult<Json<Option<UserCourseSettings>>> {
+) -> ControllerResult<web::Json<Option<UserCourseSettings>>> {
     let mut conn = pool.acquire().await?;
     if let Some(user) = user {
-        let settings = crate::models::user_course_settings::get_user_course_settings_by_course_id(
-            &mut conn,
-            user.id,
-            *request_course_id,
+        let settings = models::user_course_settings::get_user_course_settings_by_course_id(
+            &mut conn, user.id, *course_id,
         )
         .await?;
-        Ok(Json(settings))
+        Ok(web::Json(settings))
     } else {
-        Ok(Json(None))
+        Ok(web::Json(None))
     }
 }
 
@@ -314,18 +303,14 @@ Response:
 */
 #[instrument(skip(pool))]
 async fn search_pages_with_phrase(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     payload: web::Json<PageSearchRequest>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<PageSearchResult>>> {
+) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
-    let res = crate::models::pages::get_page_search_results_for_phrase(
-        &mut conn,
-        *request_course_id,
-        &*payload,
-    )
-    .await?;
-    Ok(Json(res))
+    let res =
+        models::pages::get_page_search_results_for_phrase(&mut conn, *course_id, &*payload).await?;
+    Ok(web::Json(res))
 }
 
 /**
@@ -383,18 +368,14 @@ Response:
 */
 #[instrument(skip(pool))]
 async fn search_pages_with_words(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     payload: web::Json<PageSearchRequest>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<PageSearchResult>>> {
+) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
-    let res = crate::models::pages::get_page_search_results_for_words(
-        &mut conn,
-        *request_course_id,
-        &*payload,
-    )
-    .await?;
-    Ok(Json(res))
+    let res =
+        models::pages::get_page_search_results_for_words(&mut conn, *course_id, &*payload).await?;
+    Ok(web::Json(res))
 }
 
 /**
@@ -405,7 +386,7 @@ pub async fn feedback(
     new_feedback: web::Json<Vec<NewFeedback>>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
-) -> ControllerResult<Json<Vec<String>>> {
+) -> ControllerResult<web::Json<Vec<String>>> {
     let mut conn = pool.acquire().await?;
     let fs = new_feedback.into_inner();
 
@@ -432,14 +413,13 @@ pub async fn feedback(
 
     let mut tx = conn.begin().await?;
     let user_id = user.as_ref().map(|u| u.id);
-    let course_id = course_id.into_inner();
     let mut ids = vec![];
     for f in fs {
-        let id = feedback::insert(&mut tx, user_id, course_id, f).await?;
+        let id = feedback::insert(&mut tx, user_id, *course_id, f).await?;
         ids.push(id.to_string());
     }
     tx.commit().await?;
-    Ok(Json(ids))
+    Ok(web::Json(ids))
 }
 
 /**
@@ -470,7 +450,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{course_id}", web::get().to(get_course))
         .route("/{course_id}/chapters", web::get().to(get_chapters))
         .route(

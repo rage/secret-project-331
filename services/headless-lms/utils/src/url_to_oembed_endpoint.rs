@@ -1,8 +1,9 @@
-use anyhow::{anyhow, Result};
 use url::Url;
 
+use crate::UtilError;
+
 // https://github.com/WordPress/wordpress-develop/blob/master/src/wp-includes/class-wp-oembed.php
-pub fn url_to_oembed_endpoint(url: String) -> Result<Url> {
+pub fn url_to_oembed_endpoint(url: String) -> Result<Url, UtilError> {
     let parsed_url = Url::parse(url.as_str())?;
     if let Some(host) = parsed_url.host_str() {
         if host.ends_with("youtu.be") || host.ends_with("youtube.com") {
@@ -72,13 +73,13 @@ pub fn url_to_oembed_endpoint(url: String) -> Result<Url> {
                 &format!("url={}&format=json", url),
             );
         }
-        Err(anyhow!("Link not supported for embedding."))
+        Err(UtilError::Other("Link not supported for embedding."))
     } else {
-        Err(anyhow!("Failed to parse host from URL."))
+        Err(UtilError::Other("Failed to parse host from URL."))
     }
 }
 
-fn oembed_url_builder(url: &str, query_params: &str) -> Result<Url> {
+fn oembed_url_builder(url: &str, query_params: &str) -> Result<Url, UtilError> {
     let mut endpoint_url = Url::parse(url)?;
     endpoint_url.set_query(Some(query_params));
     Ok(endpoint_url)
@@ -86,8 +87,9 @@ fn oembed_url_builder(url: &str, query_params: &str) -> Result<Url> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use url::Url;
+
+    use super::*;
     #[test]
     fn works_with_youtu_be() {
         assert_eq!(

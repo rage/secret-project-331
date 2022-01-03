@@ -5,7 +5,7 @@
     Failed,
     NotReady,
 }</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Tells what’s the status of the grading progress for a user and exercise.</p>
-<p>As close as possible LTI’s grading progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress</p>
+<p>As close as possible LTI’s grading progress for compatibility: <a href="https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress">https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress</a></p>
 </div></details><h2 id="variants" class="variants small-section-header">Variants<a href="#variants" class="anchor"></a></h2><div id="variant.FullyGraded" class="variant small-section-header"><a href="#variant.FullyGraded" class="anchor field"></a><code>FullyGraded</code></div><div class="docblock"><p>The grading process is completed; the score value, if any, represents the current Final Grade;</p>
 </div><div id="variant.Pending" class="variant small-section-header"><a href="#variant.Pending" class="anchor field"></a><code>Pending</code></div><div class="docblock"><p>Final Grade is pending, but does not require manual intervention; if a Score value is present, it indicates the current value is partial and may be updated.</p>
 </div><div id="variant.PendingManual" class="variant small-section-header"><a href="#variant.PendingManual" class="anchor field"></a><code>PendingManual</code></div><div class="docblock"><p>Final Grade is pending, and it does require human intervention; if a Score value is present, it indicates the current value is partial and may be updated during the manual grading.</p>

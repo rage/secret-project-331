@@ -652,7 +652,7 @@
 <span class="doccomment">/**
 Indicates what is the user&#39;s completion status for a exercise.
 
-As close as possible to LTI&#39;s activity progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress.
+As close as possible to LTI&#39;s activity progress for compatibility: &lt;https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress&gt;.
 */</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">sqlx::Type</span>, <span class="ident">TS</span>)]</span>
 <span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;activity_progress&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
@@ -673,7 +673,7 @@ As close as possible to LTI&#39;s activity progress for compatibility: https://w
 
 Tells what&#39;s the status of the grading progress for a user and exercise.
 
-As close as possible LTI&#39;s grading progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress
+As close as possible LTI&#39;s grading progress for compatibility: &lt;https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress&gt;
 */</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">sqlx::Type</span>, <span class="ident">TS</span>)]</span>
 <span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;grading_progress&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;kebab-case&quot;</span>)]</span>

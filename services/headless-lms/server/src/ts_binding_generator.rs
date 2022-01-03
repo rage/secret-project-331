@@ -1,19 +1,17 @@
-use crate::{
-    controllers::{
-        auth::Login,
-        course_material::{
-            exams::{ExamData, ExamEnrollmentData},
-            submissions::PreviousSubmission,
-        },
-        main_frontend::{
-            courses::GetFeedbackQuery, exams::ExamCourseInfo, exercises::ExerciseSubmissions,
-            feedback::MarkAsRead, proposed_edits::GetEditProposalsQuery,
-        },
-        ErrorResponse, UploadResult,
+use crate::controllers::{
+    auth::Login,
+    course_material::{
+        exams::{ExamData, ExamEnrollmentData},
+        submissions::PreviousSubmission,
     },
-    models::*,
-    utils::pagination::Pagination,
+    main_frontend::{
+        courses::GetFeedbackQuery, exams::ExamCourseInfo, exercises::ExerciseSubmissions,
+        feedback::MarkAsRead, proposed_edits::GetEditProposalsQuery,
+    },
+    ErrorResponse, UploadResult,
 };
+use headless_lms_models::*;
+use headless_lms_utils::pagination::Pagination;
 
 macro_rules! export {
     ($target:expr, $($types:ty),*) => {
@@ -32,7 +30,7 @@ macro_rules! export {
 
 #[test]
 fn ts_binding_generator() {
-    let mut target = std::fs::File::create("../../shared-module/src/bindings.ts").unwrap();
+    let mut target = std::fs::File::create("../../../shared-module/src/bindings.ts").unwrap();
     let res = export! {
         &mut target,
 

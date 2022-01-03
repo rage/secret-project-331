@@ -271,7 +271,6 @@ pub async fn course_chapters(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Vec<DatabaseChapter>> {
-    println!("hi");
     let chapters = sqlx::query_as!(
         DatabaseChapter,
         r#"

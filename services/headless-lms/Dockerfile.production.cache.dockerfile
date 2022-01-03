@@ -1,4 +1,4 @@
-# Built from DockerfileBase.dockerfile
+# Built from DockerfileBase.dockerfile. This image is used in skaffold.production.yml to cache the build
 FROM eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest as chef
 
 FROM chef AS planner
@@ -14,10 +14,8 @@ ENV CARGO_HOME=/home/user/.cargo \
 
 # compile dependencies
 COPY --chown=user --from=planner /app/recipe.json recipe.json
-RUN cargo chef cook --recipe-path recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
 
 COPY --chown=user . .
 # Compile the program
-RUN cargo build
-
-CMD [ "bin/dev" ]
+RUN cargo build --release

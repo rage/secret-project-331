@@ -26,9 +26,10 @@ RUN apt-get update \
   && apt-get install -yy wait-for-it postgresql-client \
   && rm -rf /var/lib/apt/lists/*
 
-RUN cargo install sqlx-cli --no-default-features --features postgres && \
+RUN cargo install sqlx-cli --no-default-features --features postgres,rustls && \
   cargo install cargo-watch && \
   cargo install systemfd && \
+  cargo install cargo-chef --locked && \
   rustup component add clippy
 
 WORKDIR /app

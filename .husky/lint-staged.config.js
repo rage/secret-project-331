@@ -7,10 +7,10 @@ module.exports = {
   "(services/quizzes/|shared-module/src/)**/*.{js,jsx,ts,tsx}": () => "npx tsc -p services/quizzes/ --noEmit",
   "*.{md,json,scss,css}": "prettier --write",
   "*.rs": () => [
-    "cargo fmt --manifest-path services/headless-lms/Cargo.toml -- --files-with-diff",
+    "cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff",
     "cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings",
   ],
   "**/models/**/*.rs": () => [
-    "./services/headless-lms/bin/sqlx-prepare-check",
+    "./bin/sqlx-prepare-check",
   ],
 }

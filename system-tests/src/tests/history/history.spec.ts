@@ -64,7 +64,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Manage
   await Promise.all([
     page.waitForNavigation(),
-    page.click("[aria-label=\"Manage course 'Introduction to history'\"]"),
+    page.click("[aria-label=\"Manage course 'Introduction to history'\"] svg"),
   ])
   expectPath(page, "/manage/courses/[id]")
 
@@ -147,7 +147,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Manage
   await Promise.all([
     page.waitForNavigation(),
-    page.click("[aria-label=\"Manage course 'Introduction to history'\"]"),
+    page.click("[aria-label=\"Manage course 'Introduction to history'\"] svg"),
   ])
   expectPath(page, "/manage/courses/[id]")
 

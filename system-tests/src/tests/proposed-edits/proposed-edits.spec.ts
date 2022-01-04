@@ -131,7 +131,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Introduction to edit proposals Manage >> :nth-match(a, 2)
   await Promise.all([
     page.waitForNavigation(),
-    page.click("[aria-label=\"Manage course 'Introduction to edit proposals'\"]"),
+    page.click("[aria-label=\"Manage course 'Introduction to edit proposals'\"] svg"),
   ])
 
   await expect(page).toHaveURL(

@@ -36,7 +36,7 @@ test.describe("quizzes tests", () => {
 
     await Promise.all([
       page.waitForNavigation(),
-      page.click("[aria-label=\"Manage course 'quizzes test'\"]"),
+      page.click("[aria-label=\"Manage course 'quizzes test'\"] svg"),
     ])
     // Click :nth-match(:text("Manage"), 4)
 
@@ -299,7 +299,7 @@ test.describe("quizzes tests", () => {
     // Click :nth-match(:text("Manage"), 4)
     await Promise.all([
       page.waitForNavigation(),
-      await page.click("[aria-label=\"Manage course 'quizzes test, multiple choice'\"]"),
+      await page.click("[aria-label=\"Manage course 'quizzes test, multiple choice'\"] svg"),
     ])
     expectPath(page, "/manage/courses/[id]")
 

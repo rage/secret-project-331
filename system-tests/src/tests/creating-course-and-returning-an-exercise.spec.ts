@@ -36,7 +36,7 @@ test("test", async ({ page }) => {
   // Click :nth-match(:text("Manage"), 3)
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("[aria-label=\"Manage course 'Introduction to System Level Testing'\"]"),
+    await page.click("[aria-label=\"Manage course 'Introduction to System Level Testing'\"] svg"),
   ])
   expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 

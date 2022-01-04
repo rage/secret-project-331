@@ -21,7 +21,7 @@ test("test", async ({ page, headless }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("[aria-label=\"Manage course 'Advanced course instance management'\"]"),
+    await page.click("[aria-label=\"Manage course 'Advanced course instance management'\"] svg"),
   ])
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4",

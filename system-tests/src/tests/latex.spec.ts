@@ -30,7 +30,7 @@ test("latex-block renders", async ({ headless, page }) => {
   // Click :nth-match(:text("Manage"), 2)
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5' }*/),
-    page.click("[aria-label=\"Manage course 'Latex course'\"]"),
+    page.click("[aria-label=\"Manage course 'Latex course'\"] svg"),
   ])
   expectPath(page, "/manage/courses/[id]")
   // Click text=Manage pages

@@ -21,7 +21,7 @@ test.describe("Model solutions", () => {
     // Click text=Manage
     await Promise.all([
       page.waitForNavigation(),
-      page.click("[aria-label=\"Manage course 'Introduction to everything'\"]"),
+      page.click("[aria-label=\"Manage course 'Introduction to everything'\"] svg"),
     ])
 
     expectPath(page, "/manage/courses/[id]")

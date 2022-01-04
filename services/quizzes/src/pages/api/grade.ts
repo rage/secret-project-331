@@ -20,11 +20,6 @@ export interface ItemAnswerFeedback {
   quiz_item_option_feedbacks: OptionAnswerFeedback[] | null
 }
 
-export interface EssayItemAnswerFeedback {
-  quiz_item_id: string | null
-  submit_message: string | null
-}
-
 interface QuizItemAnswerGrading {
   quizItemId: string
   correct: boolean

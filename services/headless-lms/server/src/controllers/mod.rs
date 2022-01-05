@@ -30,6 +30,7 @@ use headless_lms_utils::UtilError;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
+use uuid::Uuid;
 
 /**
 Represents error messages that are sent in responses.
@@ -51,6 +52,9 @@ pub enum ControllerError {
     #[display(fmt = "Bad request")]
     BadRequest(String),
 
+    #[display(fmt = "Bad request")]
+    BadRequestWithData(String, ErrorData),
+
     #[display(fmt = "Not found")]
     NotFound(String),
 
@@ -61,12 +65,19 @@ pub enum ControllerError {
     Forbidden(String),
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, TS)]
+#[serde(rename_all = "snake_case")]
+pub enum ErrorData {
+    BlockId(Uuid),
+}
+
 /// The format all error messages from the API is in
 #[derive(Debug, Serialize, Deserialize, TS)]
 pub struct ErrorResponse {
     pub title: String,
     pub message: String,
     pub source: Option<String>,
+    pub data: Option<ErrorData>,
 }
 
 impl std::error::Error for ControllerError {}
@@ -86,11 +97,18 @@ impl error::ResponseError for ControllerError {
         let status = self.status_code();
         let detail = if let ControllerError::InternalServerError(reason)
         | ControllerError::BadRequest(reason)
+        | ControllerError::BadRequestWithData(reason, _)
         | ControllerError::Forbidden(reason) = self
         {
             reason
         } else {
             "Error"
+        };
+
+        let error_data = if let ControllerError::BadRequestWithData(_, data) = self {
+            Some(data.clone())
+        } else {
+            None
         };
 
         let source = self.source();
@@ -103,6 +121,7 @@ impl error::ResponseError for ControllerError {
                 .unwrap_or_else(|| status.to_string()),
             message: detail.to_string(),
             source: source_message,
+            data: error_data,
         };
 
         HttpResponseBuilder::new(status)
@@ -114,6 +133,7 @@ impl error::ResponseError for ControllerError {
         match *self {
             ControllerError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ControllerError::BadRequest(_) => StatusCode::BAD_REQUEST,
+            ControllerError::BadRequestWithData(_, _) => StatusCode::BAD_REQUEST,
             ControllerError::NotFound(_) => StatusCode::NOT_FOUND,
             ControllerError::Unauthorized(_) => StatusCode::UNAUTHORIZED,
             ControllerError::Forbidden(_) => StatusCode::FORBIDDEN,
@@ -149,6 +169,9 @@ impl From<ModelError> for ControllerError {
         match err {
             ModelError::RecordNotFound(_) => Self::NotFound(err.to_string()),
             ModelError::PreconditionFailed(msg) => Self::BadRequest(msg),
+            ModelError::PreconditionFailedWithBlockId { description, id } => {
+                Self::BadRequestWithData(description.to_string(), ErrorData::BlockId(id))
+            }
             ModelError::DatabaseConstraint { description, .. } => {
                 Self::BadRequest(description.to_string())
             }

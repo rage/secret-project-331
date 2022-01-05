@@ -554,11 +554,16 @@ impl CmsPageUpdate {
                 }
             })
             .collect::<ModelResult<HashMap<Uuid, bool>>>()?;
-        if exercise_ids.values().any(|x| !x) {
-            return Err(ModelError::PreconditionFailed(
-                "All exercises must have at least one slide.".to_string(),
-            ));
+
+        for (id, x) in exercise_ids {
+            if !x {
+                return Err(ModelError::PreconditionFailedWithBlockId {
+                    id,
+                    description: "All exercises must have at least one slide.",
+                });
+            }
         }
+
         for task in self.exercise_tasks.iter() {
             if let hash_map::Entry::Occupied(mut e) = slide_ids.entry(task.exercise_slide_id) {
                 e.insert(true);

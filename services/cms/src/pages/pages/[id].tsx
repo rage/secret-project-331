@@ -1,7 +1,8 @@
 import dynamic from "next/dynamic"
 import React from "react"
+import toast, { Toaster } from "react-hot-toast"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
+import { useMutation, useQuery, useQueryClient } from "react-query"
 
 import Layout from "../../components/Layout"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
@@ -28,6 +29,7 @@ const PageEditor = dynamic(() => import("../../components/editors/PageEditor"), 
 
 const Pages = ({ query }: PagesProps) => {
   const { id } = query
+  const queryClient = useQueryClient()
   const getPage = useQuery(`page-${id}`, () => fetchPageWithId(id), {
     select: (data) => {
       const page: Page = { ...data.page, content: denormalizeDocument(data) }
@@ -35,13 +37,14 @@ const Pages = ({ query }: PagesProps) => {
     },
   })
 
-  const handleSave = async (page: CmsPageUpdate): Promise<ContentManagementPage> => {
-    const res = await updateExistingPage(id, page)
-    console.log(res)
-    // NB! Refetched page content isn't used atm, only url, ids etc. Updated content is returned instead.
-    await getPage.refetch()
-    return res
-  }
+  const mutate = useMutation((newPage: CmsPageUpdate) => updateExistingPage(id, newPage), {
+    onSuccess: (newData) => {
+      // Refetch, setQueryData or invalidateQueries?
+      // eslint-disable-next-line i18next/no-literal-string
+      queryClient.setQueryData(`page-${id}`, newData)
+    },
+    retry: 3,
+  })
 
   let frontPageUrl = "/"
   if (getPage.isSuccess && getPage.data.course_id) {
@@ -52,7 +55,7 @@ const Pages = ({ query }: PagesProps) => {
     <Layout frontPageUrl={frontPageUrl}>
       {getPage.isError && <ErrorBanner variant={"readOnly"} error={getPage.error} />}
       {(getPage.isLoading || getPage.isIdle) && <Spinner variant={"medium"} />}
-      {getPage.isSuccess && <PageEditor data={getPage.data} handleSave={handleSave} />}
+      {getPage.isSuccess && <PageEditor data={getPage.data} saveMutation={mutate} />}
     </Layout>
   )
 }

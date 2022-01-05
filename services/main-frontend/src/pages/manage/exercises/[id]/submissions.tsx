@@ -32,11 +32,11 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
         {getExerciseSubmissions.isError && (
           <ErrorBanner variant={"readOnly"} error={getExerciseSubmissions.error} />
         )}
-        {getExerciseSubmissions.isLoading && <Spinner variant={"medium"} />}
-        {getExerciseSubmissions.isSuccess && getExerciseSubmissions.data.data.length !== 0 ? (
+        {(getExerciseSubmissions.isLoading || getExerciseSubmissions.isIdle) && (
+          <Spinner variant={"medium"} />
+        )}
+        {getExerciseSubmissions.isSuccess && (
           <ExerciseSubmissionList exerciseSubmissions={getExerciseSubmissions.data.data} />
-        ) : (
-          <div>{t("no-submissions")}</div>
         )}
       </div>
     </Layout>

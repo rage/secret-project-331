@@ -3,10 +3,10 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import useQueryParameter from "../../../../hooks/useQueryParameter"
 import { fetchChaptersPagesWithExercises } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
+import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 
 import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage"

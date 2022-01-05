@@ -5,8 +5,9 @@ import { useQuery } from "react-query"
 
 import { fetchUserCourseProgress } from "../../../../services/backend"
 import CircularProgress from "../../../../shared-module/components/CourseProgress/CircularProgress"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import GenericLoading from "../../../GenericLoading"
 
 interface CourseProgressProps {
   courseInstanceId: string
@@ -14,36 +15,36 @@ interface CourseProgressProps {
 
 const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => {
   const { t } = useTranslation()
-  const { isLoading, error, data } = useQuery(`course-instance-${courseInstanceId}-progress`, () =>
+  const getUserCourseProgress = useQuery(`course-instance-${courseInstanceId}-progress`, () =>
     fetchUserCourseProgress(courseInstanceId),
   )
 
-  if (error) {
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
-  }
-
-  if (isLoading || !data) {
-    return <GenericLoading />
-  }
-
   return (
     <div className={normalWidthCenteredComponentStyles}>
-      <div
-        className={css`
-          width: 100%;
-          margin: 0 auto;
-          text-align: center;
-          padding: 2em 0;
-        `}
-      >
-        {/* TODO: Verify how it looks when score_given is a floating number */}
-        <CircularProgress
-          max={data.score_maximum}
-          given={data.score_given}
-          point={50}
-          label={t("student-progress")}
-        />
-      </div>
+      {getUserCourseProgress.isError && (
+        <ErrorBanner variant={"readOnly"} error={getUserCourseProgress.error} />
+      )}
+      {(getUserCourseProgress.isLoading || getUserCourseProgress.isIdle) && (
+        <Spinner variant={"medium"} />
+      )}
+      {getUserCourseProgress.isSuccess && (
+        <div
+          className={css`
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+            padding: 2em 0;
+          `}
+        >
+          {/* TODO: Verify how it looks when score_given is a floating number */}
+          <CircularProgress
+            max={getUserCourseProgress.data.score_maximum}
+            given={getUserCourseProgress.data.score_given}
+            point={50}
+            label={t("student-progress")}
+          />
+        </div>
+      )}
     </div>
   )
 }

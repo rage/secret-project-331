@@ -3,8 +3,8 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import CoursePageContext from "../../../../contexts/CoursePageContext"
+import Spinner from "../../../../shared-module/components/Spinner"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import GenericLoading from "../../../GenericLoading"
 
 import ChapterGrid from "./ChapterGrid"
 
@@ -13,7 +13,7 @@ const CourseChapterGridBlock: React.FC = () => {
   const pageContext = useContext(CoursePageContext)
 
   if (pageContext.state !== "ready") {
-    return <GenericLoading />
+    return <Spinner variant={"small"} />
   }
 
   if (pageContext.pageData.course_id === null) {

@@ -6,6 +6,8 @@ import { useQuery } from "react-query"
 
 import CoursePageContext from "../../contexts/CoursePageContext"
 import { fetchCourseInstances, postCourseInstanceEnrollment } from "../../services/backend"
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
+import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
@@ -20,11 +22,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
 
   const [submitError, setSubmitError] = useState<unknown>()
   const [open, setOpen] = useState(false)
-  const {
-    data: courseInstances,
-    error,
-    isLoading,
-  } = useQuery(
+  const getCourseInstances = useQuery(
     ["course-instances", coursePageState.pageData?.course_id],
     () =>
       fetchCourseInstances(
@@ -61,19 +59,12 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
 
   if (coursePageState.pageData?.course_id === null) {
     // No course id
-    return <></>
+    // eslint-disable-next-line i18next/no-literal-string
+    return <ErrorBanner variant={"readOnly"} error={"No course ID defined"} />
   }
 
   if (!open) {
     return null
-  }
-
-  if (error) {
-    return <div>{JSON.stringify(error, undefined, 2)}</div>
-  }
-
-  if (isLoading || courseInstances === undefined) {
-    return <div>{t("loading")}</div>
   }
 
   return (
@@ -83,12 +74,20 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
           margin: 1rem;
         `}
       >
-        {submitError && <pre>{JSON.stringify(submitError, undefined, 2)}</pre>}
+        {submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
         <h4>{t("title-select-course-version-to-continue")}.</h4>
-        <SelectCourseInstanceForm
-          courseInstances={courseInstances}
-          onSubmitForm={handleSubmitAndClose}
-        />
+        {getCourseInstances.isError && (
+          <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
+        )}
+        {(getCourseInstances.isLoading || getCourseInstances.isIdle) && (
+          <Spinner variant={"medium"} />
+        )}
+        {getCourseInstances.isSuccess && (
+          <SelectCourseInstanceForm
+            courseInstances={getCourseInstances.data}
+            onSubmitForm={handleSubmitAndClose}
+          />
+        )}
       </div>
     </Dialog>
   )

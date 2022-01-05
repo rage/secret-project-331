@@ -161,7 +161,7 @@ export const fetchChaptersPagesWithExercises = async (
   return validateResponse(response, isArray(isPageWithExercises))
 }
 
-export const getNextPageRoutingData = async (
+export const fetchNextPageRoutingData = async (
   currentPageId: string,
 ): Promise<PageRoutingDataWithChapterStatus | null> => {
   const response = await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)

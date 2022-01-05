@@ -5,8 +5,9 @@ import { useQuery } from "react-query"
 import { fetchPageUrl } from "../../../../services/backend"
 import { ChapterWithStatus } from "../../../../shared-module/bindings"
 import Card from "../../../../shared-module/components/Card"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
 import { coursePageRoute } from "../../../../utils/routing"
-import GenericLoading from "../../../GenericLoading"
 
 interface ChapterProps {
   now: Date
@@ -16,6 +17,10 @@ interface ChapterProps {
   organizationSlug: string
 }
 
+const NUMERIC = "numeric"
+const LONG = "long"
+const OPEN = "open"
+
 const ChapterGridCard: React.FC<ChapterProps> = ({
   now,
   chapter,
@@ -24,7 +29,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({
   organizationSlug,
 }) => {
   const { i18n } = useTranslation()
-  const { data, error, isLoading } = useQuery(`chapter-grid-chapter-${chapter.id}`, () => {
+  const getChapterPageUrl = useQuery(`chapter-grid-chapter-${chapter.id}`, () => {
     if (chapter.front_page_id) {
       return fetchPageUrl(chapter.front_page_id)
     } else {
@@ -32,22 +37,22 @@ const ChapterGridCard: React.FC<ChapterProps> = ({
     }
   })
 
-  if (error) {
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
+  if (getChapterPageUrl.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getChapterPageUrl.error} />
   }
 
-  if (isLoading || !data) {
-    return <GenericLoading />
+  if (getChapterPageUrl.isLoading || getChapterPageUrl.isIdle) {
+    return <Spinner variant={"small"} />
   }
 
-  if (chapter.status == "open") {
+  if (chapter.status === OPEN) {
     return (
       <Card
         variant="simple"
         title={chapter.name}
         chapterNumber={chapter.chapter_number}
         key={chapter.id}
-        url={coursePageRoute(organizationSlug, courseSlug, data)}
+        url={coursePageRoute(organizationSlug, courseSlug, getChapterPageUrl.data)}
         bg={bg}
       />
     )
@@ -55,8 +60,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({
     if (chapter.opens_at) {
       const diffSeconds = differenceInSeconds(chapter.opens_at, now)
       if (diffSeconds <= 0) {
-        // eslint-disable-next-line i18next/no-literal-string
-        chapter.status = "open"
+        chapter.status = OPEN
         // Insert confetti drop here.
         return (
           <Card
@@ -87,18 +91,13 @@ const ChapterGridCard: React.FC<ChapterProps> = ({
         )
       } else {
         const date = chapter.opens_at.toLocaleString(i18n.language, {
-          // eslint-disable-next-line i18next/no-literal-string
-          year: "numeric",
-          // eslint-disable-next-line i18next/no-literal-string
-          month: "long",
-          // eslint-disable-next-line i18next/no-literal-string
-          day: "numeric",
+          year: NUMERIC,
+          month: LONG,
+          day: NUMERIC,
         })
         const time = chapter.opens_at.toLocaleString(i18n.language, {
-          // eslint-disable-next-line i18next/no-literal-string
-          hour: "numeric",
-          // eslint-disable-next-line i18next/no-literal-string
-          minute: "numeric",
+          hour: NUMERIC,
+          minute: NUMERIC,
         })
         return (
           <Card

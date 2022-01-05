@@ -11,6 +11,7 @@ import Button from "../../../shared-module/components/Button"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import TextField from "../../../shared-module/components/InputFields/TextField"
 import Spinner from "../../../shared-module/components/Spinner"
+import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import { wideWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -137,4 +138,4 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(Organization))
+export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(Organization)))

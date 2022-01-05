@@ -129,6 +129,7 @@ fn ts_binding_generator() {
         submissions::SubmissionInfo,
         submissions::SubmissionResult,
         submissions::NewSubmission,
+        submissions::GradingResult,
 
         user_course_settings::UserCourseSettings,
 

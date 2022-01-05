@@ -620,6 +620,14 @@ export interface NewSubmission {
   data_json: unknown | null
 }
 
+export interface GradingResult {
+  grading_progress: GradingProgress
+  score_given: number
+  score_maximum: number
+  feedback_text: string | null
+  feedback_json: unknown | null
+}
+
 export interface UserCourseSettings {
   user_id: string
   course_language_group_id: string

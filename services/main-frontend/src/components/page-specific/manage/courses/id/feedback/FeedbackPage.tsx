@@ -27,27 +27,27 @@ const FeedbackPage: React.FC<Props> = ({ courseId, page, limit, read, onChange }
     await onChange()
   }
 
+  if (getFeedbackList.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getFeedbackList.error} />
+  }
+
+  if (getFeedbackList.isLoading || getFeedbackList.isIdle) {
+    return <Spinner variant={"medium"} />
+  }
+
   return (
-    <>
-      {getFeedbackList.isError && (
-        <ErrorBanner variant={"readOnly"} error={getFeedbackList.error} />
-      )}
-      {getFeedbackList.isLoading && <Spinner variant={"medium"} />}
-      {getFeedbackList.isSuccess && (
-        <ul>
-          {getFeedbackList.data.map((f) => (
-            <li key={f.id}>
-              <FeedbackView
-                feedback={f}
-                setRead={() => {
-                  handleMarkAsRead(f)
-                }}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-    </>
+    <ul>
+      {getFeedbackList.data.map((f) => (
+        <li key={f.id}>
+          <FeedbackView
+            feedback={f}
+            setRead={() => {
+              handleMarkAsRead(f)
+            }}
+          />
+        </li>
+      ))}
+    </ul>
   )
 }
 

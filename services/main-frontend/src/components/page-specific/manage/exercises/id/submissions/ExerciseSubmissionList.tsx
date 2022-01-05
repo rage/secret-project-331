@@ -8,8 +8,11 @@ interface Props {
   exerciseSubmissions: Submission[]
 }
 
-const ExerciseSubmissionList: React.FC<Props> = ({ exerciseSubmissions: submissions }) => {
+const ExerciseSubmissionList: React.FC<Props> = ({ exerciseSubmissions }) => {
   const { t } = useTranslation()
+  if (exerciseSubmissions.length === 0) {
+    return <div>{t("no-submissions")}</div>
+  }
   return (
     <>
       <table>
@@ -23,7 +26,7 @@ const ExerciseSubmissionList: React.FC<Props> = ({ exerciseSubmissions: submissi
           </tr>
         </thead>
         <tbody>
-          {submissions.map((x) => (
+          {exerciseSubmissions.map((x) => (
             <tr key={x.id}>
               <td>
                 <Link

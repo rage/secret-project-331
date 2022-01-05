@@ -4,7 +4,7 @@ import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import ManageCourseStructure from "../../../../components/page-specific/manage/courses/id/pages/ManageCourseStructure"
-import { fetchCourseStructure } from "../../../../services/backend/courses"
+import { fetchCourseStructure, getCourse } from "../../../../services/backend/courses"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
@@ -30,8 +30,12 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
           margin-bottom: 1rem;
         `}
       >
-        {getCourseStructure.isError && <ErrorBanner variant={"link"} error={undefined} />}
-        {getCourseStructure.isLoading && <Spinner variant={"medium"} />}
+        {getCourseStructure.isError && (
+          <ErrorBanner variant={"link"} error={getCourseStructure.error} />
+        )}
+        {(getCourseStructure.isLoading || getCourseStructure.isIdle) && (
+          <Spinner variant={"medium"} />
+        )}
         {getCourseStructure.isSuccess && (
           <ManageCourseStructure
             courseStructure={getCourseStructure.data}

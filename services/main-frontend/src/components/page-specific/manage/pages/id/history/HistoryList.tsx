@@ -66,7 +66,9 @@ const HistoryList: React.FC<Props> = ({
       {getPageHistoryCount.isError && (
         <ErrorBanner variant={"readOnly"} error={getPageHistoryCount.error} />
       )}
-      {getPageHistoryCount.isLoading && <Spinner variant={"medium"} />}
+      {(getPageHistoryCount.isLoading || getPageHistoryCount.isIdle) && (
+        <Spinner variant={"medium"} />
+      )}
       {getPageHistoryCount.isSuccess && (
         <>
           <HistoryPage

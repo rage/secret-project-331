@@ -37,24 +37,26 @@ const EditProposalPage: React.FC<Props> = ({ courseId, page, limit, pending, onC
     await onChange()
   }
 
+  if (getEditProposalList.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getEditProposalList.error} />
+  }
+
+  if (getEditProposalList.isLoading || getEditProposalList.isIdle) {
+    return <Spinner variant={"medium"} />
+  }
+
+  if (getEditProposalList.data.length === 0) {
+    return <div>{t("nothing-here")}</div>
+  }
+
   return (
-    <>
-      {getEditProposalList.isError && (
-        <ErrorBanner variant={"readOnly"} error={getEditProposalList.error} />
-      )}
-      {getEditProposalList.isLoading && <Spinner variant={"medium"} />}
-      {getEditProposalList.isSuccess && getEditProposalList.data.length !== 0 ? (
-        <ul>
-          {getEditProposalList.data.map((p) => (
-            <li key={p.id}>
-              <EditProposalView proposal={p} handleProposal={handleProposal} />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div>{t("nothing-here")}</div>
-      )}
-    </>
+    <ul>
+      {getEditProposalList.data.map((p) => (
+        <li key={p.id}>
+          <EditProposalView proposal={p} handleProposal={handleProposal} />
+        </li>
+      ))}
+    </ul>
   )
 }
 

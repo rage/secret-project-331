@@ -67,7 +67,9 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
       {getCurrentPageHistory.isError && (
         <ErrorBanner variant={"readOnly"} error={getCurrentPageHistory.error} />
       )}
-      {getCurrentPageHistory.isLoading && <Spinner variant={"medium"} />}
+      {(getCurrentPageHistory.isLoading || getCurrentPageHistory.isIdle) && (
+        <Spinner variant={"medium"} />
+      )}
       {getCurrentPageHistory.isSuccess && (
         <div className={monacoFontFixer}>
           <p

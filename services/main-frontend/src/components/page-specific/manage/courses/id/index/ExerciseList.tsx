@@ -22,7 +22,9 @@ const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
       {getCourseExercises.isError && (
         <ErrorBanner variant={"readOnly"} error={getCourseExercises.error} />
       )}
-      {getCourseExercises.isLoading && <Spinner variant={"medium"} />}
+      {(getCourseExercises.isLoading || getCourseExercises.isIdle) && (
+        <Spinner variant={"medium"} />
+      )}
       {getCourseExercises.isSuccess && (
         <ul>
           {getCourseExercises.data.map((x) => (

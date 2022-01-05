@@ -27,7 +27,9 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
         {getSubmissionInfo.isError && (
           <ErrorBanner variant={"readOnly"} error={getSubmissionInfo.error} />
         )}
-        {getSubmissionInfo.isLoading && <Spinner variant={"medium"} />}
+        {(getSubmissionInfo.isLoading || getSubmissionInfo.isIdle) && (
+          <Spinner variant={"medium"} />
+        )}
         {getSubmissionInfo.isSuccess && (
           <>
             <h1>{t("title-submission-id", { id: getSubmissionInfo.data.submission.id })}</h1>

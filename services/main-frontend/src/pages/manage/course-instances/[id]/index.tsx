@@ -150,7 +150,9 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}
-        {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
+        {(getCourseInstances.isLoading || getCourseInstances.isIdle) && (
+          <Spinner variant={"medium"} />
+        )}
         {getCourseInstances.isSuccess && instanceInfo}
       </div>
     </Layout>

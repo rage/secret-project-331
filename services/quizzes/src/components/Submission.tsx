@@ -4,6 +4,7 @@ import { ModelSolutionQuiz, PublicQuiz, QuizAnswer } from "../../types/types"
 import { ItemAnswerFeedback } from "../pages/api/grade"
 
 import { QuizItemSubmissionComponentProps } from "./SubmissionComponents"
+import EssayFeedback from "./SubmissionComponents/Essay"
 import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
 import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
 
@@ -25,7 +26,7 @@ type QuizItemType =
 
 const componentsByTypeNames = (typeName: QuizItemType) => {
   const mapTypeToComponent: { [key: string]: React.FC<QuizItemSubmissionComponentProps> } = {
-    essay: UnsupportedSubmissionViewComponent,
+    essay: EssayFeedback,
     "multiple-choice": MultipleChoiceSubmission,
     checkbox: UnsupportedSubmissionViewComponent,
     scale: UnsupportedSubmissionViewComponent,

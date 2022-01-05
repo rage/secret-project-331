@@ -57,6 +57,7 @@ import {
   GetFeedbackQuery,
   Grading,
   GradingProgress,
+  GradingResult,
   HistoryChangeReason,
   HistoryRestoreData,
   Login,
@@ -1022,6 +1023,16 @@ export function isNewSubmission(obj: any, _argumentName?: string): obj is NewSub
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.exercise_task_id === "string" &&
     (obj.course_instance_id === null || typeof obj.course_instance_id === "string")
+  )
+}
+
+export function isGradingResult(obj: any, _argumentName?: string): obj is GradingResult {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isGradingProgress(obj.grading_progress) as boolean) &&
+    typeof obj.score_given === "number" &&
+    typeof obj.score_maximum === "number" &&
+    (obj.feedback_text === null || typeof obj.feedback_text === "string")
   )
 }
 

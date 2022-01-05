@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { QuizItemAnswer } from "../../../types/types"
@@ -15,18 +15,13 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
   const { t } = useTranslation()
   const [usersWordCount, setUsersWordCOunt] = useState<number>(0)
 
-  useEffect(() => {
-    if (quizItemAnswerState) {
-      setUsersWordCOunt(wordCount(quizItemAnswerState.textData))
-    }
-  }, [quizItemAnswerState])
-
   const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setUsersWordCOunt(wordCount(event.target.value))
     if (quizItemAnswerState) {
       const newQuizItemAnswerState: QuizItemAnswer = {
         ...quizItemAnswerState,
         textData: event.target.value,
-        valid: quizItem.minWords ? usersWordCount > quizItem.minWords : false,
+        valid: quizItem.minWords ? wordCount(event.target.value) >= quizItem.minWords : false,
       }
       setQuizItemAnswerState(newQuizItemAnswerState)
     }

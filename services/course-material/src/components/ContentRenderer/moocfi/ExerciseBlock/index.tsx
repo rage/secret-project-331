@@ -140,6 +140,14 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
           {points ?? 0}/{courseMaterialExercise.data.exercise.score_maximum}
         </div>
       </div>
+      <div
+        className={css`
+          ${normalWidthCenteredComponentStyles}
+        `}
+      >
+        {postSubmissionMutation.data?.grading?.feedback_text &&
+          postSubmissionMutation.data?.grading?.feedback_text}
+      </div>
       <ExerciseTask
         exercise={courseMaterialExercise.data}
         postThisStateToIFrame={postThisStateToIFrame}
@@ -184,7 +192,6 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 type: "tryAgain",
                 payload: courseMaterialExercise.data,
               })
-              //exerciseTask.refetch()
               postSubmissionMutation.reset()
               setAnswerValid(false)
             }}

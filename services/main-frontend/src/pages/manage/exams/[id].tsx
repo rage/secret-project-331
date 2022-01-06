@@ -11,6 +11,7 @@ import Button from "../../../shared-module/components/Button"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import TextField from "../../../shared-module/components/InputFields/TextField"
 import Spinner from "../../../shared-module/components/Spinner"
+import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import { wideWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -66,7 +67,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
         `}
       >
         {getExam.isError && <ErrorBanner variant={"readOnly"} error={getExam.error} />}
-        {getExam.isLoading && <Spinner variant={"medium"} />}
+        {(getExam.isLoading || getExam.isIdle) && <Spinner variant={"medium"} />}
         {getExam.isSuccess && (
           <>
             <h1>
@@ -129,7 +130,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             >
               {t("add-course")}
             </Button>
-            {errorResponse && <div>{JSON.stringify(errorResponse, undefined, 2)}</div>}
+            {errorResponse && <ErrorBanner variant={"readOnly"} error={errorResponse} />}
           </>
         )}
       </div>
@@ -137,4 +138,4 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(Organization))
+export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(Organization)))

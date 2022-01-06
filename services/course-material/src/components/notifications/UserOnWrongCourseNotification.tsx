@@ -6,7 +6,8 @@ import { useQuery } from "react-query"
 
 import { fetchCourseById } from "../../services/backend"
 import Banner from "../../shared-module/components/Banner/Banner"
-import GenericLoading from "../GenericLoading"
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
+import Spinner from "../../shared-module/components/Spinner"
 
 export interface UserOnWrongCourseNotificationProps {
   correctCourseId: string
@@ -18,21 +19,21 @@ const UserOnWrongCourseNotification: React.FC<UserOnWrongCourseNotificationProps
   organizationSlug,
 }) => {
   const { t } = useTranslation()
-  const { isLoading, error, data } = useQuery(`correct-course-${correctCourseId}`, () =>
+  const getCourseById = useQuery(`correct-course-${correctCourseId}`, () =>
     fetchCourseById(correctCourseId),
   )
 
-  if (error) {
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
+  if (getCourseById.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getCourseById.error} />
   }
 
-  if (isLoading || !data) {
-    return <GenericLoading />
+  if (getCourseById.isLoading || getCourseById.isIdle) {
+    return <Spinner variant={"medium"} />
   }
 
   return (
     <Banner variant="readOnly">
-      <Link passHref href={`/${organizationSlug}/courses/${data.slug}`}>
+      <Link passHref href={`/${organizationSlug}/courses/${getCourseById.data.slug}`}>
         <a
           className={css`
             color: #000;
@@ -41,12 +42,12 @@ const UserOnWrongCourseNotification: React.FC<UserOnWrongCourseNotificationProps
               color: #333;
             }
           `}
-          hrefLang={data.language_code}
+          hrefLang={getCourseById.data.language_code}
           href="replace"
         >
           <Trans t={t} i18nKey="message-already-on-different-language-version">
             Looks like you&apos;re already on a different language version of this course. Before
-            answering any exercises, please return to <b>{{ name: data.name }}</b>
+            answering any exercises, please return to <b>{{ name: getCourseById.data.name }}</b>
             or change your active language in the settings.
           </Trans>
         </a>

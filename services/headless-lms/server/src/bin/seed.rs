@@ -1360,6 +1360,87 @@ async fn seed_sample_course(
     )
     .await?;
 
+    let (
+        quizzes_exercise_block_1,
+        quizzes_exercise_1,
+        quizzes_exercise_slide_1,
+        quizzes_exercise_task_1,
+    ) = quizzes_exercise(
+        Uuid::new_v5(&course_id, b"a6ee42d0-2200-43b7-9981-620753a9b5c0"),
+        Uuid::new_v5(&course_id, b"8d01d9b3-87d1-4e24-bee2-2726d3853ec6"),
+        Uuid::new_v5(&course_id, b"00dd984d-8651-404e-80b8-30fae9cf32ed"),
+        Uuid::new_v5(&course_id, b"a66c2552-8123-4287-bd8b-b49a29204870"),
+        Uuid::new_v5(&course_id, b"f6f63ff0-c119-4141-922b-bc04cbfa0a31"),
+        serde_json::json!({
+            "id": "a2704a2b-fe3d-4945-a007-5593e4b81195",
+            "body": "very hard",
+            "open": "2021-12-17T07:15:33.479Z",
+            "part": 0,
+            "items": [{
+                "id": "c449acf6-094e-494e-aef4-f5dfa51729ae",
+                "body": "",
+                "type": "essay",
+                "multi": false,
+                "order": 0,
+                "title": "write an essay",
+                "quizId": "a2704a2b-fe3d-4945-a007-5593e4b81195",
+                "options": [],
+                "maxValue": null,
+                "maxWords": 500,
+                "minValue": null,
+                "minWords": 10,
+                "createdAt": "2021-12-17T07:16:23.202Z",
+                "direction": "row",
+                "updatedAt": "2021-12-17T07:16:23.202Z",
+                "formatRegex": null,
+                "validityRegex": null,
+                "failureMessage": null,
+                "successMessage": null,
+                "allAnswersCorrect": false,
+                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
+                "sharedOptionFeedbackMessage": null,
+                "usesSharedOptionFeedbackMessage": false
+            }],
+            "title": "Pretty good exercise",
+            "tries": 1,
+            "points": 2,
+            "section": 0,
+            "courseId": "1dbd4a71-5f4c-49c9-b8a0-2e65fb8c4e0c",
+            "deadline": "2021-12-17T07:15:33.479Z",
+            "createdAt": "2021-12-17T07:15:33.479Z",
+            "updatedAt": "2021-12-17T07:15:33.479Z",
+            "autoReject": false,
+            "autoConfirm": true,
+            "triesLimited": true,
+            "submitMessage": "your submit has been answered",
+            "excludedFromScore": true,
+            "grantPointsPolicy": "grant_whenever_possible",
+            "awardPointsEvenIfWrong": false}),
+    );
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        chapter_1.id,
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-3".to_string(),
+            title: "page 3".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_1],
+            exercise_slides: vec![quizzes_exercise_slide_1],
+            exercise_tasks: vec![quizzes_exercise_task_1],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters last page.",
+                    Uuid::new_v5(&course_id, b"6e4ab83a-2ae8-4bd2-a6ea-0e0d1eeabe23")
+                ),
+                quizzes_exercise_block_1
+            ]),
+        },
+    )
+    .await?;
+
     let exercise_c2p1_1 = Uuid::new_v5(&course_id, b"8bb4faf4-9a34-4df7-a166-89ade530d0f6");
     let exercise_task_c2p1e1_1 = Uuid::new_v5(&course_id, b"a6508b8a-f58e-43ac-9f02-785575e716f5");
     let spec_c2p1e1t1_1 = Uuid::new_v5(&course_id, b"fe464d17-2365-4e65-8b33-e0ebb5a67836");
@@ -1973,6 +2054,52 @@ fn example_exercise(
     (block, exercise, exercise_slide, exercise_task)
 }
 
+#[allow(clippy::too_many_arguments)]
+fn quizzes_exercise(
+    exercise_id: Uuid,
+    exercise_slide_id: Uuid,
+    exercise_task_id: Uuid,
+    block_id: Uuid,
+    paragraph_id: Uuid,
+    private_spec: serde_json::Value,
+) -> (
+    GutenbergBlock,
+    CmsPageExercise,
+    CmsPageExerciseSlide,
+    CmsPageExerciseTask,
+) {
+    let block = GutenbergBlock {
+        client_id: block_id,
+        name: "moocfi/exercise".to_string(),
+        is_valid: true,
+        attributes: attributes! {
+            "id": exercise_id,
+            "name": "Best quizzes exercise".to_string(),
+            "dropCap": false,
+        },
+        inner_blocks: vec![],
+    };
+    let exercise = CmsPageExercise {
+        id: exercise_id,
+        name: "Best quizzes exercise".to_string(),
+        order_number: 1,
+    };
+    let exercise_slide = CmsPageExerciseSlide {
+        id: exercise_slide_id,
+        exercise_id,
+        order_number: 1,
+    };
+    let exercise_task = CmsPageExerciseTask {
+        id: exercise_task_id,
+        exercise_slide_id,
+        assignment: serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
+        exercise_type: "quizzes".to_string(),
+        private_spec: Some(serde_json::json!(private_spec)),
+    };
+    (block, exercise, exercise_slide, exercise_task)
+}
+
+#[allow(clippy::too_many_arguments)]
 async fn submit_and_grade(
     conn: &mut PgConnection,
     id: &[u8],

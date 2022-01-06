@@ -1,7 +1,48 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import React, { useState } from "react"
 
 import { QuizItemVariables } from "../../../../../types/types"
+
+interface CellInputStyleProps {
+  row: number
+  column: number
+  cellText: string
+  matrixSize: number[]
+  isActive: boolean
+}
+
+const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInputStyleProps) =>
+  css`
+    position: relative;
+    font-size: 2.8vw;
+    font-size: 22px;
+    font-family: Josefin Sans, sans-serif;
+    display: block;
+    width: 50px;
+    height: 50px;
+    border: 0;
+    outline: none;
+    text-align: center;
+    resize: none;
+    ${cellText === "" &&
+    (column > matrixSize[1] || row > matrixSize[0]) &&
+    `
+      background-color: #ECECEC;
+`}
+    ${(cellText !== "" && column > matrixSize[1]) ||
+    (cellText !== "" &&
+      row > matrixSize[0] &&
+      isActive &&
+      cellText.length === 0 &&
+      `
+      background-color: #DBDBDB;
+`)}
+  `
+
+const CellInputContainer = styled.input<CellInputStyleProps>`
+  ${cellInputStyle}
+`
 
 interface TableCellContentProps {
   rowLoop: number
@@ -19,7 +60,7 @@ const TableCellContent: React.FC<TableCellContentProps> = ({
   handleTextarea,
   matrixSize,
 }) => {
-  const [IsActive, setIsActive] = useState(false)
+  const [isActive, setIsActive] = useState(false)
   return (
     <>
       <td
@@ -36,37 +77,17 @@ const TableCellContent: React.FC<TableCellContentProps> = ({
           `}
         >
           <BorderDiv column={columnLoop} row={rowLoop} matrixSize={matrixSize}></BorderDiv>
-          <input
-            className={css`
-              position: relative;
-              font-size: 22px;
-              font-family: Josefin Sans, sans-serif;
-              display: block;
-              width: 50px;
-              height: 50px;
-              border: 0;
-              outline: none;
-              text-align: center;
-              resize: none;
-              ${cellText === "" &&
-              (columnLoop > matrixSize[1] || rowLoop > matrixSize[0]) &&
-              `
-            background-color: #ECECEC;
-          `}
-              ${(cellText !== "" && columnLoop > matrixSize[1]) ||
-              (cellText !== "" &&
-                rowLoop > matrixSize[0] &&
-                IsActive &&
-                cellText.length === 0 &&
-                `
-              background-color: #DBDBDB;
-              `)}
-            `}
+          <CellInputContainer
+            column={columnLoop}
+            row={rowLoop}
+            matrixSize={matrixSize}
+            cellText={cellText}
+            isActive={isActive}
             value={cellText ?? ""}
             onSelect={() => setIsActive(true)}
             onBlur={() => setIsActive(false)}
             onChange={(event) => handleTextarea(event.target.value, columnLoop, rowLoop)}
-          ></input>
+          ></CellInputContainer>
         </div>
       </td>
     </>

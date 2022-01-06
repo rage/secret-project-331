@@ -1,4 +1,4 @@
-import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import React, { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 
@@ -7,6 +7,27 @@ import { editedQuizItemOptionCells } from "../../../../store/editor/items/itemAc
 import { useTypedSelector } from "../../../../store/store"
 
 import TableCellContent from "./TableCellContent"
+
+const MatrixTableContainer = styled.table`
+  margin: auto;
+  background-color: grey;
+  border-collapse: collapse;
+  td {
+    border: 2px solid #e1e1e199;
+  }
+  &tr:first-child td {
+    border-top: 4px;
+  }
+  &tr td:first-child {
+    border-left: 4px;
+  }
+  &tr:last-child td {
+    border-bottom: 4px;
+  }
+  &tr td:last-child {
+    border-right: 4px;
+  }
+`
 
 interface TableContentProps {
   item: NormalizedQuizItem
@@ -68,27 +89,7 @@ const TableContent: React.FC<TableContentProps> = ({ item }) => {
   const tempArray = [0, 1, 2, 3, 4, 5]
   return (
     <>
-      <table
-        className={css`
-          background-color: grey;
-          border-collapse: collapse;
-          td {
-            border: 2px solid #e1e1e199;
-          }
-          &tr:first-child td {
-            border-top: 4px;
-          }
-          &tr td:first-child {
-            border-left: 4px;
-          }
-          &tr:last-child td {
-            border-bottom: 4px;
-          }
-          &tr td:last-child {
-            border-right: 4px;
-          }
-        `}
-      >
+      <MatrixTableContainer>
         <tbody>
           <>
             {tempArray.map((rowIndex) => (
@@ -117,7 +118,7 @@ const TableContent: React.FC<TableContentProps> = ({ item }) => {
             ))}
           </>
         </tbody>
-      </table>
+      </MatrixTableContainer>
     </>
   )
 }

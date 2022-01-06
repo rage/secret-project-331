@@ -1,10 +1,31 @@
-import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import React, { useCallback, useEffect, useState } from "react"
 
 import { QuizItemComponentProps } from ".."
 import { QuizItemAnswer } from "../../../../types/types"
 
 import MatrixCell from "./MatrixCell"
+
+const MatrixTableContainer = styled.table`
+  margin: auto;
+  background-color: grey;
+  border-collapse: collapse;
+  td {
+    border: 2px solid #e1e1e199;
+  }
+  &tr:first-child td {
+    border-top: 4px;
+  }
+  &tr td:first-child {
+    border-left: 4px;
+  }
+  &tr:last-child td {
+    border-bottom: 4px;
+  }
+  &tr td:last-child {
+    border-right: 4px;
+  }
+`
 
 export interface LeftBorderedDivProps {
   correct: boolean | undefined
@@ -96,28 +117,7 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   const tempArray = [0, 1, 2, 3, 4, 5]
   return (
     <>
-      <table
-        className={css`
-          margin: auto;
-          background-color: grey;
-          border-collapse: collapse;
-          td {
-            border: 2px solid #e1e1e199;
-          }
-          &tr:first-child td {
-            border-top: 4px;
-          }
-          &tr td:first-child {
-            border-left: 4px;
-          }
-          &tr:last-child td {
-            border-bottom: 4px;
-          }
-          &tr td:last-child {
-            border-right: 4px;
-          }
-        `}
-      >
+      <MatrixTableContainer>
         <tbody>
           <>
             {tempArray.map((rowIndex) => {
@@ -145,7 +145,7 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
             })}
           </>
         </tbody>
-      </table>
+      </MatrixTableContainer>
     </>
   )
 }

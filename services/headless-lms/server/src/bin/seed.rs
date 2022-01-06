@@ -388,39 +388,6 @@ async fn main() -> Result<()> {
         },
     )
     .await?;
-    let new_course = NewCourse {
-        name: "Introduction to Matrices".to_string(),
-        slug: "introduction-to-matrices".to_string(),
-        organization_id: uh_mathstat,
-        language_code: "en-US".to_string(),
-        teacher_in_charge_name: "admin".to_string(),
-        teacher_in_charge_email: "admin@example.com".to_string(),
-    };
-    let (matrices_course, _matrices_front_page, _matrices_default_course_instance) =
-        courses::insert_course(
-            &mut conn,
-            Uuid::parse_str("6ba48a9c-0460-45e5-b227-317cf8a5ac25")?,
-            Uuid::parse_str("13a338a2-cca3-468f-93f1-3fb93216262c")?,
-            new_course,
-            admin,
-        )
-        .await?;
-    let _matrices_course_instance = course_instances::insert(
-        &mut conn,
-        NewCourseInstance {
-            id: Uuid::parse_str("84b55cf7-2613-4f87-b794-e676db36dd9c")?,
-            course_id: matrices_course.id,
-            name: Some("non-default instance"),
-            description: Some("this appears to be a non-default instance"),
-            variant_status: Some(VariantStatus::Active),
-            support_email: Some("contact@example.com"),
-            teacher_in_charge_name: "admin",
-            teacher_in_charge_email: "admin@example.com",
-            opening_time: None,
-            closing_time: None,
-        },
-    )
-    .await?;
 
     // roles
     info!("roles");

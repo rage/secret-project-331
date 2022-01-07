@@ -1,3 +1,4 @@
+import { config } from "@fortawesome/fontawesome-svg-core"
 import { ThemeProvider } from "@material-ui/core"
 import type { AppProps } from "next/app"
 import Head from "next/head"
@@ -12,6 +13,9 @@ import muiTheme from "../shared-module/styles/muiTheme"
 import initI18n from "../shared-module/utils/initI18n"
 import "../styles/Gutenberg/style.scss"
 import LocalStyles from "../styles/LocalStyles"
+
+import "@fortawesome/fontawesome-svg-core/styles.css"
+config.autoAddCss = false
 
 // eslint-disable-next-line i18next/no-literal-string
 const i18n = initI18n("cms")

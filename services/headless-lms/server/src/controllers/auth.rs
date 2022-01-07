@@ -20,10 +20,27 @@ pub struct Login {
     password: String,
 }
 
-#[derive(Deserialize)]
-struct CurrentUser {
-    id: i32,
-    email: String,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GraphQLRquest<'a> {
+    query: &'a str,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MoocfiCurrentUserResponse {
+    pub data: MoocfiCurrentUserResponseData,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MoocfiCurrentUserResponseData {
+    #[serde(rename = "currentUser")]
+    pub current_user: MoocfiCurrentUser,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MoocfiCurrentUser {
+    pub id: Uuid,
+    pub email: String,
+    pub upstream_id: i32,
 }
 
 /**
@@ -41,6 +58,7 @@ pub async fn login(
     let Login { email, password } = payload.into_inner();
 
     if app_conf.development_uuid_login {
+        warn!("Trying development mode UUID login");
         if let Ok(id) = Uuid::parse_str(&email) {
             let user = { models::users::get_by_id(&mut conn, id).await? };
             authorization::remember(&session, user)?;
@@ -49,6 +67,7 @@ pub async fn login(
     }
 
     if app_conf.test_mode {
+        warn!("Using test credentials. Normal accounts won't work.");
         let user = {
             models::users::authenticate_test_user(
                 &mut conn,
@@ -69,7 +88,6 @@ pub async fn login(
         };
     }
 
-    // only used when testing
     let token = client
         .exchange_password(
             &ResourceOwnerUsername::new(email.clone()),
@@ -84,7 +102,7 @@ pub async fn login(
         ));
     }
 
-    let user = get_user_from_tmc(&token, &mut conn).await;
+    let user = get_user_from_moocfi(&token, &mut conn).await;
     if let Ok(user) = user {
         authorization::remember(&session, user)?;
         Ok(HttpResponse::Ok().finish())
@@ -128,25 +146,43 @@ pub type LoginToken = Result<
     >,
 >;
 
-pub async fn get_user_from_tmc(
+pub async fn get_user_from_moocfi(
     token: &LoginToken,
     conn: &mut PgConnection,
 ) -> ControllerResult<User> {
+    info!("Getting user details from mooc.fi");
     if let Ok(token) = token {
-        let current_user_url = "https://tmc.mooc.fi/api/v8/users/current";
+        let moocfi_graphql_url = "https://www.mooc.fi/api";
         let client = Client::default();
         let res = client
-            .get(current_user_url)
+            .post(moocfi_graphql_url)
+            .header(reqwest::header::CONTENT_TYPE, "application/json")
+            .header(reqwest::header::ACCEPT, "application/json")
+            .json(&GraphQLRquest {
+                query: r#"
+{
+    currentUser {
+    id
+    email
+    upstream_id
+    }
+}
+            "#,
+            })
             .bearer_auth(token.access_token().secret())
             .send()
             .await
-            .context("Failed to send request to TMC")?;
+            .context("Failed to send request to Mooc.fi")?;
         if !res.status().is_success() {
-            return Err(anyhow::anyhow!("Failed to get current user from TMC").into());
+            return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi").into());
         }
-        let current_user: CurrentUser = res.json().await.context("Unexpected response from TMC")?;
-        let upstream_id = current_user.id;
-        let email = current_user.email;
+        let current_user_response: MoocfiCurrentUserResponse = res
+            .json()
+            .await
+            .context("Unexpected response from Mooc.fi")?;
+        let upstream_id = current_user_response.data.current_user.upstream_id;
+        let email = current_user_response.data.current_user.email;
+        let moocfi_id = current_user_response.data.current_user.id;
 
         // fetch existing user or create new one
         let user = match models::users::find_by_upstream_id(conn, upstream_id)
@@ -154,7 +190,15 @@ pub async fn get_user_from_tmc(
             .context("Error while trying to find user")?
         {
             Some(existing_user) => existing_user,
-            None => models::users::insert_with_upstream_id(conn, &email, upstream_id).await?,
+            None => {
+                models::users::insert_with_upstream_id_and_moocfi_id(
+                    conn,
+                    &email,
+                    upstream_id,
+                    moocfi_id,
+                )
+                .await?
+            }
         };
         Ok(user)
     } else {

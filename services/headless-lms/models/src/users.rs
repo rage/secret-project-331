@@ -41,19 +41,21 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn insert_with_upstream_id(
+pub async fn insert_with_upstream_id_and_moocfi_id(
     conn: &mut PgConnection,
     email: &str,
     upstream_id: i32,
+    moocfi_id: Uuid,
 ) -> ModelResult<User> {
     let user = sqlx::query_as!(
         User,
         r#"
 INSERT INTO
-  users (email, upstream_id)
-VALUES ($1, $2)
+  users (id, email, upstream_id)
+VALUES ($1, $2, $3)
 RETURNING *;
           "#,
+        moocfi_id,
         email,
         upstream_id
     )

@@ -8,11 +8,11 @@ import CoursePageContext, {
   CoursePageDispatch,
   defaultCoursePageState,
 } from "../../../../contexts/CoursePageContext"
-import useQueryParameter from "../../../../hooks/useQueryParameter"
 import coursePageStateReducer from "../../../../reducers/coursePageStateReducer"
 import { fetchCoursePageByPath } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
+import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"

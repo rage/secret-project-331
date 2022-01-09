@@ -22,16 +22,10 @@ export const deletedItem = createAction("DELETED_ITEM", (itemId: string, quizId:
   quizId: quizId,
 }))<{ itemId: string; quizId: string }>()
 
-export const createdNewOption = createAction(
-  "CREATED_NEW_OPTION",
-  (itemId: string, text?: string, column?: number, row?: number) => ({
-    itemId: itemId,
-    optionId: v4(),
-    body: text,
-    column: column ?? null,
-    row: row ?? null,
-  }),
-)<{ itemId: string; optionId: string; body: string; column: number; row: number }>()
+export const createdNewOption = createAction("CREATED_NEW_OPTION", (itemId: string) => ({
+  itemId: itemId,
+  optionId: v4(),
+}))<{ itemId: string; optionId: string }>()
 
 export const deletedOption = createAction("DELETED_OPTION", (optionId: string, itemId: string) => ({
   optionId: optionId,

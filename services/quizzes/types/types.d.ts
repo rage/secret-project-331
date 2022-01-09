@@ -177,7 +177,6 @@ export interface QuizItemVariables {
   validRegex: boolean
   validFormatRegex: boolean
   newOptions: string[]
-  textValue: string
 }
 
 export interface PublicQuizItem {
@@ -206,8 +205,6 @@ export interface QuizItemOption {
   quizItemId?: string
   order: number
   correct: boolean
-  row: number | null
-  column: number | null
   createdAt: Date
   updatedAt: Date
   title: string
@@ -227,8 +224,6 @@ export interface NormalizedQuizItemOption {
   body: string | null
   successMessage: null | string
   failureMessage: null | string
-  row: number | null
-  column: number | null
 }
 
 export interface QuizItemOptionVariables {
@@ -241,8 +236,6 @@ export interface PublicQuizItemOption {
   order: number
   title: string | null
   body: string | null
-  row: number | null
-  column: number | null
 }
 
 export interface QuizAnswer {

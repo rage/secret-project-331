@@ -51,7 +51,6 @@ export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVa
           validRegex: true,
           validFormatRegex: true,
           newOptions: [],
-          textValue: "",
         }
       }
     })
@@ -155,7 +154,6 @@ export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVa
         validFormatRegex: true,
         array: [],
         newOptions: [],
-        textValue: "",
       }
     })
   })

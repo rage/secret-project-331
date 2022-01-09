@@ -32,15 +32,6 @@ export const editedOptionSuccessMessage = createAction(
   }),
 )<{ optionId: string; newMessage: string }>()
 
-export const addOptionLocationToPublicQuiz = createAction(
-  "ADD_OPTION_LOCATION_TO_PUBLIC_QUIZ",
-  (optionId: string, column: number, row: number) => ({
-    optionId: optionId,
-    column: column,
-    row: row,
-  }),
-)<{ optionId: string; column: number; row: number }>()
-
 export const editedOptionFailureMessage = createAction(
   "EDITED_OPTION_FAILURE_MESSAGE",
   (optionId: string, newMessage: string) => ({

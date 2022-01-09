@@ -13,7 +13,6 @@ import {
 } from "../editorActions"
 
 import {
-  addOptionLocationToPublicQuiz,
   editedOptionCorrectness,
   editedOptionFailureMessage,
   editedOptionSuccessMessage,
@@ -50,13 +49,6 @@ export const optionReducer = createReducer<
     })
   })
 
-  .handleAction(addOptionLocationToPublicQuiz, (state, action) => {
-    return produce(state, (draftState) => {
-      draftState[action.payload.optionId].column = action.payload.column
-      draftState[action.payload.optionId].row = action.payload.row
-    })
-  })
-
   .handleAction(createdNewOption, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.optionId] = {
@@ -70,8 +62,6 @@ export const optionReducer = createReducer<
         order: 0,
         successMessage: "",
         failureMessage: "",
-        row: action.payload.row,
-        column: action.payload.column,
       }
     })
   })

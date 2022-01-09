@@ -13,7 +13,7 @@ interface CellInputStyleProps {
 }
 
 const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInputStyleProps) =>
-  css`
+  `
     position: relative;
     font-size: 2.8vw;
     font-size: 22px;
@@ -25,19 +25,23 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     outline: none;
     text-align: center;
     resize: none;
-    ${cellText === "" &&
-    (column > matrixSize[1] || row > matrixSize[0]) &&
-    `
-      background-color: #ECECEC;
-`}
-    ${(cellText !== "" && column > matrixSize[1]) ||
-    (cellText !== "" &&
-      row > matrixSize[0] &&
-      isActive &&
-      cellText.length === 0 &&
+    ${
+      cellText === "" &&
+      (column > matrixSize[1] || row > matrixSize[0]) &&
       `
+      background-color: #ECECEC;
+`
+    }
+    ${
+      (cellText !== "" && column > matrixSize[1]) ||
+      (cellText !== "" &&
+        row > matrixSize[0] &&
+        isActive &&
+        cellText.length === 0 &&
+        `
       background-color: #DBDBDB;
-`)}
+`)
+    }
   `
 
 const CellInputContainer = styled.input<CellInputStyleProps>`

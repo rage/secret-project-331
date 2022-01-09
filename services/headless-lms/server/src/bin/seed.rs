@@ -1,5 +1,4 @@
 #![allow(clippy::too_many_arguments)]
-#![recursion_limit = "256"]
 
 use std::{env, process::Command};
 
@@ -1087,6 +1086,7 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    let array = vec![vec![0; 6]; 6];
     playground_examples::insert_playground_example(
         &mut conn,
         PlaygroundExampleData {
@@ -1123,7 +1123,7 @@ async fn main() -> Result<()> {
                         "title": "Matrices are interesting",
                         "type": "matrix",
                         "options": [],
-                        "optionCells": [[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]],[[],[],[],[],[],[]]],
+                        "optionCells": array,
                         }
                         ]}),
         },

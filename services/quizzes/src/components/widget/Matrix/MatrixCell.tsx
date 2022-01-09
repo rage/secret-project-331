@@ -11,7 +11,7 @@ interface CellInputStyleProps {
 }
 
 const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInputStyleProps) =>
-  css`
+  `
     position: relative;
     font-size: 2.8vw;
     font-size: 22px;
@@ -23,19 +23,23 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     outline: none;
     text-align: center;
     resize: none;
-    ${cellText === "" &&
-    (column > matrixSize[1] || row > matrixSize[0]) &&
-    `
-      background-color: #ECECEC;
-`}
-    ${(cellText !== "" && column > matrixSize[1]) ||
-    (cellText !== "" &&
-      row > matrixSize[0] &&
-      isActive &&
-      cellText.length === 0 &&
+    ${
+      cellText === "" &&
+      (column > matrixSize[1] || row > matrixSize[0]) &&
       `
+      background-color: #ECECEC;
+`
+    }
+    ${
+      (cellText !== "" && column > matrixSize[1]) ||
+      (cellText !== "" &&
+        row > matrixSize[0] &&
+        isActive &&
+        cellText.length === 0 &&
+        `
       background-color: #DBDBDB;
-`)}
+`)
+    }
   `
 
 const CellInputContainer = styled.input<CellInputStyleProps>`
@@ -69,12 +73,20 @@ const MatrixCell: React.FunctionComponent<MatrixCellProps> = ({
         font-family: Josefin Sans, sans-serif;
       `}
     >
-      {
+      <div
+        className={css`
+          height: 100%;
+          width: 100%;
+          position: relative;
+        `}
+      >
+        <BorderDiv column={column} row={row} matrixSize={matrixSize}></BorderDiv>
         <CellInputContainer
           // eslint-disable-next-line i18next/no-literal-string
           aria-label={`row: ${row}, column: ${column}`}
           column={column}
           row={row}
+          name={cellText}
           matrixSize={matrixSize}
           cellText={cellText}
           isActive={isActive}
@@ -84,8 +96,93 @@ const MatrixCell: React.FunctionComponent<MatrixCellProps> = ({
           onBlur={() => setIsActive(!isActive)}
           onChange={(event) => handleOptionSelect(event.target.value, column, row)}
         ></CellInputContainer>
-      }
+      </div>
     </td>
+  )
+}
+
+interface BorderDivProps {
+  column: number
+  row: number
+  matrixSize: number[]
+}
+
+const BorderDiv: React.FC<BorderDivProps> = ({ column, row, matrixSize }) => {
+  return (
+    <>
+      {column === 0 && row === 0 ? (
+        <div
+          className={css`
+            position: absolute;
+            border-top: 2px solid #333333;
+            left: 0;
+            top: -2px;
+            right: 50%;
+            z-index: 1;
+          `}
+        ></div>
+      ) : null}
+      {column === matrixSize[1] && row === 0 ? (
+        <div
+          className={css`
+            position: absolute;
+            border-top: 2px solid #333333;
+            right: 0;
+            top: -2px;
+            left: 50%;
+            z-index: 1;
+          `}
+        ></div>
+      ) : null}
+      {column === 0 && row <= matrixSize[0] ? (
+        <div
+          className={css`
+            position: absolute;
+            border-left: 2px solid #333333;
+            top: -2px;
+            bottom: -2px;
+            left: -2px;
+            z-index: 1;
+          `}
+        ></div>
+      ) : null}
+      {column === matrixSize[1] && row <= matrixSize[0] ? (
+        <div
+          className={css`
+            position: absolute;
+            border-right: 2px solid #333333;
+            top: -2px;
+            bottom: -2px;
+            right: -2px;
+            z-index: 1;
+          `}
+        ></div>
+      ) : null}
+      {column === 0 && row === matrixSize[0] ? (
+        <div
+          className={css`
+            position: absolute;
+            border-bottom: 2px solid #333333;
+            left: 0;
+            right: 50%;
+            bottom: -2px;
+            z-index: 1;
+          `}
+        ></div>
+      ) : null}
+      {column === matrixSize[1] && row === matrixSize[0] ? (
+        <div
+          className={css`
+            position: absolute;
+            border-bottom: 2px solid #333333;
+            right: 0;
+            left: 50%;
+            bottom: -2px;
+            z-index: 1;
+          `}
+        ></div>
+      ) : null}
+    </>
   )
 }
 

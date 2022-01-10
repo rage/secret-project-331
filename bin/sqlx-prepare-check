@@ -11,4 +11,4 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 run_command cd "$RELATIVE_PATH" || exit
 
 # We're using `--lib` instead of `--merge` because currently sqlx runs `cargo clean` when using `--merge` (https://github.com/launchbadge/sqlx/blob/e33e4510fcab184f6bb655be3ba811e7f8a5b63f/sqlx-cli/src/prepare.rs#L112) and that removes the dependency compilation cache. Using `--lib` makes this command and other cargo commands much faster.
-run_command cargo sqlx prepare --check --database-url postgres://headless-lms@localhost:54328/headless_lms_dev -- --lib
+run_command cargo sqlx prepare --check -- --lib

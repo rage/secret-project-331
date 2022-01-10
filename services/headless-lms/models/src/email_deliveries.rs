@@ -1,10 +1,6 @@
 use lettre::transport::smtp::Error;
 
-use anyhow::Result;
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use uuid::Uuid;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct EmailDelivery {
@@ -26,7 +22,7 @@ pub struct Email {
     pub body: Option<serde_json::Value>,
 }
 
-pub async fn fetch_emails(conn: &mut PgConnection) -> Result<Vec<Email>> {
+pub async fn fetch_emails(conn: &mut PgConnection) -> ModelResult<Vec<Email>> {
     let emails = sqlx::query_as!(
         Email,
         "
@@ -49,7 +45,7 @@ LIMIT 10000;
     Ok(emails)
 }
 
-pub async fn mark_as_sent(email_id: Uuid, conn: &mut PgConnection) -> Result<()> {
+pub async fn mark_as_sent(email_id: Uuid, conn: &mut PgConnection) -> ModelResult<()> {
     sqlx::query!(
         "
 update email_deliveries
@@ -64,7 +60,11 @@ where id = $1;
     Ok(())
 }
 
-pub async fn save_err_to_email(email_id: Uuid, err: Error, conn: &mut PgConnection) -> Result<()> {
+pub async fn save_err_to_email(
+    email_id: Uuid,
+    err: Error,
+    conn: &mut PgConnection,
+) -> ModelResult<()> {
     sqlx::query!(
         "
 update email_deliveries

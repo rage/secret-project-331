@@ -1,21 +1,15 @@
-use super::{
+use crate::{
     course_instances,
-    exercise_tasks::{self, get_existing_user_exercise_task_for_course_instance},
+    exercise_service_info::{
+        get_course_material_service_info_by_exercise_type, CourseMaterialExerciseServiceInfo,
+    },
+    exercise_tasks::{
+        self, get_existing_user_exercise_task_for_course_instance, CourseMaterialExerciseTask,
+    },
     gradings::Grading,
+    prelude::*,
     submissions::Submission,
-    user_course_settings, ModelResult,
-};
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use ts_rs::TS;
-use uuid::Uuid;
-
-use crate::{exercise_service_info::get_course_material_service_info_by_exercise_type, ModelError};
-
-use super::{
-    exercise_service_info::CourseMaterialExerciseServiceInfo,
-    exercise_tasks::CourseMaterialExerciseTask,
+    user_course_settings,
     user_exercise_states::get_user_exercise_state_if_exits,
 };
 
@@ -54,7 +48,7 @@ pub struct CourseMaterialExercise {
 /**
 Indicates what is the user's completion status for a exercise.
 
-As close as possible to LTI's activity progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress.
+As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
 */
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
 #[sqlx(type_name = "activity_progress", rename_all = "snake_case")]
@@ -75,7 +69,7 @@ pub enum ActivityProgress {
 
 Tells what's the status of the grading progress for a user and exercise.
 
-As close as possible LTI's grading progress for compatibility: https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress
+As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
 */
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
 #[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]
@@ -198,7 +192,7 @@ ORDER BY order_number ASC
 
 pub async fn get_exercises_by_chapter_id(
     conn: &mut PgConnection,
-    chapter_id: &Uuid,
+    chapter_id: Uuid,
 ) -> ModelResult<Vec<Exercise>> {
     let exercises = sqlx::query_as!(
         Exercise,
@@ -432,10 +426,9 @@ async fn get_or_select_exercise_task(
             info!("selecting exam task {:#?}", task);
             Ok((task, Some(InstanceOrExamId::Exam(exam_id))))
         }
-        (Some(_), ..) => Err(anyhow::anyhow!(
-            "The selected exercise is not attached to any course or exam"
-        )
-        .into()),
+        (Some(_), ..) => Err(ModelError::Generic(
+            "The selected exercise is not attached to any course or exam".to_string(),
+        )),
     }
 }
 
@@ -462,6 +455,7 @@ RETURNING id;
 
 #[cfg(test)]
 mod test {
+    use headless_lms_utils::document_schema_processor::GutenbergBlock;
     use serde_json::{Map, Value};
 
     use super::*;
@@ -472,7 +466,6 @@ mod test {
         course_language_groups, courses, exercise_slides, exercise_tasks, organizations, pages,
         test_helper::Conn,
         users,
-        utils::document_schema_processor::GutenbergBlock,
     };
 
     #[tokio::test]

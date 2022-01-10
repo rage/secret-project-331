@@ -1,37 +1,28 @@
-use super::{
-    chapters::{self, ChapterStatus},
-    course_instances::{self, CourseInstance},
-    courses::Course,
-    exercise_slides::ExerciseSlide,
-    user_course_settings::{self, UserCourseSettings},
-    ModelResult,
-};
-use crate::{
-    chapters::DatabaseChapter,
-    exercise_service_info,
-    exercise_services::{get_internal_public_spec_url, get_model_solution_url},
-    exercise_tasks::ExerciseTask,
-    exercises::Exercise,
-    page_history::{self, HistoryChangeReason, PageHistoryContent},
-    utils::document_schema_processor::{
-        contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
-    },
-    ModelError,
-};
-
-use anyhow::Context;
-use chrono::{DateTime, Utc};
-use futures::future::OptionFuture;
-use itertools::Itertools;
-use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, FromRow, PgConnection};
 use std::{
     collections::{hash_map, HashMap},
     time::Duration,
 };
-use ts_rs::TS;
+
+use futures::future::OptionFuture;
+use headless_lms_utils::document_schema_processor::{
+    contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
+};
+use itertools::Itertools;
 use url::Url;
-use uuid::Uuid;
+
+use crate::{
+    chapters::{self, ChapterStatus, DatabaseChapter},
+    course_instances::{self, CourseInstance},
+    courses::Course,
+    exercise_service_info,
+    exercise_services::{get_internal_public_spec_url, get_model_solution_url},
+    exercise_slides::ExerciseSlide,
+    exercise_tasks::ExerciseTask,
+    exercises::Exercise,
+    page_history::{self, HistoryChangeReason, PageHistoryContent},
+    prelude::*,
+    user_course_settings::{self, UserCourseSettings},
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Page {
@@ -695,7 +686,7 @@ RETURNING id,
     .await?;
 
     // Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well
-    let new_content = crate::utils::document_schema_processor::remap_ids_in_content(
+    let new_content = headless_lms_utils::document_schema_processor::remap_ids_in_content(
         &page.content,
         remapped_exercises
             .iter()
@@ -745,8 +736,7 @@ RETURNING id,
         author,
         None,
     )
-    .await
-    .context("Failed to create a page history entry")?;
+    .await?;
     let organization_id = get_organization_id(&mut tx, page.id).await?;
 
     tx.commit().await?;

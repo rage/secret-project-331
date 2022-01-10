@@ -1,17 +1,14 @@
-use super::{
+use std::{collections::HashMap, time::Duration};
+
+use reqwest::IntoUrl;
+use url::Url;
+
+use crate::{
     exercise_services::{
         get_exercise_service_by_exercise_type, get_exercise_services, ExerciseService,
     },
-    ModelError, ModelResult,
+    prelude::*,
 };
-use chrono::{DateTime, Utc};
-use reqwest::IntoUrl;
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use std::{collections::HashMap, time::Duration};
-use ts_rs::TS;
-use url::Url;
-use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct ExerciseServiceInfo {

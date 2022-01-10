@@ -50,13 +50,11 @@ test("test quizzes essay feedback", async ({ headless, page }) => {
 
   await frame.fill(
     `textarea:below(:text("Word count"))`,
-    `very hard essay about big data, by the guy who runs the NSA:
+    `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin quis orci nec augue bibendum lobortis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Sed venenatis, purus in venenatis rutrum, turpis velit fermentum libero, eu eleifend elit purus id arcu. Sed sodales velit id mauris auctor, at tempor urna maximus. Aenean vulputate pellentesque mollis. In lacinia malesuada orci, ac tincidunt metus tempor ac. Morbi porta posuere nisi, in fringilla lacus ultricies pulvinar.
 
-    There's also the whole myth that the Pentagon is more or less listening in on all sorts of communications, the things that are really important to US national security. What's so hard about this? It's because this is the very heart of US national security at the moment. A US president can no longer stand the kind of military, intelligence, financial muscle that was used to send US citizens to war zones. If we don't do something about it, then we have one of the world's worst privacy problems. It is also one of the very least-privileged parts of our society. The other problem that makes things difficult is the fact that there doesn't seem to be a big effort in Washington or at the NSA to solve the problem.
+    Suspendisse vitae feugiat est. Nulla ex tortor, feugiat et ipsum vel, dapibus congue quam. Ut justo augue, dignissim id diam vel, tincidunt bibendum libero. Nam dignissim nibh in purus finibus porta. Aliquam egestas risus non vulputate egestas. Nam vel posuere neque. Nunc ut commodo orci, et rutrum risus. Pellentesque eleifend consequat ultricies. Integer nulla massa, pharetra non augue sit amet, pulvinar finibus orci. Suspendisse gravida sagittis lacinia.
 
-    To put the Pentagon in the context of the Pentagon on steroids: "The Pentagon is the most militarized bureaucracy in the history of the planet." The National Security Council and the intelligence community should not make things more difficult for their citizens. To quote,
-
-    It has come to light that at least 75% of the staff is out of job. The US government has an astounding 75%, a total of 75%. The vast majority of US military personnel are not considered at all active members of the Army or Navy. That is not to say that the Navy is not also in conflict. The vast majority of their personnel have served in combat. There are more`,
+    Mauris sed volutpat est. Sed pharetra a turpis at hendrerit. Donec nibh enim, tincidunt eu porta id, placerat a orci. Proin porttitor tristique mattis. Curabitur facilisis sapien sed lorem dignissim pulvinar. Mauris egestas, lacus ac mattis pretium, purus sapien posuere turpis, nec tristique lectus leo non risus. Aliquam erat volutpat. Proin ac tempus sem, id facilisis augue. Vivamus vel elit ultrices magna pretium finibus sed in quam. Curabitur urna arcu, porta ut interdum id, ullamcorper non arcu. Proin in mauris ante. Maecenas lobortis maximus dolor, nec lacinia tellus.`,
   )
 
   await page.click("text=Submit")

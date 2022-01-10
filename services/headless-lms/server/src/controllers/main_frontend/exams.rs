@@ -8,6 +8,11 @@ use crate::{
     domain::csv_export::{self, CSVExportAdapter},
 };
 
+/**
+GET `/api/v0/main-frontend/exams/:id
+*/
+#[cfg_attr(doc, doc = generated_docs!(Exam))]
+#[instrument(skip(pool))]
 pub async fn get_exam(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
@@ -24,6 +29,11 @@ pub struct ExamCourseInfo {
     course_id: Uuid,
 }
 
+/**
+POST `/api/v0/main-frontend/exams/:id/set`
+*/
+#[cfg_attr(doc, doc = generated_docs!(()))]
+#[instrument(skip(pool))]
 pub async fn set_course(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
@@ -37,6 +47,11 @@ pub async fn set_course(
     Ok(web::Json(()))
 }
 
+/**
+POST `/api/v0/main-frontend/exams/:id/unset`
+*/
+#[cfg_attr(doc, doc = generated_docs!(()))]
+#[instrument(skip(pool))]
 pub async fn unset_course(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
@@ -50,6 +65,9 @@ pub async fn unset_course(
     Ok(web::Json(()))
 }
 
+/**
+GET `/api/v0/main-frontend/exams/:id/export-points`
+*/
 #[instrument(skip(pool))]
 pub async fn export_points(
     exam_id_path: web::Path<Uuid>,
@@ -87,6 +105,9 @@ pub async fn export_points(
         .streaming(UnboundedReceiverStream::new(receiver)))
 }
 
+/**
+GET `/api/v0/main-frontend/exams/:id/export-submissions`
+*/
 #[instrument(skip(pool))]
 pub async fn export_submissions(
     exam_id_path: web::Path<Uuid>,

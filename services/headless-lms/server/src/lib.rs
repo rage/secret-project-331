@@ -10,6 +10,9 @@ pub mod ts_binding_generator;
 #[macro_use]
 extern crate tracing;
 
+#[macro_use]
+extern crate doc_macro;
+
 use std::sync::Arc;
 
 use actix_http::{body::AnyBody, StatusCode};

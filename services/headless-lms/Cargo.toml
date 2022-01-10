@@ -3,6 +3,7 @@ members = [
   "server",
   "models",
   "utils",
+  "doc-macro",
 ]
 
 [profile.dev]

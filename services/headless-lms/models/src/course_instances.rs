@@ -305,9 +305,9 @@ WHERE id = $2;
 #[derive(Debug, Serialize, TS)]
 pub struct ChapterScore {
     #[serde(flatten)]
-    chapter: DatabaseChapter,
-    score_given: f32,
-    score_total: i32,
+    pub chapter: DatabaseChapter,
+    pub score_given: f32,
+    pub score_total: i32,
 }
 
 #[derive(Debug, Default, Serialize, TS)]
@@ -315,10 +315,10 @@ pub struct PointMap(pub HashMap<Uuid, f32>);
 
 #[derive(Debug, Serialize, TS)]
 pub struct Points {
-    chapter_points: Vec<ChapterScore>,
-    users: Vec<User>,
+    pub chapter_points: Vec<ChapterScore>,
+    pub users: Vec<User>,
     // PointMap is a workaround for https://github.com/rhys-vdw/ts-auto-guard/issues/158
-    user_chapter_points: HashMap<Uuid, PointMap>,
+    pub user_chapter_points: HashMap<Uuid, PointMap>,
 }
 
 pub async fn get_points(

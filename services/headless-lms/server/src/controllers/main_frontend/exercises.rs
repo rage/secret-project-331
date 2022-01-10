@@ -7,35 +7,14 @@ use crate::controllers::prelude::*;
 
 #[derive(Debug, Serialize, TS)]
 pub struct ExerciseSubmissions {
-    data: Vec<Submission>,
-    total_pages: u32,
+    pub data: Vec<Submission>,
+    pub total_pages: u32,
 }
 
 /**
 GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exercise's submissions.
-
-# Example
-```json
-{
-    "data": [
-        {
-            "id": "f87e11e4-c6e5-40cc-bde7-7c371609643f",
-            "created_at": "2021-03-08T21:50:51.065821",
-            "updated_at": "2021-03-08T21:50:51.065821",
-            "deleted_at": null,
-            "exercise_id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
-            "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
-            "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
-            "data_json": null,
-            "grading_id": null,
-            "metadata": null,
-            "user_id": "0589dc46-71a9-4220-baf2-d2f0dc77ef9a"
-        }
-    ],
-    "total_pages": 2
-}
-```
  */
+#[cfg_attr(doc, doc = generated_docs!(ExerciseSubmissions))]
 #[instrument(skip(pool))]
 async fn get_exercise_submissions(
     pool: web::Data<PgPool>,

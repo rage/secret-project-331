@@ -553,8 +553,8 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ProposalCount</span> {
-    <span class="ident">pending</span>: <span class="ident">u32</span>,
-    <span class="ident">handled</span>: <span class="ident">u32</span>,
+    <span class="kw">pub</span> <span class="ident">pending</span>: <span class="ident">u32</span>,
+    <span class="kw">pub</span> <span class="ident">handled</span>: <span class="ident">u32</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(

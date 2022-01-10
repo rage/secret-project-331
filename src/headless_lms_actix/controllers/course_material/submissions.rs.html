@@ -114,43 +114,6 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
-<span id="130">130</span>
-<span id="131">131</span>
-<span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/submissions`.</span>
 
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">Duration</span>, <span class="ident">Utc</span>};
@@ -176,50 +139,8 @@ Content-Type: application/json
   &quot;data_json&quot;: { &quot;selectedOptionId&quot;: &quot;8f09e9a0-ac20-486a-ba29-704e7eeaf6af&quot; }
 }
 ```
-
-Response:
-
-```json
-{
-  &quot;submission&quot;: {
-    &quot;id&quot;: &quot;e5c53d36-cb0a-4df4-8571-17a13d36f488&quot;,
-    &quot;created_at&quot;: &quot;2021-06-10T15:28:16.793335Z&quot;,
-    &quot;updated_at&quot;: &quot;2021-06-10T15:28:16.845037Z&quot;,
-    &quot;deleted_at&quot;: null,
-    &quot;exercise_id&quot;: &quot;34e47a8e-d573-43be-8f23-79128cbb29b8&quot;,
-    &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
-    &quot;course_instance_id&quot;: &quot;25800692-0d99-4f29-b741-92d69b0900b9&quot;,
-    &quot;exercise_task_id&quot;: &quot;0125c21b-6afa-4652-89f7-56c48bd8ffe4&quot;,
-    &quot;data_json&quot;: {
-      &quot;selectedOptionId&quot;: &quot;8f09e9a0-ac20-486a-ba29-704e7eeaf6af&quot;
-    },
-    &quot;grading_id&quot;: &quot;6bd767fb-97ce-47d6-8e34-b105cf1e035b&quot;,
-    &quot;metadata&quot;: null,
-    &quot;user_id&quot;: &quot;0278dd58-30b9-4037-bba9-d1b9bb5f1d66&quot;
-  },
-  &quot;grading&quot;: {
-    &quot;id&quot;: &quot;6bd767fb-97ce-47d6-8e34-b105cf1e035b&quot;,
-    &quot;created_at&quot;: &quot;2021-06-10T15:28:16.829438Z&quot;,
-    &quot;updated_at&quot;: &quot;2021-06-10T15:28:17.165327Z&quot;,
-    &quot;submission_id&quot;: &quot;e5c53d36-cb0a-4df4-8571-17a13d36f488&quot;,
-    &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
-    &quot;exercise_id&quot;: &quot;34e47a8e-d573-43be-8f23-79128cbb29b8&quot;,
-    &quot;exercise_task_id&quot;: &quot;0125c21b-6afa-4652-89f7-56c48bd8ffe4&quot;,
-    &quot;grading_priority&quot;: 100,
-    &quot;score_given&quot;: 1.0,
-    &quot;grading_progress&quot;: &quot;FullyGraded&quot;,
-    &quot;user_points_update_strategy&quot;: &quot;CanAddPointsButCannotRemovePoints&quot;,
-    &quot;unscaled_score_maximum&quot;: 1.0,
-    &quot;unscaled_max_points&quot;: 1,
-    &quot;grading_started_at&quot;: &quot;2021-06-10T15:28:16.829438Z&quot;,
-    &quot;grading_completed_at&quot;: &quot;2021-06-10T15:28:17.147231Z&quot;,
-    &quot;feedback_json&quot;: null,
-    &quot;feedback_text&quot;: &quot;Good job!&quot;,
-    &quot;deleted_at&quot;: null
-  }
-}
-```
  */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">SubmissionResult</span>))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_submission</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -262,12 +183,17 @@ Response:
     <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">submission</span>))
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">TS</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PreviousSubmission</span> {
     <span class="kw">pub</span> <span class="ident">submission</span>: <span class="ident">Submission</span>,
     <span class="kw">pub</span> <span class="ident">grading</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Grading</span><span class="op">&gt;</span>,
 }
 
+<span class="doccomment">/**
+GET `/api/v0/course-material/previous-for-exercise/:id` - Gets the previous submission for the given exercise.
+*/</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PreviousSubmission</span><span class="op">&gt;</span>))]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">previous_submission</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">exercise_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,

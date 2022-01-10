@@ -35,60 +35,6 @@
 <span id="35">35</span>
 <span id="36">36</span>
 <span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
-<span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
-<span id="50">50</span>
-<span id="51">51</span>
-<span id="52">52</span>
-<span id="53">53</span>
-<span id="54">54</span>
-<span id="55">55</span>
-<span id="56">56</span>
-<span id="57">57</span>
-<span id="58">58</span>
-<span id="59">59</span>
-<span id="60">60</span>
-<span id="61">61</span>
-<span id="62">62</span>
-<span id="63">63</span>
-<span id="64">64</span>
-<span id="65">65</span>
-<span id="66">66</span>
-<span id="67">67</span>
-<span id="68">68</span>
-<span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
-<span id="86">86</span>
-<span id="87">87</span>
-<span id="88">88</span>
-<span id="89">89</span>
-<span id="90">90</span>
-<span id="91">91</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/exercises`.</span>
 
 <span class="kw">use</span> <span class="ident">models::exercises::CourseMaterialExercise</span>;
@@ -101,62 +47,8 @@ relevant context so that doing the exercise is possible based on the response.
 
 This endpoint does not expose exercise&#39;s private spec because it would
 expose the correct answers to the user.
-
-# Example
-```json
-{
-  &quot;exercise&quot;: {
-    &quot;id&quot;: &quot;a4d42748-d561-4e04-a175-a299e373d35f&quot;,
-    &quot;created_at&quot;: &quot;2021-07-02T05:33:05.229362Z&quot;,
-    &quot;updated_at&quot;: &quot;2021-07-02T05:33:05.229362Z&quot;,
-    &quot;name&quot;: &quot;Best exercise&quot;,
-    &quot;course_id&quot;: &quot;355de239-02c0-4262-aa85-1c10e9d69dc3&quot;,
-    &quot;page_id&quot;: &quot;15d4c6ab-6465-41e6-8860-b59d85fb9f1d&quot;,
-    &quot;deadline&quot;: null,
-    &quot;deleted_at&quot;: null,
-    &quot;score_maximum&quot;: 1,
-    &quot;order_number&quot;: 1
-  },
-  &quot;current_exercise_task&quot;: {
-    &quot;id&quot;: &quot;855d2212-9e2c-41f9-9937-39c65963555e&quot;,
-    &quot;exercise_id&quot;: &quot;a4d42748-d561-4e04-a175-a299e373d35f&quot;,
-    &quot;exercise_type&quot;: &quot;example-exercise&quot;,
-    &quot;assignment&quot;: {
-      &quot;name&quot;: &quot;core/paragraph&quot;,
-      &quot;isValid&quot;: true,
-      &quot;clientId&quot;: &quot;187a0aea-c088-4354-a1ea-f0cab082c065&quot;,
-      &quot;attributes&quot;: {
-        &quot;content&quot;: &quot;Answer this question.&quot;,
-        &quot;dropCap&quot;: false
-      },
-      &quot;innerBlocks&quot;: []
-    },
-    &quot;public_spec&quot;: [
-      {
-        &quot;id&quot;: &quot;7ab2591c-b0f3-4543-9548-a113849b0f94&quot;,
-        &quot;name&quot;: &quot;a&quot;
-      },
-      {
-        &quot;id&quot;: &quot;a833d1df-f27b-4fbf-b516-883a62c09d88&quot;,
-        &quot;name&quot;: &quot;b&quot;
-      },
-      {
-        &quot;id&quot;: &quot;03d4b3d4-88af-4125-88b7-4ee052fd876f&quot;,
-        &quot;name&quot;: &quot;c&quot;
-      }
-    ]
-  },
-  &quot;current_exercise_task_service_info&quot;: {
-    &quot;exercise_iframe_url&quot;: &quot;http://project-331.local/example-exercise/exercise&quot;
-  },
-  &quot;exercise_status&quot;: {
-    &quot;score_given&quot;: null,
-    &quot;activity_progress&quot;: &quot;Initialized&quot;,
-    &quot;grading_progress&quot;: &quot;NotReady&quot;
-  }
-}
-```
- */</span>
+*/</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">CourseMaterialExercise</span>))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,

@@ -866,9 +866,9 @@ WHERE id = $2;
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChapterScore</span> {
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-    <span class="ident">chapter</span>: <span class="ident">DatabaseChapter</span>,
-    <span class="ident">score_given</span>: <span class="ident">f32</span>,
-    <span class="ident">score_total</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">chapter</span>: <span class="ident">DatabaseChapter</span>,
+    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="ident">f32</span>,
+    <span class="kw">pub</span> <span class="ident">score_total</span>: <span class="ident">i32</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Serialize</span>, <span class="ident">TS</span>)]</span>
@@ -876,10 +876,10 @@ WHERE id = $2;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Points</span> {
-    <span class="ident">chapter_points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ChapterScore</span><span class="op">&gt;</span>,
-    <span class="ident">users</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">chapter_points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ChapterScore</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">users</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span>,
     <span class="comment">// PointMap is a workaround for https://github.com/rhys-vdw/ts-auto-guard/issues/158</span>
-    <span class="ident">user_chapter_points</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">PointMap</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">user_chapter_points</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">PointMap</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_points</span>(

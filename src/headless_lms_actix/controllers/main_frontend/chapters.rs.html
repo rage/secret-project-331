@@ -233,61 +233,6 @@
 <span id="233">233</span>
 <span id="234">234</span>
 <span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/chapters`.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">path::PathBuf</span>, <span class="ident">str::FromStr</span>};
@@ -312,22 +257,8 @@ Content-Type: application/json
     &quot;front_page_id&quot;: null
 }
 ```
-
-Response:
-```json
-{
-  &quot;id&quot;: &quot;037ec5fa-87e0-4031-be65-3790fee92954&quot;,
-  &quot;created_at&quot;: &quot;2021-04-28T16:33:42.670935&quot;,
-  &quot;updated_at&quot;: &quot;2021-04-28T16:33:42.670935&quot;,
-  &quot;name&quot;: &quot;The Basics&quot;,
-  &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
-  &quot;deleted_at&quot;: null,
-  &quot;chapter_image_url&quot;: null,
-  &quot;chapter_number&quot;: 1,
-  &quot;front_page_id&quot;: null
-}
-```
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Chapter</span>))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_new_chapter</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -356,22 +287,8 @@ Response:
 
 <span class="doccomment">/**
 DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a course part.
-# Example
-
-```json
-{
-  &quot;id&quot;: &quot;037ec5fa-87e0-4031-be65-3790fee92954&quot;,
-  &quot;created_at&quot;: &quot;2021-04-28T16:33:42.670935&quot;,
-  &quot;updated_at&quot;: &quot;2021-04-28T16:33:42.670935&quot;,
-  &quot;name&quot;: &quot;The Basics&quot;,
-  &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
-  &quot;deleted_at&quot;: &quot;2021-04-28T16:33:42.670935&quot;,
-  &quot;chapter_image_url&quot;: null,
-  &quot;chapter_number&quot;: 1,
-  &quot;front_page_id&quot;: &quot;0ebba931-b027-4154-8274-2afb00d79306&quot;
-}
-```
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Chapter</span>))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_chapter</span>(
     <span class="ident">chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
@@ -408,22 +325,8 @@ Content-Type: application/json
 }
 
 ```
-
-Response:
-```json
-{
-  &quot;id&quot;: &quot;d332f3d9-39a5-4a18-80f4-251727693c37&quot;,
-  &quot;created_at&quot;: &quot;2021-04-28T16:11:47.477850&quot;,
-  &quot;updated_at&quot;: &quot;2021-04-28T16:53:14.896121&quot;,
-  &quot;name&quot;: &quot;The Basics&quot;,
-  &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
-  &quot;deleted_at&quot;: null,
-  &quot;chapter_image_url&quot;: null,
-  &quot;chapter_number&quot;: 2,
-  &quot;front_page_id&quot;: &quot;0ebba931-b027-4154-8274-2afb00d79306&quot;
-}
-```
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Chapter</span>))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">payload</span>, <span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_chapter</span>(
     <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ChapterUpdate</span><span class="op">&gt;</span>,
@@ -457,22 +360,8 @@ Content-Type: multipart/form-data
 
 BINARY_DATA
 ```
-
-Response:
-```json
-{
-  &quot;id&quot;: &quot;d332f3d9-39a5-4a18-80f4-251727693c37&quot;,
-  &quot;created_at&quot;: &quot;2021-04-28T16:11:47.477850&quot;,
-  &quot;updated_at&quot;: &quot;2021-04-28T16:53:14.896121&quot;,
-  &quot;name&quot;: &quot;The Basics&quot;,
-  &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
-  &quot;deleted_at&quot;: null,
-  &quot;chapter_image_url&quot;: &quot;http://project-331.local/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png&quot;,
-  &quot;chapter_number&quot;: 2,
-  &quot;front_page_id&quot;: &quot;0ebba931-b027-4154-8274-2afb00d79306&quot;
-}
-```
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Chapter</span>))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">request</span>, <span class="ident">payload</span>, <span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_chapter_image</span>(
     <span class="ident">request</span>: <span class="ident">HttpRequest</span>,
@@ -533,6 +422,7 @@ Request:
 DELETE /api/v0/main-frontend/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
 ```
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(()))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove_chapter_image</span>(
     <span class="ident">chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,

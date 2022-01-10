@@ -336,151 +336,6 @@
 <span id="336">336</span>
 <span id="337">337</span>
 <span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
-<span id="365">365</span>
-<span id="366">366</span>
-<span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.</span>
 
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
@@ -499,8 +354,9 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/**
-GET `/api/v0/main-frontend/courses/:course_id` - Get course.
+GET `/api/v0/course-material/courses/:course_id` - Get course.
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Course</span>))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course</span>(
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -515,24 +371,9 @@ GET `/api/v0/main-frontend/courses/:course_id` - Get course.
 <span class="doccomment">/**
 GET `/:course_slug/page-by-path/...` - Returns a course page by path
 # Example
-
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
-
-
-```json
-{
-  &quot;id&quot;: &quot;d32cc3cd-adfe-456a-a25f-032ee02db4c2&quot;,
-  &quot;created_at&quot;: &quot;2021-03-12T09:20:16.381347&quot;,
-  &quot;updated_at&quot;: &quot;2021-03-19T15:12:33.603977&quot;,
-  &quot;course_id&quot;: &quot;10363c5b-82b4-4121-8ef1-bae8fb42a5ce&quot;,
-  &quot;content&quot;: [],
-  &quot;url_path&quot;: &quot;/part-2/hello-world&quot;,
-  &quot;title&quot;: &quot;Hello world!&quot;,
-  &quot;deleted_at&quot;: null,
-  &quot;chapter_id&quot;: &quot;2495ffa3-7ea9-4615-baa5-828023688c79&quot;
-}
-```
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">CoursePageWithUserData</span>))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_page_by_path</span>(
     <span class="ident">params</span>: <span class="ident">web::Path</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
@@ -560,23 +401,8 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
 
 <span class="doccomment">/**
 GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
-
-# Example
-```json
-{
-  &quot;id&quot;: &quot;e051ddb5-2128-4215-adda-ebd74a0ea46b&quot;,
-  &quot;created_at&quot;: &quot;2021-06-28T00:21:11.780420Z&quot;,
-  &quot;updated_at&quot;: &quot;2021-06-28T00:21:11.780420Z&quot;,
-  &quot;deleted_at&quot;: null,
-  &quot;course_id&quot;: &quot;b8077bc2-0816-4c05-a651-d2d75d697fdf&quot;,
-  &quot;starts_at&quot;: null,
-  &quot;ends_at&quot;: null,
-  &quot;name&quot;: null,
-  &quot;description&quot;: null,
-  &quot;variant_status&quot;: &quot;Active&quot;
-}
-```
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">CourseInstance</span>))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_current_course_instance</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -597,25 +423,8 @@ GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the 
 
 <span class="doccomment">/**
 GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
-
-# Example
-```json
-[
-  {
-    &quot;id&quot;: &quot;e051ddb5-2128-4215-adda-ebd74a0ea46b&quot;,
-    &quot;created_at&quot;: &quot;2021-06-28T00:21:11.780420Z&quot;,
-    &quot;updated_at&quot;: &quot;2021-06-28T00:21:11.780420Z&quot;,
-    &quot;deleted_at&quot;: null,
-    &quot;course_id&quot;: &quot;b8077bc2-0816-4c05-a651-d2d75d697fdf&quot;,
-    &quot;starts_at&quot;: null,
-    &quot;ends_at&quot;: null,
-    &quot;name&quot;: null,
-    &quot;description&quot;: null,
-    &quot;variant_status&quot;: &quot;Active&quot;
-  }
-]
-```
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_instances</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -628,26 +437,8 @@ GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all 
 
 <span class="doccomment">/**
 GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages in a course.
-# Example
-```json
-[
-    {
-        &quot;id&quot;: &quot;86ac4f0a-ccca-464e-89f4-ed58969b1103&quot;,
-        &quot;created_at&quot;: &quot;2021-03-05T22:50:47.920120&quot;,
-        &quot;updated_at&quot;: &quot;2021-03-05T22:50:47.920120&quot;,
-        &quot;course_id&quot;: &quot;a90c39f8-5d23-461f-8375-0b05a55d7ac1&quot;,
-        &quot;content&quot;: [
-            {
-                &quot;id&quot;: &quot;55be197d-4145-444a-bc1f-ee1091c47ad9&quot;
-            }
-        ],
-        &quot;url_path&quot;: &quot;/part-1/01-loops-and-variables&quot;,
-        &quot;title&quot;: &quot;Loops and Variables&quot;,
-        &quot;deleted_at&quot;: null
-    }
-]
-```
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span>))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_pages</span>(
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -660,24 +451,8 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages
 
 <span class="doccomment">/**
 GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
-# Example
-```json
-[
-  {
-    &quot;id&quot;: &quot;d332f3d9-39a5-4a18-80f4-251727693c37&quot;,
-    &quot;created_at&quot;: &quot;2021-05-15T16:49:18.689393&quot;,
-    &quot;updated_at&quot;: &quot;2021-05-15T16:49:18.689393&quot;,
-    &quot;name&quot;: &quot;The Basics&quot;,
-    &quot;course_id&quot;: &quot;d86cf910-4d26-40e9-8c9c-1cc35294fdbb&quot;,
-    &quot;deleted_at&quot;: null,
-    &quot;chapter_number&quot;: 1,
-    &quot;front_page_id&quot;: null
-    &quot;opens_at&quot;: null
-    &quot;status&quot;: &quot;open&quot;
-  }
-]
-```
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ChapterWithStatus</span><span class="op">&gt;</span>))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters</span>(
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -714,6 +489,7 @@ GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of ch
 <span class="doccomment">/**
 GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserCourseSettings</span><span class="op">&gt;</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_course_settings</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -748,42 +524,8 @@ Content-Type: application/json
   &quot;query&quot;: &quot;Everything&quot;
 }
 ```
-
-Response:
-
-```json
-[
-  {
-    &quot;id&quot;: &quot;c89bd5b3-5f2b-4326-834a-db9f20bdaf1b&quot;,
-    &quot;title&quot;: &quot;Introduction to everything&quot;,
-    &quot;rank&quot;: 0.6079271,
-    &quot;ts_headline&quot;: null,
-    &quot;url_path&quot;: &quot;/&quot;
-  },
-  {
-    &quot;id&quot;: &quot;1d744426-27da-4821-80ab-7fd1fcd727f8&quot;,
-    &quot;title&quot;: &quot;Welcome to Introduction to Everything&quot;,
-    &quot;rank&quot;: 0.6079271,
-    &quot;ts_headline&quot;: null,
-    &quot;url_path&quot;: &quot;/&quot;
-  },
-  {
-    &quot;id&quot;: &quot;1c75eabe-8e19-456d-b107-f8e87b395c76&quot;,
-    &quot;title&quot;: &quot;Chapter One&quot;,
-    &quot;rank&quot;: 0.24317084,
-    &quot;ts_headline&quot;: &quot;&lt;b&gt;Everything&lt;/b&gt; is a big topic&quot;,
-    &quot;url_path&quot;: &quot;/chapter-1&quot;
-  },
-  {
-    &quot;id&quot;: &quot;c2060330-cea0-46ad-94f9-9be9858adab5&quot;,
-    &quot;title&quot;: &quot;In the second chapter...&quot;,
-    &quot;rank&quot;: 0.24317084,
-    &quot;ts_headline&quot;: &quot;&lt;b&gt;Everything&lt;/b&gt; is a big topic.&quot;,
-    &quot;url_path&quot;: &quot;/chapter-2&quot;
-  }
-]
-```
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span>))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search_pages_with_phrase</span>(
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -813,42 +555,8 @@ Content-Type: application/json
   &quot;query&quot;: &quot;Everything&quot;
 }
 ```
-
-Response:
-
-```json
-[
-  {
-    &quot;id&quot;: &quot;c89bd5b3-5f2b-4326-834a-db9f20bdaf1b&quot;,
-    &quot;title&quot;: &quot;Introduction to everything&quot;,
-    &quot;rank&quot;: 0.6079271,
-    &quot;ts_headline&quot;: null,
-    &quot;url_path&quot;: &quot;/&quot;
-  },
-  {
-    &quot;id&quot;: &quot;1d744426-27da-4821-80ab-7fd1fcd727f8&quot;,
-    &quot;title&quot;: &quot;Welcome to Introduction to Everything&quot;,
-    &quot;rank&quot;: 0.6079271,
-    &quot;ts_headline&quot;: null,
-    &quot;url_path&quot;: &quot;/&quot;
-  },
-  {
-    &quot;id&quot;: &quot;1c75eabe-8e19-456d-b107-f8e87b395c76&quot;,
-    &quot;title&quot;: &quot;Chapter One&quot;,
-    &quot;rank&quot;: 0.24317084,
-    &quot;ts_headline&quot;: &quot;&lt;b&gt;Everything&lt;/b&gt; is a big topic&quot;,
-    &quot;url_path&quot;: &quot;/chapter-1&quot;
-  },
-  {
-    &quot;id&quot;: &quot;c2060330-cea0-46ad-94f9-9be9858adab5&quot;,
-    &quot;title&quot;: &quot;In the second chapter...&quot;,
-    &quot;rank&quot;: 0.24317084,
-    &quot;ts_headline&quot;: &quot;&lt;b&gt;Everything&lt;/b&gt; is a big topic.&quot;,
-    &quot;url_path&quot;: &quot;/chapter-2&quot;
-  }
-]
-```
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span>))]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">search_pages_with_words</span>(
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -864,12 +572,13 @@ Response:
 <span class="doccomment">/**
 POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">feedback</span>(
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">new_feedback</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NewFeedback</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">fs</span> <span class="op">=</span> <span class="ident">new_feedback</span>.<span class="ident">into_inner</span>();
 
@@ -899,7 +608,7 @@ POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedbac
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ids</span> <span class="op">=</span> <span class="macro">vec!</span>[];
     <span class="kw">for</span> <span class="ident">f</span> <span class="kw">in</span> <span class="ident">fs</span> {
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">feedback::insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">user_id</span>, <span class="kw-2">*</span><span class="ident">course_id</span>, <span class="ident">f</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">ids</span>.<span class="ident">push</span>(<span class="ident">id</span>.<span class="ident">to_string</span>());
+        <span class="ident">ids</span>.<span class="ident">push</span>(<span class="ident">id</span>);
     }
     <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">ids</span>))
@@ -908,12 +617,13 @@ POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedbac
 <span class="doccomment">/**
 POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Uuid</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">propose_edit</span>(
     <span class="ident">course_slug</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">edits</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewProposedPageEdits</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course_by_slug</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="ident">course_slug</span>.<span class="ident">as_str</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> (<span class="ident">id</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">proposed_page_edits::insert</span>(
@@ -923,7 +633,7 @@ POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit pr
         <span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">into_inner</span>(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">id</span>.<span class="ident">to_string</span>())
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">id</span>))
 }
 
 <span class="doccomment">/**

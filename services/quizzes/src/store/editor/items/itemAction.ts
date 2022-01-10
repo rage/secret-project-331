@@ -140,6 +140,14 @@ export const editedQuizItemFeedbackDisplayPolicy = createAction(
   newPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
 }>()
 
+export const editedQuizItemOptionCells = createAction(
+  "EDITED_OPTION_CELLS",
+  (itemId: string, newOptionCells: string[][]) => ({
+    itemId: itemId,
+    optionCells: newOptionCells,
+  }),
+)<{ itemId: string; optionCells: string[][] }>()
+
 export const itemActions = [
   editedQuizItemBody,
   editedQuizItemTitle,
@@ -161,6 +169,7 @@ export const itemActions = [
   toggledAllAnswersCorrect,
   editedItemDirection,
   editedQuizItemFeedbackDisplayPolicy,
+  editedQuizItemOptionCells,
 ]
 
 export default itemActions

@@ -84,6 +84,8 @@ function asssesAnswers(quizAnswer: QuizAnswer, quiz: Quiz): QuizItemAnswerGradin
       return assesMultipleChoiceQuizzes(ia, item)
     } else if (item.type === "open") {
       return assessOpenQuiz(ia, item)
+    } else if (item.type === "matrix") {
+      return assessMatrixQuiz(ia, item)
     } else {
       return { quizItemId: item.id, correct: true }
     }
@@ -145,6 +147,33 @@ function assesMultipleChoiceQuizzes(
       ? allSelectedOptionsAreCorrect
       : selectedAllCorrectOptions && allSelectedOptionsAreCorrect,
   }
+}
+
+function assessMatrixQuiz(
+  quizItemAnswer: QuizItemAnswer,
+  quizItem: QuizItem,
+): QuizItemAnswerGrading {
+  const studentAnswers = quizItemAnswer.optionCells
+  const correctAnswers = quizItem.optionCells
+
+  if (!studentAnswers) {
+    throw new Error("No student answers")
+  }
+
+  if (!correctAnswers) {
+    throw new Error("No correct answers")
+  }
+
+  const isMatrixCorrect: boolean[] = []
+  for (let i = 0; i < 6; i++) {
+    for (let j = 0; j < 6; j++) {
+      isMatrixCorrect.push(correctAnswers[i][j] === studentAnswers[i][j])
+    }
+  }
+
+  const includesSingleFalse = !isMatrixCorrect.includes(false)
+
+  return { quizItemId: quizItem.id, correct: includesSingleFalse }
 }
 
 function submissionFeedback(

@@ -30,6 +30,7 @@ const TYPES = [
   "custom-frontend-accept-data",
   "multiple-choice-dropdown",
   "clickable-multiple-choice",
+  "matrix",
 ]
 
 export const AddQuizItem: React.FC = () => {

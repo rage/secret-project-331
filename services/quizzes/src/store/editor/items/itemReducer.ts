@@ -23,6 +23,7 @@ import {
   editedItemSuccessMessage,
   editedQuizItemBody,
   editedQuizItemFeedbackDisplayPolicy,
+  editedQuizItemOptionCells,
   editedQuizItemTitle,
   editedScaleMaxValue,
   editedScaleMinValue,
@@ -145,6 +146,7 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
         usesSharedOptionFeedbackMessage: false,
         sharedOptionFeedbackMessage: null,
         options: [],
+        optionCells: null,
         allAnswersCorrect: false,
         direction: "column",
         feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem",
@@ -245,6 +247,12 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
   .handleAction(editedItemDirection, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.itemId].direction = action.payload.newDirection
+    })
+  })
+
+  .handleAction(editedQuizItemOptionCells, (state, action) => {
+    return produce(state, (draftState) => {
+      draftState[action.payload.itemId].optionCells = action.payload.optionCells
     })
   })
 

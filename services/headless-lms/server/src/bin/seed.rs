@@ -1086,6 +1086,50 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    let array = vec![vec![0; 6]; 6];
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, matrix".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
+            width: 500,
+            data: serde_json::json!(
+            {
+                "id": "91cf86bd-39f1-480f-a16c-5b0ad36dc787",
+                "courseId": "2764d02f-bea3-47fe-9529-21c801bdf6f5",
+                "body": "Something about matrices and numbers",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "section": 1,
+                "title": "Something about matrices and numbers",
+                "tries": 1,
+                "triesLimited": true,
+                "items": [
+                    {
+                        "id": "b17f3965-2223-48c9-9063-50f1ebafcf08",
+                        "body": "Create a matrix that represents 4x4",
+                        "direction": "row",
+                        "formatRegex": null,
+                        "maxLabel": null,
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minLabel": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "multi": false,
+                        "order": 1,
+                        "quizId": "91cf86bd-39f1-480f-a16c-5b0ad36dc787",
+                        "title": "Matrices are interesting",
+                        "type": "matrix",
+                        "options": [],
+                        "optionCells": array,
+                        }
+                        ]}),
+        },
+    )
+    .await?;
+
     Ok(())
 }
 

@@ -14,13 +14,13 @@ pub enum HistoryChangeReason {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageHistory {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    title: String,
-    content: Value,
-    history_change_reason: HistoryChangeReason,
-    restored_from_id: Option<Uuid>,
-    author_user_id: Uuid,
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub title: String,
+    pub content: Value,
+    pub history_change_reason: HistoryChangeReason,
+    pub restored_from_id: Option<Uuid>,
+    pub author_user_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]

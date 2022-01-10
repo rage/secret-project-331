@@ -11,16 +11,8 @@ use crate::controllers::prelude::*;
 
 /**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
- # Example,
-```json
-{
-   "score_given": 3,
-   "score_maximum": 10,
-   "total_exericises": 66,
-   "completed_exercises": 13
-}
-```
 */
+#[cfg_attr(doc, doc = generated_docs!(UserCourseInstanceProgress))]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance(
     user: AuthUser,
@@ -40,18 +32,8 @@ async fn get_user_progress_for_course_instance(
 
 /**
 GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.
-
-# Example
-
-Response:
-```json
-{
-  "score_given":1.0,
-  "score_maximum":4
-}
-```
 */
-
+#[cfg_attr(doc, doc = generated_docs!(UserCourseInstanceProgress))]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance_chapter(
     user: AuthUser,
@@ -73,17 +55,8 @@ async fn get_user_progress_for_course_instance_chapter(
 
 /**
 GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.
-
-# Example
-
-Response:
-```json
-{
-    "exercise_id": "uuid"
-    "score_given": 1.0
-}
- ```
 */
+#[cfg_attr(doc, doc = generated_docs!(UserCourseInstanceChapterExerciseProgress))]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance_chapter_exercises(
     user: AuthUser,
@@ -117,22 +90,8 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
 
 /**
 POST /api/v0/course-material/course-instance/:course_instance_id/enroll - enrolls user to the course instance.
-
-# Example
-
-Response:
-```json
-{
-  "user_id": "6c6a2449-8eeb-46ca-8e97-e69752227724",
-  "course_id": "c6489a19-c8dc-4a36-ad45-f14c41ef5386",
-  "course_instance_id": "fbcdcd77-7f82-4cc3-86a0-b82e116a5ff3",
-  "current": true,
-  "created_at": "2021-07-08T09:56:54.915951Z",
-  "updated_at": "2021-07-08T09:56:54.915951Z",
-  "deleted_at": null
-}
-```
 */
+#[cfg_attr(doc, doc = generated_docs!(CourseInstanceEnrollment))]
 #[instrument(skip(pool))]
 async fn add_user_enrollment(
     pool: web::Data<PgPool>,

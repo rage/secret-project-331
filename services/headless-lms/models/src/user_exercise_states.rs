@@ -26,11 +26,12 @@ pub struct UserExerciseState {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct UserCourseInstanceProgress {
-    score_given: f32,
-    score_maximum: Option<u32>,
-    total_exercises: Option<u32>,
-    completed_exercises: Option<u32>,
+    pub score_given: f32,
+    pub score_maximum: Option<u32>,
+    pub total_exercises: Option<u32>,
+    pub completed_exercises: Option<u32>,
 }
+
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct UserCourseInstanceChapterExerciseProgress {
     pub exercise_id: Uuid,

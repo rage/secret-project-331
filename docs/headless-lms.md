@@ -210,7 +210,11 @@ pub async fn some_endpoint(user: Option<AuthUser>) -> String {
 
 ### Adding documentation to an endpoint
 
-When you have finished coding the endpoint you should add documentations to it so they can be easily read by anyone. Documentation should include short description about the endpoint and an example response data from it. The `doc-file-generator` binary can be used to generate JSON from Rust code, ensuring they stay up to date. The server crate provides a `generated_docs!` macro which can be used to include the JSON in the documentation using `#[cfg_attr(doc, doc = generated_docs!(MyType))]` For an example
+When you have finished coding the endpoint you should add documentations to it so they can be easily read by anyone. Documentation should include short description about the endpoint and an example response data from it.
+
+The binary at `server/src/bin/doc-file-generator.rs` can be used to generate documentation for the response type from Rust code, ensuring they stay up to date. The binary can be called with the `bin/generate-doc-files` script, and the generated files can be used with the server crate's `generated_docs!` helper macro: `#[cfg_attr(doc, doc = generated_docs!(MyType))]`.
+
+For example
 
 ```
 /**

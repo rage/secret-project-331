@@ -3,11 +3,11 @@
 import basePath from "../shared-module/utils/base-path"
 
 export function courseFrontPageRoute(organizationSlug: string, courseSlug: string) {
-  return `/${organizationSlug}/courses/${courseSlug}`
+  return `/org/${organizationSlug}/courses/${courseSlug}`
 }
 
 export function courseFaqPageRoute(organizationSlug: string, courseSlug: string) {
-  return `/${organizationSlug}/courses/${courseSlug}`
+  return `/org/${organizationSlug}/courses/${courseSlug}`
 }
 
 export function coursePageRoute(

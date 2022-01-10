@@ -18,7 +18,9 @@ jobs:
         run: rustup update stable
 
       - name: Install and build
-        run: cargo doc --document-private-items
+        run: |
+          cargo run --bin doc-file-generator
+          cargo doc --document-private-items
         working-directory: services/headless-lms
 
       - name: Deploy

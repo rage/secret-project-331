@@ -66,6 +66,7 @@ test("latex-block renders", async ({ headless, page }) => {
   await page.waitForTimeout(100)
   // Click [aria-label="Options"]
   await page.click('[aria-label="Options"]')
+  await page.waitForTimeout(100)
   // Click text=Remove blockShift+Alt+Z
   await page.click("text=Remove Pages In Chapter")
   await page.waitForTimeout(100)

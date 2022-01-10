@@ -29,48 +29,48 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
       {getCourseInstances.isError && (
         <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
       )}
-      {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
-      {getCourseInstances.isSuccess && (
-        <>
-          <ul>
-            {getCourseInstances.data.map((instance) => {
-              const name = instance.name ?? t("default-course-instance-name")
-              return (
-                <li key={instance.id}>
-                  {name}{" "}
-                  <Link href={manageCourseInstancePageRoute(instance.id)} passHref>
-                    <a href="replace" aria-label={`${t("link-manage")} (${name})`}>
-                      {t("link-manage")}
-                    </a>
-                  </Link>{" "}
-                  <Link href={manageCourseInstanceEmailsPageRoute(instance.id)} passHref>
-                    <a href="replace" aria-label={`${t("link-manage-emails")} (${name})`}>
-                      {t("link-manage-emails")}
-                    </a>
-                  </Link>{" "}
-                  <a
-                    href={`/manage/course-instances/${instance.id}/points`}
-                    aria-label={`${t("link-view-points")} (${name})`}
-                  >
-                    {t("link-view-points")}
-                  </a>{" "}
-                  <PointExportButton courseInstanceId={instance.id} courseInstanceName={name} />
-                </li>
-              )
-            })}
-          </ul>
-          <Link
-            href={{ pathname: "/manage/courses/[id]/new-course-instance", query: { id: courseId } }}
-            passHref
-          >
-            <a href="replace">
-              <Button variant="primary" size="medium">
-                {t("button-text-new")}
-              </Button>
-            </a>
-          </Link>
-        </>
+      {(getCourseInstances.isLoading || getCourseInstances.isIdle) && (
+        <Spinner variant={"medium"} />
       )}
+      {getCourseInstances.isSuccess && (
+        <ul>
+          {getCourseInstances.data.map((instance) => {
+            const name = instance.name ?? t("default-course-instance-name")
+            return (
+              <li key={instance.id}>
+                {name}{" "}
+                <Link href={manageCourseInstancePageRoute(instance.id)} passHref>
+                  <a href="replace" aria-label={`${t("link-manage")} (${name})`}>
+                    {t("link-manage")}
+                  </a>
+                </Link>{" "}
+                <Link href={manageCourseInstanceEmailsPageRoute(instance.id)} passHref>
+                  <a href="replace" aria-label={`${t("link-manage-emails")} (${name})`}>
+                    {t("link-manage-emails")}
+                  </a>
+                </Link>{" "}
+                <a
+                  href={`/manage/course-instances/${instance.id}/points`}
+                  aria-label={`${t("link-view-points")} (${name})`}
+                >
+                  {t("link-view-points")}
+                </a>{" "}
+                <PointExportButton courseInstanceId={instance.id} courseInstanceName={name} />
+              </li>
+            )
+          })}
+        </ul>
+      )}
+      <Link
+        href={{ pathname: "/manage/courses/[id]/new-course-instance", query: { id: courseId } }}
+        passHref
+      >
+        <a href="replace">
+          <Button variant="primary" size="medium">
+            {t("button-text-new")}
+          </Button>
+        </a>
+      </Link>
     </>
   )
 }

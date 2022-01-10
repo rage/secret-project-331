@@ -36,45 +36,37 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
     return <ErrorBanner variant={"readOnly"} error={getFeedbackCount.error} />
   }
 
-  if (getFeedbackCount.isLoading) {
+  if (getFeedbackCount.isLoading || getFeedbackCount.isIdle) {
     return <Spinner variant={"medium"} />
   }
 
-  if (getFeedbackCount.isSuccess) {
-    const items = read ? getFeedbackCount.data.read : getFeedbackCount.data.unread
-    if (items <= 0) {
-      return <div>{t("no-feedback")}</div>
-    }
-    const pageCount = Math.ceil(items / perPage)
-    if (page > pageCount) {
-      setPage(pageCount)
-    }
-
-    return (
-      <div>
-        <FeedbackPage
-          courseId={courseId}
-          page={page}
-          read={read}
-          limit={perPage}
-          onChange={getFeedbackCount.refetch}
-        />
-        <Pagination
-          count={pageCount}
-          page={page}
-          onChange={(_, val) => {
-            router.replace({ query: { ...router.query, page: val } }, undefined, { shallow: true })
-            setPage(val)
-          }}
-        />
-      </div>
-    )
+  const items = read ? getFeedbackCount.data.read : getFeedbackCount.data.unread
+  if (items <= 0) {
+    return <div>{t("no-feedback")}</div>
   }
+  const pageCount = Math.ceil(items / perPage)
+  if (page > pageCount) {
+    setPage(pageCount)
+  }
+
   return (
-    <ErrorBanner
-      variant={"readOnly"}
-      error={t("error-unknown-in-component", { component: "FeedbackList" })}
-    />
+    <div>
+      <FeedbackPage
+        courseId={courseId}
+        page={page}
+        read={read}
+        limit={perPage}
+        onChange={getFeedbackCount.refetch}
+      />
+      <Pagination
+        count={pageCount}
+        page={page}
+        onChange={(_, val) => {
+          router.replace({ query: { ...router.query, page: val } }, undefined, { shallow: true })
+          setPage(val)
+        }}
+      />
+    </div>
   )
 }
 

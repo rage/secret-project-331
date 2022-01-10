@@ -1,9 +1,10 @@
 import React, { useContext } from "react"
 
 import CoursePageContext from "../../../../contexts/CoursePageContext"
+import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import GenericLoading from "../../../GenericLoading"
+import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 
 import NextPage from "./NextPage"
 
@@ -13,11 +14,7 @@ const NavigationContainer: React.FC = () => {
   const organizationSlug = useQueryParameter("organizationSlug")
 
   if (pageContext.state !== "ready") {
-    return <GenericLoading />
-  }
-
-  if (!courseSlug || !organizationSlug) {
-    return <GenericLoading />
+    return <Spinner variant={"medium"} />
   }
 
   return (
@@ -32,4 +29,4 @@ const NavigationContainer: React.FC = () => {
   )
 }
 
-export default NavigationContainer
+export default dontRenderUntilQueryParametersReady(NavigationContainer)

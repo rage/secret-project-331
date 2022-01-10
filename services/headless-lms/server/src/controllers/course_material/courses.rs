@@ -16,8 +16,9 @@ use models::{
 use crate::controllers::prelude::*;
 
 /**
-GET `/api/v0/main-frontend/courses/:course_id` - Get course.
+GET `/api/v0/course-material/courses/:course_id` - Get course.
 */
+#[cfg_attr(doc, doc = generated_docs!(Course))]
 #[instrument(skip(pool))]
 async fn get_course(
     course_id: web::Path<Uuid>,
@@ -32,24 +33,9 @@ async fn get_course(
 /**
 GET `/:course_slug/page-by-path/...` - Returns a course page by path
 # Example
-
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
-
-
-```json
-{
-  "id": "d32cc3cd-adfe-456a-a25f-032ee02db4c2",
-  "created_at": "2021-03-12T09:20:16.381347",
-  "updated_at": "2021-03-19T15:12:33.603977",
-  "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
-  "content": [],
-  "url_path": "/part-2/hello-world",
-  "title": "Hello world!",
-  "deleted_at": null,
-  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
-}
-```
 */
+#[cfg_attr(doc, doc = generated_docs!(CoursePageWithUserData))]
 #[instrument(skip(pool))]
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
@@ -77,23 +63,8 @@ async fn get_course_page_by_path(
 
 /**
 GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
-
-# Example
-```json
-{
-  "id": "e051ddb5-2128-4215-adda-ebd74a0ea46b",
-  "created_at": "2021-06-28T00:21:11.780420Z",
-  "updated_at": "2021-06-28T00:21:11.780420Z",
-  "deleted_at": null,
-  "course_id": "b8077bc2-0816-4c05-a651-d2d75d697fdf",
-  "starts_at": null,
-  "ends_at": null,
-  "name": null,
-  "description": null,
-  "variant_status": "Active"
-}
-```
 */
+#[cfg_attr(doc, doc = generated_docs!(CourseInstance))]
 #[instrument(skip(pool))]
 async fn get_current_course_instance(
     pool: web::Data<PgPool>,
@@ -114,25 +85,8 @@ async fn get_current_course_instance(
 
 /**
 GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
-
-# Example
-```json
-[
-  {
-    "id": "e051ddb5-2128-4215-adda-ebd74a0ea46b",
-    "created_at": "2021-06-28T00:21:11.780420Z",
-    "updated_at": "2021-06-28T00:21:11.780420Z",
-    "deleted_at": null,
-    "course_id": "b8077bc2-0816-4c05-a651-d2d75d697fdf",
-    "starts_at": null,
-    "ends_at": null,
-    "name": null,
-    "description": null,
-    "variant_status": "Active"
-  }
-]
-```
 */
+#[cfg_attr(doc, doc = generated_docs!(Vec<CourseInstance>))]
 async fn get_course_instances(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -145,26 +99,8 @@ async fn get_course_instances(
 
 /**
 GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages in a course.
-# Example
-```json
-[
-    {
-        "id": "86ac4f0a-ccca-464e-89f4-ed58969b1103",
-        "created_at": "2021-03-05T22:50:47.920120",
-        "updated_at": "2021-03-05T22:50:47.920120",
-        "course_id": "a90c39f8-5d23-461f-8375-0b05a55d7ac1",
-        "content": [
-            {
-                "id": "55be197d-4145-444a-bc1f-ee1091c47ad9"
-            }
-        ],
-        "url_path": "/part-1/01-loops-and-variables",
-        "title": "Loops and Variables",
-        "deleted_at": null
-    }
-]
-```
 */
+#[cfg_attr(doc, doc = generated_docs!(Vec<Page>))]
 #[instrument(skip(pool))]
 async fn get_course_pages(
     course_id: web::Path<Uuid>,
@@ -177,24 +113,8 @@ async fn get_course_pages(
 
 /**
 GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
-# Example
-```json
-[
-  {
-    "id": "d332f3d9-39a5-4a18-80f4-251727693c37",
-    "created_at": "2021-05-15T16:49:18.689393",
-    "updated_at": "2021-05-15T16:49:18.689393",
-    "name": "The Basics",
-    "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
-    "deleted_at": null,
-    "chapter_number": 1,
-    "front_page_id": null
-    "opens_at": null
-    "status": "open"
-  }
-]
-```
 */
+#[cfg_attr(doc, doc = generated_docs!(Vec<ChapterWithStatus>))]
 #[instrument(skip(pool))]
 async fn get_chapters(
     course_id: web::Path<Uuid>,
@@ -231,6 +151,7 @@ async fn get_chapters(
 /**
 GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
 */
+#[cfg_attr(doc, doc = generated_docs!(Option<UserCourseSettings>))]
 async fn get_user_course_settings(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -265,42 +186,8 @@ Content-Type: application/json
   "query": "Everything"
 }
 ```
-
-Response:
-
-```json
-[
-  {
-    "id": "c89bd5b3-5f2b-4326-834a-db9f20bdaf1b",
-    "title": "Introduction to everything",
-    "rank": 0.6079271,
-    "ts_headline": null,
-    "url_path": "/"
-  },
-  {
-    "id": "1d744426-27da-4821-80ab-7fd1fcd727f8",
-    "title": "Welcome to Introduction to Everything",
-    "rank": 0.6079271,
-    "ts_headline": null,
-    "url_path": "/"
-  },
-  {
-    "id": "1c75eabe-8e19-456d-b107-f8e87b395c76",
-    "title": "Chapter One",
-    "rank": 0.24317084,
-    "ts_headline": "<b>Everything</b> is a big topic",
-    "url_path": "/chapter-1"
-  },
-  {
-    "id": "c2060330-cea0-46ad-94f9-9be9858adab5",
-    "title": "In the second chapter...",
-    "rank": 0.24317084,
-    "ts_headline": "<b>Everything</b> is a big topic.",
-    "url_path": "/chapter-2"
-  }
-]
-```
 */
+#[cfg_attr(doc, doc = generated_docs!(Vec<PageSearchResult>))]
 #[instrument(skip(pool))]
 async fn search_pages_with_phrase(
     course_id: web::Path<Uuid>,
@@ -330,42 +217,8 @@ Content-Type: application/json
   "query": "Everything"
 }
 ```
-
-Response:
-
-```json
-[
-  {
-    "id": "c89bd5b3-5f2b-4326-834a-db9f20bdaf1b",
-    "title": "Introduction to everything",
-    "rank": 0.6079271,
-    "ts_headline": null,
-    "url_path": "/"
-  },
-  {
-    "id": "1d744426-27da-4821-80ab-7fd1fcd727f8",
-    "title": "Welcome to Introduction to Everything",
-    "rank": 0.6079271,
-    "ts_headline": null,
-    "url_path": "/"
-  },
-  {
-    "id": "1c75eabe-8e19-456d-b107-f8e87b395c76",
-    "title": "Chapter One",
-    "rank": 0.24317084,
-    "ts_headline": "<b>Everything</b> is a big topic",
-    "url_path": "/chapter-1"
-  },
-  {
-    "id": "c2060330-cea0-46ad-94f9-9be9858adab5",
-    "title": "In the second chapter...",
-    "rank": 0.24317084,
-    "ts_headline": "<b>Everything</b> is a big topic.",
-    "url_path": "/chapter-2"
-  }
-]
-```
 */
+#[cfg_attr(doc, doc = generated_docs!(Vec<PageSearchResult>))]
 #[instrument(skip(pool))]
 async fn search_pages_with_words(
     course_id: web::Path<Uuid>,
@@ -381,12 +234,13 @@ async fn search_pages_with_words(
 /**
 POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
 */
+#[cfg_attr(doc, doc = generated_docs!(Vec<Uuid>))]
 pub async fn feedback(
     course_id: web::Path<Uuid>,
     new_feedback: web::Json<Vec<NewFeedback>>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
-) -> ControllerResult<web::Json<Vec<String>>> {
+) -> ControllerResult<web::Json<Vec<Uuid>>> {
     let mut conn = pool.acquire().await?;
     let fs = new_feedback.into_inner();
 
@@ -416,7 +270,7 @@ pub async fn feedback(
     let mut ids = vec![];
     for f in fs {
         let id = feedback::insert(&mut tx, user_id, *course_id, f).await?;
-        ids.push(id.to_string());
+        ids.push(id);
     }
     tx.commit().await?;
     Ok(web::Json(ids))
@@ -425,12 +279,13 @@ pub async fn feedback(
 /**
 POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
 */
+#[cfg_attr(doc, doc = generated_docs!(Uuid))]
 async fn propose_edit(
     course_slug: web::Path<String>,
     edits: web::Json<NewProposedPageEdits>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
-) -> ControllerResult<String> {
+) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
     let (id, _) = proposed_page_edits::insert(
@@ -440,7 +295,7 @@ async fn propose_edit(
         &edits.into_inner(),
     )
     .await?;
-    Ok(id.to_string())
+    Ok(web::Json(id))
 }
 
 /**

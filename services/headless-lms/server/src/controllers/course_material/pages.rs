@@ -4,6 +4,10 @@ use models::pages::{Page, PageRoutingDataWithChapterStatus};
 
 use crate::controllers::prelude::*;
 
+/**
+GET /api/v0/course-material/pages/exam/{page_id}
+*/
+#[cfg_attr(doc, doc = generated_docs!(Page))]
 async fn get_by_exam_id(
     exam_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -16,18 +20,8 @@ async fn get_by_exam_id(
 /**
  GET /api/v0/course-material/pages/:page_id/next-page - returns next pages info.
  If current page is the last page of the chapter, returns next chapters first page.
- # Example,
-```json
-{
-    "url_path": "/path-to-next/page",
-    "title": "Name of the next page",
-    "chapter_number": 1,
-    "chapter_id": "uuidv4",
-    "chapter_opens_at": "2014-11-28T12:45:59.324310806Z",
-    "chapter_status": "open",
-}
-```
 */
+#[cfg_attr(doc, doc = generated_docs!(Page))]
 #[instrument(skip(pool))]
 async fn get_next_page(
     page_id: web::Path<Uuid>,

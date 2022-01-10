@@ -37,8 +37,8 @@ pub struct EditProposalInfo {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct ProposalCount {
-    pending: u32,
-    handled: u32,
+    pub pending: u32,
+    pub handled: u32,
 }
 
 pub async fn insert(

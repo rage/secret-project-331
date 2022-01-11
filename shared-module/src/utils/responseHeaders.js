@@ -15,7 +15,8 @@ const normalResponseHeaders = [
   },
   {
     key: "Content-Security-Policy",
-    value: "default-src 'self'; style-src 'self' 'unsafe-inline'; frame-src *",
+    value:
+      "default-src 'self'; connect-src 'self'; font-src 'self' https://cdn.jsdelivr.net; frame-src *; img-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net/npm/monaco-editor*; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/monaco-editor*",
   },
   {
     key: "X-Frame-Options",
@@ -40,7 +41,8 @@ const externallyEmbeddableIFrameResponseHeaders = [
   },
   {
     key: "Content-Security-Policy",
-    value: "default-src 'self'; style-src 'self' 'unsafe-inline'; frame-src *; frame-ancestors *",
+    value:
+      "default-src 'self'; connect-src 'self'; font-src 'self' https://cdn.jsdelivr.net; frame-src *; img-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net/npm/monaco-editor*; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/monaco-editor*",
   },
 ]
 

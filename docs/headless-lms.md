@@ -262,3 +262,11 @@ Using these helper structs helps ensure that you do not accidentally make perman
    ![rust dependencies](img/rust-dependencies.png)
 
 Then you're done! Now you can use the dependency in the project.
+
+## Build problems with `bin/test` or `bin/dev`
+
+### Build fails because of a missing or an out of date program in the container
+
+This might be the case if you get something like command not found or `error: no such subcommand: xxx` from cargo.
+
+Usually this is because the base image for the headless-lms container has been updated, but your computer has not pulled the updated image. To pull the updated image to your local Minikube, run the following command in the repo root: `bin/minikube-pull-headless-lms-dev-base`. After that restart the development environment.

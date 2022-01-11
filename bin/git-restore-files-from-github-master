@@ -1,0 +1,12 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+if [ -z ${1+x} ]
+  then
+    echo "Please give the files to be restored as arguments"
+    exit 1
+fi
+
+run_command git fetch origin
+run_command git restore --source origin/master "$@"

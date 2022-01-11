@@ -16,6 +16,7 @@ import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
+import SuccessNotification from "../../shared-module/components/Notifications/Success"
 import Spinner from "../../shared-module/components/Spinner"
 import { cmsNormalWidthCenteredComponentStyles } from "../../styles/EditorStyles"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
@@ -64,7 +65,6 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
   const currentContentStateSaved = data.content === content
 
   const handleOnSave = async () => {
-    toast.loading("Saving")
     saveMutation.mutate(
       normalizeDocument(
         data.id,
@@ -75,13 +75,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
       ),
       {
         onSuccess: (data) => {
-          toast.remove()
-          toast.success("Saved succesfully")
           contentDispatch({ type: "setContent", payload: denormalizeDocument(data) })
-        },
-        onError: () => {
-          toast.remove()
-          toast.error("An error occured")
         },
       },
     )
@@ -108,9 +102,9 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
             loading={saveMutation.isLoading}
             onClick={handleOnSave}
           >
+            {/* TODO: This doesn't work? */}
             {currentContentStateSaved ? t("saved") : t("save")}
           </LoadingButton>
-          <Toaster position="bottom-left" />
 
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />
         </div>

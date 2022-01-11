@@ -32,5 +32,6 @@
   "serialize-to-html": "Serialize to HTML",
   "slide-title": "Slide {{ number }}",
   "error": "Error",
+  "error-occured": "An error occured",
   "loading": "Loading..."
 }

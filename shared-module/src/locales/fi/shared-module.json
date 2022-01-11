@@ -1,4 +1,7 @@
 {
-  "about-mooc-center": "MOOC-keskusksesta",
-  "error-title": "Virhe"
+  "about-mooc-center": "MOOC-keskuksesta",
+  "error-title": "Virhe",
+  "success-title": "Tallennettu",
+  "edit-has-been-saved": "Muutoksesi on tallennettu!",
+  "saving": "Tallennetaan..."
 }

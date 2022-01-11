@@ -39,5 +39,8 @@
   "error-part-of-page-has-crashed-error": "Part of page has crashed: {{error}}",
   "hide-trace": "Hide trace",
   "show-trace": "Show trace",
-  "error-title": "Error"
+  "error-title": "Error",
+  "success-title": "Success",
+  "edit-has-been-saved": "Your edit has been saved!",
+  "saving": "Saving..."
 }

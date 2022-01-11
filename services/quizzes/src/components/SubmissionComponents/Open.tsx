@@ -24,7 +24,7 @@ const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
   quiz_item_feedback,
   user_quiz_item_answer,
 }) => {
-  const correct = user_quiz_item_answer.correct
+  const correct = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_correct
   const item_feedback = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_feedback
   return (
     <div

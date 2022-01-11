@@ -17,6 +17,7 @@ interface OptionAnswerFeedback {
 export interface ItemAnswerFeedback {
   quiz_item_id: string | null
   quiz_item_feedback: string | null
+  quiz_item_correct: boolean | null
   quiz_item_option_feedbacks: OptionAnswerFeedback[] | null
 }
 
@@ -156,7 +157,12 @@ function submissionFeedback(
     const item = quiz.items.find((i) => i.id === ia.quizItemId)
     const itemGrading = quizItemgradings.find((ig) => ig.quizItemId === ia.quizItemId)
     if (!item || !itemGrading) {
-      return { quiz_item_id: null, quiz_item_feedback: null, quiz_item_option_feedbacks: null }
+      return {
+        quiz_item_id: null,
+        quiz_item_feedback: null,
+        quiz_item_option_feedbacks: null,
+        quiz_item_correct: null,
+      }
     }
     if (
       item.type === "multiple-choice" ||
@@ -166,6 +172,7 @@ function submissionFeedback(
       return {
         quiz_item_id: item.id,
         quiz_item_feedback: null,
+        quiz_item_correct: itemGrading.correct,
         quiz_item_option_feedbacks: itemGrading.correct
           ? item.options
               .filter((o) => o.correct)
@@ -178,6 +185,7 @@ function submissionFeedback(
       return {
         quiz_item_id: item.id,
         quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
+        quiz_item_correct: itemGrading.correct,
         quiz_item_option_feedbacks: null,
       }
     }

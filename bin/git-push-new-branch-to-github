@@ -1,0 +1,9 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+echo -e "${BLUE}Hint: After this command you should be able to push this branch with just '${BOLD}git push'${RESET_EVERYTHING}"
+
+CURRENT_BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+
+run_command git push --set-upstream origin "$CURRENT_BRANCH_NAME"

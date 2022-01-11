@@ -1,0 +1,16 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+if [ -z ${1+x} ]
+  then
+    echo "Please give the command a branch name as the first argument."
+    exit 1
+fi
+
+NEW_BRANCH_NAME=$1
+
+
+
+run_command git fetch origin
+run_command git switch -c "$NEW_BRANCH_NAME" origin/master --no-track

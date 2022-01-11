@@ -1,0 +1,6 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+run_command git fetch origin
+run_command git merge origin/master "$@"

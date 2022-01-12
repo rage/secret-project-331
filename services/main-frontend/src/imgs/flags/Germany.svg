@@ -1,9 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
-	"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 3">
-	<desc>Flag of Germany</desc>
-	<rect id="black_stripe" width="5" height="3" y="0" x="0" fill="#000"/>
-	<rect id="red_stripe" width="5" height="2" y="1" x="0" fill="#D00"/>
-	<rect id="gold_stripe" width="5" height="1" y="2" x="0" fill="#FFCE00"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="5" height="3" viewBox="0 0 5 3">
+  <g  data-name="Group 37" transform="translate(-2654 405)">
+    <rect  width="5" height="3" transform="translate(2654 -405)"/>
+    <rect  width="5" height="2" transform="translate(2654 -404)" fill="#d00"/>
+    <rect  width="5" height="1" transform="translate(2654 -403)" fill="#ffce00"/>
+  </g>
 </svg>

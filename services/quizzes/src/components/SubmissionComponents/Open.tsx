@@ -1,5 +1,6 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { ItemAnswerFeedback } from "../../pages/api/grade"
 import { quizTheme } from "../../styles/QuizStyles"
@@ -32,6 +33,7 @@ const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
   quiz_item_feedback,
   user_quiz_item_answer,
 }) => {
+  const { t } = useTranslation()
   const correct = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_correct
   const item_feedback = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_feedback
   return (
@@ -44,7 +46,21 @@ const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
       <div>{public_quiz_item.title && <MarkdownText text={public_quiz_item.title} />}</div>
       <div>{public_quiz_item.body && <MarkdownText text={public_quiz_item.body} />}</div>
       <div>
-        <p>{user_quiz_item_answer.textData ?? ""}</p>
+        <label
+          className={css`
+            display: flex;
+            margin-right: 0.5rem;
+          `}
+        >
+          {t("answer")}
+          <input
+            type="text"
+            title="Answer"
+            aria-labelledby="Answer"
+            disabled
+            value={user_quiz_item_answer.textData ?? ""}
+          />
+        </label>
       </div>
       <div
         className={css`

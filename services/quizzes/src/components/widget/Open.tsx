@@ -43,13 +43,21 @@ const Open: React.FC<QuizItemComponentProps> = ({
       <div>{quizItem.title && <MarkdownText text={quizItem.title} />}</div>
       <div>{quizItem.body && <MarkdownText text={quizItem.body} />}</div>
       <div>
-        <input
-          type="text"
-          value={quizItemAnswerState?.textData ?? ""}
-          onChange={(e) => handleChange(e.target.value)}
-          onFocus={() => setShowFormatError(true)}
-          onBlur={() => setShowFormatError(false)}
-        />
+        <label
+          className={css`
+            display: flex;
+            margin-right: 0.5rem;
+          `}
+        >
+          {t("answer")}
+          <input
+            type="text"
+            value={quizItemAnswerState?.textData ?? ""}
+            onChange={(e) => handleChange(e.target.value)}
+            onFocus={() => setShowFormatError(true)}
+            onBlur={() => setShowFormatError(false)}
+          />
+        </label>
       </div>
       <div
         className={css`

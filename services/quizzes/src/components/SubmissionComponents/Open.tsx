@@ -9,14 +9,22 @@ import { QuizItemSubmissionComponentProps } from "."
 
 const correctAnswer = css`
   display: flex;
-  flex: 1;
-  background: ${quizTheme.gradingCorrectItemBackground};
+  align-items: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: ${quizTheme.gradingCorrectItemBackground};
+  border-radius: 5px;
 `
 
 const incorrectAnswer = css`
   display: flex;
-  flex: 1;
-  background: ${quizTheme.gradingWrongItemBackground};
+  align-items: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: ${quizTheme.gradingWrongItemBackground};
+  border-radius: 5px;
 `
 
 const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
@@ -36,10 +44,17 @@ const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
       <div>{public_quiz_item.title && <MarkdownText text={public_quiz_item.title} />}</div>
       <div>{public_quiz_item.body && <MarkdownText text={public_quiz_item.body} />}</div>
       <div>
-        <p className={cx(correct ? correctAnswer : incorrectAnswer)}>
-          {user_quiz_item_answer.textData ?? ""}
-        </p>
-        <p>{item_feedback ?? ""}</p>
+        <p>{user_quiz_item_answer.textData ?? ""}</p>
+      </div>
+      <div
+        className={css`
+          display: flex;
+          justify-content: center;
+        `}
+      >
+        <div className={cx(correct ? correctAnswer : incorrectAnswer)}>
+          <p>{item_feedback ?? ""}</p>
+        </div>
       </div>
     </div>
   )

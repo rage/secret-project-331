@@ -144,7 +144,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
               role="note"
               aria-label={t("added-text")}
               className={css`
-                background: ${baseTheme.colors.blue[0]};
+                background: ${baseTheme.colors.blue[300]};
               `}
             >
               {diff.value}
@@ -156,7 +156,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
               role="note"
               aria-label={t("removed-text")}
               className={css`
-                background: ${baseTheme.colors.red[0]};
+                background: ${baseTheme.colors.red[300]};
               `}
             >
               {diff.value}

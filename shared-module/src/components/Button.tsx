@@ -32,7 +32,7 @@ export const BASE_BUTTON_STYLES = `
   border: 2.5px solid transparent;
   z-index: 1;
 
-  color: ${baseTheme.colors.neutral[900]};
+  color: ${baseTheme.colors.clear[700]};
   background-color: ${theme.primary.bg};
   border-color: ${theme.primary.hoverBorder};
 
@@ -50,9 +50,9 @@ export const BASE_BUTTON_STYLES = `
   }
 
   &:disabled {
-    color: ${baseTheme.colors.neutral[600]};
-    background-color: ${baseTheme.colors.neutral[500]};
-    border-color: ${baseTheme.colors.neutral[500]};
+    color: ${baseTheme.colors.clear[600]};
+    background-color: ${baseTheme.colors.clear[500]};
+    border-color: ${baseTheme.colors.clear[500]};
   }
 
   &:focus {
@@ -98,9 +98,9 @@ export const SecondaryButtonStyles = (props: ButtonProps) => {
     }
 
     &:disabled {
-      color: ${baseTheme.colors.neutral[600]};
-      background-color: ${baseTheme.colors.neutral[500]};
-      border-color: ${baseTheme.colors.neutral[500]};
+      color: ${baseTheme.colors.clear[600]};
+      background-color: ${baseTheme.colors.clear[500]};
+      border-color: ${baseTheme.colors.clear[500]};
     }
   `
   return SECONDARY_BUTTON_STYLES
@@ -126,9 +126,9 @@ export const TertiaryButtonStyles = (props: ButtonProps) => {
     }
 
     &:disabled {
-      color: ${baseTheme.colors.neutral[600]};
-      background-color: ${baseTheme.colors.neutral[500]};
-      border-color: ${baseTheme.colors.neutral[500]};
+      color: ${baseTheme.colors.clear[600]};
+      background-color: ${baseTheme.colors.clear[500]};
+      border-color: ${baseTheme.colors.clear[500]};
     }
   `
   return TERTIARY_BUTTON_STYLES

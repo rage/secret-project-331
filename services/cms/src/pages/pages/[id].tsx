@@ -1,16 +1,14 @@
 import dynamic from "next/dynamic"
 import React from "react"
-import toast from "react-hot-toast"
-import { useTranslation } from "react-i18next"
-import { useMutation, useQuery, useQueryClient } from "react-query"
+import { useQuery, useQueryClient } from "react-query"
 
 import Layout from "../../components/Layout"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { CmsPageUpdate, Page } from "../../shared-module/bindings"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import SuccessNotification from "../../shared-module/components/Notifications/Success"
 import Spinner from "../../shared-module/components/Spinner"
 import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
+import useToastMutation from "../../shared-module/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -31,7 +29,6 @@ const PageEditor = dynamic(() => import("../../components/editors/PageEditor"), 
 const Pages = ({ query }: PagesProps) => {
   const { id } = query
   const queryClient = useQueryClient()
-  const { t } = useTranslation()
   const getPage = useQuery(`page-${id}`, () => fetchPageWithId(id), {
     select: (data) => {
       const page: Page = { ...data.page, content: denormalizeDocument(data) }
@@ -39,23 +36,18 @@ const Pages = ({ query }: PagesProps) => {
     },
   })
 
-  const mutate = useMutation((newPage: CmsPageUpdate) => updateExistingPage(id, newPage), {
-    onMutate: () => {
-      toast.loading(t("saving"))
+  const mutate = useToastMutation(
+    (newPage: CmsPageUpdate) => updateExistingPage(id, newPage),
+    {
+      onSuccess: (newData) => {
+        // Refetch, setQueryData or invalidateQueries?
+        // eslint-disable-next-line i18next/no-literal-string
+        queryClient.setQueryData(`page-${id}`, newData)
+      },
+      retry: 3,
     },
-    onSuccess: (newData) => {
-      toast.remove()
-      toast.custom(<SuccessNotification />)
-      // Refetch, setQueryData or invalidateQueries?
-      // eslint-disable-next-line i18next/no-literal-string
-      queryClient.setQueryData(`page-${id}`, newData)
-    },
-    onError: () => {
-      toast.remove()
-      toast.error(t("error-occured"))
-    },
-    retry: 3,
-  })
+    { notify: true, dismissable: true, type: "PUT", toastOptions: { duration: 10000000 } },
+  )
 
   let frontPageUrl = "/"
   if (getPage.isSuccess && getPage.data.course_id) {

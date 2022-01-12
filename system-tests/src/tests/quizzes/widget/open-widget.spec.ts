@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("widget, open", async ({ page, headless }) => {
+test.only("widget, open", async ({ page, headless }) => {
   // Go to http://project-331.local/playground
   await page.goto("http://project-331.local/playground")
 
@@ -22,7 +22,6 @@ test("widget, open", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-open-empty",
     waitForThisToBeVisibleAndStable: [
@@ -39,7 +38,6 @@ test("widget, open", async ({ page, headless }) => {
   await frame.fill('input[type="text"]', "2024")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-open-invalid",
     waitForThisToBeVisibleAndStable: [
@@ -54,7 +52,6 @@ test("widget, open", async ({ page, headless }) => {
   await frame.fill('input[type="text"]', "2024-02-29")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-open-valid",
     waitForThisToBeVisibleAndStable: [

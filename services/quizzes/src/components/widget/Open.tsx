@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { baseTheme } from "../../shared-module/styles"
 import { stripNonPrintableCharacters } from "../../shared-module/utils/strings"
 import { MarkdownText } from "../MarkdownText"
 
@@ -44,20 +45,22 @@ const Open: React.FC<QuizItemComponentProps> = ({
       <div>{quizItem.body && <MarkdownText text={quizItem.body} />}</div>
       <div>
         <label
+          htmlFor="answer"
           className={css`
             display: flex;
-            margin-right: 0.5rem;
+            color: ${baseTheme.colors.grey["700"]};
           `}
         >
           {t("answer")}
-          <input
-            type="text"
-            value={quizItemAnswerState?.textData ?? ""}
-            onChange={(e) => handleChange(e.target.value)}
-            onFocus={() => setShowFormatError(true)}
-            onBlur={() => setShowFormatError(false)}
-          />
         </label>
+        <input
+          id="answer"
+          type="text"
+          value={quizItemAnswerState?.textData ?? ""}
+          onChange={(e) => handleChange(e.target.value)}
+          onFocus={() => setShowFormatError(true)}
+          onBlur={() => setShowFormatError(false)}
+        />
       </div>
       <div
         className={css`

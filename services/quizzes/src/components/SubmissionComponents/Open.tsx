@@ -3,6 +3,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { ItemAnswerFeedback } from "../../pages/api/grade"
+import { baseTheme } from "../../shared-module/styles"
 import { quizTheme } from "../../styles/QuizStyles"
 import { MarkdownText } from "../MarkdownText"
 
@@ -47,20 +48,22 @@ const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
       <div>{public_quiz_item.body && <MarkdownText text={public_quiz_item.body} />}</div>
       <div>
         <label
+          htmlFor="answer"
           className={css`
             display: flex;
-            margin-right: 0.5rem;
+            color: ${baseTheme.colors.grey["700"]};
           `}
         >
           {t("answer")}
-          <input
-            type="text"
-            title="Answer"
-            aria-labelledby="Answer"
-            disabled
-            value={user_quiz_item_answer.textData ?? ""}
-          />
         </label>
+        <input
+          id="answer"
+          type="text"
+          title="Answer"
+          aria-labelledby="Answer"
+          disabled
+          value={user_quiz_item_answer.textData ?? ""}
+        />
       </div>
       <div
         className={css`

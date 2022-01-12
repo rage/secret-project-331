@@ -40,7 +40,10 @@
   "hide-trace": "Hide trace",
   "show-trace": "Show trace",
   "error-title": "Error",
+  "error-occured": "An error occured",
   "success-title": "Success",
   "edit-has-been-saved": "Your edit has been saved!",
+  "added-successfully": "Added successully.",
+  "default-success-toast-message": "Operation successful!",
   "saving": "Saving..."
 }

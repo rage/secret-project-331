@@ -2,12 +2,12 @@ import styled from "@emotion/styled"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
-import SuccessIcon from "../../img/SuccessIcon.svg"
+import ErrorIcon from "../../img/ErrorIcon.svg"
 import CloseIcon from "../../img/close.svg"
 import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
-interface SuccessNotificationProps {
+interface ErrorNotificationProps {
   header?: string
   message?: string
   toastId?: string
@@ -75,15 +75,15 @@ const TextWrapper = styled.div`
   }
 `
 
-const SuccessHeader = styled.div`
+const ErrorHeader = styled.div`
   ${respondToOrLarger.xs} {
     font-size: 1.25rem;
   }
-  color: ${baseTheme.colors.green[100]};
+  color: ${baseTheme.colors.red[100]};
   line-height: 18px;
 `
 
-const SuccessMessage = styled.div`
+const ErrorMessage = styled.div`
   margin-top: auto;
   opacity: 0.4;
   display: none;
@@ -92,17 +92,17 @@ const SuccessMessage = styled.div`
   }
 `
 
-const SuccessNotification = (props: SuccessNotificationProps) => {
+const ErrorNotification = (props: ErrorNotificationProps) => {
   const { t } = useTranslation()
   return (
     <Wrapper>
       <Content>
         <IconWrapper>
-          <SuccessIcon />
+          <ErrorIcon />
         </IconWrapper>
         <TextWrapper>
-          <SuccessHeader>{props.header ?? t("success-title")}</SuccessHeader>
-          <SuccessMessage>{props.message ?? t("default-success-toast-message")}</SuccessMessage>
+          <ErrorHeader>{props.header ?? t("error-title")}</ErrorHeader>
+          <ErrorMessage>{props.message ?? t("error-occured")}</ErrorMessage>
         </TextWrapper>
         {props.toastId && (
           <CloseIconWrapper onClick={() => toast.remove(props.toastId)}>
@@ -114,4 +114,4 @@ const SuccessNotification = (props: SuccessNotificationProps) => {
   )
 }
 
-export default SuccessNotification
+export default ErrorNotification

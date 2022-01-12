@@ -3,5 +3,8 @@
   "error-title": "Virhe",
   "success-title": "Tallennettu",
   "edit-has-been-saved": "Muutoksesi on tallennettu!",
-  "saving": "Tallennetaan..."
+  "default-success-toast-message": "Toiminto onnistui!",
+  "added-successfully": "Lisätty onnistuneesti.",
+  "saving": "Tallennetaan...",
+  "error-occured": "Tapahtui virhe"
 }

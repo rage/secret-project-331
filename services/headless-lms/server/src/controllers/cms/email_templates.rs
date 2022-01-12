@@ -5,7 +5,7 @@ use models::email_templates::{EmailTemplate, EmailTemplateUpdate};
 use crate::controllers::prelude::*;
 
 /**
-GET `/api/v0/cms/email-templates/:id
+GET `/api/v0/cms/email-templates/:id`
 */
 #[generated_doc(EmailTemplate)]
 #[instrument(skip(pool))]

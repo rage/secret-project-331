@@ -4,6 +4,7 @@
 pub use crate::controllers::helpers::media::{upload_media, StoreKind};
 pub use crate::controllers::{ControllerError, ControllerResult, UploadResult};
 pub use crate::domain::authorization::{authorize, Action as Act, AuthUser, Resource as Res};
+pub use crate::generated_docs;
 pub use actix_multipart::Multipart;
 pub use actix_web::web::{self, HttpRequest, HttpResponse, ServiceConfig};
 pub use anyhow::Context;

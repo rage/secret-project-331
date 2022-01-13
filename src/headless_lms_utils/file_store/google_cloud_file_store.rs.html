@@ -154,10 +154,10 @@
 
 <span class="attribute">#[<span class="ident">async_trait</span>(<span class="question-mark">?</span><span class="ident">Send</span>)]</span>
 <span class="kw">impl</span> <span class="ident">FileStore</span> <span class="kw">for</span> <span class="ident">GoogleCloudFileStore</span> {
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">file</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">mime_type</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UtilError</span><span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">file</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">mime_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UtilError</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">client</span>
             .<span class="ident">object</span>()
-            .<span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bucket_name</span>, <span class="ident">file</span>, <span class="ident">path_to_str</span>(<span class="ident">path</span>)<span class="question-mark">?</span>, <span class="kw-2">&amp;</span><span class="ident">mime_type</span>)
+            .<span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bucket_name</span>, <span class="ident">file</span>, <span class="ident">path_to_str</span>(<span class="ident">path</span>)<span class="question-mark">?</span>, <span class="ident">mime_type</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
@@ -193,7 +193,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
         <span class="kw-2">mut</span> <span class="ident">contents</span>: <span class="ident">GenericPayload</span>,
-        <span class="ident">mime_type</span>: <span class="ident">String</span>,
+        <span class="ident">mime_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UtilError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">object_client</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">object</span>();
         <span class="kw">let</span> (<span class="ident">sender</span>, <span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">tokio::sync::mpsc::channel</span>(<span class="ident">BUFFER_SIZE</span>);
@@ -213,7 +213,7 @@
             <span class="ident">receiver_stream</span>,
             <span class="prelude-val">None</span>,
             <span class="ident">path_to_str</span>(<span class="ident">path</span>)<span class="question-mark">?</span>,
-            <span class="kw-2">&amp;</span><span class="ident">mime_type</span>,
+            <span class="ident">mime_type</span>,
         );
         <span class="ident">try_join</span>(<span class="ident">send_fut</span>, <span class="ident">recv_fut</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())

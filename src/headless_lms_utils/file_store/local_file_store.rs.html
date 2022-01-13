@@ -228,7 +228,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
         <span class="ident">contents</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-        <span class="ident">_mime_type</span>: <span class="ident">String</span>,
+        <span class="ident">_mime_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UtilError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">base_path</span>.<span class="ident">join</span>(<span class="ident">path</span>);
         <span class="ident">fs::write</span>(<span class="ident">full_path</span>, <span class="ident">contents</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -262,7 +262,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
         <span class="kw-2">mut</span> <span class="ident">contents</span>: <span class="ident">GenericPayload</span>,
-        <span class="ident">_mime_type</span>: <span class="ident">String</span>,
+        <span class="ident">_mime_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UtilError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">base_path</span>.<span class="ident">join</span>(<span class="ident">path</span>);
         <span class="kw">let</span> <span class="ident">parent_option</span> <span class="op">=</span> <span class="ident">full_path</span>.<span class="ident">parent</span>();
@@ -328,7 +328,7 @@
         <span class="kw">let</span> <span class="ident">test_file_contents</span> <span class="op">=</span> <span class="string">&quot;Test file contents&quot;</span>.<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>();
         <span class="comment">// Put content to storage and read it back</span>
         <span class="ident">local_file_store</span>
-            .<span class="ident">upload</span>(<span class="kw-2">&amp;</span><span class="ident">path1</span>, <span class="ident">test_file_contents</span>.<span class="ident">clone</span>(), <span class="string">&quot;text/plain&quot;</span>.<span class="ident">to_string</span>())
+            .<span class="ident">upload</span>(<span class="kw-2">&amp;</span><span class="ident">path1</span>, <span class="ident">test_file_contents</span>.<span class="ident">clone</span>(), <span class="string">&quot;text/plain&quot;</span>)
             .<span class="kw">await</span>
             .<span class="ident">expect</span>(<span class="string">&quot;Failed to put a file into local file storage.&quot;</span>);
         <span class="kw">let</span> <span class="ident">retrivied_file</span> <span class="op">=</span> <span class="ident">local_file_store</span>
@@ -357,7 +357,7 @@
         <span class="kw">let</span> <span class="ident">test_file_contents</span> <span class="op">=</span> <span class="string">&quot;Test file contents 2&quot;</span>.<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>();
         <span class="kw">let</span> <span class="ident">path1</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;file1&quot;</span>);
         <span class="ident">local_file_store</span>
-            .<span class="ident">upload</span>(<span class="kw-2">&amp;</span><span class="ident">path1</span>, <span class="ident">test_file_contents</span>.<span class="ident">clone</span>(), <span class="string">&quot;text/plain&quot;</span>.<span class="ident">to_string</span>())
+            .<span class="ident">upload</span>(<span class="kw-2">&amp;</span><span class="ident">path1</span>, <span class="ident">test_file_contents</span>.<span class="ident">clone</span>(), <span class="string">&quot;text/plain&quot;</span>)
             .<span class="kw">await</span>
             .<span class="ident">expect</span>(<span class="string">&quot;Failed to put a file into local file storage.&quot;</span>);
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">local_file_store</span>

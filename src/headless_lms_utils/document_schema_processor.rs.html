@@ -284,20 +284,20 @@
         <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
             <span class="string">&quot;moocfi/hero-section&quot;</span>,
             <span class="macro">attributes!</span> {
-                <span class="string">&quot;title&quot;</span>: <span class="ident">title</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;subtitle&quot;</span>: <span class="ident">sub_title</span>.<span class="ident">to_string</span>()
+                <span class="string">&quot;title&quot;</span>: <span class="ident">title</span>,
+                <span class="string">&quot;subtitle&quot;</span>: <span class="ident">sub_title</span>
             },
         )
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">landing_page_hero_section</span>(<span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">sub_title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">GutenbergBlock::block_with_name_attributes_and_inner_blocks</span>(
             <span class="string">&quot;moocfi/landing-page-hero-section&quot;</span>,
-            <span class="macro">attributes!</span> {<span class="string">&quot;title&quot;</span>: <span class="ident">title</span>.<span class="ident">to_string</span>()},
+            <span class="macro">attributes!</span> {<span class="string">&quot;title&quot;</span>: <span class="ident">title</span>},
             <span class="macro">vec!</span>[<span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
                 <span class="string">&quot;core/paragraph&quot;</span>,
                 <span class="macro">attributes!</span> {
                     <span class="string">&quot;align&quot;</span>: <span class="string">&quot;center&quot;</span>,
-                    <span class="string">&quot;content&quot;</span>: <span class="ident">sub_title</span>.<span class="ident">to_string</span>(),
+                    <span class="string">&quot;content&quot;</span>: <span class="ident">sub_title</span>,
                     <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
                     <span class="string">&quot;placeholder&quot;</span>: <span class="string">&quot;Insert short description of course...&quot;</span>
                 },

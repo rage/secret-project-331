@@ -2210,6 +2210,87 @@
 <span id="2210">2210</span>
 <span id="2211">2211</span>
 <span id="2212">2212</span>
+<span id="2213">2213</span>
+<span id="2214">2214</span>
+<span id="2215">2215</span>
+<span id="2216">2216</span>
+<span id="2217">2217</span>
+<span id="2218">2218</span>
+<span id="2219">2219</span>
+<span id="2220">2220</span>
+<span id="2221">2221</span>
+<span id="2222">2222</span>
+<span id="2223">2223</span>
+<span id="2224">2224</span>
+<span id="2225">2225</span>
+<span id="2226">2226</span>
+<span id="2227">2227</span>
+<span id="2228">2228</span>
+<span id="2229">2229</span>
+<span id="2230">2230</span>
+<span id="2231">2231</span>
+<span id="2232">2232</span>
+<span id="2233">2233</span>
+<span id="2234">2234</span>
+<span id="2235">2235</span>
+<span id="2236">2236</span>
+<span id="2237">2237</span>
+<span id="2238">2238</span>
+<span id="2239">2239</span>
+<span id="2240">2240</span>
+<span id="2241">2241</span>
+<span id="2242">2242</span>
+<span id="2243">2243</span>
+<span id="2244">2244</span>
+<span id="2245">2245</span>
+<span id="2246">2246</span>
+<span id="2247">2247</span>
+<span id="2248">2248</span>
+<span id="2249">2249</span>
+<span id="2250">2250</span>
+<span id="2251">2251</span>
+<span id="2252">2252</span>
+<span id="2253">2253</span>
+<span id="2254">2254</span>
+<span id="2255">2255</span>
+<span id="2256">2256</span>
+<span id="2257">2257</span>
+<span id="2258">2258</span>
+<span id="2259">2259</span>
+<span id="2260">2260</span>
+<span id="2261">2261</span>
+<span id="2262">2262</span>
+<span id="2263">2263</span>
+<span id="2264">2264</span>
+<span id="2265">2265</span>
+<span id="2266">2266</span>
+<span id="2267">2267</span>
+<span id="2268">2268</span>
+<span id="2269">2269</span>
+<span id="2270">2270</span>
+<span id="2271">2271</span>
+<span id="2272">2272</span>
+<span id="2273">2273</span>
+<span id="2274">2274</span>
+<span id="2275">2275</span>
+<span id="2276">2276</span>
+<span id="2277">2277</span>
+<span id="2278">2278</span>
+<span id="2279">2279</span>
+<span id="2280">2280</span>
+<span id="2281">2281</span>
+<span id="2282">2282</span>
+<span id="2283">2283</span>
+<span id="2284">2284</span>
+<span id="2285">2285</span>
+<span id="2286">2286</span>
+<span id="2287">2287</span>
+<span id="2288">2288</span>
+<span id="2289">2289</span>
+<span id="2290">2290</span>
+<span id="2291">2291</span>
+<span id="2292">2292</span>
+<span id="2293">2293</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -3630,6 +3711,64 @@
             <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
     );
 
+    <span class="kw">let</span> (
+        <span class="ident">quizzes_exercise_block_2</span>,
+        <span class="ident">quizzes_exercise_2</span>,
+        <span class="ident">quizzes_exercise_slide_2</span>,
+        <span class="ident">quizzes_exercise_task_2</span>,
+    ) <span class="op">=</span> <span class="ident">quizzes_exercise</span>(
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;949b548f-a87f-4dc6-aafc-9f1e1abe34a7&quot;</span>),
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;39c36d3f-017e-4c36-a97e-908e25b3678b&quot;</span>),
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;8ae8971c-95dd-4d8c-b38f-152ad89c6b20&quot;</span>),
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;d05b1d9b-f270-4e5e-baeb-a904ea29dc90&quot;</span>),
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;1057f91c-9dac-4364-9d6a-fa416abc540b&quot;</span>),
+        <span class="macro">serde_json::json!</span>({
+            <span class="string">&quot;id&quot;</span>: <span class="string">&quot;1e2bb795-1736-4b37-ae44-b16ca59b4e4f&quot;</span>,
+            <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very hard&quot;</span>,
+            <span class="string">&quot;open&quot;</span>: <span class="string">&quot;2021-12-17T07:15:33.479Z&quot;</span>,
+            <span class="string">&quot;part&quot;</span>: <span class="number">0</span>,
+            <span class="string">&quot;items&quot;</span>: [{
+                <span class="string">&quot;id&quot;</span>: <span class="string">&quot;d81a81f2-5e44-48c5-ab6d-f724af8a23f2&quot;</span>,
+                <span class="string">&quot;body&quot;</span>: <span class="string">&quot;&quot;</span>,
+                <span class="string">&quot;type&quot;</span>: <span class="string">&quot;open&quot;</span>,
+                <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
+                <span class="string">&quot;order&quot;</span>: <span class="number">0</span>,
+                <span class="string">&quot;title&quot;</span>: <span class="string">&quot;When you started studying at the uni? Give the date in yyyy-mm-dd format.&quot;</span>,
+                <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;690c69e2-9275-4cfa-aba4-63ac917e59f6&quot;</span>,
+                <span class="string">&quot;options&quot;</span>: [],
+                <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;createdAt&quot;</span>: <span class="string">&quot;2021-12-17T07:16:23.202Z&quot;</span>,
+                <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
+                <span class="string">&quot;updatedAt&quot;</span>: <span class="string">&quot;2021-12-17T07:16:23.202Z&quot;</span>,
+                <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;validityRegex&quot;</span>: <span class="string">r#&quot;^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$&quot;#</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;failureMessage&quot;</span>: <span class="string">&quot;Oh no! Your answer is not in yyyy-mm-dd format :(&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;successMessage&quot;</span>: <span class="string">&quot;Gongrats! your answer is in yyyy-mm-dd format!&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;allAnswersCorrect&quot;</span>: <span class="bool-val">false</span>,
+                <span class="string">&quot;feedbackDisplayPolicy&quot;</span>: <span class="string">&quot;DisplayFeedbackOnQuizItem&quot;</span>,
+                <span class="string">&quot;sharedOptionFeedbackMessage&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;usesSharedOptionFeedbackMessage&quot;</span>: <span class="bool-val">false</span>
+            }],
+            <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Pretty good exercise&quot;</span>,
+            <span class="string">&quot;tries&quot;</span>: <span class="number">1</span>,
+            <span class="string">&quot;points&quot;</span>: <span class="number">2</span>,
+            <span class="string">&quot;section&quot;</span>: <span class="number">0</span>,
+            <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;39c7879a-e61f-474a-8f18-7fc476ccc3a0&quot;</span>,
+            <span class="string">&quot;deadline&quot;</span>: <span class="string">&quot;2021-12-17T07:15:33.479Z&quot;</span>,
+            <span class="string">&quot;createdAt&quot;</span>: <span class="string">&quot;2021-12-17T07:15:33.479Z&quot;</span>,
+            <span class="string">&quot;updatedAt&quot;</span>: <span class="string">&quot;2021-12-17T07:15:33.479Z&quot;</span>,
+            <span class="string">&quot;autoReject&quot;</span>: <span class="bool-val">false</span>,
+            <span class="string">&quot;autoConfirm&quot;</span>: <span class="bool-val">true</span>,
+            <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true</span>,
+            <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;your submit has been answered&quot;</span>,
+            <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
+            <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
+            <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
+    );
+
     <span class="ident">create_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
@@ -3644,10 +3783,33 @@
             <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[<span class="ident">quizzes_exercise_task_1</span>],
             <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([
                 <span class="ident">paragraph</span>(
-                    <span class="string">&quot;First chapters last page.&quot;</span>,
+                    <span class="string">&quot;First chapters essay page.&quot;</span>,
                     <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;6e4ab83a-2ae8-4bd2-a6ea-0e0d1eeabe23&quot;</span>)
                 ),
-                <span class="ident">quizzes_exercise_block_1</span>
+                <span class="ident">quizzes_exercise_block_1</span>,
+            ]),
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">create_page</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="ident">admin</span>,
+        <span class="ident">chapter_1</span>.<span class="ident">id</span>,
+        <span class="ident">CmsPageUpdate</span> {
+            <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-4&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;page 4&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[<span class="ident">quizzes_exercise_2</span>],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[<span class="ident">quizzes_exercise_slide_2</span>],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[<span class="ident">quizzes_exercise_task_2</span>],
+            <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([
+                <span class="ident">paragraph</span>(
+                    <span class="string">&quot;First chapters open page.&quot;</span>,
+                    <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;771b9c61-dbc9-4266-a980-dadc853455c9&quot;</span>)
+                ),
+                <span class="ident">quizzes_exercise_block_2</span>
             ]),
         },
     )

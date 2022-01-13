@@ -127,14 +127,14 @@ Allows storing files to a file storage backend.
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
         <span class="ident">contents</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-        <span class="ident">mime_type</span>: <span class="ident">String</span>,
+        <span class="ident">mime_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UtilError</span><span class="op">&gt;</span>;
     <span class="doccomment">/// Upload a file without loading the whole file to memory</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload_stream</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
         <span class="kw-2">mut</span> <span class="ident">contents</span>: <span class="ident">GenericPayload</span>,
-        <span class="ident">mime_type</span>: <span class="ident">String</span>,
+        <span class="ident">mime_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UtilError</span><span class="op">&gt;</span>;
     <span class="doccomment">/// Download a file to memory.</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">UtilError</span><span class="op">&gt;</span>;
@@ -170,7 +170,7 @@ Allows storing files to a file storage backend.
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">organization_image_path</span>(
     <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">image_name</span>: <span class="ident">String</span>,
+    <span class="ident">image_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathBuf</span>, <span class="ident">UtilError</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="macro">format!</span>(
         <span class="string">&quot;organizations/{}/images/{}&quot;</span>,
@@ -181,7 +181,7 @@ Allows storing files to a file storage backend.
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">organization_audio_path</span>(
     <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">audio_name</span>: <span class="ident">String</span>,
+    <span class="ident">audio_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathBuf</span>, <span class="ident">UtilError</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="macro">format!</span>(
         <span class="string">&quot;organizations/{}/audios/{}&quot;</span>,
@@ -192,7 +192,7 @@ Allows storing files to a file storage backend.
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">organization_file_path</span>(
     <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">file_name</span>: <span class="ident">String</span>,
+    <span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathBuf</span>, <span class="ident">UtilError</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="macro">format!</span>(
         <span class="string">&quot;organizations/{}/files/{}&quot;</span>,

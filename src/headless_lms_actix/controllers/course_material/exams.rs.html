@@ -177,7 +177,6 @@
 <span id="177">177</span>
 <span id="178">178</span>
 <span id="179">179</span>
-<span id="180">180</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Duration</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">exams</span>::{<span class="self">self</span>, <span class="ident">ExamEnrollment</span>},
@@ -210,12 +209,11 @@ POST /api/v0/course-material/exams/:id/enroll
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-
     <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// check that the exam is not over</span>
-    <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="macro">dbg!</span>(<span class="ident">Utc::now</span>());
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ends_at</span>) <span class="op">=</span> <span class="macro">dbg!</span>(<span class="ident">exam</span>.<span class="ident">ends_at</span>) {
+    <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Utc::now</span>();
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ends_at</span>) <span class="op">=</span> <span class="ident">exam</span>.<span class="ident">ends_at</span> {
         <span class="kw">if</span> <span class="ident">ends_at</span> <span class="op">&lt;</span> <span class="ident">now</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Forbidden</span>(<span class="string">&quot;Exam is over&quot;</span>.<span class="ident">to_string</span>()));
         }

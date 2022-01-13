@@ -239,7 +239,7 @@
                 <span class="ident">mime::IMAGE</span> =&gt; <span class="ident">generate_image_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>),
                 <span class="kw">_</span> =&gt; <span class="ident">generate_file_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>),
             }<span class="question-mark">?</span>;
-            <span class="ident">upload_media_to_storage</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">field</span>, <span class="ident">file_store</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">upload_media_to_storage</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">field</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
         }
         <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ControllerError::InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())),
@@ -269,7 +269,7 @@
                     <span class="ident">unsupported</span>
                 ))),
             }<span class="question-mark">?</span>;
-            <span class="ident">upload_media_to_storage</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">field</span>, <span class="ident">file_store</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">upload_media_to_storage</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">field</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
         }
         <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ControllerError::InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())),

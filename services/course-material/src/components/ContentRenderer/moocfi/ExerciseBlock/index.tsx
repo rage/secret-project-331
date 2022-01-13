@@ -10,10 +10,11 @@ import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exer
 import { fetchExerciseById, postSubmission } from "../../../../services/backend"
 import Button from "../../../../shared-module/components/Button"
 import DebugModal from "../../../../shared-module/components/DebugModal"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import GenericLoading from "../../../GenericLoading"
 
 import ExerciseTask from "./ExerciseTask"
 
@@ -36,7 +37,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const id = props.data.attributes.id
   // eslint-disable-next-line i18next/no-literal-string
   const queryUniqueKey = `exercise-${id}`
-  const courseMaterialExercise = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
+  const getCourseMaterialExercise = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
     enabled: showExercise,
     onSuccess: (data) => {
       if (data.exercise_status?.score_given) {
@@ -60,7 +61,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         type: "submissionGraded",
         payload: {
           submissionResult: data2,
-          publicSpec: courseMaterialExercise.data?.current_exercise_tasks[0].public_spec,
+          publicSpec: getCourseMaterialExercise.data?.current_exercise_tasks[0].public_spec,
         },
       })
     },
@@ -69,19 +70,15 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const [answerValid, setAnswerValid] = useState(false)
   const [points, setPoints] = useState<number | null>(null)
 
-  if (courseMaterialExercise.error) {
-    return <pre>{JSON.stringify(courseMaterialExercise.error, undefined, 2)}</pre>
-  }
-  if (postSubmissionMutation.isError) {
-    return <pre>{JSON.stringify(postSubmissionMutation.error, undefined, 2)}</pre>
-  }
-
   if (!showExercise) {
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
   }
 
-  if (courseMaterialExercise.isLoading || !courseMaterialExercise.data) {
-    return <GenericLoading />
+  if (getCourseMaterialExercise.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getCourseMaterialExercise.error} />
+  }
+  if (getCourseMaterialExercise.isLoading || getCourseMaterialExercise.isIdle) {
+    return <Spinner variant={"medium"} />
   }
 
   const courseInstanceId = coursePageContext?.instance?.id
@@ -89,7 +86,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const inEndedExam = coursePageContext?.exam?.ends_at
     ? coursePageContext?.exam?.ends_at < new Date()
     : false
-  const noSubmission = courseMaterialExercise.data.previous_submission === null
+  const noSubmission = getCourseMaterialExercise.data.previous_submission === null
   const cannotAnswerButNoSubmission = inEndedExam && noSubmission
 
   return (
@@ -123,7 +120,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             font-weight: 400;
           `}
         >
-          {courseMaterialExercise.data.exercise.name}
+          {getCourseMaterialExercise.data.exercise.name}
         </h2>
         <div
           className={css`
@@ -138,13 +135,21 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         >
           {t("points-label")}
           <br />
-          {points ?? 0}/{courseMaterialExercise.data.exercise.score_maximum}
+          {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
         </div>
+      </div>
+      <div
+        className={css`
+          ${normalWidthCenteredComponentStyles}
+        `}
+      >
+        {postSubmissionMutation.data?.[0].grading?.feedback_text &&
+          postSubmissionMutation.data?.[0].grading?.feedback_text}
       </div>
       <ExerciseTask
         cannotAnswerButNoSubmission={cannotAnswerButNoSubmission}
-        exerciseTask={courseMaterialExercise.data.current_exercise_tasks[0]}
-        isExam={courseMaterialExercise.data.exercise.exam_id !== null}
+        exerciseTask={getCourseMaterialExercise.data.current_exercise_tasks[0]}
+        isExam={getCourseMaterialExercise.data.exercise.exam_id !== null}
         postThisStateToIFrame={postThisStateToIFrame}
         setAnswer={setAnswer}
         setAnswerValid={setAnswerValid}
@@ -163,13 +168,13 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             variant="primary"
             disabled={postSubmissionMutation.isLoading || !answerValid}
             onClick={() => {
-              if (!courseInstanceId && !courseMaterialExercise.data.exercise.exam_id) {
+              if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
                 return
               }
               postSubmissionMutation.mutate([
                 {
                   course_instance_id: courseInstanceId || null,
-                  exercise_task_id: courseMaterialExercise.data.current_exercise_tasks[0].id,
+                  exercise_task_id: getCourseMaterialExercise.data.current_exercise_tasks[0].id,
                   data_json: answer,
                 },
               ])
@@ -185,20 +190,21 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             onClick={() => {
               dispatch({
                 type: "tryAgain",
-                payload: courseMaterialExercise.data,
+                payload: getCourseMaterialExercise.data,
               })
-              //exerciseTask.refetch()
               postSubmissionMutation.reset()
               setAnswerValid(false)
             }}
-            disabled={courseMaterialExercise.isRefetching}
+            disabled={getCourseMaterialExercise.isRefetching}
           >
             {t("try-again")}
           </Button>
         )}
-        {postSubmissionMutation.isError && <></>}
+        {postSubmissionMutation.isError && (
+          <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
+        )}
         <br />
-        <DebugModal data={courseMaterialExercise.data} />
+        <DebugModal data={getCourseMaterialExercise.data} />
       </div>
     </div>
   )

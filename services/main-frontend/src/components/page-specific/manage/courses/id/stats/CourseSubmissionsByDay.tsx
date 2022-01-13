@@ -35,76 +35,75 @@ const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseI
     },
   )
 
+  if (getCourseDailySubmissionCounts.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getCourseDailySubmissionCounts.error} />
+  }
+
+  if (getCourseDailySubmissionCounts.isLoading || getCourseDailySubmissionCounts.isIdle) {
+    return <Spinner variant={"medium"} />
+  }
+
+  if (getCourseDailySubmissionCounts.data.apiData.length === 0) {
+    return <div>{t("no-data")}</div>
+  }
+
   return (
     <div
       className={css`
         margin-bottom: 1rem;
       `}
     >
-      {getCourseDailySubmissionCounts.isError && (
-        <ErrorBanner variant={"readOnly"} error={getCourseDailySubmissionCounts.error} />
-      )}
-      {getCourseDailySubmissionCounts.isLoading && <Spinner variant={"medium"} />}
-
-      {getCourseDailySubmissionCounts.isSuccess &&
-        getCourseDailySubmissionCounts.data.apiData.length === 0 && <div>{t("no-data")}</div>}
-
-      {getCourseDailySubmissionCounts.isSuccess &&
-        getCourseDailySubmissionCounts.data.apiData.length !== 0 && (
-          <>
-            <Echarts
-              height={200 * Object.keys(getCourseDailySubmissionCounts.data.eChartsData).length}
-              options={{
-                tooltip: {
-                  // eslint-disable-next-line i18next/no-literal-string
-                  position: "top",
-                  formatter: (a) => {
-                    return t("daily-submissions-visualization-tooltip", {
-                      // @ts-expect-error: todo
-                      day: a.data[0],
-                      // @ts-expect-error: todo
-                      submissions: a.data[1],
-                    })
-                  },
+      <Echarts
+        height={200 * Object.keys(getCourseDailySubmissionCounts.data.eChartsData).length}
+        options={{
+          tooltip: {
+            // eslint-disable-next-line i18next/no-literal-string
+            position: "top",
+            formatter: (a) => {
+              return t("daily-submissions-visualization-tooltip", {
+                // @ts-expect-error: todo
+                day: a.data[0],
+                // @ts-expect-error: todo
+                submissions: a.data[1],
+              })
+            },
+          },
+          visualMap: {
+            show: false,
+            min: 0,
+            max: getCourseDailySubmissionCounts.data.maxValue,
+          },
+          calendar: Object.entries(getCourseDailySubmissionCounts.data.eChartsData).map(
+            ([year, _submissionCounts], i) => {
+              return {
+                range: year,
+                // eslint-disable-next-line i18next/no-literal-string
+                cellSize: ["auto", 20],
+                dayLabel: {
+                  firstDay: 1,
                 },
-                visualMap: {
-                  show: false,
-                  min: 0,
-                  max: getCourseDailySubmissionCounts.data.maxValue,
-                },
-                calendar: Object.entries(getCourseDailySubmissionCounts.data.eChartsData).map(
-                  ([year, _submissionCounts], i) => {
-                    return {
-                      range: year,
-                      // eslint-disable-next-line i18next/no-literal-string
-                      cellSize: ["auto", 20],
-                      dayLabel: {
-                        firstDay: 1,
-                      },
-                      top: 190 * i + 40,
-                    }
-                  },
-                ),
-                series: Object.entries(getCourseDailySubmissionCounts.data.eChartsData).map(
-                  ([_year, submissionCounts], i) => {
-                    return {
-                      // eslint-disable-next-line i18next/no-literal-string
-                      type: "heatmap",
-                      // eslint-disable-next-line i18next/no-literal-string
-                      coordinateSystem: "calendar",
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
-                      calendarIndex: i,
-                    }
-                  },
-                ),
-              }}
-            />
-            <DebugModal data={getCourseDailySubmissionCounts.data.apiData} />
-          </>
-        )}
+                top: 190 * i + 40,
+              }
+            },
+          ),
+          series: Object.entries(getCourseDailySubmissionCounts.data.eChartsData).map(
+            ([_year, submissionCounts], i) => {
+              return {
+                // eslint-disable-next-line i18next/no-literal-string
+                type: "heatmap",
+                // eslint-disable-next-line i18next/no-literal-string
+                coordinateSystem: "calendar",
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
+                calendarIndex: i,
+              }
+            },
+          ),
+        }}
+      />
+      <DebugModal data={getCourseDailySubmissionCounts.data.apiData} />
     </div>
   )
 }
 
-export default dontRenderUntilQueryParametersReady(CourseSubmissionsByDay)
+export default CourseSubmissionsByDay

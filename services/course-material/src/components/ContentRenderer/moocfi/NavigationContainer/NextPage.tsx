@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import useTime from "../../../../hooks/useTime"
-import { getNextPageRoutingData } from "../../../../services/backend"
+import { fetchNextPageRoutingData } from "../../../../services/backend"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import NextSectionLink from "../../../../shared-module/components/NextSectionLink"
+import Spinner from "../../../../shared-module/components/Spinner"
 import { courseFrontPageRoute, coursePageRoute } from "../../../../utils/routing"
-import GenericLoading from "../../../GenericLoading"
 
 export interface NextPageProps {
   chapterId: string | null
@@ -24,20 +25,19 @@ const NextPage: React.FC<NextPageProps> = ({
 }) => {
   const { t, i18n } = useTranslation()
   const now = useTime()
-  const { isLoading, error, data } = useQuery(`pages-${currentPageId}-next-page`, () =>
-    getNextPageRoutingData(currentPageId),
+  const getNextPageRoutingData = useQuery(`pages-${currentPageId}-next-page`, () =>
+    fetchNextPageRoutingData(currentPageId),
   )
 
-  if (error) {
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
+  if (getNextPageRoutingData.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getNextPageRoutingData.error} />
+  }
+  if (getNextPageRoutingData.isLoading || getNextPageRoutingData.isIdle) {
+    return <Spinner variant={"medium"} />
   }
 
-  if (isLoading || data === undefined) {
-    return <GenericLoading />
-  }
-
-  // if data is null, we have reached the end of the course material. i.e. no page or chapter found
-  if (data === null) {
+  if (getNextPageRoutingData.data === null) {
+    // if data is null we have reached the end of the course material. i.e. no page or chapter found
     return (
       <NextSectionLink
         title={t("title-congratulations")}
@@ -47,6 +47,10 @@ const NextPage: React.FC<NextPageProps> = ({
       />
     )
   }
+
+  const data = getNextPageRoutingData.data
+  const NUMERIC = "numeric"
+  const LONG = "long"
   const nextPageUrl = coursePageRoute(organizationSlug, courseSlug, data.url_path)
   // Chapter front page NextSectionLink
   if (data.chapter_front_page_id === currentPageId) {
@@ -100,18 +104,13 @@ const NextPage: React.FC<NextPageProps> = ({
         closedUntil = t("opens-in-time", { "relative-time": formatted })
       } else {
         const date = data.chapter_opens_at.toLocaleString(i18n.language, {
-          // eslint-disable-next-line i18next/no-literal-string
-          year: "numeric",
-          // eslint-disable-next-line i18next/no-literal-string
-          month: "long",
-          // eslint-disable-next-line i18next/no-literal-string
-          day: "numeric",
+          year: NUMERIC,
+          month: LONG,
+          day: NUMERIC,
         })
         const time = data.chapter_opens_at.toLocaleString(i18n.language, {
-          // eslint-disable-next-line i18next/no-literal-string
-          hour: "numeric",
-          // eslint-disable-next-line i18next/no-literal-string
-          minute: "numeric",
+          hour: NUMERIC,
+          minute: NUMERIC,
         })
         closedUntil = t("available-on-date-at-time", { date: date, time: time })
       }

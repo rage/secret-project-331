@@ -6,6 +6,7 @@ import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange
 
 import Checkbox from "./Checkbox"
 import Essay from "./Essay"
+import Matrix from "./Matrix/Matrix"
 import MultipleChoice from "./MultipleChoice"
 import { MultipleChoiceClickable } from "./MultipleChoiceClickable"
 import { MultipleChoiceDropdown } from "./MultipleChoiceDropdown"
@@ -26,6 +27,7 @@ type QuizItemType =
   | "checkbox"
   | "open"
   | "custom-frontend-accept-data"
+  | "matrix"
 
 const componentsByTypeNames = (typeName: QuizItemType) => {
   const mapTypeToComponent: { [key: string]: React.FC<QuizItemComponentProps> } = {
@@ -37,6 +39,7 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
     "custom-frontend-accept-data": Unsupported,
     "multiple-choice-dropdown": MultipleChoiceDropdown,
     "clickable-multiple-choice": MultipleChoiceClickable,
+    matrix: Matrix,
   }
 
   return mapTypeToComponent[typeName]
@@ -107,6 +110,7 @@ const Widget: React.FC<WidgetProps> = ({ port, quiz }) => {
           intData: null,
           textData: null,
           optionAnswers: null,
+          optionCells: null,
         }
       }),
     },

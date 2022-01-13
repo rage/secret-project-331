@@ -173,8 +173,7 @@ async fn get_exams(
     organization: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<Vec<CourseExam>>> {
     let mut conn = pool.acquire().await?;
-    let exams =
-        models::exams::get_exams_for_organization(&mut conn, organization.into_inner()).await?;
+    let exams = models::exams::get_exams_for_organization(&mut conn, *organization).await?;
     Ok(web::Json(exams))
 }
 

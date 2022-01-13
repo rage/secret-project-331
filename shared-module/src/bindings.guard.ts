@@ -806,8 +806,9 @@ export function isPageWithExercises(obj: any, _argumentName?: string): obj is Pa
     (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
     typeof obj.url_path === "string" &&
     typeof obj.title === "string" &&
-    typeof obj.order_number === "number" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.order_number === "number" &&
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
     Array.isArray(obj.exercises) &&
     obj.exercises.every((e: any) => isExercise(e) as boolean)
   )

@@ -30,12 +30,11 @@ pub async fn enroll(
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-
     let exam = exams::get(&mut conn, *exam_id).await?;
 
     // check that the exam is not over
-    let now = dbg!(Utc::now());
-    if let Some(ends_at) = dbg!(exam.ends_at) {
+    let now = Utc::now();
+    if let Some(ends_at) = exam.ends_at {
         if ends_at < now {
             return Err(ControllerError::Forbidden("Exam is over".to_string()));
         }

@@ -27,11 +27,11 @@ interface PageStateError {
   error: unknown
 }
 
-export type CoursePageState = PageStateLoading | PageStateReady | PageStateError
+export type PageState = PageStateLoading | PageStateReady | PageStateError
 
 interface RawSetStateAction {
   type: "rawSetState"
-  payload: CoursePageState
+  payload: PageState
 }
 
 interface SetDataAction {
@@ -53,16 +53,9 @@ interface SetLoadingAction {
   type: "setLoading"
 }
 
-export type CoursePageStateAction =
-  | RawSetStateAction
-  | SetDataAction
-  | SetErrorAction
-  | SetLoadingAction
+export type PageStateAction = RawSetStateAction | SetDataAction | SetErrorAction | SetLoadingAction
 
-export default function pageStateReducer(
-  prev: CoursePageState,
-  action: CoursePageStateAction,
-): CoursePageState {
+export default function pageStateReducer(prev: PageState, action: PageStateAction): PageState {
   switch (action.type) {
     case "rawSetState":
       return action.payload

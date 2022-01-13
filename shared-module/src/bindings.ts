@@ -477,11 +477,12 @@ export interface PageWithExercises {
   course_id: string | null
   exam_id: string | null
   chapter_id: string | null
-  content: unknown
   url_path: string
   title: string
-  order_number: number
   deleted_at: Date | null
+  content: unknown
+  order_number: number
+  copied_from: string | null
   exercises: Array<Exercise>
 }
 

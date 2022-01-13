@@ -1418,6 +1418,64 @@ async fn seed_sample_course(
             "awardPointsEvenIfWrong": false}),
     );
 
+    let (
+        quizzes_exercise_block_2,
+        quizzes_exercise_2,
+        quizzes_exercise_slide_2,
+        quizzes_exercise_task_2,
+    ) = quizzes_exercise(
+        Uuid::new_v5(&course_id, b"949b548f-a87f-4dc6-aafc-9f1e1abe34a7"),
+        Uuid::new_v5(&course_id, b"39c36d3f-017e-4c36-a97e-908e25b3678b"),
+        Uuid::new_v5(&course_id, b"8ae8971c-95dd-4d8c-b38f-152ad89c6b20"),
+        Uuid::new_v5(&course_id, b"d05b1d9b-f270-4e5e-baeb-a904ea29dc90"),
+        Uuid::new_v5(&course_id, b"1057f91c-9dac-4364-9d6a-fa416abc540b"),
+        serde_json::json!({
+            "id": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
+            "body": "very hard",
+            "open": "2021-12-17T07:15:33.479Z",
+            "part": 0,
+            "items": [{
+                "id": "d81a81f2-5e44-48c5-ab6d-f724af8a23f2",
+                "body": "",
+                "type": "open",
+                "multi": false,
+                "order": 0,
+                "title": "When you started studying at the uni? Give the date in yyyy-mm-dd format.",
+                "quizId": "690c69e2-9275-4cfa-aba4-63ac917e59f6",
+                "options": [],
+                "maxValue": null,
+                "maxWords": null,
+                "minValue": null,
+                "minWords": null,
+                "createdAt": "2021-12-17T07:16:23.202Z",
+                "direction": "row",
+                "updatedAt": "2021-12-17T07:16:23.202Z",
+                "formatRegex": null,
+                "validityRegex": r#"^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$"#.to_string(),
+                "failureMessage": "Oh no! Your answer is not in yyyy-mm-dd format :(".to_string(),
+                "successMessage": "Gongrats! your answer is in yyyy-mm-dd format!".to_string(),
+                "allAnswersCorrect": false,
+                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
+                "sharedOptionFeedbackMessage": null,
+                "usesSharedOptionFeedbackMessage": false
+            }],
+            "title": "Pretty good exercise",
+            "tries": 1,
+            "points": 2,
+            "section": 0,
+            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+            "deadline": "2021-12-17T07:15:33.479Z",
+            "createdAt": "2021-12-17T07:15:33.479Z",
+            "updatedAt": "2021-12-17T07:15:33.479Z",
+            "autoReject": false,
+            "autoConfirm": true,
+            "triesLimited": true,
+            "submitMessage": "your submit has been answered",
+            "excludedFromScore": true,
+            "grantPointsPolicy": "grant_whenever_possible",
+            "awardPointsEvenIfWrong": false}),
+    );
+
     create_page(
         conn,
         course.id,
@@ -1432,10 +1490,33 @@ async fn seed_sample_course(
             exercise_tasks: vec![quizzes_exercise_task_1],
             content: serde_json::json!([
                 paragraph(
-                    "First chapters last page.",
+                    "First chapters essay page.",
                     Uuid::new_v5(&course_id, b"6e4ab83a-2ae8-4bd2-a6ea-0e0d1eeabe23")
                 ),
-                quizzes_exercise_block_1
+                quizzes_exercise_block_1,
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        chapter_1.id,
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-4".to_string(),
+            title: "page 4".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_2],
+            exercise_slides: vec![quizzes_exercise_slide_2],
+            exercise_tasks: vec![quizzes_exercise_task_2],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters open page.",
+                    Uuid::new_v5(&course_id, b"771b9c61-dbc9-4266-a980-dadc853455c9")
+                ),
+                quizzes_exercise_block_2
             ]),
         },
     )

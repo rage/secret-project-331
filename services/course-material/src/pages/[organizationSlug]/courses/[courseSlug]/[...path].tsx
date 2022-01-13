@@ -8,9 +8,11 @@ import CoursePageContext, {
   CoursePageDispatch,
   defaultCoursePageState,
 } from "../../../../contexts/CoursePageContext"
-import useQueryParameter from "../../../../hooks/useQueryParameter"
 import coursePageStateReducer from "../../../../reducers/coursePageStateReducer"
 import { fetchCoursePageByPath } from "../../../../services/backend"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
+import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -28,30 +30,37 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
   const path = `/${useQueryParameter("path")}`
 
   const [pageState, pageStateDispatch] = useReducer(coursePageStateReducer, defaultCoursePageState)
-  const { error, data, isLoading, refetch } = useQuery(`course-page-${courseSlug}-${path}`, () =>
+  const getCoursePageByPath = useQuery(`course-page-${courseSlug}-${path}`, () =>
     fetchCoursePageByPath(courseSlug, path),
   )
 
   useEffect(() => {
-    if (error) {
+    if (getCoursePageByPath.isError) {
       // eslint-disable-next-line i18next/no-literal-string
-      pageStateDispatch({ type: "setError", payload: error })
-    } else if (!isLoading && data) {
+      pageStateDispatch({ type: "setError", payload: getCoursePageByPath.error })
+    } else if (getCoursePageByPath.isLoading || getCoursePageByPath.isIdle) {
+      // eslint-disable-next-line i18next/no-literal-string
+      pageStateDispatch({ type: "setLoading" })
+    } else {
       pageStateDispatch({
         // eslint-disable-next-line i18next/no-literal-string
         type: "setData",
         payload: {
-          pageData: data.page,
-          instance: data.instance ?? null,
-          settings: data.settings ?? null,
+          pageData: getCoursePageByPath.data.page,
+          instance: getCoursePageByPath.data.instance ?? null,
+          settings: getCoursePageByPath.data.settings ?? null,
           exam: null,
         },
       })
-    } else {
-      // eslint-disable-next-line i18next/no-literal-string
-      pageStateDispatch({ type: "setLoading" })
     }
-  }, [data, error, isLoading])
+  }, [
+    getCoursePageByPath.data,
+    getCoursePageByPath.error,
+    getCoursePageByPath.isError,
+    getCoursePageByPath.isIdle,
+    getCoursePageByPath.isLoading,
+    getCoursePageByPath.isSuccess,
+  ])
 
   useEffect(() => {
     if (typeof window != "undefined" && window.location.hash) {
@@ -72,27 +81,30 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
   }, [path])
 
   const handleRefresh = useCallback(async () => {
-    await refetch()
-  }, [refetch])
+    await getCoursePageByPath.refetch()
+  }, [getCoursePageByPath])
 
-  if (error) {
+  if (getCoursePageByPath.isError) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((error as any)?.response?.status === 404) {
+    if ((getCoursePageByPath.error as any)?.response?.status === 404) {
       return (
         <PageNotFound path={path} courseId={courseSlug} organizationSlug={query.organizationSlug} />
       )
     }
-    return <pre>{JSON.stringify(error, undefined, 2)}</pre>
+    return <ErrorBanner variant={"readOnly"} error={getCoursePageByPath.error} />
+  }
+
+  if (getCoursePageByPath.isLoading || getCoursePageByPath.isIdle) {
+    return <Spinner variant={"small"} />
   }
 
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
       <CoursePageContext.Provider value={pageState}>
         <Layout
-          //  Not a good idea, but works for now.
           faqUrl={courseFaqPageRoute(query.organizationSlug, courseSlug)}
           frontPageUrl={courseFrontPageRoute(query.organizationSlug, courseSlug)}
-          title={data?.page.title}
+          title={getCoursePageByPath.data.page.title}
           organizationSlug={query.organizationSlug}
           courseSlug={courseSlug}
         >

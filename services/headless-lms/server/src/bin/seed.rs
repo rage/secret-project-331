@@ -1,38 +1,43 @@
 #![allow(clippy::too_many_arguments)]
 
+use std::{env, process::Command};
+
 use anyhow::Result;
 use chrono::{DateTime, Duration, TimeZone, Utc};
-use headless_lms_actix::models::chapters::NewChapter;
-use headless_lms_actix::models::course_instance_enrollments::NewCourseInstanceEnrollment;
-use headless_lms_actix::models::course_instances::NewCourseInstance;
-use headless_lms_actix::models::courses::NewCourse;
-use headless_lms_actix::models::exams::NewExam;
-use headless_lms_actix::models::exercises::GradingProgress;
-use headless_lms_actix::models::feedback::{FeedbackBlock, NewFeedback};
-use headless_lms_actix::models::page_history::HistoryChangeReason;
-use headless_lms_actix::models::pages::{
-    CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
-};
-use headless_lms_actix::models::playground_examples::PlaygroundExampleData;
-use headless_lms_actix::models::proposed_block_edits::NewProposedBlockEdit;
-use headless_lms_actix::models::proposed_page_edits::NewProposedPageEdits;
-use headless_lms_actix::models::submissions::GradingResult;
-use headless_lms_actix::models::{
-    chapters, course_instances, course_instances::VariantStatus, courses, exercise_services,
-    exercises, organizations, pages, roles, roles::UserRole, submissions, user_exercise_states,
-    users,
-};
-use headless_lms_actix::models::{
-    course_instance_enrollments, exams, feedback, playground_examples,
-};
-use headless_lms_actix::models::{gradings, proposed_page_edits};
 use headless_lms_actix::setup_tracing;
-use headless_lms_actix::utils::document_schema_processor::GutenbergBlock;
-use headless_lms_utils::attributes;
+use headless_lms_models::{
+    chapters,
+    chapters::NewChapter,
+    course_instance_enrollments,
+    course_instance_enrollments::NewCourseInstanceEnrollment,
+    course_instances,
+    course_instances::{NewCourseInstance, VariantStatus},
+    courses,
+    courses::NewCourse,
+    exams,
+    exams::NewExam,
+    exercise_services, exercises,
+    exercises::GradingProgress,
+    feedback,
+    feedback::{FeedbackBlock, NewFeedback},
+    gradings, organizations,
+    page_history::HistoryChangeReason,
+    pages,
+    pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage},
+    playground_examples,
+    playground_examples::PlaygroundExampleData,
+    proposed_block_edits::NewProposedBlockEdit,
+    proposed_page_edits,
+    proposed_page_edits::NewProposedPageEdits,
+    roles,
+    roles::UserRole,
+    submissions,
+    submissions::GradingResult,
+    user_exercise_states, users,
+};
+use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::Value;
-use sqlx::migrate::MigrateDatabase;
-use sqlx::{Connection, PgConnection, Postgres};
-use std::{env, process::Command};
+use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, Postgres};
 use tracing::info;
 use uuid::Uuid;
 
@@ -1077,6 +1082,50 @@ async fn main() -> Result<()> {
               "courseId": "f5bed4ff-63ec-44cd-9056-86eb00df84ca",
               "triesLimited": true
             }),
+        },
+    )
+    .await?;
+
+    let array = vec![vec![0; 6]; 6];
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, matrix".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
+            width: 500,
+            data: serde_json::json!(
+            {
+                "id": "91cf86bd-39f1-480f-a16c-5b0ad36dc787",
+                "courseId": "2764d02f-bea3-47fe-9529-21c801bdf6f5",
+                "body": "Something about matrices and numbers",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "section": 1,
+                "title": "Something about matrices and numbers",
+                "tries": 1,
+                "triesLimited": true,
+                "items": [
+                    {
+                        "id": "b17f3965-2223-48c9-9063-50f1ebafcf08",
+                        "body": "Create a matrix that represents 4x4",
+                        "direction": "row",
+                        "formatRegex": null,
+                        "maxLabel": null,
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minLabel": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "multi": false,
+                        "order": 1,
+                        "quizId": "91cf86bd-39f1-480f-a16c-5b0ad36dc787",
+                        "title": "Matrices are interesting",
+                        "type": "matrix",
+                        "options": [],
+                        "optionCells": array,
+                        }
+                        ]}),
         },
     )
     .await?;

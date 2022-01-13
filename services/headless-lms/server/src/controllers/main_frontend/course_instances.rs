@@ -1,76 +1,66 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.
 
-use crate::{
-    controllers::ControllerResult,
-    domain::{
-        authorization::AuthUser,
-        csv_export::{self, CSVExportAdapter},
-    },
-    models::{
-        course_instances::{self, CourseInstance, CourseInstanceForm, Points},
-        courses,
-        email_templates::{EmailTemplate, EmailTemplateNew},
-    },
-    utils::pagination::Pagination,
-};
-use actix_web::{
-    web::{self, Json, ServiceConfig},
-    HttpResponse,
-};
 use bytes::Bytes;
 use chrono::Utc;
-use sqlx::PgPool;
+use models::{
+    course_instances::{self, CourseInstance, CourseInstanceForm, Points},
+    courses,
+    email_templates::{EmailTemplate, EmailTemplateNew},
+};
 use tokio_stream::wrappers::UnboundedReceiverStream;
-use uuid::Uuid;
+
+use crate::{
+    controllers::prelude::*,
+    domain::csv_export::{self, CSVExportAdapter},
+};
 
 /**
 GET /course-instances/:id
 */
+#[generated_doc(CourseInstance)]
 #[instrument(skip(pool))]
 async fn get_course_instance(
-    request_course_instance_id: web::Path<Uuid>,
+    course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<CourseInstance>> {
+) -> ControllerResult<web::Json<CourseInstance>> {
     let mut conn = pool.acquire().await?;
-    let course_instance = crate::models::course_instances::get_course_instance(
-        &mut conn,
-        request_course_instance_id.into_inner(),
-    )
-    .await?;
-    Ok(Json(course_instance))
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
+    Ok(web::Json(course_instance))
 }
 
+#[generated_doc(EmailTemplate)]
 #[instrument(skip(payload, pool))]
 async fn post_new_email_template(
-    request_course_instance_id: web::Path<Uuid>,
+    course_instance_id: web::Path<Uuid>,
     payload: web::Json<EmailTemplateNew>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<EmailTemplate>> {
+) -> ControllerResult<web::Json<EmailTemplate>> {
     let mut conn = pool.acquire().await?;
     let new_email_template = payload.0;
-    let email_template = crate::models::email_templates::insert_email_template(
+    let email_template = models::email_templates::insert_email_template(
         &mut conn,
-        *request_course_instance_id,
+        *course_instance_id,
         new_email_template,
         None,
     )
     .await?;
-    Ok(Json(email_template))
+    Ok(web::Json(email_template))
 }
 
+#[generated_doc(Vec<EmailTemplate>)]
 #[instrument(skip(pool))]
 async fn get_email_templates_by_course_instance_id(
-    request_course_instance_id: web::Path<Uuid>,
+    course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<Vec<EmailTemplate>>> {
+) -> ControllerResult<web::Json<Vec<EmailTemplate>>> {
     let mut conn = pool.acquire().await?;
 
     let email_templates =
-        crate::models::email_templates::get_email_templates(&mut conn, *request_course_instance_id)
-            .await?;
-    Ok(Json(email_templates))
+        models::email_templates::get_email_templates(&mut conn, *course_instance_id).await?;
+    Ok(web::Json(email_templates))
 }
 
 #[instrument(skip(pool))]
@@ -80,8 +70,8 @@ pub async fn point_export(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
+    let course_instance_id = *course_instance_id;
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
-    let course_instance_id = course_instance_id.into_inner();
 
     // spawn handle that writes the csv row by row into the sender
     let mut handle_conn = pool.acquire().await?;
@@ -115,17 +105,16 @@ pub async fn point_export(
         .streaming(UnboundedReceiverStream::new(receiver)))
 }
 
+#[generated_doc(Points)]
 #[instrument(skip(pool))]
 async fn points(
     course_instance_id: web::Path<Uuid>,
     pagination: web::Query<Pagination>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Points>> {
+) -> ControllerResult<web::Json<Points>> {
     let mut conn = pool.acquire().await?;
-    let points =
-        course_instances::get_points(&mut conn, course_instance_id.into_inner(), &pagination)
-            .await?;
-    Ok(Json(points))
+    let points = course_instances::get_points(&mut conn, *course_instance_id, *pagination).await?;
+    Ok(web::Json(points))
 }
 
 /**
@@ -138,12 +127,7 @@ pub async fn edit(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    course_instances::edit(
-        &mut conn,
-        course_instance_id.into_inner(),
-        update.into_inner(),
-    )
-    .await?;
+    course_instances::edit(&mut conn, *course_instance_id, update.into_inner()).await?;
     Ok(HttpResponse::Ok().finish())
 }
 
@@ -153,7 +137,7 @@ POST /course-instances/:id/delete
 #[instrument(skip(pool))]
 async fn delete(id: web::Path<Uuid>, pool: web::Data<PgPool>) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    crate::models::course_instances::delete(&mut conn, *id).await?;
+    models::course_instances::delete(&mut conn, *id).await?;
     Ok(HttpResponse::Ok().finish())
 }
 
@@ -164,7 +148,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_course_instances_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{course_instance_id}", web::get().to(get_course_instance))
         .route(
             "/{course_instance_id}/email-templates",

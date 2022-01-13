@@ -1,15 +1,6 @@
 //! Controllers for requests starting with `/api/v0/cms/organizations`.
 
-use crate::controllers::helpers::media::{upload_media, StoreKind};
-use crate::controllers::{ControllerResult, UploadResult};
-use crate::domain::authorization::{authorize, Action, AuthUser, Resource};
-use crate::utils::{file_store::FileStore, ApplicationConfiguration};
-use actix_multipart as mp;
-use actix_web::web::ServiceConfig;
-use actix_web::web::{self, Json};
-use actix_web::HttpRequest;
-use sqlx::PgPool;
-use uuid::Uuid;
+use crate::controllers::prelude::*;
 
 /**
 POST `/api/v0/cms/organizations/:organization_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
@@ -24,36 +15,27 @@ Content-Type: multipart/form-data
 
 BINARY_DATA
 ```
-
-Response:
-```json
-{
-    "url": "http://project-331.local/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
-}
-
-```
 */
+#[generated_doc(UploadResult)]
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media(
-    request_organization_id: web::Path<Uuid>,
-    payload: mp::Multipart,
+    organization_id: web::Path<Uuid>,
+    payload: Multipart,
     request: HttpRequest,
     pool: web::Data<PgPool>,
     user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<Json<UploadResult>> {
+) -> ControllerResult<web::Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
-    let organization_id = request_organization_id.into_inner();
     authorize(
         &mut conn,
-        Action::Edit,
+        Act::Edit,
         user.id,
-        Resource::Organization(organization_id),
+        Res::Organization(*organization_id),
     )
     .await?;
-    let organization =
-        crate::models::organizations::get_organization(&mut conn, organization_id).await?;
+    let organization = models::organizations::get_organization(&mut conn, *organization_id).await?;
 
     let media_path = upload_media(
         request.headers(),
@@ -64,7 +46,7 @@ async fn add_media(
     .await?;
     let download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());
 
-    Ok(Json(UploadResult { url: download_url }))
+    Ok(web::Json(UploadResult { url: download_url }))
 }
 
 /**
@@ -74,6 +56,6 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_organizations_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{organization_id}/upload", web::post().to(add_media));
 }

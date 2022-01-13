@@ -1,21 +1,13 @@
 //! Controllers for requests starting with `/api/v0/course-material/submissions`.
 
-use crate::{
-    controllers::{ControllerError, ControllerResult},
-    domain::authorization::AuthUser,
-    models::{
-        exams,
-        gradings::{self, Grading},
-        submissions::{self, NewSubmission, Submission, SubmissionResult},
-    },
-};
-use actix_web::web::ServiceConfig;
-use actix_web::web::{self, Json};
 use chrono::{Duration, Utc};
-use serde::Serialize;
-use sqlx::PgPool;
-use ts_rs::TS;
-use uuid::Uuid;
+use models::{
+    exams,
+    gradings::{self, Grading},
+    submissions::{self, NewSubmission, Submission, SubmissionResult},
+};
+
+use crate::controllers::prelude::*;
 
 /**
 POST `/api/v0/course-material/submissions` - Post a new submission.
@@ -31,67 +23,24 @@ Content-Type: application/json
   "data_json": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
 }
 ```
-
-Response:
-
-```json
-{
-  "submission": {
-    "id": "e5c53d36-cb0a-4df4-8571-17a13d36f488",
-    "created_at": "2021-06-10T15:28:16.793335Z",
-    "updated_at": "2021-06-10T15:28:16.845037Z",
-    "deleted_at": null,
-    "exercise_id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
-    "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
-    "course_instance_id": "25800692-0d99-4f29-b741-92d69b0900b9",
-    "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
-    "data_json": {
-      "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af"
-    },
-    "grading_id": "6bd767fb-97ce-47d6-8e34-b105cf1e035b",
-    "metadata": null,
-    "user_id": "0278dd58-30b9-4037-bba9-d1b9bb5f1d66"
-  },
-  "grading": {
-    "id": "6bd767fb-97ce-47d6-8e34-b105cf1e035b",
-    "created_at": "2021-06-10T15:28:16.829438Z",
-    "updated_at": "2021-06-10T15:28:17.165327Z",
-    "submission_id": "e5c53d36-cb0a-4df4-8571-17a13d36f488",
-    "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
-    "exercise_id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
-    "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
-    "grading_priority": 100,
-    "score_given": 1.0,
-    "grading_progress": "FullyGraded",
-    "user_points_update_strategy": "CanAddPointsButCannotRemovePoints",
-    "unscaled_score_maximum": 1.0,
-    "unscaled_max_points": 1,
-    "grading_started_at": "2021-06-10T15:28:16.829438Z",
-    "grading_completed_at": "2021-06-10T15:28:17.147231Z",
-    "feedback_json": null,
-    "feedback_text": "Good job!",
-    "deleted_at": null
-  }
-}
-```
  */
+#[generated_doc(SubmissionResult)]
 #[instrument(skip(pool))]
 async fn post_submission(
     pool: web::Data<PgPool>,
     payload: web::Json<NewSubmission>,
     user: AuthUser,
-) -> ControllerResult<Json<SubmissionResult>> {
+) -> ControllerResult<web::Json<SubmissionResult>> {
     let mut conn = pool.acquire().await?;
 
     let exercise_task_id = payload.0.exercise_task_id;
-    let exercise_slide = crate::models::exercise_slides::get_exercise_slide_by_exercise_task_id(
+    let exercise_slide = models::exercise_slides::get_exercise_slide_by_exercise_task_id(
         &mut conn,
         exercise_task_id,
     )
     .await?
     .ok_or_else(|| ControllerError::NotFound("Exercise definition not found.".to_string()))?;
-    let exercise =
-        crate::models::exercises::get_by_id(&mut conn, exercise_slide.exercise_id).await?;
+    let exercise = models::exercises::get_by_id(&mut conn, exercise_slide.exercise_id).await?;
 
     if let Some(exam_id) = exercise.exam_id.as_ref().copied() {
         // check if the submission is still valid for the exam
@@ -108,47 +57,47 @@ async fn post_submission(
     }
 
     let mut submission =
-        crate::models::submissions::insert_submission(&mut conn, &payload.0, user.id, &exercise)
-            .await?;
+        models::submissions::insert_submission(&mut conn, &payload.0, user.id, &exercise).await?;
     if exercise.exam_id.is_some() {
         // remove grading information from submission
         submission.grading = None;
         submission.model_solution_spec = None;
         submission.submission.grading_id = None;
     }
-    Ok(Json(submission))
+    Ok(web::Json(submission))
 }
 
-#[derive(Debug, Serialize, TS)]
+#[derive(Debug, Clone, Serialize, TS)]
 pub struct PreviousSubmission {
     pub submission: Submission,
     pub grading: Option<Grading>,
 }
 
+/**
+GET `/api/v0/course-material/previous-for-exercise/:id` - Gets the previous submission for the given exercise.
+*/
+#[generated_doc(Option<PreviousSubmission>)]
+#[instrument(skip(pool))]
 async fn previous_submission(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<Option<PreviousSubmission>>> {
+) -> ControllerResult<web::Json<Option<PreviousSubmission>>> {
     let mut conn = pool.acquire().await?;
-    if let Some(submission) = submissions::get_latest_user_exercise_submission(
-        &mut conn,
-        user.id,
-        exercise_id.into_inner(),
-    )
-    .await?
+    if let Some(submission) =
+        submissions::get_latest_user_exercise_submission(&mut conn, user.id, *exercise_id).await?
     {
         let grading = if let Some(grading_id) = submission.grading_id {
             gradings::get_for_student(&mut conn, grading_id, user.id).await?
         } else {
             None
         };
-        Ok(Json(Some(PreviousSubmission {
+        Ok(web::Json(Some(PreviousSubmission {
             submission,
             grading,
         })))
     } else {
-        Ok(Json(None))
+        Ok(web::Json(None))
     }
 }
 
@@ -159,7 +108,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_submissions_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("", web::post().to(post_submission)).route(
         "/previous-for-exercise/{exercise_id}",
         web::get().to(previous_submission),

@@ -1,14 +1,9 @@
+use serde_json::Value;
+
 use crate::{
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
-    utils::pagination::Pagination,
-    ModelResult,
+    prelude::*,
 };
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use sqlx::{PgConnection, Type};
-use ts_rs::TS;
-use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, TS)]
 #[sqlx(type_name = "history_change_reason", rename_all = "kebab-case")]
@@ -19,13 +14,13 @@ pub enum HistoryChangeReason {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageHistory {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    title: String,
-    content: Value,
-    history_change_reason: HistoryChangeReason,
-    restored_from_id: Option<Uuid>,
-    author_user_id: Uuid,
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub title: String,
+    pub content: Value,
+    pub history_change_reason: HistoryChangeReason,
+    pub restored_from_id: Option<Uuid>,
+    pub author_user_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -102,7 +97,7 @@ WHERE page_history.id = $1
 pub async fn history(
     conn: &mut PgConnection,
     page_id: Uuid,
-    pagination: &Pagination,
+    pagination: Pagination,
 ) -> ModelResult<Vec<PageHistory>> {
     let res = sqlx::query_as!(
         PageHistory,

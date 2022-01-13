@@ -1,13 +1,6 @@
-use crate::{
-    controllers::ControllerResult, domain::authorization::AuthUser,
-    models::proposed_page_edits::NewProposedPageEdits,
-};
-use actix_web::{
-    web::{self, ServiceConfig},
-    HttpResponse,
-};
-use sqlx::PgPool;
-use uuid::Uuid;
+use models::proposed_page_edits::NewProposedPageEdits;
+
+use crate::controllers::prelude::*;
 
 /**
 POST `/api/v0/course-material/proposed-edits/:course-id`
@@ -20,13 +13,8 @@ async fn post_proposed_edits(
     user: Option<AuthUser>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    crate::models::proposed_page_edits::insert(
-        &mut conn,
-        course_id.into_inner(),
-        user.map(|u| u.id),
-        &payload,
-    )
-    .await?;
+    models::proposed_page_edits::insert(&mut conn, *course_id, user.map(|u| u.id), &payload)
+        .await?;
     Ok(HttpResponse::Ok().finish())
 }
 
@@ -37,6 +25,6 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_proposed_edits_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{course_id}", web::post().to(post_proposed_edits));
 }

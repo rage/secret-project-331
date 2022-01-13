@@ -17,12 +17,8 @@ interface OptionAnswerFeedback {
 export interface ItemAnswerFeedback {
   quiz_item_id: string | null
   quiz_item_feedback: string | null
+  quiz_item_correct: boolean | null
   quiz_item_option_feedbacks: OptionAnswerFeedback[] | null
-}
-
-export interface EssayItemAnswerFeedback {
-  quiz_item_id: string | null
-  submit_message: string | null
 }
 
 interface QuizItemAnswerGrading {
@@ -89,6 +85,8 @@ function asssesAnswers(quizAnswer: QuizAnswer, quiz: Quiz): QuizItemAnswerGradin
       return assesMultipleChoiceQuizzes(ia, item)
     } else if (item.type === "open") {
       return assessOpenQuiz(ia, item)
+    } else if (item.type === "matrix") {
+      return assessMatrixQuiz(ia, item)
     } else {
       return { quizItemId: item.id, correct: true }
     }
@@ -152,6 +150,33 @@ function assesMultipleChoiceQuizzes(
   }
 }
 
+function assessMatrixQuiz(
+  quizItemAnswer: QuizItemAnswer,
+  quizItem: QuizItem,
+): QuizItemAnswerGrading {
+  const studentAnswers = quizItemAnswer.optionCells
+  const correctAnswers = quizItem.optionCells
+
+  if (!studentAnswers) {
+    throw new Error("No student answers")
+  }
+
+  if (!correctAnswers) {
+    throw new Error("No correct answers")
+  }
+
+  const isMatrixCorrect: boolean[] = []
+  for (let i = 0; i < 6; i++) {
+    for (let j = 0; j < 6; j++) {
+      isMatrixCorrect.push(correctAnswers[i][j] === studentAnswers[i][j])
+    }
+  }
+
+  const includesSingleFalse = !isMatrixCorrect.includes(false)
+
+  return { quizItemId: quizItem.id, correct: includesSingleFalse }
+}
+
 function submissionFeedback(
   submission: QuizAnswer,
   quiz: Quiz,
@@ -161,7 +186,12 @@ function submissionFeedback(
     const item = quiz.items.find((i) => i.id === ia.quizItemId)
     const itemGrading = quizItemgradings.find((ig) => ig.quizItemId === ia.quizItemId)
     if (!item || !itemGrading) {
-      return { quiz_item_id: null, quiz_item_feedback: null, quiz_item_option_feedbacks: null }
+      return {
+        quiz_item_id: null,
+        quiz_item_feedback: null,
+        quiz_item_option_feedbacks: null,
+        quiz_item_correct: null,
+      }
     }
     if (
       item.type === "multiple-choice" ||
@@ -171,6 +201,7 @@ function submissionFeedback(
       return {
         quiz_item_id: item.id,
         quiz_item_feedback: null,
+        quiz_item_correct: itemGrading.correct,
         quiz_item_option_feedbacks: itemGrading.correct
           ? item.options
               .filter((o) => o.correct)
@@ -183,6 +214,7 @@ function submissionFeedback(
       return {
         quiz_item_id: item.id,
         quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
+        quiz_item_correct: itemGrading.correct,
         quiz_item_option_feedbacks: null,
       }
     }

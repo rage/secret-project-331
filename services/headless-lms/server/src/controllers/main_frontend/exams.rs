@@ -1,32 +1,27 @@
-use crate::{
-    controllers::ControllerResult,
-    domain::{
-        authorization::{authorize, Action, AuthUser, Resource},
-        csv_export::{self, CSVExportAdapter},
-    },
-    models::exams::{self, Exam},
-};
-use actix_web::{
-    web::{self, Json, ServiceConfig},
-    HttpResponse,
-};
 use bytes::Bytes;
 use chrono::Utc;
-use serde::Deserialize;
-use sqlx::PgPool;
+use models::exams::{self, Exam};
 use tokio_stream::wrappers::UnboundedReceiverStream;
-use ts_rs::TS;
-use uuid::Uuid;
 
+use crate::{
+    controllers::prelude::*,
+    domain::csv_export::{self, CSVExportAdapter},
+};
+
+/**
+GET `/api/v0/main-frontend/exams/:id
+*/
+#[generated_doc(Exam)]
+#[instrument(skip(pool))]
 pub async fn get_exam(
     pool: web::Data<PgPool>,
-    id: web::Path<Uuid>,
+    exam_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<Json<Exam>> {
+) -> ControllerResult<web::Json<Exam>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Action::View, user.id, Resource::Exam(*id)).await?;
-    let exam = exams::get(&mut conn, id.into_inner()).await?;
-    Ok(Json(exam))
+    authorize(&mut conn, Act::View, user.id, Res::Exam(*exam_id)).await?;
+    let exam = exams::get(&mut conn, *exam_id).await?;
+    Ok(web::Json(exam))
 }
 
 #[derive(Debug, Deserialize, TS)]
@@ -34,32 +29,45 @@ pub struct ExamCourseInfo {
     course_id: Uuid,
 }
 
+/**
+POST `/api/v0/main-frontend/exams/:id/set`
+*/
+#[generated_doc(())]
+#[instrument(skip(pool))]
 pub async fn set_course(
     pool: web::Data<PgPool>,
-    id: web::Path<Uuid>,
-    course_id: web::Json<ExamCourseInfo>,
+    exam_id: web::Path<Uuid>,
+    exam: web::Json<ExamCourseInfo>,
     user: AuthUser,
-) -> ControllerResult<Json<()>> {
+) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Action::Edit, user.id, Resource::Exam(*id)).await?;
+    authorize(&mut conn, Act::Edit, user.id, Res::Exam(*exam_id)).await?;
 
-    exams::set_course(&mut conn, id.into_inner(), course_id.into_inner().course_id).await?;
-    Ok(Json(()))
+    exams::set_course(&mut conn, *exam_id, exam.course_id).await?;
+    Ok(web::Json(()))
 }
 
+/**
+POST `/api/v0/main-frontend/exams/:id/unset`
+*/
+#[generated_doc(())]
+#[instrument(skip(pool))]
 pub async fn unset_course(
     pool: web::Data<PgPool>,
-    id: web::Path<Uuid>,
-    course_id: web::Json<ExamCourseInfo>,
+    exam_id: web::Path<Uuid>,
+    exam: web::Json<ExamCourseInfo>,
     user: AuthUser,
-) -> ControllerResult<Json<()>> {
+) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Action::Edit, user.id, Resource::Exam(*id)).await?;
+    authorize(&mut conn, Act::Edit, user.id, Res::Exam(*exam_id)).await?;
 
-    exams::unset_course(&mut conn, id.into_inner(), course_id.into_inner().course_id).await?;
-    Ok(Json(()))
+    exams::unset_course(&mut conn, *exam_id, exam.course_id).await?;
+    Ok(web::Json(()))
 }
 
+/**
+GET `/api/v0/main-frontend/exams/:id/export-points`
+*/
 #[instrument(skip(pool))]
 pub async fn export_points(
     exam_id_path: web::Path<Uuid>,
@@ -67,13 +75,7 @@ pub async fn export_points(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    authorize(
-        &mut conn,
-        Action::Teach,
-        user.id,
-        Resource::Exam(*exam_id_path),
-    )
-    .await?;
+    authorize(&mut conn, Act::Teach, user.id, Res::Exam(*exam_id_path)).await?;
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
     let exam_id = exam_id_path.into_inner();
 
@@ -103,6 +105,9 @@ pub async fn export_points(
         .streaming(UnboundedReceiverStream::new(receiver)))
 }
 
+/**
+GET `/api/v0/main-frontend/exams/:id/export-submissions`
+*/
 #[instrument(skip(pool))]
 pub async fn export_submissions(
     exam_id_path: web::Path<Uuid>,
@@ -110,13 +115,7 @@ pub async fn export_submissions(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    authorize(
-        &mut conn,
-        Action::Teach,
-        user.id,
-        Resource::Exam(*exam_id_path),
-    )
-    .await?;
+    authorize(&mut conn, Act::Teach, user.id, Res::Exam(*exam_id_path)).await?;
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
     let exam_id = exam_id_path.into_inner();
 
@@ -156,7 +155,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_exams_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{id}", web::get().to(get_exam))
         .route("/{id}/set", web::post().to(set_course))
         .route("/{id}/unset", web::post().to(unset_course))

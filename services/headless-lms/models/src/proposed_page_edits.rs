@@ -1,21 +1,16 @@
-use super::{
+use std::collections::{hash_map::Entry, HashMap};
+
+use headless_lms_utils::{document_schema_processor::GutenbergBlock, merge_edits};
+use serde_json::Value;
+
+use crate::{
     page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
-    proposed_block_edits::{BlockProposal, BlockProposalInfo, NewProposedBlockEdit},
+    prelude::*,
+    proposed_block_edits::{
+        BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit, ProposalStatus,
+    },
 };
-use crate::{
-    proposed_block_edits::{BlockProposalAction, ProposalStatus},
-    utils::{document_schema_processor::GutenbergBlock, merge_edits, pagination::Pagination},
-    ModelError, ModelResult,
-};
-use anyhow::Context;
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use sqlx::{Connection, PgConnection};
-use std::collections::{hash_map::Entry, HashMap};
-use ts_rs::TS;
-use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct NewProposedPageEdits {
@@ -42,8 +37,8 @@ pub struct EditProposalInfo {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct ProposalCount {
-    pending: u32,
-    handled: u32,
+    pub pending: u32,
+    pub handled: u32,
 }
 
 pub async fn insert(
@@ -102,7 +97,7 @@ pub async fn get_proposals_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
     pending: bool,
-    pagination: &Pagination,
+    pagination: Pagination,
 ) -> ModelResult<Vec<PageProposal>> {
     let res = sqlx::query!(
         r#"
@@ -156,19 +151,27 @@ WHERE proposed_block_edits.deleted_at IS NULL
         let block = content
             .iter()
             .find(|b| b.client_id == r.block_id)
-            .context("Failed to find block that the edit was for")?;
+            .ok_or_else(|| {
+                ModelError::Generic(
+                    "Failed to find the block which the proposal was for".to_string(),
+                )
+            })?;
         let content = block
             .attributes
             .get(&r.block_attribute)
-            .context(format!(
-                "Missing expected attribute '{}' in edited block",
-                r.block_attribute
-            ))?
+            .ok_or_else(|| {
+                ModelError::Generic(format!(
+                    "Missing expected attribute '{}' in edited block",
+                    r.block_attribute
+                ))
+            })?
             .as_str()
-            .context(format!(
-                "Attribute '{}' did not contain a string",
-                r.block_attribute
-            ))?
+            .ok_or_else(|| {
+                ModelError::Generic(format!(
+                    "Attribute '{}' did not contain a string",
+                    r.block_attribute
+                ))
+            })?
             .to_string();
         let page_proposal_id = r.page_proposal_id;
         let page_id = r.page_id;
@@ -270,25 +273,28 @@ RETURNING block_id,
                 let block = blocks
                     .iter_mut()
                     .find(|b| b.client_id == res.block_id)
-                    .context("Failed to find block for edit proposal")?;
+                    .ok_or_else(|| {
+                        ModelError::Generic(
+                            "Failed to find the block which the proposal was for".to_string(),
+                        )
+                    })?;
                 let current_content =
                     block
                         .attributes
                         .get_mut(&res.block_attribute)
                         .ok_or_else(|| {
-                            anyhow::anyhow!(
+                            ModelError::Generic(format!(
                                 "Edited block has no attribute {}",
                                 &res.block_attribute
-                            )
+                            ))
                         })?;
                 if let Value::String(s) = current_content {
                     *s = contents;
                 } else {
-                    return Err(anyhow::anyhow!(
+                    return Err(ModelError::Generic(format!(
                         "Block attribute {} did not contain a string",
                         res.block_attribute
-                    )
-                    .into());
+                    )));
                 }
             }
             BlockProposalAction::Reject => {
@@ -364,12 +370,12 @@ WHERE id = $2
 
 #[cfg(test)]
 mod test {
+    use headless_lms_utils::document_schema_processor::{attributes, GutenbergBlock};
+
     use super::*;
     use crate::{
         proposed_block_edits::*,
         test_helper::{insert_data, Conn, Data},
-        utils::document_schema_processor::attributes,
-        utils::document_schema_processor::GutenbergBlock,
     };
 
     async fn init_content(conn: &mut PgConnection, content: &str) -> (Data, Uuid) {
@@ -432,7 +438,7 @@ mod test {
         };
         insert(tx.as_mut(), data.course, None, &new).await.unwrap();
         let mut ps =
-            get_proposals_for_course(tx.as_mut(), data.course, true, &Pagination::default())
+            get_proposals_for_course(tx.as_mut(), data.course, true, Pagination::default())
                 .await
                 .unwrap();
         let mut p = ps.pop().unwrap();
@@ -452,7 +458,7 @@ mod test {
         .unwrap();
 
         let mut ps =
-            get_proposals_for_course(tx.as_mut(), data.course, false, &Pagination::default())
+            get_proposals_for_course(tx.as_mut(), data.course, false, Pagination::default())
                 .await
                 .unwrap();
         let _ = ps.pop().unwrap();
@@ -478,7 +484,7 @@ mod test {
         insert(tx.as_mut(), data.course, None, &new).await.unwrap();
 
         let mut ps =
-            get_proposals_for_course(tx.as_mut(), data.course, true, &Pagination::default())
+            get_proposals_for_course(tx.as_mut(), data.course, true, Pagination::default())
                 .await
                 .unwrap();
         let mut p = ps.pop().unwrap();
@@ -500,7 +506,7 @@ mod test {
         .unwrap();
 
         let mut ps =
-            get_proposals_for_course(tx.as_mut(), data.course, false, &Pagination::default())
+            get_proposals_for_course(tx.as_mut(), data.course, false, Pagination::default())
                 .await
                 .unwrap();
         let _ = ps.pop().unwrap();

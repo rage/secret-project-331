@@ -110,6 +110,7 @@ export interface QuizItem {
   minLabel: string | null
   usesSharedOptionFeedbackMessage: boolean
   options: QuizItemOption[]
+  optionCells: string[][] | null
   title: string
   body: string
   successMessage: string | null
@@ -149,6 +150,7 @@ export interface NormalizedQuizItem {
   minValue: number | null
   usesSharedOptionFeedbackMessage: boolean
   options: string[]
+  optionCells: string[][] | null
   title: string
   body: string
   successMessage: string | null
@@ -258,6 +260,7 @@ export interface QuizItemAnswer {
   valid: boolean
   /** Only contains an id of a selected option */
   optionAnswers: string[] | null
+  optionCells: string[][] | null
 }
 
 export interface UserQuizState {

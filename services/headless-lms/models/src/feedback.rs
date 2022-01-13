@@ -1,9 +1,4 @@
-use crate::{utils::pagination::Pagination, ModelResult};
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::{Connection, PgConnection};
-use ts_rs::TS;
-use uuid::Uuid;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct NewFeedback {
@@ -72,21 +67,21 @@ WHERE id = $2
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct Feedback {
-    id: Uuid,
-    user_id: Option<Uuid>,
-    course_id: Uuid,
-    feedback_given: String,
-    selected_text: Option<String>,
-    marked_as_read: bool,
-    created_at: DateTime<Utc>,
-    blocks: Vec<FeedbackBlock>,
+    pub id: Uuid,
+    pub user_id: Option<Uuid>,
+    pub course_id: Uuid,
+    pub feedback_given: String,
+    pub selected_text: Option<String>,
+    pub marked_as_read: bool,
+    pub created_at: DateTime<Utc>,
+    pub blocks: Vec<FeedbackBlock>,
 }
 
 pub async fn get_feedback_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
     read: bool,
-    pagination: &Pagination,
+    pagination: Pagination,
 ) -> ModelResult<Vec<Feedback>> {
     let res = sqlx::query!(
         r#"
@@ -147,8 +142,8 @@ LIMIT $3 OFFSET $4
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct FeedbackCount {
-    read: u32,
-    unread: u32,
+    pub read: u32,
+    pub unread: u32,
 }
 
 pub async fn get_feedback_count_for_course(

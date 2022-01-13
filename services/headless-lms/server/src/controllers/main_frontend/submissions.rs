@@ -1,35 +1,24 @@
-use actix_web::web::{self, Json, ServiceConfig};
-use sqlx::PgPool;
-use uuid::Uuid;
+use models::submissions::SubmissionInfo;
 
-use crate::{
-    controllers::ControllerResult,
-    domain::authorization::{authorize, Action, AuthUser, Resource},
-    models::{self, submissions::SubmissionInfo},
-};
+use crate::controllers::prelude::*;
 
 /**
 GET `/api/v0/main-frontend/submissions/{submission_id}/info"` - Returns data necessary for rendering a submission.
 */
+#[generated_doc(SubmissionInfo)]
 #[instrument(skip(pool))]
 async fn get_submission_info(
     submission_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<SubmissionInfo>> {
+) -> ControllerResult<web::Json<SubmissionInfo>> {
     let mut conn = pool.acquire().await?;
     let (course_id, exam_id) =
-        crate::models::submissions::get_course_and_exam_id(&mut conn, *submission_id).await?;
+        models::submissions::get_course_and_exam_id(&mut conn, *submission_id).await?;
     if let Some(course_id) = course_id {
-        authorize(
-            &mut conn,
-            Action::View,
-            user.id,
-            Resource::Course(course_id),
-        )
-        .await?;
+        authorize(&mut conn, Act::View, user.id, Res::Course(course_id)).await?;
     } else if let Some(exam_id) = exam_id {
-        authorize(&mut conn, Action::View, user.id, Resource::Exam(exam_id)).await?;
+        authorize(&mut conn, Act::View, user.id, Res::Exam(exam_id)).await?;
     } else {
         return Err(anyhow::anyhow!("Submission not associated with course or exam").into());
     }
@@ -50,7 +39,7 @@ async fn get_submission_info(
     )
     .await?;
 
-    Ok(Json(SubmissionInfo {
+    Ok(web::Json(SubmissionInfo {
         submission,
         exercise,
         exercise_task,
@@ -59,6 +48,6 @@ async fn get_submission_info(
     }))
 }
 
-pub fn _add_submissions_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{submission_id}/info", web::get().to(get_submission_info));
 }

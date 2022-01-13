@@ -1,64 +1,47 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
-use crate::{
-    controllers::{ControllerError, ControllerResult},
-    domain::authorization::AuthUser,
-    models::{
-        chapters::{ChapterStatus, ChapterWithStatus},
-        courses::Course,
-        feedback,
-        pages::{CoursePageWithUserData, PageSearchRequest},
-        proposed_page_edits::{self, NewProposedPageEdits},
-        user_course_settings::UserCourseSettings,
-    },
-    models::{course_instances::CourseInstance, courses, pages::PageSearchResult},
-    models::{feedback::NewFeedback, pages::Page},
-};
-use actix_web::web::{self, Json, ServiceConfig};
+
 use chrono::Utc;
-use sqlx::{Connection, PgPool};
-use uuid::Uuid;
+use models::{
+    chapters::{ChapterStatus, ChapterWithStatus},
+    course_instances::CourseInstance,
+    courses,
+    courses::Course,
+    feedback,
+    feedback::NewFeedback,
+    pages::{CoursePageWithUserData, Page, PageSearchRequest, PageSearchResult},
+    proposed_page_edits::{self, NewProposedPageEdits},
+    user_course_settings::UserCourseSettings,
+};
+
+use crate::controllers::prelude::*;
 
 /**
-GET `/api/v0/main-frontend/courses/:course_id` - Get course.
+GET `/api/v0/course-material/courses/:course_id` - Get course.
 */
+#[generated_doc(Course)]
 #[instrument(skip(pool))]
 async fn get_course(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<Json<Course>> {
+) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    let course = crate::models::courses::get_course(&mut conn, *request_course_id).await?;
-    Ok(Json(course))
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
+    Ok(web::Json(course))
 }
 
 /**
 GET `/:course_slug/page-by-path/...` - Returns a course page by path
 # Example
-
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
-
-
-```json
-{
-  "id": "d32cc3cd-adfe-456a-a25f-032ee02db4c2",
-  "created_at": "2021-03-12T09:20:16.381347",
-  "updated_at": "2021-03-19T15:12:33.603977",
-  "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
-  "content": [],
-  "url_path": "/part-2/hello-world",
-  "title": "Hello world!",
-  "deleted_at": null,
-  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
-}
-```
 */
+#[generated_doc(CoursePageWithUserData)]
 #[instrument(skip(pool))]
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
-) -> ControllerResult<Json<CoursePageWithUserData>> {
+) -> ControllerResult<web::Json<CoursePageWithUserData>> {
     let mut conn = pool.acquire().await?;
     let (course_slug, raw_page_path) = params.into_inner();
     let path = if raw_page_path.starts_with('/') {
@@ -67,7 +50,7 @@ async fn get_course_page_by_path(
         format!("/{}", raw_page_path)
     };
 
-    let page_with_user_data = crate::models::pages::get_page_with_user_data_by_path(
+    let page_with_user_data = models::pages::get_page_with_user_data_by_path(
         &mut conn,
         user.map(|u| u.id),
         &course_slug,
@@ -75,142 +58,70 @@ async fn get_course_page_by_path(
     )
     .await?;
 
-    Ok(Json(page_with_user_data))
+    Ok(web::Json(page_with_user_data))
 }
 
 /**
 GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
-
-# Example
-```json
-{
-  "id": "e051ddb5-2128-4215-adda-ebd74a0ea46b",
-  "created_at": "2021-06-28T00:21:11.780420Z",
-  "updated_at": "2021-06-28T00:21:11.780420Z",
-  "deleted_at": null,
-  "course_id": "b8077bc2-0816-4c05-a651-d2d75d697fdf",
-  "starts_at": null,
-  "ends_at": null,
-  "name": null,
-  "description": null,
-  "variant_status": "Active"
-}
-```
 */
+#[generated_doc(CourseInstance)]
 #[instrument(skip(pool))]
 async fn get_current_course_instance(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     user: Option<AuthUser>,
-) -> ControllerResult<Json<Option<CourseInstance>>> {
+) -> ControllerResult<web::Json<Option<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
     if let Some(user) = user {
-        let instance = crate::models::course_instances::current_course_instance_of_user(
-            &mut conn,
-            user.id,
-            *request_course_id,
+        let instance = models::course_instances::current_course_instance_of_user(
+            &mut conn, user.id, *course_id,
         )
         .await?;
-        Ok(Json(instance))
+        Ok(web::Json(instance))
     } else {
-        Ok(Json(None))
+        Ok(web::Json(None))
     }
 }
 
 /**
 GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
-
-# Example
-```json
-[
-  {
-    "id": "e051ddb5-2128-4215-adda-ebd74a0ea46b",
-    "created_at": "2021-06-28T00:21:11.780420Z",
-    "updated_at": "2021-06-28T00:21:11.780420Z",
-    "deleted_at": null,
-    "course_id": "b8077bc2-0816-4c05-a651-d2d75d697fdf",
-    "starts_at": null,
-    "ends_at": null,
-    "name": null,
-    "description": null,
-    "variant_status": "Active"
-  }
-]
-```
 */
+#[generated_doc(Vec<CourseInstance>)]
 async fn get_course_instances(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<Uuid>,
-) -> ControllerResult<Json<Vec<CourseInstance>>> {
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
-    let instances = crate::models::course_instances::get_course_instances_for_course(
-        &mut conn,
-        *request_course_id,
-    )
-    .await?;
-    Ok(Json(instances))
+    let instances =
+        models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
+    Ok(web::Json(instances))
 }
 
 /**
 GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages in a course.
-# Example
-```json
-[
-    {
-        "id": "86ac4f0a-ccca-464e-89f4-ed58969b1103",
-        "created_at": "2021-03-05T22:50:47.920120",
-        "updated_at": "2021-03-05T22:50:47.920120",
-        "course_id": "a90c39f8-5d23-461f-8375-0b05a55d7ac1",
-        "content": [
-            {
-                "id": "55be197d-4145-444a-bc1f-ee1091c47ad9"
-            }
-        ],
-        "url_path": "/part-1/01-loops-and-variables",
-        "title": "Loops and Variables",
-        "deleted_at": null
-    }
-]
-```
 */
+#[generated_doc(Vec<Page>)]
 #[instrument(skip(pool))]
 async fn get_course_pages(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<Page>>> {
+) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
-    let pages: Vec<Page> =
-        crate::models::pages::course_pages(&mut conn, *request_course_id).await?;
-    Ok(Json(pages))
+    let pages: Vec<Page> = models::pages::course_pages(&mut conn, *course_id).await?;
+    Ok(web::Json(pages))
 }
 
 /**
 GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
-# Example
-```json
-[
-  {
-    "id": "d332f3d9-39a5-4a18-80f4-251727693c37",
-    "created_at": "2021-05-15T16:49:18.689393",
-    "updated_at": "2021-05-15T16:49:18.689393",
-    "name": "The Basics",
-    "course_id": "d86cf910-4d26-40e9-8c9c-1cc35294fdbb",
-    "deleted_at": null,
-    "chapter_number": 1,
-    "front_page_id": null
-    "opens_at": null
-    "status": "open"
-  }
-]
-```
 */
+#[generated_doc(Vec<ChapterWithStatus>)]
 #[instrument(skip(pool))]
 async fn get_chapters(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<ChapterWithStatus>>> {
+) -> ControllerResult<web::Json<Vec<ChapterWithStatus>>> {
     let mut conn = pool.acquire().await?;
-    let chapters = crate::models::chapters::course_chapters(&mut conn, *request_course_id).await?;
+    let chapters = models::chapters::course_chapters(&mut conn, *course_id).await?;
     let chapters = chapters
         .into_iter()
         .map(|chapter| {
@@ -234,28 +145,27 @@ async fn get_chapters(
             }
         })
         .collect();
-    Ok(Json(chapters))
+    Ok(web::Json(chapters))
 }
 
 /**
 GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
 */
+#[generated_doc(Option<UserCourseSettings>)]
 async fn get_user_course_settings(
     pool: web::Data<PgPool>,
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     user: Option<AuthUser>,
-) -> ControllerResult<Json<Option<UserCourseSettings>>> {
+) -> ControllerResult<web::Json<Option<UserCourseSettings>>> {
     let mut conn = pool.acquire().await?;
     if let Some(user) = user {
-        let settings = crate::models::user_course_settings::get_user_course_settings_by_course_id(
-            &mut conn,
-            user.id,
-            *request_course_id,
+        let settings = models::user_course_settings::get_user_course_settings_by_course_id(
+            &mut conn, user.id, *course_id,
         )
         .await?;
-        Ok(Json(settings))
+        Ok(web::Json(settings))
     } else {
-        Ok(Json(None))
+        Ok(web::Json(None))
     }
 }
 
@@ -276,56 +186,18 @@ Content-Type: application/json
   "query": "Everything"
 }
 ```
-
-Response:
-
-```json
-[
-  {
-    "id": "c89bd5b3-5f2b-4326-834a-db9f20bdaf1b",
-    "title": "Introduction to everything",
-    "rank": 0.6079271,
-    "ts_headline": null,
-    "url_path": "/"
-  },
-  {
-    "id": "1d744426-27da-4821-80ab-7fd1fcd727f8",
-    "title": "Welcome to Introduction to Everything",
-    "rank": 0.6079271,
-    "ts_headline": null,
-    "url_path": "/"
-  },
-  {
-    "id": "1c75eabe-8e19-456d-b107-f8e87b395c76",
-    "title": "Chapter One",
-    "rank": 0.24317084,
-    "ts_headline": "<b>Everything</b> is a big topic",
-    "url_path": "/chapter-1"
-  },
-  {
-    "id": "c2060330-cea0-46ad-94f9-9be9858adab5",
-    "title": "In the second chapter...",
-    "rank": 0.24317084,
-    "ts_headline": "<b>Everything</b> is a big topic.",
-    "url_path": "/chapter-2"
-  }
-]
-```
 */
+#[generated_doc(Vec<PageSearchResult>)]
 #[instrument(skip(pool))]
 async fn search_pages_with_phrase(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     payload: web::Json<PageSearchRequest>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<PageSearchResult>>> {
+) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
-    let res = crate::models::pages::get_page_search_results_for_phrase(
-        &mut conn,
-        *request_course_id,
-        &*payload,
-    )
-    .await?;
-    Ok(Json(res))
+    let res =
+        models::pages::get_page_search_results_for_phrase(&mut conn, *course_id, &*payload).await?;
+    Ok(web::Json(res))
 }
 
 /**
@@ -345,67 +217,30 @@ Content-Type: application/json
   "query": "Everything"
 }
 ```
-
-Response:
-
-```json
-[
-  {
-    "id": "c89bd5b3-5f2b-4326-834a-db9f20bdaf1b",
-    "title": "Introduction to everything",
-    "rank": 0.6079271,
-    "ts_headline": null,
-    "url_path": "/"
-  },
-  {
-    "id": "1d744426-27da-4821-80ab-7fd1fcd727f8",
-    "title": "Welcome to Introduction to Everything",
-    "rank": 0.6079271,
-    "ts_headline": null,
-    "url_path": "/"
-  },
-  {
-    "id": "1c75eabe-8e19-456d-b107-f8e87b395c76",
-    "title": "Chapter One",
-    "rank": 0.24317084,
-    "ts_headline": "<b>Everything</b> is a big topic",
-    "url_path": "/chapter-1"
-  },
-  {
-    "id": "c2060330-cea0-46ad-94f9-9be9858adab5",
-    "title": "In the second chapter...",
-    "rank": 0.24317084,
-    "ts_headline": "<b>Everything</b> is a big topic.",
-    "url_path": "/chapter-2"
-  }
-]
-```
 */
+#[generated_doc(Vec<PageSearchResult>)]
 #[instrument(skip(pool))]
 async fn search_pages_with_words(
-    request_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     payload: web::Json<PageSearchRequest>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<Json<Vec<PageSearchResult>>> {
+) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
-    let res = crate::models::pages::get_page_search_results_for_words(
-        &mut conn,
-        *request_course_id,
-        &*payload,
-    )
-    .await?;
-    Ok(Json(res))
+    let res =
+        models::pages::get_page_search_results_for_words(&mut conn, *course_id, &*payload).await?;
+    Ok(web::Json(res))
 }
 
 /**
 POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
 */
+#[generated_doc(Vec<Uuid>)]
 pub async fn feedback(
     course_id: web::Path<Uuid>,
     new_feedback: web::Json<Vec<NewFeedback>>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
-) -> ControllerResult<Json<Vec<String>>> {
+) -> ControllerResult<web::Json<Vec<Uuid>>> {
     let mut conn = pool.acquire().await?;
     let fs = new_feedback.into_inner();
 
@@ -432,25 +267,25 @@ pub async fn feedback(
 
     let mut tx = conn.begin().await?;
     let user_id = user.as_ref().map(|u| u.id);
-    let course_id = course_id.into_inner();
     let mut ids = vec![];
     for f in fs {
-        let id = feedback::insert(&mut tx, user_id, course_id, f).await?;
-        ids.push(id.to_string());
+        let id = feedback::insert(&mut tx, user_id, *course_id, f).await?;
+        ids.push(id);
     }
     tx.commit().await?;
-    Ok(Json(ids))
+    Ok(web::Json(ids))
 }
 
 /**
 POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
 */
+#[generated_doc(Uuid)]
 async fn propose_edit(
     course_slug: web::Path<String>,
     edits: web::Json<NewProposedPageEdits>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
-) -> ControllerResult<String> {
+) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
     let (id, _) = proposed_page_edits::insert(
@@ -460,7 +295,7 @@ async fn propose_edit(
         &edits.into_inner(),
     )
     .await?;
-    Ok(id.to_string())
+    Ok(web::Json(id))
 }
 
 /**
@@ -470,7 +305,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
-pub fn _add_courses_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{course_id}", web::get().to(get_course))
         .route("/{course_id}/chapters", web::get().to(get_chapters))
         .route(

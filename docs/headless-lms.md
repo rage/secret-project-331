@@ -139,8 +139,8 @@ This said, the endpoint should be used for the `bogus` microservice and endpoint
 
 1. Create `foo.rs` in folder `src/models/`, if not present
 2. Create `foo.rs` in folder `src/controllers/bogus/`, if not present
-3. In `src/controllers/mod.rs` add the new microservice to `configure_controllers` -> `.service(web::scope("/bogus").configure(_add_bogus_routes))`, if not present.
-4. Write the new `_add_bogus_routes` function in the `src/controllers/bogus/mod.rs` file and create necessary submodules. (Hint: See existing, example below).
+3. In `src/controllers/mod.rs` add the new microservice to `configure_controllers` -> `.service(web::scope("/bogus").configure(bogus::_add_routes))`, if not present.
+4. Write the new `_add_routes` function in the `src/controllers/bogus/mod.rs` file and create necessary submodules. (Hint: See existing, example below).
 
 ```rust
 /*!
@@ -154,20 +154,18 @@ pub mod foo;
 
 use actix_web::web::{self, ServiceConfig};
 
-use self::{foo::_add_foo_routes};
-
 /// Add controllers from all the submodules.
 pub fn add_bogus_routes(cfg: &mut ServiceConfig) {
-    cfg.service(web::scope("/foo").configure(_add_foo_routes));
+    cfg.service(web::scope("/foo").configure(foo::_add_routes));
 }
 
 
 ```
 
-5. In `src/controllers/bogus/foo.rs` add the routes in e.g. `_add_foo_routes`, so if you would like to create a CRUD for `foo`, you would add 4 routes as following:
+5. In `src/controllers/bogus/foo.rs` add the routes in e.g. `_add_routes`, so if you would like to create a CRUD for `foo`, you would add 4 routes as following:
 
 ```rust
-pub fn _add_foo_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
   cfg.route("", web::get().to(get_all_foos))
       .route("", web::post().to(post_new_foo))
       .route("/{foo_id}", web::put().to(update_foo))
@@ -212,30 +210,20 @@ pub async fn some_endpoint(user: Option<AuthUser>) -> String {
 
 ### Adding documentation to an endpoint
 
-When you have finished coding the endpoint you should add documentations to it so they can be easily read by anyone. Documentation should include short description about the endpoint
-and an example response data from it. For an example
+When you have finished coding the endpoint you should add documentations to it so they can be easily read by anyone. Documentation should include short description about the endpoint and an example response data from it.
 
-````
+The binary at `server/src/bin/doc-file-generator.rs` can be used to generate documentation for the response type from Rust code, ensuring they stay up to date. The binary can be called with the `bin/generate-doc-files` script, and the generated files can be used with the doc-macro crate's helper `generated_doc` macro: `#[generated_doc(MyType)]`.
+
+For example
+
+```
 /**
 GET `/:course_slug/page-by-path/...` - Returns a course page by path
 
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
-
-"```json
-{
-  "id": "d32cc3cd-adfe-456a-a25f-032ee02db4c2",
-  "created_at": "2021-03-12T09:20:16.381347",
-  "updated_at": "2021-03-19T15:12:33.603977",
-  "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
-  "content": [],
-  "url_path": "/part-2/hello-world",
-  "title": "Hello world!",
-  "deleted_at": null,
-  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
-}
-```"
-*/
-````
+**/
+#[generated_doc(MyType)]
+```
 
 Easiest way to get the example response data and double check that endpoint works as itended is to write request to an **requests.rest** file and run the request. Before this, if needed, remember to update **seed.sql** file so that the needed data exists in a database.
 
@@ -274,3 +262,11 @@ Using these helper structs helps ensure that you do not accidentally make perman
    ![rust dependencies](img/rust-dependencies.png)
 
 Then you're done! Now you can use the dependency in the project.
+
+## Build problems with `bin/test` or `bin/dev`
+
+### Build fails because of a missing or an out of date program in the container
+
+This might be the case if you get something like command not found or `error: no such subcommand: xxx` from cargo.
+
+Usually this is because the base image for the headless-lms container has been updated, but your computer has not pulled the updated image. To pull the updated image to your local Minikube, run the following command in the repo root: `bin/minikube-pull-headless-lms-dev-base`. After that restart the development environment.

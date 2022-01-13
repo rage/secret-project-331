@@ -1,11 +1,13 @@
-use super::{path_to_str, FileStore, GenericPayload};
-use anyhow::Result;
+use std::path::Path;
+
 use async_trait::async_trait;
 use bytes::Bytes;
 use cloud_storage::Client;
 use futures::{future::try_join, StreamExt};
-use std::path::Path;
 use tokio_stream::wrappers::ReceiverStream;
+
+use super::{path_to_str, FileStore, GenericPayload};
+use crate::UtilError;
 
 const BUFFER_SIZE: usize = 512;
 
@@ -17,7 +19,7 @@ pub struct GoogleCloudFileStore {
 impl GoogleCloudFileStore {
     /// Needs to not be async because of how this is used in worker factories
     #[instrument]
-    pub fn new(bucket_name: String) -> Result<Self> {
+    pub fn new(bucket_name: String) -> Result<Self, UtilError> {
         let client = Client::default();
 
         Ok(Self {
@@ -29,7 +31,7 @@ impl GoogleCloudFileStore {
 
 #[async_trait(?Send)]
 impl FileStore for GoogleCloudFileStore {
-    async fn upload(&self, path: &Path, file: Vec<u8>, mime_type: String) -> Result<()> {
+    async fn upload(&self, path: &Path, file: Vec<u8>, mime_type: String) -> Result<(), UtilError> {
         self.client
             .object()
             .create(&self.bucket_name, file, path_to_str(path)?, &mime_type)
@@ -37,7 +39,7 @@ impl FileStore for GoogleCloudFileStore {
         Ok(())
     }
 
-    async fn download(&self, path: &Path) -> Result<Vec<u8>> {
+    async fn download(&self, path: &Path) -> Result<Vec<u8>, UtilError> {
         let res = self
             .client
             .object()
@@ -46,7 +48,7 @@ impl FileStore for GoogleCloudFileStore {
         Ok(res)
     }
 
-    async fn get_direct_download_url(&self, path: &Path) -> Result<String> {
+    async fn get_direct_download_url(&self, path: &Path) -> Result<String, UtilError> {
         let object = self
             .client
             .object()
@@ -56,7 +58,7 @@ impl FileStore for GoogleCloudFileStore {
         Ok(url)
     }
 
-    async fn delete(&self, path: &Path) -> Result<()> {
+    async fn delete(&self, path: &Path) -> Result<(), UtilError> {
         self.client
             .object()
             .delete(&self.bucket_name, path_to_str(path)?)
@@ -69,7 +71,7 @@ impl FileStore for GoogleCloudFileStore {
         path: &Path,
         mut contents: GenericPayload,
         mime_type: String,
-    ) -> Result<()> {
+    ) -> Result<(), UtilError> {
         let object_client = self.client.object();
         let (sender, receiver) = tokio::sync::mpsc::channel(BUFFER_SIZE);
         let receiver_stream = ReceiverStream::new(receiver);
@@ -97,7 +99,7 @@ impl FileStore for GoogleCloudFileStore {
     async fn download_stream(
         &self,
         path: &Path,
-    ) -> Result<Box<dyn futures::Stream<Item = std::io::Result<bytes::Bytes>>>> {
+    ) -> Result<Box<dyn futures::Stream<Item = std::io::Result<bytes::Bytes>>>, UtilError> {
         let stream = self
             .client
             .object()

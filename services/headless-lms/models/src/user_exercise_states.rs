@@ -1,18 +1,13 @@
-use super::{
-    exercises::{ActivityProgress, GradingProgress},
-    gradings::Grading,
-    submissions::Submission,
-    ModelResult,
-};
-use crate::{gradings::UserPointsUpdateStrategy, utils::numbers::option_f32_to_f32_two_decimals};
-use chrono::{DateTime, Utc};
-use core::f32;
-use futures::{future, Stream};
-use serde::{Deserialize, Serialize};
+use futures::Stream;
+use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use serde_json::Value;
-use sqlx::{FromRow, PgConnection, PgPool};
-use ts_rs::TS;
-use uuid::Uuid;
+
+use crate::{
+    exercises::{ActivityProgress, GradingProgress},
+    gradings::{Grading, UserPointsUpdateStrategy},
+    prelude::*,
+    submissions::Submission,
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct UserExerciseState {
@@ -31,11 +26,12 @@ pub struct UserExerciseState {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct UserCourseInstanceProgress {
-    score_given: f32,
-    score_maximum: Option<u32>,
-    total_exercises: Option<u32>,
-    completed_exercises: Option<u32>,
+    pub score_given: f32,
+    pub score_maximum: Option<u32>,
+    pub total_exercises: Option<u32>,
+    pub completed_exercises: Option<u32>,
 }
+
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct UserCourseInstanceChapterExerciseProgress {
     pub exercise_id: Uuid,
@@ -66,10 +62,9 @@ pub struct CourseInstanceExerciseMetrics {
 }
 
 pub async fn get_course_instance_metrics(
-    pool: &PgPool,
-    course_instance_id: &Uuid,
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
 ) -> ModelResult<CourseInstanceExerciseMetrics> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         CourseInstanceExerciseMetrics,
         r#"
@@ -82,17 +77,16 @@ WHERE e.deleted_at IS NULL
         "#,
         course_instance_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
 
 pub async fn get_user_course_instance_metrics(
-    pool: &PgPool,
-    course_instance_id: &Uuid,
-    user_id: &Uuid,
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
 ) -> ModelResult<UserCourseInstanceMetrics> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         UserCourseInstanceMetrics,
         r#"
@@ -106,18 +100,17 @@ WHERE ues.course_instance_id = $1
         course_instance_id,
         user_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
 
 pub async fn get_user_course_instance_chapter_metrics(
-    pool: &PgPool,
-    course_instance_id: &Uuid,
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
     exercise_ids: &[Uuid],
-    user_id: &Uuid,
+    user_id: Uuid,
 ) -> ModelResult<UserChapterMetrics> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         UserChapterMetrics,
         r#"
@@ -134,21 +127,19 @@ WHERE ues.exercise_id IN (
         user_id,
         course_instance_id
     )
-    .fetch_one(&mut connection)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
 
 pub async fn get_user_course_instance_progress(
-    pool: &PgPool,
-    course_instance_id: &Uuid,
-    user_id: &Uuid,
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
 ) -> ModelResult<UserCourseInstanceProgress> {
-    let (course_metrics, user_metrics) = future::try_join(
-        get_course_instance_metrics(pool, course_instance_id),
-        get_user_course_instance_metrics(pool, course_instance_id, user_id),
-    )
-    .await?;
+    let course_metrics = get_course_instance_metrics(&mut *conn, course_instance_id).await?;
+    let user_metrics = get_user_course_instance_metrics(conn, course_instance_id, user_id).await?;
+
     let result = UserCourseInstanceProgress {
         score_given: option_f32_to_f32_two_decimals(user_metrics.score_given),
         completed_exercises: user_metrics
@@ -168,12 +159,11 @@ pub async fn get_user_course_instance_progress(
 }
 
 pub async fn get_user_course_instance_chapter_exercises_progress(
-    pool: &PgPool,
-    course_instance_id: &Uuid,
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
     exercise_ids: &[Uuid],
-    user_id: &Uuid,
+    user_id: Uuid,
 ) -> ModelResult<Vec<DatabaseUserCourseInstanceChapterExerciseProgress>> {
-    let mut connection = pool.acquire().await?;
     let res = sqlx::query_as!(
         DatabaseUserCourseInstanceChapterExerciseProgress,
         r#"
@@ -191,7 +181,7 @@ WHERE ues.deleted_at IS NULL
         course_instance_id,
         user_id,
     )
-    .fetch_all(&mut connection)
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }
@@ -640,9 +630,10 @@ mod tests {
     };
 
     mod figure_out_new_score_given {
+        use headless_lms_utils::numbers::f32_approx_eq;
+
         use crate::{
             gradings::UserPointsUpdateStrategy, user_exercise_states::figure_out_new_score_given,
-            utils::numbers::f32_approx_eq,
         };
 
         #[test]

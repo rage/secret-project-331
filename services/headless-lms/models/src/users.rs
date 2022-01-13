@@ -1,11 +1,6 @@
-use crate::utils::ApplicationConfiguration;
+use headless_lms_utils::ApplicationConfiguration;
 
-use super::{ModelError, ModelResult};
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use ts_rs::TS;
-use uuid::Uuid;
+use crate::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 pub struct User {
@@ -46,19 +41,21 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn insert_with_upstream_id(
+pub async fn insert_with_upstream_id_and_moocfi_id(
     conn: &mut PgConnection,
     email: &str,
     upstream_id: i32,
+    moocfi_id: Uuid,
 ) -> ModelResult<User> {
     let user = sqlx::query_as!(
         User,
         r#"
 INSERT INTO
-  users (email, upstream_id)
-VALUES ($1, $2)
+  users (id, email, upstream_id)
+VALUES ($1, $2, $3)
 RETURNING *;
           "#,
+        moocfi_id,
         email,
         upstream_id
     )

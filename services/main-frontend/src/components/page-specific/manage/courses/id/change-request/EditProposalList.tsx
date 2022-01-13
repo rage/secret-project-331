@@ -36,46 +36,38 @@ const EditProposalList: React.FC<Props> = ({ courseId, pending, perPage }) => {
     return <ErrorBanner variant={"readOnly"} error={getEditProposalCount.error} />
   }
 
-  if (getEditProposalCount.isLoading) {
+  if (getEditProposalCount.isLoading || getEditProposalCount.isIdle) {
     return <Spinner variant="medium" />
   }
 
-  if (getEditProposalCount.isSuccess) {
-    const items = pending ? getEditProposalCount.data.pending : getEditProposalCount.data.handled
-    if (items <= 0) {
-      return <div>{t("no-change-requests")}</div>
-    }
-
-    const pageCount = Math.ceil(items / perPage)
-    if (page > pageCount) {
-      setPage(pageCount)
-    }
-
-    return (
-      <div>
-        <EditProposalPage
-          courseId={courseId}
-          page={page}
-          pending={pending}
-          limit={perPage}
-          onChange={getEditProposalCount.refetch}
-        />
-        <Pagination
-          count={pageCount}
-          page={page}
-          onChange={(_, val) => {
-            router.replace({ query: { ...router.query, page: val } }, undefined, { shallow: true })
-            setPage(val)
-          }}
-        />
-      </div>
-    )
+  const items = pending ? getEditProposalCount.data.pending : getEditProposalCount.data.handled
+  if (items <= 0) {
+    return <div>{t("no-change-requests")}</div>
   }
+
+  const pageCount = Math.ceil(items / perPage)
+  if (page > pageCount) {
+    setPage(pageCount)
+  }
+
   return (
-    <ErrorBanner
-      variant={"readOnly"}
-      error={t("error-unknown-in-component", { component: "EditProposalList" })}
-    />
+    <div>
+      <EditProposalPage
+        courseId={courseId}
+        page={page}
+        pending={pending}
+        limit={perPage}
+        onChange={getEditProposalCount.refetch}
+      />
+      <Pagination
+        count={pageCount}
+        page={page}
+        onChange={(_, val) => {
+          router.replace({ query: { ...router.query, page: val } }, undefined, { shallow: true })
+          setPage(val)
+        }}
+      />
+    </div>
   )
 }
 

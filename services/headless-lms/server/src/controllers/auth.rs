@@ -2,41 +2,45 @@
 Handlers for HTTP requests to `/api/v0/login`.
 */
 
-use crate::{
-    controllers::{ControllerError, ControllerResult},
-    domain::authorization,
-    models::{self, users::User},
-    utils::ApplicationConfiguration,
-    OAuthClient,
-};
 use actix_session::Session;
-use actix_web::{
-    web::{self, Json, ServiceConfig},
-    HttpResponse,
-};
-use anyhow::Context;
+use models::users::User;
 use oauth2::{
     basic::{BasicErrorResponseType, BasicTokenType},
     EmptyExtraTokenFields, RequestTokenError, ResourceOwnerPassword, ResourceOwnerUsername,
     StandardErrorResponse, StandardTokenResponse, TokenResponse,
 };
 use reqwest::Client;
-use serde::{Deserialize, Serialize};
-use sqlx::PgConnection;
-use sqlx::PgPool;
-use ts_rs::TS;
 use url::form_urlencoded::Target;
-use uuid::Uuid;
+
+use crate::{controllers::prelude::*, domain::authorization, OAuthClient};
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
 pub struct Login {
     email: String,
     password: String,
 }
 
-#[derive(Deserialize)]
-struct CurrentUser {
-    id: i32,
-    email: String,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GraphQLRquest<'a> {
+    query: &'a str,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MoocfiCurrentUserResponse {
+    pub data: MoocfiCurrentUserResponseData,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MoocfiCurrentUserResponseData {
+    #[serde(rename = "currentUser")]
+    pub current_user: MoocfiCurrentUser,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MoocfiCurrentUser {
+    pub id: Uuid,
+    pub email: String,
+    pub upstream_id: i32,
 }
 
 /**
@@ -54,6 +58,7 @@ pub async fn login(
     let Login { email, password } = payload.into_inner();
 
     if app_conf.development_uuid_login {
+        warn!("Trying development mode UUID login");
         if let Ok(id) = Uuid::parse_str(&email) {
             let user = { models::users::get_by_id(&mut conn, id).await? };
             authorization::remember(&session, user)?;
@@ -62,6 +67,7 @@ pub async fn login(
     }
 
     if app_conf.test_mode {
+        warn!("Using test credentials. Normal accounts won't work.");
         let user = {
             models::users::authenticate_test_user(
                 &mut conn,
@@ -82,7 +88,6 @@ pub async fn login(
         };
     }
 
-    // only used when testing
     let token = client
         .exchange_password(
             &ResourceOwnerUsername::new(email.clone()),
@@ -97,7 +102,7 @@ pub async fn login(
         ));
     }
 
-    let user = get_user_from_tmc(&token, &mut conn).await;
+    let user = get_user_from_moocfi(&token, &mut conn).await;
     if let Ok(user) = user {
         authorization::remember(&session, user)?;
         Ok(HttpResponse::Ok().finish())
@@ -122,12 +127,12 @@ pub async fn logout(session: Session) -> HttpResponse {
 GET `/api/v0/auth/logged-in` Returns the current user's login status.
 **/
 #[instrument(skip(session))]
-pub async fn logged_in(session: Session) -> Json<bool> {
+pub async fn logged_in(session: Session) -> web::Json<bool> {
     let logged_in = authorization::has_auth_user_session(&session);
-    Json(logged_in)
+    web::Json(logged_in)
 }
 
-pub fn add_auth_routes(cfg: &mut ServiceConfig) {
+pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/login", web::post().to(login))
         .route("/logout", web::post().to(logout))
         .route("/logged-in", web::get().to(logged_in));
@@ -141,34 +146,58 @@ pub type LoginToken = Result<
     >,
 >;
 
-pub async fn get_user_from_tmc(
+pub async fn get_user_from_moocfi(
     token: &LoginToken,
     conn: &mut PgConnection,
 ) -> ControllerResult<User> {
+    info!("Getting user details from mooc.fi");
     if let Ok(token) = token {
-        let current_user_url = "https://tmc.mooc.fi/api/v8/users/current";
+        let moocfi_graphql_url = "https://www.mooc.fi/api";
         let client = Client::default();
         let res = client
-            .get(current_user_url)
+            .post(moocfi_graphql_url)
+            .header(reqwest::header::CONTENT_TYPE, "application/json")
+            .header(reqwest::header::ACCEPT, "application/json")
+            .json(&GraphQLRquest {
+                query: r#"
+{
+    currentUser {
+    id
+    email
+    upstream_id
+    }
+}
+            "#,
+            })
             .bearer_auth(token.access_token().secret())
             .send()
             .await
-            .context("Failed to send request to TMC")?;
+            .context("Failed to send request to Mooc.fi")?;
         if !res.status().is_success() {
-            return Err(anyhow::anyhow!("Failed to get current user from TMC").into());
+            return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi").into());
         }
-        let current_user: CurrentUser = res.json().await.context("Unexpected response from TMC")?;
-        let upstream_id = current_user.id;
-        let email = current_user.email;
+        let current_user_response: MoocfiCurrentUserResponse = res
+            .json()
+            .await
+            .context("Unexpected response from Mooc.fi")?;
+        let upstream_id = current_user_response.data.current_user.upstream_id;
+        let email = current_user_response.data.current_user.email;
+        let moocfi_id = current_user_response.data.current_user.id;
 
         // fetch existing user or create new one
-        let user = match crate::models::users::find_by_upstream_id(conn, upstream_id)
+        let user = match models::users::find_by_upstream_id(conn, upstream_id)
             .await
             .context("Error while trying to find user")?
         {
             Some(existing_user) => existing_user,
             None => {
-                crate::models::users::insert_with_upstream_id(conn, &email, upstream_id).await?
+                models::users::insert_with_upstream_id_and_moocfi_id(
+                    conn,
+                    &email,
+                    upstream_id,
+                    moocfi_id,
+                )
+                .await?
             }
         };
         Ok(user)

@@ -1,37 +1,28 @@
-use super::{
-    chapters::{self, ChapterStatus},
-    course_instances::{self, CourseInstance},
-    courses::Course,
-    exercise_slides::ExerciseSlide,
-    user_course_settings::{self, UserCourseSettings},
-    ModelResult,
-};
-use crate::{
-    chapters::DatabaseChapter,
-    exercise_service_info,
-    exercise_services::{get_internal_public_spec_url, get_model_solution_url},
-    exercise_tasks::ExerciseTask,
-    exercises::Exercise,
-    page_history::{self, HistoryChangeReason, PageHistoryContent},
-    utils::document_schema_processor::{
-        contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
-    },
-    ModelError,
-};
-
-use anyhow::Context;
-use chrono::{DateTime, Utc};
-use futures::future::OptionFuture;
-use itertools::Itertools;
-use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, FromRow, PgConnection};
 use std::{
     collections::{hash_map, HashMap},
     time::Duration,
 };
-use ts_rs::TS;
+
+use futures::future::OptionFuture;
+use headless_lms_utils::document_schema_processor::{
+    contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
+};
+use itertools::Itertools;
 use url::Url;
-use uuid::Uuid;
+
+use crate::{
+    chapters::{self, ChapterStatus, DatabaseChapter},
+    course_instances::{self, CourseInstance},
+    courses::Course,
+    exercise_service_info,
+    exercise_services::{get_internal_public_spec_url, get_model_solution_url},
+    exercise_slides::ExerciseSlide,
+    exercise_tasks::ExerciseTask,
+    exercises::Exercise,
+    page_history::{self, HistoryChangeReason, PageHistoryContent},
+    prelude::*,
+    user_course_settings::{self, UserCourseSettings},
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Page {
@@ -65,18 +56,9 @@ pub struct CoursePageWithUserData {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageWithExercises {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    course_id: Option<Uuid>,
-    exam_id: Option<Uuid>,
-    chapter_id: Option<Uuid>,
-    content: serde_json::Value,
-    url_path: String,
-    title: String,
-    order_number: i32,
-    deleted_at: Option<DateTime<Utc>>,
-    exercises: Vec<Exercise>,
+    #[serde(flatten)]
+    pub page: Page,
+    pub exercises: Vec<Exercise>,
 }
 
 // Represents the subset of page fields that are required to create a new page.
@@ -139,11 +121,11 @@ pub struct PageMetadata {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct PageSearchResult {
-    id: Uuid,
-    title_headline: Option<String>,
-    rank: Option<f32>,
-    content_headline: Option<String>,
-    url_path: String,
+    pub id: Uuid,
+    pub title_headline: Option<String>,
+    pub rank: Option<f32>,
+    pub content_headline: Option<String>,
+    pub url_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -695,7 +677,7 @@ RETURNING id,
     .await?;
 
     // Now, we might have changed some of the exercise ids and need to do the same changes in the page content as well
-    let new_content = crate::utils::document_schema_processor::remap_ids_in_content(
+    let new_content = headless_lms_utils::document_schema_processor::remap_ids_in_content(
         &page.content,
         remapped_exercises
             .iter()
@@ -745,8 +727,7 @@ RETURNING id,
         author,
         None,
     )
-    .await
-    .context("Failed to create a page history entry")?;
+    .await?;
     let organization_id = get_organization_id(&mut tx, page.id).await?;
 
     tx.commit().await?;
@@ -1304,24 +1285,11 @@ WHERE page_id IN (
             };
 
             exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
-            PageWithExercises {
-                id: page.id,
-                created_at: page.created_at,
-                updated_at: page.updated_at,
-                course_id: page.course_id,
-                exam_id: page.exam_id,
-                chapter_id: page.chapter_id,
-                content: page.content,
-                url_path: page.url_path,
-                title: page.title,
-                order_number: page.order_number,
-                deleted_at: page.deleted_at,
-                exercises,
-            }
+            PageWithExercises { page, exercises }
         })
         .collect();
 
-    chapter_pages_with_exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+    chapter_pages_with_exercises.sort_by(|a, b| a.page.order_number.cmp(&b.page.order_number));
 
     Ok(chapter_pages_with_exercises)
 }

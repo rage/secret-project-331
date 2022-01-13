@@ -17,6 +17,9 @@ jobs:
       - name: Update rust to get edition 2021 support
         run: rustup update stable
 
+      - name: Run npm ci
+        run: npm ci
+
       - name: Install and build
         run: |
           cargo run --bin doc-file-generator

@@ -26,8 +26,7 @@ const MultipleChoiceDropdownFeedback: React.FC<QuizItemSubmissionComponentProps>
   user_quiz_item_answer,
   quiz_item_feedback,
 }) => {
-  // TODO: Add correct field to the GradingResult interface
-  const correct = user_quiz_item_answer.correct
+  const correct = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_correct
   const selectedOption = public_quiz_item.options.filter(
     (o) => o.id === (user_quiz_item_answer.optionAnswers as string[])[0],
   )[0]

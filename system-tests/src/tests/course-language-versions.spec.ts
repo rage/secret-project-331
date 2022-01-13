@@ -20,7 +20,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Introduction to localizing Manage >> :nth-match(a, 2)
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=Introduction to localizing Manage >> :nth-match(a, 2)"),
+    page.click("[aria-label=\"Manage course 'Introduction to localizing'\"] svg"),
   ])
   expect(page.url()).toBe(
     "http://project-331.local/manage/courses/639f4d25-9376-49b5-bcca-7cba18c38565",

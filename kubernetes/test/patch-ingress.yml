@@ -3,3 +3,13 @@
   path: "/spec/tls"
 - op: remove
   path: "/spec/rules/0/host"
+# Increase rate limits due to many requests during the tests
+- op: replace
+  path: "/metadata/annotations/nginx.ingress.kubernetes.io~1limit-connections"
+  value: "1000"
+- op: replace
+  path: "/metadata/annotations/nginx.ingress.kubernetes.io~1limit-rps"
+  value: "1000"
+- op: replace
+  path: "/metadata/annotations/nginx.ingress.kubernetes.io~1limit-rpm"
+  value: "20000"

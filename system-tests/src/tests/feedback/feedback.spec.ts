@@ -99,7 +99,7 @@ test("test", async ({ headless, page }) => {
   // Click text=Introduction to feedback Manage >> :nth-match(a, 2)
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=Introduction to feedback Manage >> :nth-match(a, 2)"),
+    page.click("[aria-label=\"Manage course 'Introduction to feedback'\"] svg"),
   ])
   expectPath(page, "/manage/courses/[id]")
 

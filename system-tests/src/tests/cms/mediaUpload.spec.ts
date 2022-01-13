@@ -34,7 +34,10 @@ test.describe("Uploading media as admin", async () => {
     ])
     expect(page.url().startsWith("http://project-331.local/org/")).toBe(true)
 
-    await Promise.all([page.waitForNavigation(), page.click("text=Manage")])
+    await Promise.all([
+      page.waitForNavigation(),
+      page.click("[aria-label=\"Manage course 'Introduction to everything'\"] svg"),
+    ])
     expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 
     await Promise.all([page.waitForNavigation(), page.click("text=Manage pages")])

@@ -19,7 +19,11 @@ test.describe("Model solutions", () => {
     expectPath(page, "/org/uh-cs")
 
     // Click text=Manage
-    await Promise.all([page.waitForNavigation(), await page.click("text=Manage")])
+    await Promise.all([
+      page.waitForNavigation(),
+      page.click("[aria-label=\"Manage course 'Introduction to everything'\"] svg"),
+    ])
+
     expectPath(page, "/manage/courses/[id]")
     // Click text=view submissions
     await Promise.all([

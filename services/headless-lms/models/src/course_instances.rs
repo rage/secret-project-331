@@ -488,6 +488,7 @@ mod test {
             course_language_group_id,
             "course-1",
             "en-US",
+            "",
         )
         .await
         .unwrap();
@@ -498,6 +499,7 @@ mod test {
             course_language_group_id,
             "course-2",
             "en-US",
+            "",
         )
         .await
         .unwrap();

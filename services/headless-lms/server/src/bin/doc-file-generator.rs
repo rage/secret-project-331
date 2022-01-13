@@ -216,6 +216,7 @@ fn main() {
         copied_from: None,
         content_search_language: Some("simple".to_string()),
         course_language_group_id: id,
+        description: Some("Example".to_string()),
     };
     let chapter = Chapter {
         id,

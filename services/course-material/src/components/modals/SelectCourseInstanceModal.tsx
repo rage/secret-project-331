@@ -34,6 +34,15 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
         coursePageState.pageData?.course_id !== null && open && coursePageState.state === "ready",
     },
   )
+  useEffect(() => {
+    if (open && document) {
+      const element = document.getElementById("__next")
+      if (element !== null) {
+        // eslint-disable-next-line i18next/no-literal-string
+        element.setAttribute("aria-hidden", "false")
+      }
+    }
+  }, [open])
 
   useEffect(() => {
     const signedIn = !!loginState.signedIn
@@ -45,7 +54,10 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
   }, [loginState, coursePageState])
 
   const handleSubmitAndClose = useCallback(
-    async (instanceId: string) => {
+    async (instanceId: string, reason?: string) => {
+      if (reason === "backdropClick") {
+        return
+      }
       try {
         await postCourseInstanceEnrollment(instanceId)
         setOpen(false)
@@ -68,14 +80,21 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
   }
 
   return (
-    <Dialog open={open} onClose={handleSubmitAndClose}>
+    <Dialog open={open} onClose={handleSubmitAndClose} aria-labelledby="dialogLabel">
       <div
         className={css`
           margin: 1rem;
         `}
       >
         {submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
-        <h4>{t("title-select-course-version-to-continue")}.</h4>
+        <h1
+          className={css`
+            font-size: clamp(18px, 2vw, 20px);
+          `}
+          id="dialogLabel"
+        >
+          {t("title-select-course-version-to-continue")}.
+        </h1>
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}

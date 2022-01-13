@@ -110,7 +110,9 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                       },
                     }}
                   >
-                    {t("link-manage")}
+                    <a href="replace" aria-label={`${t("link-manage")} (${course.name})`}>
+                      {t("link-manage")}
+                    </a>
                   </Link>{" "}
                 </>
               )}
@@ -156,7 +158,10 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           exams.data.map((e) => (
             <div key={e.id}>
               <a href={`/org/${query.organizationSlug}/exams/${e.id}`}>{e.name}</a> ({e.course_name}
-              ) <a href={`/manage/exams/${e.id}`}>{t("link-manage")}</a>
+              ){" "}
+              <a href={`/manage/exams/${e.id}`} aria-label={`${t("link-manage")} (${e.name})`}>
+                {t("link-manage")}
+              </a>
             </div>
           ))}
         {exams.isLoading && <div>{t("loading-text")}</div>}

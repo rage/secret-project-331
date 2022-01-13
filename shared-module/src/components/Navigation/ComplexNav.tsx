@@ -231,12 +231,8 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
     <div className="wrapper">
       <nav role="navigation" className={cx(navbarItems)}>
         <div className={cx(navbarLogo)}>
-          <a href="/" aria-label={t("home-page")} role="button">
-            <StyledIcon
-              icon={faBullseye}
-              aria-label={t("home-page")}
-              aria-hidden="true"
-            ></StyledIcon>
+          <a href="/" title="Home page" aria-label={t("home-page")} role="button">
+            <StyledIcon icon={faBullseye} aria-label={t("home-page")}></StyledIcon>
           </a>
         </div>
         <div

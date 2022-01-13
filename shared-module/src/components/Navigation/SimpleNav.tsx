@@ -168,12 +168,11 @@ const Navigation: React.FC<NavigationProps> = ({
   return (
     <nav role="navigation" className={cx(NavbarItems)}>
       <div className={cx(NavbarLogo)}>
-        <a href={`${frontPageUrl}`} aria-label="Home page" role="button">
+        <a href={`${frontPageUrl}`} title="Home page" aria-label="Home page" role="button">
           <FontAwesomeIcon
             className={cx(StyledIcon)}
             icon={faBullseye}
             aria-label={t("home-page")}
-            aria-hidden="true"
           ></FontAwesomeIcon>
         </a>
       </div>

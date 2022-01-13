@@ -4,7 +4,7 @@ import { useRouter } from "next/router"
 import React, { ReactNode, useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import CoursePageContext from "../contexts/CoursePageContext"
+import PageContext from "../contexts/PageContext"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
 import basePath from "../shared-module/utils/base-path"
@@ -41,7 +41,7 @@ const Layout: React.FC<LayoutProps> = ({
   const returnPath = `/login?return_to=${encodeURIComponent(
     process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
   )}`
-  const pageContext = useContext(CoursePageContext)
+  const pageContext = useContext(PageContext)
 
   const courseId = pageContext?.pageData?.course_id
   return (

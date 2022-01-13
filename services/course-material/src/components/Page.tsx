@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import React, { useContext, useState } from "react"
 
-import CoursePageContext, { CoursePageDispatch } from "../contexts/CoursePageContext"
+import PageContext, { CoursePageDispatch } from "../contexts/PageContext"
 import useSelectedBlockId from "../hooks/useSelectedBlockId"
 import { Block } from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
@@ -22,7 +22,7 @@ interface Props {
 const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
   // block id -> new block contents
   const [edits, setEdits] = useState<Map<string, NewProposedBlockEdit>>(new Map())
-  const pageContext = useContext(CoursePageContext)
+  const pageContext = useContext(PageContext)
   const pageDispatch = useContext(CoursePageDispatch)
   const [editingMaterial, setEditingMaterial] = useState(false)
 
@@ -79,7 +79,7 @@ const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
           editing={editingMaterial}
           selectedBlockId={selectedBlockId}
           setEdits={setEdits}
-          isExam={pageContext.pageData?.exam_id !== null}
+          isExam={pageContext.exam !== null}
         />
       </div>
       {pageContext.pageData?.chapter_id && <NavigationContainer />}

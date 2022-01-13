@@ -68,14 +68,8 @@ async fn delete_page(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
-    let (course_id, exam_id) = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
-    if let Some(course_id) = course_id {
-        authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
-    } else if let Some(exam_id) = exam_id {
-        authorize(&mut conn, Act::Edit, user.id, Res::Exam(exam_id)).await?;
-    } else {
-        return Err(anyhow::anyhow!("Page not associated with course or exam").into());
-    }
+    authorize(&mut conn, Act::Edit, user.id, Res::Page(*page_id)).await?;
+
     let deleted_page = models::pages::delete_page_and_exercises(&mut conn, *page_id).await?;
     Ok(web::Json(deleted_page))
 }

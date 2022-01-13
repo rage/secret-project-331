@@ -9,12 +9,9 @@ import Page from "../../../components/Page"
 import ExamStartBanner from "../../../components/exams/ExamStartBanner"
 import ExamTimer from "../../../components/exams/ExamTimer"
 import ExamTimeOverModal from "../../../components/modals/ExamTimeOverModal"
-import CoursePageContext, {
-  CoursePageDispatch,
-  defaultCoursePageState,
-} from "../../../contexts/CoursePageContext"
+import PageContext, { CoursePageDispatch, defaultPageState } from "../../../contexts/PageContext"
 import useTime from "../../../hooks/useTime"
-import coursePageStateReducer from "../../../reducers/coursePageStateReducer"
+import pageStateReducer from "../../../reducers/pageStateReducer"
 import { enrollInExam, fetchExam } from "../../../services/backend"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
@@ -34,7 +31,7 @@ interface ExamProps {
 const Exam: React.FC<ExamProps> = ({ query }) => {
   const { t } = useTranslation()
   const examId = query.id
-  const [pageState, pageStateDispatch] = useReducer(coursePageStateReducer, defaultCoursePageState)
+  const [pageState, pageStateDispatch] = useReducer(pageStateReducer, defaultPageState)
   const now = useTime(5000)
 
   const exam = useQuery(`exam-page-${examId}`, () => fetchExam(examId))
@@ -200,23 +197,19 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
 
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
-      <CoursePageContext.Provider value={pageState}>
+      <PageContext.Provider value={pageState}>
         <Layout organizationSlug={query.organizationSlug}>
-          {
-            <>
-              <ExamTimeOverModal secondsLeft={secondsLeft} onClose={handleTimeOverModalClose} />
-              {examInfo}
+          <ExamTimeOverModal secondsLeft={secondsLeft} onClose={handleTimeOverModalClose} />
+          {examInfo}
 
-              <ExamTimer
-                startedAt={exam.data.enrollment_data.enrollment.started_at}
-                endsAt={endsAt}
-                secondsLeft={secondsLeft}
-              />
-            </>
-          }
+          <ExamTimer
+            startedAt={exam.data.enrollment_data.enrollment.started_at}
+            endsAt={endsAt}
+            secondsLeft={secondsLeft}
+          />
           <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
         </Layout>
-      </CoursePageContext.Provider>
+      </PageContext.Provider>
     </CoursePageDispatch.Provider>
   )
 }

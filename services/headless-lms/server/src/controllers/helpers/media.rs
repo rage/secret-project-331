@@ -39,7 +39,7 @@ pub async fn upload_media<'a>(
                 mime::IMAGE => generate_image_path(&field, store_kind),
                 _ => generate_file_path(&field, store_kind),
             }?;
-            upload_media_to_storage(&path, field, file_store).await?;
+            upload_media_to_storage(&path, field, file_store.as_ref()).await?;
             Ok(path)
         }
         Err(err) => Err(ControllerError::InternalServerError(err.to_string())),
@@ -69,7 +69,7 @@ pub async fn upload_image_for_organization(
                     unsupported
                 ))),
             }?;
-            upload_media_to_storage(&path, field, file_store).await?;
+            upload_media_to_storage(&path, field, file_store.as_ref()).await?;
             Ok(path)
         }
         Err(err) => Err(ControllerError::InternalServerError(err.to_string())),

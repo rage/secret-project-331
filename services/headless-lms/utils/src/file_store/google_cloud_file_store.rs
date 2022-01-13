@@ -31,10 +31,10 @@ impl GoogleCloudFileStore {
 
 #[async_trait(?Send)]
 impl FileStore for GoogleCloudFileStore {
-    async fn upload(&self, path: &Path, file: Vec<u8>, mime_type: String) -> Result<(), UtilError> {
+    async fn upload(&self, path: &Path, file: Vec<u8>, mime_type: &str) -> Result<(), UtilError> {
         self.client
             .object()
-            .create(&self.bucket_name, file, path_to_str(path)?, &mime_type)
+            .create(&self.bucket_name, file, path_to_str(path)?, mime_type)
             .await?;
         Ok(())
     }
@@ -70,7 +70,7 @@ impl FileStore for GoogleCloudFileStore {
         &self,
         path: &Path,
         mut contents: GenericPayload,
-        mime_type: String,
+        mime_type: &str,
     ) -> Result<(), UtilError> {
         let object_client = self.client.object();
         let (sender, receiver) = tokio::sync::mpsc::channel(BUFFER_SIZE);
@@ -90,7 +90,7 @@ impl FileStore for GoogleCloudFileStore {
             receiver_stream,
             None,
             path_to_str(path)?,
-            &mime_type,
+            mime_type,
         );
         try_join(send_fut, recv_fut).await?;
         Ok(())

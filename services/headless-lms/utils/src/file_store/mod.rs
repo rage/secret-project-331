@@ -26,14 +26,14 @@ pub trait FileStore {
         &self,
         path: &Path,
         contents: Vec<u8>,
-        mime_type: String,
+        mime_type: &str,
     ) -> Result<(), UtilError>;
     /// Upload a file without loading the whole file to memory
     async fn upload_stream(
         &self,
         path: &Path,
         mut contents: GenericPayload,
-        mime_type: String,
+        mime_type: &str,
     ) -> Result<(), UtilError>;
     /// Download a file to memory.
     async fn download(&self, path: &Path) -> Result<Vec<u8>, UtilError>;
@@ -69,7 +69,7 @@ fn path_to_str(path: &Path) -> Result<&str, UtilError> {
 
 pub fn organization_image_path(
     organization_id: Uuid,
-    image_name: String,
+    image_name: &str,
 ) -> Result<PathBuf, UtilError> {
     let path = PathBuf::from(format!(
         "organizations/{}/images/{}",
@@ -80,7 +80,7 @@ pub fn organization_image_path(
 
 pub fn organization_audio_path(
     organization_id: Uuid,
-    audio_name: String,
+    audio_name: &str,
 ) -> Result<PathBuf, UtilError> {
     let path = PathBuf::from(format!(
         "organizations/{}/audios/{}",
@@ -91,7 +91,7 @@ pub fn organization_audio_path(
 
 pub fn organization_file_path(
     organization_id: Uuid,
-    file_name: String,
+    file_name: &str,
 ) -> Result<PathBuf, UtilError> {
     let path = PathBuf::from(format!(
         "organizations/{}/files/{}",

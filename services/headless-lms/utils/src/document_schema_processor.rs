@@ -76,20 +76,20 @@ impl GutenbergBlock {
         GutenbergBlock::block_with_name_and_attributes(
             "moocfi/hero-section",
             attributes! {
-                "title": title.to_string(),
-                "subtitle": sub_title.to_string()
+                "title": title,
+                "subtitle": sub_title
             },
         )
     }
     pub fn landing_page_hero_section(title: &str, sub_title: &str) -> Self {
         GutenbergBlock::block_with_name_attributes_and_inner_blocks(
             "moocfi/landing-page-hero-section",
-            attributes! {"title": title.to_string()},
+            attributes! {"title": title},
             vec![GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 attributes! {
                     "align": "center",
-                    "content": sub_title.to_string(),
+                    "content": sub_title,
                     "dropCap": false,
                     "placeholder": "Insert short description of course..."
                 },

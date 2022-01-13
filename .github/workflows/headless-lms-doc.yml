@@ -21,6 +21,7 @@ jobs:
         run: |
           cargo run --bin doc-file-generator
           cargo doc --document-private-items
+          npm run eslint:format-generated-docs
         working-directory: services/headless-lms
 
       - name: Deploy

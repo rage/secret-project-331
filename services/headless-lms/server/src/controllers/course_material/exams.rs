@@ -9,7 +9,7 @@ use crate::controllers::prelude::*;
 /**
 GET /api/v0/course-material/exams/:id/enrollment
 */
-#[cfg_attr(doc, doc = generated_docs!(Option<ExamEnrollment>))]
+#[generated_doc(Option<ExamEnrollment>)]
 pub async fn enrollment(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
@@ -23,7 +23,7 @@ pub async fn enrollment(
 /**
 POST /api/v0/course-material/exams/:id/enroll
 */
-#[cfg_attr(doc, doc = generated_docs!(()))]
+#[generated_doc(())]
 pub async fn enroll(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
@@ -81,7 +81,7 @@ pub enum ExamEnrollmentData {
 /**
 GET /api/v0/course-material/exams/:id
 */
-#[cfg_attr(doc, doc = generated_docs!(ExamData))]
+#[generated_doc(ExamData)]
 pub async fn fetch_exam_for_user(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,

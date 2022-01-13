@@ -35,7 +35,7 @@ Content-Type: application/json
 }
 ```
 */
-#[cfg_attr(doc, doc = generated_docs!(Page))]
+#[generated_doc(Page)]
 #[instrument(skip(pool))]
 async fn post_new_page(
     payload: web::Json<NewPage>,
@@ -60,7 +60,7 @@ DELETE `/api/v0/main-frontend/pages/:page_id` - Delete a page, related exercises
 
 Request: `DELETE /api/v0/main-frontend/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
 */
-#[cfg_attr(doc, doc = generated_docs!(Page))]
+#[generated_doc(Page)]
 #[instrument(skip(pool))]
 async fn delete_page(
     page_id: web::Path<Uuid>,
@@ -83,7 +83,7 @@ async fn delete_page(
 /**
 GET /api/v0/main-frontend/pages/:page_id/history
 */
-#[cfg_attr(doc, doc = generated_docs!(Vec<PageHistory>))]
+#[generated_doc(Vec<PageHistory>)]
 async fn history(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
@@ -100,7 +100,7 @@ async fn history(
 /**
 GET /api/v0/main-frontend/pages/:page_id/history_count
 */
-#[cfg_attr(doc, doc = generated_docs!(i64))]
+#[generated_doc(i64)]
 async fn history_count(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
@@ -116,7 +116,7 @@ async fn history_count(
 /**
 POST /api/v0/main-frontend/pages/:page_id/restore
 */
-#[cfg_attr(doc, doc = generated_docs!(Uuid))]
+#[generated_doc(Uuid)]
 async fn restore(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,

@@ -16,7 +16,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[cfg_attr(doc, doc = generated_docs!(UploadResult))]
+#[generated_doc(UploadResult)]
 #[instrument(skip(payload, request, file_store, app_conf))]
 async fn add_media(
     pool: web::Data<PgPool>,

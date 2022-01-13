@@ -80,7 +80,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
   }
 
   return (
-    <Dialog open={open} onClose={handleSubmitAndClose} aria-labelledby="dialogLabel">
+    <Dialog open={open} onClose={handleSubmitAndClose} aria-labelledby="dialog-label">
       <div
         className={css`
           margin: 1rem;
@@ -91,7 +91,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
           className={css`
             font-size: clamp(18px, 2vw, 20px);
           `}
-          id="dialogLabel"
+          id="dialog-label"
         >
           {t("title-select-course-version-to-continue")}.
         </h1>

@@ -131,7 +131,7 @@ pub async fn insert_data(
     )
     .await?;
     let course =
-        crate::courses::insert(&mut *conn, "", org, clg_id, &random_string, "en-US").await?;
+        crate::courses::insert(&mut *conn, "", org, clg_id, &random_string, "en-US", "").await?;
     let instance = crate::course_instances::insert(
         &mut *conn,
         NewCourseInstance {

@@ -149,6 +149,10 @@ const TertiaryButton = styled.button`
   ${TertiaryButtonStyles}
 `
 
+export const LabelButton = styled.label`
+  ${BASE_BUTTON_STYLES}
+`
+
 /* BUTTON VARIANT
 PrimaryButton
 SecondaryButton

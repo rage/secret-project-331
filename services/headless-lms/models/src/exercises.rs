@@ -502,6 +502,7 @@ mod test {
             course_language_group_id,
             "",
             "en-US",
+            "",
         )
         .await
         .unwrap();

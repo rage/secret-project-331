@@ -4,7 +4,12 @@ import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
-test.skip("blocks render correctly", async ({ page, headless }) => {
+/*
+
+ fails to contrast / color palette
+
+*/
+test("blocks render correctly", async ({ page, headless }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
   // Click [id="__next"] div >> :nth-match(div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer "), 4)

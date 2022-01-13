@@ -12,9 +12,11 @@ interface TextFieldExtraProps {
   placeholder?: string
   required?: boolean
   value?: string
-  /* onBlur?: (event: React.FocusEvent<HTMLSelectElement>) => void */
-  onChange: (value: string, name?: string) => void
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
+  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void
+  onChange?: (value: string, name?: string) => void
   className?: string
+  disabled?: boolean
 }
 
 const ERRORCOLOR = "#F76D82"
@@ -70,7 +72,7 @@ const TextField = ({ onChange, className, ...rest }: TextFieldExtraProps) => {
         <span className={cx(label)}>{rest.label}</span>
         <Input
           aria-describedby={`${rest.label}_error`}
-          onChange={({ target: { value } }) => onChange(value)}
+          onChange={({ target: { value } }) => onChange && onChange(value)}
           {...rest}
         />
       </label>

@@ -13,6 +13,8 @@ interface MessageChannelIFrameProps {
   onMessageFromIframe: (message: CurrentStateMessage, responsePort: MessagePort) => void
 }
 
+const IFRAME_TITLE = "Exercise type specific content"
+
 const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   url,
   postThisStateToIFrame,
@@ -142,7 +144,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
           width: 100%;
           border: 0;
         `}
-        title="Exercise type specific content"
+        title={IFRAME_TITLE}
         ref={iframeRef}
         src={url}
       />

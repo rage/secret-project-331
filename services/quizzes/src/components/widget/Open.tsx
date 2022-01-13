@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import TextField from "../../shared-module/components/InputFields/TextField"
 import { stripNonPrintableCharacters } from "../../shared-module/utils/strings"
 import { MarkdownText } from "../MarkdownText"
 
@@ -43,10 +44,11 @@ const Open: React.FC<QuizItemComponentProps> = ({
       <div>{quizItem.title && <MarkdownText text={quizItem.title} />}</div>
       <div>{quizItem.body && <MarkdownText text={quizItem.body} />}</div>
       <div>
-        <input
+        <TextField
+          label={t("answer")}
           type="text"
           value={quizItemAnswerState?.textData ?? ""}
-          onChange={(e) => handleChange(e.target.value)}
+          onChange={(e) => handleChange(e)}
           onFocus={() => setShowFormatError(true)}
           onBlur={() => setShowFormatError(false)}
         />

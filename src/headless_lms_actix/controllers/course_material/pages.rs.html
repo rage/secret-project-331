@@ -66,7 +66,7 @@
 <span class="doccomment">/**
 GET /api/v0/course-material/pages/exam/{page_id}
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Page</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Page</span>)]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_exam_id</span>(
     <span class="ident">exam_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -80,7 +80,7 @@ GET /api/v0/course-material/pages/exam/{page_id}
  GET /api/v0/course-material/pages/:page_id/next-page - returns next pages info.
  If current page is the last page of the chapter, returns next chapters first page.
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Page</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Page</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_page</span>(
     <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,

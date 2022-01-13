@@ -178,7 +178,7 @@
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/exams/:id
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Exam</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Exam</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exam</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -199,7 +199,7 @@ GET `/api/v0/main-frontend/exams/:id
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/exams/:id/set`
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(()))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(())]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_course</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -217,7 +217,7 @@ POST `/api/v0/main-frontend/exams/:id/set`
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/exams/:id/unset`
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(()))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(())]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">unset_course</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,

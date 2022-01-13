@@ -107,7 +107,7 @@
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns feedback for the given course.
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageProposal</span><span class="op">&gt;</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageProposal</span><span class="op">&gt;</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_edit_proposals</span>(
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -131,7 +131,7 @@ GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns fee
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">ProposalCount</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">ProposalCount</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_edit_proposal_count</span>(
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,

@@ -63,7 +63,7 @@
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/org/:slug
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Organization</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Organization</span>)]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_by_slug</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">organization_slug</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
@@ -81,7 +81,7 @@ GET `/api/v0/main-frontend/org/:slug
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/org/:slug/courses
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span>)]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_courses_by_slug</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">organization_slug</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,

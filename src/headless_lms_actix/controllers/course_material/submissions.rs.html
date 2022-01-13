@@ -140,7 +140,7 @@ Content-Type: application/json
 }
 ```
  */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">SubmissionResult</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">SubmissionResult</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_submission</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -192,7 +192,7 @@ Content-Type: application/json
 <span class="doccomment">/**
 GET `/api/v0/course-material/previous-for-exercise/:id` - Gets the previous submission for the given exercise.
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PreviousSubmission</span><span class="op">&gt;</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PreviousSubmission</span><span class="op">&gt;</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">previous_submission</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,

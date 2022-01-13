@@ -87,7 +87,7 @@
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/playground_examples` - Returns all playground examples that are not deleted.
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_playground_examples</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -100,7 +100,7 @@ GET `/api/v0/main-frontend/playground_examples` - Returns all playground example
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/playground_examples` - Saves a playground example.
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">PlaygroundExample</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">PlaygroundExample</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_playground_example</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -118,7 +118,7 @@ POST `/api/v0/main-frontend/playground_examples` - Saves a playground example.
 <span class="doccomment">/**
 PUT `/api/v0/main-frontend/playground_examples` - Updates existing playground example.
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">PlaygroundExample</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">PlaygroundExample</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_playground_example</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -135,7 +135,7 @@ PUT `/api/v0/main-frontend/playground_examples` - Updates existing playground ex
 <span class="doccomment">/**
 DELETE `/api/v0/main-frontend/playground_examples` - Deletes a playground example if exists.
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">PlaygroundExample</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">PlaygroundExample</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_playground_example</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,

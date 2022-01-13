@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_routes","Add a route for each controller in this module."],["get_organization_by_slug","GET `/api/v0/main-frontend/org/:slug"],["get_organization_courses_by_slug","GET `/api/v0/main-frontend/org/:slug/courses"]]});
+initSidebarItems({"fn":[["_add_routes","Add a route for each controller in this module."],["get_organization_by_slug","Response TypeScript definition"],["get_organization_courses_by_slug","Response TypeScript definition"]]});

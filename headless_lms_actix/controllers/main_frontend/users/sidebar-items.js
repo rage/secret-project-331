@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_routes",""],["get_user","GET `/api/v0/main-frontend/users/:id`"]]});
+initSidebarItems({"fn":[["_add_routes",""],["get_user","Response TypeScript definition"]]});

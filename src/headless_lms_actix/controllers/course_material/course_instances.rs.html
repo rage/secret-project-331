@@ -147,7 +147,7 @@
 <span class="doccomment">/**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">UserCourseInstanceProgress</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">UserCourseInstanceProgress</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_progress_for_course_instance</span>(
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
@@ -168,7 +168,7 @@
 <span class="doccomment">/**
 GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">UserCourseInstanceProgress</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">UserCourseInstanceProgress</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_progress_for_course_instance_chapter</span>(
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
@@ -191,7 +191,7 @@ GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapt
 <span class="doccomment">/**
 GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">UserCourseInstanceChapterExerciseProgress</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">UserCourseInstanceChapterExerciseProgress</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_progress_for_course_instance_chapter_exercises</span>(
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
@@ -226,7 +226,7 @@ GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapte
 <span class="doccomment">/**
 POST /api/v0/course-material/course-instance/:course_instance_id/enroll - enrolls user to the course instance.
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">CourseInstanceEnrollment</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">CourseInstanceEnrollment</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">add_user_enrollment</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,

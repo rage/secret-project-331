@@ -58,7 +58,7 @@
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/submissions/{submission_id}/info&quot;` - Returns data necessary for rendering a submission.
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">SubmissionInfo</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">SubmissionInfo</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_submission_info</span>(
     <span class="ident">submission_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,

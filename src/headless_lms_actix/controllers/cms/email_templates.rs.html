@@ -62,9 +62,9 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/**
-GET `/api/v0/cms/email-templates/:id
+GET `/api/v0/cms/email-templates/:id`
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">EmailTemplate</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">EmailTemplate</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_email_template</span>(
     <span class="ident">email_template_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -81,7 +81,7 @@ GET `/api/v0/cms/email-templates/:id
 <span class="doccomment">/**
 PUT `/api/v0/cms/email-templates/:id
 */</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">EmailTemplate</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">EmailTemplate</span>)]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_email_template</span>(
     <span class="ident">email_template_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,

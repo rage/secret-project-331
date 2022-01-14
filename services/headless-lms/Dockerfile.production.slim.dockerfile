@@ -5,7 +5,7 @@ FROM $BUILD_CACHE as builder
 
 USER root
 # Middle step so we can only copy the required binaries and not copy other large compilation artifacts
-RUN mkdir /bins && find /app -maxdepth 1 -executable -type f -exec cp "{}" /bins \;
+RUN mkdir /bins && find /app/target/release -maxdepth 1 -executable -type f -not -name "*.so" -exec cp "{}" /bins \;
 
 # The runtime target is used in skaffold.production.yml to create a slim image that is used in production
 FROM eu.gcr.io/moocfi-public/project-331-headless-lms-production-base:latest as runtime

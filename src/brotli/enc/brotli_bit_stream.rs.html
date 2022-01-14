@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;brotli-3.3.2&#x2F;src&#x2F;enc&#x2F;brotli_bit_stream.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>brotli_bit_stream.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;brotli-3.3.2&#x2F;src&#x2F;enc&#x2F;brotli_bit_stream.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>brotli_bit_stream.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -2983,7 +2984,7 @@
     <span class="kw">fn</span> <span class="ident">full</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">loc</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">queue</span>.<span class="ident">len</span>()
     }
-    <span class="kw">fn</span> <span class="ident">error_if_full</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">error_if_full</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">full</span>() {
             <span class="self">self</span>.<span class="ident">overfull</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
@@ -2991,25 +2992,25 @@
     <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">loc</span>
     }
-    <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">loc</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="self">self</span>.<span class="ident">block_type_literal</span> <span class="op">=</span> <span class="number">0</span>;
     }
-    <span class="kw">fn</span> <span class="ident">free</span><span class="op">&lt;</span><span class="ident">Cb</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-                <span class="ident">callback</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Cb</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), ()<span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">Cb</span>:<span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
-                                                                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">interface::StaticCommand</span>],
+    <span class="kw">fn</span> <span class="ident">free</span><span class="op">&lt;</span><span class="ident">Cb</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+                <span class="ident">callback</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Cb</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), ()<span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">Cb</span>:<span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
+                                                                    <span class="kw-2">&amp;mut</span> [<span class="ident">interface::StaticCommand</span>],
                                                                     <span class="ident">InputPair</span>,
-                                                                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) {
-       <span class="ident">callback</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">pred_mode</span>, <span class="self">self</span>.<span class="ident">queue</span>.<span class="ident">slice_mut</span>().<span class="ident">split_at_mut</span>(<span class="self">self</span>.<span class="ident">loc</span>).<span class="number">0</span>, <span class="self">self</span>.<span class="ident">mb</span>, <span class="self">self</span>.<span class="ident">mc</span>);
+                                                                    <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) {
+       <span class="ident">callback</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">pred_mode</span>, <span class="self">self</span>.<span class="ident">queue</span>.<span class="ident">slice_mut</span>().<span class="ident">split_at_mut</span>(<span class="self">self</span>.<span class="ident">loc</span>).<span class="number">0</span>, <span class="self">self</span>.<span class="ident">mb</span>, <span class="self">self</span>.<span class="ident">mc</span>);
        <span class="self">self</span>.<span class="ident">clear</span>();
-       <span class="self">self</span>.<span class="ident">entropy_tally_scratch</span>.<span class="ident">free</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">mc</span>);
-       <span class="self">self</span>.<span class="ident">entropy_pyramid</span>.<span class="ident">free</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">mc</span>);
-       <span class="self">self</span>.<span class="ident">context_map_entropy</span>.<span class="ident">free</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">mc</span>);
+       <span class="self">self</span>.<span class="ident">entropy_tally_scratch</span>.<span class="ident">free</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">mc</span>);
+       <span class="self">self</span>.<span class="ident">entropy_pyramid</span>.<span class="ident">free</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">mc</span>);
+       <span class="self">self</span>.<span class="ident">context_map_entropy</span>.<span class="ident">free</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">mc</span>);
        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">StaticCommand</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="self">self</span>.<span class="ident">mc</span>,
-                                                       <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">queue</span>,
+                                                       <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">queue</span>,
                                                                           <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">StaticCommand</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="self">self</span>.<span class="ident">mc</span>,
-                                           <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">best_strides_per_block_type</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+                                           <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">best_strides_per_block_type</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">overfull</span> {
           <span class="kw">return</span> <span class="prelude-val">Err</span>(());
        }
@@ -3018,11 +3019,11 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span>: <span class="ident">BrotliAlloc</span><span class="op">&gt;</span> <span class="ident">interface::CommandProcessor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CommandQueue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">push</span> (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">interface::Command</span><span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">push</span> (<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">interface::Command</span><span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">&gt;</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">full</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">StaticCommand</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="self">self</span>.<span class="ident">mc</span>, <span class="self">self</span>.<span class="ident">queue</span>.<span class="ident">slice</span>().<span class="ident">len</span>() <span class="op">*</span> <span class="number">2</span>);
             <span class="ident">tmp</span>.<span class="ident">slice_mut</span>().<span class="ident">split_at_mut</span>(<span class="self">self</span>.<span class="ident">queue</span>.<span class="ident">slice</span>().<span class="ident">len</span>()).<span class="number">0</span>.<span class="ident">clone_from_slice</span>(<span class="self">self</span>.<span class="ident">queue</span>.<span class="ident">slice</span>());
-            <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">StaticCommand</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="self">self</span>.<span class="ident">mc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">queue</span>, <span class="ident">tmp</span>));
+            <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">StaticCommand</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="self">self</span>.<span class="ident">mc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">queue</span>, <span class="ident">tmp</span>));
         }
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">full</span>() {
             <span class="self">self</span>.<span class="ident">queue</span>.<span class="ident">slice_mut</span>()[<span class="self">self</span>.<span class="ident">loc</span>] <span class="op">=</span> <span class="ident">val</span>.<span class="ident">freeze</span>();
@@ -3031,7 +3032,7 @@
             <span class="self">self</span>.<span class="ident">error_if_full</span>();
         }
     }
-    <span class="kw">fn</span> <span class="ident">push_block_switch_literal</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">block_type</span>: <span class="ident">u8</span>) {
+    <span class="kw">fn</span> <span class="ident">push_block_switch_literal</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block_type</span>: <span class="ident">u8</span>) {
         <span class="self">self</span>.<span class="ident">push</span>(<span class="ident">interface::Command::BlockSwitchLiteral</span>(
             <span class="ident">interface::LiteralBlockSwitch::new</span>(<span class="ident">block_type</span>, <span class="number">0</span>)))
     }
@@ -3047,7 +3048,7 @@
      <span class="comment">// no way to warn in this case</span>
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span>: <span class="ident">BrotliAlloc</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">CommandQueue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+  <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
       <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">entropy_tally_scratch</span>.<span class="ident">is_free</span>() {
           <span class="ident">warn_on_missing_free</span>();
       }
@@ -3086,7 +3087,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">process_command_queue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">CmdProcessor</span>: <span class="ident">interface::CommandProcessor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">&gt;</span> (
-    <span class="ident">command_queue</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CmdProcessor</span>,
+    <span class="ident">command_queue</span>: <span class="kw-2">&amp;mut</span> <span class="ident">CmdProcessor</span>,
     <span class="ident">input</span>: <span class="ident">InputPair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="ident">commands</span>: <span class="kw-2">&amp;</span>[<span class="ident">Command</span>],
     <span class="ident">dist_cache</span>: <span class="kw-2">&amp;</span>[<span class="ident">i32</span>;<span class="ident">kNumDistanceCacheEntries</span>],
@@ -3173,7 +3174,7 @@
             <span class="kw">let</span> <span class="ident">word_index</span> <span class="op">=</span> <span class="ident">word_sub_index</span> <span class="op">*</span> <span class="ident">copy_len</span> <span class="op">+</span> <span class="ident">kBrotliDictionaryOffsetsByLength</span>[<span class="ident">copy_len</span>] <span class="kw">as</span> <span class="ident">usize</span>;
             <span class="kw">let</span> <span class="ident">raw_word</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">kBrotliDictionary</span>[<span class="ident">word_index</span>..<span class="ident">word_index</span> <span class="op">+</span> <span class="ident">copy_len</span>];
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transformed_word</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">38</span>];
-            <span class="ident">actual_copy_len</span> <span class="op">=</span> <span class="ident">TransformDictionaryWord</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">transformed_word</span>[..],
+            <span class="ident">actual_copy_len</span> <span class="op">=</span> <span class="ident">TransformDictionaryWord</span>(<span class="kw-2">&amp;mut</span> <span class="ident">transformed_word</span>[..],
                                                       <span class="ident">raw_word</span>,
                                                       <span class="ident">copy_len</span> <span class="kw">as</span> <span class="ident">i32</span>,
                                                       <span class="ident">action</span> <span class="kw">as</span> <span class="ident">i32</span>) <span class="kw">as</span> <span class="ident">usize</span>;
@@ -3253,16 +3254,16 @@
 
 <span class="kw">fn</span> <span class="ident">LogMetaBlock</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>,
                 <span class="ident">Alloc</span>: <span class="ident">BrotliAlloc</span>,
-                <span class="ident">Cb</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>,
+                <span class="ident">Cb</span><span class="op">&gt;</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>,
                     <span class="ident">commands</span>: <span class="kw-2">&amp;</span>[<span class="ident">Command</span>], <span class="ident">input0</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span>[<span class="ident">u8</span>],<span class="ident">input1</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span>[<span class="ident">u8</span>],
                     <span class="ident">dist_cache</span>: <span class="kw-2">&amp;</span>[<span class="ident">i32</span>;<span class="ident">kNumDistanceCacheEntries</span>],
-                    <span class="ident">recoder_state</span> :<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RecoderState</span>,
+                    <span class="ident">recoder_state</span> :<span class="kw-2">&amp;mut</span> <span class="ident">RecoderState</span>,
                     <span class="ident">block_type</span>: <span class="ident">MetaBlockSplitRefs</span>,
                     <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>,
                     <span class="ident">context_type</span>:<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContextType</span><span class="op">&gt;</span>,
-                    <span class="ident">callback</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Cb</span>) <span class="kw">where</span> <span class="ident">Cb</span>:<span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
-                                                      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">interface::StaticCommand</span>],
-                                                      <span class="ident">InputPair</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>){
+                    <span class="ident">callback</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Cb</span>) <span class="kw">where</span> <span class="ident">Cb</span>:<span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
+                                                      <span class="kw-2">&amp;mut</span> [<span class="ident">interface::StaticCommand</span>],
+                                                      <span class="ident">InputPair</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>){
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_literal_context_map</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">256</span> <span class="op">*</span> <span class="number">64</span>];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_distance_context_map</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">256</span> <span class="op">*</span> <span class="number">64</span> <span class="op">+</span> <span class="ident">interface::DISTANCE_CONTEXT_MAP_OFFSET</span>];
     <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">block_type</span>.<span class="ident">btypel</span>.<span class="ident">types</span>.<span class="ident">iter</span>().<span class="ident">max</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="number">0</span>) <span class="kw">as</span> <span class="ident">u32</span> <span class="op">+</span> <span class="number">1</span>,
@@ -3304,7 +3305,7 @@
     <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">stride_detection_quality</span> <span class="op">==</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">params</span>.<span class="ident">stride_detection_quality</span> <span class="op">==</span> <span class="number">2</span> {
         <span class="ident">entropy_tally_scratch</span> <span class="op">=</span> <span class="ident">find_stride::EntropyTally</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">alloc</span>, <span class="prelude-val">None</span>);
         <span class="ident">entropy_pyramid</span> <span class="op">=</span> <span class="ident">find_stride::EntropyPyramid</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">alloc</span>);
-        <span class="ident">entropy_pyramid</span>.<span class="ident">populate</span>(<span class="ident">input0</span>, <span class="ident">input1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">entropy_tally_scratch</span>);
+        <span class="ident">entropy_pyramid</span>.<span class="ident">populate</span>(<span class="ident">input0</span>, <span class="ident">input1</span>, <span class="kw-2">&amp;mut</span> <span class="ident">entropy_tally_scratch</span>);
     } <span class="kw">else</span> {
         <span class="ident">entropy_tally_scratch</span> <span class="op">=</span> <span class="ident">find_stride::EntropyTally</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="ident">::disabled_placeholder</span>(<span class="ident">alloc</span>);
         <span class="ident">entropy_pyramid</span> <span class="op">=</span> <span class="ident">find_stride::EntropyPyramid</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="ident">::disabled_placeholder</span>(<span class="ident">alloc</span>);
@@ -3316,7 +3317,7 @@
                                                                          <span class="ident">input</span>,
                                                                          <span class="kw-2">&amp;</span><span class="ident">prediction_mode</span>,
                                                                          <span class="kw-2">&amp;</span><span class="ident">params</span>);
-        <span class="ident">process_command_queue</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stride_selector</span>,
+        <span class="ident">process_command_queue</span>(<span class="kw-2">&amp;mut</span> <span class="ident">stride_selector</span>,
                               <span class="ident">input</span>,
                               <span class="ident">commands</span>,
                               <span class="ident">dist_cache</span>,
@@ -3333,7 +3334,7 @@
                                                                   <span class="ident">prediction_mode</span>,
                                                                   <span class="ident">params</span>.<span class="ident">cdf_adaptation_detection</span>);
     <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">cdf_adaptation_detection</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="ident">process_command_queue</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">context_map_entropy</span>,
+        <span class="ident">process_command_queue</span>(<span class="kw-2">&amp;mut</span> <span class="ident">context_map_entropy</span>,
                          <span class="ident">input</span>,
                          <span class="ident">commands</span>,
                          <span class="ident">dist_cache</span>,
@@ -3369,7 +3370,7 @@
                                                                    <span class="ident">context_map_entropy</span>.<span class="ident">take_prediction_mode</span>(),
                                                                    <span class="kw-2">&amp;</span><span class="ident">params</span>);
      <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">prior_bitmask_detection</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="ident">process_command_queue</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">prior_selector</span>,
+        <span class="ident">process_command_queue</span>(<span class="kw-2">&amp;mut</span> <span class="ident">prior_selector</span>,
                          <span class="ident">input</span>,
                          <span class="ident">commands</span>,
                          <span class="ident">dist_cache</span>,
@@ -3393,7 +3394,7 @@
                                                <span class="ident">entropy_pyramid</span>);
 
      
-    <span class="kw-2">*</span><span class="ident">recoder_state</span> <span class="op">=</span> <span class="ident">process_command_queue</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">command_queue</span>,
+    <span class="kw-2">*</span><span class="ident">recoder_state</span> <span class="op">=</span> <span class="ident">process_command_queue</span>(<span class="kw-2">&amp;mut</span> <span class="ident">command_queue</span>,
                                            <span class="ident">input</span>,
                                            <span class="ident">commands</span>,
                                            <span class="ident">dist_cache</span>,
@@ -3512,7 +3513,7 @@
      <span class="ident">nbits</span>: <span class="number">24u32</span>,
    }];
 
-<span class="kw">fn</span> <span class="ident">BrotliWriteBits</span>(<span class="ident">n_bits</span>: <span class="ident">u8</span>, <span class="ident">bits</span>: <span class="ident">u64</span>, <span class="ident">pos</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">array</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+<span class="kw">fn</span> <span class="ident">BrotliWriteBits</span>(<span class="ident">n_bits</span>: <span class="ident">u8</span>, <span class="ident">bits</span>: <span class="ident">u64</span>, <span class="ident">pos</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>, <span class="ident">array</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="macro">assert!</span>((<span class="ident">bits</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">n_bits</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">==</span> <span class="number">0</span>);
   <span class="macro">assert!</span>(<span class="ident">n_bits</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">56</span>);
   <span class="kw">let</span> <span class="ident">ptr_offset</span>: <span class="ident">usize</span> <span class="op">=</span> ((<span class="kw-2">*</span><span class="ident">pos</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>) <span class="kw">as</span> <span class="ident">u32</span>) <span class="kw">as</span> <span class="ident">usize</span>;
@@ -3529,15 +3530,15 @@
   <span class="kw-2">*</span><span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n_bits</span> <span class="kw">as</span> <span class="ident">usize</span>
 }
 
-<span class="kw">fn</span> <span class="ident">BrotliWriteBitsPrepareStorage</span>(<span class="ident">pos</span>: <span class="ident">usize</span>, <span class="ident">array</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+<span class="kw">fn</span> <span class="ident">BrotliWriteBitsPrepareStorage</span>(<span class="ident">pos</span>: <span class="ident">usize</span>, <span class="ident">array</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="macro">assert_eq!</span>(<span class="ident">pos</span> <span class="op">&amp;</span> <span class="number">7</span>, <span class="number">0</span>);
   <span class="ident">array</span>[<span class="ident">pos</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>] <span class="op">=</span> <span class="number">0</span>;
 }
 
 <span class="kw">fn</span> <span class="ident">BrotliStoreHuffmanTreeOfHuffmanTreeToBitMask</span>(<span class="ident">num_codes</span>: <span class="ident">i32</span>,
                                                 <span class="ident">code_length_bitdepth</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-                                                <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                                                <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+                                                <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                                                <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="kw">static</span> <span class="ident">kStorageOrder</span>: [<span class="ident">u8</span>; <span class="number">18</span>] <span class="op">=</span> [<span class="number">1i32</span> <span class="kw">as</span> (<span class="ident">u8</span>),
                                     <span class="number">2i32</span> <span class="kw">as</span> (<span class="ident">u8</span>),
                                     <span class="number">3i32</span> <span class="kw">as</span> (<span class="ident">u8</span>),
@@ -3605,8 +3606,8 @@
                                    <span class="ident">huffman_tree_extra_bits</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
                                    <span class="ident">code_length_bitdepth</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
                                    <span class="ident">code_length_bitdepth_symbols</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
-                                   <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                                   <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+                                   <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                                   <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
   <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
   <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">huffman_tree_size</span> {
@@ -3634,9 +3635,9 @@
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliStoreHuffmanTree</span>(<span class="ident">depths</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
                               <span class="ident">num</span>: <span class="ident">usize</span>,
-                              <span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HuffmanTree</span>],
-                              <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                              <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+                              <span class="ident">tree</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HuffmanTree</span>],
+                              <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                              <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">huffman_tree</span>: [<span class="ident">u8</span>; <span class="number">704</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">704</span>];
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">huffman_tree_extra_bits</span>: [<span class="ident">u8</span>; <span class="number">704</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">704</span>];
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">huffman_tree_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0usize</span>;
@@ -3668,14 +3669,14 @@
   <span class="number">0i32</span>;
   <span class="ident">BrotliWriteHuffmanTree</span>(<span class="ident">depths</span>,
                          <span class="ident">num</span>,
-                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">huffman_tree_size</span>,
-                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">huffman_tree</span>[..],
-                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">huffman_tree_extra_bits</span>[..]);
+                         <span class="kw-2">&amp;mut</span> <span class="ident">huffman_tree_size</span>,
+                         <span class="kw-2">&amp;mut</span> <span class="ident">huffman_tree</span>[..],
+                         <span class="kw-2">&amp;mut</span> <span class="ident">huffman_tree_extra_bits</span>[..]);
   <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
   <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">huffman_tree_size</span> {
     {
       <span class="kw">let</span> <span class="ident">_rhs</span> <span class="op">=</span> <span class="number">1</span>;
-      <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">huffman_tree_histogram</span>[<span class="ident">huffman_tree</span>[<span class="ident">i</span>] <span class="kw">as</span> (<span class="ident">usize</span>)];
+      <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">huffman_tree_histogram</span>[<span class="ident">huffman_tree</span>[<span class="ident">i</span>] <span class="kw">as</span> (<span class="ident">usize</span>)];
       <span class="kw-2">*</span><span class="ident">_lhs</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">_lhs</span>).<span class="ident">wrapping_add</span>(<span class="ident">_rhs</span> <span class="kw">as</span> (<span class="ident">u32</span>));
     }
     <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
@@ -3699,14 +3700,14 @@
     }
     <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
   }
-  <span class="ident">BrotliCreateHuffmanTree</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">huffman_tree_histogram</span>,
+  <span class="ident">BrotliCreateHuffmanTree</span>(<span class="kw-2">&amp;mut</span> <span class="ident">huffman_tree_histogram</span>,
                           <span class="number">18usize</span>,
                           <span class="number">5i32</span>,
                           <span class="ident">tree</span>,
-                          <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">code_length_bitdepth</span>);
-  <span class="ident">BrotliConvertBitDepthsToSymbols</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">code_length_bitdepth</span>,
+                          <span class="kw-2">&amp;mut</span> <span class="ident">code_length_bitdepth</span>);
+  <span class="ident">BrotliConvertBitDepthsToSymbols</span>(<span class="kw-2">&amp;mut</span> <span class="ident">code_length_bitdepth</span>,
                                   <span class="number">18usize</span>,
-                                  <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">code_length_bitdepth_symbols</span>);
+                                  <span class="kw-2">&amp;mut</span> <span class="ident">code_length_bitdepth_symbols</span>);
   <span class="ident">BrotliStoreHuffmanTreeOfHuffmanTreeToBitMask</span>(<span class="ident">num_codes</span>,
                                                <span class="kw-2">&amp;</span><span class="ident">code_length_bitdepth</span>,
                                                <span class="ident">storage_ix</span>,
@@ -3723,7 +3724,7 @@
                                   <span class="ident">storage</span>);
 }
 
-<span class="kw">fn</span> <span class="ident">StoreStaticCodeLengthCode</span>(<span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+<span class="kw">fn</span> <span class="ident">StoreStaticCodeLengthCode</span>(<span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="ident">BrotliWriteBits</span>(<span class="number">40</span>,
                   <span class="number">0xffu32</span> <span class="kw">as</span> (<span class="ident">u64</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32i32</span> <span class="op">|</span> <span class="number">0x55555554u32</span> <span class="kw">as</span> (<span class="ident">u64</span>),
                   <span class="ident">storage_ix</span>,
@@ -3739,14 +3740,14 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliBuildAndStoreHuffmanTreeFast</span><span class="op">&lt;</span><span class="ident">AllocHT</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanTree</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-    <span class="ident">m</span> : <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AllocHT</span>,
+    <span class="ident">m</span> : <span class="kw-2">&amp;mut</span> <span class="ident">AllocHT</span>,
     <span class="ident">histogram</span> : <span class="kw-2">&amp;</span>[<span class="ident">u32</span>],
     <span class="ident">histogram_total</span> : <span class="ident">usize</span>,
     <span class="ident">max_bits</span> : <span class="ident">usize</span>,
-    <span class="ident">depth</span> : <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    <span class="ident">bits</span> : <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u16</span>],
-    <span class="ident">storage_ix</span> : <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-    <span class="ident">storage</span> : <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]
+    <span class="ident">depth</span> : <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
+    <span class="ident">bits</span> : <span class="kw-2">&amp;mut</span> [<span class="ident">u16</span>],
+    <span class="ident">storage_ix</span> : <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+    <span class="ident">storage</span> : <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]
 ){
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">symbols</span>: [<span class="ident">u64</span>; <span class="number">4</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">4</span>];
@@ -3793,12 +3794,12 @@
           <span class="ident">l</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">wrapping_sub</span>(<span class="number">1</span>);
           <span class="kw">if</span> <span class="ident">histogram</span>[(<span class="ident">l</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
             <span class="kw">if</span> <span class="ident">histogram</span>[(<span class="ident">l</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">&gt;</span><span class="op">=</span> <span class="ident">count_limit</span> {
-              <span class="ident">InitHuffmanTree</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree</span>.<span class="ident">slice_mut</span>()[(<span class="ident">node_index</span> <span class="kw">as</span> (<span class="ident">usize</span>))],
+              <span class="ident">InitHuffmanTree</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tree</span>.<span class="ident">slice_mut</span>()[(<span class="ident">node_index</span> <span class="kw">as</span> (<span class="ident">usize</span>))],
                               <span class="ident">histogram</span>[(<span class="ident">l</span> <span class="kw">as</span> (<span class="ident">usize</span>))],
                               <span class="op">-</span><span class="number">1i32</span> <span class="kw">as</span> (<span class="ident">i16</span>),
                               <span class="ident">l</span> <span class="kw">as</span> (<span class="ident">i16</span>));
             } <span class="kw">else</span> {
-              <span class="ident">InitHuffmanTree</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree</span>.<span class="ident">slice_mut</span>()[(<span class="ident">node_index</span> <span class="kw">as</span> (<span class="ident">usize</span>))],
+              <span class="ident">InitHuffmanTree</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tree</span>.<span class="ident">slice_mut</span>()[(<span class="ident">node_index</span> <span class="kw">as</span> (<span class="ident">usize</span>))],
                               <span class="ident">count_limit</span>,
                               <span class="op">-</span><span class="number">1i32</span> <span class="kw">as</span> (<span class="ident">i16</span>),
                               <span class="ident">l</span> <span class="kw">as</span> (<span class="ident">i16</span>));
@@ -3860,7 +3861,7 @@
       <span class="ident">count_limit</span> <span class="op">=</span> <span class="ident">count_limit</span>.<span class="ident">wrapping_mul</span>(<span class="number">2u32</span>);
     }
     {
-      <span class="ident">m</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree</span>, <span class="ident">AllocHT::AllocatedMemory::default</span>()));
+      <span class="ident">m</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tree</span>, <span class="ident">AllocHT::AllocatedMemory::default</span>()));
     }
   }
   <span class="ident">BrotliConvertBitDepthsToSymbols</span>(<span class="ident">depth</span>, <span class="ident">length</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">bits</span>);
@@ -3994,25 +3995,25 @@
             <span class="ident">distance_histograms_size</span> : <span class="number">0</span>,
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">destroy</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-                   <span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">destroy</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+                   <span class="ident">alloc</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) {
         <span class="self">self</span>.<span class="ident">literal_split</span>.<span class="ident">destroy</span>(<span class="ident">alloc</span>);
         <span class="self">self</span>.<span class="ident">command_split</span>.<span class="ident">destroy</span>(<span class="ident">alloc</span>);
         <span class="self">self</span>.<span class="ident">distance_split</span>.<span class="ident">destroy</span>(<span class="ident">alloc</span>);
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">literal_context_map</span>,
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">literal_context_map</span>,
                                          <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
         <span class="self">self</span>.<span class="ident">literal_context_map_size</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">distance_context_map</span>,
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">distance_context_map</span>,
                                          <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
         <span class="self">self</span>.<span class="ident">distance_context_map_size</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramLiteral</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">literal_histograms</span>,
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramLiteral</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">literal_histograms</span>,
                                          <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramLiteral</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
 
         <span class="self">self</span>.<span class="ident">literal_histograms_size</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramCommand</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">command_histograms</span>,
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramCommand</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">command_histograms</span>,
                                          <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramCommand</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
         <span class="self">self</span>.<span class="ident">command_histograms_size</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramDistance</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">distance_histograms</span>,
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramDistance</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">distance_histograms</span>,
                                          <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramDistance</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
         <span class="self">self</span>.<span class="ident">distance_histograms_size</span> <span class="op">=</span> <span class="number">0</span>;
     }
@@ -4066,9 +4067,9 @@
 }
 
 <span class="kw">fn</span> <span class="ident">BrotliEncodeMlen</span>(<span class="ident">length</span>: <span class="ident">u32</span>,
-                    <span class="ident">bits</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u64</span>,
-                    <span class="ident">numbits</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u32</span>,
-                    <span class="ident">nibblesbits</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u32</span>) {
+                    <span class="ident">bits</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u64</span>,
+                    <span class="ident">numbits</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u32</span>,
+                    <span class="ident">nibblesbits</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u32</span>) {
   <span class="kw">let</span> <span class="ident">lg</span>: <span class="ident">u32</span> <span class="op">=</span> (<span class="kw">if</span> <span class="ident">length</span> <span class="op">==</span> <span class="number">1u32</span> {
                    <span class="number">1u32</span>
                  } <span class="kw">else</span> {
@@ -4091,8 +4092,8 @@
 
 <span class="kw">fn</span> <span class="ident">StoreCompressedMetaBlockHeader</span>(<span class="ident">is_final_block</span>: <span class="ident">i32</span>,
                                   <span class="ident">length</span>: <span class="ident">usize</span>,
-                                  <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                                  <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+                                  <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                                  <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lenbits</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nlenbits</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nibblesbits</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
@@ -4100,7 +4101,7 @@
   <span class="kw">if</span> <span class="ident">is_final_block</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
     <span class="ident">BrotliWriteBits</span>(<span class="number">1</span>, <span class="number">0</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   }
-  <span class="ident">BrotliEncodeMlen</span>(<span class="ident">length</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbits</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nlenbits</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nibblesbits</span>);
+  <span class="ident">BrotliEncodeMlen</span>(<span class="ident">length</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="kw-2">&amp;mut</span> <span class="ident">lenbits</span>, <span class="kw-2">&amp;mut</span> <span class="ident">nlenbits</span>, <span class="kw-2">&amp;mut</span> <span class="ident">nibblesbits</span>);
   <span class="ident">BrotliWriteBits</span>(<span class="number">2</span>, <span class="ident">nibblesbits</span> <span class="kw">as</span> <span class="ident">u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   <span class="ident">BrotliWriteBits</span>(<span class="ident">nlenbits</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">lenbits</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   <span class="kw">if</span> <span class="ident">is_final_block</span> <span class="op">==</span> <span class="number">0</span> {
@@ -4153,7 +4154,7 @@
 
 
 
-<span class="kw">fn</span> <span class="ident">NextBlockTypeCode</span>(<span class="ident">calculator</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BlockTypeCodeCalculator</span>, <span class="ident">type_</span>: <span class="ident">u8</span>) -&gt; <span class="ident">usize</span> {
+<span class="kw">fn</span> <span class="ident">NextBlockTypeCode</span>(<span class="ident">calculator</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BlockTypeCodeCalculator</span>, <span class="ident">type_</span>: <span class="ident">u8</span>) -&gt; <span class="ident">usize</span> {
   <span class="kw">let</span> <span class="ident">type_code</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="kw">if</span> <span class="ident">type_</span> <span class="kw">as</span> (<span class="ident">usize</span>) <span class="op">==</span>
                              (<span class="kw-2">*</span><span class="ident">calculator</span>).<span class="ident">last_type</span>.<span class="ident">wrapping_add</span>(<span class="number">1usize</span>) {
                             <span class="number">1u32</span>
@@ -4182,7 +4183,7 @@
   <span class="ident">code</span>
 }
 
-<span class="kw">fn</span> <span class="ident">StoreVarLenUint8</span>(<span class="ident">n</span>: <span class="ident">u64</span>, <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+<span class="kw">fn</span> <span class="ident">StoreVarLenUint8</span>(<span class="ident">n</span>: <span class="ident">u64</span>, <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="kw">if</span> <span class="ident">n</span> <span class="op">==</span> <span class="number">0</span> {
     <span class="ident">BrotliWriteBits</span>(<span class="number">1</span>, <span class="number">0</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   } <span class="kw">else</span> {
@@ -4195,11 +4196,11 @@
 
 
 <span class="kw">fn</span> <span class="ident">StoreSimpleHuffmanTree</span>(<span class="ident">depths</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-                          <span class="ident">symbols</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">usize</span>],
+                          <span class="ident">symbols</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">usize</span>],
                           <span class="ident">num_symbols</span>: <span class="ident">usize</span>,
                           <span class="ident">max_bits</span>: <span class="ident">usize</span>,
-                          <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                          <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+                          <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                          <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="ident">BrotliWriteBits</span>(<span class="number">2</span>, <span class="number">1</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   <span class="ident">BrotliWriteBits</span>(<span class="number">2</span>, <span class="ident">num_symbols</span>.<span class="ident">wrapping_sub</span>(<span class="number">1</span>) <span class="kw">as</span> <span class="ident">u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   {
@@ -4277,11 +4278,11 @@
 <span class="kw">fn</span> <span class="ident">BuildAndStoreHuffmanTree</span>(<span class="ident">histogram</span>: <span class="kw-2">&amp;</span>[<span class="ident">u32</span>],
                             <span class="ident">histogram_length</span>: <span class="ident">usize</span>,
                             <span class="ident">alphabet_size</span>: <span class="ident">usize</span>,
-                            <span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HuffmanTree</span>],
-                            <span class="ident">depth</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
-                            <span class="ident">bits</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u16</span>],
-                            <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                            <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+                            <span class="ident">tree</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HuffmanTree</span>],
+                            <span class="ident">depth</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
+                            <span class="ident">bits</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u16</span>],
+                            <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                            <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0usize</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s4</span>: [<span class="ident">usize</span>; <span class="number">4</span>] <span class="op">=</span> [<span class="number">0usize</span>, <span class="number">0usize</span>, <span class="number">0usize</span>, <span class="number">0usize</span>];
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
@@ -4323,28 +4324,28 @@
   <span class="ident">BrotliCreateHuffmanTree</span>(<span class="ident">histogram</span>, <span class="ident">histogram_length</span>, <span class="number">15i32</span>, <span class="ident">tree</span>, <span class="ident">depth</span>);
   <span class="ident">BrotliConvertBitDepthsToSymbols</span>(<span class="ident">depth</span>, <span class="ident">histogram_length</span>, <span class="ident">bits</span>);
   <span class="kw">if</span> <span class="ident">count</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">4usize</span> {
-    <span class="ident">StoreSimpleHuffmanTree</span>(<span class="ident">depth</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s4</span>[..], <span class="ident">count</span>, <span class="ident">max_bits</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
+    <span class="ident">StoreSimpleHuffmanTree</span>(<span class="ident">depth</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s4</span>[..], <span class="ident">count</span>, <span class="ident">max_bits</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   } <span class="kw">else</span> {
     <span class="ident">BrotliStoreHuffmanTree</span>(<span class="ident">depth</span>, <span class="ident">histogram_length</span>, <span class="ident">tree</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   }
 }
 
 <span class="kw">fn</span> <span class="ident">GetBlockLengthPrefixCode</span>(<span class="ident">len</span>: <span class="ident">u32</span>,
-                            <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                            <span class="ident">n_extra</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u32</span>,
-                            <span class="ident">extra</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u32</span>) {
+                            <span class="ident">code</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                            <span class="ident">n_extra</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u32</span>,
+                            <span class="ident">extra</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u32</span>) {
   <span class="kw-2">*</span><span class="ident">code</span> <span class="op">=</span> <span class="ident">BlockLengthPrefixCode</span>(<span class="ident">len</span>) <span class="kw">as</span> (<span class="ident">usize</span>);
   <span class="kw-2">*</span><span class="ident">n_extra</span> <span class="op">=</span> <span class="ident">kBlockLengthPrefixCode</span>[<span class="kw-2">*</span><span class="ident">code</span>].<span class="ident">nbits</span>;
   <span class="kw-2">*</span><span class="ident">extra</span> <span class="op">=</span> <span class="ident">len</span>.<span class="ident">wrapping_sub</span>(<span class="ident">kBlockLengthPrefixCode</span>[<span class="kw-2">*</span><span class="ident">code</span>].<span class="ident">offset</span>);
 }
 
-<span class="kw">fn</span> <span class="ident">StoreBlockSwitch</span>(<span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BlockSplitCode</span>,
+<span class="kw">fn</span> <span class="ident">StoreBlockSwitch</span>(<span class="ident">code</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BlockSplitCode</span>,
                     <span class="ident">block_len</span>: <span class="ident">u32</span>,
                     <span class="ident">block_type</span>: <span class="ident">u8</span>,
                     <span class="ident">is_first_block</span>: <span class="ident">i32</span>,
-                    <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                    <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
-  <span class="kw">let</span> <span class="ident">typecode</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">NextBlockTypeCode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">type_code_calculator</span>, <span class="ident">block_type</span>);
+                    <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                    <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
+  <span class="kw">let</span> <span class="ident">typecode</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">NextBlockTypeCode</span>(<span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">type_code_calculator</span>, <span class="ident">block_type</span>);
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lencode</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len_nextra</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len_extra</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
@@ -4354,7 +4355,7 @@
                     <span class="ident">storage_ix</span>,
                     <span class="ident">storage</span>);
   }
-  <span class="ident">GetBlockLengthPrefixCode</span>(<span class="ident">block_len</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lencode</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">len_nextra</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">len_extra</span>);
+  <span class="ident">GetBlockLengthPrefixCode</span>(<span class="ident">block_len</span>, <span class="kw-2">&amp;mut</span> <span class="ident">lencode</span>, <span class="kw-2">&amp;mut</span> <span class="ident">len_nextra</span>, <span class="kw-2">&amp;mut</span> <span class="ident">len_extra</span>);
   <span class="ident">BrotliWriteBits</span>((<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">length_depths</span>[<span class="ident">lencode</span>] <span class="kw">as</span> (<span class="ident">u8</span>),
                   (<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">length_bits</span>[<span class="ident">lencode</span>] <span class="kw">as</span> (<span class="ident">u64</span>),
                   <span class="ident">storage_ix</span>,
@@ -4366,10 +4367,10 @@
                                <span class="ident">lengths</span>: <span class="kw-2">&amp;</span>[<span class="ident">u32</span>],
                                <span class="ident">num_blocks</span>: <span class="ident">usize</span>,
                                <span class="ident">num_types</span>: <span class="ident">usize</span>,
-                               <span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HuffmanTree</span>],
-                               <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BlockSplitCode</span>,
-                               <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                               <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+                               <span class="ident">tree</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HuffmanTree</span>],
+                               <span class="ident">code</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BlockSplitCode</span>,
+                               <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                               <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">type_histo</span>: [<span class="ident">u32</span>; <span class="number">258</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">258</span>];
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">length_histo</span>: [<span class="ident">u32</span>; <span class="number">26</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">26</span>];
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
@@ -4377,15 +4378,15 @@
   <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
   <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">num_blocks</span> {
     {
-      <span class="kw">let</span> <span class="ident">type_code</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">NextBlockTypeCode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">type_code_calculator</span>, <span class="ident">types</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))]);
+      <span class="kw">let</span> <span class="ident">type_code</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">NextBlockTypeCode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">type_code_calculator</span>, <span class="ident">types</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))]);
       <span class="kw">if</span> <span class="ident">i</span> <span class="op">!</span><span class="op">=</span> <span class="number">0usize</span> {
         <span class="kw">let</span> <span class="ident">_rhs</span> <span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">type_histo</span>[<span class="ident">type_code</span>];
+        <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">type_histo</span>[<span class="ident">type_code</span>];
         <span class="kw-2">*</span><span class="ident">_lhs</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">_lhs</span>).<span class="ident">wrapping_add</span>(<span class="ident">_rhs</span> <span class="kw">as</span> (<span class="ident">u32</span>));
       }
       {
         <span class="kw">let</span> <span class="ident">_rhs</span> <span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">length_histo</span>[<span class="ident">BlockLengthPrefixCode</span>(<span class="ident">lengths</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))]) <span class="kw">as</span> (<span class="ident">usize</span>)];
+        <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">length_histo</span>[<span class="ident">BlockLengthPrefixCode</span>(<span class="ident">lengths</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))]) <span class="kw">as</span> (<span class="ident">usize</span>)];
         <span class="kw-2">*</span><span class="ident">_lhs</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">_lhs</span>).<span class="ident">wrapping_add</span>(<span class="ident">_rhs</span> <span class="kw">as</span> (<span class="ident">u32</span>));
       }
     }
@@ -4393,20 +4394,20 @@
   }
   <span class="ident">StoreVarLenUint8</span>(<span class="ident">num_types</span>.<span class="ident">wrapping_sub</span>(<span class="number">1</span>) <span class="kw">as</span> <span class="ident">u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   <span class="kw">if</span> <span class="ident">num_types</span> <span class="op">&gt;</span> <span class="number">1usize</span> {
-    <span class="ident">BuildAndStoreHuffmanTree</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">type_histo</span>[<span class="number">0usize</span>..],
+    <span class="ident">BuildAndStoreHuffmanTree</span>(<span class="kw-2">&amp;mut</span> <span class="ident">type_histo</span>[<span class="number">0usize</span>..],
                              <span class="ident">num_types</span>.<span class="ident">wrapping_add</span>(<span class="number">2usize</span>),
                              <span class="ident">num_types</span>.<span class="ident">wrapping_add</span>(<span class="number">2usize</span>),
                              <span class="ident">tree</span>,
-                             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">type_depths</span>[<span class="number">0usize</span>..],
-                             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">type_bits</span>[<span class="number">0usize</span>..],
+                             <span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">type_depths</span>[<span class="number">0usize</span>..],
+                             <span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">type_bits</span>[<span class="number">0usize</span>..],
                              <span class="ident">storage_ix</span>,
                              <span class="ident">storage</span>);
-    <span class="ident">BuildAndStoreHuffmanTree</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">length_histo</span>[<span class="number">0usize</span>..],
+    <span class="ident">BuildAndStoreHuffmanTree</span>(<span class="kw-2">&amp;mut</span> <span class="ident">length_histo</span>[<span class="number">0usize</span>..],
                              <span class="ident"><span class="kw">super</span>::constants::BROTLI_NUM_BLOCK_LEN_SYMBOLS</span>, <span class="comment">// 26</span>
                              <span class="ident"><span class="kw">super</span>::constants::BROTLI_NUM_BLOCK_LEN_SYMBOLS</span>,
                              <span class="ident">tree</span>,
-                             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">length_depths</span>[<span class="number">0usize</span>..],
-                             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">length_bits</span>[<span class="number">0usize</span>..],
+                             <span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">length_depths</span>[<span class="number">0usize</span>..],
+                             <span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">code</span>).<span class="ident">length_bits</span>[<span class="number">0usize</span>..],
                              <span class="ident">storage_ix</span>,
                              <span class="ident">storage</span>);
     <span class="ident">StoreBlockSwitch</span>(<span class="ident">code</span>,
@@ -4420,25 +4421,25 @@
 
 <span class="kw">fn</span> <span class="ident">BuildAndStoreBlockSwitchEntropyCodes</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>,
                                         <span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span>
-  (<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BlockEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span>,
-   <span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HuffmanTree</span>],
-   <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-   <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+  (<span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BlockEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span>,
+   <span class="ident">tree</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HuffmanTree</span>],
+   <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+   <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="ident">BuildAndStoreBlockSplitCode</span>((<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_types_</span>,
                               (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_lengths_</span>,
                               (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">num_blocks_</span>,
                               (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">num_block_types_</span>,
                               <span class="ident">tree</span>,
-                              <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_split_code_</span>,
+                              <span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_split_code_</span>,
                               <span class="ident">storage_ix</span>,
                               <span class="ident">storage</span>);
 }
 
 <span class="kw">fn</span> <span class="ident">StoreTrivialContextMap</span>(<span class="ident">num_types</span>: <span class="ident">usize</span>,
                           <span class="ident">context_bits</span>: <span class="ident">usize</span>,
-                          <span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HuffmanTree</span>],
-                          <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                          <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+                          <span class="ident">tree</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HuffmanTree</span>],
+                          <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                          <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="ident">StoreVarLenUint8</span>(<span class="ident">num_types</span>.<span class="ident">wrapping_sub</span>(<span class="number">1usize</span>) <span class="kw">as</span> <span class="ident">u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   <span class="kw">if</span> <span class="ident">num_types</span> <span class="op">&gt;</span> <span class="number">1usize</span> {
     <span class="kw">let</span> <span class="ident">repeat_code</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">context_bits</span>.<span class="ident">wrapping_sub</span>(<span class="number">1u32</span> <span class="kw">as</span> (<span class="ident">usize</span>));
@@ -4462,12 +4463,12 @@
       }
       <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
     }
-    <span class="ident">BuildAndStoreHuffmanTree</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">histogram</span>[..],
+    <span class="ident">BuildAndStoreHuffmanTree</span>(<span class="kw-2">&amp;mut</span> <span class="ident">histogram</span>[..],
                              <span class="ident">alphabet_size</span>,
                              <span class="ident">alphabet_size</span>,
                              <span class="ident">tree</span>,
-                             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">depths</span>[..],
-                             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bits</span>[..],
+                             <span class="kw-2">&amp;mut</span> <span class="ident">depths</span>[..],
+                             <span class="kw-2">&amp;mut</span> <span class="ident">bits</span>[..],
                              <span class="ident">storage_ix</span>,
                              <span class="ident">storage</span>);
     <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
@@ -4507,7 +4508,7 @@
   <span class="ident">i</span>
 }
 
-<span class="kw">fn</span> <span class="ident">MoveToFront</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>], <span class="ident">index</span>: <span class="ident">usize</span>) {
+<span class="kw">fn</span> <span class="ident">MoveToFront</span>(<span class="ident">v</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>], <span class="ident">index</span>: <span class="ident">usize</span>) {
   <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="ident">v</span>[(<span class="ident">index</span> <span class="kw">as</span> (<span class="ident">usize</span>))];
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
   <span class="ident">i</span> <span class="op">=</span> <span class="ident">index</span>;
@@ -4520,7 +4521,7 @@
   <span class="ident">v</span>[(<span class="number">0usize</span>)] <span class="op">=</span> <span class="ident">value</span>;
 }
 
-<span class="kw">fn</span> <span class="ident">MoveToFrontTransform</span>(<span class="ident">v_in</span>: <span class="kw-2">&amp;</span>[<span class="ident">u32</span>], <span class="ident">v_size</span>: <span class="ident">usize</span>, <span class="ident">v_out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>]) {
+<span class="kw">fn</span> <span class="ident">MoveToFrontTransform</span>(<span class="ident">v_in</span>: <span class="kw-2">&amp;</span>[<span class="ident">u32</span>], <span class="ident">v_size</span>: <span class="ident">usize</span>, <span class="ident">v_out</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>]) {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mtf</span>: [<span class="ident">u8</span>; <span class="number">256</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">256</span>];
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_value</span>: <span class="ident">u32</span>;
@@ -4553,7 +4554,7 @@
         <span class="kw">let</span> <span class="ident">index</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">IndexOf</span>(<span class="kw-2">&amp;</span><span class="ident">mtf</span>[..], <span class="ident">mtf_size</span>, <span class="ident">v_in</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">u8</span>));
         <span class="number">0i32</span>;
         <span class="ident">v_out</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">=</span> <span class="ident">index</span> <span class="kw">as</span> (<span class="ident">u32</span>);
-        <span class="ident">MoveToFront</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mtf</span>[..], <span class="ident">index</span>);
+        <span class="ident">MoveToFront</span>(<span class="kw-2">&amp;mut</span> <span class="ident">mtf</span>[..], <span class="ident">index</span>);
       }
       <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
     }
@@ -4569,9 +4570,9 @@
 }
 
 <span class="kw">fn</span> <span class="ident">RunLengthCodeZeros</span>(<span class="ident">in_size</span>: <span class="ident">usize</span>,
-                      <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>],
-                      <span class="ident">out_size</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                      <span class="ident">max_run_length_prefix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u32</span>) {
+                      <span class="ident">v</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>],
+                      <span class="ident">out_size</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                      <span class="ident">max_run_length_prefix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u32</span>) {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_reps</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0u32</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_prefix</span>: <span class="ident">u32</span>;
@@ -4637,13 +4638,13 @@
   }
 }
 
-<span class="kw">fn</span> <span class="ident">EncodeContextMap</span><span class="op">&lt;</span><span class="ident">AllocU32</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AllocU32</span>,
+<span class="kw">fn</span> <span class="ident">EncodeContextMap</span><span class="op">&lt;</span><span class="ident">AllocU32</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">m</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AllocU32</span>,
                                                      <span class="ident">context_map</span>: <span class="kw-2">&amp;</span>[<span class="ident">u32</span>],
                                                      <span class="ident">context_map_size</span>: <span class="ident">usize</span>,
                                                      <span class="ident">num_clusters</span>: <span class="ident">usize</span>,
-                                                     <span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HuffmanTree</span>],
-                                                     <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                                                     <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+                                                     <span class="ident">tree</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HuffmanTree</span>],
+                                                     <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                                                     <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rle_symbols</span>: <span class="ident">AllocU32::AllocatedMemory</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_run_length_prefix</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">6u32</span>;
@@ -4665,14 +4666,14 @@
   <span class="ident">MoveToFrontTransform</span>(<span class="ident">context_map</span>, <span class="ident">context_map_size</span>, <span class="ident">rle_symbols</span>.<span class="ident">slice_mut</span>());
   <span class="ident">RunLengthCodeZeros</span>(<span class="ident">context_map_size</span>,
                      <span class="ident">rle_symbols</span>.<span class="ident">slice_mut</span>(),
-                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">num_rle_symbols</span>,
-                     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">max_run_length_prefix</span>);
+                     <span class="kw-2">&amp;mut</span> <span class="ident">num_rle_symbols</span>,
+                     <span class="kw-2">&amp;mut</span> <span class="ident">max_run_length_prefix</span>);
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">histogram</span>: [<span class="ident">u32</span>; <span class="number">272</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">272</span>];
   <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
   <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">num_rle_symbols</span> {
     {
       <span class="kw">let</span> <span class="ident">_rhs</span> <span class="op">=</span> <span class="number">1</span>;
-      <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">histogram</span>[(<span class="ident">rle_symbols</span>.<span class="ident">slice</span>()[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">&amp;</span> <span class="ident">kSymbolMask</span>) <span class="kw">as</span> (<span class="ident">usize</span>)];
+      <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">histogram</span>[(<span class="ident">rle_symbols</span>.<span class="ident">slice</span>()[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">&amp;</span> <span class="ident">kSymbolMask</span>) <span class="kw">as</span> (<span class="ident">usize</span>)];
       <span class="kw-2">*</span><span class="ident">_lhs</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">_lhs</span>).<span class="ident">wrapping_add</span>(<span class="ident">_rhs</span> <span class="kw">as</span> (<span class="ident">u32</span>));
     }
     <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
@@ -4691,12 +4692,12 @@
                       <span class="ident">storage</span>);
     }
   }
-  <span class="ident">BuildAndStoreHuffmanTree</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">histogram</span>[..],
+  <span class="ident">BuildAndStoreHuffmanTree</span>(<span class="kw-2">&amp;mut</span> <span class="ident">histogram</span>[..],
                            <span class="ident">num_clusters</span>.<span class="ident">wrapping_add</span>(<span class="ident">max_run_length_prefix</span> <span class="kw">as</span> (<span class="ident">usize</span>)),
                            <span class="ident">num_clusters</span>.<span class="ident">wrapping_add</span>(<span class="ident">max_run_length_prefix</span> <span class="kw">as</span> (<span class="ident">usize</span>)),
                            <span class="ident">tree</span>,
-                           <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">depths</span>[..],
-                           <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bits</span>[..],
+                           <span class="kw-2">&amp;mut</span> <span class="ident">depths</span>[..],
+                           <span class="kw-2">&amp;mut</span> <span class="ident">bits</span>[..],
                            <span class="ident">storage_ix</span>,
                            <span class="ident">storage</span>);
   <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
@@ -4723,14 +4724,14 @@
 
 <span class="kw">fn</span> <span class="ident">BuildAndStoreEntropyCodes</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>,
                              <span class="ident">HistogramType</span>: <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>
-  (<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>,
-   <span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BlockEncoder</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
+  (<span class="ident">m</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>,
+   <span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BlockEncoder</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
    <span class="ident">histograms</span>: <span class="kw-2">&amp;</span>[<span class="ident">HistogramType</span>],
    <span class="ident">histograms_size</span>: <span class="ident">usize</span>,
    <span class="ident">alphabet_size</span>: <span class="ident">usize</span>,
-   <span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HuffmanTree</span>],
-   <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-   <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+   <span class="ident">tree</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HuffmanTree</span>],
+   <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+   <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="kw">let</span> <span class="ident">table_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">histograms_size</span>.<span class="ident">wrapping_mul</span>(<span class="ident">xself</span>.<span class="ident">histogram_length_</span>);
   (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">depths_</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">table_size</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
     <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">m</span>, <span class="ident">table_size</span>)
@@ -4752,8 +4753,8 @@
                                    <span class="ident">xself</span>.<span class="ident">histogram_length_</span>,
                                    <span class="ident">alphabet_size</span>,
                                    <span class="ident">tree</span>,
-                                   <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">depths_</span>.<span class="ident">slice_mut</span>()[(<span class="ident">ix</span> <span class="kw">as</span> (<span class="ident">usize</span>))..],
-                                   <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">bits_</span>.<span class="ident">slice_mut</span>()[(<span class="ident">ix</span> <span class="kw">as</span> (<span class="ident">usize</span>))..],
+                                   <span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">depths_</span>.<span class="ident">slice_mut</span>()[(<span class="ident">ix</span> <span class="kw">as</span> (<span class="ident">usize</span>))..],
+                                   <span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">bits_</span>.<span class="ident">slice_mut</span>()[(<span class="ident">ix</span> <span class="kw">as</span> (<span class="ident">usize</span>))..],
                                    <span class="ident">storage_ix</span>,
                                    <span class="ident">storage</span>);
       }
@@ -4763,10 +4764,10 @@
 }
 
 <span class="kw">fn</span> <span class="ident">StoreSymbol</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span>
-               (<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BlockEncoder</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
+               (<span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BlockEncoder</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
                <span class="ident">symbol</span>: <span class="ident">usize</span>,
-               <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-               <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]){
+               <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+               <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]){
   <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_len_</span> <span class="op">==</span> <span class="number">0usize</span> {
     <span class="kw">let</span> <span class="ident">block_ix</span>: <span class="ident">usize</span> <span class="op">=</span> {
       (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_ix_</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_ix_</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
@@ -4776,7 +4777,7 @@
     <span class="kw">let</span> <span class="ident">block_type</span>: <span class="ident">u8</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_types_</span>[(<span class="ident">block_ix</span> <span class="kw">as</span> (<span class="ident">usize</span>))];
     (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_len_</span> <span class="op">=</span> <span class="ident">block_len</span> <span class="kw">as</span> (<span class="ident">usize</span>);
     (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">entropy_ix_</span> <span class="op">=</span> (<span class="ident">block_type</span> <span class="kw">as</span> (<span class="ident">usize</span>)).<span class="ident">wrapping_mul</span>((<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">histogram_length_</span>);
-    <span class="ident">StoreBlockSwitch</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_split_code_</span>,
+    <span class="ident">StoreBlockSwitch</span>(<span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_split_code_</span>,
                      <span class="ident">block_len</span>,
                      <span class="ident">block_type</span>,
                      <span class="number">0i32</span>,
@@ -4814,7 +4815,7 @@
   <span class="ident">kCopyExtra</span>[<span class="ident">copycode</span> <span class="kw">as</span> (<span class="ident">usize</span>)]
 }
 
-<span class="kw">fn</span> <span class="ident">StoreCommandExtra</span>(<span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>, <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+<span class="kw">fn</span> <span class="ident">StoreCommandExtra</span>(<span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>, <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="kw">let</span> <span class="ident">copylen_code</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">CommandCopyLenCode</span>(<span class="ident">cmd</span>);
   <span class="kw">let</span> <span class="ident">inscode</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="ident">GetInsertLengthCode</span>((<span class="kw-2">*</span><span class="ident">cmd</span>).<span class="ident">insert_len_</span> <span class="kw">as</span> (<span class="ident">usize</span>));
   <span class="kw">let</span> <span class="ident">copycode</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="ident">GetCopyLengthCode</span>(<span class="ident">copylen_code</span> <span class="kw">as</span> (<span class="ident">usize</span>));
@@ -4848,12 +4849,12 @@
   <span class="comment">//  0i32 as (u8)</span>
 }
 
-<span class="kw">fn</span> <span class="ident">StoreSymbolWithContext</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BlockEncoder</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
+<span class="kw">fn</span> <span class="ident">StoreSymbolWithContext</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BlockEncoder</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
                                                            <span class="ident">symbol</span>: <span class="ident">usize</span>,
                                                            <span class="ident">context</span>: <span class="ident">usize</span>,
                                                            <span class="ident">context_map</span>: <span class="kw-2">&amp;</span>[<span class="ident">u32</span>],
-                                                           <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                                                           <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
+                                                           <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                                                           <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
 <span class="ident">context_bits</span>: <span class="ident">usize</span>){
   <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_len_</span> <span class="op">==</span> <span class="number">0usize</span> {
     <span class="kw">let</span> <span class="ident">block_ix</span>: <span class="ident">usize</span> <span class="op">=</span> {
@@ -4864,7 +4865,7 @@
     <span class="kw">let</span> <span class="ident">block_type</span>: <span class="ident">u8</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_types_</span>[(<span class="ident">block_ix</span> <span class="kw">as</span> (<span class="ident">usize</span>))];
     (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_len_</span> <span class="op">=</span> <span class="ident">block_len</span> <span class="kw">as</span> (<span class="ident">usize</span>);
     (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">entropy_ix_</span> <span class="op">=</span> <span class="ident">block_type</span> <span class="kw">as</span> (<span class="ident">usize</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">context_bits</span>;
-    <span class="ident">StoreBlockSwitch</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_split_code_</span>,
+    <span class="ident">StoreBlockSwitch</span>(<span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">block_split_code_</span>,
                      <span class="ident">block_len</span>,
                      <span class="ident">block_type</span>,
                      <span class="number">0i32</span>,
@@ -4896,20 +4897,20 @@
   <span class="number">3u32</span>
 }
 
-<span class="kw">fn</span> <span class="ident">CleanupBlockEncoder</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>,
-                                                                            <span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BlockEncoder</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>){
-  <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">m</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">depths_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-  <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">m</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">bits_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+<span class="kw">fn</span> <span class="ident">CleanupBlockEncoder</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">m</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>,
+                                                                            <span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BlockEncoder</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>){
+  <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">m</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">depths_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+  <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">m</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">bits_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">JumpToByteBoundary</span>(<span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">JumpToByteBoundary</span>(<span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="kw-2">*</span><span class="ident">storage_ix</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">storage_ix</span>).<span class="ident">wrapping_add</span>(<span class="number">7u32</span> <span class="kw">as</span> (<span class="ident">usize</span>)) <span class="op">&amp;</span> <span class="op">!</span><span class="number">7u32</span> <span class="kw">as</span> (<span class="ident">usize</span>);
   <span class="ident">storage</span>[((<span class="kw-2">*</span><span class="ident">storage_ix</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3i32</span>) <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="op">=</span> <span class="number">0i32</span> <span class="kw">as</span> (<span class="ident">u8</span>);
 }
 
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliStoreMetaBlock</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span>: <span class="ident">BrotliAlloc</span>, <span class="ident">Cb</span><span class="op">&gt;</span>
-  (<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>,
+  (<span class="ident">alloc</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>,
    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span>[<span class="ident">u8</span>],
    <span class="ident">start_pos</span>: <span class="ident">usize</span>,
    <span class="ident">length</span>: <span class="ident">usize</span>,
@@ -4922,13 +4923,13 @@
    <span class="ident">distance_cache</span>: <span class="kw-2">&amp;</span>[<span class="ident">i32</span>; <span class="ident">kNumDistanceCacheEntries</span>],
    <span class="ident">commands</span>: <span class="kw-2">&amp;</span>[<span class="ident">Command</span>],
    <span class="ident">n_commands</span>: <span class="ident">usize</span>,
-   <span class="ident">mb</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">MetaBlockSplit</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-   <span class="ident">recoder_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RecoderState</span>,
-   <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-   <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
-  <span class="ident">callback</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Cb</span>) <span class="kw">where</span> <span class="ident">Cb</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
-                                                  <span class="kw-2">&amp;</span><span class="kw-2">mut</span>[<span class="ident">interface::StaticCommand</span>],
-                                                  <span class="ident">InputPair</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) {
+   <span class="ident">mb</span>: <span class="kw-2">&amp;mut</span> <span class="ident">MetaBlockSplit</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
+   <span class="ident">recoder_state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RecoderState</span>,
+   <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+   <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
+  <span class="ident">callback</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Cb</span>) <span class="kw">where</span> <span class="ident">Cb</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
+                                                  <span class="kw-2">&amp;mut</span>[<span class="ident">interface::StaticCommand</span>],
+                                                  <span class="ident">InputPair</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) {
   <span class="kw">let</span> (<span class="ident">input0</span>,<span class="ident">input1</span>) <span class="op">=</span> <span class="ident">InputPairFromMaskedInput</span>(<span class="ident">input</span>, <span class="ident">start_pos</span>, <span class="ident">length</span>, <span class="ident">mask</span>);
   <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">log_meta_block</span> {
       <span class="ident">LogMetaBlock</span>(<span class="ident">alloc</span>, <span class="ident">commands</span>.<span class="ident">split_at</span>(<span class="ident">n_commands</span>).<span class="number">0</span>, <span class="ident">input0</span>, <span class="ident">input1</span>,
@@ -4973,9 +4974,9 @@
                                                       (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">distance_split</span>.<span class="ident">types</span>.<span class="ident">slice</span>(),
                                                       (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">distance_split</span>.<span class="ident">lengths</span>.<span class="ident">slice</span>(),
                                                       (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">distance_split</span>.<span class="ident">num_blocks</span>);
-  <span class="ident">BuildAndStoreBlockSwitchEntropyCodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">literal_enc</span>, <span class="ident">tree</span>.<span class="ident">slice_mut</span>(), <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
-  <span class="ident">BuildAndStoreBlockSwitchEntropyCodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">command_enc</span>, <span class="ident">tree</span>.<span class="ident">slice_mut</span>(), <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
-  <span class="ident">BuildAndStoreBlockSwitchEntropyCodes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">distance_enc</span>, <span class="ident">tree</span>.<span class="ident">slice_mut</span>(), <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
+  <span class="ident">BuildAndStoreBlockSwitchEntropyCodes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">literal_enc</span>, <span class="ident">tree</span>.<span class="ident">slice_mut</span>(), <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
+  <span class="ident">BuildAndStoreBlockSwitchEntropyCodes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">command_enc</span>, <span class="ident">tree</span>.<span class="ident">slice_mut</span>(), <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
+  <span class="ident">BuildAndStoreBlockSwitchEntropyCodes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">distance_enc</span>, <span class="ident">tree</span>.<span class="ident">slice_mut</span>(), <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   <span class="ident">BrotliWriteBits</span>(<span class="number">2</span>, <span class="ident">dist</span>.<span class="ident">distance_postfix_bits</span> <span class="kw">as</span> (<span class="ident">u64</span>), <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   <span class="ident">BrotliWriteBits</span>(<span class="number">4</span>,
                   (<span class="ident">dist</span>.<span class="ident">num_direct_distance_codes</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">dist</span>.<span class="ident">distance_postfix_bits</span>) <span class="kw">as</span> (<span class="ident">u64</span>),
@@ -5019,7 +5020,7 @@
                      <span class="ident">storage</span>);
   }
   <span class="ident">BuildAndStoreEntropyCodes</span>(<span class="ident">alloc</span>,
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">literal_enc</span>,
+                            <span class="kw-2">&amp;mut</span> <span class="ident">literal_enc</span>,
                             (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">literal_histograms</span>.<span class="ident">slice</span>(),
                             (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">literal_histograms_size</span>,
                             <span class="ident">BROTLI_NUM_LITERAL_SYMBOLS</span>,
@@ -5027,7 +5028,7 @@
                             <span class="ident">storage_ix</span>,
                             <span class="ident">storage</span>);
   <span class="ident">BuildAndStoreEntropyCodes</span>(<span class="ident">alloc</span>,
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">command_enc</span>,
+                            <span class="kw-2">&amp;mut</span> <span class="ident">command_enc</span>,
                             (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">command_histograms</span>.<span class="ident">slice</span>(),
                             (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">command_histograms_size</span>,
                             <span class="ident">BROTLI_NUM_COMMAND_SYMBOLS</span>,
@@ -5035,7 +5036,7 @@
                             <span class="ident">storage_ix</span>,
                             <span class="ident">storage</span>);
   <span class="ident">BuildAndStoreEntropyCodes</span>(<span class="ident">alloc</span>,
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">distance_enc</span>,
+                            <span class="kw-2">&amp;mut</span> <span class="ident">distance_enc</span>,
                             (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">distance_histograms</span>.<span class="ident">slice</span>(),
                             (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">distance_histograms_size</span>,
                             <span class="ident">num_distance_symbols</span> <span class="kw">as</span> <span class="ident">usize</span>,
@@ -5043,21 +5044,21 @@
                             <span class="ident">storage_ix</span>,
                             <span class="ident">storage</span>);
   {
-    <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanTree</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanTree</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+    <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanTree</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tree</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanTree</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
   }
   <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
   <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">n_commands</span> {
     {
       <span class="kw">let</span> <span class="ident">cmd</span>: <span class="ident">Command</span> <span class="op">=</span> <span class="ident">commands</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))].<span class="ident">clone</span>();
       <span class="kw">let</span> <span class="ident">cmd_code</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">cmd_prefix_</span> <span class="kw">as</span> (<span class="ident">usize</span>);
-      <span class="ident">StoreSymbol</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">command_enc</span>, <span class="ident">cmd_code</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
+      <span class="ident">StoreSymbol</span>(<span class="kw-2">&amp;mut</span> <span class="ident">command_enc</span>, <span class="ident">cmd_code</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
       <span class="ident">StoreCommandExtra</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
       <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">literal_context_map_size</span> <span class="op">==</span> <span class="number">0usize</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span>: <span class="ident">usize</span>;
         <span class="ident">j</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">insert_len_</span> <span class="kw">as</span> (<span class="ident">usize</span>);
         <span class="kw">while</span> <span class="ident">j</span> <span class="op">!</span><span class="op">=</span> <span class="number">0usize</span> {
           {
-            <span class="ident">StoreSymbol</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">literal_enc</span>,
+            <span class="ident">StoreSymbol</span>(<span class="kw-2">&amp;mut</span> <span class="ident">literal_enc</span>,
                         <span class="ident">input</span>[((<span class="ident">pos</span> <span class="op">&amp;</span> <span class="ident">mask</span>) <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">usize</span>),
                         <span class="ident">storage_ix</span>,
                         <span class="ident">storage</span>);
@@ -5072,7 +5073,7 @@
           {
             <span class="kw">let</span> <span class="ident">context</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">Context</span>(<span class="ident">prev_byte</span>, <span class="ident">prev_byte2</span>, <span class="ident">literal_context_mode</span>) <span class="kw">as</span> (<span class="ident">usize</span>);
             <span class="kw">let</span> <span class="ident">literal</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="ident">input</span>[((<span class="ident">pos</span> <span class="op">&amp;</span> <span class="ident">mask</span>) <span class="kw">as</span> (<span class="ident">usize</span>))];
-            <span class="ident">StoreSymbolWithContext</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">literal_enc</span>,
+            <span class="ident">StoreSymbolWithContext</span>(<span class="kw-2">&amp;mut</span> <span class="ident">literal_enc</span>,
                                    <span class="ident">literal</span> <span class="kw">as</span> (<span class="ident">usize</span>),
                                    <span class="ident">context</span>,
                                    (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">literal_context_map</span>.<span class="ident">slice</span>(),
@@ -5095,10 +5096,10 @@
           <span class="kw">let</span> <span class="ident">distnumextra</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">u32::from</span>(<span class="ident">cmd</span>.<span class="ident">dist_prefix_</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">10i32</span>; <span class="comment">//FIXME: from command</span>
           <span class="kw">let</span> <span class="ident">distextra</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">dist_extra_</span> <span class="kw">as</span> (<span class="ident">u64</span>);
           <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">distance_context_map_size</span> <span class="op">==</span> <span class="number">0usize</span> {
-            <span class="ident">StoreSymbol</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">distance_enc</span>, <span class="ident">dist_code</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
+            <span class="ident">StoreSymbol</span>(<span class="kw-2">&amp;mut</span> <span class="ident">distance_enc</span>, <span class="ident">dist_code</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
           } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">context</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">CommandDistanceContext</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>) <span class="kw">as</span> (<span class="ident">usize</span>);
-            <span class="ident">StoreSymbolWithContext</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">distance_enc</span>,
+            <span class="ident">StoreSymbolWithContext</span>(<span class="kw-2">&amp;mut</span> <span class="ident">distance_enc</span>,
                                    <span class="ident">dist_code</span>,
                                    <span class="ident">context</span>,
                                    (<span class="kw-2">*</span><span class="ident">mb</span>).<span class="ident">distance_context_map</span>.<span class="ident">slice</span>(),
@@ -5112,9 +5113,9 @@
     }
     <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
   }
-  <span class="ident">CleanupBlockEncoder</span>(<span class="ident">alloc</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">distance_enc</span>);
-  <span class="ident">CleanupBlockEncoder</span>(<span class="ident">alloc</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">command_enc</span>);
-  <span class="ident">CleanupBlockEncoder</span>(<span class="ident">alloc</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">literal_enc</span>);
+  <span class="ident">CleanupBlockEncoder</span>(<span class="ident">alloc</span>, <span class="kw-2">&amp;mut</span> <span class="ident">distance_enc</span>);
+  <span class="ident">CleanupBlockEncoder</span>(<span class="ident">alloc</span>, <span class="kw-2">&amp;mut</span> <span class="ident">command_enc</span>);
+  <span class="ident">CleanupBlockEncoder</span>(<span class="ident">alloc</span>, <span class="kw-2">&amp;mut</span> <span class="ident">literal_enc</span>);
   <span class="kw">if</span> <span class="ident">is_last</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
     <span class="ident">JumpToByteBoundary</span>(<span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   }
@@ -5125,9 +5126,9 @@
                    <span class="ident">mask</span>: <span class="ident">usize</span>,
                    <span class="ident">commands</span>: <span class="kw-2">&amp;</span>[<span class="ident">Command</span>],
                    <span class="ident">n_commands</span>: <span class="ident">usize</span>,
-                   <span class="ident">lit_histo</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HistogramLiteral</span>,
-                   <span class="ident">cmd_histo</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HistogramCommand</span>,
-                   <span class="ident">dist_histo</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HistogramDistance</span>) {
+                   <span class="ident">lit_histo</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HistogramLiteral</span>,
+                   <span class="ident">cmd_histo</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HistogramCommand</span>,
+                   <span class="ident">dist_histo</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HistogramDistance</span>) {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pos</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">start_pos</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
   <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
@@ -5163,8 +5164,8 @@
                              <span class="ident">cmd_bits</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
                              <span class="ident">dist_depth</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
                              <span class="ident">dist_bits</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
-                             <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                             <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+                             <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                             <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pos</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">start_pos</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
   <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
@@ -5212,7 +5213,7 @@
 <span class="kw">fn</span> <span class="ident">nop</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">_data</span>:<span class="kw-2">&amp;</span>[<span class="ident">interface::Command</span><span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&gt;</span>]){
 }
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliStoreMetaBlockTrivial</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span>: <span class="ident">BrotliAlloc</span>, <span class="ident">Cb</span><span class="op">&gt;</span>
-    (<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>,
+    (<span class="ident">alloc</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>,
      <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>],
      <span class="ident">start_pos</span>: <span class="ident">usize</span>,
      <span class="ident">length</span>: <span class="ident">usize</span>,
@@ -5222,12 +5223,12 @@
      <span class="ident">distance_cache</span>: <span class="kw-2">&amp;</span>[<span class="ident">i32</span>; <span class="ident">kNumDistanceCacheEntries</span>],
      <span class="ident">commands</span>: <span class="kw-2">&amp;</span>[<span class="ident">Command</span>],
      <span class="ident">n_commands</span>: <span class="ident">usize</span>,
-     <span class="ident">recoder_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RecoderState</span>,
-     <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-     <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    <span class="ident">f</span>:<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Cb</span>) <span class="kw">where</span> <span class="ident">Cb</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
-                               <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">interface::StaticCommand</span>],
-                               <span class="ident">InputPair</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) {
+     <span class="ident">recoder_state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RecoderState</span>,
+     <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+     <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
+    <span class="ident">f</span>:<span class="kw-2">&amp;mut</span> <span class="ident">Cb</span>) <span class="kw">where</span> <span class="ident">Cb</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
+                               <span class="kw-2">&amp;mut</span> [<span class="ident">interface::StaticCommand</span>],
+                               <span class="ident">InputPair</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) {
   <span class="kw">let</span> (<span class="ident">input0</span>,<span class="ident">input1</span>) <span class="op">=</span> <span class="ident">InputPairFromMaskedInput</span>(<span class="ident">input</span>, <span class="ident">start_pos</span>, <span class="ident">length</span>, <span class="ident">mask</span>);
   <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">log_meta_block</span> {
       <span class="ident">LogMetaBlock</span>(<span class="ident">alloc</span>,
@@ -5263,32 +5264,32 @@
                   <span class="ident">mask</span>,
                   <span class="ident">commands</span>,
                   <span class="ident">n_commands</span>,
-                  <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_histo</span>,
-                  <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cmd_histo</span>,
-                  <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist_histo</span>);
+                  <span class="kw-2">&amp;mut</span> <span class="ident">lit_histo</span>,
+                  <span class="kw-2">&amp;mut</span> <span class="ident">cmd_histo</span>,
+                  <span class="kw-2">&amp;mut</span> <span class="ident">dist_histo</span>);
   <span class="ident">BrotliWriteBits</span>(<span class="number">13</span>, <span class="number">0</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   <span class="ident">BuildAndStoreHuffmanTree</span>(<span class="ident">lit_histo</span>.<span class="ident">slice_mut</span>(),
                            <span class="ident">BROTLI_NUM_LITERAL_SYMBOLS</span>,
                            <span class="ident">BROTLI_NUM_LITERAL_SYMBOLS</span>,
-                           <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree</span>[..],
-                           <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_depth</span>[..],
-                           <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_bits</span>[..],
+                           <span class="kw-2">&amp;mut</span> <span class="ident">tree</span>[..],
+                           <span class="kw-2">&amp;mut</span> <span class="ident">lit_depth</span>[..],
+                           <span class="kw-2">&amp;mut</span> <span class="ident">lit_bits</span>[..],
                            <span class="ident">storage_ix</span>,
                            <span class="ident">storage</span>);
   <span class="ident">BuildAndStoreHuffmanTree</span>(<span class="ident">cmd_histo</span>.<span class="ident">slice_mut</span>(),
                            <span class="ident">BROTLI_NUM_COMMAND_SYMBOLS</span>,
                            <span class="ident">BROTLI_NUM_COMMAND_SYMBOLS</span>,
-                           <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree</span>[..],
-                           <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cmd_depth</span>[..],
-                           <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cmd_bits</span>[..],
+                           <span class="kw-2">&amp;mut</span> <span class="ident">tree</span>[..],
+                           <span class="kw-2">&amp;mut</span> <span class="ident">cmd_depth</span>[..],
+                           <span class="kw-2">&amp;mut</span> <span class="ident">cmd_bits</span>[..],
                            <span class="ident">storage_ix</span>,
                            <span class="ident">storage</span>);
   <span class="ident">BuildAndStoreHuffmanTree</span>(<span class="ident">dist_histo</span>.<span class="ident">slice_mut</span>(),
                            <span class="ident">MAX_SIMPLE_DISTANCE_ALPHABET_SIZE</span>,
                            <span class="ident">num_distance_symbols</span> <span class="kw">as</span> <span class="ident">usize</span>,
-                           <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree</span>[..],
-                           <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist_depth</span>[..],
-                           <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist_bits</span>[..],
+                           <span class="kw-2">&amp;mut</span> <span class="ident">tree</span>[..],
+                           <span class="kw-2">&amp;mut</span> <span class="ident">dist_depth</span>[..],
+                           <span class="kw-2">&amp;mut</span> <span class="ident">dist_bits</span>[..],
                            <span class="ident">storage_ix</span>,
                            <span class="ident">storage</span>);
   <span class="ident">StoreDataWithHuffmanCodes</span>(<span class="ident">input</span>,
@@ -5296,12 +5297,12 @@
                             <span class="ident">mask</span>,
                             <span class="ident">commands</span>,
                             <span class="ident">n_commands</span>,
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_depth</span>[..],
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_bits</span>[..],
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cmd_depth</span>[..],
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cmd_bits</span>[..],
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist_depth</span>[..],
-                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist_bits</span>[..],
+                            <span class="kw-2">&amp;mut</span> <span class="ident">lit_depth</span>[..],
+                            <span class="kw-2">&amp;mut</span> <span class="ident">lit_bits</span>[..],
+                            <span class="kw-2">&amp;mut</span> <span class="ident">cmd_depth</span>[..],
+                            <span class="kw-2">&amp;mut</span> <span class="ident">cmd_bits</span>[..],
+                            <span class="kw-2">&amp;mut</span> <span class="ident">dist_depth</span>[..],
+                            <span class="kw-2">&amp;mut</span> <span class="ident">dist_bits</span>[..],
                             <span class="ident">storage_ix</span>,
                             <span class="ident">storage</span>);
   <span class="kw">if</span> <span class="ident">is_last</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
@@ -5309,7 +5310,7 @@
   }
 }
 
-<span class="kw">fn</span> <span class="ident">StoreStaticCommandHuffmanTree</span>(<span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+<span class="kw">fn</span> <span class="ident">StoreStaticCommandHuffmanTree</span>(<span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="ident">BrotliWriteBits</span>(<span class="number">56</span>,
                   <span class="number">0x926244u32</span> <span class="kw">as</span> (<span class="ident">u64</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32i32</span> <span class="op">|</span> <span class="number">0x16307003</span>,
                   <span class="ident">storage_ix</span>,
@@ -5317,7 +5318,7 @@
   <span class="ident">BrotliWriteBits</span>(<span class="number">3</span>, <span class="number">0x0u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
 }
 
-<span class="kw">fn</span> <span class="ident">StoreStaticDistanceHuffmanTree</span>(<span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+<span class="kw">fn</span> <span class="ident">StoreStaticDistanceHuffmanTree</span>(<span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="ident">BrotliWriteBits</span>(<span class="number">28</span>, <span class="number">0x369dc03u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
 }
 
@@ -5392,7 +5393,7 @@
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliStoreMetaBlockFast</span><span class="op">&lt;</span><span class="ident">Cb</span>,
                                 <span class="ident">Alloc</span>: <span class="ident">BrotliAlloc</span><span class="op">&gt;</span>(
-  <span class="ident">m</span> : <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>,
+  <span class="ident">m</span> : <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>,
   <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
   <span class="ident">start_pos</span>: <span class="ident">usize</span>,
   <span class="ident">length</span>: <span class="ident">usize</span>,
@@ -5402,13 +5403,13 @@
   <span class="ident">dist_cache</span>: <span class="kw-2">&amp;</span>[<span class="ident">i32</span>; <span class="ident">kNumDistanceCacheEntries</span>],
   <span class="ident">commands</span>: <span class="kw-2">&amp;</span>[<span class="ident">Command</span>],
   <span class="ident">n_commands</span>: <span class="ident">usize</span>,
-  <span class="ident">recoder_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RecoderState</span>,
-  <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-  <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
-  <span class="ident">cb</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Cb</span>,
-) <span class="kw">where</span> <span class="ident">Cb</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
-                  <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">interface::StaticCommand</span>],
-                  <span class="ident">InputPair</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>
+  <span class="ident">recoder_state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RecoderState</span>,
+  <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+  <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
+  <span class="ident">cb</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Cb</span>,
+) <span class="kw">where</span> <span class="ident">Cb</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
+                  <span class="kw-2">&amp;mut</span> [<span class="ident">interface::StaticCommand</span>],
+                  <span class="ident">InputPair</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>
 ) {
   <span class="kw">let</span> (<span class="ident">input0</span>,<span class="ident">input1</span>) <span class="op">=</span> <span class="ident">InputPairFromMaskedInput</span>(<span class="ident">input</span>, <span class="ident">start_pos</span>, <span class="ident">length</span>, <span class="ident">mask</span>);
   <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">log_meta_block</span> {
@@ -5440,7 +5441,7 @@
           {
             {
               <span class="kw">let</span> <span class="ident">_rhs</span> <span class="op">=</span> <span class="number">1</span>;
-              <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">histogram</span>[<span class="ident">input</span>[((<span class="ident">pos</span> <span class="op">&amp;</span> <span class="ident">mask</span>) <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">usize</span>)];
+              <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">histogram</span>[<span class="ident">input</span>[((<span class="ident">pos</span> <span class="op">&amp;</span> <span class="ident">mask</span>) <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">usize</span>)];
               <span class="kw-2">*</span><span class="ident">_lhs</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">_lhs</span>).<span class="ident">wrapping_add</span>(<span class="ident">_rhs</span> <span class="kw">as</span> (<span class="ident">u32</span>));
             }
             <span class="ident">pos</span> <span class="op">=</span> <span class="ident">pos</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
@@ -5453,11 +5454,11 @@
       <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
     }
     <span class="ident">BrotliBuildAndStoreHuffmanTreeFast</span>(<span class="ident">m</span>,
-                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">histogram</span>[..],
+                                       <span class="kw-2">&amp;mut</span> <span class="ident">histogram</span>[..],
                                        <span class="ident">num_literals</span>,
                                        <span class="number">8usize</span>,
-                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_depth</span>[..],
-                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_bits</span>[..],
+                                       <span class="kw-2">&amp;mut</span> <span class="ident">lit_depth</span>[..],
+                                       <span class="kw-2">&amp;mut</span> <span class="ident">lit_bits</span>[..],
                                        <span class="ident">storage_ix</span>,
                                        <span class="ident">storage</span>);
     <span class="ident">StoreStaticCommandHuffmanTree</span>(<span class="ident">storage_ix</span>, <span class="ident">storage</span>);
@@ -5467,8 +5468,8 @@
                               <span class="ident">mask</span>,
                               <span class="ident">commands</span>,
                               <span class="ident">n_commands</span>,
-                              <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_depth</span>[..],
-                              <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_bits</span>[..],
+                              <span class="kw-2">&amp;mut</span> <span class="ident">lit_depth</span>[..],
+                              <span class="kw-2">&amp;mut</span> <span class="ident">lit_bits</span>[..],
                               <span class="kw-2">&amp;</span><span class="ident">kStaticCommandCodeDepth</span>[..],
                               <span class="kw-2">&amp;</span><span class="ident">kStaticCommandCodeBits</span>[..],
                               <span class="kw-2">&amp;</span><span class="ident">kStaticDistanceCodeDepth</span>[..],
@@ -5490,31 +5491,31 @@
                     <span class="ident">mask</span>,
                     <span class="ident">commands</span>,
                     <span class="ident">n_commands</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_histo</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cmd_histo</span>,
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist_histo</span>);
+                    <span class="kw-2">&amp;mut</span> <span class="ident">lit_histo</span>,
+                    <span class="kw-2">&amp;mut</span> <span class="ident">cmd_histo</span>,
+                    <span class="kw-2">&amp;mut</span> <span class="ident">dist_histo</span>);
     <span class="ident">BrotliBuildAndStoreHuffmanTreeFast</span>(<span class="ident">m</span>,
                                        <span class="ident">lit_histo</span>.<span class="ident">slice</span>(),
                                        <span class="ident">lit_histo</span>.<span class="ident">total_count_</span>,
                                        <span class="number">8usize</span>,
-                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_depth</span>[..],
-                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_bits</span>[..],
+                                       <span class="kw-2">&amp;mut</span> <span class="ident">lit_depth</span>[..],
+                                       <span class="kw-2">&amp;mut</span> <span class="ident">lit_bits</span>[..],
                                        <span class="ident">storage_ix</span>,
                                        <span class="ident">storage</span>);
     <span class="ident">BrotliBuildAndStoreHuffmanTreeFast</span>(<span class="ident">m</span>,
                                        <span class="ident">cmd_histo</span>.<span class="ident">slice</span>(),
                                        <span class="ident">cmd_histo</span>.<span class="ident">total_count_</span>,
                                        <span class="number">10usize</span>,
-                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cmd_depth</span>[..],
-                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cmd_bits</span>[..],
+                                       <span class="kw-2">&amp;mut</span> <span class="ident">cmd_depth</span>[..],
+                                       <span class="kw-2">&amp;mut</span> <span class="ident">cmd_bits</span>[..],
                                        <span class="ident">storage_ix</span>,
                                        <span class="ident">storage</span>);
     <span class="ident">BrotliBuildAndStoreHuffmanTreeFast</span>(<span class="ident">m</span>,
                                        <span class="ident">dist_histo</span>.<span class="ident">slice</span>(),
                                        <span class="ident">dist_histo</span>.<span class="ident">total_count_</span>,
                                        <span class="ident">distance_alphabet_bits</span> <span class="kw">as</span> <span class="ident">usize</span>,
-                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist_depth</span>[..],
-                                       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist_bits</span>[..],
+                                       <span class="kw-2">&amp;mut</span> <span class="ident">dist_depth</span>[..],
+                                       <span class="kw-2">&amp;mut</span> <span class="ident">dist_bits</span>[..],
                                        <span class="ident">storage_ix</span>,
                                        <span class="ident">storage</span>);
     <span class="ident">StoreDataWithHuffmanCodes</span>(<span class="ident">input</span>,
@@ -5522,12 +5523,12 @@
                               <span class="ident">mask</span>,
                               <span class="ident">commands</span>,
                               <span class="ident">n_commands</span>,
-                              <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_depth</span>[..],
-                              <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lit_bits</span>[..],
-                              <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cmd_depth</span>[..],
-                              <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cmd_bits</span>[..],
-                              <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist_depth</span>[..],
-                              <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist_bits</span>[..],
+                              <span class="kw-2">&amp;mut</span> <span class="ident">lit_depth</span>[..],
+                              <span class="kw-2">&amp;mut</span> <span class="ident">lit_bits</span>[..],
+                              <span class="kw-2">&amp;mut</span> <span class="ident">cmd_depth</span>[..],
+                              <span class="kw-2">&amp;mut</span> <span class="ident">cmd_bits</span>[..],
+                              <span class="kw-2">&amp;mut</span> <span class="ident">dist_depth</span>[..],
+                              <span class="kw-2">&amp;mut</span> <span class="ident">dist_bits</span>[..],
                               <span class="ident">storage_ix</span>,
                               <span class="ident">storage</span>);
   }
@@ -5536,13 +5537,13 @@
   }
 }
 <span class="kw">fn</span> <span class="ident">BrotliStoreUncompressedMetaBlockHeader</span>(<span class="ident">length</span>: <span class="ident">usize</span>,
-                                          <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                                          <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+                                          <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                                          <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lenbits</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nlenbits</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nibblesbits</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
   <span class="ident">BrotliWriteBits</span>(<span class="number">1</span>, <span class="number">0</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
-  <span class="ident">BrotliEncodeMlen</span>(<span class="ident">length</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbits</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nlenbits</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nibblesbits</span>);
+  <span class="ident">BrotliEncodeMlen</span>(<span class="ident">length</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="kw-2">&amp;mut</span> <span class="ident">lenbits</span>, <span class="kw-2">&amp;mut</span> <span class="ident">nlenbits</span>, <span class="kw-2">&amp;mut</span> <span class="ident">nibblesbits</span>);
   <span class="ident">BrotliWriteBits</span>(<span class="number">2</span>, <span class="ident">nibblesbits</span> <span class="kw">as</span> <span class="ident">u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   <span class="ident">BrotliWriteBits</span>(<span class="ident">nlenbits</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">lenbits</span> <span class="kw">as</span> <span class="ident">u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   <span class="ident">BrotliWriteBits</span>(<span class="number">1</span>, <span class="number">1</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
@@ -5559,20 +5560,20 @@
 
 }
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliStoreUncompressedMetaBlock</span><span class="op">&lt;</span><span class="ident">Cb</span>, <span class="ident">Alloc</span>: <span class="ident">BrotliAlloc</span><span class="op">&gt;</span>
-    (<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>,
+    (<span class="ident">alloc</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>,
      <span class="ident">is_final_block</span>: <span class="ident">i32</span>,
      <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
      <span class="ident">position</span>: <span class="ident">usize</span>,
      <span class="ident">mask</span>: <span class="ident">usize</span>,
      <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>,
      <span class="ident">len</span>: <span class="ident">usize</span>,
-     <span class="ident">recoder_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RecoderState</span>,
-     <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-     <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
+     <span class="ident">recoder_state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RecoderState</span>,
+     <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+     <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
      <span class="ident">suppress_meta_block_logging</span>: <span class="ident">bool</span>,
-     <span class="ident">cb</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Cb</span>) <span class="kw">where</span> <span class="ident">Cb</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
-                                  <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">interface::StaticCommand</span>],
-                                  <span class="ident">InputPair</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>){
+     <span class="ident">cb</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Cb</span>) <span class="kw">where</span> <span class="ident">Cb</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&gt;</span>,
+                                  <span class="kw-2">&amp;mut</span> [<span class="ident">interface::StaticCommand</span>],
+                                  <span class="ident">InputPair</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>){
   <span class="kw">let</span> (<span class="ident">input0</span>,<span class="ident">input1</span>) <span class="op">=</span> <span class="ident">InputPairFromMaskedInput</span>(<span class="ident">input</span>, <span class="ident">position</span>, <span class="ident">len</span>, <span class="ident">mask</span>);
   <span class="ident">BrotliStoreUncompressedMetaBlockHeader</span>(<span class="ident">len</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   <span class="ident">JumpToByteBoundary</span>(<span class="ident">storage_ix</span>, <span class="ident">storage</span>);
@@ -5605,12 +5606,12 @@
 }
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliStoreSyncMetaBlock</span>(<span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliStoreSyncMetaBlock</span>(<span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
   <span class="ident">BrotliWriteBits</span>(<span class="number">6</span>, <span class="number">6</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
   <span class="ident">JumpToByteBoundary</span>(<span class="ident">storage_ix</span>, <span class="ident">storage</span>);
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliWriteEmptyLastMetaBlock</span>(<span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliWriteEmptyLastMetaBlock</span>(<span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
     <span class="ident">BrotliWriteBits</span>(<span class="number">1u8</span>, <span class="number">1u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
     <span class="ident">BrotliWriteBits</span>(<span class="number">1u8</span>, <span class="number">1u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>);
     <span class="ident">JumpToByteBoundary</span>(<span class="ident">storage_ix</span>, <span class="ident">storage</span>);
@@ -5632,7 +5633,7 @@
   (<span class="ident">ret</span>.<span class="ident">len</span>(), <span class="ident">ret</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliWriteMetadataMetaBlock</span>(<span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>, <span class="ident">storage_ix</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliWriteMetadataMetaBlock</span>(<span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>, <span class="ident">storage_ix</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>, <span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) {
     <span class="ident">BrotliWriteBits</span>(<span class="number">1u8</span>, <span class="number">0u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>); <span class="comment">// not last</span>
     <span class="ident">BrotliWriteBits</span>(<span class="number">2u8</span>, <span class="number">3u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>); <span class="comment">// MNIBBLES = 0 (pattern 1,1)</span>
     <span class="ident">BrotliWriteBits</span>(<span class="number">1u8</span>, <span class="number">0u64</span>, <span class="ident">storage_ix</span>, <span class="ident">storage</span>); <span class="comment">// reserved</span>
@@ -5678,5 +5679,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

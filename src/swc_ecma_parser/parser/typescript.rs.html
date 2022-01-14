@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;swc_ecma_parser-0.52.2&#x2F;src&#x2F;parser&#x2F;typescript.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>typescript.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../swc_ecma_parser/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;swc_ecma_parser-0.52.2&#x2F;src&#x2F;parser&#x2F;typescript.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>typescript.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../swc_ecma_parser/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -2749,7 +2750,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
     <span class="doccomment">/// `tsNextTokenCanFollowModifier`</span>
-    <span class="kw">fn</span> <span class="ident">ts_next_token_can_follow_modifier</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">ts_next_token_can_follow_modifier</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="comment">// Note: TypeScript&#39;s implementation is much more complicated because</span>
@@ -2770,7 +2771,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// `tsParseModifier`</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_modifier</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">allowed_modifiers</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>],
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>() {
@@ -2797,7 +2798,7 @@
 
     <span class="doccomment">/// `tsIsListTerminator`</span>
 
-    <span class="kw">fn</span> <span class="ident">is_ts_list_terminator</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">ParsingContext</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">is_ts_list_terminator</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">ParsingContext</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">kind</span> {
@@ -2811,9 +2812,9 @@
     }
 
     <span class="doccomment">/// `tsParseList`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_list</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">ParsingContext</span>, <span class="kw-2">mut</span> <span class="ident">parse_element</span>: <span class="ident">F</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">parse_ts_list</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">ParsingContext</span>, <span class="kw-2">mut</span> <span class="ident">parse_element</span>: <span class="ident">F</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
@@ -2828,12 +2829,12 @@
 
     <span class="doccomment">/// `tsParseDelimitedList`</span>
     <span class="kw">fn</span> <span class="ident">parse_ts_delimited_list</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">kind</span>: <span class="ident">ParsingContext</span>,
         <span class="kw-2">mut</span> <span class="ident">parse_element</span>: <span class="ident">F</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">parse_ts_delimited_list_inner</span>(<span class="ident">kind</span>, <span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">input</span>.<span class="ident">cur_pos</span>();
@@ -2844,12 +2845,12 @@
 
     <span class="doccomment">/// `tsParseDelimitedList`</span>
     <span class="kw">fn</span> <span class="ident">parse_ts_delimited_list_inner</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">kind</span>: <span class="ident">ParsingContext</span>,
         <span class="kw-2">mut</span> <span class="ident">parse_element</span>: <span class="ident">F</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span>(<span class="ident">BytePos</span>, <span class="ident">T</span>)<span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span>(<span class="ident">BytePos</span>, <span class="ident">T</span>)<span class="op">&gt;</span>,
     {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
@@ -2895,14 +2896,14 @@
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cognitive_complexity</span>)]</span>
     <span class="kw">fn</span> <span class="ident">parse_ts_bracketed_list</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">kind</span>: <span class="ident">ParsingContext</span>,
         <span class="ident">parse_element</span>: <span class="ident">F</span>,
         <span class="ident">bracket</span>: <span class="ident">bool</span>,
         <span class="ident">skip_first_token</span>: <span class="ident">bool</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
@@ -2926,7 +2927,7 @@
     }
 
     <span class="doccomment">/// `tsParseEntityName`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_entity_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">allow_reserved_words</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsEntityName</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_entity_name</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">allow_reserved_words</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsEntityName</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">init</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_ident_name</span>()<span class="question-mark">?</span>;
@@ -2969,7 +2970,7 @@
     }
 
     <span class="doccomment">/// `tsParseTypeReference`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_type_ref</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeRef</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_type_ref</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeRef</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_ts_type_ref</span>);
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
@@ -2998,7 +2999,7 @@
 
     <span class="doccomment">/// `tsParseThisTypePredicate`</span>
     <span class="kw">fn</span> <span class="ident">parse_ts_this_type_predicate</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">start</span>: <span class="ident">BytePos</span>,
         <span class="ident">has_asserts_keyword</span>: <span class="ident">bool</span>,
         <span class="ident">lhs</span>: <span class="ident">TsThisType</span>,
@@ -3025,7 +3026,7 @@
     }
 
     <span class="doccomment">/// `tsParseThisTypeNode`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_this_type_node</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsThisType</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_this_type_node</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsThisType</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="macro">expect!</span>(<span class="self">self</span>, <span class="string">&quot;this&quot;</span>);
@@ -3036,7 +3037,7 @@
     }
 
     <span class="doccomment">/// `tsParseImportType`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_import_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsImportType</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_import_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsImportType</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
         <span class="macro">assert_and_bump!</span>(<span class="self">self</span>, <span class="string">&quot;import&quot;</span>);
 
@@ -3079,7 +3080,7 @@
     }
 
     <span class="doccomment">/// `tsParseTypeQuery`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_type_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeQuery</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_type_query</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeQuery</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -3101,7 +3102,7 @@
     }
 
     <span class="doccomment">/// `tsParseTypeParameter`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_type_param</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeParam</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_type_param</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeParam</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -3119,7 +3120,7 @@
     }
 
     <span class="doccomment">/// `tsParseTypeParameter`</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_type_params</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeParamDecl</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_type_params</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeParamDecl</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">in_type</span>().<span class="ident">parse_with</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
             <span class="ident">p</span>.<span class="ident">ts_in_no_context</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="ident">p</span>);
@@ -3147,7 +3148,7 @@
 
     <span class="doccomment">/// `tsParseTypeOrTypePredicateAnnotation`</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_type_or_type_predicate_ann</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">return_token</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Token</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeAnn</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
@@ -3206,9 +3207,9 @@
     }
 
     <span class="doccomment">/// `tsTryParse`</span>
-    <span class="kw">fn</span> <span class="ident">try_parse_ts_bool</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">op</span>: <span class="ident">F</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">try_parse_ts_bool</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">op</span>: <span class="ident">F</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>() {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
@@ -3216,7 +3217,7 @@
         <span class="kw">let</span> <span class="ident">prev_emit_err</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">emit_err</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cloned</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
         <span class="ident">cloned</span>.<span class="ident">emit_err</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">op</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cloned</span>);
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">op</span>(<span class="kw-2">&amp;mut</span> <span class="ident">cloned</span>);
         <span class="kw">match</span> <span class="ident">res</span> {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">res</span>)) <span class="kw">if</span> <span class="ident">res</span> =&gt; {
                 <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">cloned</span>;
@@ -3229,9 +3230,9 @@
     }
 
     <span class="doccomment">/// `tsTryParse`</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_parse_ts</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">op</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_parse_ts</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">op</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -3241,7 +3242,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cloned</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
         <span class="ident">cloned</span>.<span class="ident">emit_err</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">op</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cloned</span>);
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">op</span>(<span class="kw-2">&amp;mut</span> <span class="ident">cloned</span>);
         <span class="kw">match</span> <span class="ident">res</span> {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">res</span>)) =&gt; {
                 <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">cloned</span>;
@@ -3264,7 +3265,7 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_type_ann</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">eat_colon</span>: <span class="ident">bool</span>,
         <span class="ident">start</span>: <span class="ident">BytePos</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeAnn</span><span class="op">&gt;</span> {
@@ -3286,7 +3287,7 @@
 
     <span class="doccomment">/// `tsEatThenParseType`</span>
     <span class="kw">fn</span> <span class="ident">eat_then_parse_ts_type</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">token_to_eat</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Token</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">in_type</span>().<span class="ident">parse_with</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
@@ -3300,7 +3301,7 @@
 
     <span class="doccomment">/// `tsExpectThenParseType`</span>
     <span class="kw">fn</span> <span class="ident">expect_then_parse_ts_type</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Token</span>,
         <span class="ident">token_str</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -3324,7 +3325,7 @@
     }
 
     <span class="doccomment">/// `tsNextThenParseType`</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">next_then_parse_ts_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">next_then_parse_ts_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="self">self</span>.<span class="ident">in_type</span>().<span class="ident">parse_with</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
@@ -3335,7 +3336,7 @@
     }
 
     <span class="doccomment">/// `tsParseEnumMember`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_enum_member</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsEnumMember</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_enum_member</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsEnumMember</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -3399,7 +3400,7 @@
 
     <span class="doccomment">/// `tsParseEnumDeclaration`</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_enum_decl</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">start</span>: <span class="ident">BytePos</span>,
         <span class="ident">is_const</span>: <span class="ident">bool</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsEnumDecl</span><span class="op">&gt;</span> {
@@ -3421,7 +3422,7 @@
     }
 
     <span class="doccomment">/// `tsParseModuleBlock`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_module_block</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsModuleBlock</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_module_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsModuleBlock</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_ts_module_block</span>);
 
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
@@ -3443,7 +3444,7 @@
     }
 
     <span class="doccomment">/// `tsParseModuleOrNamespaceDeclaration`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_module_or_ns_decl</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsModuleDecl</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_module_or_ns_decl</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsModuleDecl</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_ident_name</span>()<span class="question-mark">?</span>;
@@ -3475,7 +3476,7 @@
     }
 
     <span class="doccomment">/// `tsParseAmbientExternalModuleDeclaration`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_ambient_external_module_decl</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsModuleDecl</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_ambient_external_module_decl</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsModuleDecl</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> (<span class="ident">global</span>, <span class="ident">id</span>) <span class="op">=</span> <span class="kw">if</span> <span class="macro">is!</span>(<span class="self">self</span>, <span class="string">&quot;global&quot;</span>) {
@@ -3510,7 +3511,7 @@
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="self">self</span>.<span class="ident">in_type</span>().<span class="ident">parse_ts_type</span>()
@@ -3519,7 +3520,7 @@
     <span class="doccomment">/// Be sure to be in a type context before calling self.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// `tsParseType`</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_ts_type</span>);
 
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
@@ -3555,7 +3556,7 @@
     }
 
     <span class="doccomment">/// `tsParseNonConditionalType`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_non_conditional_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_non_conditional_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_ts_non_conditional_type</span>);
 
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
@@ -3577,7 +3578,7 @@
         <span class="self">self</span>.<span class="ident">parse_ts_union_type_or_higher</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">is_ts_start_of_fn_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">is_ts_start_of_fn_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">if</span> <span class="macro">is!</span>(<span class="self">self</span>, <span class="string">&#39;&lt;&#39;</span>) {
@@ -3588,7 +3589,7 @@
     }
 
     <span class="doccomment">/// `tsParseTypeAssertion`</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_type_assertion</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeAssertion</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_type_assertion</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeAssertion</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="comment">// Not actually necessary to set state.inType because we never reach here if JSX</span>
@@ -3605,7 +3606,7 @@
     }
 
     <span class="doccomment">/// `tsParseHeritageClause`</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_heritage_clause</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TsExprWithTypeArgs</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_heritage_clause</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TsExprWithTypeArgs</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="self">self</span>.<span class="ident">parse_ts_delimited_list</span>(<span class="ident">ParsingContext::HeritageClauseElement</span>, <span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
@@ -3614,7 +3615,7 @@
     }
 
     <span class="doccomment">/// `tsParseExpressionWithTypeArguments`</span>
-    <span class="kw">fn</span> <span class="ident">parse_expr_with_type_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsExprWithTypeArgs</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_expr_with_type_args</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsExprWithTypeArgs</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -3635,7 +3636,7 @@
         })
     }
     <span class="doccomment">/// `tsParseInterfaceDeclaration`</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_interface_decl</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsInterfaceDecl</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_interface_decl</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsInterfaceDecl</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_ident_name</span>()<span class="question-mark">?</span>;
@@ -3695,7 +3696,7 @@
     }
 
     <span class="doccomment">/// `tsParseTypeAliasDeclaration`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_type_alias_decl</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeAliasDecl</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_type_alias_decl</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">start</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeAliasDecl</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_ident_name</span>()<span class="question-mark">?</span>;
@@ -3713,7 +3714,7 @@
 
     <span class="doccomment">/// `tsParseImportEqualsDeclaration`</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_import_equals_decl</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">start</span>: <span class="ident">BytePos</span>,
         <span class="ident">is_export</span>: <span class="ident">bool</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsImportEqualsDecl</span><span class="op">&gt;</span> {
@@ -3734,14 +3735,14 @@
     }
 
     <span class="doccomment">/// `tsIsExternalModuleReference`</span>
-    <span class="kw">fn</span> <span class="ident">is_ts_external_module_ref</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">is_ts_external_module_ref</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="prelude-val">Ok</span>(<span class="macro">is!</span>(<span class="self">self</span>, <span class="string">&quot;require&quot;</span>) <span class="op">&amp;&amp;</span> <span class="macro">peeked_is!</span>(<span class="self">self</span>, <span class="string">&#39;(&#39;</span>))
     }
 
     <span class="doccomment">/// `tsParseModuleReference`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_module_ref</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsModuleRef</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_module_ref</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsModuleRef</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_ts_external_module_ref</span>()<span class="question-mark">?</span> {
@@ -3754,7 +3755,7 @@
 
     <span class="doccomment">/// `tsParseExternalModuleReference`</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cognitive_complexity</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_external_module_ref</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsExternalModuleRef</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_external_module_ref</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsExternalModuleRef</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -3775,20 +3776,20 @@
         })
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">ts_look_ahead</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">op</span>: <span class="ident">F</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">ts_look_ahead</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">op</span>: <span class="ident">F</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cloned</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
         <span class="ident">cloned</span>.<span class="ident">emit_err</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">op</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cloned</span>);
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">op</span>(<span class="kw-2">&amp;mut</span> <span class="ident">cloned</span>);
         <span class="ident">res</span>
     }
 
     <span class="doccomment">/// `tsIsUnambiguouslyStartOfFunctionType`</span>
-    <span class="kw">fn</span> <span class="ident">is_ts_unambiguously_start_of_fn_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">is_ts_unambiguously_start_of_fn_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="macro">assert_and_bump!</span>(<span class="self">self</span>, <span class="string">&#39;(&#39;</span>);
@@ -3814,7 +3815,7 @@
     }
 
     <span class="doccomment">/// `tsSkipParameterStart`</span>
-    <span class="kw">fn</span> <span class="ident">skip_ts_parameter_start</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">skip_ts_parameter_start</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_any_ts_modifier</span>()<span class="question-mark">?</span>;
@@ -3858,7 +3859,7 @@
     }
 
     <span class="doccomment">/// `tsParseTypeMemberSemicolon`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_type_member_semicolon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_type_member_semicolon</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">if</span> <span class="op">!</span><span class="macro">eat!</span>(<span class="self">self</span>, <span class="string">&#39;,&#39;</span>) {
@@ -3870,7 +3871,7 @@
 
     <span class="doccomment">/// `tsParseSignatureMember`</span>
     <span class="kw">fn</span> <span class="ident">parse_ts_signature_member</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">kind</span>: <span class="ident">SignatureParsingMode</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="ident">TsCallSignatureDecl</span>, <span class="ident">TsConstructSignatureDecl</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
@@ -3915,7 +3916,7 @@
     }
 
     <span class="doccomment">/// `tsIsUnambiguouslyIndexSignature`</span>
-    <span class="kw">fn</span> <span class="ident">is_ts_unambiguously_index_signature</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">is_ts_unambiguously_index_signature</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="comment">// Note: babel&#39;s comment is wrong</span>
@@ -3927,7 +3928,7 @@
 
     <span class="doccomment">/// `tsTryParseIndexSignature`</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_parse_ts_index_signature</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">index_signature_start</span>: <span class="ident">BytePos</span>,
         <span class="ident">readonly</span>: <span class="ident">bool</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TsIndexSignature</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -3969,7 +3970,7 @@
     <span class="doccomment">/// `parsePropertyName` in babel.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `(computed, key)`.</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_property_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_property_name</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">computed</span>, <span class="ident">key</span>) <span class="op">=</span> <span class="kw">if</span> <span class="macro">eat!</span>(<span class="self">self</span>, <span class="string">&#39;[&#39;</span>) {
             <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_assignment_expr</span>()<span class="question-mark">?</span>;
             <span class="macro">expect!</span>(<span class="self">self</span>, <span class="string">&#39;]&#39;</span>);
@@ -4002,7 +4003,7 @@
 
     <span class="doccomment">/// `tsParsePropertyOrMethodSignature`</span>
     <span class="kw">fn</span> <span class="ident">parse_ts_property_or_method_signature</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">start</span>: <span class="ident">BytePos</span>,
         <span class="ident">readonly</span>: <span class="ident">bool</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="ident">TsPropertySignature</span>, <span class="ident">TsMethodSignature</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -4054,7 +4055,7 @@
     }
 
     <span class="doccomment">/// `tsParseTypeMember`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_type_member</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeElement</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_type_member</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeElement</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">fn</span> <span class="ident">into_type_elem</span>(
@@ -4147,7 +4148,7 @@
     }
 
     <span class="doccomment">/// `tsIsStartOfConstructSignature`</span>
-    <span class="kw">fn</span> <span class="ident">is_ts_start_of_construct_signature</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">is_ts_start_of_construct_signature</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="macro">bump!</span>(<span class="self">self</span>);
@@ -4156,7 +4157,7 @@
     }
 
     <span class="doccomment">/// `tsParseTypeLiteral`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_type_lit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeLit</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_type_lit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeLit</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -4168,7 +4169,7 @@
     }
 
     <span class="doccomment">/// `tsParseObjectTypeMembers`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_object_type_members</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TsTypeElement</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_object_type_members</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TsTypeElement</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="macro">expect!</span>(<span class="self">self</span>, <span class="string">&#39;{&#39;</span>);
@@ -4179,7 +4180,7 @@
     }
 
     <span class="doccomment">/// `tsIsStartOfMappedType`</span>
-    <span class="kw">fn</span> <span class="ident">is_ts_start_of_mapped_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">is_ts_start_of_mapped_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="macro">bump!</span>(<span class="self">self</span>);
@@ -4202,7 +4203,7 @@
     }
 
     <span class="doccomment">/// `tsParseMappedTypeParameter`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_mapped_type_param</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeParam</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_mapped_type_param</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeParam</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -4219,7 +4220,7 @@
 
     <span class="doccomment">/// `tsParseMappedType`</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cognitive_complexity</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_mapped_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsMappedType</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_mapped_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsMappedType</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -4274,7 +4275,7 @@
     }
 
     <span class="doccomment">/// `tsParseTupleType`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_tuple_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTupleType</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_tuple_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTupleType</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -4314,7 +4315,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">try_parse_ts_tuple_element_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_parse_ts_tuple_element_name</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">try_parse_ts</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="ident">p</span>);
 
@@ -4345,7 +4346,7 @@
     }
 
     <span class="doccomment">/// `tsParseTupleElementType`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_tuple_element_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTupleElement</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_tuple_element_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTupleElement</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="comment">// parses `...TsType[]`</span>
@@ -4387,7 +4388,7 @@
     }
 
     <span class="doccomment">/// `tsParseParenthesizedType`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_parenthesized_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsParenthesizedType</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_parenthesized_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsParenthesizedType</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -4402,7 +4403,7 @@
 
     <span class="doccomment">/// `tsParseFunctionOrConstructorType`</span>
     <span class="kw">fn</span> <span class="ident">parse_ts_fn_or_constructor_type</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">is_fn_type</span>: <span class="ident">bool</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsFnOrConstructorType</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_ts_fn_or_constructor_type</span>);
@@ -4445,7 +4446,7 @@
     }
 
     <span class="doccomment">/// `tsParseLiteralTypeNode`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_lit_type_node</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsLitType</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_lit_type_node</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsLitType</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -4471,7 +4472,7 @@
     }
 
     <span class="doccomment">/// `tsParseTemplateLiteralType`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_tpl_lit_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTplLitType</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_tpl_lit_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTplLitType</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -4490,7 +4491,7 @@
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::vec_box</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_tpl_type_elements</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TplElement</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_tpl_type_elements</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TplElement</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_tpl_elements</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">types</span> <span class="op">=</span> <span class="macro">vec!</span>[];
@@ -4514,7 +4515,7 @@
     <span class="doccomment">/// `tsParseBindingListForSignature`</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Eats &#39;)` at the end but does not eat `(` at start.</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_binding_list_for_signature</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TsFnParam</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_binding_list_for_signature</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TsFnParam</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_formal_params</span>()<span class="question-mark">?</span>;
@@ -4541,7 +4542,7 @@
     <span class="doccomment">/// `tsTryParseTypeOrTypePredicateAnnotation`</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Used for parsing return types.</span>
-    <span class="kw">fn</span> <span class="ident">try_parse_ts_type_or_type_predicate_ann</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TsTypeAnn</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_parse_ts_type_or_type_predicate_ann</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TsTypeAnn</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="macro">is!</span>(<span class="self">self</span>, <span class="string">&#39;:&#39;</span>) {
             <span class="self">self</span>.<span class="ident">parse_ts_type_or_type_predicate_ann</span>(<span class="kw-2">&amp;</span><span class="macro">tok!</span>(<span class="string">&#39;:&#39;</span>))
                 .<span class="ident">map</span>(<span class="prelude-val">Some</span>)
@@ -4551,7 +4552,7 @@
     }
 
     <span class="doccomment">/// `tsTryParseTypeAnnotation`</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_parse_ts_type_ann</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TsTypeAnn</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_parse_ts_type_ann</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TsTypeAnn</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="macro">is!</span>(<span class="self">self</span>, <span class="string">&#39;:&#39;</span>) {
             <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
             <span class="kw">return</span> <span class="self">self</span>.<span class="ident">parse_ts_type_ann</span>(<span class="comment">/* eat_colon */</span> <span class="bool-val">true</span>, <span class="ident">pos</span>).<span class="ident">map</span>(<span class="prelude-val">Some</span>);
@@ -4561,12 +4562,12 @@
     }
 
     <span class="doccomment">/// `tsTryParseType`</span>
-    <span class="kw">fn</span> <span class="ident">try_parse_ts_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_parse_ts_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">eat_then_parse_ts_type</span>(<span class="kw-2">&amp;</span><span class="macro">tok!</span>(<span class="string">&#39;:&#39;</span>))
     }
 
     <span class="doccomment">/// `tsTryParseTypeParameters`</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_parse_ts_type_params</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TsTypeParamDecl</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_parse_ts_type_params</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TsTypeParamDecl</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="macro">is!</span>(<span class="self">self</span>, <span class="string">&#39;&lt;&#39;</span>) {
             <span class="kw">return</span> <span class="self">self</span>.<span class="ident">parse_ts_type_params</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>);
         }
@@ -4575,7 +4576,7 @@
 
     <span class="doccomment">/// `tsParseNonArrayType`</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cognitive_complexity</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_non_array_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_non_array_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_ts_non_array_type</span>);
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
@@ -4726,7 +4727,7 @@
     }
 
     <span class="doccomment">/// `tsParseArrayTypeOrHigher`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_array_type_or_higher</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">readonly</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_array_type_or_higher</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">readonly</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_ts_array_type_or_higher</span>);
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
@@ -4754,7 +4755,7 @@
     }
 
     <span class="doccomment">/// `tsParseTypeOperator`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_type_operator</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">op</span>: <span class="ident">TsTypeOperatorOp</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeOperator</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_type_operator</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">op</span>: <span class="ident">TsTypeOperatorOp</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeOperator</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -4773,7 +4774,7 @@
     }
 
     <span class="doccomment">/// `tsParseInferType`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_infer_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsInferType</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_infer_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsInferType</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
@@ -4792,7 +4793,7 @@
     }
 
     <span class="doccomment">/// `tsParseTypeOperatorOrHigher`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_type_operator_or_higher</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_type_operator_or_higher</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_ts_type_operator_or_higher</span>);
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
@@ -4826,7 +4827,7 @@
 
     <span class="doccomment">/// `tsParseExpressionStatement`</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_ts_expr_stmt</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">decorators</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Decorator</span><span class="op">&gt;</span>,
         <span class="ident">expr</span>: <span class="ident">Ident</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Decl</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -4896,7 +4897,7 @@
 
     <span class="doccomment">/// `tsTryParseDeclare`</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_parse_ts_declare</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">start</span>: <span class="ident">BytePos</span>,
         <span class="ident">decorators</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Decorator</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Decl</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -5015,7 +5016,7 @@
     <span class="doccomment">/// Note: this won&#39;t be called unless the keyword is allowed in</span>
     <span class="doccomment">/// `shouldParseExportDeclaration`.</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_parse_ts_export_decl</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">decorators</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Decorator</span><span class="op">&gt;</span>,
         <span class="ident">value</span>: <span class="ident">JsWord</span>,
     ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Decl</span><span class="op">&gt;</span> {
@@ -5035,7 +5036,7 @@
     <span class="doccomment">/// `tsParseDeclaration`</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cognitive_complexity</span>)]</span>
     <span class="kw">fn</span> <span class="ident">parse_ts_decl</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">start</span>: <span class="ident">BytePos</span>,
         <span class="ident">decorators</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Decorator</span><span class="op">&gt;</span>,
         <span class="ident">value</span>: <span class="ident">JsWord</span>,
@@ -5141,7 +5142,7 @@
 
     <span class="doccomment">/// `tsTryParseGenericAsyncArrowFunction`</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_parse_ts_generic_async_arrow_fn</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">start</span>: <span class="ident">BytePos</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ArrowExpr</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">is_one_of!</span>(<span class="self">self</span>, <span class="string">&#39;&lt;&#39;</span>, <span class="ident">JSXTagStart</span>) {
@@ -5192,7 +5193,7 @@
     }
 
     <span class="doccomment">/// `tsParseTypeArguments`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_ts_type_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeParamInstantiation</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_ts_type_args</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">TsTypeParamInstantiation</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_ts_type_args</span>);
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
@@ -5221,7 +5222,7 @@
     }
 
     <span class="doccomment">/// `tsParseIntersectionTypeOrHigher`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_intersection_type_or_higher</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_intersection_type_or_higher</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_ts_intersection_type_or_higher</span>);
 
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
@@ -5234,7 +5235,7 @@
     }
 
     <span class="doccomment">/// `tsParseUnionTypeOrHigher`</span>
-    <span class="kw">fn</span> <span class="ident">parse_ts_union_type_or_higher</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ts_union_type_or_higher</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_ts_union_type_or_higher</span>);
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
@@ -5247,13 +5248,13 @@
 
     <span class="doccomment">/// `tsParseUnionOrIntersectionType`</span>
     <span class="kw">fn</span> <span class="ident">parse_ts_union_or_intersection_type</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">kind</span>: <span class="ident">UnionOrIntersection</span>,
         <span class="kw-2">mut</span> <span class="ident">parse_constituent_type</span>: <span class="ident">F</span>,
         <span class="ident">operator</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Token</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">TsType</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_ts_union_or_intersection_type</span>);
 
@@ -5295,9 +5296,9 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
     <span class="doccomment">/// In no lexer context</span>
-    <span class="kw">fn</span> <span class="ident">ts_in_no_context</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">op</span>: <span class="ident">F</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">ts_in_no_context</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">op</span>: <span class="ident">F</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>());
 
@@ -5486,5 +5487,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="swc_ecma_parser" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

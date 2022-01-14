@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;sqlx-core-0.5.7&#x2F;src&#x2F;transaction.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transaction.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;sqlx-core-0.5.7&#x2F;src&#x2F;transaction.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transaction.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../sqlx_core/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -262,21 +263,21 @@
 
     <span class="doccomment">/// Begin a new transaction or establish a savepoint within the active transaction.</span>
     <span class="kw">fn</span> <span class="ident">begin</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>,
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>,
     ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Commit the active transaction or release the most recent savepoint.</span>
     <span class="kw">fn</span> <span class="ident">commit</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>,
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>,
     ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Abort the active transaction or restore from the most recent savepoint.</span>
     <span class="kw">fn</span> <span class="ident">rollback</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>,
+        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>,
     ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Starts to abort the active transaction or restore from the most recent snapshot.</span>
-    <span class="kw">fn</span> <span class="ident">start_rollback</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>);
+    <span class="kw">fn</span> <span class="ident">start_rollback</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>);
 }
 
 <span class="doccomment">/// An in-progress database transaction or savepoint.</span>
@@ -313,7 +314,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">into</span>();
 
         <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="ident">DB::TransactionManager::begin</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">DB::TransactionManager::begin</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
                 <span class="ident">connection</span>: <span class="ident">conn</span>,
@@ -324,7 +325,7 @@
 
     <span class="doccomment">/// Commits this transaction or savepoint.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">commit</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">DB::TransactionManager::commit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">connection</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">DB::TransactionManager::commit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">connection</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">open</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
         <span class="prelude-val">Ok</span>(())
@@ -332,7 +333,7 @@
 
     <span class="doccomment">/// Aborts this transaction or savepoint.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">rollback</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">DB::TransactionManager::rollback</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">connection</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">DB::TransactionManager::rollback</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">connection</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">open</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
         <span class="prelude-val">Ok</span>(())
@@ -362,7 +363,7 @@
                 <span class="lifetime">&#39;t</span>: <span class="lifetime">&#39;e</span>,
                 <span class="ident">E</span>: <span class="ident"><span class="kw">crate</span>::executor::Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
             {
-                (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">fetch_many</span>(<span class="ident">query</span>)
+                (<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">fetch_many</span>(<span class="ident">query</span>)
             }
 
             <span class="kw">fn</span> <span class="ident">fetch_optional</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
@@ -373,7 +374,7 @@
                 <span class="lifetime">&#39;t</span>: <span class="lifetime">&#39;e</span>,
                 <span class="ident">E</span>: <span class="ident"><span class="kw">crate</span>::executor::Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
             {
-                (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">fetch_optional</span>(<span class="ident">query</span>)
+                (<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">fetch_optional</span>(<span class="ident">query</span>)
             }
 
             <span class="kw">fn</span> <span class="ident">prepare_with</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span><span class="op">&gt;</span>(
@@ -390,7 +391,7 @@
             <span class="kw">where</span>
                 <span class="lifetime">&#39;t</span>: <span class="lifetime">&#39;e</span>,
             {
-                (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">prepare_with</span>(<span class="ident">sql</span>, <span class="ident">parameters</span>)
+                (<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">prepare_with</span>(<span class="ident">sql</span>, <span class="ident">parameters</span>)
             }
 
             <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
@@ -404,7 +405,7 @@
             <span class="kw">where</span>
                 <span class="lifetime">&#39;t</span>: <span class="lifetime">&#39;e</span>,
             {
-                (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">describe</span>(<span class="ident">query</span>)
+                (<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">describe</span>(<span class="ident">query</span>)
             }
         }
     };
@@ -414,7 +415,7 @@
 <span class="kw">where</span>
     <span class="ident">DB</span>: <span class="ident">Database</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="comment">// TODO: Show the full type &lt;..&lt;..&lt;..</span>
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Transaction&quot;</span>).<span class="ident">finish</span>()
     }
@@ -437,8 +438,8 @@
     <span class="ident">DB</span>: <span class="ident">Database</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">connection</span>
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">connection</span>
     }
 }
 
@@ -446,7 +447,7 @@
 <span class="kw">where</span>
     <span class="ident">DB</span>: <span class="ident">Database</span>,
 {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">open</span> {
             <span class="comment">// starts a rollback operation</span>
 
@@ -454,7 +455,7 @@
             <span class="comment">// operation that will happen on the next asynchronous invocation of the underlying</span>
             <span class="comment">// connection (including if the connection is returned to a pool)</span>
 
-            <span class="ident">DB::TransactionManager::start_rollback</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">connection</span>);
+            <span class="ident">DB::TransactionManager::start_rollback</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">connection</span>);
         }
     }
 }
@@ -490,5 +491,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

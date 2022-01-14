@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-web-4.0.0-beta.13&#x2F;src&#x2F;service.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>service.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-web-4.0.0-beta.13&#x2F;src&#x2F;service.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>service.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -785,18 +786,18 @@
 };
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HttpServiceFactory</span> {
-    <span class="kw">fn</span> <span class="ident">register</span>(<span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AppService</span>);
+    <span class="kw">fn</span> <span class="ident">register</span>(<span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AppService</span>);
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HttpServiceFactory</span><span class="op">&gt;</span> <span class="ident">HttpServiceFactory</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">register</span>(<span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AppService</span>) {
+    <span class="kw">fn</span> <span class="ident">register</span>(<span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AppService</span>) {
         <span class="self">self</span>.<span class="ident">into_iter</span>()
             .<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">factory</span><span class="op">|</span> <span class="ident">factory</span>.<span class="ident">register</span>(<span class="ident">config</span>));
     }
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait</span> <span class="ident">AppServiceFactory</span> {
-    <span class="kw">fn</span> <span class="ident">register</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AppService</span>);
+    <span class="kw">fn</span> <span class="ident">register</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AppService</span>);
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">ServiceFactoryWrapper</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
@@ -815,7 +816,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">HttpServiceFactory</span>,
 {
-    <span class="kw">fn</span> <span class="ident">register</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AppService</span>) {
+    <span class="kw">fn</span> <span class="ident">register</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AppService</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">item</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">factory</span>.<span class="ident">take</span>() {
             <span class="ident">item</span>.<span class="ident">register</span>(<span class="ident">config</span>)
         }
@@ -844,8 +845,8 @@
 
     <span class="doccomment">/// Get mutable access to inner `HttpRequest` and `Payload`</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parts_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HttpRequest</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Payload</span>) {
-        (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">payload</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parts_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; (<span class="kw-2">&amp;mut</span> <span class="ident">HttpRequest</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) {
+        (<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">payload</span>)
     }
 
     <span class="doccomment">/// Construct request from parts.</span>
@@ -885,7 +886,7 @@
 
     <span class="doccomment">/// This method returns reference to the request head</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RequestHead</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">RequestHead</span> {
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">head_mut</span>()
     }
 
@@ -915,8 +916,8 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="doccomment">/// Returns mutable request&#39;s headers.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HeaderMap</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">head_mut</span>().<span class="ident">headers</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">HeaderMap</span> {
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">head_mut</span>().<span class="ident">headers</span>
     }
 
     <span class="doccomment">/// The target path of this Request.</span>
@@ -977,7 +978,7 @@
 
     <span class="doccomment">/// Get a mutable reference to the Path parameters.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_info_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_info_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">match_info_mut</span>()
     }
 
@@ -1016,7 +1017,7 @@
     }
 
     <span class="doccomment">/// Set request payload.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_payload</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">payload</span>: <span class="ident">Payload</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_payload</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">payload</span>: <span class="ident">Payload</span>) {
         <span class="self">self</span>.<span class="ident">payload</span> <span class="op">=</span> <span class="ident">payload</span>;
     }
 
@@ -1024,8 +1025,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// In middleware, prefer [`extensions_mut`](ServiceRequest::extensions_mut) for request-local</span>
     <span class="doccomment">/// data since it is assumed that the same app data is presented for every request.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_data_container</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">extensions</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span>) {
-        <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="self">self</span>.<span class="ident">req</span>).<span class="ident">inner</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_data_container</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">extensions</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span>) {
+        <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;mut</span> (<span class="self">self</span>.<span class="ident">req</span>).<span class="ident">inner</span>)
             .<span class="ident">unwrap</span>()
             .<span class="ident">app_data</span>
             .<span class="ident">push</span>(<span class="ident">extensions</span>);
@@ -1033,7 +1034,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Resource</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ServiceRequest</span> {
-    <span class="kw">fn</span> <span class="ident">resource_path</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">resource_path</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">match_info_mut</span>()
     }
 }
@@ -1060,13 +1061,13 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">take_payload</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Payload</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Stream</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">take_payload</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Payload</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Stream</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">payload</span>.<span class="ident">take</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">ServiceRequest</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">writeln!</span>(
             <span class="ident">f</span>,
             <span class="string">&quot;\nServiceRequest {:?} {}:{}&quot;</span>,
@@ -1134,8 +1135,8 @@
 
     <span class="doccomment">/// Get mutable reference to response</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">response_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">response</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">response_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">response</span>
     }
 
     <span class="doccomment">/// Get the response status code</span>
@@ -1152,7 +1153,7 @@
 
     <span class="doccomment">/// Returns mutable response&#39;s headers.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HeaderMap</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">HeaderMap</span> {
         <span class="self">self</span>.<span class="ident">response</span>.<span class="ident">headers_mut</span>()
     }
 
@@ -1166,7 +1167,7 @@
     <span class="doccomment">/// Set a new body</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_body</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">B2</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B2</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ResponseHead</span>, <span class="ident">B</span>) -&gt; <span class="ident">B2</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ResponseHead</span>, <span class="ident">B</span>) -&gt; <span class="ident">B2</span>,
     {
         <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">response</span>.<span class="ident">map_body</span>(<span class="ident">f</span>);
 
@@ -1194,7 +1195,7 @@
     <span class="ident">B</span>: <span class="ident">MessageBody</span>,
     <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">writeln!</span>(
             <span class="ident">f</span>,
             <span class="string">&quot;\nServiceResponse {:?} {}{}&quot;</span>,
@@ -1296,11 +1297,11 @@
             <span class="ident">InitError</span> <span class="op">=</span> (),
         <span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">fn</span> <span class="ident">register</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AppService</span>) {
+    <span class="kw">fn</span> <span class="ident">register</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AppService</span>) {
         <span class="kw">let</span> <span class="ident">guards</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">guards</span>.<span class="ident">is_empty</span>() {
             <span class="prelude-val">None</span>
         } <span class="kw">else</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">std::mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">guards</span>))
+            <span class="prelude-val">Some</span>(<span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">guards</span>))
         };
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdef</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">is_root</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">rdef</span>.<span class="ident">is_empty</span>() {
@@ -1353,7 +1354,7 @@
 <span class="macro">macro_rules!</span> <span class="ident">service_tuple</span> ({ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ident</span>)<span class="op">+</span> } =&gt; {
     <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>: <span class="ident">HttpServiceFactory</span>),<span class="op">+</span><span class="op">&gt;</span> <span class="ident">HttpServiceFactory</span> <span class="kw">for</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span>) {
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-        <span class="kw">fn</span> <span class="ident">register</span>(<span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AppService</span>) {
+        <span class="kw">fn</span> <span class="ident">register</span>(<span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AppService</span>) {
             <span class="kw">let</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="kw-2">*</span>) <span class="op">=</span> <span class="self">self</span>;
             $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>.<span class="ident">register</span>(<span class="ident">config</span>);)<span class="op">+</span>
         }
@@ -1526,5 +1527,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

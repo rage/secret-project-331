@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.14&#x2F;src&#x2F;h1&#x2F;chunked.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chunked.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.14&#x2F;src&#x2F;h1&#x2F;chunked.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chunked.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -463,9 +464,9 @@
 <span class="kw">impl</span> <span class="ident">ChunkedState</span> {
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">step</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">body</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>,
-        <span class="ident">size</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u64</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>,
+        <span class="ident">body</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>,
+        <span class="ident">size</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u64</span>,
+        <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident"><span class="self">self</span>::ChunkedState</span>::<span class="kw-2">*</span>;
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
@@ -483,8 +484,8 @@
     }
 
     <span class="kw">fn</span> <span class="ident">read_size</span>(
-        <span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>,
-        <span class="ident">size</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u64</span>,
+        <span class="ident">rdr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>,
+        <span class="ident">size</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u64</span>,
     ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">radix</span> <span class="op">=</span> <span class="number">16</span>;
 
@@ -520,7 +521,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">read_size_lws</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_size_lws</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
             <span class="comment">// LWS can follow the chunk size, but no more digits can come</span>
             <span class="string">b&#39;\t&#39;</span> <span class="op">|</span> <span class="string">b&#39; &#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::SizeLws</span>)),
@@ -532,7 +533,7 @@
             ))),
         }
     }
-    <span class="kw">fn</span> <span class="ident">read_extension</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_extension</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
             <span class="string">b&#39;\r&#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::SizeLf</span>)),
             <span class="comment">// strictly 0x20 (space) should be disallowed but we don&#39;t parse quoted strings here</span>
@@ -544,7 +545,7 @@
         }
     }
     <span class="kw">fn</span> <span class="ident">read_size_lf</span>(
-        <span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>,
+        <span class="ident">rdr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>,
         <span class="ident">size</span>: <span class="ident">u64</span>,
     ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
@@ -558,9 +559,9 @@
     }
 
     <span class="kw">fn</span> <span class="ident">read_body</span>(
-        <span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>,
-        <span class="ident">rem</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u64</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>,
+        <span class="ident">rdr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>,
+        <span class="ident">rem</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u64</span>,
+        <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">log::trace!</span>(<span class="string">&quot;Chunked read, remaining={:?}&quot;</span>, <span class="ident">rem</span>);
 
@@ -585,7 +586,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">read_body_cr</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_body_cr</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
             <span class="string">b&#39;\r&#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::BodyLf</span>)),
             <span class="kw">_</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
@@ -594,7 +595,7 @@
             ))),
         }
     }
-    <span class="kw">fn</span> <span class="ident">read_body_lf</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_body_lf</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
             <span class="string">b&#39;\n&#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::Size</span>)),
             <span class="kw">_</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
@@ -603,7 +604,7 @@
             ))),
         }
     }
-    <span class="kw">fn</span> <span class="ident">read_end_cr</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_end_cr</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
             <span class="string">b&#39;\r&#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::EndLf</span>)),
             <span class="kw">_</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
@@ -612,7 +613,7 @@
             ))),
         }
     }
-    <span class="kw">fn</span> <span class="ident">read_end_lf</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_end_lf</span>(<span class="ident">rdr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChunkedState</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">byte!</span>(<span class="ident">rdr</span>) {
             <span class="string">b&#39;\n&#39;</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ChunkedState::End</span>)),
             <span class="kw">_</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
@@ -666,16 +667,16 @@
         );
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">MessageDecoder</span>::<span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="ident">::default</span>();
-        <span class="kw">let</span> (<span class="ident">msg</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">msg</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert!</span>(<span class="ident">msg</span>.<span class="ident">chunked</span>().<span class="ident">unwrap</span>());
 
         <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;4;test\r\ndata\r\n4\r\nline\r\n0\r\n\r\n&quot;</span>); <span class="comment">// test: test\r\n\r\n&quot;)</span>
-        <span class="kw">let</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">chunk</span>();
+        <span class="kw">let</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">chunk</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">chunk</span>, <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;data&quot;</span>));
-        <span class="kw">let</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">chunk</span>();
+        <span class="kw">let</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">chunk</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">chunk</span>, <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;line&quot;</span>));
-        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="macro">assert!</span>(<span class="ident">msg</span>.<span class="ident">eof</span>());
     }
 
@@ -685,7 +686,7 @@
             <span class="string">&quot;GET /test HTTP/1.1\r\n\
              transfer-encoding: chunked\r\n\r\n&quot;</span>,
         );
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>);
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="macro">parse_ready!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">chunked</span>() {
             <span class="macro">assert!</span>(<span class="ident">val</span>);
@@ -698,7 +699,7 @@
             <span class="string">&quot;GET /test HTTP/1.1\r\n\
              transfer-encoding: chnked\r\n\r\n&quot;</span>,
         );
-        <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>);
+        <span class="macro">expect_parse_err!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -708,20 +709,20 @@
              transfer-encoding: chunked\r\n\r\n&quot;</span>,
         );
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">MessageDecoder</span>::<span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="ident">::default</span>();
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">req</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert!</span>(<span class="ident">req</span>.<span class="ident">chunked</span>().<span class="ident">unwrap</span>());
 
         <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;4\r\ndata\r\n4\r\nline\r\n0\r\n\r\n&quot;</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">chunk</span>().<span class="ident">as_ref</span>(),
+            <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">chunk</span>().<span class="ident">as_ref</span>(),
             <span class="string">b&quot;data&quot;</span>
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">chunk</span>().<span class="ident">as_ref</span>(),
+            <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">chunk</span>().<span class="ident">as_ref</span>(),
             <span class="string">b&quot;line&quot;</span>
         );
-        <span class="macro">assert!</span>(<span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">eof</span>());
+        <span class="macro">assert!</span>(<span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">eof</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -731,7 +732,7 @@
              transfer-encoding: chunked\r\n\r\n&quot;</span>,
         );
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">MessageDecoder</span>::<span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="ident">::default</span>();
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">req</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert!</span>(<span class="ident">req</span>.<span class="ident">chunked</span>().<span class="ident">unwrap</span>());
 
@@ -741,14 +742,14 @@
               transfer-encoding: chunked\r\n\r\n&quot;</span>
                 .<span class="ident">iter</span>(),
         );
-        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">msg</span>.<span class="ident">chunk</span>().<span class="ident">as_ref</span>(), <span class="string">b&quot;data&quot;</span>);
-        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">msg</span>.<span class="ident">chunk</span>().<span class="ident">as_ref</span>(), <span class="string">b&quot;line&quot;</span>);
-        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="macro">assert!</span>(<span class="ident">msg</span>.<span class="ident">eof</span>());
 
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="macro">assert!</span>(<span class="ident">req</span>.<span class="ident">chunked</span>().<span class="ident">unwrap</span>());
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">method</span>(), <span class="ident">Method::POST</span>);
         <span class="macro">assert!</span>(<span class="ident">req</span>.<span class="ident">chunked</span>().<span class="ident">unwrap</span>());
@@ -762,28 +763,28 @@
         );
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">MessageDecoder</span>::<span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="ident">::default</span>();
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">req</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert!</span>(<span class="ident">req</span>.<span class="ident">chunked</span>().<span class="ident">unwrap</span>());
 
         <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;4\r\n1111\r\n&quot;</span>);
-        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">msg</span>.<span class="ident">chunk</span>().<span class="ident">as_ref</span>(), <span class="string">b&quot;1111&quot;</span>);
 
         <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;4\r\ndata\r&quot;</span>);
-        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">msg</span>.<span class="ident">chunk</span>().<span class="ident">as_ref</span>(), <span class="string">b&quot;data&quot;</span>);
 
         <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;\n4&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">is_none</span>());
 
         <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;\r&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">is_none</span>());
         <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;\n&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">is_none</span>());
 
         <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;li&quot;</span>);
-        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">msg</span>.<span class="ident">chunk</span>().<span class="ident">as_ref</span>(), <span class="string">b&quot;li&quot;</span>);
 
         <span class="comment">//trailers</span>
@@ -791,12 +792,12 @@
         <span class="comment">//not_ready!(reader.parse(&amp;mut buf, &amp;mut readbuf));</span>
 
         <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;ne\r\n0\r\n&quot;</span>);
-        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">msg</span>.<span class="ident">chunk</span>().<span class="ident">as_ref</span>(), <span class="string">b&quot;ne&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">is_none</span>());
 
         <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;\r\n&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">eof</span>());
+        <span class="macro">assert!</span>(<span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>().<span class="ident">eof</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -811,10 +812,10 @@
         );
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">MessageDecoder</span>::<span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="ident">::default</span>();
-        <span class="kw">let</span> (<span class="ident">_msg</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">_msg</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">chunk</span>, <span class="ident">PayloadItem::Chunk</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;xx&quot;</span>)));
     }
 
@@ -831,10 +832,10 @@
         );
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">MessageDecoder</span>::<span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="ident">::default</span>();
-        <span class="kw">let</span> (<span class="ident">_msg</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">_msg</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap_err</span>();
+        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap_err</span>();
         <span class="macro">assert!</span>(<span class="ident">err</span>
             .<span class="ident">to_string</span>()
             .<span class="ident">contains</span>(<span class="string">&quot;Invalid character in chunk extension&quot;</span>));
@@ -853,10 +854,10 @@
         );
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">MessageDecoder</span>::<span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="ident">::default</span>();
-        <span class="kw">let</span> (<span class="ident">_msg</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">_msg</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap_err</span>();
+        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap_err</span>();
         <span class="macro">assert!</span>(<span class="ident">err</span>
             .<span class="ident">to_string</span>()
             .<span class="ident">contains</span>(<span class="string">&quot;Invalid chunk size line: Size is too big&quot;</span>));
@@ -864,5 +865,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

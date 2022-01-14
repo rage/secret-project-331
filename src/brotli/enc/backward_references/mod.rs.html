@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;brotli-3.3.2&#x2F;src&#x2F;enc&#x2F;backward_references&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;brotli-3.3.2&#x2F;src&#x2F;enc&#x2F;backward_references&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -2637,17 +2638,17 @@
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CloneWithAlloc</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span>;
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">AnyHasher</span> {
   <span class="kw">fn</span> <span class="ident">Opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">H9Opts</span>;
-  <span class="kw">fn</span> <span class="ident">GetHasherCommon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Struct1</span>;
+  <span class="kw">fn</span> <span class="ident">GetHasherCommon</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Struct1</span>;
   <span class="kw">fn</span> <span class="ident">HashBytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">usize</span>;
   <span class="kw">fn</span> <span class="ident">HashTypeLength</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
   <span class="kw">fn</span> <span class="ident">StoreLookahead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
-  <span class="kw">fn</span> <span class="ident">PrepareDistanceCache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">distance_cache</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">i32</span>]);
-  <span class="kw">fn</span> <span class="ident">FindLongestMatch</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+  <span class="kw">fn</span> <span class="ident">PrepareDistanceCache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">distance_cache</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">i32</span>]);
+  <span class="kw">fn</span> <span class="ident">FindLongestMatch</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
                       <span class="ident">dictionary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">BrotliDictionary</span><span class="op">&gt;</span>,
                       <span class="ident">dictionary_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
                       <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
@@ -2658,23 +2659,23 @@
                       <span class="ident">max_backward</span>: <span class="ident">usize</span>,
                       <span class="ident">gap</span>: <span class="ident">usize</span>,
                       <span class="ident">max_distance</span>: <span class="ident">usize</span>,
-                      <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HasherSearchResult</span>)
+                      <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HasherSearchResult</span>)
                       -&gt; <span class="ident">bool</span>;
-  <span class="kw">fn</span> <span class="ident">Store</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>);
-  <span class="kw">fn</span> <span class="ident">Store4Vec4</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
+  <span class="kw">fn</span> <span class="ident">Store</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>);
+  <span class="kw">fn</span> <span class="ident">Store4Vec4</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4</span> {
       <span class="self">self</span>.<span class="ident">Store</span>(<span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">ix</span> <span class="op">+</span> <span class="ident">i</span> <span class="op">*</span> <span class="number">4</span>);
     }
   }
-  <span class="kw">fn</span> <span class="ident">StoreEvenVec4</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
+  <span class="kw">fn</span> <span class="ident">StoreEvenVec4</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4</span> {
       <span class="self">self</span>.<span class="ident">Store</span>(<span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">ix</span> <span class="op">+</span> <span class="ident">i</span> <span class="op">*</span> <span class="number">2</span>);
     }
   }
-  <span class="kw">fn</span> <span class="ident">StoreRange</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>);
-  <span class="kw">fn</span> <span class="ident">BulkStoreRange</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>);
-  <span class="kw">fn</span> <span class="ident">Prepare</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">one_shot</span>: <span class="ident">bool</span>, <span class="ident">input_size</span>: <span class="ident">usize</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">HowPrepared</span>;
-  <span class="kw">fn</span> <span class="ident">StitchToPreviousBlock</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+  <span class="kw">fn</span> <span class="ident">StoreRange</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>);
+  <span class="kw">fn</span> <span class="ident">BulkStoreRange</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>);
+  <span class="kw">fn</span> <span class="ident">Prepare</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">one_shot</span>: <span class="ident">bool</span>, <span class="ident">input_size</span>: <span class="ident">usize</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">HowPrepared</span>;
+  <span class="kw">fn</span> <span class="ident">StitchToPreviousBlock</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
                            <span class="ident">num_bytes</span>: <span class="ident">usize</span>,
                            <span class="ident">position</span>: <span class="ident">usize</span>,
                            <span class="ident">ringbuffer</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
@@ -2682,7 +2683,7 @@
 }
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">StitchToPreviousBlockInternal</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">AnyHasher</span><span class="op">&gt;</span>(<span class="ident">handle</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>,
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">StitchToPreviousBlockInternal</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">AnyHasher</span><span class="op">&gt;</span>(<span class="ident">handle</span>: <span class="kw-2">&amp;mut</span> <span class="ident">T</span>,
                                                    <span class="ident">num_bytes</span>: <span class="ident">usize</span>,
                                                    <span class="ident">position</span>: <span class="ident">usize</span>,
                                                    <span class="ident">ringbuffer</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
@@ -2694,7 +2695,7 @@
   }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">StoreLookaheadThenStore</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">AnyHasher</span><span class="op">&gt;</span>(<span class="ident">hasher</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>, <span class="ident">size</span>: <span class="ident">usize</span>, <span class="ident">dict</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">StoreLookaheadThenStore</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">AnyHasher</span><span class="op">&gt;</span>(<span class="ident">hasher</span>: <span class="kw-2">&amp;mut</span> <span class="ident">T</span>, <span class="ident">size</span>: <span class="ident">usize</span>, <span class="ident">dict</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
   <span class="kw">let</span> <span class="ident">overlap</span> <span class="op">=</span> <span class="ident">hasher</span>.<span class="ident">StoreLookahead</span>().<span class="ident">wrapping_sub</span>(<span class="number">1usize</span>);
   <span class="kw">if</span> <span class="ident">size</span> <span class="op">&gt;</span> <span class="ident">overlap</span> {
     <span class="ident">hasher</span>.<span class="ident">BulkStoreRange</span>(<span class="ident">dict</span>, <span class="op">!</span>(<span class="number">0usize</span>), <span class="number">0</span>, <span class="ident">size</span> <span class="op">-</span> <span class="ident">overlap</span>);
@@ -2720,7 +2721,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">BasicHashComputer</span><span class="op">&gt;</span> <span class="ident">BasicHasher</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">StoreRangeOptBasic</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">StoreRangeOptBasic</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
       <span class="kw">let</span> <span class="ident">lookahead</span> <span class="op">=</span> <span class="number">8</span>;
       <span class="kw">if</span> <span class="ident">ix_end</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">ix_start</span> <span class="op">+</span> <span class="ident">lookahead</span> <span class="op">*</span> <span class="number">2</span>{
         <span class="kw">let</span> <span class="ident">chunk_count</span> <span class="op">=</span> (<span class="ident">ix_end</span> <span class="op">-</span> <span class="ident">ix_start</span>) <span class="op">/</span> <span class="number">4</span>;
@@ -2756,7 +2757,7 @@
      <span class="self">self</span>.<span class="ident">h9_opts</span>
   }
   <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">PrepareDistanceCache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">distance_cache</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">i32</span>]) {}
+  <span class="kw">fn</span> <span class="ident">PrepareDistanceCache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">distance_cache</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">i32</span>]) {}
   <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
   <span class="kw">fn</span> <span class="ident">HashTypeLength</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="number">8</span>
@@ -2765,7 +2766,7 @@
   <span class="kw">fn</span> <span class="ident">StoreLookahead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="number">8</span>
   }
-  <span class="kw">fn</span> <span class="ident">StitchToPreviousBlock</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+  <span class="kw">fn</span> <span class="ident">StitchToPreviousBlock</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
                            <span class="ident">num_bytes</span>: <span class="ident">usize</span>,
                            <span class="ident">position</span>: <span class="ident">usize</span>,
                            <span class="ident">ringbuffer</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
@@ -2773,28 +2774,28 @@
     <span class="ident">StitchToPreviousBlockInternal</span>(<span class="self">self</span>, <span class="ident">num_bytes</span>, <span class="ident">position</span>, <span class="ident">ringbuffer</span>, <span class="ident">ringbuffer_mask</span>);
   }
   <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">GetHasherCommon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Struct1</span> {
-    <span class="kw">return</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">GetHasherCommon</span>;
+  <span class="kw">fn</span> <span class="ident">GetHasherCommon</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Struct1</span> {
+    <span class="kw">return</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">GetHasherCommon</span>;
   }
   <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
   <span class="kw">fn</span> <span class="ident">HashBytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">usize</span> {
     <span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">HashBytes</span>(<span class="ident">data</span>) <span class="kw">as</span> <span class="ident">usize</span>
   }
-  <span class="kw">fn</span> <span class="ident">Store</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
+  <span class="kw">fn</span> <span class="ident">Store</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
     <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">data_window</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">split_at</span>((<span class="ident">ix</span> <span class="op">&amp;</span> <span class="ident">mask</span>) <span class="kw">as</span> (<span class="ident">usize</span>));
     <span class="kw">let</span> <span class="ident">key</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">HashBytes</span>(<span class="ident">data_window</span>) <span class="kw">as</span> <span class="ident">u32</span>;
     <span class="kw">let</span> <span class="ident">off</span>: <span class="ident">u32</span> <span class="op">=</span> (<span class="ident">ix</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3i32</span>).<span class="ident">wrapping_rem</span>(<span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">BUCKET_SWEEP</span>() <span class="kw">as</span> <span class="ident">usize</span>) <span class="kw">as</span> (<span class="ident">u32</span>);
     <span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">slice_mut</span>()[<span class="ident">key</span>.<span class="ident">wrapping_add</span>(<span class="ident">off</span>) <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="op">=</span> <span class="ident">ix</span> <span class="kw">as</span> (<span class="ident">u32</span>);
   }
-  <span class="kw">fn</span> <span class="ident">StoreRange</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
+  <span class="kw">fn</span> <span class="ident">StoreRange</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">StoreRangeOptBasic</span>(<span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">ix_start</span>, <span class="ident">ix_end</span>)..<span class="ident">ix_end</span> {
       <span class="self">self</span>.<span class="ident">Store</span>(<span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">i</span>);
     }
   }
-  <span class="kw">fn</span> <span class="ident">BulkStoreRange</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
+  <span class="kw">fn</span> <span class="ident">BulkStoreRange</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
     <span class="self">self</span>.<span class="ident">StoreRange</span>(<span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">ix_start</span>, <span class="ident">ix_end</span>);
   }
-  <span class="kw">fn</span> <span class="ident">Prepare</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">one_shot</span>: <span class="ident">bool</span>, <span class="ident">input_size</span>: <span class="ident">usize</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">HowPrepared</span> {
+  <span class="kw">fn</span> <span class="ident">Prepare</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">one_shot</span>: <span class="ident">bool</span>, <span class="ident">input_size</span>: <span class="ident">usize</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">HowPrepared</span> {
     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">GetHasherCommon</span>.<span class="ident">is_prepared_</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
       <span class="kw">return</span> <span class="ident">HowPrepared::ALREADY_PREPARED</span>;
     }
@@ -2816,7 +2817,7 @@
     <span class="ident">HowPrepared::NEWLY_PREPARED</span>
   }
 
-  <span class="kw">fn</span> <span class="ident">FindLongestMatch</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+  <span class="kw">fn</span> <span class="ident">FindLongestMatch</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
                       <span class="ident">dictionary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">BrotliDictionary</span><span class="op">&gt;</span>,
                       <span class="ident">dictionary_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
                       <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
@@ -2827,7 +2828,7 @@
                       <span class="ident">max_backward</span>: <span class="ident">usize</span>,
                       <span class="ident">gap</span>: <span class="ident">usize</span>,
                       <span class="ident">max_distance</span>: <span class="ident">usize</span>,
-                      <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HasherSearchResult</span>)
+                      <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HasherSearchResult</span>)
                       -&gt; <span class="ident">bool</span> {
     <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">Opts</span>();
     <span class="kw">let</span> <span class="ident">best_len_in</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">out</span>).<span class="ident">len</span>;
@@ -2946,7 +2947,7 @@
   }
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">AllocU32</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">H2Sub</span><span class="op">&lt;</span><span class="ident">AllocU32</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>] {
+  <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>] {
     <span class="kw">return</span> <span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">slice_mut</span>();
   }
 }
@@ -2959,7 +2960,7 @@
   <span class="kw">pub</span> <span class="ident">buckets_</span>: <span class="ident">AllocU32::AllocatedMemory</span>, <span class="comment">// 65538</span>
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">AllocU32</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">H3Sub</span><span class="op">&lt;</span><span class="ident">AllocU32</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>] {
+  <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>] {
     <span class="kw">return</span> <span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">slice_mut</span>();
   }
 }
@@ -3002,7 +3003,7 @@
   }
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">AllocU32</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">H4Sub</span><span class="op">&lt;</span><span class="ident">AllocU32</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>] {
+  <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>] {
     <span class="kw">return</span> <span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">slice_mut</span>();
   }
 }
@@ -3032,7 +3033,7 @@
 
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">AllocU32</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">H54Sub</span><span class="op">&lt;</span><span class="ident">AllocU32</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>] {
+  <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>] {
     <span class="kw">return</span> <span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">slice_mut</span>();
   }
 }
@@ -3072,7 +3073,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">adv_prepare_distance_cache</span>(<span class="ident">distance_cache</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">i32</span>], <span class="ident">num_distances</span>: <span class="ident">i32</span>) {
+<span class="kw">fn</span> <span class="ident">adv_prepare_distance_cache</span>(<span class="ident">distance_cache</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">i32</span>], <span class="ident">num_distances</span>: <span class="ident">i32</span>) {
         <span class="kw">if</span> <span class="ident">num_distances</span> <span class="op">&gt;</span> <span class="number">4i32</span> {
             <span class="kw">let</span> <span class="ident">last_distance</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident">distance_cache</span>[(<span class="number">0usize</span>)];
             <span class="ident">distance_cache</span>[(<span class="number">4usize</span>)] <span class="op">=</span> <span class="ident">last_distance</span> <span class="op">-</span> <span class="number">1i32</span>;
@@ -3164,8 +3165,8 @@
        <span class="self">self</span>.<span class="ident">h9_opts</span>
     }
   <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">GetHasherCommon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Struct1</span> {
-        <span class="kw">return</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">dict_search_stats_</span>;
+    <span class="kw">fn</span> <span class="ident">GetHasherCommon</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Struct1</span> {
+        <span class="kw">return</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">dict_search_stats_</span>;
     }
   <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">fn</span> <span class="ident">HashBytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">usize</span> {
@@ -3181,11 +3182,11 @@
     <span class="kw">fn</span> <span class="ident">StoreLookahead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="number">4</span>
     }
-    <span class="kw">fn</span> <span class="ident">PrepareDistanceCache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">distance_cache</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">i32</span>]) {
+    <span class="kw">fn</span> <span class="ident">PrepareDistanceCache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">distance_cache</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">i32</span>]) {
         <span class="kw">let</span> <span class="ident">num_distances</span> <span class="op">=</span> <span class="ident">H9_NUM_LAST_DISTANCES_TO_CHECK</span> <span class="kw">as</span> <span class="ident">i32</span>;
         <span class="ident">adv_prepare_distance_cache</span>(<span class="ident">distance_cache</span>, <span class="ident">num_distances</span>);
     }
-    <span class="kw">fn</span> <span class="ident">FindLongestMatch</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+    <span class="kw">fn</span> <span class="ident">FindLongestMatch</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
                         <span class="ident">dictionary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">BrotliDictionary</span><span class="op">&gt;</span>,
                         <span class="ident">dictionary_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
                         <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
@@ -3196,7 +3197,7 @@
                         <span class="ident">max_backward</span>: <span class="ident">usize</span>,
                         <span class="ident">gap</span>: <span class="ident">usize</span>,
                         <span class="ident">max_distance</span>: <span class="ident">usize</span>,
-                        <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HasherSearchResult</span>)
+                        <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HasherSearchResult</span>)
                         -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">best_len_in</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">out</span>).<span class="ident">len</span>;
         <span class="kw">let</span> <span class="ident">cur_ix_masked</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">cur_ix</span> <span class="op">&amp;</span> <span class="ident">ring_buffer_mask</span>;
@@ -3239,10 +3240,10 @@
         }
         <span class="kw">if</span> <span class="ident">max_length</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">4</span> <span class="op">&amp;&amp;</span> <span class="ident">cur_ix_masked</span>.<span class="ident">wrapping_add</span>(<span class="ident">best_len</span>) <span class="op">&lt;</span><span class="op">=</span> <span class="ident">ring_buffer_mask</span> {
             <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">HashBytes</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">split_at</span>(<span class="ident">cur_ix_masked</span>).<span class="number">1</span>);
-            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">slice_mut</span>().<span class="ident">split_at_mut</span>(<span class="ident">key</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">H9_BLOCK_BITS</span>).<span class="number">1</span>.<span class="ident">split_at_mut</span>(<span class="ident">H9_BLOCK_SIZE</span>).<span class="number">0</span>;
+            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">slice_mut</span>().<span class="ident">split_at_mut</span>(<span class="ident">key</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">H9_BLOCK_BITS</span>).<span class="number">1</span>.<span class="ident">split_at_mut</span>(<span class="ident">H9_BLOCK_SIZE</span>).<span class="number">0</span>;
             <span class="macro">assert!</span>(<span class="ident">bucket</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">H9_BLOCK_MASK</span>);
             <span class="macro">assert_eq!</span>(<span class="ident">bucket</span>.<span class="ident">len</span>(), <span class="ident">H9_BLOCK_MASK</span> <span class="op">+</span> <span class="number">1</span>);
-            <span class="kw">let</span> <span class="ident">self_num_key</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">num_</span>.<span class="ident">slice_mut</span>()[<span class="ident">key</span>];
+            <span class="kw">let</span> <span class="ident">self_num_key</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">num_</span>.<span class="ident">slice_mut</span>()[<span class="ident">key</span>];
             <span class="kw">let</span> <span class="ident">down</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">self_num_key</span> <span class="op">&gt;</span> <span class="ident">H9_BLOCK_SIZE</span> <span class="kw">as</span> <span class="ident">u16</span> {
                 (<span class="kw-2">*</span><span class="ident">self_num_key</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">-</span> <span class="ident">H9_BLOCK_SIZE</span>
             } <span class="kw">else</span> {<span class="number">0usize</span>};
@@ -3302,25 +3303,25 @@
         <span class="ident">is_match_found</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">Store</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">Store</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">data_window</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">split_at</span>((<span class="ident">ix</span> <span class="op">&amp;</span> <span class="ident">mask</span>) <span class="kw">as</span> (<span class="ident">usize</span>));
         <span class="kw">let</span> <span class="ident">key</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">HashBytes</span>(<span class="ident">data_window</span>) <span class="kw">as</span> <span class="ident">u32</span>;
-        <span class="kw">let</span> <span class="ident">self_num_key</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">num_</span>.<span class="ident">slice_mut</span>()[<span class="ident">key</span> <span class="kw">as</span> <span class="ident">usize</span>];
+        <span class="kw">let</span> <span class="ident">self_num_key</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">num_</span>.<span class="ident">slice_mut</span>()[<span class="ident">key</span> <span class="kw">as</span> <span class="ident">usize</span>];
         <span class="kw">let</span> <span class="ident">minor_ix</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">self_num_key</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&amp;</span> <span class="ident">H9_BLOCK_MASK</span>);
         <span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">slice_mut</span>()[<span class="ident">minor_ix</span>.<span class="ident">wrapping_add</span>((<span class="ident">key</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">H9_BLOCK_BITS</span>)] <span class="op">=</span> <span class="ident">ix</span> <span class="kw">as</span> <span class="ident">u32</span>;
         <span class="kw-2">*</span><span class="ident">self_num_key</span> <span class="op">=</span> <span class="ident">self_num_key</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span>);
     }
-    <span class="kw">fn</span> <span class="ident">StoreRange</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">StoreRange</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">ix_start</span>..<span class="ident">ix_end</span> {
             <span class="self">self</span>.<span class="ident">Store</span>(<span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">i</span>);
         }
     }
-    <span class="kw">fn</span> <span class="ident">BulkStoreRange</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">BulkStoreRange</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">ix_start</span>..<span class="ident">ix_end</span> {
             <span class="self">self</span>.<span class="ident">Store</span>(<span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">i</span>);
         }
     }
-    <span class="kw">fn</span> <span class="ident">Prepare</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_one_shot</span>: <span class="ident">bool</span>, <span class="ident">_input_size</span>:<span class="ident">usize</span>, <span class="ident">_data</span>:<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt;<span class="ident">HowPrepared</span> {
+    <span class="kw">fn</span> <span class="ident">Prepare</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_one_shot</span>: <span class="ident">bool</span>, <span class="ident">_input_size</span>:<span class="ident">usize</span>, <span class="ident">_data</span>:<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt;<span class="ident">HowPrepared</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">GetHasherCommon</span>().<span class="ident">is_prepared_</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
             <span class="kw">return</span> <span class="ident">HowPrepared::ALREADY_PREPARED</span>;
         }
@@ -3330,7 +3331,7 @@
         <span class="self">self</span>.<span class="ident">GetHasherCommon</span>().<span class="ident">is_prepared_</span> <span class="op">=</span> <span class="number">1</span>;
         <span class="ident">HowPrepared::NEWLY_PREPARED</span>
     }
-    <span class="kw">fn</span> <span class="ident">StitchToPreviousBlock</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+    <span class="kw">fn</span> <span class="ident">StitchToPreviousBlock</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
                              <span class="ident">num_bytes</span>: <span class="ident">usize</span>,
                              <span class="ident">position</span>: <span class="ident">usize</span>,
                              <span class="ident">ringbuffer</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
@@ -3345,7 +3346,7 @@
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">AdvHashSpecialization</span> : <span class="ident">PartialEq</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>{
   <span class="kw">fn</span> <span class="ident">get_hash_mask</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span>;
-  <span class="kw">fn</span> <span class="ident">set_hash_mask</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">params_hash_len</span>: <span class="ident">i32</span>);
+  <span class="kw">fn</span> <span class="ident">set_hash_mask</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">params_hash_len</span>: <span class="ident">i32</span>);
   <span class="kw">fn</span> <span class="ident">get_k_hash_mul</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span>;
   <span class="kw">fn</span> <span class="ident">HashTypeLength</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
   <span class="kw">fn</span> <span class="ident">StoreLookahead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
@@ -3415,7 +3416,7 @@
     <span class="kw">return</span> (<span class="ident">BROTLI_UNALIGNED_LOAD32</span>(<span class="ident">data</span>) <span class="kw">as</span> <span class="ident">u64</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">get_k_hash_mul</span>()) <span class="op">&amp;</span> <span class="self">self</span>.<span class="ident">get_hash_mask</span>();
   }
   <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">set_hash_mask</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_params_hash_len</span>: <span class="ident">i32</span>) {}
+  <span class="kw">fn</span> <span class="ident">set_hash_mask</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_params_hash_len</span>: <span class="ident">i32</span>) {}
   <span class="kw">fn</span> <span class="ident">HashTypeLength</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="number">4</span>
   }
@@ -3463,7 +3464,7 @@
     <span class="kw">return</span> (<span class="ident">BROTLI_UNALIGNED_LOAD32</span>(<span class="ident">data</span>) <span class="kw">as</span> <span class="ident">u64</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">get_k_hash_mul</span>()) <span class="op">&amp;</span> <span class="self">self</span>.<span class="ident">get_hash_mask</span>();
   }
   <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">set_hash_mask</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_params_hash_len</span>: <span class="ident">i32</span>) {}
+  <span class="kw">fn</span> <span class="ident">set_hash_mask</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_params_hash_len</span>: <span class="ident">i32</span>) {}
   <span class="kw">fn</span> <span class="ident">HashTypeLength</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="number">4</span>
   }
@@ -3510,7 +3511,7 @@
     <span class="kw">return</span> (<span class="ident">BROTLI_UNALIGNED_LOAD32</span>(<span class="ident">data</span>) <span class="kw">as</span> <span class="ident">u64</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">get_k_hash_mul</span>()) <span class="op">&amp;</span> <span class="self">self</span>.<span class="ident">get_hash_mask</span>();
   }
   <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">set_hash_mask</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">params_hash_len</span>: <span class="ident">i32</span>) {}
+  <span class="kw">fn</span> <span class="ident">set_hash_mask</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">params_hash_len</span>: <span class="ident">i32</span>) {}
   <span class="kw">fn</span> <span class="ident">HashTypeLength</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="number">4</span>
   }
@@ -3552,7 +3553,7 @@
     <span class="self">self</span>.<span class="ident">hash_mask</span>
   }
   <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">set_hash_mask</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">params_hash_len</span>: <span class="ident">i32</span>) {
+  <span class="kw">fn</span> <span class="ident">set_hash_mask</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">params_hash_len</span>: <span class="ident">i32</span>) {
     <span class="self">self</span>.<span class="ident">hash_mask</span> <span class="op">=</span> <span class="op">!</span>(<span class="number">0u32</span> <span class="kw">as</span> (<span class="ident">u64</span>)) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">64i32</span> <span class="op">-</span> <span class="number">8i32</span> <span class="op">*</span> <span class="ident">params_hash_len</span>;
   }
   <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
@@ -3581,7 +3582,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Specialization</span>: <span class="ident">AdvHashSpecialization</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">AdvHasher</span><span class="op">&lt;</span><span class="ident">Specialization</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
   <span class="comment">// 7 opt</span>
   <span class="comment">// returns a new ix_start</span>
-  <span class="kw">fn</span> <span class="ident">StoreRangeOptBatch</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">StoreRangeOptBatch</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
     <span class="kw">let</span> <span class="ident">lookahead</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">specialization</span>.<span class="ident">StoreLookahead</span>();
     <span class="kw">if</span> <span class="ident">ix_end</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">ix_start</span> <span class="op">+</span> <span class="ident">lookahead</span> <span class="op">*</span> <span class="number">2</span> <span class="op">&amp;&amp;</span> <span class="ident">lookahead</span> <span class="op">==</span> <span class="number">4</span>{
       <span class="kw">let</span> <span class="ident">num</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">num</span>.<span class="ident">slice_mut</span>();
@@ -3630,7 +3631,7 @@
     <span class="ident">ix_start</span>
   }
 
-  <span class="kw">fn</span> <span class="ident">BulkStoreRangeOptMemFetch</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">BulkStoreRangeOptMemFetch</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
       <span class="kw">const</span> <span class="ident">REG_SIZE</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">32usize</span>;
     <span class="kw">let</span> <span class="ident">lookahead</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">specialization</span>.<span class="ident">StoreLookahead</span>();
       <span class="kw">if</span> <span class="ident">mask</span> <span class="op">==</span> <span class="op">!</span><span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">ix_end</span> <span class="op">&gt;</span> <span class="ident">ix_start</span> <span class="op">+</span> <span class="ident">REG_SIZE</span> <span class="op">&amp;&amp;</span> <span class="ident">lookahead</span> <span class="op">==</span> <span class="number">4</span>{
@@ -3686,7 +3687,7 @@
       }
     <span class="ident">ix_start</span>
   }
-  <span class="kw">fn</span> <span class="ident">BulkStoreRangeOptMemFetchLazyDupeUpdate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">BulkStoreRangeOptMemFetchLazyDupeUpdate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
     <span class="kw">const</span> <span class="ident">REG_SIZE</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">32usize</span>;
     <span class="kw">let</span> <span class="ident">lookahead</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">specialization</span>.<span class="ident">StoreLookahead</span>();
     <span class="kw">if</span> <span class="ident">mask</span> <span class="op">==</span> <span class="op">!</span><span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">ix_end</span> <span class="op">&gt;</span> <span class="ident">ix_start</span> <span class="op">+</span> <span class="ident">REG_SIZE</span> <span class="op">&amp;&amp;</span> <span class="ident">lookahead</span> <span class="op">==</span> <span class="number">4</span>{
@@ -3742,7 +3743,7 @@
     }
     <span class="ident">ix_start</span>
   }
-  <span class="kw">fn</span> <span class="ident">BulkStoreRangeOptRandomDupeUpdate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
+  <span class="kw">fn</span> <span class="ident">BulkStoreRangeOptRandomDupeUpdate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
     <span class="kw">const</span> <span class="ident">REG_SIZE</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">32usize</span>;
     <span class="kw">let</span> <span class="ident">lookahead</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">specialization</span>.<span class="ident">StoreLookahead</span>();
     <span class="kw">if</span> <span class="ident">mask</span> <span class="op">==</span> <span class="op">!</span><span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">ix_end</span> <span class="op">&gt;</span> <span class="ident">ix_start</span> <span class="op">+</span> <span class="ident">REG_SIZE</span> <span class="op">&amp;&amp;</span> <span class="ident">lookahead</span> <span class="op">==</span> <span class="number">4</span>{
@@ -3793,11 +3794,11 @@
   <span class="kw">fn</span> <span class="ident">Opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">H9Opts</span> {
      <span class="self">self</span>.<span class="ident">h9_opts</span>
   }
-  <span class="kw">fn</span> <span class="ident">PrepareDistanceCache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">distance_cache</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">i32</span>]){
+  <span class="kw">fn</span> <span class="ident">PrepareDistanceCache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">distance_cache</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">i32</span>]){
     <span class="kw">let</span> <span class="ident">num_distances</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">GetHasherCommon</span>.<span class="ident">params</span>.<span class="ident">num_last_distances_to_check</span>;
     <span class="ident">adv_prepare_distance_cache</span>(<span class="ident">distance_cache</span>, <span class="ident">num_distances</span>);
   }
-  <span class="kw">fn</span> <span class="ident">StitchToPreviousBlock</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+  <span class="kw">fn</span> <span class="ident">StitchToPreviousBlock</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
                            <span class="ident">num_bytes</span>: <span class="ident">usize</span>,
                            <span class="ident">position</span>: <span class="ident">usize</span>,
                            <span class="ident">ringbuffer</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
@@ -3808,7 +3809,7 @@
                                     <span class="ident">ringbuffer</span>,
                                     <span class="ident">ringbuffer_mask</span>);
   }
-  <span class="kw">fn</span> <span class="ident">Prepare</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">one_shot</span>: <span class="ident">bool</span>, <span class="ident">input_size</span>:<span class="ident">usize</span>, <span class="ident">data</span>:<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt;<span class="ident">HowPrepared</span> {
+  <span class="kw">fn</span> <span class="ident">Prepare</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">one_shot</span>: <span class="ident">bool</span>, <span class="ident">input_size</span>:<span class="ident">usize</span>, <span class="ident">data</span>:<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt;<span class="ident">HowPrepared</span> {
       <span class="kw">if</span> <span class="self">self</span>.<span class="ident">GetHasherCommon</span>.<span class="ident">is_prepared_</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
           <span class="kw">return</span> <span class="ident">HowPrepared::ALREADY_PREPARED</span>;
       }
@@ -3827,8 +3828,8 @@
       <span class="ident">HowPrepared::NEWLY_PREPARED</span>
   }
 
-  <span class="kw">fn</span> <span class="ident">GetHasherCommon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Struct1</span> {
-    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">GetHasherCommon</span>
+  <span class="kw">fn</span> <span class="ident">GetHasherCommon</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Struct1</span> {
+    <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">GetHasherCommon</span>
   }
   <span class="kw">fn</span> <span class="ident">HashTypeLength</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
      <span class="self">self</span>.<span class="ident">specialization</span>.<span class="ident">HashTypeLength</span>()
@@ -3841,7 +3842,7 @@
     <span class="kw">let</span> <span class="ident">h</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">specialization</span>.<span class="ident">load_and_mix_word</span>(<span class="ident">data</span>);
     (<span class="ident">h</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">shift</span>) <span class="kw">as</span> (<span class="ident">u32</span>) <span class="kw">as</span> <span class="ident">usize</span>
   }
-  <span class="kw">fn</span> <span class="ident">StoreEvenVec4</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
+  <span class="kw">fn</span> <span class="ident">StoreEvenVec4</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">specialization</span>.<span class="ident">StoreLookahead</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
       <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4</span> {
         <span class="self">self</span>.<span class="ident">Store</span>(<span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">ix</span> <span class="op">+</span> <span class="ident">i</span> <span class="op">*</span> <span class="number">2</span>);
@@ -3888,7 +3889,7 @@
     <span class="ident">buckets</span>[<span class="ident">offset2</span>] <span class="op">=</span> (<span class="ident">ix</span> <span class="op">+</span> <span class="number">4</span>) <span class="kw">as</span> <span class="ident">u32</span>;
     <span class="ident">buckets</span>[<span class="ident">offset3</span>] <span class="op">=</span> (<span class="ident">ix</span> <span class="op">+</span> <span class="number">6</span>) <span class="kw">as</span> <span class="ident">u32</span>;
   }
-  <span class="kw">fn</span> <span class="ident">Store4Vec4</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
+  <span class="kw">fn</span> <span class="ident">Store4Vec4</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">specialization</span>.<span class="ident">StoreLookahead</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
       <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4</span> {
         <span class="self">self</span>.<span class="ident">Store</span>(<span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">ix</span> <span class="op">+</span> <span class="ident">i</span> <span class="op">*</span> <span class="number">4</span>);
@@ -3943,7 +3944,7 @@
     <span class="ident">buckets</span>[<span class="ident">offset2</span>] <span class="op">=</span> (<span class="ident">ix</span> <span class="op">+</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">u32</span>;
     <span class="ident">buckets</span>[<span class="ident">offset3</span>] <span class="op">=</span> (<span class="ident">ix</span> <span class="op">+</span> <span class="number">12</span>) <span class="kw">as</span> <span class="ident">u32</span>;
   }
-  <span class="kw">fn</span> <span class="ident">Store</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
+  <span class="kw">fn</span> <span class="ident">Store</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
     <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">data_window</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">split_at</span>((<span class="ident">ix</span> <span class="op">&amp;</span> <span class="ident">mask</span>) <span class="kw">as</span> (<span class="ident">usize</span>));
     <span class="kw">let</span> <span class="ident">key</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">HashBytes</span>(<span class="ident">data_window</span>) <span class="kw">as</span> <span class="ident">u32</span>;
     <span class="kw">let</span> <span class="ident">minor_ix</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">num</span>.<span class="ident">slice</span>()[(<span class="ident">key</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">&amp;</span> (<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">specialization</span>.<span class="ident">block_mask</span>() <span class="kw">as</span> <span class="ident">u32</span>) <span class="kw">as</span> (<span class="ident">usize</span>);
@@ -3951,16 +3952,16 @@
                                               (<span class="ident">usize</span>));
     <span class="self">self</span>.<span class="ident">buckets</span>.<span class="ident">slice_mut</span>()[<span class="ident">offset</span>] <span class="op">=</span> <span class="ident">ix</span> <span class="kw">as</span> (<span class="ident">u32</span>);
     {
-      <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">num</span>.<span class="ident">slice_mut</span>()[(<span class="ident">key</span> <span class="kw">as</span> (<span class="ident">usize</span>))];
+      <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">num</span>.<span class="ident">slice_mut</span>()[(<span class="ident">key</span> <span class="kw">as</span> (<span class="ident">usize</span>))];
       <span class="kw-2">*</span><span class="ident">_lhs</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">_lhs</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">+</span> <span class="number">1</span>) <span class="kw">as</span> (<span class="ident">u16</span>);
     }
   }
-    <span class="kw">fn</span> <span class="ident">StoreRange</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">StoreRange</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
       <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">StoreRangeOptBatch</span>(<span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">ix_start</span>, <span class="ident">ix_end</span>)..<span class="ident">ix_end</span> {
         <span class="self">self</span>.<span class="ident">Store</span>(<span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">i</span>);
       }
     }
-    <span class="kw">fn</span> <span class="ident">BulkStoreRange</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="kw-2">mut</span> <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">BulkStoreRange</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="kw-2">mut</span> <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
       <span class="comment">/*
       if ix_start + 4096 &lt; ix_end {
         for vec_offset in 0..(ix_end - ix_start - 4096) / 16 {
@@ -3982,7 +3983,7 @@
       }
     }
 
-  <span class="kw">fn</span> <span class="ident">FindLongestMatch</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+  <span class="kw">fn</span> <span class="ident">FindLongestMatch</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
                       <span class="ident">dictionary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">BrotliDictionary</span><span class="op">&gt;</span>,
                       <span class="ident">dictionary_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
                       <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
@@ -3993,7 +3994,7 @@
                       <span class="ident">max_backward</span>: <span class="ident">usize</span>,
                       <span class="ident">gap</span>: <span class="ident">usize</span>,
                       <span class="ident">max_distance</span>: <span class="ident">usize</span>,
-                      <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HasherSearchResult</span>)
+                      <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HasherSearchResult</span>)
                       -&gt; <span class="ident">bool</span> {
     <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">Opts</span>();
     <span class="kw">let</span> <span class="ident">cur_ix_masked</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">cur_ix</span> <span class="op">&amp;</span> <span class="ident">ring_buffer_mask</span>;
@@ -4050,9 +4051,9 @@
     {
       <span class="kw">let</span> <span class="ident">key</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">HashBytes</span>(<span class="ident">cur_data</span>) <span class="kw">as</span> <span class="ident">u32</span>;
       <span class="kw">let</span> <span class="ident">common_block_bits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">specialization</span>.<span class="ident">block_bits</span>();
-      <span class="kw">let</span> <span class="ident">num_ref_mut</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">num</span>.<span class="ident">slice_mut</span>()[<span class="ident">key</span> <span class="kw">as</span> <span class="ident">usize</span>];
+      <span class="kw">let</span> <span class="ident">num_ref_mut</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">num</span>.<span class="ident">slice_mut</span>()[<span class="ident">key</span> <span class="kw">as</span> <span class="ident">usize</span>];
       <span class="kw">let</span> <span class="ident">num_copy</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">num_ref_mut</span>;
-      <span class="kw">let</span> <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">buckets</span>.<span class="ident">slice_mut</span>().<span class="ident">split_at_mut</span>((<span class="ident">key</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">common_block_bits</span>) <span class="kw">as</span> (<span class="ident">usize</span>)).<span class="number">1</span>.<span class="ident">split_at_mut</span>(
+      <span class="kw">let</span> <span class="ident">bucket</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">buckets</span>.<span class="ident">slice_mut</span>().<span class="ident">split_at_mut</span>((<span class="ident">key</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">common_block_bits</span>) <span class="kw">as</span> (<span class="ident">usize</span>)).<span class="number">1</span>.<span class="ident">split_at_mut</span>(
         (<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">specialization</span>.<span class="ident">block_size</span>() <span class="kw">as</span> <span class="ident">usize</span>).<span class="number">0</span>;
       <span class="macro">assert!</span>(<span class="ident">bucket</span>.<span class="ident">len</span>() <span class="op">&gt;</span> (<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">specialization</span>.<span class="ident">block_mask</span>() <span class="kw">as</span> <span class="ident">usize</span>);
       <span class="kw">if</span> <span class="ident">num_copy</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
@@ -4211,7 +4212,7 @@
                             <span class="ident">max_backward</span>: <span class="ident">usize</span>,
                             <span class="ident">max_distance</span>: <span class="ident">usize</span>,
                             <span class="ident">h9_opts</span>: <span class="ident">H9Opts</span>,
-                            <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HasherSearchResult</span>)
+                            <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HasherSearchResult</span>)
                             -&gt; <span class="ident">i32</span> {
   <span class="kw">let</span> <span class="ident">len</span>: <span class="ident">usize</span>;
   <span class="kw">let</span> <span class="ident">dist</span>: <span class="ident">usize</span>;
@@ -4253,19 +4254,19 @@
 
 <span class="kw">fn</span> <span class="ident">SearchInStaticDictionary</span><span class="op">&lt;</span><span class="ident">HasherType</span>: <span class="ident">AnyHasher</span><span class="op">&gt;</span>(<span class="ident">dictionary</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliDictionary</span>,
                                                    <span class="ident">dictionary_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
-                                                   <span class="ident">handle</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HasherType</span>,
+                                                   <span class="ident">handle</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HasherType</span>,
                                                    <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
                                                    <span class="ident">max_length</span>: <span class="ident">usize</span>,
                                                    <span class="ident">max_backward</span>: <span class="ident">usize</span>,
                                                    <span class="ident">max_distance</span>: <span class="ident">usize</span>,
-                                                   <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HasherSearchResult</span>,
+                                                   <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HasherSearchResult</span>,
                                                    <span class="ident">shallow</span>: <span class="ident">i32</span>)
                                                    -&gt; <span class="ident">i32</span> {
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span>: <span class="ident">usize</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">is_match_found</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0i32</span>;
   <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">handle</span>.<span class="ident">Opts</span>();
-  <span class="kw">let</span> <span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Struct1</span> <span class="op">=</span> <span class="ident">handle</span>.<span class="ident">GetHasherCommon</span>();
+  <span class="kw">let</span> <span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Struct1</span> <span class="op">=</span> <span class="ident">handle</span>.<span class="ident">GetHasherCommon</span>();
   <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">dict_num_matches</span> <span class="op">&lt;</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">dict_num_lookups</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">7i32</span> {
     <span class="kw">return</span> <span class="number">0i32</span>;
   }
@@ -4291,7 +4292,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">CloneWithAlloc</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BasicHasher</span><span class="op">&lt;</span><span class="ident">H2Sub</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
+  <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BasicHasher</span>::<span class="op">&lt;</span><span class="ident">H2Sub</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
           <span class="ident">GetHasherCommon</span>: <span class="self">self</span>.<span class="ident">GetHasherCommon</span>.<span class="ident">clone</span>(),
           <span class="ident">buckets_</span>: <span class="ident">H2Sub</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>{
@@ -4304,7 +4305,7 @@
   }    
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">CloneWithAlloc</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BasicHasher</span><span class="op">&lt;</span><span class="ident">H3Sub</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
+  <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BasicHasher</span>::<span class="op">&lt;</span><span class="ident">H3Sub</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
           <span class="ident">GetHasherCommon</span>: <span class="self">self</span>.<span class="ident">GetHasherCommon</span>.<span class="ident">clone</span>(),
           <span class="ident">buckets_</span>: <span class="ident">H3Sub</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>{
@@ -4317,7 +4318,7 @@
   }    
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">CloneWithAlloc</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BasicHasher</span><span class="op">&lt;</span><span class="ident">H4Sub</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
+  <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BasicHasher</span>::<span class="op">&lt;</span><span class="ident">H4Sub</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
           <span class="ident">GetHasherCommon</span>: <span class="self">self</span>.<span class="ident">GetHasherCommon</span>.<span class="ident">clone</span>(),
           <span class="ident">buckets_</span>: <span class="ident">H4Sub</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>{
@@ -4330,7 +4331,7 @@
   }        
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">CloneWithAlloc</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BasicHasher</span><span class="op">&lt;</span><span class="ident">H54Sub</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
+  <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BasicHasher</span>::<span class="op">&lt;</span><span class="ident">H54Sub</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
           <span class="ident">GetHasherCommon</span>: <span class="self">self</span>.<span class="ident">GetHasherCommon</span>.<span class="ident">clone</span>(),
           <span class="ident">buckets_</span>: <span class="ident">H54Sub</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>{
@@ -4343,7 +4344,7 @@
   }    
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">CloneWithAlloc</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">H9</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
+  <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">m</span>, <span class="self">self</span>.<span class="ident">num_</span>.<span class="ident">len</span>());
       <span class="ident">num</span>.<span class="ident">slice_mut</span>().<span class="ident">clone_from_slice</span>(<span class="self">self</span>.<span class="ident">num_</span>.<span class="ident">slice</span>());
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">m</span>, <span class="self">self</span>.<span class="ident">buckets_</span>.<span class="ident">len</span>());
@@ -4358,7 +4359,7 @@
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
      <span class="ident">Special</span>: <span class="ident">AdvHashSpecialization</span><span class="op">+</span><span class="ident">Sized</span><span class="op">+</span><span class="ident">Clone</span>,<span class="op">&gt;</span> <span class="ident">CloneWithAlloc</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AdvHasher</span><span class="op">&lt;</span><span class="ident">Special</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
+  <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">m</span>, <span class="self">self</span>.<span class="ident">num</span>.<span class="ident">len</span>());
     <span class="ident">num</span>.<span class="ident">slice_mut</span>().<span class="ident">clone_from_slice</span>(<span class="self">self</span>.<span class="ident">num</span>.<span class="ident">slice</span>());
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">m</span>, <span class="self">self</span>.<span class="ident">buckets</span>.<span class="ident">len</span>());
@@ -4437,7 +4438,7 @@
     }
 }
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">CloneWithAlloc</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">clone_with_alloc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
             <span class="ident">UnionHasher::H2</span>(<span class="kw-2">ref</span> <span class="ident">hasher</span>) =&gt; <span class="ident">UnionHasher::H2</span>(<span class="ident">hasher</span>.<span class="ident">clone_with_alloc</span>(<span class="ident">m</span>)),
             <span class="ident">UnionHasher::H3</span>(<span class="kw-2">ref</span> <span class="ident">hasher</span>) =&gt; <span class="ident">UnionHasher::H3</span>(<span class="ident">hasher</span>.<span class="ident">clone_with_alloc</span>(<span class="ident">m</span>)),
@@ -4456,17 +4457,17 @@
 <span class="macro">macro_rules!</span> <span class="ident">match_all_hashers_mut</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">xself</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span> : <span class="ident">ident</span>, $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>) =&gt; {
         <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">xself</span> {
-     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H2</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
-     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H3</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
-     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
-     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H5</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
-     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H5q7</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
-     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H5q5</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
-     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
-     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H54</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
-     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H9</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
-     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H10</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
-     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::Uninit</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;UNINTIALIZED&quot;</span>),
+     <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H2</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
+     <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H3</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
+     <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
+     <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H5</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
+     <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H5q7</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
+     <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H5q5</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
+     <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
+     <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H54</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
+     <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H9</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
+     <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H10</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; <span class="ident">hasher</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func_call</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>),<span class="kw-2">*</span>),
+     <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::Uninit</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;UNINTIALIZED&quot;</span>),
         }
     };
 }
@@ -4492,13 +4493,13 @@
   <span class="kw">fn</span> <span class="ident">Opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">H9Opts</span> {
     <span class="kw">return</span> <span class="macro">match_all_hashers!</span>(<span class="self">self</span>, <span class="ident">Opts</span>,);
   }
-  <span class="kw">fn</span> <span class="ident">GetHasherCommon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Struct1</span> {
+  <span class="kw">fn</span> <span class="ident">GetHasherCommon</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Struct1</span> {
     <span class="kw">return</span> <span class="macro">match_all_hashers_mut!</span>(<span class="self">self</span>, <span class="ident">GetHasherCommon</span>,);
   }<span class="comment">/*
   fn GetH10Tree(&amp;mut self) -&gt; Option&lt;&amp;mut H10&lt;AllocU32, H10Buckets, H10DefaultParams&gt;&gt; {
     return match_all_hashers_mut!(self, GetH10Tree,);
   }*/</span>
-  <span class="kw">fn</span> <span class="ident">Prepare</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">one_shot</span>: <span class="ident">bool</span>, <span class="ident">input_size</span>: <span class="ident">usize</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">HowPrepared</span> {
+  <span class="kw">fn</span> <span class="ident">Prepare</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">one_shot</span>: <span class="ident">bool</span>, <span class="ident">input_size</span>: <span class="ident">usize</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">HowPrepared</span> {
     <span class="kw">return</span> <span class="macro">match_all_hashers_mut!</span>(<span class="self">self</span>, <span class="ident">Prepare</span>, <span class="ident">one_shot</span>, <span class="ident">input_size</span>, <span class="ident">data</span>);
   }
   <span class="kw">fn</span> <span class="ident">HashBytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">usize</span> {
@@ -4510,10 +4511,10 @@
   <span class="kw">fn</span> <span class="ident">StoreLookahead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
     <span class="kw">return</span> <span class="macro">match_all_hashers!</span>(<span class="self">self</span>, <span class="ident">StoreLookahead</span>,);
   }
-  <span class="kw">fn</span> <span class="ident">PrepareDistanceCache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">distance_cache</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">i32</span>]) {
+  <span class="kw">fn</span> <span class="ident">PrepareDistanceCache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">distance_cache</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">i32</span>]) {
     <span class="kw">return</span> <span class="macro">match_all_hashers!</span>(<span class="self">self</span>, <span class="ident">PrepareDistanceCache</span>, <span class="ident">distance_cache</span>);
   }
-  <span class="kw">fn</span> <span class="ident">StitchToPreviousBlock</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+  <span class="kw">fn</span> <span class="ident">StitchToPreviousBlock</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
                            <span class="ident">num_bytes</span>: <span class="ident">usize</span>,
                            <span class="ident">position</span>: <span class="ident">usize</span>,
                            <span class="ident">ringbuffer</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
@@ -4525,7 +4526,7 @@
                                   <span class="ident">ringbuffer</span>,
                                   <span class="ident">ringbuffer_mask</span>);
   }
-  <span class="kw">fn</span> <span class="ident">FindLongestMatch</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+  <span class="kw">fn</span> <span class="ident">FindLongestMatch</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
                       <span class="ident">dictionary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">BrotliDictionary</span><span class="op">&gt;</span>,
                       <span class="ident">dictionary_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
                       <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
@@ -4536,7 +4537,7 @@
                       <span class="ident">max_backward</span>: <span class="ident">usize</span>,
                       <span class="ident">gap</span>: <span class="ident">usize</span>,
                       <span class="ident">max_distance</span>: <span class="ident">usize</span>,
-                      <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HasherSearchResult</span>)
+                      <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HasherSearchResult</span>)
                       -&gt; <span class="ident">bool</span> {
     <span class="kw">return</span> <span class="macro">match_all_hashers_mut!</span>(<span class="self">self</span>,
                                   <span class="ident">FindLongestMatch</span>,
@@ -4552,56 +4553,56 @@
                                   <span class="ident">max_distance</span>,
                                   <span class="ident">out</span>);
   }
-  <span class="kw">fn</span> <span class="ident">Store</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
+  <span class="kw">fn</span> <span class="ident">Store</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix</span>: <span class="ident">usize</span>) {
     <span class="kw">return</span> <span class="macro">match_all_hashers_mut!</span>(<span class="self">self</span>, <span class="ident">Store</span>, <span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">ix</span>);
   }
-  <span class="kw">fn</span> <span class="ident">StoreRange</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
+  <span class="kw">fn</span> <span class="ident">StoreRange</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
     <span class="kw">return</span> <span class="macro">match_all_hashers_mut!</span>(<span class="self">self</span>, <span class="ident">StoreRange</span>, <span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">ix_start</span>, <span class="ident">ix_end</span>);
   }
-  <span class="kw">fn</span> <span class="ident">BulkStoreRange</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
+  <span class="kw">fn</span> <span class="ident">BulkStoreRange</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">mask</span>: <span class="ident">usize</span>, <span class="ident">ix_start</span>: <span class="ident">usize</span>, <span class="ident">ix_end</span>: <span class="ident">usize</span>) {
     <span class="kw">return</span> <span class="macro">match_all_hashers_mut!</span>(<span class="self">self</span>, <span class="ident">BulkStoreRange</span>, <span class="ident">data</span>, <span class="ident">mask</span>, <span class="ident">ix_start</span>, <span class="ident">ix_end</span>);
   }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">free</span> (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>) {
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">free</span> (<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">alloc</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) {
     <span class="kw">match</span> <span class="self">self</span> {
-      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H2</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">buckets_</span>.<span class="ident">buckets_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+      <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H2</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">buckets_</span>.<span class="ident">buckets_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
       }
-      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H3</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">buckets_</span>.<span class="ident">buckets_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+      <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H3</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">buckets_</span>.<span class="ident">buckets_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
       }
-      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">buckets_</span>.<span class="ident">buckets_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+      <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">buckets_</span>.<span class="ident">buckets_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
       }
-      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H54</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">buckets_</span>.<span class="ident">buckets_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+      <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H54</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">buckets_</span>.<span class="ident">buckets_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
       }
-      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H5q7</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">num</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">buckets</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+      <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H5q7</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">num</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">buckets</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
       }
-      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H5q5</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">num</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">buckets</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+      <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H5q5</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">num</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">buckets</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
       }
-      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H5</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">num</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">buckets</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+      <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H5</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">num</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">buckets</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
       }
-      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">num</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">buckets</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+      <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">num</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">buckets</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
       }
-      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H9</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>,<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">num_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>.<span class="ident">buckets_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+      <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H9</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>,<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">num_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>.<span class="ident">buckets_</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
       }
-      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H10</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+      <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H10</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
         <span class="ident">hasher</span>.<span class="ident">free</span>(<span class="ident">alloc</span>);
       }
-      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::Uninit</span> =&gt; {}
+      <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::Uninit</span> =&gt; {}
     }
     <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">UnionHasher</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span><span class="ident">::default</span>();
   }
@@ -4638,12 +4639,12 @@
                                            <span class="ident">ringbuffer</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
                                            <span class="ident">ringbuffer_mask</span>: <span class="ident">usize</span>,
                                            <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>,
-                                           <span class="ident">hasher</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AH</span>,
-                                           <span class="ident">dist_cache</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">i32</span>],
-                                           <span class="ident">last_insert_len</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                                           <span class="kw-2">mut</span> <span class="ident">commands</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">Command</span>],
-                                           <span class="ident">num_commands</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                                           <span class="ident">num_literals</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) {
+                                           <span class="ident">hasher</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AH</span>,
+                                           <span class="ident">dist_cache</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">i32</span>],
+                                           <span class="ident">last_insert_len</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                                           <span class="kw-2">mut</span> <span class="ident">commands</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Command</span>],
+                                           <span class="ident">num_commands</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                                           <span class="ident">num_literals</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>) {
   <span class="kw">let</span> <span class="ident">gap</span> <span class="op">=</span> <span class="number">0usize</span>;
   <span class="kw">let</span> <span class="ident">max_backward_limit</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="number">1usize</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="kw-2">*</span><span class="ident">params</span>).<span class="ident">lgwin</span>).<span class="ident">wrapping_sub</span>(<span class="number">16usize</span>);
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_commands_count</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
@@ -4683,7 +4684,7 @@
                                <span class="ident">max_distance</span>,
                                <span class="ident">gap</span>,
                                <span class="ident">params</span>.<span class="ident">dist</span>.<span class="ident">max_distance</span>,
-                               <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sr</span>) {
+                               <span class="kw-2">&amp;mut</span> <span class="ident">sr</span>) {
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">delayed_backward_references_in_row</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0i32</span>;
       <span class="ident">max_length</span> <span class="op">=</span> <span class="ident">max_length</span>.<span class="ident">wrapping_sub</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
       <span class="lifetime">&#39;break6</span>: <span class="kw">loop</span> {
@@ -4715,7 +4716,7 @@
                                                    <span class="ident">max_distance</span>,
                                                    <span class="ident">gap</span>,
                                                    <span class="ident">params</span>.<span class="ident">dist</span>.<span class="ident">max_distance</span>,
-                                                   <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sr2</span>);
+                                                   <span class="kw-2">&amp;mut</span> <span class="ident">sr2</span>);
           <span class="kw">if</span> <span class="ident">is_match_found</span> <span class="op">&amp;&amp;</span> (<span class="ident">sr2</span>.<span class="ident">score</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">sr</span>.<span class="ident">score</span>.<span class="ident">wrapping_add</span>(<span class="ident">cost_diff_lazy</span>)) {
             <span class="ident">position</span> <span class="op">=</span> <span class="ident">position</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
             <span class="ident">insert_length</span> <span class="op">=</span> <span class="ident">insert_length</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
@@ -4748,9 +4749,9 @@
         }
         <span class="ident">new_commands_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         <span class="ident">InitCommand</span>({
-                      <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">_old</span>, <span class="ident">new_commands</span>) <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">commands</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> []).<span class="ident">split_at_mut</span>(<span class="number">1</span>);
+                      <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">_old</span>, <span class="ident">new_commands</span>) <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">commands</span>, <span class="kw-2">&amp;mut</span> []).<span class="ident">split_at_mut</span>(<span class="number">1</span>);
                       <span class="ident">commands</span> <span class="op">=</span> <span class="ident">new_commands</span>;
-                      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">_old</span>[<span class="number">0</span>]
+                      <span class="kw-2">&amp;mut</span> <span class="ident">_old</span>[<span class="number">0</span>]
                     },
                     <span class="kw-2">&amp;</span><span class="ident">params</span>.<span class="ident">dist</span>,
                     <span class="ident">insert_length</span>,
@@ -4794,22 +4795,22 @@
   <span class="kw-2">*</span><span class="ident">num_commands</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">num_commands</span>).<span class="ident">wrapping_add</span>(<span class="ident">new_commands_count</span>);
 }
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliCreateBackwardReferences</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">floatX</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">ZopfliNode</span><span class="op">&gt;</span><span class="op">&gt;</span>
-  (<span class="ident">alloc</span> : <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>,
+  (<span class="ident">alloc</span> : <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>,
    <span class="ident">dictionary</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliDictionary</span>,
    <span class="ident">num_bytes</span>: <span class="ident">usize</span>,
    <span class="ident">position</span>: <span class="ident">usize</span>,
    <span class="ident">ringbuffer</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
    <span class="ident">ringbuffer_mask</span>: <span class="ident">usize</span>,
    <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>,
-   <span class="ident">hasher_union</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-   <span class="ident">dist_cache</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">i32</span>],
-   <span class="ident">last_insert_len</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-   <span class="ident">commands</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">Command</span>],
-   <span class="ident">num_commands</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-   <span class="ident">num_literals</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) {
+   <span class="ident">hasher_union</span>: <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
+   <span class="ident">dist_cache</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">i32</span>],
+   <span class="ident">last_insert_len</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+   <span class="ident">commands</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Command</span>],
+   <span class="ident">num_commands</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+   <span class="ident">num_literals</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>) {
   <span class="kw">match</span> (<span class="ident">hasher_union</span>) {
-    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::Uninit</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;working with uninitialized hash map&quot;</span>),
-      <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H10</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+    <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::Uninit</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;working with uninitialized hash map&quot;</span>),
+      <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H10</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
           <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">quality</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">11</span> {
               <span class="ident"><span class="kw">super</span>::backward_references_hq::BrotliCreateHqZopfliBackwardReferences</span>(
                   <span class="ident">alloc</span>, <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">use_dictionary</span> {<span class="prelude-val">Some</span>(<span class="ident">dictionary</span>)} <span class="kw">else</span> {<span class="prelude-val">None</span>},
@@ -4841,7 +4842,7 @@
                   <span class="ident">num_literals</span>)
           }
     }
-    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H2</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+    <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H2</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
       <span class="ident">CreateBackwardReferences</span>(<span class="kw">if</span> <span class="ident">params</span>.<span class="ident">use_dictionary</span> {<span class="prelude-val">Some</span>(<span class="ident">dictionary</span>)} <span class="kw">else</span> {<span class="prelude-val">None</span>},
                                <span class="kw-2">&amp;</span><span class="ident">kStaticDictionaryHash</span>[..],
                                <span class="ident">num_bytes</span>,
@@ -4856,7 +4857,7 @@
                                <span class="ident">num_commands</span>,
                                <span class="ident">num_literals</span>)
     }
-    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H3</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+    <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H3</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
       <span class="ident">CreateBackwardReferences</span>(<span class="kw">if</span> <span class="ident">params</span>.<span class="ident">use_dictionary</span> {<span class="prelude-val">Some</span>(<span class="ident">dictionary</span>)} <span class="kw">else</span> {<span class="prelude-val">None</span>},
                                <span class="kw-2">&amp;</span><span class="ident">kStaticDictionaryHash</span>[..],
                                <span class="ident">num_bytes</span>,
@@ -4871,7 +4872,7 @@
                                <span class="ident">num_commands</span>,
                                <span class="ident">num_literals</span>)
     }
-    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+    <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H4</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
       <span class="ident">CreateBackwardReferences</span>(<span class="kw">if</span> <span class="ident">params</span>.<span class="ident">use_dictionary</span> {<span class="prelude-val">Some</span>(<span class="ident">dictionary</span>)} <span class="kw">else</span> {<span class="prelude-val">None</span>},
                                <span class="kw-2">&amp;</span><span class="ident">kStaticDictionaryHash</span>[..],
                                <span class="ident">num_bytes</span>,
@@ -4886,7 +4887,7 @@
                                <span class="ident">num_commands</span>,
                                <span class="ident">num_literals</span>)
     }
-    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H5</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+    <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H5</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
       <span class="ident">CreateBackwardReferences</span>(<span class="kw">if</span> <span class="ident">params</span>.<span class="ident">use_dictionary</span> {<span class="prelude-val">Some</span>(<span class="ident">dictionary</span>)} <span class="kw">else</span> {<span class="prelude-val">None</span>},
                                <span class="kw-2">&amp;</span><span class="ident">kStaticDictionaryHash</span>[..],
                                <span class="ident">num_bytes</span>,
@@ -4901,7 +4902,7 @@
                                <span class="ident">num_commands</span>,
                                <span class="ident">num_literals</span>)
     }
-    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H5q7</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+    <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H5q7</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
       <span class="ident">CreateBackwardReferences</span>(<span class="kw">if</span> <span class="ident">params</span>.<span class="ident">use_dictionary</span> {<span class="prelude-val">Some</span>(<span class="ident">dictionary</span>)} <span class="kw">else</span> {<span class="prelude-val">None</span>},
                                <span class="kw-2">&amp;</span><span class="ident">kStaticDictionaryHash</span>[..],
                                <span class="ident">num_bytes</span>,
@@ -4916,7 +4917,7 @@
                                <span class="ident">num_commands</span>,
                                <span class="ident">num_literals</span>)
     }
-    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H5q5</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+    <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H5q5</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
       <span class="ident">CreateBackwardReferences</span>(<span class="kw">if</span> <span class="ident">params</span>.<span class="ident">use_dictionary</span> {<span class="prelude-val">Some</span>(<span class="ident">dictionary</span>)} <span class="kw">else</span> {<span class="prelude-val">None</span>},
                                <span class="kw-2">&amp;</span><span class="ident">kStaticDictionaryHash</span>[..],
                                <span class="ident">num_bytes</span>,
@@ -4931,7 +4932,7 @@
                                <span class="ident">num_commands</span>,
                                <span class="ident">num_literals</span>)
     }
-    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+    <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H6</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
       <span class="ident">CreateBackwardReferences</span>(<span class="kw">if</span> <span class="ident">params</span>.<span class="ident">use_dictionary</span> {<span class="prelude-val">Some</span>(<span class="ident">dictionary</span>)} <span class="kw">else</span> {<span class="prelude-val">None</span>},
                                <span class="kw-2">&amp;</span><span class="ident">kStaticDictionaryHash</span>[..],
                                <span class="ident">num_bytes</span>,
@@ -4946,7 +4947,7 @@
                                <span class="ident">num_commands</span>,
                                <span class="ident">num_literals</span>)
     }
-    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H9</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+    <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H9</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
       <span class="ident">CreateBackwardReferences</span>(<span class="kw">if</span> <span class="ident">params</span>.<span class="ident">use_dictionary</span> {<span class="prelude-val">Some</span>(<span class="ident">dictionary</span>)} <span class="kw">else</span> {<span class="prelude-val">None</span>},
                                <span class="kw-2">&amp;</span><span class="ident">kStaticDictionaryHash</span>[..],
                                <span class="ident">num_bytes</span>,
@@ -4961,7 +4962,7 @@
                                <span class="ident">num_commands</span>,
                                <span class="ident">num_literals</span>)
     }
-    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UnionHasher::H54</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
+    <span class="kw-2">&amp;mut</span> <span class="ident">UnionHasher::H54</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">hasher</span>) =&gt; {
       <span class="ident">CreateBackwardReferences</span>(<span class="kw">if</span> <span class="ident">params</span>.<span class="ident">use_dictionary</span> {<span class="prelude-val">Some</span>(<span class="ident">dictionary</span>)} <span class="kw">else</span> {<span class="prelude-val">None</span>},
                                <span class="kw-2">&amp;</span><span class="ident">kStaticDictionaryHash</span>[..],
                                <span class="ident">num_bytes</span>,
@@ -4980,5 +4981,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="brotli" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
-    <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script>
 </body></html>

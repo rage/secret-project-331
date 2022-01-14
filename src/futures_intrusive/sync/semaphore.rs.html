@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;futures-intrusive-0.4.0&#x2F;src&#x2F;sync&#x2F;semaphore.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>semaphore.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../futures_intrusive/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;futures-intrusive-0.4.0&#x2F;src&#x2F;sync&#x2F;semaphore.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>semaphore.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../futures_intrusive/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -912,7 +913,7 @@
     }
 
     <span class="doccomment">/// Wakes up the last waiter and removes it from the wait queue</span>
-    <span class="kw">fn</span> <span class="ident">wakeup_waiters</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">wakeup_waiters</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="comment">// Wake as many tasks as the permits allow</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">permits</span>;
 
@@ -963,7 +964,7 @@
     }
 
     <span class="doccomment">/// Releases a certain amount of permits back to the semaphore</span>
-    <span class="kw">fn</span> <span class="ident">release</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">permits</span>: <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">release</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">permits</span>: <span class="ident">usize</span>) {
         <span class="kw">if</span> <span class="ident">permits</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">return</span>;
         }
@@ -977,7 +978,7 @@
     <span class="doccomment">/// Tries to acquire the given amount of permits synchronously.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns true if the permits were obtained and false otherwise.</span>
-    <span class="kw">fn</span> <span class="ident">try_acquire_sync</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">required_permits</span>: <span class="ident">usize</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">try_acquire_sync</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">required_permits</span>: <span class="ident">usize</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// Permits can only be obtained synchronously if there are</span>
         <span class="comment">// - enough permits available</span>
         <span class="comment">// - the Semaphore is either not fair, or there are no waiters</span>
@@ -1000,9 +1001,9 @@
     <span class="doccomment">/// This function is only safe as long as the `wait_node`s address is guaranteed</span>
     <span class="doccomment">/// to be stable until it gets removed from the queue.</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">try_acquire</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
+        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">wait_node</span>.<span class="ident">state</span> {
             <span class="ident">PollState::New</span> =&gt; {
@@ -1025,7 +1026,7 @@
                     <span class="comment">// maintain the ordering.</span>
                     <span class="comment">// However the caller might have passed a different `Waker`.</span>
                     <span class="comment">// In this case we need to update it.</span>
-                    <span class="ident">update_waker_ref</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">wait_node</span>.<span class="ident">task</span>, <span class="ident">cx</span>);
+                    <span class="ident">update_waker_ref</span>(<span class="kw-2">&amp;mut</span> <span class="ident">wait_node</span>.<span class="ident">task</span>, <span class="ident">cx</span>);
                     <span class="ident">Poll::Pending</span>
                 } <span class="kw">else</span> {
                     <span class="comment">// For throughput improvement purposes, check immediately</span>
@@ -1042,7 +1043,7 @@
                     } <span class="kw">else</span> {
                         <span class="comment">// The caller might have passed a different `Waker`.</span>
                         <span class="comment">// In this case we need to update it.</span>
-                        <span class="ident">update_waker_ref</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">wait_node</span>.<span class="ident">task</span>, <span class="ident">cx</span>);
+                        <span class="ident">update_waker_ref</span>(<span class="kw-2">&amp;mut</span> <span class="ident">wait_node</span>.<span class="ident">task</span>, <span class="ident">cx</span>);
                         <span class="ident">Poll::Pending</span>
                     }
                 }
@@ -1093,8 +1094,8 @@
     <span class="doccomment">/// Tries to remove a waiter from the wait queue, and panics if the</span>
     <span class="doccomment">/// waiter is no longer valid.</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">force_remove_waiter</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
     ) {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">remove</span>(<span class="ident">wait_node</span>) {
             <span class="comment">// Panic if the address isn&#39;t found. This can only happen if the contract was</span>
@@ -1107,7 +1108,7 @@
     <span class="doccomment">/// This function is only safe as long as the reference that is passed here</span>
     <span class="doccomment">/// equals the reference/address under which the waiter was added.</span>
     <span class="doccomment">/// The waiter must not have been moved in between.</span>
-    <span class="kw">fn</span> <span class="ident">remove_waiter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">wait_node</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">remove_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>) {
         <span class="comment">// SemaphoreAcquireFuture only needs to get removed if it had been added to</span>
         <span class="comment">// the wait queue of the Semaphore. This has happened in the PollState::Waiting case.</span>
         <span class="comment">// If the current waiter was notified, another waiter must get notified now.</span>
@@ -1151,7 +1152,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
     <span class="kw">for</span> <span class="ident">GenericSemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GenericSemaphoreReleaser&quot;</span>).<span class="ident">finish</span>()
     }
 }
@@ -1163,7 +1164,7 @@
     <span class="doccomment">/// than the one of the SemaphoreReleaser.</span>
     <span class="doccomment">/// If this method is used it is important to release the acquired permits</span>
     <span class="doccomment">/// manually back to the Semaphore.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disarm</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disarm</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="kw">let</span> <span class="ident">permits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">permits</span>;
         <span class="self">self</span>.<span class="ident">permits</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="ident">permits</span>
@@ -1171,7 +1172,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">GenericSemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="comment">// Release the requested amount of permits to the semaphore</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">permits</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
             <span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">state</span>.<span class="ident">lock</span>().<span class="ident">release</span>(<span class="self">self</span>.<span class="ident">permits</span>);
@@ -1202,7 +1203,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
     <span class="kw">for</span> <span class="ident">GenericSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GenericSemaphoreAcquireFuture&quot;</span>).<span class="ident">finish</span>()
     }
 }
@@ -1212,11 +1213,11 @@
 {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">GenericSemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="comment">// Safety: The next operations are safe, because Pin promises us that</span>
         <span class="comment">// the address of the wait queue entry inside GenericSemaphoreAcquireFuture is stable,</span>
         <span class="comment">// and we don&#39;t move any fields inside the future until it gets dropped.</span>
-        <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GenericSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> <span class="op">=</span>
+        <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GenericSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> <span class="op">=</span>
             <span class="kw">unsafe</span> { <span class="ident">Pin::get_unchecked_mut</span>(<span class="self">self</span>) };
 
         <span class="kw">let</span> <span class="ident">semaphore</span> <span class="op">=</span> <span class="ident">mut_self</span>
@@ -1225,7 +1226,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">semaphore_state</span> <span class="op">=</span> <span class="ident">semaphore</span>.<span class="ident">state</span>.<span class="ident">lock</span>();
 
         <span class="kw">let</span> <span class="ident">poll_res</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">semaphore_state</span>.<span class="ident">try_acquire</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>) };
+            <span class="kw">unsafe</span> { <span class="ident">semaphore_state</span>.<span class="ident">try_acquire</span>(<span class="kw-2">&amp;mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>) };
 
         <span class="kw">match</span> <span class="ident">poll_res</span> {
             <span class="ident">Poll::Pending</span> =&gt; <span class="ident">Poll::Pending</span>,
@@ -1256,7 +1257,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">Drop</span>
     <span class="kw">for</span> <span class="ident">GenericSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>
 {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="comment">// If this GenericSemaphoreAcquireFuture has been polled and it was added to the</span>
         <span class="comment">// wait queue at the semaphore, it must be removed before dropping.</span>
         <span class="comment">// Otherwise the semaphore would access invalid memory.</span>
@@ -1270,7 +1271,7 @@
             <span class="comment">// amount of permits required for this task, then additional new</span>
             <span class="comment">// tasks might get woken. However that isn&#39;t bad, since</span>
             <span class="comment">// those tasks should get into the wait state anyway.</span>
-            <span class="ident">semaphore_state</span>.<span class="ident">remove_waiter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>);
+            <span class="ident">semaphore_state</span>.<span class="ident">remove_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>);
         }
     }
 }
@@ -1287,7 +1288,7 @@
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">GenericSemaphore</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">GenericSemaphore</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Semaphore&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;permits&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">permits</span>())
             .<span class="ident">finish</span>()
@@ -1427,7 +1428,7 @@
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
         <span class="kw">for</span> <span class="ident">GenericSharedSemaphoreReleaser</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>
     {
-        <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
+        <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
             <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GenericSharedSemaphoreReleaser&quot;</span>).<span class="ident">finish</span>()
         }
     }
@@ -1441,7 +1442,7 @@
         <span class="doccomment">///</span>
         <span class="doccomment">/// If this method is used it is important to release the acquired permits</span>
         <span class="doccomment">/// manually back to the Semaphore.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disarm</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disarm</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">usize</span> {
             <span class="kw">let</span> <span class="ident">permits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">permits</span>;
             <span class="self">self</span>.<span class="ident">permits</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="ident">permits</span>
@@ -1449,7 +1450,7 @@
     }
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">GenericSharedSemaphoreReleaser</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
             <span class="comment">// Release the requested amount of permits to the semaphore</span>
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">permits</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                 <span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">state</span>.<span class="ident">lock</span>().<span class="ident">release</span>(<span class="self">self</span>.<span class="ident">permits</span>);
@@ -1480,7 +1481,7 @@
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
         <span class="kw">for</span> <span class="ident">GenericSharedSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>
     {
-        <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
+        <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
             <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GenericSharedSemaphoreAcquireFuture&quot;</span>)
                 .<span class="ident">finish</span>()
         }
@@ -1492,14 +1493,14 @@
         <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">GenericSharedSemaphoreReleaser</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>;
 
         <span class="kw">fn</span> <span class="ident">poll</span>(
-            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-            <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
+            <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
             <span class="comment">// Safety: The next operations are safe, because Pin promises us that</span>
             <span class="comment">// the address of the wait queue entry inside</span>
             <span class="comment">// GenericSharedSemaphoreAcquireFuture is stable,</span>
             <span class="comment">// and we don&#39;t move any fields inside the future until it gets dropped.</span>
-            <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GenericSharedSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> <span class="op">=</span>
+            <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GenericSharedSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> <span class="op">=</span>
                 <span class="kw">unsafe</span> { <span class="ident">Pin::get_unchecked_mut</span>(<span class="self">self</span>) };
 
             <span class="kw">let</span> <span class="ident">semaphore</span> <span class="op">=</span> <span class="ident">mut_self</span>.<span class="ident">semaphore</span>.<span class="ident">take</span>().<span class="ident">expect</span>(
@@ -1508,7 +1509,7 @@
 
             <span class="kw">let</span> <span class="ident">poll_res</span> <span class="op">=</span> <span class="kw">unsafe</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">semaphore_state</span> <span class="op">=</span> <span class="ident">semaphore</span>.<span class="ident">state</span>.<span class="ident">lock</span>();
-                <span class="ident">semaphore_state</span>.<span class="ident">try_acquire</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>)
+                <span class="ident">semaphore_state</span>.<span class="ident">try_acquire</span>(<span class="kw-2">&amp;mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>)
             };
 
             <span class="kw">match</span> <span class="ident">poll_res</span> {
@@ -1541,7 +1542,7 @@
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">Drop</span>
         <span class="kw">for</span> <span class="ident">GenericSharedSemaphoreAcquireFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>
     {
-        <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
             <span class="comment">// If this GenericSharedSemaphoreAcquireFuture has been polled and it was added to the</span>
             <span class="comment">// wait queue at the semaphore, it must be removed before dropping.</span>
             <span class="comment">// Otherwise the semaphore would access invalid memory.</span>
@@ -1555,7 +1556,7 @@
                 <span class="comment">// amount of permits required for this task, then additional new</span>
                 <span class="comment">// tasks might get woken. However that isn&#39;t bad, since</span>
                 <span class="comment">// those tasks should get into the wait state anyway.</span>
-                <span class="ident">semaphore_state</span>.<span class="ident">remove_waiter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>);
+                <span class="ident">semaphore_state</span>.<span class="ident">remove_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>);
             }
         }
     }
@@ -1588,7 +1589,7 @@
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
         <span class="kw">for</span> <span class="ident">GenericSharedSemaphore</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>
     {
-        <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
+        <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
             <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Semaphore&quot;</span>)
                 .<span class="ident">field</span>(<span class="string">&quot;permits&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">permits</span>())
                 .<span class="ident">finish</span>()
@@ -1692,5 +1693,4 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::if_alloc</span>::<span class="kw-2">*</span>;
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="futures_intrusive" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

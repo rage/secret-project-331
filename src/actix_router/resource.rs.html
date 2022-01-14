@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-router-0.5.0-beta.3&#x2F;src&#x2F;resource.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>resource.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_router/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-router-0.5.0-beta.3&#x2F;src&#x2F;resource.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>resource.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_router/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -2181,7 +2182,7 @@
     <span class="doccomment">/// resource.set_id(42);</span>
     <span class="doccomment">/// assert_eq!(resource.id(), 42);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">u16</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_id</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">u16</span>) {
         <span class="self">self</span>.<span class="ident">id</span> <span class="op">=</span> <span class="ident">id</span>;
     }
 
@@ -2211,7 +2212,7 @@
     <span class="doccomment">/// resource.set_name(&quot;root&quot;);</span>
     <span class="doccomment">/// assert_eq!(resource.name().unwrap(), &quot;root&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_name</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">into</span>();
 
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">name</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;resource name should not be empty&quot;</span>);
@@ -2277,7 +2278,7 @@
         <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">PatternIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
             <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>;
 
-            <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
                 <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">patterns</span> {
                     <span class="ident">Patterns::Single</span>(<span class="ident">pattern</span>) =&gt; {
                         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">done</span> {
@@ -2459,7 +2460,7 @@
     <span class="doccomment">/// assert_eq!(path.get(&quot;path&quot;).unwrap(), &quot;HEAD/Cargo.toml&quot;);</span>
     <span class="doccomment">/// assert_eq!(path.unprocessed(), &quot;&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capture_match_info</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ResourcePath</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capture_match_info</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ResourcePath</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">profile_method!</span>(<span class="ident">capture_match_info</span>);
         <span class="self">self</span>.<span class="ident">capture_match_info_fn</span>(<span class="ident">path</span>, <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>, ())
     }
@@ -2504,7 +2505,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capture_match_info_fn</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">U</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">resource</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>,
+        <span class="ident">resource</span>: <span class="kw-2">&amp;mut</span> <span class="ident">R</span>,
         <span class="ident">check_fn</span>: <span class="ident">F</span>,
         <span class="ident">user_data</span>: <span class="ident">U</span>,
     ) -&gt; <span class="ident">bool</span>
@@ -2596,7 +2597,7 @@
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">vars</span>) <span class="op">=</span> <span class="ident">matched_vars</span> {
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">vars</span>.<span class="ident">len</span>() {
-                <span class="ident">path</span>.<span class="ident">add</span>(<span class="ident">vars</span>[<span class="ident">i</span>], <span class="ident">mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">segments</span>[<span class="ident">i</span>]));
+                <span class="ident">path</span>.<span class="ident">add</span>(<span class="ident">vars</span>[<span class="ident">i</span>], <span class="ident">mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="ident">segments</span>[<span class="ident">i</span>]));
             }
         }
 
@@ -2606,7 +2607,7 @@
     }
 
     <span class="doccomment">/// Assembles resource path using a closure that maps variable segment names to values.</span>
-    <span class="kw">fn</span> <span class="ident">build_resource_path</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>, <span class="kw-2">mut</span> <span class="ident">vars</span>: <span class="ident">F</span>) -&gt; <span class="ident">bool</span>
+    <span class="kw">fn</span> <span class="ident">build_resource_path</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;mut</span> <span class="ident">String</span>, <span class="kw-2">mut</span> <span class="ident">vars</span>: <span class="ident">F</span>) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
         <span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
@@ -2640,7 +2641,7 @@
     <span class="doccomment">/// assert!(resource.resource_path_from_iter(&amp;mut s, &amp;[&quot;123&quot;, &quot;my-post&quot;]));</span>
     <span class="doccomment">/// assert_eq!(s, &quot;/user/123/post/my-post&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resource_path_from_iter</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>, <span class="ident">values</span>: <span class="ident">I</span>) -&gt; <span class="ident">bool</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resource_path_from_iter</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;mut</span> <span class="ident">String</span>, <span class="ident">values</span>: <span class="ident">I</span>) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">IntoIterator</span>,
         <span class="ident">I::Item</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
@@ -2673,7 +2674,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resource_path_from_map</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">String</span>,
+        <span class="ident">path</span>: <span class="kw-2">&amp;mut</span> <span class="ident">String</span>,
         <span class="ident">values</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
@@ -2949,7 +2950,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Hash</span> <span class="kw">for</span> <span class="ident">ResourceDef</span> {
-    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H</span>) {
+    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">H</span>) {
         <span class="self">self</span>.<span class="ident">patterns</span>.<span class="ident">hash</span>(<span class="ident">state</span>);
     }
 }
@@ -3033,7 +3034,7 @@
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">is_match</span>(<span class="string">&quot;/name~&quot;</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/name&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;&quot;</span>);
 
         <span class="macro">assert_eq!</span>(<span class="ident">re</span>.<span class="ident">find_match</span>(<span class="string">&quot;/name&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
@@ -3051,7 +3052,7 @@
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">is_match</span>(<span class="string">&quot;/user/profile/profile&quot;</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/profile&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;&quot;</span>);
     }
 
@@ -3064,12 +3065,12 @@
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">is_match</span>(<span class="string">&quot;/user/2345/sdg&quot;</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/profile&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;profile&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/1245125&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;1245125&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;&quot;</span>);
 
@@ -3079,7 +3080,7 @@
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">is_match</span>(<span class="string">&quot;/resource&quot;</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/v151/resource/adage32&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;version&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;151&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;adage32&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;&quot;</span>);
@@ -3091,7 +3092,7 @@
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">is_match</span>(<span class="string">&quot;/XXXXXX&quot;</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/012345&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;012345&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;&quot;</span>);
     }
@@ -3111,12 +3112,12 @@
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">is_match</span>(<span class="string">&quot;/user/2345/sdg&quot;</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/profile&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;profile&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/1245125&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;1245125&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;&quot;</span>);
 
@@ -3125,7 +3126,7 @@
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">is_match</span>(<span class="string">&quot;/resource&quot;</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/v151/resource/adage32&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;version&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;151&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;adage32&quot;</span>);
 
@@ -3139,7 +3140,7 @@
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">is_match</span>(<span class="string">&quot;/static/a&quot;</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/012345&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;012345&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>([
@@ -3176,7 +3177,7 @@
         <span class="macro">assert_eq!</span>(<span class="ident">re</span>.<span class="ident">find_match</span>(<span class="string">&quot;/12345&quot;</span>), <span class="prelude-val">None</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/151/res&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;151&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;/res&quot;</span>);
     }
@@ -3186,19 +3187,19 @@
         <span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/user/-{id}*&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/-profile&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;profile&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/-2345&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;2345&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/-2345/&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;2345/&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/-2345/sdg&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;2345/sdg&quot;</span>);
     }
 
@@ -3226,7 +3227,7 @@
         <span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/user/{id}/{tail}*&quot;</span>);
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">is_match</span>(<span class="string">&quot;/user/2345&quot;</span>));
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/2345/sdg&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;2345&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;tail&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;sdg&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;&quot;</span>);
@@ -3240,7 +3241,7 @@
 
         <span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/a{x}b/test/a{y}b&quot;</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/a\nb/test/a\nb&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;x&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;\n&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;y&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;\n&quot;</span>);
 
@@ -3249,12 +3250,12 @@
 
         <span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/user/{id}*&quot;</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/a\nb/a\nb&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;a\nb/a\nb&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/user/{id:.*}&quot;</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/a\nb/a\nb&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;a\nb/a\nb&quot;</span>);
     }
 
@@ -3266,16 +3267,16 @@
         <span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/user/{id}/test&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/2345/test&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;2345&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/qwe%25/test&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;qwe%25&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">http::Uri::try_from</span>(<span class="string">&quot;/user/qwe%25/test&quot;</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="ident">uri</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;qwe%25&quot;</span>);
     }
 
@@ -3292,11 +3293,11 @@
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">is_match</span>(<span class="string">&quot;/name~&quot;</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/name&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/name/test&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;/test&quot;</span>);
 
         <span class="macro">assert_eq!</span>(<span class="ident">re</span>.<span class="ident">find_match</span>(<span class="string">&quot;/name&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">5</span>));
@@ -3312,10 +3313,10 @@
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">is_match</span>(<span class="string">&quot;/name&quot;</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/name/gs&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/name//gs&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;/gs&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">ResourceDef::root_prefix</span>(<span class="string">&quot;name/&quot;</span>);
@@ -3325,7 +3326,7 @@
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">is_match</span>(<span class="string">&quot;/name&quot;</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/name/gs&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -3344,13 +3345,13 @@
         <span class="macro">assert_eq!</span>(<span class="ident">re</span>.<span class="ident">find_match</span>(<span class="string">&quot;&quot;</span>), <span class="prelude-val">None</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/test2/&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>[<span class="string">&quot;name&quot;</span>], <span class="string">&quot;test2&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>[<span class="number">0</span>], <span class="string">&quot;test2&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;/&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/test2/subpath1/subpath2/index.html&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>[<span class="string">&quot;name&quot;</span>], <span class="string">&quot;test2&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>[<span class="number">0</span>], <span class="string">&quot;test2&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>(), <span class="string">&quot;/subpath1/subpath2/index.html&quot;</span>);
@@ -3375,34 +3376,34 @@
     <span class="kw">fn</span> <span class="ident">build_path_list</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
         <span class="kw">let</span> <span class="ident">resource</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/user/{item1}/test&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;user1&quot;</span>]).<span class="ident">iter</span>()));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;user1&quot;</span>]).<span class="ident">iter</span>()));
         <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;/user/user1/test&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
         <span class="kw">let</span> <span class="ident">resource</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/user/{item1}/{item2}/test&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>]).<span class="ident">iter</span>()));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>]).<span class="ident">iter</span>()));
         <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;/user/item/item2/test&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
         <span class="kw">let</span> <span class="ident">resource</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/user/{item1}/{item2}&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>]).<span class="ident">iter</span>()));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>]).<span class="ident">iter</span>()));
         <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;/user/item/item2&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
         <span class="kw">let</span> <span class="ident">resource</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/user/{item1}/{item2}/&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>]).<span class="ident">iter</span>()));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>]).<span class="ident">iter</span>()));
         <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;/user/item/item2/&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;item&quot;</span>]).<span class="ident">iter</span>()));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;item&quot;</span>]).<span class="ident">iter</span>()));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>]).<span class="ident">iter</span>()));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>]).<span class="ident">iter</span>()));
         <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;/user/item/item2/&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;item&quot;</span>]).<span class="ident">iter</span>()));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;item&quot;</span>]).<span class="ident">iter</span>()));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro">vec!</span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>].<span class="ident">iter</span>()));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;mut</span> <span class="macro">vec!</span>[<span class="string">&quot;item&quot;</span>, <span class="string">&quot;item2&quot;</span>].<span class="ident">iter</span>()));
         <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;/user/item/item2/&quot;</span>);
     }
 
@@ -3410,7 +3411,7 @@
     <span class="kw">fn</span> <span class="ident">multi_pattern_build_path</span>() {
         <span class="kw">let</span> <span class="ident">resource</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>([<span class="string">&quot;/user/{id}&quot;</span>, <span class="string">&quot;/profile/{id}&quot;</span>]);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="string">&quot;123&quot;</span>].<span class="ident">iter</span>()));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;mut</span> [<span class="string">&quot;123&quot;</span>].<span class="ident">iter</span>()));
         <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;/user/123&quot;</span>);
     }
 
@@ -3419,22 +3420,22 @@
         <span class="kw">let</span> <span class="ident">resource</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>([<span class="string">&quot;/user/{id}&quot;</span>, <span class="string">&quot;/profile/{id}&quot;</span>]);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/123&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">is_some</span>());
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/profile/123&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">is_some</span>());
 
         <span class="kw">let</span> <span class="ident">resource</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>([<span class="string">&quot;/user/{id}&quot;</span>, <span class="string">&quot;/profile/{uid}&quot;</span>]);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/user/123&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">is_some</span>());
         <span class="macro">assert!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;uid&quot;</span>).<span class="ident">is_none</span>());
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/profile/123&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">capture_match_info</span>(<span class="kw-2">&amp;mut</span> <span class="ident">path</span>));
         <span class="macro">assert!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">is_none</span>());
         <span class="macro">assert!</span>(<span class="ident">path</span>.<span class="ident">get</span>(<span class="string">&quot;uid&quot;</span>).<span class="ident">is_some</span>());
     }
@@ -3462,12 +3463,12 @@
         <span class="ident">map</span>.<span class="ident">insert</span>(<span class="string">&quot;item1&quot;</span>, <span class="string">&quot;item&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">resource</span>.<span class="ident">resource_path_from_map</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">resource</span>.<span class="ident">resource_path_from_map</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>));
 
         <span class="ident">map</span>.<span class="ident">insert</span>(<span class="string">&quot;item2&quot;</span>, <span class="string">&quot;item2&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_map</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_map</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;/user/item/item2/&quot;</span>);
     }
 
@@ -3476,16 +3477,16 @@
         <span class="kw">let</span> <span class="ident">resource</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="string">&quot;/user/{item1}*&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;&quot;</span>; <span class="number">0</span>]).<span class="ident">iter</span>()));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;&quot;</span>; <span class="number">0</span>]).<span class="ident">iter</span>()));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;user1&quot;</span>]).<span class="ident">iter</span>()));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_iter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;mut</span> (<span class="kw-2">&amp;</span>[<span class="string">&quot;user1&quot;</span>]).<span class="ident">iter</span>()));
         <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;/user/user1&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
         <span class="ident">map</span>.<span class="ident">insert</span>(<span class="string">&quot;item1&quot;</span>, <span class="string">&quot;item&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_map</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>));
+        <span class="macro">assert!</span>(<span class="ident">resource</span>.<span class="ident">resource_path_from_map</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;/user/item&quot;</span>);
     }
 
@@ -3640,5 +3641,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_router" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

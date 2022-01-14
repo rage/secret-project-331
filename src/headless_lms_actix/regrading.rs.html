@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server&#x2F;src&#x2F;regrading.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>regrading.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../headless_lms_actix/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server&#x2F;src&#x2F;regrading.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>regrading.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../headless_lms_actix/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -682,7 +683,7 @@
     <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">GradingData</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">regrade</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">exercise_services_by_type</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, (<span class="ident">ExerciseService</span>, <span class="ident">ExerciseServiceInfo</span>)<span class="op">&gt;</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="comment">// stores all the futures which will resolve into new gradings</span>
@@ -692,11 +693,11 @@
 
     <span class="macro">tracing::info!</span>(<span class="string">&quot;fetching uncompleted regradings&quot;</span>);
     <span class="kw">let</span> <span class="ident">regrading_ids</span> <span class="op">=</span>
-        <span class="ident">models::regradings::get_uncompleted_regradings_and_mark_as_started</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">models::regradings::get_uncompleted_regradings_and_mark_as_started</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">for</span> <span class="ident">regrading_id</span> <span class="kw">in</span> <span class="ident">regrading_ids</span>.<span class="ident">iter</span>().<span class="ident">copied</span>() {
         <span class="comment">// set regrading progress to pending</span>
         <span class="ident">models::regradings::set_total_grading_progress</span>(
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
+            <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
             <span class="ident">regrading_id</span>,
             <span class="ident">GradingProgress::Pending</span>,
         )
@@ -705,7 +706,7 @@
             <span class="ident">conn</span>,
             <span class="ident">exercise_services_by_type</span>,
             <span class="ident">regrading_id</span>,
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">grading_futures</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">grading_futures</span>,
         )
         .<span class="kw">await</span>
         {
@@ -766,7 +767,7 @@
                     <span class="ident">err</span>
                 );
                 <span class="ident">models::gradings::set_grading_progress</span>(
-                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
+                    <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
                     <span class="ident">grading</span>.<span class="ident">id</span>,
                     <span class="ident">GradingProgress::Failed</span>,
                 )
@@ -774,8 +775,8 @@
                 <span class="kw">continue</span>;
             }
         };
-        <span class="ident">models::gradings::update_grading</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">grading_result</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">models::submissions::set_grading_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">grading</span>.<span class="ident">id</span>, <span class="ident">regrading_submission</span>.<span class="ident">id</span>)
+        <span class="ident">models::gradings::update_grading</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">grading_result</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">models::submissions::set_grading_id</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">grading</span>.<span class="ident">id</span>, <span class="ident">regrading_submission</span>.<span class="ident">id</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
     }
     <span class="comment">// update completed regradings</span>
@@ -793,10 +794,10 @@
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">do_single_regrading</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">exercise_services_by_type</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, (<span class="ident">ExerciseService</span>, <span class="ident">ExerciseServiceInfo</span>)<span class="op">&gt;</span>,
     <span class="ident">regrading_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">grading_futures</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GradingFutures</span>,
+    <span class="ident">grading_futures</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GradingFutures</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RegradingStatus</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">regrading_status</span> <span class="op">=</span> <span class="ident">RegradingStatus</span> {
         <span class="ident">exercise_services_full</span>: <span class="bool-val">false</span>,
@@ -805,7 +806,7 @@
 
     <span class="comment">// for each regrading, process all related submissions</span>
     <span class="kw">let</span> <span class="ident">regrading_submissions</span> <span class="op">=</span>
-        <span class="ident">models::regrading_submissions::get_regrading_submissions</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">regrading_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">models::regrading_submissions::get_regrading_submissions</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">regrading_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">tracing::info!</span>(
         <span class="string">&quot;found {} submissions for regrading {}&quot;</span>,
         <span class="ident">regrading_submissions</span>.<span class="ident">len</span>(),
@@ -816,7 +817,7 @@
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">grading_id</span>) <span class="op">=</span> <span class="ident">regrading_submission</span>.<span class="ident">grading_after_regrading</span> {
             <span class="comment">// this submission has previously been at least partially regraded</span>
-            <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">models::gradings::get_by_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">grading_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">models::gradings::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">grading_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">if</span> <span class="ident">grading</span>.<span class="ident">grading_progress</span> <span class="op">==</span> <span class="ident">GradingProgress::FullyGraded</span> {
                 <span class="comment">// already fully graded, continue to the next one</span>
                 <span class="kw">continue</span>;
@@ -826,9 +827,9 @@
 
         <span class="comment">// create new grading for the submission</span>
         <span class="kw">let</span> <span class="ident">submission</span> <span class="op">=</span>
-            <span class="ident">models::submissions::get_submission</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">regrading_submission</span>.<span class="ident">submission_id</span>)
+            <span class="ident">models::submissions::get_submission</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">regrading_submission</span>.<span class="ident">submission_id</span>)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">not_ready_grading</span> <span class="op">=</span> <span class="ident">models::gradings::new_grading</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">not_ready_grading</span> <span class="op">=</span> <span class="ident">models::gradings::new_grading</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="ident">models::regrading_submissions::set_grading_after_regrading</span>(
             <span class="ident">conn</span>,
             <span class="ident">regrading_submission</span>.<span class="ident">id</span>,
@@ -838,7 +839,7 @@
 
         <span class="comment">// get the corresponding exercise service</span>
         <span class="kw">let</span> <span class="ident">exercise_task</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::get_exercise_task_by_id</span>(
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
+            <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
             <span class="ident">submission</span>.<span class="ident">exercise_task_id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -847,7 +848,7 @@
         {
             <span class="comment">// mark the grading as pending</span>
             <span class="ident">models::gradings::set_grading_progress</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
+                <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
                 <span class="ident">not_ready_grading</span>.<span class="ident">id</span>,
                 <span class="ident">GradingProgress::Pending</span>,
             )
@@ -869,7 +870,7 @@
                 });
             <span class="kw">if</span> <span class="ident">entry</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">limit</span> {
                 <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span>
-                    <span class="ident">models::exercises::get_by_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">submission</span>.<span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                    <span class="ident">models::exercises::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">submission</span>.<span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">grade_url</span> <span class="op">=</span>
                     <span class="ident">get_internal_grade_url</span>(<span class="ident">exercise_service</span>, <span class="ident">exercise_service_info</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -895,7 +896,7 @@
             );
             <span class="macro">tracing::error!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">msg</span>);
             <span class="ident">models::gradings::set_grading_progress</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
+                <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
                 <span class="ident">not_ready_grading</span>.<span class="ident">id</span>,
                 <span class="ident">GradingProgress::Failed</span>,
             )
@@ -1306,5 +1307,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_actix" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

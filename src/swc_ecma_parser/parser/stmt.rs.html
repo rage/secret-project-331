@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;swc_ecma_parser-0.52.2&#x2F;src&#x2F;parser&#x2F;stmt.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stmt.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../swc_ecma_parser/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;swc_ecma_parser-0.52.2&#x2F;src&#x2F;parser&#x2F;stmt.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stmt.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../swc_ecma_parser/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1797,7 +1798,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_block_body</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="kw-2">mut</span> <span class="ident">allow_directives</span>: <span class="ident">bool</span>,
         <span class="ident">top_level</span>: <span class="ident">bool</span>,
         <span class="ident">end</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Token</span><span class="op">&gt;</span>,
@@ -1847,18 +1848,18 @@
         <span class="prelude-val">Ok</span>(<span class="ident">stmts</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_stmt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">top_level</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_stmt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">top_level</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_stmt</span>);
         <span class="self">self</span>.<span class="ident">parse_stmt_like</span>(<span class="bool-val">false</span>, <span class="ident">top_level</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_stmt_list_item</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">top_level</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_stmt_list_item</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">top_level</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
         <span class="macro">trace_cur!</span>(<span class="self">self</span>, <span class="ident">parse_stmt_list_item</span>);
         <span class="self">self</span>.<span class="ident">parse_stmt_like</span>(<span class="bool-val">true</span>, <span class="ident">top_level</span>)
     }
 
     <span class="doccomment">/// Parse a statement, declaration or module item.</span>
-    <span class="kw">fn</span> <span class="ident">parse_stmt_like</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">include_decl</span>: <span class="ident">bool</span>, <span class="ident">top_level</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">parse_stmt_like</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">include_decl</span>: <span class="ident">bool</span>, <span class="ident">top_level</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">StmtLikeParser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Type</span><span class="op">&gt;</span>,
         <span class="ident">Type</span>: <span class="ident">IsDirective</span> <span class="op">+</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span>,
@@ -1878,7 +1879,7 @@
     <span class="doccomment">/// `parseStatementContent`</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cognitive_complexity</span>)]</span>
     <span class="kw">fn</span> <span class="ident">parse_stmt_internal</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">start</span>: <span class="ident">BytePos</span>,
         <span class="ident">include_decl</span>: <span class="ident">bool</span>,
         <span class="ident">top_level</span>: <span class="ident">bool</span>,
@@ -2170,7 +2171,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_if_stmt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_if_stmt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
         <span class="macro">assert_and_bump!</span>(<span class="self">self</span>, <span class="string">&quot;if&quot;</span>);
@@ -2215,7 +2216,7 @@
         }))
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_return_stmt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_return_stmt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
         <span class="kw">let</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_with</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
@@ -2241,7 +2242,7 @@
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cognitive_complexity</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">parse_switch_stmt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_switch_stmt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">switch_start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
         <span class="macro">assert_and_bump!</span>(<span class="self">self</span>, <span class="string">&quot;switch&quot;</span>);
@@ -2308,7 +2309,7 @@
         }))
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_throw_stmt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_throw_stmt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
         <span class="macro">assert_and_bump!</span>(<span class="self">self</span>, <span class="string">&quot;throw&quot;</span>);
@@ -2325,7 +2326,7 @@
         <span class="prelude-val">Ok</span>(<span class="ident">Stmt::Throw</span>(<span class="ident">ThrowStmt</span> { <span class="ident">span</span>, <span class="ident">arg</span> }))
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_try_stmt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_try_stmt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
         <span class="macro">assert_and_bump!</span>(<span class="self">self</span>, <span class="string">&quot;try&quot;</span>);
 
@@ -2348,7 +2349,7 @@
         }))
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_catch_clause</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CatchClause</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_catch_clause</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CatchClause</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
         <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="macro">eat!</span>(<span class="self">self</span>, <span class="string">&quot;catch&quot;</span>) {
@@ -2366,7 +2367,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_finally_block</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BlockStmt</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_finally_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BlockStmt</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="macro">eat!</span>(<span class="self">self</span>, <span class="string">&quot;finally&quot;</span>) {
             <span class="self">self</span>.<span class="ident">parse_block</span>(<span class="bool-val">false</span>).<span class="ident">map</span>(<span class="prelude-val">Some</span>)<span class="question-mark">?</span>
         } <span class="kw">else</span> {
@@ -2375,7 +2376,7 @@
     }
 
     <span class="doccomment">/// It&#39;s optional since es2019</span>
-    <span class="kw">fn</span> <span class="ident">parse_catch_param</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_catch_param</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pat</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="macro">eat!</span>(<span class="self">self</span>, <span class="string">&#39;(&#39;</span>) {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pat</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_binding_pat_or_ident</span>()<span class="question-mark">?</span>;
 
@@ -2390,7 +2391,7 @@
                 <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">with_ctx</span>(<span class="ident">ctx</span>).<span class="ident">parse_with</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">parse_ts_type</span>())<span class="question-mark">?</span>;
                 <span class="comment">// self.emit_err(ty.span(), SyntaxError::TS1196);</span>
 
-                <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">pat</span> {
+                <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="ident">pat</span> {
                     <span class="ident">Pat::Ident</span>(<span class="ident">BindingIdent</span> { <span class="ident">type_ann</span>, .. })
                     <span class="op">|</span> <span class="ident">Pat::Array</span>(<span class="ident">ArrayPat</span> { <span class="ident">type_ann</span>, .. })
                     <span class="op">|</span> <span class="ident">Pat::Rest</span>(<span class="ident">RestPat</span> { <span class="ident">type_ann</span>, .. })
@@ -2412,7 +2413,7 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_var_stmt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">for_loop</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">VarDecl</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_var_stmt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">for_loop</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">VarDecl</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
         <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">bump!</span>(<span class="self">self</span>) {
             <span class="macro">tok!</span>(<span class="string">&quot;const&quot;</span>) =&gt; <span class="ident">VarDeclKind::Const</span>,
@@ -2512,7 +2513,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_var_declarator</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">for_loop</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">VarDeclarator</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_var_declarator</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">for_loop</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">VarDeclarator</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_binding_pat_or_ident</span>()<span class="question-mark">?</span>;
@@ -2586,7 +2587,7 @@
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cognitive_complexity</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">parse_do_stmt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_do_stmt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
         <span class="macro">assert_and_bump!</span>(<span class="self">self</span>, <span class="string">&quot;do&quot;</span>);
@@ -2609,7 +2610,7 @@
         <span class="prelude-val">Ok</span>(<span class="ident">Stmt::DoWhile</span>(<span class="ident">DoWhileStmt</span> { <span class="ident">span</span>, <span class="ident">test</span>, <span class="ident">body</span> }))
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_while_stmt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_while_stmt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
         <span class="macro">assert_and_bump!</span>(<span class="self">self</span>, <span class="string">&quot;while&quot;</span>);
@@ -2629,7 +2630,7 @@
         <span class="prelude-val">Ok</span>(<span class="ident">Stmt::While</span>(<span class="ident">WhileStmt</span> { <span class="ident">span</span>, <span class="ident">test</span>, <span class="ident">body</span> }))
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_with_stmt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_with_stmt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">syntax</span>().<span class="ident">typescript</span>() {
             <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">cur_span</span>();
             <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">span</span>, <span class="ident">SyntaxError::TS2410</span>);
@@ -2658,7 +2659,7 @@
         <span class="prelude-val">Ok</span>(<span class="ident">Stmt::With</span>(<span class="ident">WithStmt</span> { <span class="ident">span</span>, <span class="ident">obj</span>, <span class="ident">body</span> }))
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_block</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">allow_directives</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">BlockStmt</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">allow_directives</span>: <span class="ident">bool</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">BlockStmt</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
         <span class="macro">expect!</span>(<span class="self">self</span>, <span class="string">&#39;{&#39;</span>);
@@ -2669,7 +2670,7 @@
         <span class="prelude-val">Ok</span>(<span class="ident">BlockStmt</span> { <span class="ident">span</span>, <span class="ident">stmts</span> })
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_labelled_stmt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">l</span>: <span class="ident">Ident</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_labelled_stmt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">l</span>: <span class="ident">Ident</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Context</span> {
             <span class="ident">is_break_allowed</span>: <span class="bool-val">true</span>,
             ..<span class="self">self</span>.<span class="ident">ctx</span>()
@@ -2719,7 +2720,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_for_stmt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_for_stmt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
 
         <span class="macro">assert_and_bump!</span>(<span class="self">self</span>, <span class="string">&quot;for&quot;</span>);
@@ -2776,7 +2777,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_for_head</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">ForHead</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_for_head</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">ForHead</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
         <span class="kw">let</span> <span class="ident">strict</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ctx</span>().<span class="ident">strict</span>;
 
@@ -2855,7 +2856,7 @@
         <span class="self">self</span>.<span class="ident">parse_normal_for_head</span>(<span class="prelude-val">Some</span>(<span class="ident">VarDeclOrExpr::Expr</span>(<span class="ident">init</span>)))
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_for_each_head</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">VarDeclOrPat</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">ForHead</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_for_each_head</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">VarDeclOrPat</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">ForHead</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">of</span> <span class="op">=</span> <span class="macro">bump!</span>(<span class="self">self</span>) <span class="op">==</span> <span class="macro">tok!</span>(<span class="string">&quot;of&quot;</span>);
         <span class="kw">if</span> <span class="ident">of</span> {
             <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">include_in_expr</span>(<span class="bool-val">true</span>).<span class="ident">parse_assignment_expr</span>()<span class="question-mark">?</span>;
@@ -2866,7 +2867,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_normal_for_head</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">init</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VarDeclOrExpr</span><span class="op">&gt;</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">ForHead</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">parse_normal_for_head</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">init</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VarDeclOrExpr</span><span class="op">&gt;</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">ForHead</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">eat_exact!</span>(<span class="self">self</span>, <span class="string">&#39;;&#39;</span>) {
             <span class="prelude-val">None</span>
         } <span class="kw">else</span> {
@@ -2926,14 +2927,14 @@
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">trait</span> <span class="ident">StmtLikeParser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Type</span>: <span class="ident">IsDirective</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">handle_import_export</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">top_level</span>: <span class="ident">bool</span>,
         <span class="ident">decorators</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Decorator</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span>: <span class="ident">Tokens</span><span class="op">&gt;</span> <span class="ident">StmtLikeParser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Stmt</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">handle_import_export</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">top_level</span>: <span class="ident">bool</span>, <span class="kw">_</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Decorator</span><span class="op">&gt;</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">handle_import_export</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">top_level</span>: <span class="ident">bool</span>, <span class="kw">_</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Decorator</span><span class="op">&gt;</span>) -&gt; <span class="ident">PResult</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="macro">cur_pos!</span>(<span class="self">self</span>);
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">syntax</span>().<span class="ident">dynamic_import</span>() <span class="op">&amp;&amp;</span> <span class="macro">is!</span>(<span class="self">self</span>, <span class="string">&quot;import&quot;</span>) {
             <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expr</span>()<span class="question-mark">?</span>;
@@ -3580,5 +3581,4 @@ export default function waitUntil(callback, options = {}) {
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="swc_ecma_parser" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

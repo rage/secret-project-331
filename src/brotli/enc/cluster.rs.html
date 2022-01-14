@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;brotli-3.3.2&#x2F;src&#x2F;enc&#x2F;cluster.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cluster.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;brotli-3.3.2&#x2F;src&#x2F;enc&#x2F;cluster.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cluster.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../brotli/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -607,9 +608,9 @@
     <span class="kw-2">mut</span> <span class="ident">idx1</span> : <span class="ident">u32</span>,
     <span class="kw-2">mut</span> <span class="ident">idx2</span> : <span class="ident">u32</span>,
     <span class="ident">max_num_pairs</span> : <span class="ident">usize</span>,
-    <span class="ident">scratch_space</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HistogramType::i32vec</span>,
-    <span class="ident">pairs</span> : <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HistogramPair</span>],
-    <span class="ident">num_pairs</span> : <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>
+    <span class="ident">scratch_space</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HistogramType::i32vec</span>,
+    <span class="ident">pairs</span> : <span class="kw-2">&amp;mut</span> [<span class="ident">HistogramPair</span>],
+    <span class="ident">num_pairs</span> : <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>
 ){
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">is_good_pair</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0i32</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span>: <span class="ident">HistogramPair</span> <span class="op">=</span> <span class="ident">HistogramPair</span> {
@@ -646,7 +647,7 @@
       };
       <span class="kw">let</span> <span class="ident">cost_combo</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>;
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">combo</span> : <span class="ident">HistogramType</span> <span class="op">=</span> <span class="ident">out</span>[<span class="ident">idx1</span> <span class="kw">as</span> <span class="ident">usize</span> ].<span class="ident">clone</span>();
-      <span class="ident">HistogramAddHistogram</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">combo</span>, <span class="kw-2">&amp;</span><span class="ident">out</span>[<span class="ident">idx2</span> <span class="kw">as</span> <span class="ident">usize</span>]);
+      <span class="ident">HistogramAddHistogram</span>(<span class="kw-2">&amp;mut</span> <span class="ident">combo</span>, <span class="kw-2">&amp;</span><span class="ident">out</span>[<span class="ident">idx2</span> <span class="kw">as</span> <span class="ident">usize</span>]);
       <span class="ident">cost_combo</span> <span class="op">=</span> <span class="ident">BrotliPopulationCost</span>(<span class="kw-2">&amp;</span><span class="ident">combo</span>, <span class="ident">scratch_space</span>);
       <span class="kw">if</span> <span class="ident">cost_combo</span> <span class="op">&lt;</span> <span class="ident">threshold</span> <span class="op">-</span> <span class="ident">p</span>.<span class="ident">cost_diff</span> {
         <span class="ident">p</span>.<span class="ident">cost_combo</span> <span class="op">=</span> <span class="ident">cost_combo</span>;
@@ -672,16 +673,16 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliHistogramCombine</span><span class="op">&lt;</span><span class="ident">HistogramType</span>:<span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">CostAccessors</span> <span class="op">+</span><span class="ident">Clone</span><span class="op">&gt;</span>
-    (<span class="kw-2">mut</span> <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HistogramType</span>],
-     <span class="ident">cluster_size</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>],
-     <span class="ident">symbols</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>],
-     <span class="ident">clusters</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>],
-     <span class="kw-2">mut</span> <span class="ident">pairs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HistogramPair</span>],
+    (<span class="kw-2">mut</span> <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HistogramType</span>],
+     <span class="ident">cluster_size</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>],
+     <span class="ident">symbols</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>],
+     <span class="ident">clusters</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>],
+     <span class="kw-2">mut</span> <span class="ident">pairs</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HistogramPair</span>],
      <span class="kw-2">mut</span> <span class="ident">num_clusters</span>: <span class="ident">usize</span>,
      <span class="ident">symbols_size</span>: <span class="ident">usize</span>,
      <span class="ident">max_clusters</span>: <span class="ident">usize</span>,
      <span class="ident">max_num_pairs</span>: <span class="ident">usize</span>,
-     <span class="ident">scratch_space</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HistogramType::i32vec</span>) -&gt; <span class="ident">usize</span>{
+     <span class="ident">scratch_space</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HistogramType::i32vec</span>) -&gt; <span class="ident">usize</span>{
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cost_diff_threshold</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span> <span class="op">=</span> <span class="number">0.0</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">min_cluster_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1usize</span>;
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_pairs</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0usize</span>;
@@ -703,7 +704,7 @@
                                         <span class="ident">max_num_pairs</span>,
                                         <span class="ident">scratch_space</span>,
                                         <span class="ident">pairs</span>,
-                                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">num_pairs</span>);
+                                        <span class="kw-2">&amp;mut</span> <span class="ident">num_pairs</span>);
           }
           <span class="ident">idx2</span> <span class="op">=</span> <span class="ident">idx2</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
         }
@@ -727,11 +728,11 @@
     <span class="comment">/* Take the best pair from the top of heap. */</span>
     <span class="ident">best_idx1</span> <span class="op">=</span> (<span class="ident">pairs</span>[(<span class="number">0usize</span>)]).<span class="ident">idx1</span>;
     <span class="ident">best_idx2</span> <span class="op">=</span> (<span class="ident">pairs</span>[(<span class="number">0usize</span>)]).<span class="ident">idx2</span>;
-    <span class="ident">HistogramSelfAddHistogram</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>, (<span class="ident">best_idx1</span> <span class="kw">as</span> (<span class="ident">usize</span>)), (<span class="ident">best_idx2</span> <span class="kw">as</span> (<span class="ident">usize</span>)));
+    <span class="ident">HistogramSelfAddHistogram</span>(<span class="kw-2">&amp;mut</span> <span class="ident">out</span>, (<span class="ident">best_idx1</span> <span class="kw">as</span> (<span class="ident">usize</span>)), (<span class="ident">best_idx2</span> <span class="kw">as</span> (<span class="ident">usize</span>)));
     (<span class="ident">out</span>[(<span class="ident">best_idx1</span> <span class="kw">as</span> (<span class="ident">usize</span>))]).<span class="ident">set_bit_cost</span>((<span class="ident">pairs</span>[(<span class="number">0usize</span>)]).<span class="ident">cost_combo</span>);
     {
       <span class="kw">let</span> <span class="ident">_rhs</span> <span class="op">=</span> <span class="ident">cluster_size</span>[(<span class="ident">best_idx2</span> <span class="kw">as</span> (<span class="ident">usize</span>))];
-      <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cluster_size</span>[(<span class="ident">best_idx1</span> <span class="kw">as</span> (<span class="ident">usize</span>))];
+      <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">cluster_size</span>[(<span class="ident">best_idx1</span> <span class="kw">as</span> (<span class="ident">usize</span>))];
       <span class="kw-2">*</span><span class="ident">_lhs</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">_lhs</span>).<span class="ident">wrapping_add</span>(<span class="ident">_rhs</span>);
     }
     <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
@@ -797,8 +798,8 @@
                                     <span class="ident">clusters</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))],
                                     <span class="ident">max_num_pairs</span>,
                                     <span class="ident">scratch_space</span>,
-                                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">pairs</span>,
-                                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">num_pairs</span>);
+                                    <span class="kw-2">&amp;mut</span> <span class="ident">pairs</span>,
+                                    <span class="kw-2">&amp;mut</span> <span class="ident">num_pairs</span>);
       }
       <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
     }
@@ -811,13 +812,13 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliHistogramBitCostDistance</span><span class="op">&lt;</span><span class="ident">HistogramType</span>:<span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">CostAccessors</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span>
                                              (<span class="ident">histogram</span>: <span class="kw-2">&amp;</span><span class="ident">HistogramType</span>,
                                              <span class="ident">candidate</span>: <span class="kw-2">&amp;</span><span class="ident">HistogramType</span>,
-                                             <span class="ident">scratch_space</span> : <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HistogramType::i32vec</span>)
+                                             <span class="ident">scratch_space</span> : <span class="kw-2">&amp;mut</span> <span class="ident">HistogramType::i32vec</span>)
 -&gt; <span class="ident"><span class="kw">super</span>::util::floatX</span>{
   <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">histogram</span>).<span class="ident">total_count</span>() <span class="op">==</span> <span class="number">0usize</span> {
     <span class="number">0.0</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>
   } <span class="kw">else</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span>: <span class="ident">HistogramType</span> <span class="op">=</span> <span class="ident">histogram</span>.<span class="ident">clone</span>();
-    <span class="ident">HistogramAddHistogram</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tmp</span>, <span class="ident">candidate</span>);
+    <span class="ident">HistogramAddHistogram</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tmp</span>, <span class="ident">candidate</span>);
     <span class="ident">BrotliPopulationCost</span>(<span class="kw-2">&amp;</span><span class="ident">tmp</span>, <span class="ident">scratch_space</span>) <span class="op">-</span> (<span class="kw-2">*</span><span class="ident">candidate</span>).<span class="ident">bit_cost</span>()
   }
 }
@@ -832,9 +833,9 @@
                                    <span class="ident">in_size</span>: <span class="ident">usize</span>,
                                    <span class="ident">clusters</span>: <span class="kw-2">&amp;</span>[<span class="ident">u32</span>],
                                    <span class="ident">num_clusters</span>: <span class="ident">usize</span>,
-                                   <span class="ident">scratch_space</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HistogramType::i32vec</span>,
-                                   <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HistogramType</span>],
-                                   <span class="ident">symbols</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>]){
+                                   <span class="ident">scratch_space</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HistogramType::i32vec</span>,
+                                   <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HistogramType</span>],
+                                   <span class="ident">symbols</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>]){
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
   <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
   <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">in_size</span> {
@@ -845,14 +846,14 @@
         <span class="ident">symbols</span>[(<span class="ident">i</span>.<span class="ident">wrapping_sub</span>(<span class="number">1usize</span>) <span class="kw">as</span> (<span class="ident">usize</span>))]
       };
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">best_bits</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span> <span class="op">=</span> <span class="ident">BrotliHistogramBitCostDistance</span>(<span class="kw-2">&amp;</span><span class="ident">inp</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))],
-                                                                              <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>[(<span class="ident">best_out</span> <span class="kw">as</span> (<span class="ident">usize</span>))],
+                                                                              <span class="kw-2">&amp;mut</span> <span class="ident">out</span>[(<span class="ident">best_out</span> <span class="kw">as</span> (<span class="ident">usize</span>))],
                                                                               <span class="ident">scratch_space</span>);
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span>: <span class="ident">usize</span>;
       <span class="ident">j</span> <span class="op">=</span> <span class="number">0usize</span>;
       <span class="kw">while</span> <span class="ident">j</span> <span class="op">&lt;</span> <span class="ident">num_clusters</span> {
         {
           <span class="kw">let</span> <span class="ident">cur_bits</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span> <span class="op">=</span> <span class="ident">BrotliHistogramBitCostDistance</span>(<span class="kw-2">&amp;</span><span class="ident">inp</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))],
-                                                                             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>[(<span class="ident">clusters</span>[(<span class="ident">j</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span>
+                                                                             <span class="kw-2">&amp;mut</span> <span class="ident">out</span>[(<span class="ident">clusters</span>[(<span class="ident">j</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span>
                                                                              (<span class="ident">usize</span>))],
                                                                               <span class="ident">scratch_space</span>);
           <span class="kw">if</span> <span class="ident">cur_bits</span> <span class="op">&lt;</span> <span class="ident">best_bits</span> {
@@ -870,14 +871,14 @@
   <span class="comment">/* Recompute each out based on raw and symbols. */</span>
   <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">num_clusters</span> {
     {
-      <span class="ident">HistogramClear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>[(<span class="ident">clusters</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">usize</span>))]);
+      <span class="ident">HistogramClear</span>(<span class="kw-2">&amp;mut</span> <span class="ident">out</span>[(<span class="ident">clusters</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">usize</span>))]);
     }
     <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
   }
   <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
   <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">in_size</span> {
     {
-      <span class="ident">HistogramAddHistogram</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>[(<span class="ident">symbols</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">usize</span>))],
+      <span class="ident">HistogramAddHistogram</span>(<span class="kw-2">&amp;mut</span> <span class="ident">out</span>[(<span class="ident">symbols</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">usize</span>))],
                             <span class="kw-2">&amp;</span><span class="ident">inp</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))]);
     }
     <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
@@ -898,9 +899,9 @@
    Returns N, the number of unique values in symbols[]. */</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliHistogramReindex</span><span class="op">&lt;</span><span class="ident">HistogramType</span>:<span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">CostAccessors</span><span class="op">+</span><span class="ident">Clone</span>,
                             <span class="ident">Alloc</span>:<span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HistogramType</span><span class="op">&gt;</span> <span class="op">&gt;</span>
-                            (<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>,
-                             <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HistogramType</span>],
-                             <span class="ident">symbols</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>],
+                            (<span class="ident">alloc</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>,
+                             <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HistogramType</span>],
+                             <span class="ident">symbols</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>],
                              <span class="ident">length</span>: <span class="ident">usize</span>)
 -&gt; <span class="ident">usize</span>{
   <span class="kw">static</span> <span class="ident">kInvalidIndex</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="op">!</span>(<span class="number">0u32</span>);
@@ -968,14 +969,14 @@
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliClusterHistograms</span><span class="op">&lt;</span><span class="ident">HistogramType</span>:<span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">CostAccessors</span><span class="op">+</span><span class="ident">Clone</span>,
                                       <span class="ident">Alloc</span>:<span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HistogramPair</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HistogramType</span><span class="op">&gt;</span> <span class="op">&gt;</span>
-                                     (<span class="ident">alloc</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Alloc</span>,
+                                     (<span class="ident">alloc</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>,
                                       <span class="ident">inp</span>: <span class="kw-2">&amp;</span>[<span class="ident">HistogramType</span>],
                                       <span class="ident">in_size</span>: <span class="ident">usize</span>,
                                       <span class="ident">max_histograms</span>: <span class="ident">usize</span>,
-                                      <span class="ident">scratch_space</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">HistogramType::i32vec</span>,
-                                      <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">HistogramType</span>],
-                                      <span class="ident">out_size</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-                                      <span class="ident">histogram_symbols</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>]){
+                                      <span class="ident">scratch_space</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HistogramType::i32vec</span>,
+                                      <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HistogramType</span>],
+                                      <span class="ident">out_size</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+                                      <span class="ident">histogram_symbols</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>]){
   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cluster_size</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">in_size</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
     <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">alloc</span>, <span class="ident">in_size</span>)
   } <span class="kw">else</span> {
@@ -1024,8 +1025,8 @@
       }
       <span class="ident">num_new_clusters</span> <span class="op">=</span> <span class="ident">BrotliHistogramCombine</span>(<span class="ident">out</span>,
                                                 <span class="ident">cluster_size</span>.<span class="ident">slice_mut</span>(),
-                                                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">histogram_symbols</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))..],
-                                                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">clusters</span>.<span class="ident">slice_mut</span>()[(<span class="ident">num_clusters</span> <span class="kw">as</span>
+                                                <span class="kw-2">&amp;mut</span> <span class="ident">histogram_symbols</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))..],
+                                                <span class="kw-2">&amp;mut</span> <span class="ident">clusters</span>.<span class="ident">slice_mut</span>()[(<span class="ident">num_clusters</span> <span class="kw">as</span>
                                                       (<span class="ident">usize</span>))..],
                                                 <span class="ident">pairs</span>.<span class="ident">slice_mut</span>(),
                                                 <span class="ident">num_to_combine</span>,
@@ -1058,7 +1059,7 @@
           <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramPair</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()
         };
         <span class="ident">new_array</span>.<span class="ident">slice_mut</span>()[..<span class="ident">pairs_capacity</span>].<span class="ident">clone_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">pairs</span>.<span class="ident">slice</span>()[..<span class="ident">pairs_capacity</span>]);
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramPair</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">pairs</span>, <span class="ident">new_array</span>));
+        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HistogramPair</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">pairs</span>, <span class="ident">new_array</span>));
       }
     }
     <span class="ident">num_clusters</span> <span class="op">=</span> <span class="ident">BrotliHistogramCombine</span>(<span class="ident">out</span>,
@@ -1090,5 +1091,4 @@
 <span class="comment">/////////// DONE //////////////////////////</span>
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

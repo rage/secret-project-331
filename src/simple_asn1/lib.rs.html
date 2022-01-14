@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;simple_asn1-0.4.1&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../simple_asn1/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;simple_asn1-0.4.1&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../simple_asn1/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1905,7 +1906,7 @@
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">byte1</span>];
                 <span class="kw">for</span> <span class="ident">num</span> <span class="kw">in</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">2</span>) {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local</span> <span class="op">=</span> <span class="ident">encode_base127</span>(<span class="kw-2">&amp;</span><span class="ident">num</span>);
-                    <span class="ident">body</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">local</span>);
+                    <span class="ident">body</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">local</span>);
                 }
 
                 <span class="prelude-val">Ok</span>(<span class="ident">body</span>)
@@ -1975,7 +1976,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">ASN1DecodeErr</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">ASN1DecodeErr::EmptyBuffer</span> =&gt;
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Encountered an empty buffer decoding ASN1 block.&quot;</span>),
@@ -2045,7 +2046,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">ASN1EncodeErr</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="self">self</span>.<span class="ident">description</span>())
     }
 }
@@ -2084,8 +2085,8 @@
 
     <span class="kw">while</span> <span class="ident">index</span> <span class="op">&lt;</span> <span class="ident">len</span> {
         <span class="kw">let</span> <span class="ident">soff</span> <span class="op">=</span> <span class="ident">start_offset</span> <span class="op">+</span> <span class="ident">index</span>;
-        <span class="kw">let</span> (<span class="ident">tag</span>, <span class="ident">constructed</span>, <span class="ident">class</span>) <span class="op">=</span> <span class="ident">decode_tag</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">index</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">decode_length</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">index</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> (<span class="ident">tag</span>, <span class="ident">constructed</span>, <span class="ident">class</span>) <span class="op">=</span> <span class="ident">decode_tag</span>(<span class="ident">i</span>, <span class="kw-2">&amp;mut</span> <span class="ident">index</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">decode_length</span>(<span class="ident">i</span>, <span class="kw-2">&amp;mut</span> <span class="ident">index</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">checklen</span> <span class="op">=</span> <span class="ident">index</span>
             .<span class="ident">checked_add</span>(<span class="ident">len</span>)
             .<span class="ident">ok_or</span>(<span class="ident">ASN1DecodeErr::LengthTooLarge</span>(<span class="ident">len</span>))<span class="question-mark">?</span>;
@@ -2186,7 +2187,7 @@
                 <span class="ident">oidres</span>.<span class="ident">push</span>(<span class="ident">value1</span>);
                 <span class="ident">oidres</span>.<span class="ident">push</span>(<span class="ident">value2</span>);
                 <span class="kw">while</span> <span class="ident">bindex</span> <span class="op">&lt;</span> <span class="ident">body</span>.<span class="ident">len</span>() {
-                    <span class="ident">oidres</span>.<span class="ident">push</span>(<span class="ident">decode_base127</span>(<span class="ident">body</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bindex</span>)<span class="question-mark">?</span>);
+                    <span class="ident">oidres</span>.<span class="ident">push</span>(<span class="ident">decode_base127</span>(<span class="ident">body</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bindex</span>)<span class="question-mark">?</span>);
                 }
                 <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">OID</span>(<span class="ident">oidres</span>);
 
@@ -2327,7 +2328,7 @@
 }
 
 <span class="doccomment">/// Returns the tag, if the type is constructed and the class.</span>
-<span class="kw">fn</span> <span class="ident">decode_tag</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">index</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">BigUint</span>, <span class="ident">bool</span>, <span class="ident">ASN1Class</span>), <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">decode_tag</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">index</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">BigUint</span>, <span class="ident">bool</span>, <span class="ident">ASN1Class</span>), <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">index</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">len</span>() {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::Incomplete</span>);
     }
@@ -2346,7 +2347,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">decode_base127</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">index</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BigUint</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">decode_base127</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">index</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BigUint</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">BigUint::zero</span>();
 
     <span class="kw">loop</span> {
@@ -2374,7 +2375,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">decode_length</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">index</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">decode_length</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">index</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">index</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">len</span>() {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ASN1DecodeErr::Incomplete</span>);
     }
@@ -2430,9 +2431,9 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tagbytes</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">ASN1Class::Universal</span>, <span class="bool-val">false</span>, <span class="kw-2">&amp;</span><span class="ident">inttag</span>);
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tagbytes</span>);
-            <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbytes</span>);
-            <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">base</span>);
+            <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tagbytes</span>);
+            <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lenbytes</span>);
+            <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">base</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
         }
         <span class="comment">// BIT STRING</span>
@@ -2448,8 +2449,8 @@
                 <span class="kw">let</span> <span class="ident">nbits</span> <span class="op">=</span> (<span class="ident">vs</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="number">8</span>) <span class="op">-</span> <span class="ident">bits</span>;
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tagbytes</span>);
-                <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbytes</span>);
+                <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tagbytes</span>);
+                <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lenbytes</span>);
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">nbits</span> <span class="kw">as</span> <span class="ident">u8</span>);
                 <span class="ident">result</span>.<span class="ident">extend_from_slice</span>(<span class="ident">vs</span>);
                 <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
@@ -2462,8 +2463,8 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lenbytes</span> <span class="op">=</span> <span class="ident">encode_len</span>(<span class="ident">bytes</span>.<span class="ident">len</span>());
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tagbytes</span>);
-            <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbytes</span>);
+            <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tagbytes</span>);
+            <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lenbytes</span>);
             <span class="ident">result</span>.<span class="ident">extend_from_slice</span>(<span class="ident">bytes</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
         }
@@ -2503,7 +2504,7 @@
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">byte1</span>];
                     <span class="kw">for</span> <span class="ident">num</span> <span class="kw">in</span> <span class="ident">nums</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">2</span>) {
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local</span> <span class="op">=</span> <span class="ident">encode_base127</span>(<span class="kw-2">&amp;</span><span class="ident">num</span>);
-                        <span class="ident">body</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">local</span>);
+                        <span class="ident">body</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">local</span>);
                     }
 
                     <span class="comment">// now that we have the body, we can build the header</span>
@@ -2511,8 +2512,8 @@
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">ASN1Class::Universal</span>, <span class="bool-val">false</span>, <span class="kw-2">&amp;</span><span class="ident">inttag</span>);
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lenbytes</span> <span class="op">=</span> <span class="ident">encode_len</span>(<span class="ident">body</span>.<span class="ident">len</span>());
 
-                    <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbytes</span>);
-                    <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">body</span>);
+                    <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lenbytes</span>);
+                    <span class="ident">result</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">body</span>);
 
                     <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
                 }
@@ -2528,7 +2529,7 @@
             <span class="comment">// put all the subsequences into a block</span>
             <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">items</span>.<span class="ident">iter</span>() {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">to_der</span>(<span class="ident">x</span>)<span class="question-mark">?</span>;
-                <span class="ident">body</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bytes</span>);
+                <span class="ident">body</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>);
             }
 
             <span class="kw">let</span> <span class="ident">inttag</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">0x10</span>).<span class="ident">unwrap</span>();
@@ -2538,9 +2539,9 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tagbytes</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">ASN1Class::Universal</span>, <span class="bool-val">true</span>, <span class="kw-2">&amp;</span><span class="ident">inttag</span>);
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tagbytes</span>);
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbytes</span>);
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">body</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tagbytes</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lenbytes</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">body</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         }
         <span class="comment">// SET</span>
@@ -2550,7 +2551,7 @@
             <span class="comment">// put all the subsequences into a block</span>
             <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">items</span>.<span class="ident">iter</span>() {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">to_der</span>(<span class="ident">x</span>)<span class="question-mark">?</span>;
-                <span class="ident">body</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bytes</span>);
+                <span class="ident">body</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>);
             }
 
             <span class="kw">let</span> <span class="ident">inttag</span> <span class="op">=</span> <span class="ident">BigUint::from_u8</span>(<span class="number">0x11</span>).<span class="ident">unwrap</span>();
@@ -2560,9 +2561,9 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tagbytes</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">ASN1Class::Universal</span>, <span class="bool-val">true</span>, <span class="kw-2">&amp;</span><span class="ident">inttag</span>);
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tagbytes</span>);
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbytes</span>);
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">body</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tagbytes</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lenbytes</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">body</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         }
         <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTCTime</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time</span>) =&gt; {
@@ -2572,9 +2573,9 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tagbytes</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">ASN1Class::Universal</span>, <span class="bool-val">false</span>, <span class="kw-2">&amp;</span><span class="ident">inttag</span>);
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tagbytes</span>);
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbytes</span>);
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">body</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tagbytes</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lenbytes</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">body</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         }
         <span class="kw-2">&amp;</span><span class="ident">ASN1Block::GeneralizedTime</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time</span>) =&gt; {
@@ -2588,9 +2589,9 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tagbytes</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">ASN1Class::Universal</span>, <span class="bool-val">false</span>, <span class="kw-2">&amp;</span><span class="ident">inttag</span>);
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tagbytes</span>);
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbytes</span>);
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">body</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tagbytes</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lenbytes</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">body</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         }
         <span class="kw-2">&amp;</span><span class="ident">ASN1Block::UTF8String</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">str</span>)      =&gt;
@@ -2611,9 +2612,9 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lenbytes</span> <span class="op">=</span> <span class="ident">encode_len</span>(<span class="ident">bytes</span>.<span class="ident">len</span>());
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tagbytes</span>);
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbytes</span>);
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bytes</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tagbytes</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lenbytes</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         }
         <span class="comment">// Unknown blocks</span>
@@ -2622,8 +2623,8 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lenbytes</span> <span class="op">=</span> <span class="ident">encode_len</span>(<span class="ident">bytes</span>.<span class="ident">len</span>());
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tagbytes</span>);
-            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbytes</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tagbytes</span>);
+            <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lenbytes</span>);
             <span class="ident">res</span>.<span class="ident">extend_from_slice</span>(<span class="ident">bytes</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         }
@@ -2653,9 +2654,9 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tagbytes</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">c</span>, <span class="bool-val">false</span>, <span class="kw-2">&amp;</span><span class="ident">inttag</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tagbytes</span>);
-    <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lenbytes</span>);
-    <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">body</span>);
+    <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tagbytes</span>);
+    <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lenbytes</span>);
+    <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">body</span>);
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 
@@ -2807,7 +2808,7 @@
 
     <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">blocks</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">to_der</span>(<span class="kw-2">&amp;</span><span class="ident">block</span>)<span class="question-mark">?</span>;
-        <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">x</span>);
+        <span class="ident">res</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">x</span>);
     }
 
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
@@ -2825,7 +2826,7 @@
     <span class="kw">use</span> <span class="ident">std::io::Read</span>;
 
     <span class="kw">impl</span> <span class="ident">Arbitrary</span> <span class="kw">for</span> <span class="ident">ASN1Class</span> {
-        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) -&gt; <span class="ident">ASN1Class</span> {
+        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>) -&gt; <span class="ident">ASN1Class</span> {
             <span class="kw">match</span> <span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>() <span class="op">%</span> <span class="number">4</span> {
                 <span class="number">0</span> =&gt; <span class="ident">ASN1Class::Private</span>,
                 <span class="number">1</span> =&gt; <span class="ident">ASN1Class::ContextSpecific</span>,
@@ -2852,7 +2853,7 @@
     }
 
     <span class="kw">impl</span> <span class="ident">Arbitrary</span> <span class="kw">for</span> <span class="ident">RandomUint</span> {
-        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) -&gt; <span class="ident">RandomUint</span> {
+        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>) -&gt; <span class="ident">RandomUint</span> {
             <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">BigUint::from_u32</span>(<span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>()).<span class="ident">unwrap</span>();
             <span class="ident">RandomUint</span> { <span class="ident">x</span>: <span class="ident">v</span> }
         }
@@ -2862,14 +2863,14 @@
         <span class="kw">fn</span> <span class="ident">tags_encdec_roundtrips</span>(<span class="ident">c</span>: <span class="ident">ASN1Class</span>, <span class="ident">con</span>: <span class="ident">bool</span>, <span class="ident">t</span>: <span class="ident">RandomUint</span>) -&gt; <span class="ident">bool</span> {
             <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">encode_tag</span>(<span class="ident">c</span>, <span class="ident">con</span>, <span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="ident">x</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zero</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">let</span> (<span class="ident">t2</span>, <span class="ident">con2</span>, <span class="ident">c2</span>) <span class="op">=</span> <span class="ident">decode_tag</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[..], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">zero</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> (<span class="ident">t2</span>, <span class="ident">con2</span>, <span class="ident">c2</span>) <span class="op">=</span> <span class="ident">decode_tag</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[..], <span class="kw-2">&amp;mut</span> <span class="ident">zero</span>).<span class="ident">unwrap</span>();
             (<span class="ident">c</span> <span class="op">==</span> <span class="ident">c2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">con</span> <span class="op">==</span> <span class="ident">con2</span>) <span class="op">&amp;&amp;</span> (<span class="ident">t</span>.<span class="ident">x</span> <span class="op">==</span> <span class="ident">t2</span>)
         }
 
         <span class="kw">fn</span> <span class="ident">len_encdec_roundtrips</span>(<span class="ident">l</span>: <span class="ident">usize</span>) -&gt; <span class="ident">bool</span> {
             <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">encode_len</span>(<span class="ident">l</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zero</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">match</span> <span class="ident">decode_length</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[..], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">zero</span>) {
+            <span class="kw">match</span> <span class="ident">decode_length</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[..], <span class="kw-2">&amp;mut</span> <span class="ident">zero</span>) {
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
                 <span class="prelude-val">Ok</span>(<span class="ident">l2</span>) =&gt; <span class="ident">l</span> <span class="op">==</span> <span class="ident">l2</span>
             }
@@ -2882,26 +2883,26 @@
     }
 
     <span class="kw">impl</span> <span class="ident">Arbitrary</span> <span class="kw">for</span> <span class="ident">RandomInt</span> {
-        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) -&gt; <span class="ident">RandomInt</span> {
+        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>) -&gt; <span class="ident">RandomInt</span> {
             <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">BigInt::from_i64</span>(<span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>()).<span class="ident">unwrap</span>();
             <span class="ident">RandomInt</span> { <span class="ident">x</span>: <span class="ident">v</span> }
         }
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">type_alias_bounds</span>)]</span>
-    <span class="kw">type</span> <span class="ident">ASN1BlockGen</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span>;
+    <span class="kw">type</span> <span class="ident">ASN1BlockGen</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span>;
 
-    <span class="kw">fn</span> <span class="ident">arb_boolean</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_boolean</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>();
         <span class="ident">ASN1Block::Boolean</span>(<span class="number">0</span>, <span class="ident">v</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_integer</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_integer</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">RandomInt::arbitrary</span>(<span class="ident">g</span>);
         <span class="ident">ASN1Block::Integer</span>(<span class="number">0</span>, <span class="ident">d</span>.<span class="ident">x</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_bitstr</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_bitstr</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">%</span> <span class="number">16</span>;
         <span class="kw">let</span> <span class="ident">maxbits</span> <span class="op">=</span> (<span class="ident">size</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">*</span> <span class="number">8</span>;
         <span class="kw">let</span> <span class="ident">modbits</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">%</span> <span class="number">8</span>;
@@ -2914,18 +2915,18 @@
         <span class="ident">ASN1Block::BitString</span>(<span class="number">0</span>, <span class="ident">nbits</span>, <span class="ident">bytes</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_octstr</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_octstr</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">%</span> <span class="number">16</span>;
         <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">sample_iter</span>::<span class="op">&lt;</span><span class="ident">u8</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">Standard</span>).<span class="ident">take</span>(<span class="ident">size</span>).<span class="ident">collect</span>();
         <span class="ident">ASN1Block::OctetString</span>(<span class="number">0</span>, <span class="ident">bytes</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_null</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">_g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_null</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">_g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="ident">ASN1Block::Null</span>(<span class="number">0</span>)
     }
 
     <span class="kw">impl</span> <span class="ident">Arbitrary</span> <span class="kw">for</span> <span class="ident">OID</span> {
-        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) -&gt; <span class="ident">OID</span> {
+        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>) -&gt; <span class="ident">OID</span> {
             <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">40</span>);
             <span class="kw">let</span> <span class="ident">val1</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>() <span class="op">%</span> <span class="number">3</span>;
             <span class="kw">let</span> <span class="ident">v2mod</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">val1</span> <span class="op">==</span> <span class="number">2</span> { <span class="number">176</span> } <span class="kw">else</span> { <span class="number">40</span> };
@@ -2943,12 +2944,12 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_objid</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_objid</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">oid</span> <span class="op">=</span> <span class="ident">OID::arbitrary</span>(<span class="ident">g</span>);
         <span class="ident">ASN1Block::ObjectIdentifier</span>(<span class="number">0</span>, <span class="ident">oid</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_seq</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_seq</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="number">1</span>, <span class="number">64</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
@@ -2959,7 +2960,7 @@
         <span class="ident">ASN1Block::Sequence</span>(<span class="number">0</span>, <span class="ident">items</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_set</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_set</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="number">1</span>, <span class="number">64</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
@@ -2970,7 +2971,7 @@
         <span class="ident">ASN1Block::Set</span>(<span class="number">0</span>, <span class="ident">items</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_print</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_print</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">384</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
@@ -2982,7 +2983,7 @@
         <span class="ident">ASN1Block::PrintableString</span>(<span class="number">0</span>, <span class="ident">String::from_iter</span>(<span class="ident">items</span>.<span class="ident">iter</span>()))
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_ia5</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_ia5</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">384</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
@@ -2993,27 +2994,27 @@
         <span class="ident">ASN1Block::IA5String</span>(<span class="number">0</span>, <span class="ident">String::from_iter</span>(<span class="ident">items</span>.<span class="ident">iter</span>()))
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_utf8</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_utf8</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">String::arbitrary</span>(<span class="ident">g</span>);
         <span class="ident">ASN1Block::UTF8String</span>(<span class="number">0</span>, <span class="ident">val</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_tele</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_tele</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">String::arbitrary</span>(<span class="ident">g</span>);
         <span class="ident">ASN1Block::TeletexString</span>(<span class="number">0</span>, <span class="ident">val</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_uni</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_uni</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">String::arbitrary</span>(<span class="ident">g</span>);
         <span class="ident">ASN1Block::UniversalString</span>(<span class="number">0</span>, <span class="ident">val</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_bmp</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_bmp</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">String::arbitrary</span>(<span class="ident">g</span>);
         <span class="ident">ASN1Block::BMPString</span>(<span class="number">0</span>, <span class="ident">val</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_utc</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_utc</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>(<span class="number">1970</span>, <span class="number">2069</span>);
             <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">1</span>, <span class="number">13</span>);
@@ -3032,7 +3033,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_time</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_time</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">10000</span>);
             <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">1</span>, <span class="number">13</span>);
@@ -3052,7 +3053,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_explicit</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_explicit</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">class</span> <span class="op">=</span> <span class="ident">ASN1Class::arbitrary</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="ident">class</span> <span class="op">==</span> <span class="ident">ASN1Class::Universal</span> {
             <span class="comment">// Universal is invalid for an explicitly tagged block</span>
@@ -3064,7 +3065,7 @@
         <span class="ident">ASN1Block::Explicit</span>(<span class="ident">class</span>, <span class="number">0</span>, <span class="ident">tag</span>.<span class="ident">x</span>, <span class="ident">Box::new</span>(<span class="ident">item</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">arb_unknown</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">arb_unknown</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">_d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="ident">class</span> <span class="op">=</span> <span class="ident">ASN1Class::arbitrary</span>(<span class="ident">g</span>);
         <span class="kw">let</span> <span class="ident">tag</span> <span class="op">=</span> <span class="ident">RandomUint::arbitrary</span>(<span class="ident">g</span>);
         <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">gen_range</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">128</span>);
@@ -3073,7 +3074,7 @@
         <span class="ident">ASN1Block::Unknown</span>(<span class="ident">class</span>, <span class="bool-val">false</span>, <span class="number">0</span>, <span class="ident">tag</span>.<span class="ident">x</span>, <span class="ident">items</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">limited_arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
+    <span class="kw">fn</span> <span class="ident">limited_arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>, <span class="ident">d</span>: <span class="ident">usize</span>) -&gt; <span class="ident">ASN1Block</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">possibles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1BlockGen</span><span class="op">&lt;</span><span class="ident">G</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
             <span class="ident">arb_boolean</span>,
             <span class="ident">arb_integer</span>,
@@ -3105,7 +3106,7 @@
     }
 
     <span class="kw">impl</span> <span class="ident">Arbitrary</span> <span class="kw">for</span> <span class="ident">ASN1Block</span> {
-        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) -&gt; <span class="ident">ASN1Block</span> {
+        <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">G</span>) -&gt; <span class="ident">ASN1Block</span> {
             <span class="ident">limited_arbitrary</span>(<span class="ident">g</span>, <span class="number">2</span>)
         }
     }
@@ -3198,7 +3199,7 @@
     <span class="kw">fn</span> <span class="ident">can_parse</span>(<span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ASN1Block</span><span class="op">&gt;</span>, <span class="ident">ASN1DecodeErr</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fd</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="ident">f</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="ident">_amt</span> <span class="op">=</span> <span class="ident">fd</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buffer</span>);
+        <span class="kw">let</span> <span class="ident">_amt</span> <span class="op">=</span> <span class="ident">fd</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buffer</span>);
         <span class="ident">from_der</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[..])
     }
 
@@ -3290,5 +3291,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="simple_asn1" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

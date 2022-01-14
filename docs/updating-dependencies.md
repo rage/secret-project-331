@@ -30,7 +30,7 @@ Start by upgrading the dependencies in the root of the repo and run `npm run esl
 
 ## Update rust dependencies
 
-Open Cargo.toml, and update outdated ones. If you don't see which ones are outdated in vscode install workspace recommended extensions. For prerelease crates, you have to check the latest version manually from crates.io.
+Open all Cargo.toml files (`find -name 'Cargo.toml'`), and update outdated ones. If you don't see which ones are outdated in vscode install workspace recommended extensions. For prerelease crates, you have to check the latest version manually from crates.io.
 
 Next, we will check if the code still compiles and works. Here's how to setup it correctly:
 

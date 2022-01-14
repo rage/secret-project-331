@@ -34,9 +34,9 @@
   },
   "keywords": [],
   "devDependencies": {
-    "@playwright/test": "^1.17.1",
-    "playwright": "^1.17.1",
-    "typescript": "^4.5.3"
+    "@playwright/test": "^1.17.2",
+    "playwright": "^1.17.2",
+    "typescript": "^4.5.4"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.3.2",

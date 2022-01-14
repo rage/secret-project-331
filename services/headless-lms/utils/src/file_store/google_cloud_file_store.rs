@@ -54,7 +54,7 @@ impl FileStore for GoogleCloudFileStore {
             .object()
             .read(&self.bucket_name, path_to_str(path)?)
             .await?;
-        let url = object.download_url(60)?;
+        let url = object.download_url(300)?;
         Ok(url)
     }
 

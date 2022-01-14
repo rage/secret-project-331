@@ -3,20 +3,16 @@ ARG BUILD_CACHE
 
 FROM $BUILD_CACHE as builder
 
-# Middle stage where we can remove unnecessary files
-FROM eu.gcr.io/moocfi-public/project-331-headless-lms-production-base:latest as cleanup
-
-WORKDIR /app
-
-COPY --from=builder /app/target/release /app/full-build
-RUN mkdir bins && find ./full-build -maxdepth 1 -executable -type f -exec cp "{}" ./bins \;
+USER root
+# Middle step so we can only copy the required binaries and not copy other large compilation artifacts
+RUN mkdir /bins && find /app -maxdepth 1 -executable -type f -exec cp "{}" /bins \;
 
 # The runtime target is used in skaffold.production.yml to create a slim image that is used in production
 FROM eu.gcr.io/moocfi-public/project-331-headless-lms-production-base:latest as runtime
 
 WORKDIR /app
 
-COPY --from=cleanup /app/bins /app
+COPY --from=builder /bins /app
 COPY --from=builder /app/migrations /app/migrations
 COPY --from=builder /app/wait-for-db.sh /app/
 COPY --from=builder /app/wait-for-db-migrations.sh /app/

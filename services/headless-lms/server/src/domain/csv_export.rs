@@ -11,7 +11,7 @@ use bytes::Bytes;
 use csv::Writer;
 use futures::stream::FuturesUnordered;
 use headless_lms_models::{
-    chapters, course_instances, exercises, submissions, user_exercise_states,
+    chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
 };
 use sqlx::PgConnection;
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
@@ -212,7 +212,7 @@ where
         "data_json".to_string(),
     ]);
 
-    let mut stream = submissions::stream_exam_submissions(conn, exam_id);
+    let mut stream = exercise_task_submissions::stream_exam_submissions(conn, exam_id);
 
     let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
     while let Some(next) = stream.try_next().await? {
@@ -260,11 +260,11 @@ mod test {
 
     use bytes::Bytes;
     use headless_lms_models::{
-        exercise_slides, exercise_tasks,
+        exercise_slides,
+        exercise_task_submissions::{self, GradingResult},
+        exercise_tasks,
         exercises::{self, GradingProgress},
-        gradings,
-        submissions::{self, GradingResult},
-        users,
+        gradings, users,
     };
     use serde_json::Value;
 
@@ -359,10 +359,10 @@ mod test {
         ci: Uuid,
         score_given: f32,
     ) {
-        let s = submissions::insert(tx, ex, c, et, u, ci, Value::Null)
+        let s = exercise_task_submissions::insert(tx, ex, c, et, u, ci, Value::Null)
             .await
             .unwrap();
-        let submission = submissions::get_by_id(tx, s).await.unwrap();
+        let submission = exercise_task_submissions::get_by_id(tx, s).await.unwrap();
         let grading = gradings::new_grading(tx, &submission).await.unwrap();
         let grading_result = GradingResult {
             feedback_json: None,
@@ -375,7 +375,7 @@ mod test {
         let grading = gradings::update_grading(tx, &grading, &grading_result, &exercise)
             .await
             .unwrap();
-        submissions::set_grading_id(tx, grading.id, submission.id)
+        exercise_task_submissions::set_grading_id(tx, grading.id, submission.id)
             .await
             .unwrap();
         user_exercise_states::update_user_exercise_state(tx, &grading, &submission)

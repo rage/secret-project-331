@@ -2,14 +2,18 @@ import { Alert } from "@material-ui/lab"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { Grading, Submission, SubmissionResult } from "../../../../shared-module/bindings"
+import {
+  ExerciseTaskSubmission,
+  Grading,
+  SubmissionResult,
+} from "../../../../shared-module/bindings"
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
 
 const VIEW_SUBMISSION = "view-submission"
 interface SubmissionIFrameProps {
   url: string
   public_spec: unknown
-  submission: Submission
+  submission: ExerciseTaskSubmission
   model_solution_spec: unknown
   grading: Grading | null
 }

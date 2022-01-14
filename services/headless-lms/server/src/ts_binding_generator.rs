@@ -122,14 +122,14 @@ fn ts_binding_generator() {
         proposed_page_edits::PageProposal,
         proposed_page_edits::ProposalCount,
 
-        submissions::Submission,
-        submissions::SubmissionCount,
-        submissions::SubmissionCountByWeekAndHour,
-        submissions::SubmissionCountByExercise,
-        submissions::SubmissionInfo,
-        submissions::SubmissionResult,
-        submissions::NewSubmission,
-        submissions::GradingResult,
+        exercise_task_submissions::ExerciseTaskSubmission,
+        exercise_task_submissions::SubmissionCount,
+        exercise_task_submissions::SubmissionCountByWeekAndHour,
+        exercise_task_submissions::SubmissionCountByExercise,
+        exercise_task_submissions::SubmissionInfo,
+        exercise_task_submissions::SubmissionResult,
+        exercise_task_submissions::NewSubmission,
+        exercise_task_submissions::GradingResult,
 
         user_course_settings::UserCourseSettings,
 

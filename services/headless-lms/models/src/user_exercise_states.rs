@@ -3,10 +3,10 @@ use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use serde_json::Value;
 
 use crate::{
+    exercise_task_submissions::ExerciseTaskSubmission,
     exercises::{ActivityProgress, GradingProgress},
     gradings::{Grading, UserPointsUpdateStrategy},
     prelude::*,
-    submissions::Submission,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -446,9 +446,9 @@ fn figure_out_new_activity_progress(
 pub async fn update_user_exercise_state(
     conn: &mut PgConnection,
     grading: &Grading,
-    submission: &Submission,
+    submission: &ExerciseTaskSubmission,
 ) -> ModelResult<UserExerciseState> {
-    let Submission {
+    let ExerciseTaskSubmission {
         user_id,
         exercise_id,
         course_instance_id,
@@ -624,8 +624,8 @@ GROUP BY user_id,
 mod tests {
     use super::*;
     use crate::{
+        exercise_task_submissions::{self, GradingResult, SubmissionData},
         exercises, gradings,
-        submissions::{self, GradingResult, SubmissionData},
         test_helper::{insert_data, Conn},
     };
 
@@ -834,7 +834,7 @@ mod tests {
 
         let data = insert_data(tx.as_mut(), "").await.unwrap();
 
-        let submission = submissions::insert_with_id(
+        let submission = exercise_task_submissions::insert_with_id(
             tx.as_mut(),
             &SubmissionData {
                 exercise_id: data.exercise,
@@ -848,7 +848,7 @@ mod tests {
         )
         .await
         .unwrap();
-        let submission = submissions::get_by_id(tx.as_mut(), submission)
+        let submission = exercise_task_submissions::get_by_id(tx.as_mut(), submission)
             .await
             .unwrap();
         let grading = gradings::new_grading(tx.as_mut(), &submission)
@@ -871,10 +871,10 @@ mod tests {
         )
         .await
         .unwrap();
-        submissions::set_grading_id(tx.as_mut(), grading.id, submission.id)
+        exercise_task_submissions::set_grading_id(tx.as_mut(), grading.id, submission.id)
             .await
             .unwrap();
-        let submission = submissions::get_by_id(tx.as_mut(), submission.id)
+        let submission = exercise_task_submissions::get_by_id(tx.as_mut(), submission.id)
             .await
             .unwrap();
         update_user_exercise_state(tx.as_mut(), &grading, &submission)

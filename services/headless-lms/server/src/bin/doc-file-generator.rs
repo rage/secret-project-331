@@ -22,6 +22,10 @@ use headless_lms_models::{
     email_templates::EmailTemplate,
     exams::{CourseExam, Exam, ExamEnrollment},
     exercise_services::ExerciseService,
+    exercise_task_submissions::{
+        ExerciseTaskSubmission, SubmissionCount, SubmissionCountByExercise,
+        SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
+    },
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     exercises::{
         ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
@@ -38,10 +42,6 @@ use headless_lms_models::{
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
     proposed_page_edits::{PageProposal, ProposalCount},
-    submissions::{
-        Submission, SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour,
-        SubmissionInfo, SubmissionResult,
-    },
     user_course_settings::UserCourseSettings,
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
     users::User,
@@ -151,7 +151,7 @@ fn main() {
         order_number: 123,
         copied_from: None,
     };
-    let submission = Submission {
+    let submission = ExerciseTaskSubmission {
         id,
         created_at,
         updated_at,

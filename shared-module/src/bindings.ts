@@ -267,7 +267,7 @@ export interface CourseMaterialExercise {
   exercise: Exercise
   current_exercise_tasks: Array<CourseMaterialExerciseTask>
   exercise_status: ExerciseStatus | null
-  previous_submission: Submission | null
+  previous_submission: ExerciseTaskSubmission | null
   grading: Grading | null
 }
 
@@ -567,7 +567,7 @@ export interface ProposalCount {
   handled: number
 }
 
-export interface Submission {
+export interface ExerciseTaskSubmission {
   id: string
   created_at: Date
   updated_at: Date
@@ -601,7 +601,7 @@ export interface SubmissionCountByExercise {
 }
 
 export interface SubmissionInfo {
-  submission: Submission
+  submission: ExerciseTaskSubmission
   exercise: Exercise
   exercise_task: ExerciseTask
   grading: Grading | null
@@ -609,7 +609,7 @@ export interface SubmissionInfo {
 }
 
 export interface SubmissionResult {
-  submission: Submission
+  submission: ExerciseTaskSubmission
   grading: Grading | null
   model_solution_spec: unknown | null
 }
@@ -660,7 +660,7 @@ export interface User {
 }
 
 export interface PreviousSubmission {
-  submission: Submission
+  submission: ExerciseTaskSubmission
   grading: Grading | null
 }
 
@@ -694,7 +694,7 @@ export interface UploadResult {
 }
 
 export interface ExerciseSubmissions {
-  data: Array<Submission>
+  data: Array<ExerciseTaskSubmission>
   total_pages: number
 }
 

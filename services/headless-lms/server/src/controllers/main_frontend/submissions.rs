@@ -1,4 +1,4 @@
-use models::submissions::SubmissionInfo;
+use models::exercise_task_submissions::SubmissionInfo;
 
 use crate::controllers::prelude::*;
 
@@ -14,7 +14,8 @@ async fn get_submission_info(
 ) -> ControllerResult<web::Json<SubmissionInfo>> {
     let mut conn = pool.acquire().await?;
     let (course_id, exam_id) =
-        models::submissions::get_course_and_exam_id(&mut conn, *submission_id).await?;
+        models::exercise_task_submissions::get_course_and_exam_id(&mut conn, *submission_id)
+            .await?;
     if let Some(course_id) = course_id {
         authorize(&mut conn, Act::View, user.id, Res::Course(course_id)).await?;
     } else if let Some(exam_id) = exam_id {
@@ -23,7 +24,8 @@ async fn get_submission_info(
         return Err(anyhow::anyhow!("Submission not associated with course or exam").into());
     }
 
-    let submission = models::submissions::get_by_id(&mut conn, *submission_id).await?;
+    let submission =
+        models::exercise_task_submissions::get_by_id(&mut conn, *submission_id).await?;
     let exercise = models::exercises::get_by_id(&mut conn, submission.exercise_id).await?;
     let exercise_task =
         models::exercise_tasks::get_exercise_task_by_id(&mut conn, submission.exercise_task_id)

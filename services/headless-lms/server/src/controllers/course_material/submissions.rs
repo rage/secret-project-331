@@ -2,9 +2,10 @@
 
 use chrono::{Duration, Utc};
 use models::{
-    exams, exercise_slides, exercises,
+    exams, exercise_slides,
+    exercise_task_submissions::{self, ExerciseTaskSubmission, NewSubmission, SubmissionResult},
+    exercises,
     gradings::{self, Grading},
-    submissions::{self, NewSubmission, Submission, SubmissionResult},
 };
 
 use crate::controllers::prelude::*;
@@ -59,8 +60,13 @@ async fn post_submission(
             }
         }
 
-        let mut submission =
-            submissions::insert_submission(&mut conn, &submission, user.id, &exercise).await?;
+        let mut submission = exercise_task_submissions::insert_submission(
+            &mut conn,
+            &submission,
+            user.id,
+            &exercise,
+        )
+        .await?;
         if exercise.exam_id.is_some() {
             // remove grading information from submission
             submission.grading = None;
@@ -76,7 +82,7 @@ async fn post_submission(
 
 #[derive(Debug, Clone, Serialize, TS)]
 pub struct PreviousSubmission {
-    pub submission: Submission,
+    pub submission: ExerciseTaskSubmission,
     pub grading: Option<Grading>,
 }
 
@@ -91,8 +97,12 @@ async fn previous_submission(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Option<PreviousSubmission>>> {
     let mut conn = pool.acquire().await?;
-    if let Some(submission) =
-        submissions::get_latest_user_exercise_submission(&mut conn, user.id, *exercise_id).await?
+    if let Some(submission) = exercise_task_submissions::get_latest_user_exercise_submission(
+        &mut conn,
+        user.id,
+        *exercise_id,
+    )
+    .await?
     {
         let grading = if let Some(grading_id) = submission.grading_id {
             gradings::get_for_student(&mut conn, grading_id, user.id).await?

@@ -2,10 +2,10 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { Submission } from "../../../../../../shared-module/bindings"
+import { ExerciseTaskSubmission } from "../../../../../../shared-module/bindings"
 
 interface Props {
-  exerciseSubmissions: Submission[]
+  exerciseSubmissions: ExerciseTaskSubmission[]
 }
 
 const ExerciseSubmissionList: React.FC<Props> = ({ exerciseSubmissions }) => {

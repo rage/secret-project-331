@@ -1,9 +1,9 @@
 use crate::{
     course_instances, exercise_slides,
+    exercise_task_submissions::ExerciseTaskSubmission,
     exercise_tasks::{self, CourseMaterialExerciseTask},
     gradings::Grading,
     prelude::*,
-    submissions::Submission,
     user_course_settings,
     user_exercise_states::get_user_exercise_state_if_exits,
 };
@@ -31,7 +31,7 @@ pub struct CourseMaterialExercise {
     pub current_exercise_tasks: Vec<CourseMaterialExerciseTask>,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
-    pub previous_submission: Option<Submission>,
+    pub previous_submission: Option<ExerciseTaskSubmission>,
     pub grading: Option<Grading>,
 }
 
@@ -280,7 +280,12 @@ pub async fn get_course_material_exercise(
     }
 
     let previous_submission = if let Some(user_id) = user_id {
-        crate::submissions::get_latest_user_exercise_submission(conn, user_id, exercise_id).await?
+        crate::exercise_task_submissions::get_latest_user_exercise_submission(
+            conn,
+            user_id,
+            exercise_id,
+        )
+        .await?
     } else {
         None
     };

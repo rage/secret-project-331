@@ -18,10 +18,10 @@ use headless_lms_models::{
     self as models,
     exercise_service_info::ExerciseServiceInfo,
     exercise_services::{get_internal_grade_url, ExerciseService},
+    exercise_task_submissions::GradingResult,
     exercises::{Exercise, GradingProgress},
     gradings::Grading,
     regrading_submissions::RegradingSubmission,
-    submissions::GradingResult,
     ModelResult,
 };
 
@@ -122,8 +122,12 @@ pub async fn regrade(
             }
         };
         models::gradings::update_grading(&mut *conn, &grading, &grading_result, &exercise).await?;
-        models::submissions::set_grading_id(&mut *conn, grading.id, regrading_submission.id)
-            .await?;
+        models::exercise_task_submissions::set_grading_id(
+            &mut *conn,
+            grading.id,
+            regrading_submission.id,
+        )
+        .await?;
     }
     // update completed regradings
     for regrading_id in regrading_ids {
@@ -172,9 +176,11 @@ async fn do_single_regrading(
         }
 
         // create new grading for the submission
-        let submission =
-            models::submissions::get_submission(&mut *conn, regrading_submission.submission_id)
-                .await?;
+        let submission = models::exercise_task_submissions::get_submission(
+            &mut *conn,
+            regrading_submission.submission_id,
+        )
+        .await?;
         let not_ready_grading = models::gradings::new_grading(&mut *conn, &submission).await?;
         models::regrading_submissions::set_grading_after_regrading(
             conn,
@@ -298,7 +304,7 @@ mod test {
         } = test_helper::insert_data(tx.as_mut(), "test-exercise")
             .await
             .unwrap();
-        let submission = models::submissions::insert(
+        let submission = models::exercise_task_submissions::insert(
             tx.as_mut(),
             exercise,
             course,
@@ -394,7 +400,7 @@ mod test {
         } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
             .await
             .unwrap();
-        let submission = models::submissions::insert(
+        let submission = models::exercise_task_submissions::insert(
             tx.as_mut(),
             exercise,
             course,
@@ -501,7 +507,7 @@ mod test {
         )
         .await
         .unwrap();
-        let submission_1 = models::submissions::insert(
+        let submission_1 = models::exercise_task_submissions::insert(
             tx.as_mut(),
             exercise,
             course,
@@ -512,7 +518,7 @@ mod test {
         )
         .await
         .unwrap();
-        let submission_2 = models::submissions::insert(
+        let submission_2 = models::exercise_task_submissions::insert(
             tx.as_mut(),
             exercise,
             course,
@@ -622,7 +628,7 @@ mod test {
         } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
             .await
             .unwrap();
-        let submission = models::submissions::insert(
+        let submission = models::exercise_task_submissions::insert(
             tx.as_mut(),
             exercise,
             course,

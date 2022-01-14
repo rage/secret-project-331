@@ -8,10 +8,10 @@ use crate::{
     exams,
     exercise_service_info::get_service_info_by_exercise_type,
     exercise_services::{get_exercise_service_by_exercise_type, get_internal_grade_url},
+    exercise_task_submissions::{ExerciseTaskSubmission, GradingRequest, GradingResult},
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     prelude::*,
-    submissions::{GradingRequest, GradingResult, Submission},
     user_exercise_states::update_user_exercise_state,
 };
 
@@ -114,7 +114,10 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Opt
     Ok(course_id)
 }
 
-pub async fn new_grading(conn: &mut PgConnection, submission: &Submission) -> ModelResult<Grading> {
+pub async fn new_grading(
+    conn: &mut PgConnection,
+    submission: &ExerciseTaskSubmission,
+) -> ModelResult<Grading> {
     let update_strategy = if submission.exam_id.is_some() {
         UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
     } else {
@@ -186,7 +189,7 @@ WHERE id = $2
 
 pub async fn grade_submission(
     conn: &mut PgConnection,
-    submission: &Submission,
+    submission: &ExerciseTaskSubmission,
     exercise_task: &ExerciseTask,
     exercise: &Exercise,
     grading: &Grading,
@@ -207,7 +210,7 @@ pub async fn grade_submission(
 pub fn send_grading_request(
     grade_url: Url,
     exercise_task: &ExerciseTask,
-    submission: &Submission,
+    submission: &ExerciseTaskSubmission,
 ) -> impl Future<Output = ModelResult<GradingResult>> + 'static {
     let client = reqwest::Client::new();
     let req = client

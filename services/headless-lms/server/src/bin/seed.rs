@@ -16,7 +16,9 @@ use headless_lms_models::{
     courses::NewCourse,
     exams,
     exams::NewExam,
-    exercise_services, exercises,
+    exercise_services, exercise_task_submissions,
+    exercise_task_submissions::GradingResult,
+    exercises,
     exercises::GradingProgress,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
@@ -31,8 +33,6 @@ use headless_lms_models::{
     proposed_page_edits::NewProposedPageEdits,
     roles,
     roles::UserRole,
-    submissions,
-    submissions::GradingResult,
     user_exercise_states, users,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
@@ -2194,9 +2194,9 @@ async fn submit_and_grade(
 ) -> Result<()> {
     // combine the id with the user id to ensure it's unique
     let id = [id, &user_id.as_bytes()[..]].concat();
-    let sub = submissions::insert_with_id(
+    let sub = exercise_task_submissions::insert_with_id(
         conn,
-        &submissions::SubmissionData {
+        &exercise_task_submissions::SubmissionData {
             id: Uuid::new_v5(&course_id, &id),
             exercise_id,
             course_id,
@@ -2208,7 +2208,7 @@ async fn submit_and_grade(
     )
     .await?;
 
-    let submission = submissions::get_by_id(conn, sub).await?;
+    let submission = exercise_task_submissions::get_by_id(conn, sub).await?;
     let grading = gradings::new_grading(conn, &submission).await?;
     let grading_result = GradingResult {
         feedback_json: Some(serde_json::json!([{"SelectedOptioIsCorrect": true}])),
@@ -2219,7 +2219,7 @@ async fn submit_and_grade(
     };
     let exercise = exercises::get_by_id(conn, exercise_id).await?;
     let grading = gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
-    submissions::set_grading_id(conn, grading.id, submission.id).await?;
+    exercise_task_submissions::set_grading_id(conn, grading.id, submission.id).await?;
     user_exercise_states::update_user_exercise_state(conn, &grading, &submission).await?;
     Ok(())
 }

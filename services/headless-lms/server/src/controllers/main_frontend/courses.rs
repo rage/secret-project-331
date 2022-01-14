@@ -4,9 +4,11 @@ use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
+    exercise_task_submissions::{
+        SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour,
+    },
     exercises::Exercise,
     feedback::{self, Feedback, FeedbackCount},
-    submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
 };
 
 use crate::controllers::prelude::*;
@@ -315,7 +317,9 @@ async fn get_daily_submission_counts(
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let res = models::submissions::get_course_daily_submission_counts(&mut conn, &course).await?;
+    let res =
+        models::exercise_task_submissions::get_course_daily_submission_counts(&mut conn, &course)
+            .await?;
     Ok(web::Json(res))
 }
 
@@ -332,9 +336,10 @@ async fn get_weekday_hour_submission_counts(
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let res =
-        models::submissions::get_course_submission_counts_by_weekday_and_hour(&mut conn, &course)
-            .await?;
+    let res = models::exercise_task_submissions::get_course_submission_counts_by_weekday_and_hour(
+        &mut conn, &course,
+    )
+    .await?;
     Ok(web::Json(res))
 }
 
@@ -351,8 +356,10 @@ async fn get_submission_counts_by_exercise(
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let res =
-        models::submissions::get_course_submission_counts_by_exercise(&mut conn, &course).await?;
+    let res = models::exercise_task_submissions::get_course_submission_counts_by_exercise(
+        &mut conn, &course,
+    )
+    .await?;
     Ok(web::Json(res))
 }
 

@@ -49,6 +49,7 @@ import {
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
+  ExerciseTaskSubmission,
   ExerciseWithExerciseTasks,
   Feedback,
   FeedbackBlock,
@@ -85,7 +86,6 @@ import {
   PreviousSubmission,
   ProposalCount,
   ProposalStatus,
-  Submission,
   SubmissionCount,
   SubmissionCountByExercise,
   SubmissionCountByWeekAndHour,
@@ -491,7 +491,8 @@ export function isCourseMaterialExercise(
     Array.isArray(obj.current_exercise_tasks) &&
     obj.current_exercise_tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean) &&
     (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
-    (obj.previous_submission === null || (isSubmission(obj.previous_submission) as boolean)) &&
+    (obj.previous_submission === null ||
+      (isExerciseTaskSubmission(obj.previous_submission) as boolean)) &&
     (obj.grading === null || (isGrading(obj.grading) as boolean))
   )
 }
@@ -950,7 +951,10 @@ export function isProposalCount(obj: any, _argumentName?: string): obj is Propos
   )
 }
 
-export function isSubmission(obj: any, _argumentName?: string): obj is Submission {
+export function isExerciseTaskSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseTaskSubmission {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
@@ -1002,7 +1006,7 @@ export function isSubmissionCountByExercise(
 export function isSubmissionInfo(obj: any, _argumentName?: string): obj is SubmissionInfo {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isSubmission(obj.submission) as boolean) &&
+    (isExerciseTaskSubmission(obj.submission) as boolean) &&
     (isExercise(obj.exercise) as boolean) &&
     (isExerciseTask(obj.exercise_task) as boolean) &&
     (obj.grading === null || (isGrading(obj.grading) as boolean)) &&
@@ -1013,7 +1017,7 @@ export function isSubmissionInfo(obj: any, _argumentName?: string): obj is Submi
 export function isSubmissionResult(obj: any, _argumentName?: string): obj is SubmissionResult {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isSubmission(obj.submission) as boolean) &&
+    (isExerciseTaskSubmission(obj.submission) as boolean) &&
     (obj.grading === null || (isGrading(obj.grading) as boolean))
   )
 }
@@ -1088,7 +1092,7 @@ export function isUser(obj: any, _argumentName?: string): obj is User {
 export function isPreviousSubmission(obj: any, _argumentName?: string): obj is PreviousSubmission {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isSubmission(obj.submission) as boolean) &&
+    (isExerciseTaskSubmission(obj.submission) as boolean) &&
     (obj.grading === null || (isGrading(obj.grading) as boolean))
   )
 }
@@ -1151,7 +1155,7 @@ export function isExerciseSubmissions(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     Array.isArray(obj.data) &&
-    obj.data.every((e: any) => isSubmission(e) as boolean) &&
+    obj.data.every((e: any) => isExerciseTaskSubmission(e) as boolean) &&
     typeof obj.total_pages === "number"
   )
 }

@@ -1,4 +1,4 @@
-import { Grading, Submission } from "./bindings"
+import { ExerciseTaskSubmission, Grading } from "./bindings"
 
 /**
  * from: IFrame
@@ -42,7 +42,7 @@ export type IframeState =
       view_type: "exercise"
       data: {
         public_spec: unknown
-        previous_submission: Submission | null
+        previous_submission: ExerciseTaskSubmission | null
       }
     }
   | {

@@ -154,7 +154,7 @@ pub async fn authorize(
         }
         Resource::Submission(id) => {
             let (course_id, exam_id) =
-                models::submissions::get_course_and_exam_id(conn, id).await?;
+                models::exercise_task_submissions::get_course_and_exam_id(conn, id).await?;
             (exam_id, course_id, None)
         }
         Resource::Exam(exam_id) => (Some(exam_id), None, None),

@@ -38,7 +38,6 @@ const StyledDiv = styled.div`
   background-color: #f5f6f7;
   margin-bottom: 1em;
   padding: 0 1.5rem;
-  font-family: Josefin Sans, "sans serif";
   height: 6rem;
   &:hover {
     cursor: pointer;

@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { Dialog } from "@material-ui/core"
 import Link from "next/link"
 import React, { useContext, useState } from "react"
@@ -19,6 +20,7 @@ import Button from "../../shared-module/components/Button"
 import DebugModal from "../../shared-module/components/DebugModal"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
+import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { courseMaterialPageHref } from "../../shared-module/utils/cross-routing"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -28,6 +30,42 @@ import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"organizationSlug">
 }
+
+const StyledDiv = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 0.1fr;
+  align-items: center;
+  background-color: #f5f6f7;
+  margin-bottom: 1em;
+  padding: 0 1.5rem;
+  font-family: Josefin Sans, "sans serif";
+  height: 6rem;
+  &:hover {
+    cursor: pointer;
+    background-color: #ebedee;
+  }
+  ${respondToOrLarger.lg} {
+    /*     flex-direction: row; */
+    max-height: 8rem;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+    font-size: 1.5em;
+    text-transform: uppercase;
+  }
+
+  a:nth-of-type(2) {
+    display: flex;
+    background: #ced2d5;
+    color: #535a66;
+    text-transform: lowercase;
+    justify-content: center;
+    margin-right: 1em;
+    padding: 0.1em 1em;
+  }
+`
 
 const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   const {
@@ -96,7 +134,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           `}
         >
           {dataOrgCourses.map((course) => (
-            <div key={course.id}>
+            <StyledDiv key={course.id}>
               <a href={courseMaterialPageHref(query.organizationSlug, course.slug)}>
                 {course.name}
               </a>{" "}
@@ -114,7 +152,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                   </Link>{" "}
                 </>
               )}
-            </div>
+            </StyledDiv>
           ))}
         </div>
 

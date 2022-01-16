@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
 import { Quiz, QuizAnswer, QuizItem, QuizItemAnswer } from "../../../types/types"
+import { GradingResult } from "../../shared-module/bindings"
 
 interface QuizzesGradingRequest {
   exercise_spec: Quiz
@@ -16,15 +17,8 @@ interface OptionAnswerFeedback {
 export interface ItemAnswerFeedback {
   quiz_item_id: string | null
   quiz_item_feedback: string | null
+  quiz_item_correct: boolean | null
   quiz_item_option_feedbacks: OptionAnswerFeedback[] | null
-}
-
-interface QuizzesGradingResult {
-  grading_progress: "FullyGraded" | "Pending" | "PendingManual" | "Failed"
-  score_given: number
-  score_maximum: number
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  feedback_json: ItemAnswerFeedback[]
 }
 
 interface QuizItemAnswerGrading {
@@ -40,15 +34,21 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
   return handlePost(req, res)
 }
 
-const handlePost = (req: NextApiRequest, res: NextApiResponse<QuizzesGradingResult>) => {
+const handlePost = (req: NextApiRequest, res: NextApiResponse<GradingResult>) => {
   const gradingRedquest: QuizzesGradingRequest = req.body
   const { exercise_spec, submission_data } = gradingRedquest
 
   const assessedAnswers = asssesAnswers(submission_data, exercise_spec)
+
   const score = gradeAnswer(assessedAnswers, exercise_spec)
-  const feedbacks = submissionFeedback(submission_data, exercise_spec, assessedAnswers)
+  const feedbacks: ItemAnswerFeedback[] = submissionFeedback(
+    submission_data,
+    exercise_spec,
+    assessedAnswers,
+  )
   return res.status(200).json({
     feedback_json: feedbacks,
+    feedback_text: exercise_spec.submitMessage,
     grading_progress: "FullyGraded",
     score_given: score,
     score_maximum: exercise_spec.points,
@@ -85,6 +85,8 @@ function asssesAnswers(quizAnswer: QuizAnswer, quiz: Quiz): QuizItemAnswerGradin
       return assesMultipleChoiceQuizzes(ia, item)
     } else if (item.type === "open") {
       return assessOpenQuiz(ia, item)
+    } else if (item.type === "matrix") {
+      return assessMatrixQuiz(ia, item)
     } else {
       return { quizItemId: item.id, correct: true }
     }
@@ -148,6 +150,33 @@ function assesMultipleChoiceQuizzes(
   }
 }
 
+function assessMatrixQuiz(
+  quizItemAnswer: QuizItemAnswer,
+  quizItem: QuizItem,
+): QuizItemAnswerGrading {
+  const studentAnswers = quizItemAnswer.optionCells
+  const correctAnswers = quizItem.optionCells
+
+  if (!studentAnswers) {
+    throw new Error("No student answers")
+  }
+
+  if (!correctAnswers) {
+    throw new Error("No correct answers")
+  }
+
+  const isMatrixCorrect: boolean[] = []
+  for (let i = 0; i < 6; i++) {
+    for (let j = 0; j < 6; j++) {
+      isMatrixCorrect.push(correctAnswers[i][j] === studentAnswers[i][j])
+    }
+  }
+
+  const includesSingleFalse = !isMatrixCorrect.includes(false)
+
+  return { quizItemId: quizItem.id, correct: includesSingleFalse }
+}
+
 function submissionFeedback(
   submission: QuizAnswer,
   quiz: Quiz,
@@ -157,7 +186,12 @@ function submissionFeedback(
     const item = quiz.items.find((i) => i.id === ia.quizItemId)
     const itemGrading = quizItemgradings.find((ig) => ig.quizItemId === ia.quizItemId)
     if (!item || !itemGrading) {
-      return { quiz_item_id: null, quiz_item_feedback: null, quiz_item_option_feedbacks: null }
+      return {
+        quiz_item_id: null,
+        quiz_item_feedback: null,
+        quiz_item_option_feedbacks: null,
+        quiz_item_correct: null,
+      }
     }
     if (
       item.type === "multiple-choice" ||
@@ -167,6 +201,7 @@ function submissionFeedback(
       return {
         quiz_item_id: item.id,
         quiz_item_feedback: null,
+        quiz_item_correct: itemGrading.correct,
         quiz_item_option_feedbacks: itemGrading.correct
           ? item.options
               .filter((o) => o.correct)
@@ -179,6 +214,7 @@ function submissionFeedback(
       return {
         quiz_item_id: item.id,
         quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
+        quiz_item_correct: itemGrading.correct,
         quiz_item_option_feedbacks: null,
       }
     }

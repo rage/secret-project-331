@@ -1,4 +1,5 @@
 import { injectGlobal } from "@emotion/css"
+import { config } from "@fortawesome/fontawesome-svg-core"
 import { ThemeProvider } from "@material-ui/core"
 import type { AppProps } from "next/app"
 import Head from "next/head"
@@ -12,6 +13,9 @@ import GlobalStyles from "../shared-module/styles/GlobalStyles"
 import muiTheme from "../shared-module/styles/muiTheme"
 import initI18n from "../shared-module/utils/initI18n"
 import store from "../store/store"
+
+import "@fortawesome/fontawesome-svg-core/styles.css"
+config.autoAddCss = false
 
 injectGlobal`
 html {

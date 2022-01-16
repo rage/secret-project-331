@@ -1,4 +1,4 @@
-import { Course, Organization } from "../../shared-module/bindings"
+import { Course, CourseCount, Organization } from "../../shared-module/bindings"
 import { isCourse, isOrganization } from "../../shared-module/bindings.guard"
 import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { validateFile } from "../../shared-module/utils/files"
@@ -21,9 +21,54 @@ export const fetchOrganizationBySlug = async (organizationSlug: string): Promise
   return res.data
 }
 
-export const fetchOrganizationCourses = async (organizationId: string): Promise<Array<Course>> => {
+export const fetchOrganizationCourseCount = async (
+  organizationId: string,
+): Promise<CourseCount> => {
+  const data = (
+    await mainFrontendClient.get(`/organizations/${organizationId}/courses/count`, {
+      responseType: "json",
+    })
+  ).data
+  return data
+}
+
+export const fetchOrganizationActiveCourseCount = async (
+  organizationId: string,
+): Promise<CourseCount> => {
+  const data = (
+    await mainFrontendClient.get(`/organizations/${organizationId}/courses/active/count`, {
+      responseType: "json",
+    })
+  ).data
+  return data
+}
+
+export const fetchOrganizationCourses = async (
+  organizationId: string,
+  page: number,
+  limit: number,
+): Promise<Array<Course>> => {
   const response = await mainFrontendClient.get(`/organizations/${organizationId}/courses`, {
     responseType: "json",
+    params: {
+      page,
+      limit,
+    },
+  })
+  return validateResponse(response, isArray(isCourse))
+}
+
+export const fetchOrganizationActiveCourses = async (
+  organizationId: string,
+  page: number,
+  limit: number,
+): Promise<Array<Course>> => {
+  const response = await mainFrontendClient.get(`/organizations/${organizationId}/courses/active`, {
+    responseType: "json",
+    params: {
+      page,
+      limit,
+    },
   })
   return validateResponse(response, isArray(isCourse))
 }

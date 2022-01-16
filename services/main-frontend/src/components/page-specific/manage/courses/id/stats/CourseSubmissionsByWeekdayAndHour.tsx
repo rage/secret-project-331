@@ -72,88 +72,87 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
     7: t("weekday-sunday"),
   }
 
+  if (getCourseWeekdayHourSubmissionCount.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getCourseWeekdayHourSubmissionCount.error} />
+  }
+
+  if (getCourseWeekdayHourSubmissionCount.isLoading || getCourseWeekdayHourSubmissionCount.isIdle) {
+    return <Spinner variant={"medium"} />
+  }
+
+  if (getCourseWeekdayHourSubmissionCount.data.apiData.length === 0) {
+    return <div>{t("no-data")}</div>
+  }
+
   return (
     <div
       className={css`
         margin-bottom: 1rem;
       `}
     >
-      {getCourseWeekdayHourSubmissionCount.isError && (
-        <ErrorBanner variant={"readOnly"} error={getCourseWeekdayHourSubmissionCount.error} />
-      )}
-      {getCourseWeekdayHourSubmissionCount.isLoading && <Spinner variant={"medium"} />}
-
-      {getCourseWeekdayHourSubmissionCount.isSuccess &&
-        getCourseWeekdayHourSubmissionCount.data.apiData.length === 0 && <div>{t("no-data")}</div>}
-
-      {getCourseWeekdayHourSubmissionCount.isSuccess &&
-        getCourseWeekdayHourSubmissionCount.data.apiData.length !== 0 && (
-          <>
-            <Echarts
-              height={1000}
-              options={{
-                title: Object.keys(isodowToWeekdayName).map((weekdayNumber, i) => {
-                  return {
-                    // eslint-disable-next-line i18next/no-literal-string
-                    textBaseline: "middle",
-                    top: ((i + 0.5) * 100) / 7 + "%",
-                    // @ts-expect-error: todo
-                    text: isodowToWeekdayName[weekdayNumber],
-                  }
-                }),
-                tooltip: {
-                  // eslint-disable-next-line i18next/no-literal-string
-                  position: "top",
-                  formatter: (a) => {
-                    return t("hourly-submissions-visualization-tooltip", {
-                      // @ts-expect-error: todo
-                      day: a.data[0],
-                      // @ts-expect-error: todo
-                      submissions: a.data[1],
-                    })
-                  },
+      <Echarts
+        height={1000}
+        options={{
+          title: Object.keys(isodowToWeekdayName).map((weekdayNumber, i) => {
+            return {
+              // eslint-disable-next-line i18next/no-literal-string
+              textBaseline: "middle",
+              top: ((i + 0.5) * 100) / 7 + "%",
+              // @ts-expect-error: todo
+              text: isodowToWeekdayName[weekdayNumber],
+            }
+          }),
+          tooltip: {
+            // eslint-disable-next-line i18next/no-literal-string
+            position: "top",
+            formatter: (a) => {
+              return t("hourly-submissions-visualization-tooltip", {
+                // @ts-expect-error: todo
+                day: a.data[0],
+                // @ts-expect-error: todo
+                submissions: a.data[1],
+              })
+            },
+          },
+          singleAxis: Object.entries(getCourseWeekdayHourSubmissionCount.data.dataByWeekDay).map(
+            ([_weekdayNumber, _entries], i) => {
+              return {
+                left: 150,
+                // eslint-disable-next-line i18next/no-literal-string
+                type: "category",
+                boundaryGap: false,
+                data: hours,
+                top: (i * 100) / 7 + 5 + "%",
+                height: 100 / 7 - 10 + "%",
+                axisLabel: {
+                  interval: 2,
                 },
-                singleAxis: Object.entries(
-                  getCourseWeekdayHourSubmissionCount.data.dataByWeekDay,
-                ).map(([_weekdayNumber, _entries], i) => {
-                  return {
-                    left: 150,
-                    // eslint-disable-next-line i18next/no-literal-string
-                    type: "category",
-                    boundaryGap: false,
-                    data: hours,
-                    top: (i * 100) / 7 + 5 + "%",
-                    height: 100 / 7 - 10 + "%",
-                    axisLabel: {
-                      interval: 2,
-                    },
-                  }
-                }),
-                series: Object.entries(getCourseWeekdayHourSubmissionCount.data.dataByWeekDay).map(
-                  ([_weekdayNumber, entries], i) => {
-                    return {
-                      singleAxisIndex: i,
-                      // eslint-disable-next-line i18next/no-literal-string
-                      coordinateSystem: "singleAxis",
-                      // eslint-disable-next-line i18next/no-literal-string
-                      type: "scatter",
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      data: (entries as any[]).map((o) => [o.hour, o.count]),
-                      symbolSize: function (dataItem) {
-                        // scaling the size so that the largest value has size maxCircleSize
-                        return (
-                          (dataItem[1] / getCourseWeekdayHourSubmissionCount.data.maxValue) *
-                          maxCircleSize
-                        )
-                      },
-                    }
-                  },
-                ),
-              }}
-            />
-            <DebugModal data={getCourseWeekdayHourSubmissionCount.data.apiData} />
-          </>
-        )}
+              }
+            },
+          ),
+          series: Object.entries(getCourseWeekdayHourSubmissionCount.data.dataByWeekDay).map(
+            ([_weekdayNumber, entries], i) => {
+              return {
+                singleAxisIndex: i,
+                // eslint-disable-next-line i18next/no-literal-string
+                coordinateSystem: "singleAxis",
+                // eslint-disable-next-line i18next/no-literal-string
+                type: "scatter",
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                data: (entries as any[]).map((o) => [o.hour, o.count]),
+                symbolSize: function (dataItem) {
+                  // scaling the size so that the largest value has size maxCircleSize
+                  return (
+                    (dataItem[1] / getCourseWeekdayHourSubmissionCount.data.maxValue) *
+                    maxCircleSize
+                  )
+                },
+              }
+            },
+          ),
+        }}
+      />
+      <DebugModal data={getCourseWeekdayHourSubmissionCount.data.apiData} />
     </div>
   )
 }

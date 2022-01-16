@@ -1,9 +1,21 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+const normalResponseHeaders =
+  require("./src/shared-module/utils/responseHeaders").normalResponseHeaders
+
 const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
   experimental: {
     outputStandalone: true,
+  },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: normalResponseHeaders,
+      },
+    ]
   },
 }
 

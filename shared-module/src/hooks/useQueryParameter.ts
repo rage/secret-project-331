@@ -1,10 +1,14 @@
 import { useRouter } from "next/router"
 
-export default function useQueryParameter(name: string): string | undefined {
+export default function useQueryParameter(name: string): string {
   const router = useRouter()
   const value = router?.query[name]
   if (!value) {
-    return undefined
+    // use with dontRenderUntilQueryParametersReady
+    return ""
+  }
+  if (value instanceof Array) {
+    return value.join("/")
   }
   return value.toString()
 }

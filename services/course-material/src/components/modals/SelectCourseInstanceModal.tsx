@@ -4,8 +4,10 @@ import React, { useCallback, useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import CoursePageContext from "../../contexts/CoursePageContext"
+import PageContext from "../../contexts/PageContext"
 import { fetchCourseInstances, postCourseInstanceEnrollment } from "../../services/backend"
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
+import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
@@ -16,35 +18,28 @@ export interface CourseInstanceSelectModalProps {
 const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ onClose }) => {
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
-  const coursePageState = useContext(CoursePageContext)
+  const pageState = useContext(PageContext)
 
   const [submitError, setSubmitError] = useState<unknown>()
   const [open, setOpen] = useState(false)
-  const {
-    data: courseInstances,
-    error,
-    isLoading,
-  } = useQuery(
-    ["course-instances", coursePageState.pageData?.course_id],
+  const getCourseInstances = useQuery(
+    ["course-instances", pageState.pageData?.course_id],
     () =>
       fetchCourseInstances(
-        (coursePageState.pageData as NonNullable<typeof coursePageState.pageData>)
+        (pageState.pageData as NonNullable<typeof pageState.pageData>)
           .course_id as NonNullable<string>,
       ),
     {
-      enabled:
-        coursePageState.pageData?.course_id !== null && open && coursePageState.state === "ready",
+      enabled: pageState.pageData?.course_id !== null && open && pageState.state === "ready",
     },
   )
 
   useEffect(() => {
     const signedIn = !!loginState.signedIn
     const shouldChooseInstance =
-      coursePageState.state === "ready" &&
-      coursePageState.instance === null &&
-      coursePageState.settings === null
+      pageState.state === "ready" && pageState.instance === null && pageState.settings === null
     setOpen(signedIn && shouldChooseInstance)
-  }, [loginState, coursePageState])
+  }, [loginState, pageState])
 
   const handleSubmitAndClose = useCallback(
     async (instanceId: string) => {
@@ -59,21 +54,14 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
     [onClose],
   )
 
-  if (coursePageState.pageData?.course_id === null) {
+  if (pageState.pageData?.course_id === null) {
     // No course id
-    return <></>
+    // eslint-disable-next-line i18next/no-literal-string
+    return <ErrorBanner variant={"readOnly"} error={"No course ID defined"} />
   }
 
   if (!open) {
     return null
-  }
-
-  if (error) {
-    return <div>{JSON.stringify(error, undefined, 2)}</div>
-  }
-
-  if (isLoading || courseInstances === undefined) {
-    return <div>{t("loading")}</div>
   }
 
   return (
@@ -83,12 +71,20 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
           margin: 1rem;
         `}
       >
-        {submitError && <pre>{JSON.stringify(submitError, undefined, 2)}</pre>}
+        {submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
         <h4>{t("title-select-course-version-to-continue")}.</h4>
-        <SelectCourseInstanceForm
-          courseInstances={courseInstances}
-          onSubmitForm={handleSubmitAndClose}
-        />
+        {getCourseInstances.isError && (
+          <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
+        )}
+        {(getCourseInstances.isLoading || getCourseInstances.isIdle) && (
+          <Spinner variant={"medium"} />
+        )}
+        {getCourseInstances.isSuccess && (
+          <SelectCourseInstanceForm
+            courseInstances={getCourseInstances.data}
+            onSubmitForm={handleSubmitAndClose}
+          />
+        )}
       </div>
     </Dialog>
   )

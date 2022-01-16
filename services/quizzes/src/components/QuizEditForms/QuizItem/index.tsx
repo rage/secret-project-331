@@ -14,6 +14,7 @@ import CheckBoxContent from "./CheckBoxContent"
 import ClickableMultipleChoiceContent from "./ClickableMultipleChoiceContent"
 import CustomFrontend from "./CustomFrontend"
 import EssayContent from "./EssayContent"
+import MatrixContent from "./MatrixContent"
 import MultipleChoiceContent from "./MultipleChoiceContent"
 import MultipleChoiceDropdownContent from "./MultipleChoiceDropdownContent"
 import OpenContent from "./OpenContent"
@@ -68,6 +69,9 @@ const contentBasedOnType = (type: string, item: NormalizedQuizItem, t: TFunction
     }
     case "scale": {
       return <ScaleContent item={item} />
+    }
+    case "matrix": {
+      return <MatrixContent item={item} />
     }
     case "custom-frontend-accept-data": {
       return <CustomFrontend item={item} />

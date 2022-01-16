@@ -17,8 +17,14 @@ jobs:
       - name: Update rust to get edition 2021 support
         run: rustup update stable
 
+      - name: Run npm ci
+        run: npm ci && git config --unset core.hooksPath
+
       - name: Install and build
-        run: cargo doc --document-private-items
+        run: |
+          cargo run --bin doc-file-generator
+          cargo doc --document-private-items
+          npm run eslint:format-generated-docs
         working-directory: services/headless-lms
 
       - name: Deploy

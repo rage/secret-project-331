@@ -21,6 +21,7 @@ import {
   CmsPageUpdate,
   ContentManagementPage,
   Course,
+  CourseCount,
   CourseExam,
   CourseInstance,
   CourseInstanceEnrollment,
@@ -58,6 +59,7 @@ import {
   GetFeedbackQuery,
   Grading,
   GradingProgress,
+  GradingResult,
   HistoryChangeReason,
   HistoryRestoreData,
   Login,
@@ -270,6 +272,7 @@ export function isCourse(obj: any, _argumentName?: string): obj is Course {
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
     typeof obj.name === "string" &&
+    (obj.description === null || typeof obj.description === "string") &&
     typeof obj.organization_id === "string" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.language_code === "string" &&
@@ -306,6 +309,13 @@ export function isNewCourse(obj: any, _argumentName?: string): obj is NewCourse 
     typeof obj.language_code === "string" &&
     typeof obj.teacher_in_charge_name === "string" &&
     typeof obj.teacher_in_charge_email === "string"
+  )
+}
+
+export function isCourseCount(obj: any, _argumentName?: string): obj is CourseCount {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.count === "bigint"
   )
 }
 
@@ -806,8 +816,9 @@ export function isPageWithExercises(obj: any, _argumentName?: string): obj is Pa
     (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
     typeof obj.url_path === "string" &&
     typeof obj.title === "string" &&
-    typeof obj.order_number === "number" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.order_number === "number" &&
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
     Array.isArray(obj.exercises) &&
     obj.exercises.every((e: any) => isExercise(e) as boolean)
   )
@@ -1023,6 +1034,16 @@ export function isNewSubmission(obj: any, _argumentName?: string): obj is NewSub
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.exercise_task_id === "string" &&
     (obj.course_instance_id === null || typeof obj.course_instance_id === "string")
+  )
+}
+
+export function isGradingResult(obj: any, _argumentName?: string): obj is GradingResult {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isGradingProgress(obj.grading_progress) as boolean) &&
+    typeof obj.score_given === "number" &&
+    typeof obj.score_maximum === "number" &&
+    (obj.feedback_text === null || typeof obj.feedback_text === "string")
   )
 }
 

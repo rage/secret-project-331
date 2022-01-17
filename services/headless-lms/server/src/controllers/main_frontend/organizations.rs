@@ -38,9 +38,12 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a
 async fn get_organization_courses(
     organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    pagination: web::Query<Pagination>,
 ) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-    let courses = models::courses::organization_courses(&mut conn, *organization_id).await?;
+    let courses =
+        models::courses::organization_courses_paginated(&mut conn, &organization_id, &pagination)
+            .await?;
     Ok(web::Json(courses))
 }
 
@@ -48,7 +51,6 @@ async fn get_organization_courses(
 async fn get_organization_course_count(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-    pagination: web::Query<Pagination>,
 ) -> ControllerResult<Json<CourseCount>> {
     let mut conn = pool.acquire().await?;
     let result =

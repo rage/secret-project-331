@@ -5,8 +5,8 @@ import { MutationFunction, useMutation, UseMutationOptions, UseMutationResult } 
 import ErrorNotification from "../components/Notifications/Error"
 import SuccessNotification from "../components/Notifications/Success"
 
-interface NotificationOptions {
-  notify: boolean
+interface EnableNotifications {
+  notify: true
   type?: "POST" | "PUT" | "DELETE"
   dismissable?: boolean
   loadingText?: string
@@ -17,6 +17,12 @@ interface NotificationOptions {
   toastOptions?: ToastOptions
 }
 
+interface DisableNotifications {
+  notify: false
+}
+
+type NotificationOptions = EnableNotifications | DisableNotifications
+
 export default function useToastMutation<
   TData = unknown,
   TError = unknown,
@@ -24,36 +30,28 @@ export default function useToastMutation<
   TContext = unknown,
 >(
   mutationFn: MutationFunction<TData, TVariables>,
+  notificationOptions: NotificationOptions,
   options?: Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn">,
-  notificationOptions?: NotificationOptions,
 ): UseMutationResult<TData, TError, TVariables, TContext> {
   const { t } = useTranslation()
-  const {
-    notify,
-    type,
-    dismissable,
-    loadingText,
-    successHeader,
-    successMessage,
-    errorHeader,
-    errorMessage,
-    toastOptions,
-  } = notificationOptions || {}
 
   let toastId = ""
-  const displaySuccessNotification = (message?: string) => {
+  const displaySuccessNotification = (
+    notificationOptions: EnableNotifications,
+    defaultMessage?: string,
+  ) => {
     toast.custom(
       (toast) => {
         return (
           <SuccessNotification
-            header={successHeader}
-            message={successMessage ?? message}
-            {...(dismissable ? { toastId: toast.id } : {})}
+            header={notificationOptions.successHeader}
+            message={notificationOptions.successMessage ?? defaultMessage}
+            {...(notificationOptions.dismissable ? { toastId: toast.id } : {})}
           />
         )
       },
       {
-        ...toastOptions,
+        ...notificationOptions.toastOptions,
         id: toastId,
       },
     )
@@ -62,29 +60,31 @@ export default function useToastMutation<
   const mutation = useMutation(mutationFn, {
     ...options,
     onMutate: (variables: TVariables) => {
-      if (notify) {
+      if (notificationOptions.notify) {
         // Set toastId that is updated once operation is successful or erronous.
-        toastId = toast.loading(loadingText ?? t("saving"), { ...toastOptions })
+        toastId = toast.loading(notificationOptions.loadingText ?? t("saving"), {
+          ...notificationOptions.toastOptions,
+        })
       }
       if (options?.onMutate) {
         options.onMutate(variables)
       }
       return undefined
     },
-    onSuccess: (data: TData, variables: TVariables, context: TContext | undefined) => {
-      if (notify) {
-        switch (type) {
+    onSuccess: (data: TData, variables: TVariables, context: TContext) => {
+      if (notificationOptions.notify) {
+        switch (notificationOptions.type) {
           case "PUT":
-            displaySuccessNotification(t("edit-has-been-saved"))
+            displaySuccessNotification(notificationOptions, t("edit-has-been-saved"))
             break
           case "POST":
-            displaySuccessNotification(t("added-successfully"))
+            displaySuccessNotification(notificationOptions, t("added-successfully"))
             break
           case "DELETE":
             toast.custom(<div></div>)
             break
           default:
-            displaySuccessNotification()
+            displaySuccessNotification(notificationOptions)
         }
       }
       if (options?.onSuccess) {
@@ -92,18 +92,18 @@ export default function useToastMutation<
       }
     },
     onError: (error: TError, variables: TVariables, context: TContext | undefined) => {
-      if (notify) {
+      if (notificationOptions.notify) {
         toast.custom(
           (toast) => {
             return (
               <ErrorNotification
-                header={errorHeader}
-                message={errorMessage}
-                {...(dismissable ? { toastId: toast.id } : {})}
+                header={notificationOptions.errorHeader}
+                message={notificationOptions.errorMessage}
+                {...(notificationOptions.dismissable ? { toastId: toast.id } : {})}
               />
             )
           },
-          { ...toastOptions, id: toastId },
+          { ...notificationOptions.toastOptions, id: toastId },
         )
       }
       if (options?.onError) {

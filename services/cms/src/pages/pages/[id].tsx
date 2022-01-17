@@ -38,6 +38,7 @@ const Pages = ({ query }: PagesProps) => {
 
   const mutate = useToastMutation(
     (newPage: CmsPageUpdate) => updateExistingPage(id, newPage),
+    { notify: true, dismissable: true, type: "PUT", toastOptions: { duration: 10000000 } },
     {
       onSuccess: (newData) => {
         // Refetch, setQueryData or invalidateQueries?
@@ -46,7 +47,6 @@ const Pages = ({ query }: PagesProps) => {
       },
       retry: 3,
     },
-    { notify: true, dismissable: true, type: "PUT", toastOptions: { duration: 10000000 } },
   )
 
   let frontPageUrl = "/"

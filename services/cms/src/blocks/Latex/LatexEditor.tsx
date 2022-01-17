@@ -7,6 +7,8 @@ import React from "react"
 import "katex/dist/katex.min.css"
 import { TextAttributes } from "."
 
+const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -32,7 +34,7 @@ const LatexEditor: React.FC<BlockEditProps<TextAttributes>> = (props) => {
       throwOnError: false,
       displayMode: true,
       // eslint-disable-next-line i18next/no-literal-string
-      output: "html",
+      output: KATEX_OUTPUT_FORMAT,
     })
     return <div dangerouslySetInnerHTML={{ __html: output }} />
   }

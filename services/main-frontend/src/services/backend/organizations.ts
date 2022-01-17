@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { Course, CourseCount, Organization } from "../../shared-module/bindings"
 import { isCourse, isOrganization } from "../../shared-module/bindings.guard"
 import { isArray, validateResponse } from "../../shared-module/utils/fetching"
@@ -22,8 +23,11 @@ export const fetchOrganizationBySlug = async (organizationSlug: string): Promise
 }
 
 export const fetchOrganizationCourseCount = async (
-  organizationId: string,
+  organizationId: string | undefined,
 ): Promise<CourseCount> => {
+  if (typeof organizationId === "undefined") {
+    return Promise.reject(new Error("Organization ID undefined"))
+  }
   const data = (
     await mainFrontendClient.get(`/organizations/${organizationId}/courses/count`, {
       responseType: "json",
@@ -44,10 +48,13 @@ export const fetchOrganizationActiveCourseCount = async (
 }
 
 export const fetchOrganizationCourses = async (
-  organizationId: string,
+  organizationId: string | undefined,
   page: number,
   limit: number,
 ): Promise<Array<Course>> => {
+  if (typeof organizationId === "undefined") {
+    return Promise.reject(new Error("Organization ID undefined"))
+  }
   const response = await mainFrontendClient.get(`/organizations/${organizationId}/courses`, {
     responseType: "json",
     params: {

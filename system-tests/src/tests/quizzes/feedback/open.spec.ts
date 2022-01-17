@@ -29,12 +29,12 @@ test("test quizzes open feedback", async ({ headless, page }) => {
     await page.click('button:has-text("Continue")')
   }
 
-  await Promise.all([page.waitForNavigation(), await page.click("text=The Basics")])
+  await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
   expect(page.url()).toBe(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
-  await Promise.all([page.waitForNavigation(), await page.click("text=Page 4")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Page 4")])
   expect(page.url()).toBe(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-4",
   )

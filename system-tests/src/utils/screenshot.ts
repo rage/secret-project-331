@@ -20,7 +20,7 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   page?: Page
   frame?: Frame
   pageScreenshotOptions?: PageScreenshotOptions
-  axeSkip?: boolean
+  axeSkip?: boolean | string[]
 }
 
 export default async function expectScreenshotsToMatchSnapshots({
@@ -100,7 +100,7 @@ interface SnapshotWithViewPortProps {
   headless: boolean
   persistMousePosition?: boolean
   pageScreenshotOptions?: PageScreenshotOptions
-  axeSkip: boolean
+  axeSkip: boolean | string[]
 }
 
 async function snapshotWithViewPort({

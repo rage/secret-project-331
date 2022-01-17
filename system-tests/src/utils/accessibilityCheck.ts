@@ -7,6 +7,15 @@ export default async function accessibilityCheck(page: Page, contextName: string
   // force all console.group output to stderr
   const stdErrConsole = new Console(process.stderr)
   const results = await new AxeBuilder({ page }).analyze()
+  results.violations.filter((violation) => {
+    if (
+      !violation.nodes[0].html.includes(
+        '<div class="monaco-status" role="complementary" aria-live="polite" aria-atomic="true"></div>',
+      )
+    ) {
+      return violation
+    }
+  })
   if (results.violations.length === 0) {
     return
   }

@@ -37,16 +37,27 @@ Response headers:
 ```
 
 */
-#[instrument]
+#[instrument(skip(file_store))]
 #[allow(clippy::async_yields_async)]
-async fn redirect_to_storage_service(tail: web::Path<String>) -> HttpResponse {
-    let prefix = Path::new("/api/v0/files/uploads/");
-    let path: PathBuf = prefix.join(tail.into_inner());
-    let path_string = path.to_string_lossy().to_string();
-    HttpResponse::Found()
-        .append_header(("location", path_string))
-        .append_header(("cache-control", "max-age=300, private"))
-        .finish()
+async fn redirect_to_storage_service(
+    tail: web::Path<String>,
+    file_store: web::Data<dyn FileStore>,
+) -> HttpResponse {
+    let inner = tail.into_inner();
+    let tail_path = Path::new(&inner);
+
+    match file_store.get_direct_download_url(tail_path).await {
+        Ok(res) => HttpResponse::Found()
+            .append_header(("location", res))
+            .append_header(("cache-control", "max-age=300, private"))
+            .finish(),
+        Err(e) => {
+            error!("Could not get file {:?}", e);
+            HttpResponse::NotFound()
+                .append_header(("cache-control", "max-age=300, private"))
+                .finish()
+        }
+    }
 }
 
 /**

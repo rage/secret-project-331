@@ -30,8 +30,12 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
           margin-bottom: 1rem;
         `}
       >
-        {getCourseStructure.isError && <ErrorBanner variant={"link"} error={undefined} />}
-        {getCourseStructure.isLoading && <Spinner variant={"medium"} />}
+        {getCourseStructure.isError && (
+          <ErrorBanner variant={"link"} error={getCourseStructure.error} />
+        )}
+        {(getCourseStructure.isLoading || getCourseStructure.isIdle) && (
+          <Spinner variant={"medium"} />
+        )}
         {getCourseStructure.isSuccess && (
           <ManageCourseStructure
             courseStructure={getCourseStructure.data}

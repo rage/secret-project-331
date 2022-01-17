@@ -120,6 +120,7 @@ export interface Course {
   created_at: Date
   updated_at: Date
   name: string
+  description: string | null
   organization_id: string
   deleted_at: Date | null
   language_code: string
@@ -145,6 +146,10 @@ export interface NewCourse {
   language_code: string
   teacher_in_charge_name: string
   teacher_in_charge_email: string
+}
+
+export interface CourseCount {
+  count: bigint
 }
 
 export interface EmailTemplate {
@@ -477,11 +482,12 @@ export interface PageWithExercises {
   course_id: string | null
   exam_id: string | null
   chapter_id: string | null
-  content: unknown
   url_path: string
   title: string
-  order_number: number
   deleted_at: Date | null
+  content: unknown
+  order_number: number
+  copied_from: string | null
   exercises: Array<Exercise>
 }
 
@@ -618,6 +624,14 @@ export interface NewSubmission {
   exercise_task_id: string
   course_instance_id: string | null
   data_json: unknown | null
+}
+
+export interface GradingResult {
+  grading_progress: GradingProgress
+  score_given: number
+  score_maximum: number
+  feedback_text: string | null
+  feedback_json: unknown | null
 }
 
 export interface UserCourseSettings {

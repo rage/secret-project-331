@@ -4,6 +4,10 @@ use models::email_templates::{EmailTemplate, EmailTemplateUpdate};
 
 use crate::controllers::prelude::*;
 
+/**
+GET `/api/v0/cms/email-templates/:id`
+*/
+#[generated_doc(EmailTemplate)]
 #[instrument(skip(pool))]
 async fn get_email_template(
     email_template_id: web::Path<Uuid>,
@@ -17,6 +21,10 @@ async fn get_email_template(
     Ok(web::Json(email_templates))
 }
 
+/**
+PUT `/api/v0/cms/email-templates/:id
+*/
+#[generated_doc(EmailTemplate)]
 #[instrument(skip(pool))]
 async fn update_email_template(
     email_template_id: web::Path<Uuid>,

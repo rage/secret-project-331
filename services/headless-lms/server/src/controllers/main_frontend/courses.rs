@@ -13,24 +13,8 @@ use crate::controllers::prelude::*;
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
-# Example
-
-Response:
-```json
-{
-  "id": "ab4541d8-6db4-4561-bdb2-45f35b2544a1",
-  "slug": "introduction-to-introduction",
-  "created_at": "2021-04-21T18:34:21.795388",
-  "updated_at": "2021-04-21T18:49:21.398638",
-  "name": "Introduction to Introduction",
-  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "deleted_at": null,
-  "language_code": "en-US",
-  "copied_from": null,
-  "language_version_of_course_id": null
-}
-```
 */
+#[generated_doc(Course)]
 #[instrument(skip(pool))]
 async fn get_course(
     course_id: web::Path<Uuid>,
@@ -58,23 +42,8 @@ Content-Type: application/json
   "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec"
 }
 ```
-
-Response:
-```json
-{
-  "id": "ab4541d8-6db4-4561-bdb2-45f35b2544a1",
-  "slug": "introduction-to-introduction",
-  "created_at": "2021-04-21T18:34:21.795388",
-  "updated_at": "2021-04-21T18:34:21.795388",
-  "name": "Introduction to introduction",
-  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "deleted_at": null,
-  "language_code": "en-US",
-  "copied_from": null,
-  "language_version_of_course_id": null
-}
-```
 */
+#[generated_doc(Course)]
 #[instrument(skip(pool))]
 async fn post_new_course(
     pool: web::Data<PgPool>,
@@ -120,23 +89,8 @@ Content-Type: application/json
 }
 
 ```
-
-Response:
-```json
-{
-  "id": "ab4541d8-6db4-4561-bdb2-45f35b2544a1",
-  "slug": "introduction-to-introduction",
-  "created_at": "2021-04-21T18:34:21.795388",
-  "updated_at": "2021-04-21T18:49:21.398638",
-  "name": "Introduction to Introduction",
-  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "deleted_at": null,
-  "language_code": "en-US",
-  "copied_from": null,
-  "language_version_of_course_id": null
-}
-```
 */
+#[generated_doc(Course)]
 #[instrument(skip(pool))]
 async fn update_course(
     payload: web::Json<CourseUpdate>,
@@ -153,23 +107,8 @@ async fn update_course(
 
 /**
 DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
-# Example
-
-```json
-{
-  "id": "ab4541d8-6db4-4561-bdb2-45f35b2544a1",
-  "slug": "introduction-to-introduction",
-  "created_at": "2021-04-21T18:34:21.795388",
-  "updated_at": "2021-04-21T18:49:21.398638",
-  "name": "Introduction to Introduction",
-  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "deleted_at": "2021-04-28T16:33:42.670935",
-  "language_code": "en-US",
-  "copied_from": null,
-  "language_version_of_course_id": null
-}
-```
 */
+#[generated_doc(Course)]
 #[instrument(skip(pool))]
 async fn delete_course(
     course_id: web::Path<Uuid>,
@@ -228,6 +167,7 @@ GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure
 }
 ```
 */
+#[generated_doc(CourseStructure)]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_course_structure(
     course_id: web::Path<Uuid>,
@@ -261,15 +201,8 @@ Content-Type: multipart/form-data
 
 BINARY_DATA
 ```
-
-Response:
-```json
-{
-    "url": "http://project-331.local/api/v0/files/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png"
-}
-
-```
 */
+#[generated_doc(UploadResult)]
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media_for_course(
     course_id: web::Path<Uuid>,
@@ -297,25 +230,8 @@ async fn add_media_for_course(
 
 /**
 GET `/api/v0/main-frontend/courses/:id/exercises` - Returns all exercises for the course.
-
-# Example
-```json
-[
-  {
-    "id": "ab4541d8-6db4-4561-bdb2-45f35b2544a1",
-    "slug": "introduction-to-introduction",
-    "created_at": "2021-04-21T18:34:21.795388",
-    "updated_at": "2021-04-21T18:49:21.398638",
-    "name": "Introduction to Introduction",
-    "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-    "deleted_at": null,
-    "language_code": "en-US",
-    "copied_from": null,
-    "language_version_of_course_id": null
-  }
-]
-```
 */
+#[generated_doc(Vec<Exercise>)]
 #[instrument(skip(pool))]
 async fn get_all_exercises(
     pool: web::Data<PgPool>,
@@ -338,37 +254,8 @@ Request:
 GET /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-versions HTTP/1.1
 Content-Type: application/json
 ```
-
-Response:
-```json
-[
-  {
-    "id": "fd484707-25b6-4c51-a4ff-32d8259e3e47",
-    "slug": "introduction-to-everything",
-    "created_at": "2021-08-23T08:24:15.873427Z",
-    "updated_at": "2021-08-24T07:11:49.874046Z",
-    "name": "Introduction to Everything",
-    "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-    "deleted_at": null,
-    "language_code": "en-US",
-    "copied_from": null,
-    "language_version_of_course_id": null
-  },
-  {
-    "id": "74ec33f4-87ad-4244-a988-4156bc5da741",
-    "slug": "johdatus-kaikkeen",
-    "created_at": "2021-08-25T07:25:33.082734Z",
-    "updated_at": "2021-08-25T07:25:33.082734Z",
-    "name": "Johdatus kaikkeen",
-    "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-    "deleted_at": null,
-    "language_code": "fi-FI",
-    "copied_from": "fd484707-25b6-4c51-a4ff-32d8259e3e47",
-    "language_version_of_course_id": "fd484707-25b6-4c51-a4ff-32d8259e3e47"
-  }
-]
-```
 */
+#[generated_doc(Vec<Exercise>)]
 #[instrument(skip(pool))]
 async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
@@ -398,23 +285,8 @@ Content-Type: application/json
   "language_code": "fi-FI"
 }
 ```
-
-Response:
-```json
-{
-  "id": "74ec33f4-87ad-4244-a988-4156bc5da741",
-  "slug": "johdatus-kaikkeen",
-  "created_at": "2021-08-25T07:25:33.082734Z",
-  "updated_at": "2021-08-25T07:25:33.082734Z",
-  "name": "Johdatus kaikkeen",
-  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
-  "deleted_at": null,
-  "language_code": "fi-FI",
-  "copied_from": "fd484707-25b6-4c51-a4ff-32d8259e3e47",
-  "language_version_of_course_id": "fd484707-25b6-4c51-a4ff-32d8259e3e47"
-}
-```
 */
+#[generated_doc(Course)]
 pub async fn post_new_course_language_version(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -432,21 +304,8 @@ pub async fn post_new_course_language_version(
 
 /**
 GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
-
-# Example
-```json
-[
-  {
-      "date": "2021-01-01",
-      "count": 23
-  },
-  {
-      "date": "2021-01-02",
-      "count": 57
-  }
-]
-```
 */
+#[generated_doc(Vec<SubmissionCount>)]
 #[instrument(skip(pool))]
 async fn get_daily_submission_counts(
     pool: web::Data<PgPool>,
@@ -462,23 +321,8 @@ async fn get_daily_submission_counts(
 
 /**
 GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns submission counts grouped by weekday and hour.
-
-# Example
-```json
-[
-  {
-      "isodow": 1,
-      "hour": 23
-      "count": 23
-  },
-  {
-      "isodow": 2,
-      "hour": 5
-      "count": 55
-  }
-]
-```
 */
+#[generated_doc(Vec<SubmissionCountByWeekAndHour>)]
 #[instrument(skip(pool))]
 async fn get_weekday_hour_submission_counts(
     pool: web::Data<PgPool>,
@@ -496,17 +340,8 @@ async fn get_weekday_hour_submission_counts(
 
 /**
 GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns submission counts grouped by weekday and hour.
-
-# Example
-```json
-[
-  {
-      "exercise_id": "34e47a8e-d573-43be-8f23-79128cbb29b8",
-      "count": 23,
-      "exercise_name": "Best exercise"
-  }
-```
 */
+#[generated_doc(Vec<SubmissionCountByExercise>)]
 #[instrument(skip(pool))]
 async fn get_submission_counts_by_exercise(
     pool: web::Data<PgPool>,
@@ -523,25 +358,8 @@ async fn get_submission_counts_by_exercise(
 
 /**
 GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course instances for given course id.
-
-# Example
-```json
-[
-  {
-    "id": "e051ddb5-2128-4215-adda-ebd74a0ea46b",
-    "created_at": "2021-06-28T00:21:11.780420Z",
-    "updated_at": "2021-06-28T00:21:11.780420Z",
-    "deleted_at": null,
-    "course_id": "b8077bc2-0816-4c05-a651-d2d75d697fdf",
-    "starts_at": null,
-    "ends_at": null,
-    "name": null,
-    "description": null,
-    "variant_status": "Active"
-  }
-]
-```
 */
+#[generated_doc(Vec<CourseInstance>)]
 #[instrument(skip(pool))]
 async fn get_course_instances(
     pool: web::Data<PgPool>,
@@ -565,6 +383,7 @@ pub struct GetFeedbackQuery {
 /**
 GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
 */
+#[generated_doc(Vec<Feedback>)]
 #[instrument(skip(pool))]
 pub async fn get_feedback(
     course_id: web::Path<Uuid>,
@@ -582,6 +401,7 @@ pub async fn get_feedback(
 /**
 GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
 */
+#[generated_doc(FeedbackCount)]
 #[instrument(skip(pool))]
 pub async fn get_feedback_count(
     course_id: web::Path<Uuid>,
@@ -595,6 +415,10 @@ pub async fn get_feedback_count(
     Ok(web::Json(feedback_count))
 }
 
+/**
+POST `/api/v0/main-frontend/courses/:id/new-course-instance`
+*/
+#[generated_doc(Uuid)]
 async fn new_course_instance(
     form: web::Json<CourseInstanceForm>,
     course_id: web::Path<Uuid>,

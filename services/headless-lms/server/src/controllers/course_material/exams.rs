@@ -6,6 +6,10 @@ use models::{
 
 use crate::controllers::prelude::*;
 
+/**
+GET /api/v0/course-material/exams/:id/enrollment
+*/
+#[generated_doc(Option<ExamEnrollment>)]
 pub async fn enrollment(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
@@ -16,18 +20,21 @@ pub async fn enrollment(
     Ok(web::Json(enrollment))
 }
 
+/**
+POST /api/v0/course-material/exams/:id/enroll
+*/
+#[generated_doc(())]
 pub async fn enroll(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-
     let exam = exams::get(&mut conn, *exam_id).await?;
 
     // check that the exam is not over
-    let now = dbg!(Utc::now());
-    if let Some(ends_at) = dbg!(exam.ends_at) {
+    let now = Utc::now();
+    if let Some(ends_at) = exam.ends_at {
         if ends_at < now {
             return Err(ControllerError::Forbidden("Exam is over".to_string()));
         }
@@ -48,13 +55,13 @@ pub async fn enroll(
 
 #[derive(Debug, Serialize, TS)]
 pub struct ExamData {
-    id: Uuid,
-    name: String,
-    instructions: String,
-    starts_at: DateTime<Utc>,
-    ends_at: DateTime<Utc>,
-    time_minutes: i32,
-    enrollment_data: ExamEnrollmentData,
+    pub id: Uuid,
+    pub name: String,
+    pub instructions: String,
+    pub starts_at: DateTime<Utc>,
+    pub ends_at: DateTime<Utc>,
+    pub time_minutes: i32,
+    pub enrollment_data: ExamEnrollmentData,
 }
 
 #[derive(Debug, Serialize, TS)]
@@ -70,6 +77,10 @@ pub enum ExamEnrollmentData {
     StudentTimeUp,
 }
 
+/**
+GET /api/v0/course-material/exams/:id
+*/
+#[generated_doc(ExamData)]
 pub async fn fetch_exam_for_user(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,

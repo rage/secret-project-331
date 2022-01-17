@@ -4,6 +4,10 @@ use models::exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate};
 
 use crate::controllers::prelude::*;
 
+/**
+DELETE `/api/v0/main-frontend/exercise-services/:id`
+*/
+#[generated_doc(ExerciseService)]
 #[instrument(skip(pool))]
 async fn delete_exercise_service(
     exercise_service_id: web::Path<Uuid>,
@@ -18,6 +22,10 @@ async fn delete_exercise_service(
     Ok(web::Json(deleted))
 }
 
+/**
+POST `/api/v0/main-frontend/exercise-services`
+*/
+#[generated_doc(ExerciseService)]
 #[instrument(skip(pool))]
 async fn add_exercise_service(
     pool: web::Data<PgPool>,
@@ -33,6 +41,10 @@ async fn add_exercise_service(
     Ok(web::Json(created))
 }
 
+/**
+GET `/api/v0/main-frontend/exercise-services/:id`
+*/
+#[generated_doc(ExerciseService)]
 #[instrument(skip(pool))]
 async fn get_exercise_service_by_id(
     exercise_service_id: web::Path<Uuid>,
@@ -45,6 +57,10 @@ async fn get_exercise_service_by_id(
     Ok(web::Json(exercise_service))
 }
 
+/**
+GET `/api/v0/main-frontend/exercise-services`
+*/
+#[generated_doc(Vec<ExerciseService>)]
 #[instrument(skip(pool))]
 async fn get_exercise_services(
     pool: web::Data<PgPool>,
@@ -55,6 +71,10 @@ async fn get_exercise_services(
     Ok(web::Json(exercise_services))
 }
 
+/**
+PUT `/api/v0/main-frontend/exercise-services/:id`
+*/
+#[generated_doc(ExerciseService)]
 #[instrument(skip(pool))]
 async fn update_exercise_service(
     payload: web::Json<ExerciseServiceNewOrUpdate>,

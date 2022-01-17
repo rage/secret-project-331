@@ -1086,6 +1086,50 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    let array = vec![vec![0; 6]; 6];
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, matrix".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
+            width: 500,
+            data: serde_json::json!(
+            {
+                "id": "91cf86bd-39f1-480f-a16c-5b0ad36dc787",
+                "courseId": "2764d02f-bea3-47fe-9529-21c801bdf6f5",
+                "body": "Something about matrices and numbers",
+                "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+                "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+                "part": 1,
+                "section": 1,
+                "title": "Something about matrices and numbers",
+                "tries": 1,
+                "triesLimited": true,
+                "items": [
+                    {
+                        "id": "b17f3965-2223-48c9-9063-50f1ebafcf08",
+                        "body": "Create a matrix that represents 4x4",
+                        "direction": "row",
+                        "formatRegex": null,
+                        "maxLabel": null,
+                        "maxValue": null,
+                        "maxWords": null,
+                        "minLabel": null,
+                        "minValue": null,
+                        "minWords": null,
+                        "multi": false,
+                        "order": 1,
+                        "quizId": "91cf86bd-39f1-480f-a16c-5b0ad36dc787",
+                        "title": "Matrices are interesting",
+                        "type": "matrix",
+                        "options": [],
+                        "optionCells": array,
+                        }
+                        ]}),
+        },
+    )
+    .await?;
+
     Ok(())
 }
 
@@ -1311,6 +1355,168 @@ async fn seed_sample_course(
                 exercise_block_2_1,
                 exercise_block_2_2,
                 exercise_block_2_3,
+            ]),
+        },
+    )
+    .await?;
+
+    let (
+        quizzes_exercise_block_1,
+        quizzes_exercise_1,
+        quizzes_exercise_slide_1,
+        quizzes_exercise_task_1,
+    ) = quizzes_exercise(
+        Uuid::new_v5(&course_id, b"a6ee42d0-2200-43b7-9981-620753a9b5c0"),
+        Uuid::new_v5(&course_id, b"8d01d9b3-87d1-4e24-bee2-2726d3853ec6"),
+        Uuid::new_v5(&course_id, b"00dd984d-8651-404e-80b8-30fae9cf32ed"),
+        Uuid::new_v5(&course_id, b"a66c2552-8123-4287-bd8b-b49a29204870"),
+        Uuid::new_v5(&course_id, b"f6f63ff0-c119-4141-922b-bc04cbfa0a31"),
+        serde_json::json!({
+            "id": "a2704a2b-fe3d-4945-a007-5593e4b81195",
+            "body": "very hard",
+            "open": "2021-12-17T07:15:33.479Z",
+            "part": 0,
+            "items": [{
+                "id": "c449acf6-094e-494e-aef4-f5dfa51729ae",
+                "body": "",
+                "type": "essay",
+                "multi": false,
+                "order": 0,
+                "title": "write an essay",
+                "quizId": "a2704a2b-fe3d-4945-a007-5593e4b81195",
+                "options": [],
+                "maxValue": null,
+                "maxWords": 500,
+                "minValue": null,
+                "minWords": 10,
+                "createdAt": "2021-12-17T07:16:23.202Z",
+                "direction": "row",
+                "updatedAt": "2021-12-17T07:16:23.202Z",
+                "formatRegex": null,
+                "validityRegex": null,
+                "failureMessage": null,
+                "successMessage": null,
+                "allAnswersCorrect": false,
+                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
+                "sharedOptionFeedbackMessage": null,
+                "usesSharedOptionFeedbackMessage": false
+            }],
+            "title": "Pretty good exercise",
+            "tries": 1,
+            "points": 2,
+            "section": 0,
+            "courseId": "1dbd4a71-5f4c-49c9-b8a0-2e65fb8c4e0c",
+            "deadline": "2021-12-17T07:15:33.479Z",
+            "createdAt": "2021-12-17T07:15:33.479Z",
+            "updatedAt": "2021-12-17T07:15:33.479Z",
+            "autoReject": false,
+            "autoConfirm": true,
+            "triesLimited": true,
+            "submitMessage": "your submit has been answered",
+            "excludedFromScore": true,
+            "grantPointsPolicy": "grant_whenever_possible",
+            "awardPointsEvenIfWrong": false}),
+    );
+
+    let (
+        quizzes_exercise_block_2,
+        quizzes_exercise_2,
+        quizzes_exercise_slide_2,
+        quizzes_exercise_task_2,
+    ) = quizzes_exercise(
+        Uuid::new_v5(&course_id, b"949b548f-a87f-4dc6-aafc-9f1e1abe34a7"),
+        Uuid::new_v5(&course_id, b"39c36d3f-017e-4c36-a97e-908e25b3678b"),
+        Uuid::new_v5(&course_id, b"8ae8971c-95dd-4d8c-b38f-152ad89c6b20"),
+        Uuid::new_v5(&course_id, b"d05b1d9b-f270-4e5e-baeb-a904ea29dc90"),
+        Uuid::new_v5(&course_id, b"1057f91c-9dac-4364-9d6a-fa416abc540b"),
+        serde_json::json!({
+            "id": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
+            "body": "very hard",
+            "open": "2021-12-17T07:15:33.479Z",
+            "part": 0,
+            "items": [{
+                "id": "d81a81f2-5e44-48c5-ab6d-f724af8a23f2",
+                "body": "",
+                "type": "open",
+                "multi": false,
+                "order": 0,
+                "title": "When you started studying at the uni? Give the date in yyyy-mm-dd format.",
+                "quizId": "690c69e2-9275-4cfa-aba4-63ac917e59f6",
+                "options": [],
+                "maxValue": null,
+                "maxWords": null,
+                "minValue": null,
+                "minWords": null,
+                "createdAt": "2021-12-17T07:16:23.202Z",
+                "direction": "row",
+                "updatedAt": "2021-12-17T07:16:23.202Z",
+                "formatRegex": null,
+                "validityRegex": r#"^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$"#.to_string(),
+                "failureMessage": "Oh no! Your answer is not in yyyy-mm-dd format :(".to_string(),
+                "successMessage": "Gongrats! your answer is in yyyy-mm-dd format!".to_string(),
+                "allAnswersCorrect": false,
+                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
+                "sharedOptionFeedbackMessage": null,
+                "usesSharedOptionFeedbackMessage": false
+            }],
+            "title": "Pretty good exercise",
+            "tries": 1,
+            "points": 2,
+            "section": 0,
+            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+            "deadline": "2021-12-17T07:15:33.479Z",
+            "createdAt": "2021-12-17T07:15:33.479Z",
+            "updatedAt": "2021-12-17T07:15:33.479Z",
+            "autoReject": false,
+            "autoConfirm": true,
+            "triesLimited": true,
+            "submitMessage": "your submit has been answered",
+            "excludedFromScore": true,
+            "grantPointsPolicy": "grant_whenever_possible",
+            "awardPointsEvenIfWrong": false}),
+    );
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        chapter_1.id,
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-3".to_string(),
+            title: "page 3".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_1],
+            exercise_slides: vec![quizzes_exercise_slide_1],
+            exercise_tasks: vec![quizzes_exercise_task_1],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters essay page.",
+                    Uuid::new_v5(&course_id, b"6e4ab83a-2ae8-4bd2-a6ea-0e0d1eeabe23")
+                ),
+                quizzes_exercise_block_1,
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        chapter_1.id,
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-4".to_string(),
+            title: "page 4".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_2],
+            exercise_slides: vec![quizzes_exercise_slide_2],
+            exercise_tasks: vec![quizzes_exercise_task_2],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters open page.",
+                    Uuid::new_v5(&course_id, b"771b9c61-dbc9-4266-a980-dadc853455c9")
+                ),
+                quizzes_exercise_block_2
             ]),
         },
     )
@@ -1929,6 +2135,52 @@ fn example_exercise(
     (block, exercise, exercise_slide, exercise_task)
 }
 
+#[allow(clippy::too_many_arguments)]
+fn quizzes_exercise(
+    exercise_id: Uuid,
+    exercise_slide_id: Uuid,
+    exercise_task_id: Uuid,
+    block_id: Uuid,
+    paragraph_id: Uuid,
+    private_spec: serde_json::Value,
+) -> (
+    GutenbergBlock,
+    CmsPageExercise,
+    CmsPageExerciseSlide,
+    CmsPageExerciseTask,
+) {
+    let block = GutenbergBlock {
+        client_id: block_id,
+        name: "moocfi/exercise".to_string(),
+        is_valid: true,
+        attributes: attributes! {
+            "id": exercise_id,
+            "name": "Best quizzes exercise".to_string(),
+            "dropCap": false,
+        },
+        inner_blocks: vec![],
+    };
+    let exercise = CmsPageExercise {
+        id: exercise_id,
+        name: "Best quizzes exercise".to_string(),
+        order_number: 1,
+    };
+    let exercise_slide = CmsPageExerciseSlide {
+        id: exercise_slide_id,
+        exercise_id,
+        order_number: 1,
+    };
+    let exercise_task = CmsPageExerciseTask {
+        id: exercise_task_id,
+        exercise_slide_id,
+        assignment: serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
+        exercise_type: "quizzes".to_string(),
+        private_spec: Some(serde_json::json!(private_spec)),
+    };
+    (block, exercise, exercise_slide, exercise_task)
+}
+
+#[allow(clippy::too_many_arguments)]
 async fn submit_and_grade(
     conn: &mut PgConnection,
     id: &[u8],

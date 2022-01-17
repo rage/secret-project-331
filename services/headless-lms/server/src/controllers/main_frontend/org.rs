@@ -4,6 +4,10 @@ use models::{courses::Course, organizations::Organization};
 
 use crate::controllers::prelude::*;
 
+/**
+GET `/api/v0/main-frontend/org/:slug
+*/
+#[generated_doc(Organization)]
 async fn get_organization_by_slug(
     pool: web::Data<PgPool>,
     organization_slug: web::Path<String>,
@@ -18,6 +22,10 @@ async fn get_organization_by_slug(
     Ok(web::Json(organization))
 }
 
+/**
+GET `/api/v0/main-frontend/org/:slug/courses
+*/
+#[generated_doc(Vec<Course>)]
 async fn get_organization_courses_by_slug(
     pool: web::Data<PgPool>,
     organization_slug: web::Path<String>,

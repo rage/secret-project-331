@@ -34,29 +34,8 @@ Content-Type: application/json
   "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
 }
 ```
-
-Response:
-```json
-{
-  "id": "d90bf7ab-181c-4aa2-a87e-5c28238cc67d",
-  "created_at": "2021-03-12T09:27:36.428501",
-  "updated_at": "2021-03-12T09:27:36.428501",
-  "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
-  "content": [
-    {
-      "id": "18110110-d02a-4432-8cb9-084d0c63a524",
-      "type": "x"
-    }
-  ],
-  "url_path": "/part-2/best-page",
-  "title": "Hello world!",
-  "deleted_at": null,
-  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79",
-  "front_page_of_chapter_id": null
-}
-```
-
 */
+#[generated_doc(Page)]
 #[instrument(skip(pool))]
 async fn post_new_page(
     payload: web::Json<NewPage>,
@@ -80,26 +59,8 @@ DELETE `/api/v0/main-frontend/pages/:page_id` - Delete a page, related exercises
 # Example
 
 Request: `DELETE /api/v0/main-frontend/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
-
-Response:
-```json
-{
-  "id": "40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02",
-  "created_at": "2021-03-08T20:14:56.216394",
-  "updated_at": "2021-03-08T20:29:22.511073",
-  "course_id": "10363c5b-82b4-4121-8ef1-bae8fb42a5ce",
-  "content": [
-    {
-      "type": "x"
-    }
-  ],
-  "url_path": "/part-1/hello-world",
-  "title": "Hello world!",
-  "deleted_at": "2021-04-28T16:33:42.670935",
-  "chapter_id": "2495ffa3-7ea9-4615-baa5-828023688c79"
-}
-```
 */
+#[generated_doc(Page)]
 #[instrument(skip(pool))]
 async fn delete_page(
     page_id: web::Path<Uuid>,
@@ -107,14 +68,8 @@ async fn delete_page(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
-    let (course_id, exam_id) = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
-    if let Some(course_id) = course_id {
-        authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
-    } else if let Some(exam_id) = exam_id {
-        authorize(&mut conn, Act::Edit, user.id, Res::Exam(exam_id)).await?;
-    } else {
-        return Err(anyhow::anyhow!("Page not associated with course or exam").into());
-    }
+    authorize(&mut conn, Act::Edit, user.id, Res::Page(*page_id)).await?;
+
     let deleted_page = models::pages::delete_page_and_exercises(&mut conn, *page_id).await?;
     Ok(web::Json(deleted_page))
 }
@@ -122,6 +77,7 @@ async fn delete_page(
 /**
 GET /api/v0/main-frontend/pages/:page_id/history
 */
+#[generated_doc(Vec<PageHistory>)]
 async fn history(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
@@ -138,6 +94,7 @@ async fn history(
 /**
 GET /api/v0/main-frontend/pages/:page_id/history_count
 */
+#[generated_doc(i64)]
 async fn history_count(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
@@ -153,6 +110,7 @@ async fn history_count(
 /**
 POST /api/v0/main-frontend/pages/:page_id/restore
 */
+#[generated_doc(Uuid)]
 async fn restore(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,

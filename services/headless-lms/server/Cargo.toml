@@ -12,6 +12,7 @@ rust-version = "1.56.0"  # minimum required Rust version, update if you use a ne
 [dependencies]
 headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
+doc-macro = { path = "../doc-macro" }
 
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
 actix-web = "=4.0.0-beta.13"

@@ -161,11 +161,11 @@ export const fetchChaptersPagesWithExercises = async (
   return validateResponse(response, isArray(isPageWithExercises))
 }
 
-export const getNextPageRoutingData = async (
+export const fetchNextPageRoutingData = async (
   currentPageId: string,
 ): Promise<PageRoutingDataWithChapterStatus | null> => {
   const response = await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)
-  return validateResponse(response, isPageRoutingDataWithChapterStatus, isNull)
+  return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
 }
 
 export const fetchChaptersPagesExcludeFrontpage = async (

@@ -5,6 +5,7 @@ use crate::controllers::prelude::*;
 /**
 GET `/api/v0/main-frontend/submissions/{submission_id}/info"` - Returns data necessary for rendering a submission.
 */
+#[generated_doc(SubmissionInfo)]
 #[instrument(skip(pool))]
 async fn get_submission_info(
     submission_id: web::Path<Uuid>,
@@ -12,15 +13,13 @@ async fn get_submission_info(
     user: AuthUser,
 ) -> ControllerResult<web::Json<SubmissionInfo>> {
     let mut conn = pool.acquire().await?;
-    let (course_id, exam_id) =
-        models::submissions::get_course_and_exam_id(&mut conn, *submission_id).await?;
-    if let Some(course_id) = course_id {
-        authorize(&mut conn, Act::View, user.id, Res::Course(course_id)).await?;
-    } else if let Some(exam_id) = exam_id {
-        authorize(&mut conn, Act::View, user.id, Res::Exam(exam_id)).await?;
-    } else {
-        return Err(anyhow::anyhow!("Submission not associated with course or exam").into());
-    }
+    authorize(
+        &mut conn,
+        Act::View,
+        user.id,
+        Res::Submission(*submission_id),
+    )
+    .await?;
 
     let submission = models::submissions::get_by_id(&mut conn, *submission_id).await?;
     let exercise = models::exercises::get_by_id(&mut conn, submission.exercise_id).await?;

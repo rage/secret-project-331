@@ -2,19 +2,19 @@ import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
-import CoursePageContext from "../../../../contexts/CoursePageContext"
+import PageContext from "../../../../contexts/PageContext"
+import Spinner from "../../../../shared-module/components/Spinner"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import GenericLoading from "../../../GenericLoading"
 
 import ExercisesInChapter from "./ExercisesInChapter"
 
 const ExerciseInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
   const { t } = useTranslation()
-  const pageContext = useContext(CoursePageContext)
+  const pageContext = useContext(PageContext)
 
   if (pageContext.state !== "ready") {
-    return <GenericLoading />
+    return <Spinner variant={"small"} />
   }
 
   const chapterId = pageContext.pageData.chapter_id

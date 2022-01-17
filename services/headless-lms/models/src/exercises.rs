@@ -95,9 +95,9 @@ impl GradingProgress {
 #[derive(Debug, Serialize, Deserialize, TS)]
 pub struct ExerciseStatus {
     // None when grading has not completed yet. Max score can be found from the associated exercise.
-    score_given: Option<f32>,
-    activity_progress: ActivityProgress,
-    grading_progress: GradingProgress,
+    pub score_given: Option<f32>,
+    pub activity_progress: ActivityProgress,
+    pub grading_progress: GradingProgress,
 }
 
 pub async fn insert(
@@ -502,6 +502,7 @@ mod test {
             course_language_group_id,
             "",
             "en-US",
+            "",
         )
         .await
         .unwrap();

@@ -4,28 +4,15 @@ import { AxiosResponse } from "axios"
 
 import { ErrorResponse } from "../bindings"
 
+// usage: validateResponse(response, isOrganization)
+// checks the data in an axios response with the given guard and only returns the data if its type is correct
+// throws the response with an ErrorResponse if the data is invalid for useQuery to catch
 export function validateResponse<T>(
   response: AxiosResponse<unknown, unknown>,
   isT: (x: unknown) => x is T,
-): T
-
-export function validateResponse<T, U>(
-  response: AxiosResponse<unknown, unknown>,
-  isT: (x: unknown) => x is T,
-  isU: (x: unknown) => x is U,
-): T
-
-// usage: validateResponse(response, isOrganization)
-// throws the response with an ErrorResponse if the data is invalid for useQuery to catch
-export function validateResponse<T, U>(
-  response: AxiosResponse<unknown, unknown>,
-  isT: (x: unknown) => x is T,
-  isU?: (x: unknown) => x is U,
-): T | U {
+): T {
   const data = response.data
-  if (isU && isU(data)) {
-    return data
-  } else if (isT(data)) {
+  if (isT(data)) {
     return data
   } else {
     // alter the response data to contain an ErrorResponse

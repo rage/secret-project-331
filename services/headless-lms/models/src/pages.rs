@@ -56,18 +56,9 @@ pub struct CoursePageWithUserData {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct PageWithExercises {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    course_id: Option<Uuid>,
-    exam_id: Option<Uuid>,
-    chapter_id: Option<Uuid>,
-    content: serde_json::Value,
-    url_path: String,
-    title: String,
-    order_number: i32,
-    deleted_at: Option<DateTime<Utc>>,
-    exercises: Vec<Exercise>,
+    #[serde(flatten)]
+    pub page: Page,
+    pub exercises: Vec<Exercise>,
 }
 
 // Represents the subset of page fields that are required to create a new page.
@@ -130,11 +121,11 @@ pub struct PageMetadata {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct PageSearchResult {
-    id: Uuid,
-    title_headline: Option<String>,
-    rank: Option<f32>,
-    content_headline: Option<String>,
-    url_path: String,
+    pub id: Uuid,
+    pub title_headline: Option<String>,
+    pub rank: Option<f32>,
+    pub content_headline: Option<String>,
+    pub url_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -1299,24 +1290,11 @@ WHERE page_id IN (
             };
 
             exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
-            PageWithExercises {
-                id: page.id,
-                created_at: page.created_at,
-                updated_at: page.updated_at,
-                course_id: page.course_id,
-                exam_id: page.exam_id,
-                chapter_id: page.chapter_id,
-                content: page.content,
-                url_path: page.url_path,
-                title: page.title,
-                order_number: page.order_number,
-                deleted_at: page.deleted_at,
-                exercises,
-            }
+            PageWithExercises { page, exercises }
         })
         .collect();
 
-    chapter_pages_with_exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+    chapter_pages_with_exercises.sort_by(|a, b| a.page.order_number.cmp(&b.page.order_number));
 
     Ok(chapter_pages_with_exercises)
 }

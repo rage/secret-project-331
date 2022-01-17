@@ -2,6 +2,10 @@ use models::users::User;
 
 use crate::controllers::prelude::*;
 
+/**
+GET `/api/v0/main-frontend/users/:id`
+*/
+#[generated_doc(User)]
 #[instrument(skip(pool))]
 pub async fn get_user(
     user_id: web::Path<Uuid>,

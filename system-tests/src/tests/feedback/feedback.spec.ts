@@ -30,12 +30,12 @@ test("test", async ({ headless, page }) => {
   // Click button:has-text("Continue")
   await page.click('button:has-text("Continue")')
 
-  await Promise.all([page.waitForNavigation(), await page.click("text=The Basics")])
+  await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
   expect(page.url()).toBe(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1",
   )
 
-  await Promise.all([page.waitForNavigation(), await page.click("text=Page One")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
   expect(page.url()).toBe(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1/page-1",
   )
@@ -105,7 +105,7 @@ test("test", async ({ headless, page }) => {
 
   // Click text=Manage feedback
 
-  await Promise.all([page.waitForNavigation(), await page.click("text=Manage feedback")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Manage feedback")])
   await page.waitForURL((url) => url.searchParams.has("read"))
   expectPath(page, "/manage/courses/[id]/feedback?read=false")
 

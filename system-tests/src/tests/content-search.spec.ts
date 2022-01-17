@@ -58,7 +58,7 @@ test("test", async ({ page, headless }) => {
   })
 
   // Click text=Human-machine interface
-  await Promise.all([page.waitForNavigation(), await page.click("text=Human-machine interface")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Human-machine interface")])
 
   expectPath(
     page,

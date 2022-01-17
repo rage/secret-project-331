@@ -33,7 +33,6 @@ const LatexEditor: React.FC<BlockEditProps<TextAttributes>> = (props) => {
     const output = KaTex.renderToString(attributes.text, {
       throwOnError: false,
       displayMode: true,
-      // eslint-disable-next-line i18next/no-literal-string
       output: KATEX_OUTPUT_FORMAT,
     })
     return <div dangerouslySetInnerHTML={{ __html: output }} />

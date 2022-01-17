@@ -15,7 +15,7 @@ use crate::{
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct CourseCount {
-    pub count: i64,
+    pub count: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -180,7 +180,7 @@ WHERE
     .fetch_one(conn)
     .await?;
     Ok(CourseCount {
-        count: result.count.unwrap_or_default(),
+        count: result.count.unwrap_or_default().try_into()?,
     })
 }
 
@@ -623,7 +623,7 @@ WHERE organization_id = $1
     .fetch_one(conn)
     .await?;
     Ok(CourseCount {
-        count: course_count.count.unwrap_or_default(),
+        count: course_count.count.unwrap_or_default().try_into()?,
     })
 }
 

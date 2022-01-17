@@ -3,9 +3,9 @@ import styled from "@emotion/styled"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import SettingIcon from "../../imgs/setting.svg"
-import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
-import { fontWeights, headingFont, primaryFont } from "../../shared-module/styles"
+import SettingIcon from "../../../../imgs/setting.svg"
+import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
+import { fontWeights, headingFont, primaryFont } from "../../../../shared-module/styles"
 
 import Language from "./Language"
 
@@ -14,9 +14,10 @@ const CourseGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
+  padding-bottom: 10px;
 `
 
-const CourseCard = styled.a`
+const CourseCard = styled.div`
   margin-bottom: 5px;
 
   position: relative;
@@ -122,7 +123,10 @@ const CourseComponent: React.FC<CourseCardProps> = ({
   const { t } = useTranslation()
 
   return (
-    <CourseCard href={navigateToCourseHref} aria-label={t("course-navigation", { title })}>
+    <CourseCard
+      onClick={() => (location.href = `${navigateToCourseHref}`)}
+      aria-label={t("course-navigation", { title })}
+    >
       {loginStateContext.signedIn && (
         <a aria-label={t("manage-course", { title })} href={manageHref}>
           <StyledSettingIcon />

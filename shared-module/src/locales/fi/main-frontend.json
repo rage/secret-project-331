@@ -149,5 +149,7 @@
   "login-description": "Tämä sivusto käyttää",
   "login-description2": "käyttäjätunnuksia. Jos olet aikaisemmin tehnyt mooc.fi -kursseja, voit käyttää sisäänkirjautumissivulla olemassaolevia tunnuksiasi. Tällä sivulla voit luoda uuden tunnuksen, joka toimii suurimmassa osassa mooc.fi:n kursseissa ja palveluissa.",
   "create-new-account": "Luo käyttäjätunnus",
-  "forgot-password": "Unohditko salasanasi?"
+  "forgot-password": "Unohditko salasanasi?",
+  "no-courses-in-org": "Organisaatiolla ei ole kursseja",
+  "no-description-available": "Kurssikuvausta ei saatavilla."
 }

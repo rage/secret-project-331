@@ -4,10 +4,10 @@ import { FormControlLabel, Radio, RadioGroup, TextField } from "@material-ui/cor
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { NewCourse } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import { normalizeIETFLanguageTag } from "../../shared-module/utils/strings"
-import { normalizePath } from "../../utils/normalizePath"
+import { NewCourse } from "../../../../shared-module/bindings"
+import Button from "../../../../shared-module/components/Button"
+import { normalizeIETFLanguageTag } from "../../../../shared-module/utils/strings"
+import { normalizePath } from "../../../../utils/normalizePath"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;

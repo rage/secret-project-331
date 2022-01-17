@@ -13,7 +13,7 @@ import {
 import { deleteCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
 import { Course, NewCourse } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
-import NewCourseForm from "../../../../../forms/NewCourseForm"
+import NewCourseForm from "../../../../org/organizationSlug/NewCourseForm"
 
 import CourseInstancesList from "./CourseInstancesList"
 import CourseLanguageVersionsList, {

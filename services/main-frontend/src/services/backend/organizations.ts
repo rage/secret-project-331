@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { Course, CourseCount, Organization } from "../../shared-module/bindings"
 import { isCourse, isOrganization } from "../../shared-module/bindings.guard"
 import { isArray, validateResponse } from "../../shared-module/utils/fetching"

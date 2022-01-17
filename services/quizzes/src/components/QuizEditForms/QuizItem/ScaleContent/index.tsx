@@ -1,4 +1,4 @@
-import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
+import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
   Box,
@@ -64,11 +64,6 @@ const StyledFormLabel = styled(FormControlLabel)`
   margin-right: 0px !important;
 `
 
-const EditButtonWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end !important;
-`
-
 const StyledModal = styled(Modal)`
   display: flex;
   align-items: center;
@@ -127,14 +122,6 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
 
   return (
     <>
-      <EditButtonWrapper>
-        <Button
-          onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))}
-          title={t("edit-item")}
-        >
-          <FontAwesomeIcon icon={faPen} size="2x"></FontAwesomeIcon>
-        </Button>
-      </EditButtonWrapper>
       <StyledModal
         open={variables.advancedEditing}
         onClose={() => dispatch(setAdvancedEditing(storeItem.id, false))}
@@ -163,7 +150,7 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
         <MarkdownEditor
           label={t("title")}
           text={storeItem.title ?? ""}
-          onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
+          onChange={(value) => dispatch(editedQuizItemTitle(value, storeItem.id))}
         />
         <PreviewContainer>
           <FormGroup row>

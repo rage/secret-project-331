@@ -1,4 +1,4 @@
-import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
+import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal, TextField } from "@material-ui/core"
 import React from "react"
@@ -67,11 +67,6 @@ const DeleteButton = styled(Button)`
   display: flex !important;
 `
 
-const EditButtonWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end !important;
-`
-
 interface EssayContentProps {
   item: NormalizedQuizItem
 }
@@ -86,14 +81,6 @@ const EssayContent: React.FC<EssayContentProps> = ({ item }) => {
 
   return (
     <>
-      <EditButtonWrapper>
-        <Button
-          onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))}
-          title={t("edit-item")}
-        >
-          <FontAwesomeIcon icon={faPen} size="2x"></FontAwesomeIcon>
-        </Button>
-      </EditButtonWrapper>
       <StyledModal
         open={variables.advancedEditing}
         onClose={() => dispatch(setAdvancedEditing(storeItem.id, false))}
@@ -121,7 +108,7 @@ const EssayContent: React.FC<EssayContentProps> = ({ item }) => {
       <InfoContainer>
         <MarkdownEditor
           label={t("description-for-quiz-item")}
-          onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
+          onChange={(value) => dispatch(editedQuizItemTitle(value, storeItem.id))}
           text={storeItem.title ?? ""}
         />
       </InfoContainer>

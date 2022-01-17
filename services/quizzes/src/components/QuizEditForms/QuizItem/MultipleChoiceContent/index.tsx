@@ -31,10 +31,6 @@ const QuizContentLineContainer = styled.div`
     flex-wrap: wrap;
   }
 `
-const EditButtonWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end !important;
-`
 
 const StyledModal = styled(Modal)`
   display: flex !important;
@@ -79,14 +75,6 @@ const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) =
 
   return (
     <>
-      <EditButtonWrapper>
-        <Button
-          onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))}
-          title={t("edit-item")}
-        >
-          <FontAwesomeIcon icon={faPen} size="2x"></FontAwesomeIcon>
-        </Button>
-      </EditButtonWrapper>
       <StyledModal
         open={variables.advancedEditing}
         onClose={() => dispatch(setAdvancedEditing(storeItem.id, false))}
@@ -113,7 +101,7 @@ const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) =
       </StyledModal>
       <MarkdownEditor
         label={t("title")}
-        onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
+        onChange={(value) => dispatch(editedQuizItemTitle(value, storeItem.id))}
         text={storeItem.title ?? ""}
       />
       <QuizContentLineContainer>

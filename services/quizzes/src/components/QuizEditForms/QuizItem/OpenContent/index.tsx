@@ -1,4 +1,4 @@
-import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
+import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal, TextField } from "@material-ui/core"
 import React from "react"
@@ -116,14 +116,6 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
 
   return (
     <>
-      <EditButtonWrapper>
-        <Button
-          onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))}
-          title={t("edit-item")}
-        >
-          <FontAwesomeIcon icon={faPen} size="2x"></FontAwesomeIcon>
-        </Button>
-      </EditButtonWrapper>
       <StyledModal
         open={variables.advancedEditing}
         onClose={() => dispatch(setAdvancedEditing(storeItem.id, false))}
@@ -180,14 +172,14 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
         <MarkdownEditor
           label={t("title")}
           text={storeItem.title ?? ""}
-          onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
+          onChange={(value) => dispatch(editedQuizItemTitle(value, storeItem.id))}
         />
       </ItemInfo>
       <ItemInfo>
         <MarkdownEditor
           label={t("body")}
           text={storeItem.body ?? ""}
-          onChange={(event) => dispatch(editedQuizItemBody(event.target.value, storeItem.id))}
+          onChange={(value) => dispatch(editedQuizItemBody(value, storeItem.id))}
         />
       </ItemInfo>
       <RegexContainer>

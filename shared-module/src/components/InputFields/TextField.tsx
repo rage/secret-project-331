@@ -36,6 +36,7 @@ const Input = styled.input<InputExtraProps>`
   transition: ease-in-out, width 0.35s ease-in-out;
   outline: none;
   min-width: 280px;
+  width: 100%;
   display: block;
 
   &:focus,

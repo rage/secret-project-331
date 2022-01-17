@@ -53,7 +53,7 @@ export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
         <MarkdownEditor
           label={t("option-title")}
           text={storeOption.title ?? ""}
-          onChange={(event) => dispatch(editedOptionTitle(event.target.value, storeOption.id))}
+          onChange={(value) => dispatch(editedOptionTitle(value, storeOption.id))}
         />
       </ModalContent>
       <ModalContent>

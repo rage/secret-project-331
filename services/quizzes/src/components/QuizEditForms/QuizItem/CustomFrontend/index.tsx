@@ -1,4 +1,4 @@
-import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
+import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal } from "@material-ui/core"
 import React from "react"

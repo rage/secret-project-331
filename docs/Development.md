@@ -75,10 +75,10 @@ TIP: For multiple terminal windows, we recommend you to use a terminal with spli
 
 After skaffold has started up, we need to add a local domain name so that we can access the ingress of the cluster.
 
-List ingresses with kubectl and grab the IP address for `project-331-ingress`:
+Copy the IP address for `project-331-ingress` from:
 
 ```sh
-kubectl get ingress
+minikube ip
 ```
 
 Next, add a hosts entry for the IP address you got from the previous command:
@@ -197,10 +197,10 @@ You can monitor the process by running `bin/pods` in another _Cygwin_ terminal.
 
 After skaffold has started up, we need to add a local domain name so that we can access the ingress of the cluster.
 
-List ingresses with kubectl and grab the IP address for `project-331-ingress`:
+Copy the IP address for `project-331-ingress` from:
 
 ```sh
-kubectl get ingress
+minikube ip
 ```
 
 Next, add a hosts entry for the IP address you got from the previous command:

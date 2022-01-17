@@ -173,6 +173,7 @@ const Navigation: React.FC<NavigationProps> = ({
             className={cx(StyledIcon)}
             icon={faBullseye}
             aria-label={t("home-page")}
+            aria-hidden="true"
           ></FontAwesomeIcon>
         </a>
       </div>

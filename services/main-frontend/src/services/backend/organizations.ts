@@ -23,11 +23,8 @@ export const fetchOrganizationBySlug = async (organizationSlug: string): Promise
 }
 
 export const fetchOrganizationCourseCount = async (
-  organizationId: string | undefined,
+  organizationId: string,
 ): Promise<CourseCount> => {
-  if (typeof organizationId === "undefined") {
-    return Promise.reject(new Error("Organization ID undefined"))
-  }
   const data = (
     await mainFrontendClient.get(`/organizations/${organizationId}/courses/count`, {
       responseType: "json",
@@ -48,13 +45,10 @@ export const fetchOrganizationActiveCourseCount = async (
 }
 
 export const fetchOrganizationCourses = async (
-  organizationId: string | undefined,
+  organizationId: string,
   page: number,
   limit: number,
 ): Promise<Array<Course>> => {
-  if (typeof organizationId === "undefined") {
-    return Promise.reject(new Error("Organization ID undefined"))
-  }
   const response = await mainFrontendClient.get(`/organizations/${organizationId}/courses`, {
     responseType: "json",
     params: {

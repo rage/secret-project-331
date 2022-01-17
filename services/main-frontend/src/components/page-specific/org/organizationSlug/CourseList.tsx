@@ -39,13 +39,27 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
 
   const getOrgCourses = useQuery(
     [`organization-courses`, page, perPage],
-    () => fetchOrganizationCourses(organizationId, page, perPage),
+    () => {
+      if (organizationId) {
+        return fetchOrganizationCourses(organizationId, page, perPage)
+      } else {
+        // This should never happen, used for typescript because enabled boolean doesn't do type checking
+        return Promise.reject(new Error("Organization ID undefined"))
+      }
+    },
     { enabled: !!organizationId },
   )
 
   const getOrgCourseCount = useQuery(
     [`organization-courses-count`, organizationSlug],
-    () => fetchOrganizationCourseCount(organizationId),
+    () => {
+      if (organizationId) {
+        return fetchOrganizationCourseCount(organizationId)
+      } else {
+        // This should never happen, used for typescript because enabled boolean doesn't do type checking
+        return Promise.reject(new Error("Organization ID undefined"))
+      }
+    },
     { enabled: !!organizationId },
   )
 

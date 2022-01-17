@@ -28,7 +28,14 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
 
   const exams = useQuery(
     [`organization-${query.organizationSlug}-exams`, getOrganizationBySlug.data],
-    () => fetchOrganizationExams(getOrganizationBySlug?.data?.id),
+    () => {
+      if (getOrganizationBySlug.data) {
+        return fetchOrganizationExams(getOrganizationBySlug.data.id)
+      } else {
+        // This should never happen, used for typescript because enabled boolean doesn't do type checking
+        return Promise.reject(new Error("Organization ID undefined"))
+      }
+    },
     { enabled: !!getOrganizationBySlug.data },
   )
 

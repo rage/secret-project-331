@@ -7,12 +7,8 @@ export const fetchExam = async (id: string): Promise<Exam> => {
 }
 
 export const fetchOrganizationExams = async (
-  organizationId: string | undefined,
+  organizationId: string,
 ): Promise<Array<CourseExam>> => {
-  if (typeof organizationId === "undefined") {
-    // eslint-disable-next-line i18next/no-literal-string
-    return Promise.reject(new Error("Organization ID undefined"))
-  }
   const response = await mainFrontendClient.get(`/organizations/${organizationId}/exams`, {
     responseType: "json",
   })

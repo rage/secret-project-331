@@ -1108,7 +1108,7 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseCount</span> {
-    <span class="kw">pub</span> <span class="ident">count</span>: <span class="ident">i64</span>,
+    <span class="kw">pub</span> <span class="ident">count</span>: <span class="ident">u32</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -1273,7 +1273,7 @@ WHERE
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">CourseCount</span> {
-        <span class="ident">count</span>: <span class="ident">result</span>.<span class="ident">count</span>.<span class="ident">unwrap_or_default</span>(),
+        <span class="ident">count</span>: <span class="ident">result</span>.<span class="ident">count</span>.<span class="ident">unwrap_or_default</span>().<span class="ident">try_into</span>()<span class="question-mark">?</span>,
     })
 }
 
@@ -1716,7 +1716,7 @@ WHERE organization_id = $1
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">CourseCount</span> {
-        <span class="ident">count</span>: <span class="ident">course_count</span>.<span class="ident">count</span>.<span class="ident">unwrap_or_default</span>(),
+        <span class="ident">count</span>: <span class="ident">course_count</span>.<span class="ident">count</span>.<span class="ident">unwrap_or_default</span>().<span class="ident">try_into</span>()<span class="question-mark">?</span>,
     })
 }
 

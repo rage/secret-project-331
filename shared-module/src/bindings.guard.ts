@@ -314,7 +314,7 @@ export function isNewCourse(obj: any, _argumentName?: string): obj is NewCourse 
 export function isCourseCount(obj: any, _argumentName?: string): obj is CourseCount {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.count === "bigint"
+    typeof obj.count === "number"
   )
 }
 

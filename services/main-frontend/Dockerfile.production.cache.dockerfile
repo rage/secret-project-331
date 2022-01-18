@@ -18,6 +18,8 @@ RUN npm ci
 
 COPY --chown=node . /app
 
+RUN npm run postinstall
+
 ENV NEXT_PUBLIC_BASE_PATH=""
 
 RUN npm run build

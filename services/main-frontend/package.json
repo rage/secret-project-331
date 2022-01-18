@@ -6,7 +6,8 @@
     "dev": "node server.js",
     "build": "NODE_ENV=production next build",
     "export": "next export",
-    "start": "NODE_ENV=production PORT=3000 node server.js"
+    "start": "NODE_ENV=production PORT=3000 node server.js",
+    "postinstall": "mkdir -p public && cp -r ./node_modules/monaco-editor/min ./public/monaco-editor"
   },
   "dependencies": {
     "@emotion/babel-plugin": "^11.7.2",

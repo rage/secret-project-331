@@ -17,6 +17,8 @@ RUN npm ci
 
 COPY --chown=node . /app
 
+RUN npm run postinstall
+
 EXPOSE 3000
 
 CMD [ "npm", "run", "dev" ]

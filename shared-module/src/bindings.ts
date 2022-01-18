@@ -149,7 +149,7 @@ export interface NewCourse {
 }
 
 export interface CourseCount {
-  count: bigint
+  count: number
 }
 
 export interface EmailTemplate {

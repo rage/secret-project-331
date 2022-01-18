@@ -152,8 +152,8 @@
   "old": "Old",
   "incorrect-email-or-password": "Incorrect email or password",
   "failed-to-authenticate": "Failed to authenticate",
-  "teacher-in-charge-name": "Teacher-in-charge name",
-  "teacher-in-charge-email": "Teacher-in-charge email",
+  "teacher-in-charge-name": "Teacher in charge name",
+  "teacher-in-charge-email": "Teacher in charge email",
   "this-field-required": "This field is required",
   "support-email": "Support email",
   "opening-time": "Opening time",
@@ -190,5 +190,7 @@
   "login-description": "This site uses",
   "login-description2": "accounts. If you have previously done mooc.fi -courses, you can log in with your existing account. On this page you can create a new account, which works on majority of mooc.fi courses and services.",
   "create-new-account": "Create new account",
-  "forgot-password": "Forgot your password?"
+  "forgot-password": "Forgot your password?",
+  "no-courses-in-org": "There are no courses in this organization.",
+  "no-description-available": "No description available"
 }

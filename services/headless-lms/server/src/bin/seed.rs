@@ -1507,6 +1507,7 @@ async fn seed_sample_course(
                     "order": 1,
                     "title": null,
                     "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                    "correct":true
                 },
                 {
                     "id": "fef8cd36-04ab-48f2-861c-51769ccad52f",
@@ -1514,6 +1515,7 @@ async fn seed_sample_course(
                     "order": 2,
                     "title": null,
                     "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                    "correct":false
                 }],
                 "maxValue": null,
                 "maxWords": null,

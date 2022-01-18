@@ -25,6 +25,7 @@ const MultipleChoiceDropdownFeedback: React.FC<QuizItemSubmissionComponentProps>
   public_quiz_item,
   user_quiz_item_answer,
   quiz_item_feedback,
+  quiz_item_model_solution,
 }) => {
   const correct = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_correct
   const selectedOption = public_quiz_item.options.filter(
@@ -51,9 +52,16 @@ const MultipleChoiceDropdownFeedback: React.FC<QuizItemSubmissionComponentProps>
       >
         <h2>{public_quiz_item.title}</h2>
       </div>
-      <p className={cx(correct ? correctAnswer : incorrectAnswer)}>
-        {selectedOption.title || selectedOption.body}
-      </p>
+      {correct ? (
+        <p className={cx(correctAnswer)}>{selectedOption.title || selectedOption.body}</p>
+      ) : (
+        <>
+          <p className={cx(incorrectAnswer)}>{selectedOption.title || selectedOption.body}</p>
+          <p className={cx(correctAnswer)}>
+            {quiz_item_model_solution?.options.filter((o) => o.correct)[0]}
+          </p>
+        </>
+      )}
       <p>
         {(quiz_item_feedback as ItemAnswerFeedback).quiz_item_option_feedbacks?.map((of) => (
           <p key={of.option_id}>{of.option_feedback}</p>

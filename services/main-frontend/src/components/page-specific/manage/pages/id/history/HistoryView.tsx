@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { DiffEditor } from "@monaco-editor/react"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
@@ -8,8 +7,7 @@ import { fetchHistoryForPage } from "../../../../../../services/backend/pages"
 import { PageHistory } from "../../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
-import { monospaceFont } from "../../../../../../shared-module/styles"
-import monacoFontFixer from "../../../../../../shared-module/styles/monacoFontFixer"
+import MonacoDiffEditor from "../../../../../../shared-module/components/monaco/MonacoDiffEditor"
 import replaceUuidsWithPlaceholdersInText from "../../../../../../shared-module/utils/testing/replaceUuidsWithPlaceholders"
 
 import HistoryList from "./HistoryList"
@@ -71,7 +69,7 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
         <Spinner variant={"medium"} />
       )}
       {getCurrentPageHistory.isSuccess && (
-        <div className={monacoFontFixer}>
+        <div>
           <p
             className={css`
               text-align: center;
@@ -82,13 +80,13 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
               "selected-title": selectedTitle,
             })}
           </p>
-          <DiffEditor
+          <MonacoDiffEditor
             height="40vh"
             // eslint-disable-next-line i18next/no-literal-string
             language="json"
             original={currentRevision || t("loading-text")}
             modified={selectedRevision || t("loading-text")}
-            options={{ readOnly: true, fontFamily: monospaceFont }}
+            options={{ readOnly: true }}
           />
           <HistoryList
             pageId={pageId}

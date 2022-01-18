@@ -1,8 +1,10 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { faTimesCircle } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
-import ErrorIcon from "../../img/ErrorIcon.svg"
 import CloseIcon from "../../img/close.svg"
 import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
@@ -98,7 +100,12 @@ const ErrorNotification = (props: ErrorNotificationProps) => {
     <Wrapper>
       <Content>
         <IconWrapper>
-          <ErrorIcon />
+          <FontAwesomeIcon
+            className={css`
+              color: #da4453;
+            `}
+            icon={faTimesCircle}
+          />
         </IconWrapper>
         <TextWrapper>
           <ErrorHeader>{props.header ?? t("error-title")}</ErrorHeader>

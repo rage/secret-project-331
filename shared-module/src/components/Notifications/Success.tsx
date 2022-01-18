@@ -1,8 +1,10 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { faCheck } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
-import SuccessIcon from "../../img/SuccessIcon.svg"
 import CloseIcon from "../../img/close.svg"
 import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
@@ -98,7 +100,12 @@ const SuccessNotification = (props: SuccessNotificationProps) => {
     <Wrapper>
       <Content>
         <IconWrapper>
-          <SuccessIcon />
+          <FontAwesomeIcon
+            className={css`
+              color: #145a48;
+            `}
+            icon={faCheck}
+          />
         </IconWrapper>
         <TextWrapper>
           <SuccessHeader>{props.header ?? t("success-title")}</SuccessHeader>

@@ -6,16 +6,15 @@ import ErrorNotification from "../components/Notifications/Error"
 import LoadingNotification from "../components/Notifications/Loading"
 import SuccessNotification from "../components/Notifications/Success"
 
-interface EnableNotifications {
+interface EnableNotifications extends ToastOptions {
   notify: true
-  type: "POST" | "PUT" | "DELETE"
+  method: "POST" | "PUT" | "DELETE"
   dismissable?: boolean
   loadingText?: string
   successHeader?: string
   successMessage?: string
   errorHeader?: string
   errorMessage?: string
-  toastOptions?: ToastOptions
 }
 
 interface DisableNotifications {
@@ -52,7 +51,7 @@ export default function useToastMutation<
         )
       },
       {
-        ...notificationOptions.toastOptions,
+        ...notificationOptions,
         id: toastId,
       },
     )
@@ -64,7 +63,7 @@ export default function useToastMutation<
       if (notificationOptions.notify) {
         // Set toastId that is updated once operation is successful or erronous.
         toastId = toast.custom(<LoadingNotification message={notificationOptions.loadingText} />, {
-          ...notificationOptions.toastOptions,
+          ...notificationOptions,
         })
       }
       if (mutationOptions?.onMutate) {
@@ -74,7 +73,7 @@ export default function useToastMutation<
     },
     onSuccess: (data: TData, variables: TVariables, context: TContext) => {
       if (notificationOptions.notify) {
-        switch (notificationOptions.type) {
+        switch (notificationOptions.method) {
           case "PUT":
             displaySuccessNotification(notificationOptions, t("edit-has-been-saved"))
             break
@@ -104,7 +103,7 @@ export default function useToastMutation<
               />
             )
           },
-          { ...notificationOptions.toastOptions, id: toastId },
+          { ...notificationOptions, id: toastId },
         )
       }
       if (mutationOptions?.onError) {

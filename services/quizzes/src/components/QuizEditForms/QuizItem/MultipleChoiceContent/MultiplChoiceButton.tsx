@@ -22,7 +22,6 @@ const StyledModal = styled(Modal)`
 const StyledBox = styled(Box)`
   background-color: #fafafa;
   min-width: 50% !important;
-  min-height: 50% !important;
 `
 
 const CloseButton = styled(Button)`

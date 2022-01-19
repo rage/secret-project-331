@@ -27,6 +27,7 @@
   "on-each-quiz-item-answer-option": "On each quiz item answer option",
   "all-answers-correct": "All answers correct (no matter what one answers it is correct)",
   "layout-of-options": "Layout of options",
+  "title-options": "Options",
   "direction": "direction",
   "choose-quiz-item-option-direction-help-text": "Choose the direction the quiz item options will be used to lay out in the widget",
   "row": "Row",

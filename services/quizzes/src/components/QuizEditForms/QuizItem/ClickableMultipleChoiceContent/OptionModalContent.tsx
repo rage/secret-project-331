@@ -30,17 +30,15 @@ export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
   return (
     <>
       <ModalContent>
-        <p>{t("editing-option")}</p>
+        <h4>{t("editing-option")}</h4>
       </ModalContent>
       <ModalContent>
         <FormControl>
           <FormControlLabel
             label={t("label-correct")}
-            // eslint-disable-next-line i18next/no-literal-string
             labelPlacement="start"
             control={
               <Checkbox
-                // eslint-disable-next-line i18next/no-literal-string
                 color="primary"
                 checked={storeOption.correct}
                 onChange={(event) =>

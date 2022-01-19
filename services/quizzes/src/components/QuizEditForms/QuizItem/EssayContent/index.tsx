@@ -1,28 +1,19 @@
 import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Box, Button, Fade, Modal, TextField } from "@material-ui/core"
+import { Box, Button, Fade, Modal } from "@material-ui/core"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
+import TextField from "../../../../shared-module/components/InputFields/TextField"
 import { deletedItem } from "../../../../store/editor/editorActions"
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
-import {
-  editedItemMaxWords,
-  editedItemMinWords,
-  editedQuizItemTitle,
-} from "../../../../store/editor/items/itemAction"
+import { editedItemMaxWords, editedItemMinWords } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import MarkdownEditor from "../../../MarkdownEditor"
 
 import EssayModalContent from "./EssayModalContent"
-
-// eslint-disable-next-line i18next/no-literal-string
-const InfoContainer = styled.div`
-  padding: 1rem 0;
-`
 
 const OneLineInfoContainer = styled.div`
   padding: 1rem 0;
@@ -46,7 +37,6 @@ const StyledModal = styled(Modal)`
 const AdvancedBox = styled(Box)`
   background-color: #fafafa !important;
   min-width: 80% !important;
-  min-height: 50% !important;
   max-width: 80% !important;
   max-height: 50% !important;
   overflow-y: scroll !important;
@@ -105,36 +95,21 @@ const EssayContent: React.FC<EssayContentProps> = ({ item }) => {
           </AdvancedBox>
         </Fade>
       </StyledModal>
-      <InfoContainer>
-        <MarkdownEditor
-          label={t("description-for-quiz-item")}
-          onChange={(value) => dispatch(editedQuizItemTitle(value, storeItem.id))}
-          text={storeItem.title ?? ""}
-        />
-      </InfoContainer>
       <OneLineInfoContainer>
         <InlineFieldWrapper>
           <TextField
-            fullWidth
             label={t("min-words")}
-            variant="outlined"
-            value={storeItem.minWords ?? ""}
+            value={storeItem.minWords?.toString() ?? ""}
             type="number"
-            onChange={(event) =>
-              dispatch(editedItemMinWords(storeItem.id, Number(event.target.value)))
-            }
+            onChange={(value) => dispatch(editedItemMinWords(storeItem.id, Number(value)))}
           />
         </InlineFieldWrapper>
         <InlineFieldWrapper>
           <TextField
-            fullWidth
             label={t("max-words")}
-            variant="outlined"
-            value={storeItem.maxWords ?? ""}
+            value={storeItem.maxWords?.toString() ?? ""}
             type="number"
-            onChange={(event) =>
-              dispatch(editedItemMaxWords(storeItem.id, Number(event.target.value)))
-            }
+            onChange={(value) => dispatch(editedItemMaxWords(storeItem.id, Number(value)))}
           />
         </InlineFieldWrapper>
       </OneLineInfoContainer>

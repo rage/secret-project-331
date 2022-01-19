@@ -142,7 +142,14 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
       </div>
       {attributes.show_editor ? (
         <ExerciseTaskEditorCard id={attributes.id}>
-          <div className={gutenbergControlsVisible}>
+          <div
+            className={css`
+              padding: 1rem;
+              border: 1px solid black;
+              ${gutenbergControlsVisible}
+            `}
+          >
+            <h3>{t("title-assignment")}</h3>
             <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
           </div>
           {!exerciseType ? (

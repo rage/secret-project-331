@@ -2,16 +2,13 @@ import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal } from "@material-ui/core"
 import React from "react"
-import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
 import { deletedItem } from "../../../../store/editor/editorActions"
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
-import { editedQuizItemTitle } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import MarkdownEditor from "../../../MarkdownEditor"
 
 import MatrixModalContent from "./MatrixModalContent"
 import TableContent from "./TableContent"
@@ -65,7 +62,6 @@ interface MatrixContentProps {
 }
 
 const MatrixContent: React.FC<MatrixContentProps> = ({ item }) => {
-  const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
@@ -98,11 +94,6 @@ const MatrixContent: React.FC<MatrixContentProps> = ({ item }) => {
           </AdvancedBox>
         </Fade>
       </StyledModal>
-      <MarkdownEditor
-        label={t("title")}
-        onChange={(value) => dispatch(editedQuizItemTitle(value, storeItem.id))}
-        text={storeItem.title ?? ""}
-      />
       <QuizContentLineContainer>
         <QuizContent>
           <TableContent item={item}> </TableContent>{" "}

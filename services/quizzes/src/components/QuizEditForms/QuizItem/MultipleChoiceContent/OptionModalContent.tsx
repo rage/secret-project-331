@@ -66,8 +66,8 @@ export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
           }
           onChange={
             storeOption.correct
-              ? (event) => dispatch(editedOptionSuccessMessage(storeOption.id, event.target.value))
-              : (event) => dispatch(editedOptionFailureMessage(storeOption.id, event.target.value))
+              ? (value) => dispatch(editedOptionSuccessMessage(storeOption.id, value))
+              : (value) => dispatch(editedOptionFailureMessage(storeOption.id, value))
           }
         />
       </ModalContent>

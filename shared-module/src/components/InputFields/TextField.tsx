@@ -5,7 +5,7 @@ import React from "react"
 import { primaryFont } from "../../styles/typography"
 
 interface TextFieldExtraProps {
-  type?: "email" | "password" | "text"
+  type?: "email" | "password" | "text" | "number"
   label: string
   hint?: string
   error?: boolean

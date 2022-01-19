@@ -1,4 +1,4 @@
-import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
+import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal } from "@material-ui/core"
 import React from "react"
@@ -36,7 +36,6 @@ const StyledModal = styled(Modal)`
 const AdvancedBox = styled(Box)`
   background-color: #fafafa !important;
   min-width: 80% !important;
-  min-height: 50% !important;
   max-width: 80% !important;
   max-height: 50% !important;
   overflow-y: scroll !important;

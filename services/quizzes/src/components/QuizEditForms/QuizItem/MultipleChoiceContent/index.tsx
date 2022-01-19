@@ -1,12 +1,14 @@
-import { faPen, faPlus, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
+import { css } from "@emotion/css"
+import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Box, Button, Fade, Modal } from "@material-ui/core"
+import { Box, Fade, Modal } from "@material-ui/core"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
+import Button from "../../../../shared-module/components/Button"
 import { createdNewOption, deletedItem } from "../../../../store/editor/editorActions"
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { editedQuizItemTitle } from "../../../../store/editor/items/itemAction"
@@ -25,11 +27,9 @@ const QuizContent = styled.div`
 `
 
 const QuizContentLineContainer = styled.div`
-  display: flex !important;
-  justify-content: space-around;
-  @media only screen and (max-width: 600px) {
-    flex-wrap: wrap;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `
 
 const StyledModal = styled(Modal)`
@@ -82,13 +82,19 @@ const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) =
         <Fade in={variables.advancedEditing}>
           <AdvancedBox>
             <ModalButtonWrapper>
-              <CloseButton onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}>
+              <CloseButton
+                variant={"outlined"}
+                size={"medium"}
+                onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}
+              >
                 <FontAwesomeIcon icon={faWindowClose} size="2x" />
               </CloseButton>
             </ModalButtonWrapper>
             <MultipleChoiceModalContent item={storeItem} />
             <ModalButtonWrapper>
               <DeleteButton
+                variant={"outlined"}
+                size={"medium"}
                 onClick={() => {
                   dispatch(deletedItem(storeItem.id, quizId))
                 }}
@@ -104,6 +110,13 @@ const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) =
         onChange={(value) => dispatch(editedQuizItemTitle(value, storeItem.id))}
         text={storeItem.title ?? ""}
       />
+      <h3
+        className={css`
+          margin-top: 1rem;
+        `}
+      >
+        {t("title-options")}
+      </h3>
       <QuizContentLineContainer>
         {storeItem.options.map((option, i) => (
           <QuizContent key={option}>
@@ -111,8 +124,13 @@ const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) =
           </QuizContent>
         ))}
         <QuizContent>
-          <Button title={t("add-option")} onClick={() => dispatch(createdNewOption(storeItem.id))}>
-            <FontAwesomeIcon icon={faPlus} size="2x" color="blue" />
+          <Button
+            title={t("add-option")}
+            onClick={() => dispatch(createdNewOption(storeItem.id))}
+            variant={"outlined"}
+            size={"medium"}
+          >
+            {t("add-option")}
           </Button>
         </QuizContent>
       </QuizContentLineContainer>

@@ -1,21 +1,13 @@
 import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-  Box,
-  Button,
-  Fade,
-  FormControlLabel,
-  FormGroup,
-  Modal,
-  Radio,
-  TextField,
-} from "@material-ui/core"
+import { Box, Button, Fade, FormControlLabel, FormGroup, Modal, Radio } from "@material-ui/core"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
+import TextField from "../../../../shared-module/components/InputFields/TextField"
 import { deletedItem } from "../../../../store/editor/editorActions"
 import {
   setAdvancedEditing,
@@ -35,7 +27,6 @@ import ScaleModalContent from "./ScaleModalContent"
 const ScaleContainer = styled.div`
   padding-top: 1rem;
   padding-bottom: 1rem;
-  display: flex;
 `
 
 const PreviewContainer = styled.div`
@@ -45,18 +36,17 @@ const PreviewContainer = styled.div`
 `
 
 const MinMaxContainer = styled.div`
-  width: 50% !important;
   display: flex;
 `
 
 const MinField = styled(TextField)`
   margin-right: 1rem !important;
-  display: flex;
+  width: 100%;
 `
 
 const MaxField = styled(TextField)`
   margin-left: 0.5rem !important;
-  display: flex;
+  width: 100%;
 `
 
 const StyledFormLabel = styled(FormControlLabel)`
@@ -73,7 +63,6 @@ const StyledModal = styled(Modal)`
 const AdvancedBox = styled(Box)`
   background-color: #fafafa !important;
   min-width: 80% !important;
-  min-height: 50% !important;
   max-width: 80% !important;
   max-height: 50% !important;
   overflow-y: scroll !important;
@@ -167,22 +156,20 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
       <MinMaxContainer>
         <MinField
           error={!variables.validMin}
-          helperText={!variables.validMin ? t("invalid-minimum-value") : ""}
           label={t("minimum")}
-          value={variables.scaleMin ?? ""}
-          variant="outlined"
+          value={variables.scaleMin?.toString() ?? ""}
           type="number"
-          onChange={(event) => handleMinValueChange(Number(event.target.value))}
+          onChange={(value) => handleMinValueChange(Number(value))}
         />
+        {!variables.validMin && t("invalid-minimum-value")}
         <MaxField
           error={!variables.validMax}
-          helperText={!variables.validMax ? t("invalid-maximum-value") : ""}
           label={t("maximum")}
-          value={variables.scaleMax ?? ""}
-          variant="outlined"
+          value={variables.scaleMax?.toString() ?? ""}
           type="number"
-          onChange={(event) => handleMaxValueChange(Number(event.target.value))}
+          onChange={(value) => handleMaxValueChange(Number(value))}
         />
+        {!variables.validMax && t("invalid-maximum-value")}
       </MinMaxContainer>
     </>
   )

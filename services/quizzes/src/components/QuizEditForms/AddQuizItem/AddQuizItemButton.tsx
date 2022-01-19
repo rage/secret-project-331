@@ -1,26 +1,11 @@
-import { Button } from "@material-ui/core"
+import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
+import Button from "../../../shared-module/components/Button"
 import { createdNewItem } from "../../../store/editor/editorActions"
 import { useTypedSelector } from "../../../store/store"
-
-// eslint-disable-next-line i18next/no-literal-string
-const StyledButton = styled(Button)`
-  display: flex !important;
-  background: #e0e0e0 !important;
-  width: 16% !important;
-  overflow: hidden !important;
-  margin-top: 1rem !important;
-  @media only screen and (max-width: 600px) {
-    display: flex !important;
-    background: #e0e0e0 !important;
-    width: 100% !important;
-    overflow: hidden !important;
-  }
-`
 
 interface ButtonProps {
   type: string
@@ -32,13 +17,19 @@ export const AddQuizItemButton: React.FC<ButtonProps> = ({ type }) => {
   const quizId = useTypedSelector((state) => state.editor.quizId)
   return (
     <>
-      <StyledButton
+      <Button
         title={t("open")}
         variant="outlined"
+        transform="normal"
         onClick={() => dispatch(createdNewItem(quizId, type))}
+        size={"medium"}
+        className={css`
+          margin-bottom: 1rem;
+          margin-left: 1rem;
+        `}
       >
         {type}
-      </StyledButton>
+      </Button>
     </>
   )
 }

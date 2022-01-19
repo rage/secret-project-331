@@ -4,6 +4,7 @@
   "success-title": "Tallennettu",
   "edit-has-been-saved": "Muutoksesi on tallennettu!",
   "default-success-toast-message": "Toiminto onnistui!",
+  "default-loading-toast-message": "Suoritetaan toimintoa...",
   "added-successfully": "Lisätty onnistuneesti.",
   "saving": "Tallennetaan...",
   "error-occured": "Tapahtui virhe"

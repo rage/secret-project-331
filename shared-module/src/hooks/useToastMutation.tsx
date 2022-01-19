@@ -3,11 +3,12 @@ import { useTranslation } from "react-i18next"
 import { MutationFunction, useMutation, UseMutationOptions, UseMutationResult } from "react-query"
 
 import ErrorNotification from "../components/Notifications/Error"
+import LoadingNotification from "../components/Notifications/Loading"
 import SuccessNotification from "../components/Notifications/Success"
 
 interface EnableNotifications {
   notify: true
-  type?: "POST" | "PUT" | "DELETE"
+  type: "POST" | "PUT" | "DELETE"
   dismissable?: boolean
   loadingText?: string
   successHeader?: string
@@ -31,7 +32,7 @@ export default function useToastMutation<
 >(
   mutationFn: MutationFunction<TData, TVariables>,
   notificationOptions: NotificationOptions,
-  options?: Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn">,
+  mutationOptions?: Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn">,
 ): UseMutationResult<TData, TError, TVariables, TContext> {
   const { t } = useTranslation()
 
@@ -58,16 +59,16 @@ export default function useToastMutation<
   }
 
   const mutation = useMutation(mutationFn, {
-    ...options,
+    ...mutationOptions,
     onMutate: (variables: TVariables) => {
       if (notificationOptions.notify) {
         // Set toastId that is updated once operation is successful or erronous.
-        toastId = toast.loading(notificationOptions.loadingText ?? t("saving"), {
+        toastId = toast.custom(<LoadingNotification message={notificationOptions.loadingText} />, {
           ...notificationOptions.toastOptions,
         })
       }
-      if (options?.onMutate) {
-        options.onMutate(variables)
+      if (mutationOptions?.onMutate) {
+        mutationOptions.onMutate(variables)
       }
       return undefined
     },
@@ -87,8 +88,8 @@ export default function useToastMutation<
             displaySuccessNotification(notificationOptions)
         }
       }
-      if (options?.onSuccess) {
-        return options.onSuccess(data, variables, context)
+      if (mutationOptions?.onSuccess) {
+        return mutationOptions.onSuccess(data, variables, context)
       }
     },
     onError: (error: TError, variables: TVariables, context: TContext | undefined) => {
@@ -106,8 +107,8 @@ export default function useToastMutation<
           { ...notificationOptions.toastOptions, id: toastId },
         )
       }
-      if (options?.onError) {
-        return options.onError(error, variables, context)
+      if (mutationOptions?.onError) {
+        return mutationOptions.onError(error, variables, context)
       }
     },
   })

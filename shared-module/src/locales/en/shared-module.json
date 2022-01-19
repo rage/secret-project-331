@@ -45,5 +45,6 @@
   "edit-has-been-saved": "Your edit has been saved!",
   "added-successfully": "Added successully.",
   "default-success-toast-message": "Operation successful!",
+  "default-loading-toast-message": "Performing action...",
   "saving": "Saving..."
 }

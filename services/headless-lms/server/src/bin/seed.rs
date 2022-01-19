@@ -1500,14 +1500,15 @@ async fn seed_sample_course(
                 "order": 0,
                 "title": "Choose the right answer from given options.",
                 "quizId": "f1f0520e-3037-409c-b52d-163ad0bc5c59",
-                "options": [
-                    {
+                "options": [{
                     "id": "86a2d838-04aa-4b1c-8115-2c15ed19e7b3",
                     "body": "The right answer",
                     "order": 1,
                     "title": null,
                     "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                    "correct":true
+                    "correct":true,
+                    "failureMessage": null,
+                    "successMessage": "You chose wisely...".to_string()
                 },
                 {
                     "id": "fef8cd36-04ab-48f2-861c-51769ccad52f",
@@ -1515,7 +1516,9 @@ async fn seed_sample_course(
                     "order": 2,
                     "title": null,
                     "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                    "correct":false
+                    "correct":false,
+                    "failureMessage": "You chose poorly...".to_string(),
+                    "successMessage": null
                 }],
                 "maxValue": null,
                 "maxWords": null,
@@ -1526,8 +1529,8 @@ async fn seed_sample_course(
                 "updatedAt": "2021-12-17T07:16:23.202Z",
                 "formatRegex": null,
                 "validityRegex": null,
-                "failureMessage": "You chose poorly...".to_string(),
-                "successMessage": "You chose wisely...".to_string(),
+                "failureMessage": null,
+                "successMessage": null,
                 "allAnswersCorrect": false,
                 "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                 "sharedOptionFeedbackMessage": null,

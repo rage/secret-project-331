@@ -9,15 +9,21 @@ import { QuizItemSubmissionComponentProps } from "."
 
 const correctAnswer = css`
   display: flex;
-  flex: 1;
+  flex: 2;
+  justify-content: center;
+  align-items: center;
+  margin: 0.5rem;
+  border-radius: 3px;
   background: ${quizTheme.gradingCorrectItemBackground};
 `
 
 const incorrectAnswer = css`
   display: flex;
-  flex: 1;
+  flex: 2;
   justify-content: center;
   align-items: center;
+  margin: 0.5rem;
+  border-radius: 3px;
   background: ${quizTheme.gradingWrongItemBackground};
 `
 
@@ -31,42 +37,70 @@ const MultipleChoiceDropdownFeedback: React.FC<QuizItemSubmissionComponentProps>
   const selectedOption = public_quiz_item.options.filter(
     (o) => o.id === (user_quiz_item_answer.optionAnswers as string[])[0],
   )[0]
+  const correctOption = quiz_item_model_solution?.options.find((o) => o.correct)
 
   return (
     <div
       className={css`
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-        ${respondToOrLarger.sm} {
-          flex-direction: row;
-        }
       `}
     >
-      <div
+      <h2
         className={css`
           display: flex;
-          flex: 3;
           margin: 0.5rem;
         `}
       >
-        <h2>{public_quiz_item.title}</h2>
+        {public_quiz_item.title}
+      </h2>
+      <div
+        className={css`
+          display: flex;
+          flex-direction: column;
+          align-items: baseline;
+          ${respondToOrLarger.sm} {
+            flex-direction: row;
+          }
+        `}
+      >
+        {correct ? (
+          <div className={cx(correctAnswer)}>{selectedOption.title || selectedOption.body}</div>
+        ) : (
+          <div
+            className={css`
+              display: flex;
+              flex: 2;
+            `}
+          >
+            <div
+              className={css`
+                display: flex;
+                flex-direction: column;
+                ${respondToOrLarger.sm} {
+                  flex-direction: row;
+                }
+              `}
+            >
+              <div className={cx(incorrectAnswer)}>
+                {selectedOption.title || selectedOption.body}
+              </div>
+              <div className={cx(correctAnswer)}>{correctOption?.title || correctOption?.body}</div>
+            </div>
+          </div>
+        )}
+        <div
+          className={css`
+            display: flex;
+            flex: 2;
+            justify-content: center;
+          `}
+        >
+          {(quiz_item_feedback as ItemAnswerFeedback).quiz_item_option_feedbacks?.map((of) => (
+            <p key={of.option_id}>{of.option_feedback}</p>
+          ))}
+        </div>
       </div>
-      {correct ? (
-        <p className={cx(correctAnswer)}>{selectedOption.title || selectedOption.body}</p>
-      ) : (
-        <>
-          <p className={cx(incorrectAnswer)}>{selectedOption.title || selectedOption.body}</p>
-          <p className={cx(correctAnswer)}>
-            {quiz_item_model_solution?.options.filter((o) => o.correct)[0]}
-          </p>
-        </>
-      )}
-      <p>
-        {(quiz_item_feedback as ItemAnswerFeedback).quiz_item_option_feedbacks?.map((of) => (
-          <p key={of.option_id}>{of.option_feedback}</p>
-        ))}
-      </p>
     </div>
   )
 }

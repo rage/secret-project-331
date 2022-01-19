@@ -34,6 +34,10 @@ test.describe("quizzes tests", () => {
     // Click text=Create course
     await page.click(`button:text("Create"):below(:text("Course language"))`)
 
+    // TODO: The next click sometimes fails because we click before the modal has closed.
+    // Maybe we should wait for a success notification first?
+    await page.waitForTimeout(100)
+
     await Promise.all([
       page.waitForNavigation(),
       page.click("[aria-label=\"Manage course 'quizzes test'\"] svg"),
@@ -304,7 +308,7 @@ test.describe("quizzes tests", () => {
     expectPath(page, "/manage/courses/[id]")
 
     // Click text=Manage pages
-    await Promise.all([page.waitForNavigation(), await page.click("text=Manage pages")])
+    await Promise.all([page.waitForNavigation(), page.click("text=Manage pages")])
     expectPath(page, "/manage/courses/[id]/pages")
 
     // Click text=Add new chapter

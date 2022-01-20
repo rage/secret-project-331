@@ -12,10 +12,11 @@ export default async function accessibilityCheck(
   const stdErrConsole = new Console(process.stderr)
   const results = await new AxeBuilder({ page }).analyze()
   let resultsFiltered = []
+  console.log(results)
   if (typeof axeSkip === "object") {
     resultsFiltered = results.violations.filter((violation) => {
       return axeSkip.map((skippable) => {
-        if (!violation.nodes[0].html.includes(skippable)) {
+        if (!violation.id.includes(skippable)) {
           return violation
         }
       })

@@ -176,9 +176,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    axeSkip: [
-      `<div class="monaco-status" role="complementary" aria-live="polite" aria-atomic="true"></div>`,
-    ],
+    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p1",
     waitForThisToBeVisibleAndStable: stableElement,
     toMatchSnapshotOptions: { threshold: 0.3 },
@@ -195,9 +193,7 @@ test("test", async ({ page, headless }) => {
 
   await expectScreenshotsToMatchSnapshots({
     page,
-    axeSkip: [
-      `<div class="monaco-status" role="complementary" aria-live="polite" aria-atomic="true"></div>`,
-    ],
+    axeSkip: [`landmark-unique`],
     headless,
     snapshotName: "history-view-p4-before-compare",
     waitForThisToBeVisibleAndStable: stableElement2,
@@ -231,9 +227,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    axeSkip: [
-      `<div class="monaco-status" role="complementary" aria-live="polite" aria-atomic="true"></div>`,
-    ],
+    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p4-after-compare",
     // wait for the diff to show up
     waitForThisToBeVisibleAndStable: [
@@ -259,9 +253,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    axeSkip: [
-      `<div class="monaco-status" role="complementary" aria-live="polite" aria-atomic="true"></div>`,
-    ],
+    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-after-restore",
     waitForThisToBeVisibleAndStable: "text=Best exercise",
     toMatchSnapshotOptions: { threshold: 0.3 },

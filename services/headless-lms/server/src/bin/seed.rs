@@ -1584,6 +1584,7 @@ async fn seed_sample_course(
                         "order": 1,
                         "title": null,
                         "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                        "correct":true,
                         "failureMessage": null,
                         "successMessage": "Java is a programming language".to_string()
                     },

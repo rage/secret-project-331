@@ -3,19 +3,26 @@ import { CheckResult } from "axe-core"
 import { Console } from "console"
 import { Page } from "playwright"
 
-export default async function accessibilityCheck(page: Page, contextName: string): Promise<void> {
+export default async function accessibilityCheck(
+  page: Page,
+  contextName: string,
+  axeSkip: boolean | string[],
+): Promise<void> {
   // force all console.group output to stderr
   const stdErrConsole = new Console(process.stderr)
   const results = await new AxeBuilder({ page }).analyze()
-  const resultsFiltered = results.violations.filter((violation) => {
-    if (
-      !violation.nodes[0].html.includes(
-        '<div class="monaco-status" role="complementary" aria-live="polite" aria-atomic="true"></div>',
-      )
-    ) {
-      return violation
-    }
-  })
+  let resultsFiltered = []
+  if (typeof axeSkip === "object") {
+    resultsFiltered = results.violations.filter((violation) => {
+      return axeSkip.map((skippable) => {
+        if (!violation.nodes[0].html.includes(skippable)) {
+          return violation
+        }
+      })
+    })
+  } else {
+    resultsFiltered = results.violations
+  }
   if (resultsFiltered.length === 0) {
     return
   }

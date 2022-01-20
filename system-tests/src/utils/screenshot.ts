@@ -161,7 +161,7 @@ async function snapshotWithViewPort({
   if (!axeSkip) {
     // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
     // for accessibility
-    await accessibilityCheck(pageObjectToUse, screenshotName)
+    await accessibilityCheck(pageObjectToUse, screenshotName, axeSkip)
   }
   // show the typing caret again
   await style.evaluate((handle) => {

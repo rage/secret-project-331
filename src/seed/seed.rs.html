@@ -2292,6 +2292,106 @@
 <span id="2291">2291</span>
 <span id="2292">2292</span>
 <span id="2293">2293</span>
+<span id="2294">2294</span>
+<span id="2295">2295</span>
+<span id="2296">2296</span>
+<span id="2297">2297</span>
+<span id="2298">2298</span>
+<span id="2299">2299</span>
+<span id="2300">2300</span>
+<span id="2301">2301</span>
+<span id="2302">2302</span>
+<span id="2303">2303</span>
+<span id="2304">2304</span>
+<span id="2305">2305</span>
+<span id="2306">2306</span>
+<span id="2307">2307</span>
+<span id="2308">2308</span>
+<span id="2309">2309</span>
+<span id="2310">2310</span>
+<span id="2311">2311</span>
+<span id="2312">2312</span>
+<span id="2313">2313</span>
+<span id="2314">2314</span>
+<span id="2315">2315</span>
+<span id="2316">2316</span>
+<span id="2317">2317</span>
+<span id="2318">2318</span>
+<span id="2319">2319</span>
+<span id="2320">2320</span>
+<span id="2321">2321</span>
+<span id="2322">2322</span>
+<span id="2323">2323</span>
+<span id="2324">2324</span>
+<span id="2325">2325</span>
+<span id="2326">2326</span>
+<span id="2327">2327</span>
+<span id="2328">2328</span>
+<span id="2329">2329</span>
+<span id="2330">2330</span>
+<span id="2331">2331</span>
+<span id="2332">2332</span>
+<span id="2333">2333</span>
+<span id="2334">2334</span>
+<span id="2335">2335</span>
+<span id="2336">2336</span>
+<span id="2337">2337</span>
+<span id="2338">2338</span>
+<span id="2339">2339</span>
+<span id="2340">2340</span>
+<span id="2341">2341</span>
+<span id="2342">2342</span>
+<span id="2343">2343</span>
+<span id="2344">2344</span>
+<span id="2345">2345</span>
+<span id="2346">2346</span>
+<span id="2347">2347</span>
+<span id="2348">2348</span>
+<span id="2349">2349</span>
+<span id="2350">2350</span>
+<span id="2351">2351</span>
+<span id="2352">2352</span>
+<span id="2353">2353</span>
+<span id="2354">2354</span>
+<span id="2355">2355</span>
+<span id="2356">2356</span>
+<span id="2357">2357</span>
+<span id="2358">2358</span>
+<span id="2359">2359</span>
+<span id="2360">2360</span>
+<span id="2361">2361</span>
+<span id="2362">2362</span>
+<span id="2363">2363</span>
+<span id="2364">2364</span>
+<span id="2365">2365</span>
+<span id="2366">2366</span>
+<span id="2367">2367</span>
+<span id="2368">2368</span>
+<span id="2369">2369</span>
+<span id="2370">2370</span>
+<span id="2371">2371</span>
+<span id="2372">2372</span>
+<span id="2373">2373</span>
+<span id="2374">2374</span>
+<span id="2375">2375</span>
+<span id="2376">2376</span>
+<span id="2377">2377</span>
+<span id="2378">2378</span>
+<span id="2379">2379</span>
+<span id="2380">2380</span>
+<span id="2381">2381</span>
+<span id="2382">2382</span>
+<span id="2383">2383</span>
+<span id="2384">2384</span>
+<span id="2385">2385</span>
+<span id="2386">2386</span>
+<span id="2387">2387</span>
+<span id="2388">2388</span>
+<span id="2389">2389</span>
+<span id="2390">2390</span>
+<span id="2391">2391</span>
+<span id="2392">2392</span>
+<span id="2393">2393</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -3770,6 +3870,83 @@
             <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
     );
 
+    <span class="kw">let</span> (
+        <span class="ident">quizzes_exercise_block_3</span>,
+        <span class="ident">quizzes_exercise_3</span>,
+        <span class="ident">quizzes_exercise_slide_3</span>,
+        <span class="ident">quizzes_exercise_task_3</span>,
+    ) <span class="op">=</span> <span class="ident">quizzes_exercise</span>(
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;9bcf634d-584c-4fef-892c-3c0e97dab1d5&quot;</span>),
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;984457f6-bc9b-4604-b54c-80fb4adfab76&quot;</span>),
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;e4230b3a-1db8-49c4-9554-1f96f7f3d015&quot;</span>),
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;52939561-af36-4ab6-bffa-be97e94d3314&quot;</span>),
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;8845b17e-2320-4384-97f8-24e42457cb5e&quot;</span>),
+        <span class="macro">serde_json::json!</span>({
+            <span class="string">&quot;id&quot;</span>: <span class="string">&quot;f1f0520e-3037-409c-b52d-163ad0bc5c59&quot;</span>,
+            <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very hard&quot;</span>,
+            <span class="string">&quot;open&quot;</span>: <span class="string">&quot;2021-12-17T07:15:33.479Z&quot;</span>,
+            <span class="string">&quot;part&quot;</span>: <span class="number">0</span>,
+            <span class="string">&quot;items&quot;</span>: [{
+                <span class="string">&quot;id&quot;</span>: <span class="string">&quot;f8cff916-da28-40ab-9e8b-f523e661ddb6&quot;</span>,
+                <span class="string">&quot;body&quot;</span>: <span class="string">&quot;&quot;</span>,
+                <span class="string">&quot;type&quot;</span>: <span class="string">&quot;multiple-choice-dropdown&quot;</span>,
+                <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
+                <span class="string">&quot;order&quot;</span>: <span class="number">0</span>,
+                <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Choose the right answer from given options.&quot;</span>,
+                <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;f1f0520e-3037-409c-b52d-163ad0bc5c59&quot;</span>,
+                <span class="string">&quot;options&quot;</span>: [{
+                    <span class="string">&quot;id&quot;</span>: <span class="string">&quot;86a2d838-04aa-4b1c-8115-2c15ed19e7b3&quot;</span>,
+                    <span class="string">&quot;body&quot;</span>: <span class="string">&quot;The right answer&quot;</span>,
+                    <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
+                    <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;f8cff916-da28-40ab-9e8b-f523e661ddb6&quot;</span>,
+                    <span class="string">&quot;correct&quot;</span>:<span class="bool-val">true</span>,
+                    <span class="string">&quot;failureMessage&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;successMessage&quot;</span>: <span class="string">&quot;You chose wisely...&quot;</span>.<span class="ident">to_string</span>()
+                },
+                {
+                    <span class="string">&quot;id&quot;</span>: <span class="string">&quot;fef8cd36-04ab-48f2-861c-51769ccad52f&quot;</span>,
+                    <span class="string">&quot;body&quot;</span>: <span class="string">&quot;The Wright answer&quot;</span>,
+                    <span class="string">&quot;order&quot;</span>: <span class="number">2</span>,
+                    <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;f8cff916-da28-40ab-9e8b-f523e661ddb6&quot;</span>,
+                    <span class="string">&quot;correct&quot;</span>:<span class="bool-val">false</span>,
+                    <span class="string">&quot;failureMessage&quot;</span>: <span class="string">&quot;You chose poorly...&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="string">&quot;successMessage&quot;</span>: <span class="ident">null</span>
+                }],
+                <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;createdAt&quot;</span>: <span class="string">&quot;2021-12-17T07:16:23.202Z&quot;</span>,
+                <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
+                <span class="string">&quot;updatedAt&quot;</span>: <span class="string">&quot;2021-12-17T07:16:23.202Z&quot;</span>,
+                <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;validityRegex&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;failureMessage&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;successMessage&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;allAnswersCorrect&quot;</span>: <span class="bool-val">false</span>,
+                <span class="string">&quot;feedbackDisplayPolicy&quot;</span>: <span class="string">&quot;DisplayFeedbackOnQuizItem&quot;</span>,
+                <span class="string">&quot;sharedOptionFeedbackMessage&quot;</span>: <span class="ident">null</span>,
+                <span class="string">&quot;usesSharedOptionFeedbackMessage&quot;</span>: <span class="bool-val">false</span>
+            }],
+            <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Pretty good exercise&quot;</span>,
+            <span class="string">&quot;tries&quot;</span>: <span class="number">1</span>,
+            <span class="string">&quot;points&quot;</span>: <span class="number">2</span>,
+            <span class="string">&quot;section&quot;</span>: <span class="number">0</span>,
+            <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;39c7879a-e61f-474a-8f18-7fc476ccc3a0&quot;</span>,
+            <span class="string">&quot;deadline&quot;</span>: <span class="string">&quot;2021-12-17T07:15:33.479Z&quot;</span>,
+            <span class="string">&quot;createdAt&quot;</span>: <span class="string">&quot;2021-12-17T07:15:33.479Z&quot;</span>,
+            <span class="string">&quot;updatedAt&quot;</span>: <span class="string">&quot;2021-12-17T07:15:33.479Z&quot;</span>,
+            <span class="string">&quot;autoReject&quot;</span>: <span class="bool-val">false</span>,
+            <span class="string">&quot;autoConfirm&quot;</span>: <span class="bool-val">true</span>,
+            <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true</span>,
+            <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;your submit has been answered&quot;</span>,
+            <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
+            <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
+            <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
+    );
+
     <span class="ident">create_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
@@ -3811,6 +3988,29 @@
                     <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;771b9c61-dbc9-4266-a980-dadc853455c9&quot;</span>)
                 ),
                 <span class="ident">quizzes_exercise_block_2</span>
+            ]),
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">create_page</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="ident">admin</span>,
+        <span class="ident">chapter_1</span>.<span class="ident">id</span>,
+        <span class="ident">CmsPageUpdate</span> {
+            <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-5&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;Page 5&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[<span class="ident">quizzes_exercise_3</span>],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[<span class="ident">quizzes_exercise_slide_3</span>],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[<span class="ident">quizzes_exercise_task_3</span>],
+            <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([
+                <span class="ident">paragraph</span>(
+                    <span class="string">&quot;First chapters multiple-choice-dropdown page&quot;</span>,
+                    <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;7af470e7-cc4f-411e-ad5d-c137e353f7c3&quot;</span>)
+                ),
+                <span class="ident">quizzes_exercise_block_3</span>
             ]),
         },
     )

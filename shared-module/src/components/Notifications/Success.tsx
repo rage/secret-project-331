@@ -102,14 +102,14 @@ const SuccessNotification = (props: SuccessNotificationProps) => {
         <IconWrapper>
           <FontAwesomeIcon
             className={css`
-              color: #145a48;
+              color: ${baseTheme.colors.green[100]};
             `}
             icon={faCheck}
           />
         </IconWrapper>
         <TextWrapper>
-          <SuccessHeader>{props.header ?? t("success-title")}</SuccessHeader>
-          <SuccessMessage>{props.message ?? t("default-success-toast-message")}</SuccessMessage>
+          <SuccessHeader>{props.header ?? t("default-toast-success-title")}</SuccessHeader>
+          <SuccessMessage>{props.message ?? t("default-toast-success-message")}</SuccessMessage>
         </TextWrapper>
         {props.toastId && (
           <CloseIconWrapper onClick={() => toast.remove(props.toastId)}>

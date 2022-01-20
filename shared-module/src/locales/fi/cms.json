@@ -30,8 +30,5 @@
   "label-title": "Otsikko",
   "button-text-select-media": "Valitse media (ei käytössä)",
   "serialize-to-html": "Näytä HTML-muodossa",
-  "slide-title": "Dia {{ number }}",
-  "error": "Virhe",
-  "error-occured": "Tapahtui virhe",
-  "loading": "Ladataan..."
+  "slide-title": "Dia {{ number }}"
 }

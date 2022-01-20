@@ -102,14 +102,14 @@ const ErrorNotification = (props: ErrorNotificationProps) => {
         <IconWrapper>
           <FontAwesomeIcon
             className={css`
-              color: #da4453;
+              color: ${baseTheme.colors.red[100]};
             `}
             icon={faTimesCircle}
           />
         </IconWrapper>
         <TextWrapper>
-          <ErrorHeader>{props.header ?? t("error-title")}</ErrorHeader>
-          <ErrorMessage>{props.message ?? t("error-occured")}</ErrorMessage>
+          <ErrorHeader>{props.header ?? t("default-toast-error-title")}</ErrorHeader>
+          <ErrorMessage>{props.message ?? t("default-toast-error-message")}</ErrorMessage>
         </TextWrapper>
         {props.toastId && (
           <CloseIconWrapper onClick={() => toast.remove(props.toastId)}>

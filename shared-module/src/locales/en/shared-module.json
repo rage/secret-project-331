@@ -37,14 +37,14 @@
   "error-cannot-render-dynamic-content-missing-url": "Cannot render dynamic content: missing url",
   "please-sign-in-to-view-this-page": "Please sign in to view this page",
   "error-part-of-page-has-crashed-error": "Part of page has crashed: {{error}}",
+  "error-title": "Error",
   "hide-trace": "Hide trace",
   "show-trace": "Show trace",
-  "error-title": "Error",
-  "error-occured": "An error occured",
-  "success-title": "Success",
-  "edit-has-been-saved": "Your edit has been saved!",
-  "added-successfully": "Added successully.",
-  "default-success-toast-message": "Operation successful!",
-  "default-loading-toast-message": "Performing action...",
-  "saving": "Saving..."
+  "default-toast-error-title": "Error",
+  "default-toast-error-message": "An error occured",
+  "default-toast-edit-has-been-saved-": "Edit has been saved!",
+  "default-toast-request-successful-message": "Request was successful.",
+  "default-toast-success-title": "Success",
+  "default-toast-success-message": "Operation successful!",
+  "default-toast-loading-message": "Performing action..."
 }

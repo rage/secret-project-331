@@ -1,12 +1,11 @@
 import toast, { ToastOptions } from "react-hot-toast"
-import { useTranslation } from "react-i18next"
 import { MutationFunction, useMutation, UseMutationOptions, UseMutationResult } from "react-query"
 
 import ErrorNotification from "../components/Notifications/Error"
 import LoadingNotification from "../components/Notifications/Loading"
 import SuccessNotification from "../components/Notifications/Success"
 
-interface EnableNotifications extends ToastOptions {
+interface EnableNotifications {
   notify: true
   method: "POST" | "PUT" | "DELETE"
   dismissable?: boolean
@@ -15,6 +14,7 @@ interface EnableNotifications extends ToastOptions {
   successMessage?: string
   errorHeader?: string
   errorMessage?: string
+  toastOptions?: ToastOptions
 }
 
 interface DisableNotifications {
@@ -33,25 +33,20 @@ export default function useToastMutation<
   notificationOptions: NotificationOptions,
   mutationOptions?: Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn">,
 ): UseMutationResult<TData, TError, TVariables, TContext> {
-  const { t } = useTranslation()
-
   let toastId = ""
-  const displaySuccessNotification = (
-    notificationOptions: EnableNotifications,
-    defaultMessage?: string,
-  ) => {
+  const displaySuccessNotification = (notificationOptions: EnableNotifications) => {
     toast.custom(
       (toast) => {
         return (
           <SuccessNotification
             header={notificationOptions.successHeader}
-            message={notificationOptions.successMessage ?? defaultMessage}
+            message={notificationOptions.successMessage}
             {...(notificationOptions.dismissable ? { toastId: toast.id } : {})}
           />
         )
       },
       {
-        ...notificationOptions,
+        ...notificationOptions.toastOptions,
         id: toastId,
       },
     )
@@ -63,7 +58,7 @@ export default function useToastMutation<
       if (notificationOptions.notify) {
         // Set toastId that is updated once operation is successful or erronous.
         toastId = toast.custom(<LoadingNotification message={notificationOptions.loadingText} />, {
-          ...notificationOptions,
+          ...notificationOptions.toastOptions,
         })
       }
       if (mutationOptions?.onMutate) {
@@ -75,10 +70,10 @@ export default function useToastMutation<
       if (notificationOptions.notify) {
         switch (notificationOptions.method) {
           case "PUT":
-            displaySuccessNotification(notificationOptions, t("edit-has-been-saved"))
+            displaySuccessNotification(notificationOptions)
             break
           case "POST":
-            displaySuccessNotification(notificationOptions, t("added-successfully"))
+            displaySuccessNotification(notificationOptions)
             break
           case "DELETE":
             toast.custom(<div></div>)
@@ -103,7 +98,7 @@ export default function useToastMutation<
               />
             )
           },
-          { ...notificationOptions, id: toastId },
+          { ...notificationOptions.toastOptions, id: toastId },
         )
       }
       if (mutationOptions?.onError) {

@@ -1,11 +1,10 @@
 {
   "about-mooc-center": "MOOC-keskuksesta",
-  "error-title": "Virhe",
-  "success-title": "Tallennettu",
-  "edit-has-been-saved": "Muutoksesi on tallennettu!",
-  "default-success-toast-message": "Toiminto onnistui!",
-  "default-loading-toast-message": "Suoritetaan toimintoa...",
-  "added-successfully": "Lisätty onnistuneesti.",
-  "saving": "Tallennetaan...",
-  "error-occured": "Tapahtui virhe"
+  "default-toast-error-title": "Virhe",
+  "default-toast-error-message": "Tapahtui virhe",
+  "default-toast-edit-has-been-saved-": "Muutoksesi on tallennettu!",
+  "default-toast-request-successful-message": "Pyyntö onnistui.",
+  "default-toast-success-title": "Tallennettu",
+  "default-toast-success-message": "Toiminto onnistui!",
+  "default-toast-loading-message": "Suoritetaan toimintoa..."
 }

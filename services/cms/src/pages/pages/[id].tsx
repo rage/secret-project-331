@@ -38,7 +38,7 @@ const Pages = ({ query }: PagesProps) => {
 
   const mutate = useToastMutation(
     (newPage: CmsPageUpdate) => updateExistingPage(id, newPage),
-    { notify: true, dismissable: true, method: "PUT", duration: 10000 },
+    { notify: true, dismissable: true, method: "PUT", toastOptions: { duration: 10000 } },
     {
       onSuccess: (newData) => {
         // Refetch, setQueryData or invalidateQueries?

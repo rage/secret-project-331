@@ -68,10 +68,10 @@ const LoadingNotification = (props: LoadingNotificationProps) => {
     <Wrapper>
       <Content>
         <IconWrapper>
-          <Spinner variant={"small"} />
+          <Spinner variant={"medium"} />
         </IconWrapper>
         <TextWrapper>
-          <LoadingMessage>{props.message ?? t("default-loading-toast-message")}</LoadingMessage>
+          <LoadingMessage>{props.message ?? t("default-toast-loading-message")}</LoadingMessage>
         </TextWrapper>
       </Content>
     </Wrapper>

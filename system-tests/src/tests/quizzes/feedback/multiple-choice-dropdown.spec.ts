@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
+test.only("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
@@ -58,7 +58,26 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    snapshotName: "multiple-choice-dropdown-feedback",
+    snapshotName: "multiple-choice-dropdown-feedback-correct-answer",
+    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
+    toMatchSnapshotOptions: { threshold: 0.4 },
+  })
+
+  await page.click("text=Try again")
+
+  await frame.waitForSelector("text=Choose the right answer from given options.")
+
+  await frame.selectOption(
+    `select:right-of(:text("Choose the right answer from given options."))`,
+    { label: "The Wright answer" },
+  )
+
+  await page.click("text=Submit")
+
+  await expectScreenshotsToMatchSnapshots({
+    page,
+    headless,
+    snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer",
     waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })

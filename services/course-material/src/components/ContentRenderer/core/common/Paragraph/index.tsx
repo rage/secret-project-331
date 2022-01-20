@@ -17,9 +17,9 @@ import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseM
 const Paragraph = dynamic(() => import("./BasicParagraph"))
 const LatexParagraph = dynamic(() => import("./LatexParagraph"))
 
-const LATEX_REGEX = /\[latex\](.*)\[\/latex\]/g
+const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
 const HTML_ESCAPED_AMPERSAND = "&amp;"
-const KATEX_OUTPUT_FORMAT = "html"
+const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 
 /**
  *

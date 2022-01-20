@@ -1,6 +1,6 @@
 import React, { useContext } from "react"
 
-import CoursePageContext from "../../../../contexts/CoursePageContext"
+import PageContext from "../../../../contexts/PageContext"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
@@ -9,7 +9,7 @@ import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils
 import NextPage from "./NextPage"
 
 const NavigationContainer: React.FC = () => {
-  const pageContext = useContext(CoursePageContext)
+  const pageContext = useContext(PageContext)
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")
 

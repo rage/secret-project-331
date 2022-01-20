@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import React, { createRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "../../shared-module/components/Button"
+import Button, { LabelButton } from "../../shared-module/components/Button"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -34,15 +34,18 @@ const UploadImageForm: React.FC<UploadImageFormProps> = ({ onSubmit }) => {
       `}
     >
       <FieldContainer>
-        <label>
-          {t("header-upload-image")}
-          <input
-            accept="image"
-            ref={fileInput}
-            type="file"
-            onChange={() => setShowUploadButton(true)}
-          />
-        </label>
+        {/* eslint-disable-next-line i18next/no-literal-string */}
+        <LabelButton htmlFor="image-upload">{t("header-upload-image")}</LabelButton>
+        <input
+          className={css`
+            opacity: 0;
+          `}
+          id="image-upload"
+          accept="image"
+          ref={fileInput}
+          type="file"
+          onChange={() => setShowUploadButton(true)}
+        />
       </FieldContainer>
       {showUploadButton && (
         <div>

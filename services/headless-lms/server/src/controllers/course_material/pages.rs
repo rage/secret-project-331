@@ -7,7 +7,7 @@ use crate::controllers::prelude::*;
 /**
 GET /api/v0/course-material/pages/exam/{page_id}
 */
-#[cfg_attr(doc, doc = generated_docs!(Page))]
+#[generated_doc(Page)]
 async fn get_by_exam_id(
     exam_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -21,7 +21,7 @@ async fn get_by_exam_id(
  GET /api/v0/course-material/pages/:page_id/next-page - returns next pages info.
  If current page is the last page of the chapter, returns next chapters first page.
 */
-#[cfg_attr(doc, doc = generated_docs!(Page))]
+#[generated_doc(Page)]
 #[instrument(skip(pool))]
 async fn get_next_page(
     page_id: web::Path<Uuid>,

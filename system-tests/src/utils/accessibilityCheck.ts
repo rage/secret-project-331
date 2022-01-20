@@ -7,7 +7,7 @@ export default async function accessibilityCheck(page: Page, contextName: string
   // force all console.group output to stderr
   const stdErrConsole = new Console(process.stderr)
   const results = await new AxeBuilder({ page }).analyze()
-  results.violations.filter((violation) => {
+  const resultsFiltered = results.violations.filter((violation) => {
     if (
       !violation.nodes[0].html.includes(
         '<div class="monaco-status" role="complementary" aria-live="polite" aria-atomic="true"></div>',
@@ -16,14 +16,14 @@ export default async function accessibilityCheck(page: Page, contextName: string
       return violation
     }
   })
-  if (results.violations.length === 0) {
+  if (resultsFiltered.length === 0) {
     return
   }
   stdErrConsole.error()
-  stdErrConsole.error(`Found ${results.violations.length} accessibility errors in ${contextName}`)
+  stdErrConsole.error(`Found ${resultsFiltered.length} accessibility errors in ${contextName}`)
   stdErrConsole.error()
   // https://www.deque.com/axe/core-documentation/api-documentation/#results-object
-  results.violations.forEach((violation, n) => {
+  resultsFiltered.forEach((violation, n) => {
     stdErrConsole.group(`Violation ${n + 1}\n-----------`)
     stdErrConsole.error(`Rule: ${violation.id}`)
     stdErrConsole.error(`Description: ${violation.description}`)
@@ -61,7 +61,7 @@ export default async function accessibilityCheck(page: Page, contextName: string
     stdErrConsole.groupEnd()
   })
 
-  throw new Error(`Found ${results.violations.length} accessibility errors in ${contextName}`)
+  throw new Error(`Found ${resultsFiltered.length} accessibility errors in ${contextName}`)
 }
 
 function displayChecksForNodes(nodes: CheckResult[], stdErrConsole: Console): void {

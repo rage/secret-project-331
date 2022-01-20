@@ -9,7 +9,7 @@ use crate::controllers::prelude::*;
 /**
 GET /api/v0/course-material/exams/:id/enrollment
 */
-#[cfg_attr(doc, doc = generated_docs!(Option<ExamEnrollment>))]
+#[generated_doc(Option<ExamEnrollment>)]
 pub async fn enrollment(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
@@ -23,19 +23,18 @@ pub async fn enrollment(
 /**
 POST /api/v0/course-material/exams/:id/enroll
 */
-#[cfg_attr(doc, doc = generated_docs!(()))]
+#[generated_doc(())]
 pub async fn enroll(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-
     let exam = exams::get(&mut conn, *exam_id).await?;
 
     // check that the exam is not over
-    let now = dbg!(Utc::now());
-    if let Some(ends_at) = dbg!(exam.ends_at) {
+    let now = Utc::now();
+    if let Some(ends_at) = exam.ends_at {
         if ends_at < now {
             return Err(ControllerError::Forbidden("Exam is over".to_string()));
         }
@@ -81,7 +80,7 @@ pub enum ExamEnrollmentData {
 /**
 GET /api/v0/course-material/exams/:id
 */
-#[cfg_attr(doc, doc = generated_docs!(ExamData))]
+#[generated_doc(ExamData)]
 pub async fn fetch_exam_for_user(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,

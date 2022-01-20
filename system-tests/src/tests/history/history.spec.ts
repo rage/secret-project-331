@@ -64,7 +64,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Manage
   await Promise.all([
     page.waitForNavigation(),
-    await page.click('a:right-of(:text("Introduction to history"))'),
+    page.click("[aria-label=\"Manage course 'Introduction to history'\"] svg"),
   ])
   expectPath(page, "/manage/courses/[id]")
 
@@ -147,12 +147,12 @@ test("test", async ({ page, headless }) => {
   // Click text=Manage
   await Promise.all([
     page.waitForNavigation(),
-    await page.click('a:right-of(:text("Introduction to history"))'),
+    page.click("[aria-label=\"Manage course 'Introduction to history'\"] svg"),
   ])
   expectPath(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
-  await Promise.all([page.waitForNavigation(), await page.click("text=Manage pages")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Manage pages")])
   expectPath(page, "/manage/courses/[id]/pages")
 
   // Click text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)

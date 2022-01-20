@@ -16,7 +16,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[cfg_attr(doc, doc = generated_docs!(UploadResult))]
+#[generated_doc(UploadResult)]
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media(
     course_id: web::Path<Uuid>,

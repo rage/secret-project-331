@@ -1,6 +1,5 @@
 import dynamic from "next/dynamic"
 import React from "react"
-import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"

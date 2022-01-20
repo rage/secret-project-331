@@ -9,7 +9,7 @@ static IETF_LANGUAGE_CODE_REGEX: Lazy<Regex> = Lazy::new(|| {
 
 pub fn generate_random_string(length: usize) -> String {
     thread_rng()
-        .sample_iter(&Alphanumeric)
+        .sample_iter(Alphanumeric)
         .take(length)
         .map(char::from)
         .collect()

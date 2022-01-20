@@ -98,6 +98,13 @@ jobs:
           path: ./system-tests/test-results/
           if-no-files-found: ignore
 
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: playwright-html-report
+          path: ./system-tests/playwright-report/index.html
+          if-no-files-found: ignore
+
       - name: Authenticate to Google Cloud
         env:
           GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}

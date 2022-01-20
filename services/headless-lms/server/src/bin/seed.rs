@@ -1476,6 +1476,83 @@ async fn seed_sample_course(
             "awardPointsEvenIfWrong": false}),
     );
 
+    let (
+        quizzes_exercise_block_3,
+        quizzes_exercise_3,
+        quizzes_exercise_slide_3,
+        quizzes_exercise_task_3,
+    ) = quizzes_exercise(
+        Uuid::new_v5(&course_id, b"9bcf634d-584c-4fef-892c-3c0e97dab1d5"),
+        Uuid::new_v5(&course_id, b"984457f6-bc9b-4604-b54c-80fb4adfab76"),
+        Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
+        Uuid::new_v5(&course_id, b"52939561-af36-4ab6-bffa-be97e94d3314"),
+        Uuid::new_v5(&course_id, b"8845b17e-2320-4384-97f8-24e42457cb5e"),
+        serde_json::json!({
+            "id": "f1f0520e-3037-409c-b52d-163ad0bc5c59",
+            "body": "very hard",
+            "open": "2021-12-17T07:15:33.479Z",
+            "part": 0,
+            "items": [{
+                "id": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                "body": "",
+                "type": "multiple-choice-dropdown",
+                "multi": false,
+                "order": 0,
+                "title": "Choose the right answer from given options.",
+                "quizId": "f1f0520e-3037-409c-b52d-163ad0bc5c59",
+                "options": [{
+                    "id": "86a2d838-04aa-4b1c-8115-2c15ed19e7b3",
+                    "body": "The right answer",
+                    "order": 1,
+                    "title": null,
+                    "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                    "correct":true,
+                    "failureMessage": null,
+                    "successMessage": "You chose wisely...".to_string()
+                },
+                {
+                    "id": "fef8cd36-04ab-48f2-861c-51769ccad52f",
+                    "body": "The Wright answer",
+                    "order": 2,
+                    "title": null,
+                    "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                    "correct":false,
+                    "failureMessage": "You chose poorly...".to_string(),
+                    "successMessage": null
+                }],
+                "maxValue": null,
+                "maxWords": null,
+                "minValue": null,
+                "minWords": null,
+                "createdAt": "2021-12-17T07:16:23.202Z",
+                "direction": "row",
+                "updatedAt": "2021-12-17T07:16:23.202Z",
+                "formatRegex": null,
+                "validityRegex": null,
+                "failureMessage": null,
+                "successMessage": null,
+                "allAnswersCorrect": false,
+                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
+                "sharedOptionFeedbackMessage": null,
+                "usesSharedOptionFeedbackMessage": false
+            }],
+            "title": "Pretty good exercise",
+            "tries": 1,
+            "points": 2,
+            "section": 0,
+            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+            "deadline": "2021-12-17T07:15:33.479Z",
+            "createdAt": "2021-12-17T07:15:33.479Z",
+            "updatedAt": "2021-12-17T07:15:33.479Z",
+            "autoReject": false,
+            "autoConfirm": true,
+            "triesLimited": true,
+            "submitMessage": "your submit has been answered",
+            "excludedFromScore": true,
+            "grantPointsPolicy": "grant_whenever_possible",
+            "awardPointsEvenIfWrong": false}),
+    );
+
     create_page(
         conn,
         course.id,
@@ -1517,6 +1594,29 @@ async fn seed_sample_course(
                     Uuid::new_v5(&course_id, b"771b9c61-dbc9-4266-a980-dadc853455c9")
                 ),
                 quizzes_exercise_block_2
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        chapter_1.id,
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-5".to_string(),
+            title: "Page 5".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_3],
+            exercise_slides: vec![quizzes_exercise_slide_3],
+            exercise_tasks: vec![quizzes_exercise_task_3],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters multiple-choice-dropdown page",
+                    Uuid::new_v5(&course_id, b"7af470e7-cc4f-411e-ad5d-c137e353f7c3")
+                ),
+                quizzes_exercise_block_3
             ]),
         },
     )

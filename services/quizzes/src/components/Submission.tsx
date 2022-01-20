@@ -7,6 +7,7 @@ import { QuizItemSubmissionComponentProps } from "./SubmissionComponents"
 import EssayFeedback from "./SubmissionComponents/Essay"
 import MatrixSubmission from "./SubmissionComponents/Matrix"
 import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
+import MultipleChoiceDropdownFeedback from "./SubmissionComponents/MultipleChoiceDropdown"
 import OpenFeedback from "./SubmissionComponents/Open"
 import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
 
@@ -35,7 +36,7 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
     scale: UnsupportedSubmissionViewComponent,
     open: OpenFeedback,
     "custom-frontend-accept-data": UnsupportedSubmissionViewComponent,
-    "multiple-choice-dropdown": UnsupportedSubmissionViewComponent,
+    "multiple-choice-dropdown": MultipleChoiceDropdownFeedback,
     "clickable-multiple-choice": UnsupportedSubmissionViewComponent,
     matrix: MatrixSubmission,
   }

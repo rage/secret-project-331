@@ -1,12 +1,12 @@
 import { faCheck, faQuestion, faTimesCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { TextField } from "@material-ui/core"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
+import TextField from "../../../../shared-module/components/InputFields/TextField"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import {
   setFormatRegexTestAnswer,
@@ -73,28 +73,18 @@ export const FormatRegexTesterModalContent: React.FC<ModalContentProps> = ({ ite
       </ModalContent>
       <ModalContent>
         <TextField
-          error={!variables.validFormatRegex}
-          helperText={!variables.validFormatRegex && t("invalid-regular-expression")}
-          fullWidth
-          multiline
-          variant="outlined"
           label={t("format-regular-expression")}
           value={variables.formatRegex ?? ""}
-          onChange={(event) => {
-            dispatch(setFormatTestRegex(storeItem.id, event.target.value))
-            handleRegexChange(event.target.value)
+          onChange={(value) => {
+            dispatch(setFormatTestRegex(storeItem.id, value))
+            handleRegexChange(value)
           }}
-        >
-          {t("regular-expression-preview", { expression: variables.formatRegex })}
-        </TextField>
+        />
       </ModalContent>
       <ModalContent>
         <TextField
           label={t("label-test")}
-          fullWidth
-          multiline
-          variant="outlined"
-          onChange={(event) => dispatch(setFormatRegexTestAnswer(storeItem.id, event.target.value))}
+          onChange={(value) => dispatch(setFormatRegexTestAnswer(storeItem.id, value))}
         />
       </ModalContent>
       <ModalContent>

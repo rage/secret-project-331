@@ -83,6 +83,7 @@ const MultipleChoiceDropdownContent: React.FC<MultipleChoiceContentProps> = ({ i
           <AdvancedBox>
             <ModalButtonWrapper>
               <CloseButton
+                aria-label={t("close")}
                 variant={"outlined"}
                 size={"medium"}
                 onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}

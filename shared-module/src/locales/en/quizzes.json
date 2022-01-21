@@ -36,7 +36,6 @@
   "regular-expression-tester": "Regular expression tester",
   "invalid-regular-expression": "Invalid regular expression",
   "format-regular-expression": "Format regular expression",
-  "regular-expression-preview": "Regual expression: {{expression}}",
   "label-test": "Test",
   "given-text-matches-regular-expression": "Given text matches regular expression",
   "given-text-does-not-match-regular-expression": "Given text does not match regular expression",

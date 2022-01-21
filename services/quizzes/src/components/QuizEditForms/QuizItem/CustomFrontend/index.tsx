@@ -2,6 +2,7 @@ import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
@@ -57,6 +58,7 @@ const ModalButtonWrapper = styled.div`
 `
 
 export const CustomFrontend: React.FC<CustomFrontendProps> = ({ item }) => {
+  const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
@@ -70,7 +72,10 @@ export const CustomFrontend: React.FC<CustomFrontendProps> = ({ item }) => {
         <Fade in={variables.advancedEditing}>
           <AdvancedBox>
             <ModalButtonWrapper>
-              <CloseButton onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}>
+              <CloseButton
+                aria-label={t("close")}
+                onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}
+              >
                 <FontAwesomeIcon icon={faWindowClose} size="2x" />
               </CloseButton>
             </ModalButtonWrapper>

@@ -108,6 +108,7 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
           <AdvancedBox>
             <ModalButtonWrapper>
               <CloseButton
+                aria-label={t("close")}
                 size="medium"
                 variant="outlined"
                 onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}
@@ -135,6 +136,7 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
         <StyledBox>
           <ModalButtonWrapper>
             <CloseButton
+              aria-label={t("close")}
               onClick={() => dispatch(toggleValidRegexTestingState(storeItem.id, false))}
               size="medium"
               variant="outlined"
@@ -152,6 +154,7 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
         <StyledBox>
           <ModalButtonWrapper>
             <CloseButton
+              aria-label={t("close")}
               onClick={() => dispatch(toggleFormatRegexTestingState(storeItem.id, false))}
               size="medium"
               variant="outlined"

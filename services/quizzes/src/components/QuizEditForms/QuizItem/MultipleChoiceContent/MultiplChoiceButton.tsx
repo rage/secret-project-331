@@ -75,7 +75,10 @@ const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option, ind
       >
         <Fade in={variables.optionEditing}>
           <StyledBox>
-            <CloseButton onClick={() => dispatch(setOptionEditing(storeOption.id, false))}>
+            <CloseButton
+              aria-label={t("close")}
+              onClick={() => dispatch(setOptionEditing(storeOption.id, false))}
+            >
               <FontAwesomeIcon icon={faWindowClose} size="2x" />
             </CloseButton>
             <OptionModalContent option={storeOption} />

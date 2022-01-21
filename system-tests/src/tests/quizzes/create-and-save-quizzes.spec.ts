@@ -8,7 +8,7 @@ test.use({
 })
 
 test.describe("quizzes tests", () => {
-  test.only("test", async ({ page }) => {
+  test("test", async ({ page }) => {
     // Go to http://project-331.local/
     await page.goto("http://project-331.local/")
 
@@ -148,8 +148,10 @@ test.describe("quizzes tests", () => {
     await frame.fill(`label:has-text("Option title") input`, `wrong`)
     await frame.fill(`label:has-text("Failure message") input`, `no`)
     await closeModal(page, frame)
-
     await frame.click(`[aria-label="Option 2"]`)
+    await page.evaluate(() => {
+      window.scrollBy(0, -300)
+    })
     await frame.check(`input[type="checkbox"]`)
     await frame.fill(`label:has-text("Option title") input`, `correct`)
     await frame.fill(`label:has-text("Success message") input`, `yes`)
@@ -166,6 +168,57 @@ test.describe("quizzes tests", () => {
     await frame.fill(`tr:nth-child(1) td:nth-child(2) input`, "2")
     await frame.fill(`tr:nth-child(2) td:nth-child(1) input`, "3")
     await frame.fill(`tr:nth-child(2) td:nth-child(2) input`, "4")
+
+    // rest quiz item types created on their own tasks
+    // multiple choice dropdown
+    await page.click(`[aria-label="Close"]`)
+    await page.click(`text="Add task"`)
+    await page.click(`:nth-match([aria-label="Edit"], 2)`)
+    await page.click(`text="Quizzes"`)
+    const frame2 = await waitForFunction(page, () =>
+      page.frames().find((f) => {
+        return f.url().startsWith("http://project-331.local/quizzes/iframe")
+      }),
+    )
+    await scrollToFrame(page, frame2)
+    await frame2.click(`:nth-match(button:text("Multiple-choice-dropdown"), 1)`)
+    await frame2.fill(`label:has-text("Title") input`, `Select correct option from dropdown`)
+    await frame2.click(`button:text("Add option")`)
+    await frame2.click(`button:text("Add option")`)
+    await frame2.click(`[aria-label="Option 1"]`)
+    await frame2.fill(`label:has-text("Option title") input`, `wrong`)
+    await frame2.fill(`label:has-text("Failure message") input`, `no`)
+    await closeModal(page, frame2)
+    await frame2.click(`[aria-label="Option 2"]`)
+    await frame2.check(`input[type="checkbox"]`)
+    await frame2.fill(`label:has-text("Option title") input`, `correct`)
+    await frame2.fill(`label:has-text("Success message") input`, `yes`)
+    await closeModal(page, frame2)
+
+    // clickable multiple choice
+    await page.click(`[aria-label="Close"]`)
+    await page.click(`text="Add task"`)
+    await page.click(`:nth-match([aria-label="Edit"], 3)`)
+    await page.click(`text="Quizzes"`)
+    const frame3 = await waitForFunction(page, () =>
+      page.frames().find((f) => {
+        return f.url().startsWith("http://project-331.local/quizzes/iframe")
+      }),
+    )
+    await scrollToFrame(page, frame3)
+    await frame3.click(`:nth-match(button:text("Clickable-multiple-choice"), 1)`)
+    await frame3.fill(`label:has-text("Title") input`, `Select correct option from dropdown`)
+    await frame3.click(`button:text("Add option")`)
+    await frame3.click(`button:text("Add option")`)
+    await frame3.click(`[aria-label="Option 1"]`)
+    await frame3.fill(`label:has-text("Option title") input`, `wrong`)
+    await frame3.fill(`label:has-text("Failure message") input`, `no`)
+    await closeModal(page, frame3)
+    await frame3.click(`[aria-label="Option 2"]`)
+    await frame3.check(`input[type="checkbox"]`)
+    await frame3.fill(`label:has-text("Option title") input`, `correct`)
+    await frame3.fill(`label:has-text("Success message") input`, `yes`)
+    await closeModal(page, frame3)
 
     // Click text=Save
     await page.click("text=Save")
@@ -184,4 +237,13 @@ async function closeModal(page: Page, frame: Frame) {
   frameElement.scrollIntoViewIfNeeded()
   await frame.click(`[aria-label="Close"]`)
   await frame.waitForTimeout(100)
+}
+
+async function scrollToFrame(page: Page, frame: Frame) {
+  const frameElement = await frame.frameElement()
+  const boundingBox = await frameElement.boundingBox()
+  const y = boundingBox.y
+  await page.evaluate((y) => {
+    window.scrollTo(0, y)
+  }, y)
 }

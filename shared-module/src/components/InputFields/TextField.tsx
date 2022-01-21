@@ -62,7 +62,7 @@ const error = css`
 
 // Error string might change in the future
 
-const ERROR = "Please check the secret box"
+const ERROR = "Error"
 
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldExtraProps
 

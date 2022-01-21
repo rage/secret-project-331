@@ -1,6 +1,6 @@
 import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Box, Button, Fade, FormControlLabel, FormGroup, Modal, Radio } from "@material-ui/core"
+import { Box, Button, Fade, Modal } from "@material-ui/core"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
@@ -29,12 +29,6 @@ const ScaleContainer = styled.div`
   padding-bottom: 1rem;
 `
 
-const PreviewContainer = styled.div`
-  width: 50% !important;
-  justify-content: center !important;
-  display: flex !important;
-`
-
 const MinMaxContainer = styled.div`
   display: flex;
 `
@@ -47,11 +41,6 @@ const MinField = styled(TextField)`
 const MaxField = styled(TextField)`
   margin-left: 0.5rem !important;
   width: 100%;
-`
-
-const StyledFormLabel = styled(FormControlLabel)`
-  margin-left: 0px !important;
-  margin-right: 0px !important;
 `
 
 const StyledModal = styled(Modal)`
@@ -91,22 +80,18 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
   const dispatch = useDispatch()
 
+  const minValid = variables.scaleMin >= 0 && variables.scaleMin < variables.scaleMax
+  const maxValid =
+    variables.scaleMax >= 0 && variables.scaleMax > variables.scaleMin && variables.scaleMax < 11
+
   const handleMinValueChange = (value: number) => {
-    if (value >= 0 && value < variables.scaleMax) {
-      dispatch(setScaleMin(storeItem.id, value, true))
-      dispatch(editedScaleMinValue(storeItem.id, value))
-    } else {
-      dispatch(setScaleMin(storeItem.id, value, false))
-    }
+    dispatch(editedScaleMinValue(storeItem.id, value))
+    dispatch(setScaleMin(storeItem.id, value))
   }
 
   const handleMaxValueChange = (value: number) => {
-    if (value >= 0 && value > variables.scaleMin && value < 11) {
-      dispatch(setScaleMax(storeItem.id, value, true))
-      dispatch(editedScaleMaxValue(storeItem.id, value))
-    } else {
-      dispatch(setScaleMax(storeItem.id, value, false))
-    }
+    dispatch(setScaleMax(storeItem.id, value))
+    dispatch(editedScaleMaxValue(storeItem.id, value))
   }
 
   return (
@@ -144,35 +129,24 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
           text={storeItem.title ?? ""}
           onChange={(value) => dispatch(editedQuizItemTitle(value, storeItem.id))}
         />
-        <PreviewContainer>
-          <FormGroup row>
-            {variables.array.map((item) => {
-              return (
-                <div key={item}>
-                  <StyledFormLabel disabled control={<Radio />} label={item} labelPlacement="top" />
-                </div>
-              )
-            })}
-          </FormGroup>
-        </PreviewContainer>
       </ScaleContainer>
       <MinMaxContainer>
         <MinField
-          error={!variables.validMin}
+          error={!minValid}
           label={t("minimum")}
           value={variables.scaleMin?.toString() ?? ""}
           type="number"
           onChange={(value) => handleMinValueChange(Number(value))}
         />
-        {!variables.validMin && t("invalid-minimum-value")}
+        {!minValid && t("invalid-minimum-value")}
         <MaxField
-          error={!variables.validMax}
+          error={!maxValid}
           label={t("maximum")}
           value={variables.scaleMax?.toString() ?? ""}
           type="number"
           onChange={(value) => handleMaxValueChange(Number(value))}
         />
-        {!variables.validMax && t("invalid-maximum-value")}
+        {!maxValid && t("invalid-maximum-value")}
       </MinMaxContainer>
     </>
   )

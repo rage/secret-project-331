@@ -122,12 +122,9 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
             onClick={toggleEditor}
             role="button"
             tabIndex={0}
+            aria-label={attributes.show_editor ? t("close") : t("edit")}
           >
-            {attributes.show_editor ? (
-              <StyledIconLight icon={faWindowClose} aria-label={t("close")} />
-            ) : (
-              <StyledIconLight icon={faPenSquare} aria-label={t("edit")} />
-            )}
+            <StyledIconLight icon={attributes.show_editor ? faWindowClose : faPenSquare} />
           </div>
           <div
             className={cx(svgSquare, grey400WithHover)}
@@ -135,8 +132,9 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
             onClick={handleDeleteTask}
             role="button"
             tabIndex={0}
+            aria-label={t("delete")}
           >
-            <StyledIconDark icon={faTrashAlt} aria-label={t("delete")} />
+            <StyledIconDark icon={faTrashAlt} />
           </div>
         </div>
       </div>

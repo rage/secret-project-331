@@ -6,17 +6,17 @@ import { baseTheme } from "../shared-module/styles"
 
 export const quizTheme = {
   gradingCorrectItemBackground: baseTheme.colors.green[400],
-  gradingCorrectItemColor: baseTheme.colors.neutral[800],
+  gradingCorrectItemColor: baseTheme.colors.clear[700],
   gradingSelectedItemBackground: baseTheme.colors.grey[700],
-  gradingSelectedItemColor: baseTheme.colors.neutral[200],
+  gradingSelectedItemColor: baseTheme.colors.clear[200],
   gradingWrongItemBackground: "#fcc5cd",
-  gradingWrongItemColor: baseTheme.colors.neutral[800],
-  quizBodyColor: baseTheme.colors.grey[800],
+  gradingWrongItemColor: baseTheme.colors.clear[700],
+  quizBodyColor: baseTheme.colors.grey[700],
   quizBodyFontSize: "24px",
   quizItemBackground: "#E9E9ED",
   quizTitleFontSize: "16px",
-  selectedItemBackground: "#24816a",
-  selectedItemColor: baseTheme.colors.neutral[100],
+  selectedItemBackground: baseTheme.colors.green[600],
+  selectedItemColor: baseTheme.colors.clear[100],
 }
 
 export const SelectedQuizItem = css`

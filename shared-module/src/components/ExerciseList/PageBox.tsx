@@ -13,10 +13,10 @@ const PageBoxRow = styled.div`
   position: relative;
   padding: 0.6em 1em;
   list-style-type: none;
-  color: ${baseTheme.colors.neutral[100]};
+  color: ${baseTheme.colors.clear[100]};
   text-decoration: none;
   border-radius: 2px;
-  background: ${baseTheme.colors.grey[800]};
+  background: ${baseTheme.colors.grey[700]};
 
   span {
     vertical-align: top;

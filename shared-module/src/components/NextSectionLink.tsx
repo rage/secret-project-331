@@ -14,7 +14,7 @@ const SectionWrapper = styled.div`
 
   p {
     font-size: 1rem;
-    color: ${baseTheme.colors.grey[800]};
+    color: ${baseTheme.colors.grey[700]};
     margin: 0;
     padding: 0;
     display: flex;
@@ -73,18 +73,18 @@ const StyledLink = styled.a`
   margin: 1rem 0;
   display: flex;
   min-width: 100%;
-  background-color: ${baseTheme.colors.grey[800]};
+  background-color: ${baseTheme.colors.grey[700]};
   transition: background-color 0.2s;
 
   ${respondToOrLarger.sm} {
     padding: 1.4rem 1.4rem;
-    background-color: ${baseTheme.colors.grey[800]};
+    background-color: ${baseTheme.colors.grey[700]};
   }
 
   &:hover {
     text-decoration: none;
     color: white;
-    background-color: ${baseTheme.colors.grey[800]};
+    background-color: ${baseTheme.colors.grey[700]};
   }
 
   span {

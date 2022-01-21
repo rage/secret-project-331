@@ -35,7 +35,7 @@ const TextBox = styled.div`
 
     text-align: center;
 
-    color: ${baseTheme.colors.neutral[200]};
+    color: ${baseTheme.colors.clear[200]};
 
     opacity: 0.7;
   }

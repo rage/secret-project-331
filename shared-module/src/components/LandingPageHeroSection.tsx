@@ -8,7 +8,7 @@ import Button from "./Button"
 
 // eslint-disable-next-line i18next/no-literal-string
 const HeroWrapper = styled.div`
-  background: ${baseTheme.colors.neutral[100]};
+  background: ${baseTheme.colors.clear[100]};
   width: 100%;
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);

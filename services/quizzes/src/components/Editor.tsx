@@ -17,8 +17,8 @@ const Editor: React.FC<EditorProps> = ({ port }) => {
 
   return (
     <HeightTrackingContainer port={port}>
-      <BasicInformation />
       <QuizItems />
+      <BasicInformation />
     </HeightTrackingContainer>
   )
 }

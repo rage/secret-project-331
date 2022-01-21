@@ -43,7 +43,7 @@ export const EssayModalContent: React.FC<ModalContentProps> = ({ item }) => {
         <MarkdownEditor
           label={t("description-for-quiz-item")}
           text={storeItem.body ?? ""}
-          onChange={(event) => dispatch(editedQuizItemBody(event.target.value, storeItem.id))}
+          onChange={(value) => dispatch(editedQuizItemBody(value, storeItem.id))}
         />
       </ModalContent>
       <ModalContent>

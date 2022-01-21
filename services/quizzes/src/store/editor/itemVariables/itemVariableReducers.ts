@@ -38,8 +38,6 @@ export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVa
         draftState[id] = {
           scaleMax: item.maxValue ?? 0,
           scaleMin: item.minValue ?? 0,
-          validMax: true,
-          validMin: true,
           array: array,
           advancedEditing: false,
           testingRegex: false,
@@ -65,26 +63,12 @@ export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVa
   .handleAction(setScaleMax, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.itemId].scaleMax = action.payload.newValue
-      draftState[action.payload.itemId].validMax = action.payload.valid
-      if (action.payload.valid) {
-        draftState[action.payload.itemId].array = _.range(
-          state[action.payload.itemId].scaleMin ?? 0,
-          action.payload.newValue + 1,
-        )
-      }
     })
   })
 
   .handleAction(setScaleMin, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.itemId].scaleMin = action.payload.newValue
-      draftState[action.payload.itemId].validMin = action.payload.valid
-      if (action.payload.valid) {
-        draftState[action.payload.itemId].array = _.range(
-          action.payload.newValue,
-          (state[action.payload.itemId].scaleMax ?? 0) + 1,
-        )
-      }
     })
   })
 
@@ -148,8 +132,6 @@ export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVa
         scaleMin: 0,
         testingRegex: false,
         testingFormatRegex: false,
-        validMax: true,
-        validMin: true,
         validRegex: true,
         validFormatRegex: true,
         array: [],

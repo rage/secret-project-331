@@ -2,6 +2,7 @@ import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal } from "@material-ui/core"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
@@ -20,8 +21,7 @@ const StyledModal = styled(Modal)`
 
 const StyledBox = styled(Box)`
   background-color: #fafafa;
-  min-width: 700px;
-  min-height: 500px;
+  min-width: 50% !important;
 `
 
 const CloseButton = styled(Button)`
@@ -30,32 +30,42 @@ const CloseButton = styled(Button)`
 `
 
 const DeleteOptionButton = styled(Button)`
-  display: flex;
+  display: flex !important;
   padding: 1rem !important;
-  position: relative !important;
-  left: 85% !important;
+  float: right;
 `
 
 const CorrectButton = styled(Button)`
   display: flex;
   border-width: 5px 5px 5px 5px !important;
   border-color: green !important;
+  @media only screen and (max-width: 600px) {
+    width: 100% !important;
+  }
 `
 
 const IncorrectButton = styled(Button)`
   display: flex;
   border-width: 5px 5px 5px 5px !important;
   border-color: red !important;
+  @media only screen and (max-width: 600px) {
+    width: 100% !important;
+  }
 `
 
-interface MultipleChoiceDropdownButtonProps {
+interface MultipleChoiceButtonProps {
   option: NormalizedQuizItemOption
+  index: number
 }
 
-const MultipleChoiceDropdownButton: React.FC<MultipleChoiceDropdownButtonProps> = ({ option }) => {
+const MultipleChoiceDropdownButton: React.FC<MultipleChoiceButtonProps> = ({ option, index }) => {
+  const { t } = useTranslation()
   const storeOption = useTypedSelector((state) => state.editor.options[option.id])
+  const storeItem = useTypedSelector((state) => state.editor.items[option.quizItemId])
   const variables = useTypedSelector((state) => state.editor.optionVariables[option.id])
   const dispatch = useDispatch()
+
+  const ariaLablel = t("aria-label-option-index", { index })
 
   return (
     <>
@@ -65,7 +75,10 @@ const MultipleChoiceDropdownButton: React.FC<MultipleChoiceDropdownButtonProps> 
       >
         <Fade in={variables.optionEditing}>
           <StyledBox>
-            <CloseButton onClick={() => dispatch(setOptionEditing(storeOption.id, false))}>
+            <CloseButton
+              aria-label={t("close")}
+              onClick={() => dispatch(setOptionEditing(storeOption.id, false))}
+            >
               <FontAwesomeIcon icon={faWindowClose} size="2x" />
             </CloseButton>
             <OptionModalContent option={storeOption} />
@@ -80,9 +93,10 @@ const MultipleChoiceDropdownButton: React.FC<MultipleChoiceDropdownButtonProps> 
           </StyledBox>
         </Fade>
       </StyledModal>
-      {storeOption.correct ? (
+      {storeItem.allAnswersCorrect ? (
         <>
           <CorrectButton
+            aria-label={ariaLablel}
             onClick={() => dispatch(setOptionEditing(storeOption.id, true))}
             variant="outlined"
           >
@@ -91,12 +105,27 @@ const MultipleChoiceDropdownButton: React.FC<MultipleChoiceDropdownButtonProps> 
         </>
       ) : (
         <>
-          <IncorrectButton
-            onClick={() => dispatch(setOptionEditing(storeOption.id, true))}
-            variant="outlined"
-          >
-            {storeOption.title}
-          </IncorrectButton>
+          {storeOption.correct ? (
+            <>
+              <CorrectButton
+                aria-label={ariaLablel}
+                onClick={() => dispatch(setOptionEditing(storeOption.id, true))}
+                variant="outlined"
+              >
+                {storeOption.title}
+              </CorrectButton>
+            </>
+          ) : (
+            <>
+              <IncorrectButton
+                aria-label={ariaLablel}
+                onClick={() => dispatch(setOptionEditing(storeOption.id, true))}
+                variant="outlined"
+              >
+                {storeOption.title}
+              </IncorrectButton>
+            </>
+          )}
         </>
       )}
     </>

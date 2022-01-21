@@ -9,7 +9,7 @@ interface TextAreaExtraProps {
   required?: boolean
   value?: string
   disabled: boolean
-  maxlength: string
+  maxlength?: string
   onChange: (value: string, name?: string) => void
 }
 

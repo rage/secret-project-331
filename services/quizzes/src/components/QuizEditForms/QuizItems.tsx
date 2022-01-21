@@ -19,6 +19,7 @@ const ItemsTitleContainer = styled.div`
 const SubsectionTitleWrapper = styled.div`
   display: flex;
   width: auto;
+  margin-top: 1rem;
 `
 
 const TitleIcon = styled(FontAwesomeIcon)`

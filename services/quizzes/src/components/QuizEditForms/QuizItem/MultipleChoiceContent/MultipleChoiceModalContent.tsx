@@ -139,7 +139,7 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
       <ModalContent>
         <MarkdownEditor
           label={t("title")}
-          onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
+          onChange={(value) => dispatch(editedQuizItemTitle(value, storeItem.id))}
           text={storeItem.title}
         />
       </ModalContent>
@@ -192,9 +192,7 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
         <ModalContent>
           <MarkdownEditor
             label={t("shared-feedback-message-option")}
-            onChange={(event) =>
-              dispatch(editedSharedOptionsFeedbackMessage(storeItem.id, event.target.value))
-            }
+            onChange={(value) => dispatch(editedSharedOptionsFeedbackMessage(storeItem.id, value))}
             text={storeItem.sharedOptionFeedbackMessage ?? ""}
           />
         </ModalContent>
@@ -203,18 +201,14 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
           <ModalContent>
             <MarkdownEditor
               label={t("success-message")}
-              onChange={(event) =>
-                dispatch(editedItemSuccessMessage(storeItem.id, event.target.value))
-              }
+              onChange={(value) => dispatch(editedItemSuccessMessage(storeItem.id, value))}
               text={storeItem.successMessage ?? ""}
             />
           </ModalContent>
           <ModalContent>
             <MarkdownEditor
               label={t("failure-message")}
-              onChange={(event) =>
-                dispatch(editedItemFailureMessage(storeItem.id, event.target.value))
-              }
+              onChange={(value) => dispatch(editedItemFailureMessage(storeItem.id, value))}
               text={storeItem.failureMessage ?? ""}
             />
           </ModalContent>

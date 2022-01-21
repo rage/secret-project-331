@@ -30,17 +30,15 @@ export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
   return (
     <>
       <ModalContent>
-        <p>{t("editing-option")}</p>
+        <h4>{t("editing-option")}</h4>
       </ModalContent>
       <ModalContent>
         <FormControl>
           <FormControlLabel
             label={t("label-correct")}
-            // eslint-disable-next-line i18next/no-literal-string
             labelPlacement="start"
             control={
               <Checkbox
-                // eslint-disable-next-line i18next/no-literal-string
                 color="primary"
                 checked={storeOption.correct}
                 onChange={(event) =>
@@ -55,7 +53,7 @@ export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
         <MarkdownEditor
           label={t("option-title")}
           text={storeOption.title ?? ""}
-          onChange={(event) => dispatch(editedOptionTitle(event.target.value, storeOption.id))}
+          onChange={(value) => dispatch(editedOptionTitle(value, storeOption.id))}
         />
       </ModalContent>
       <ModalContent>
@@ -68,8 +66,8 @@ export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
           }
           onChange={
             storeOption.correct
-              ? (event) => dispatch(editedOptionSuccessMessage(storeOption.id, event.target.value))
-              : (event) => dispatch(editedOptionFailureMessage(storeOption.id, event.target.value))
+              ? (value) => dispatch(editedOptionSuccessMessage(storeOption.id, value))
+              : (value) => dispatch(editedOptionFailureMessage(storeOption.id, value))
           }
         />
       </ModalContent>

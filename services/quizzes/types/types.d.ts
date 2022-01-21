@@ -164,8 +164,6 @@ export interface NormalizedQuizItem {
 export interface QuizItemVariables {
   scaleMin: number
   scaleMax: number
-  validMin: boolean
-  validMax: boolean
   array: number[]
   advancedEditing: boolean
   testingRegex: boolean

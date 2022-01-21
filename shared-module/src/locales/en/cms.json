@@ -31,5 +31,6 @@
   "serialize-to-html": "Serialize to HTML",
   "slide-title": "Slide {{ number }}",
   "error": "Error",
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "title-assignment": "Assignment"
 }

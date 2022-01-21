@@ -82,7 +82,7 @@ export const theme = {
   primary: {
     text: baseTheme.colors.clear[100],
     border: baseTheme.colors.clear[100],
-    bg: baseTheme.colors.green[200],
+    bg: baseTheme.colors.green[500],
     hoverText: baseTheme.colors.blue[200],
     hoverBg: baseTheme.colors.clear[100],
     hoverBorder: baseTheme.colors.green[200],

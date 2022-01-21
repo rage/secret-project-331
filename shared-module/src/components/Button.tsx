@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import { baseTheme, fontWeights, headingFont, theme } from "../styles"
+import { fontWeights, headingFont, theme } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -32,9 +32,9 @@ export const BASE_BUTTON_STYLES = `
   border: 2.5px solid transparent;
   z-index: 1;
 
-  color: ${baseTheme.colors.clear[700]};
+  color: ${theme.primary.text};
   background-color: ${theme.primary.bg};
-  border-color: ${theme.primary.hoverBorder};
+  border-color: ${theme.primary.border};
 
   &:hover {
     color: ${theme.primary.hoverBorder};
@@ -45,14 +45,14 @@ export const BASE_BUTTON_STYLES = `
 
   &:active {
     color: ${theme.primary.hoverText};
-    background-color: ${theme.primary.hoverBg};
+    background-color: ${theme.primary.activeBg};
     border-color: ${theme.primary.hoverBorder};
   }
 
   &:disabled {
-    color: ${baseTheme.colors.clear[600]};
-    background-color: ${baseTheme.colors.clear[500]};
-    border-color: ${baseTheme.colors.clear[500]};
+    color: ${theme.primary.disabledText};
+    background-color: ${theme.primary.disabledBg};
+    border-color: ${theme.primary.disabledBorder};
   }
 
   &:focus {
@@ -82,8 +82,7 @@ export const SecondaryButtonStyles = (props: ButtonProps) => {
 
     color: ${theme.secondary.text};
     background: ${theme.secondary.bg};
-    border-color: ${theme.secondary.hoverBorder};
-    border: 1.5px solid ${theme.secondary.text};
+    border: 1.5px solid ${theme.secondary.border};
 
     &:hover,
     &:focus {
@@ -94,13 +93,13 @@ export const SecondaryButtonStyles = (props: ButtonProps) => {
 
     &:active {
       color: ${theme.secondary.hoverText};
-      background-color: ${theme.secondary.hoverBg};
+      background-color: ${theme.secondary.activeBg};
     }
 
     &:disabled {
-      color: ${baseTheme.colors.clear[600]};
-      background-color: ${baseTheme.colors.clear[500]};
-      border-color: ${baseTheme.colors.clear[500]};
+      color: ${theme.secondary.disabledText};
+      background-color: ${theme.secondary.disabledBg};
+      border-color: ${theme.secondary.disabledBorder};
     }
   `
   return SECONDARY_BUTTON_STYLES
@@ -126,9 +125,9 @@ export const TertiaryButtonStyles = (props: ButtonProps) => {
     }
 
     &:disabled {
-      color: ${baseTheme.colors.clear[600]};
-      background-color: ${baseTheme.colors.clear[500]};
-      border-color: ${baseTheme.colors.clear[500]};
+      color: ${theme.tertiary.disabledText};
+      background-color: ${theme.tertiary.disabledBg};
+      border-color: ${theme.tertiary.disabledBorder};
     }
   `
   return TERTIARY_BUTTON_STYLES

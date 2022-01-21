@@ -5,7 +5,7 @@ import { baseTheme } from "../../styles"
 
 // eslint-disable-next-line i18next/no-literal-string
 const BannerWrapper = styled.div`
-  background: ${baseTheme.colors.grey[400]};
+  background: ${baseTheme.colors.grey[100]};
   width: 100%;
   position: relative;
   padding: 2rem 2rem;

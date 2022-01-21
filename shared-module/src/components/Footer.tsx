@@ -43,7 +43,7 @@ const Wrapper = styled.div`
 
 const StyledLink = styled.a`
   text-decoration: none;
-  color: ${baseTheme.colors.grey[800]};
+  color: ${baseTheme.colors.grey[700]};
   font-size: 1.2rem;
   opacity: 0.7;
   transition: opacity 0.2s ease-in;

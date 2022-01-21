@@ -56,7 +56,7 @@ const grey500WithHover = css`
 // eslint-disable-next-line i18next/no-literal-string
 const StyledIconDark = styled(FontAwesomeIcon)`
   font-size: 1rem;
-  color: ${baseTheme.colors.grey[800]};
+  color: ${baseTheme.colors.grey[700]};
   margin: 1.5rem;
 `
 

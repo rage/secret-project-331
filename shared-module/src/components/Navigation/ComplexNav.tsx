@@ -48,7 +48,7 @@ const navbarItems = css`
   font-size: 1rem;
 
   padding: 0em 4em;
-  background: ${baseTheme.colors.neutral[100]};
+  background: ${baseTheme.colors.clear[100]};
   border-bottom: 2px solid #333;
   z-index: 10000;
 
@@ -66,7 +66,7 @@ const navbarItems = css`
 
 // eslint-disable-next-line i18next/no-literal-string
 const navbarLogo = css`
-  color: ${baseTheme.colors.grey[800]};
+  color: ${baseTheme.colors.grey[700]};
   display: flex;
   justify-self: start;
   margin: 0;
@@ -113,7 +113,7 @@ const navMenu = css`
   overflow-y: hidden;
 
   justify-content: end;
-  background: ${baseTheme.colors.neutral[100]};
+  background: ${baseTheme.colors.clear[100]};
 
   ${respondToOrLarger.lg} {
     display: inline-block;
@@ -129,7 +129,7 @@ const navMenu = css`
 `
 // eslint-disable-next-line i18next/no-literal-string
 const navLinks = css`
-  color: ${baseTheme.colors.grey[800]};
+  color: ${baseTheme.colors.grey[700]};
   text-decoration: none;
   position: relative;
   line-height: 1.5rem;
@@ -144,7 +144,7 @@ const navLinks = css`
     height: 2px;
     bottom: 0;
     left: 0;
-    background-color: ${baseTheme.colors.grey[800]};
+    background-color: ${baseTheme.colors.grey[700]};
     transform-origin: bottom right;
     transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
 
@@ -156,7 +156,7 @@ const navLinks = css`
 
   &:hover {
     text-decoration: none;
-    color: ${baseTheme.colors.grey[800]};
+    color: ${baseTheme.colors.grey[700]};
 
     &:after {
       transform: scaleX(1);
@@ -220,7 +220,7 @@ const secondaryLink = css`
 
 const StyledIcon = styled(FontAwesomeIcon)`
   font-size: 1.8rem;
-  color: ${baseTheme.colors.grey[800]};
+  color: ${baseTheme.colors.grey[700]};
 `
 
 const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {

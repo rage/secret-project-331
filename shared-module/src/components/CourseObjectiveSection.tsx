@@ -23,7 +23,8 @@ const TextBox = styled.div`
   h2 {
     font-weight: 400;
     z-index: 20;
-    margin-bottom: 2em;
+    margin-bottom: 1em;
+    font-size: 4rem;
   }
 
   span {

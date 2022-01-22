@@ -29,12 +29,13 @@ const TextBox = styled.div`
     z-index: 20;
     margin-bottom: 0.8rem;
     margin-top: 1.5rem;
+    font-size: clamp(4rem, 6vw, 80px);
     max-width: 1000px;
     line-height: 1.2;
   }
 
   span {
-    font-style: normal;
+    font-style: normal;8
     font-weight: 600;
     font-size: 22px;
     line-height: 40px;

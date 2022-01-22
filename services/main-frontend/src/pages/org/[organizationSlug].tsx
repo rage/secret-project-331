@@ -36,8 +36,10 @@ const StyledDiv = styled.div`
   grid-template-columns: 1fr 0.1fr;
   align-items: center;
   background-color: #f5f6f7;
+  font-family: Josefin Sans, "sans-serif";
   margin-bottom: 1em;
   padding: 0 1.5rem;
+  border-radius: 2px;
   height: 6rem;
   &:hover {
     cursor: pointer;
@@ -53,6 +55,7 @@ const StyledDiv = styled.div`
     color: inherit;
     font-size: 1.5em;
     text-transform: uppercase;
+    color: red;
   }
 
   a:nth-of-type(2) {
@@ -63,6 +66,7 @@ const StyledDiv = styled.div`
     justify-content: center;
     margin-right: 1em;
     padding: 0.1em 1em;
+    border-radius: 2px;
   }
 `
 

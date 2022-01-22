@@ -5,17 +5,17 @@ import { baseTheme } from "../../styles"
 
 // eslint-disable-next-line i18next/no-literal-string
 const BannerWrapper = styled.div`
-  background: ${baseTheme.colors.grey[400]};
+  background: /* ${baseTheme.colors.grey[400]} */ #f5f6f7;
   width: 100%;
   position: relative;
-  padding: 2rem 2rem;
+  padding: 3rem 2rem;
   margin: 0 auto;
   display: block;
 `
 
 const Content = styled.div`
   font-weight: 500;
-  font-size: 1rem;
+  font-size: 1.2rem;
   line-height: 1.4;
   display: grid;
   grid-template-columns: 1fr;

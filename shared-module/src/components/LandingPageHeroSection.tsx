@@ -35,7 +35,7 @@ const TextBox = styled.div`
   }
 
   span {
-    font-style: normal;8
+    font-style: normal;
     font-weight: 600;
     font-size: 22px;
     line-height: 40px;

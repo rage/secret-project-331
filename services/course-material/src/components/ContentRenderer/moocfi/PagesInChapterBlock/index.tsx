@@ -2,7 +2,7 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
-import CoursePageContext from "../../../../contexts/CoursePageContext"
+import PageContext from "../../../../contexts/PageContext"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
@@ -13,7 +13,7 @@ import PagesInChapter from "./PagesInChapter"
 
 const PagesInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
   const { t } = useTranslation()
-  const pageContext = useContext(CoursePageContext)
+  const pageContext = useContext(PageContext)
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")
 

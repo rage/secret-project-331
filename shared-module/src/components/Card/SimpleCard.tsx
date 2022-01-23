@@ -46,7 +46,7 @@ const CardContentWrapper = styled.div`
   }
 
   span {
-    color: ${baseTheme.colors.grey[800]};
+    color: ${baseTheme.colors.grey[700]};
     font-size: 1.2em;
     opacity: 0.8;
     z-index: 20;

@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CardSVG from "../../img/cardNext.svg"
-import { baseTheme, typography } from "../../styles"
+import { baseTheme, headingFont, typography } from "../../styles"
 import { cardHeight, cardMaxWidth } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 
@@ -165,7 +165,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, 
               <span
                 className={css`
                   text-transform: uppercase;
-                  font-family: Josefin sans, "sans-serif";
+                  font-family: ${headingFont};
                 `}
               >
                 {t("chapter-chapter-number", { number: chapterNumber })}

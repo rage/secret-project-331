@@ -55,7 +55,6 @@ const StyledDiv = styled.div`
     color: inherit;
     font-size: 1.5em;
     text-transform: uppercase;
-    color: red;
   }
 
   a:nth-of-type(2) {

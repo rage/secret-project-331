@@ -1,0 +1,20 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../system-tests/src/"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+GREP_OUTPUT=$(grep --files-with-matches -r 'test.only' "$RELATIVE_PATH" || true)
+NUMBER_OF_TEST_ONLY=$(echo "$GREP_OUTPUT" | sed '/^\s*$/d' | wc -l)
+
+if [ "$NUMBER_OF_TEST_ONLY" -ne "0" ]; then
+    echo "Found $NUMBER_OF_TEST_ONLY files with 'test.only' in $RELATIVE_PATH. Failing."
+    echo ""
+    echo "List of files:"
+    echo "$GREP_OUTPUT"
+    exit 255
+fi
+
+echo "All good"

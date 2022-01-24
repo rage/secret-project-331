@@ -114,7 +114,7 @@ mod test {
             ..
         } = insert_data(tx.as_mut(), "example-exercise").await.unwrap();
 
-        let enrollment = course_instance_enrollments::insert_enrollment(
+        let enrollment = course_instance_enrollments::insert_enrollment_if_it_doesnt_exist(
             tx.as_mut(),
             NewCourseInstanceEnrollment {
                 course_id: course,
@@ -151,7 +151,7 @@ mod test {
         .await
         .unwrap()
         .id;
-        let enrollment_2 = course_instance_enrollments::insert_enrollment(
+        let enrollment_2 = course_instance_enrollments::insert_enrollment_if_it_doesnt_exist(
             tx.as_mut(),
             NewCourseInstanceEnrollment {
                 course_id: course,

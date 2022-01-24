@@ -13,5 +13,5 @@ module.exports = {
   "**/models/**/*.rs": () => [
     "./bin/sqlx-prepare-check",
   ],
-  "./system-tests/src/**/*.ts": () => `bash -c "test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0"`,
+  "./system-tests/src/**/*.ts": () => `./bin/check-no-test-only-in-system-tests`,
 }

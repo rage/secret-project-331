@@ -37,7 +37,12 @@ pub struct NewCourseInstanceEnrollment {
     pub course_instance_id: Uuid,
 }
 
-pub async fn insert_enrollment(
+/**
+Inserts enrollment if it doesn't exist yet.
+
+If the enrollment exists, this just makes sure that the record is not deleted. This is useful because the user might accidentally request entrolling to the same course instance twice for example with two differet browser tabs.
+*/
+pub async fn insert_enrollment_if_it_doesnt_exist(
     conn: &mut PgConnection,
     enrollment: NewCourseInstanceEnrollment,
 ) -> ModelResult<CourseInstanceEnrollment> {
@@ -46,6 +51,8 @@ pub async fn insert_enrollment(
         "
 INSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id)
 VALUES ($1, $2, $3)
+ON CONFLICT (user_id, course_instance_id)
+DO UPDATE SET deleted_at = NULL
 RETURNING *;
 ",
         enrollment.user_id,
@@ -63,7 +70,7 @@ pub async fn insert_enrollment_and_set_as_current(
 ) -> ModelResult<CourseInstanceEnrollment> {
     let mut tx = conn.begin().await?;
 
-    let enrollment = insert_enrollment(&mut tx, new_enrollment).await?;
+    let enrollment = insert_enrollment_if_it_doesnt_exist(&mut tx, new_enrollment).await?;
     crate::user_course_settings::upsert_user_course_settings_for_enrollment(&mut tx, &enrollment)
         .await?;
     tx.commit().await?;

@@ -1,6 +1,7 @@
 import toast, { ToastOptions } from "react-hot-toast"
 import { MutationFunction, useMutation, UseMutationOptions, UseMutationResult } from "react-query"
 
+import DeleteNotification from "../components/Notifications/Delete"
 import ErrorNotification from "../components/Notifications/Error"
 import LoadingNotification from "../components/Notifications/Loading"
 import SuccessNotification from "../components/Notifications/Success"
@@ -76,7 +77,13 @@ export default function useToastMutation<
             displaySuccessNotification(notificationOptions)
             break
           case "DELETE":
-            toast.custom(<div></div>)
+            toast.custom(
+              <DeleteNotification
+                header={notificationOptions.successHeader}
+                message={notificationOptions.successMessage}
+                {...(notificationOptions.dismissable ? { id: toastId } : {})}
+              />,
+            )
             break
           default:
             displaySuccessNotification(notificationOptions)

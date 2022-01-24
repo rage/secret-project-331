@@ -46,5 +46,7 @@
   "default-toast-request-successful-message": "Request was successful.",
   "default-toast-success-title": "Success",
   "default-toast-success-message": "Operation successful!",
-  "default-toast-loading-message": "Performing action..."
+  "default-toast-loading-message": "Performing action...",
+  "default-toast-delete-title": "Delete",
+  "default-toast-delete-message": "Successfully deleted"
 }

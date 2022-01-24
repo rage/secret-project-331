@@ -34,11 +34,6 @@ test("blocks render correctly", async ({ page, headless }) => {
 
   await page.waitForSelector("text=100px wide")
 
-  /*
-
- fails to accessibility: contrast / color palette
-
-*/
   await expectScreenshotsToMatchSnapshots({
     axeSkip: true,
     page,

@@ -64,6 +64,21 @@ RETURNING *;
     Ok(user)
 }
 
+pub async fn get_by_email(conn: &mut PgConnection, email: &str) -> ModelResult<User> {
+    let user = sqlx::query_as!(
+        User,
+        "
+SELECT *
+FROM users
+WHERE email = $1
+        ",
+        email
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(user)
+}
+
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<User> {
     let user = sqlx::query_as!(
         User,

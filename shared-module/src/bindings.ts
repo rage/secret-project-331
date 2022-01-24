@@ -573,6 +573,21 @@ export interface ProposalCount {
   handled: number
 }
 
+export interface RoleUser {
+  id: string
+  email: string
+  role: UserRole
+}
+
+export type RoleDomain =
+  | { tag: "Global" }
+  | { tag: "Organization"; id: string }
+  | { tag: "Course"; id: string }
+  | { tag: "CourseInstance"; id: string }
+  | { tag: "Exam"; id: string }
+
+export type UserRole = "Admin" | "Assistant" | "Teacher" | "Reviewer"
+
 export interface Submission {
   id: string
   created_at: Date
@@ -663,6 +678,20 @@ export interface User {
   deleted_at: Date | null
   upstream_id: number | null
   email: string
+}
+
+export interface RoleQuery {
+  global?: boolean
+  organization_id?: string
+  course_id?: string
+  course_instance_id?: string
+  exam_id?: string
+}
+
+export interface RoleInfo {
+  email: string
+  role: UserRole
+  domain: RoleDomain
 }
 
 export interface PreviousSubmission {

@@ -29,8 +29,8 @@ use headless_lms_models::{
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
-    roles,
     roles::UserRole,
+    roles::{self, RoleDomain},
     submissions,
     submissions::GradingResult,
     user_exercise_states, users,
@@ -253,9 +253,8 @@ async fn main() -> Result<()> {
     roles::insert(
         &mut conn,
         language_teacher,
-        None,
-        Some(introduction_to_localizing),
         UserRole::Teacher,
+        RoleDomain::Course(introduction_to_localizing),
     )
     .await?;
 
@@ -390,14 +389,26 @@ async fn main() -> Result<()> {
 
     // roles
     info!("roles");
-    roles::insert(&mut conn, admin, None, None, UserRole::Admin).await?;
-    roles::insert(&mut conn, teacher, Some(uh_cs), None, UserRole::Teacher).await?;
+    roles::insert(&mut conn, admin, UserRole::Admin, RoleDomain::Global).await?;
+    roles::insert(
+        &mut conn,
+        teacher,
+        UserRole::Teacher,
+        RoleDomain::Organization(uh_cs),
+    )
+    .await?;
     roles::insert(
         &mut conn,
         assistant,
-        Some(uh_cs),
-        Some(cs_intro),
         UserRole::Assistant,
+        RoleDomain::Organization(uh_cs),
+    )
+    .await?;
+    roles::insert(
+        &mut conn,
+        assistant,
+        UserRole::Assistant,
+        RoleDomain::Course(cs_intro),
     )
     .await?;
 

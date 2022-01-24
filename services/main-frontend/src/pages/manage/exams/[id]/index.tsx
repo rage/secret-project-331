@@ -3,20 +3,20 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useMutation, useQuery } from "react-query"
 
-import Layout from "../../../components/Layout"
-import { fetchExam, setCourse, unsetCourse } from "../../../services/backend/exams"
-import { ErrorResponse } from "../../../shared-module/bindings"
-import { isErrorResponse } from "../../../shared-module/bindings.guard"
-import Button from "../../../shared-module/components/Button"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import TextField from "../../../shared-module/components/InputFields/TextField"
-import Spinner from "../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import { wideWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import Layout from "../../../../components/Layout"
+import { fetchExam, setCourse, unsetCourse } from "../../../../services/backend/exams"
+import { ErrorResponse } from "../../../../shared-module/bindings"
+import { isErrorResponse } from "../../../../shared-module/bindings.guard"
+import Button from "../../../../shared-module/components/Button"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import TextField from "../../../../shared-module/components/InputFields/TextField"
+import Spinner from "../../../../shared-module/components/Spinner"
+import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"id">
@@ -82,6 +82,14 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
               <li>
                 <a href={`/cms/pages/${getExam.data.page_id}`}>{t("manage-page")}</a> (
                 {getExam.data.page_id})
+              </li>
+              <li>
+                <a
+                  href={`/manage/exams/${getExam.data.id}/permissions`}
+                  aria-label={`${t("link-manage-permissions")} ${getExam.data.name}`}
+                >
+                  {t("link-manage-permissions")}
+                </a>
               </li>
               <li>
                 <a href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-points`}>

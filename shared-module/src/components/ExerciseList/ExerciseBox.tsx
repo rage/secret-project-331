@@ -48,7 +48,7 @@ const ImageBox = styled.div`
     height: 100%;
     text-align: center;
     z-index: 3;
-    color: ${baseTheme.colors.grey[800]};
+    color: ${baseTheme.colors.grey[700]};
     font-size: 16px;
     margin-bottom: 0;
   }
@@ -59,7 +59,7 @@ const ExercisePart = styled.div`
   margin-left: 0em;
   padding: 0.6em 1em;
   list-style-type: none;
-  color: ${baseTheme.colors.grey[800]};
+  color: ${baseTheme.colors.grey[700]};
   text-decoration: none;
   border-radius: 2px;
   background: ${baseTheme.colors.grey[200]};

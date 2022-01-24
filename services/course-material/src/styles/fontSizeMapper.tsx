@@ -3,9 +3,9 @@
 // Gutenberg specific, don't use in other contexes
 
 const fontSizes: { [colorName: string]: string | undefined } = {
-  small: "13px",
+  small: "16px",
   normal: "20px",
-  medium: "23px",
+  medium: "24px",
   large: "36px",
   huge: "42px",
 }

@@ -30,5 +30,8 @@
   "label-title": "Title",
   "button-text-select-media": "Select media (not implemented)",
   "serialize-to-html": "Serialize to HTML",
-  "slide-title": "Slide {{ number }}"
+  "slide-title": "Slide {{ number }}",
+  "error": "Error",
+  "loading": "Loading...",
+  "title-assignment": "Assignment"
 }

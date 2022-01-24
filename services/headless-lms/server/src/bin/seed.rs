@@ -1476,6 +1476,181 @@ async fn seed_sample_course(
             "awardPointsEvenIfWrong": false}),
     );
 
+    let (
+        quizzes_exercise_block_3,
+        quizzes_exercise_3,
+        quizzes_exercise_slide_3,
+        quizzes_exercise_task_3,
+    ) = quizzes_exercise(
+        Uuid::new_v5(&course_id, b"9bcf634d-584c-4fef-892c-3c0e97dab1d5"),
+        Uuid::new_v5(&course_id, b"984457f6-bc9b-4604-b54c-80fb4adfab76"),
+        Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
+        Uuid::new_v5(&course_id, b"52939561-af36-4ab6-bffa-be97e94d3314"),
+        Uuid::new_v5(&course_id, b"8845b17e-2320-4384-97f8-24e42457cb5e"),
+        serde_json::json!({
+            "id": "f1f0520e-3037-409c-b52d-163ad0bc5c59",
+            "body": "very hard",
+            "open": "2021-12-17T07:15:33.479Z",
+            "part": 0,
+            "items": [{
+                "id": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                "body": "",
+                "type": "multiple-choice-dropdown",
+                "multi": false,
+                "order": 0,
+                "title": "Choose the right answer from given options.",
+                "quizId": "f1f0520e-3037-409c-b52d-163ad0bc5c59",
+                "options": [{
+                    "id": "86a2d838-04aa-4b1c-8115-2c15ed19e7b3",
+                    "body": "The right answer",
+                    "order": 1,
+                    "title": null,
+                    "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                    "correct":true,
+                    "failureMessage": null,
+                    "successMessage": "You chose wisely...".to_string()
+                },
+                {
+                    "id": "fef8cd36-04ab-48f2-861c-51769ccad52f",
+                    "body": "The Wright answer",
+                    "order": 2,
+                    "title": null,
+                    "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                    "correct":false,
+                    "failureMessage": "You chose poorly...".to_string(),
+                    "successMessage": null
+                }],
+                "maxValue": null,
+                "maxWords": null,
+                "minValue": null,
+                "minWords": null,
+                "createdAt": "2021-12-17T07:16:23.202Z",
+                "direction": "row",
+                "updatedAt": "2021-12-17T07:16:23.202Z",
+                "formatRegex": null,
+                "validityRegex": null,
+                "failureMessage": null,
+                "successMessage": null,
+                "allAnswersCorrect": false,
+                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
+                "sharedOptionFeedbackMessage": null,
+                "usesSharedOptionFeedbackMessage": false
+            }],
+            "title": "Pretty good exercise",
+            "tries": 1,
+            "points": 2,
+            "section": 0,
+            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+            "deadline": "2021-12-17T07:15:33.479Z",
+            "createdAt": "2021-12-17T07:15:33.479Z",
+            "updatedAt": "2021-12-17T07:15:33.479Z",
+            "autoReject": false,
+            "autoConfirm": true,
+            "triesLimited": true,
+            "submitMessage": "your submit has been answered",
+            "excludedFromScore": true,
+            "grantPointsPolicy": "grant_whenever_possible",
+            "awardPointsEvenIfWrong": false}),
+    );
+
+    let (
+        quizzes_exercise_block_4,
+        quizzes_exercise_4,
+        quizzes_exercise_slide_4,
+        quizzes_exercise_task_4,
+    ) = quizzes_exercise(
+        Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
+        Uuid::new_v5(&course_id, b"6a8e65be-f5cd-4c87-b4f9-9522cb37bbcb"),
+        Uuid::new_v5(&course_id, b"b5e1e7e87-0678-4296-acf7-a8ac926ff94b"),
+        Uuid::new_v5(&course_id, b"50e26d7f-f11f-4a8a-990d-fb17c3371d1d"),
+        Uuid::new_v5(&course_id, b"7ca39a36-2dcd-4521-bbf6-bfc5849874e3"),
+        serde_json::json!({
+            "id": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
+            "body": "very hard",
+            "open": "2021-12-17T07:15:33.479Z",
+            "part": 0,
+            "items": [{
+                "id": "d30bec57-4011-4ac4-b676-79fe766d6424",
+                "body": null,
+                "type": "clickable-multiple-choice",
+                "multi": false,
+                "order": 0,
+                "title": "Pick all the programming languages from below",
+                "quizId": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
+                "options": [
+                    {
+                        "id": "55a63887-a896-425c-91ae-2f85032c3d58",
+                        "body": "Java",
+                        "order": 1,
+                        "title": null,
+                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                        "correct":true,
+                        "failureMessage": null,
+                        "successMessage": "Java is a programming language".to_string()
+                    },
+                    {
+                        "id": "534bf512-014e-47b6-a67b-8bea6dc65177",
+                        "body": "Erlang",
+                        "order": 2,
+                        "title": null,
+                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                        "correct":true,
+                        "failureMessage": null,
+                        "successMessage": "Erlang is a programming language".to_string()
+                    },
+                    {
+                        "id": "ea4e0bb4-f84e-4048-be2f-f819a391396f",
+                        "body": "Jupiter",
+                        "order": 3,
+                        "title": null,
+                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                        "correct":false,
+                        "failureMessage": "Jupiter is not a programming language".to_string(),
+                        "successMessage": null
+                    },
+                    {
+                        "id": "b851f1b3-ae90-46bd-8f10-fd6d968695ef",
+                        "body": "Rust",
+                        "order": 4,
+                        "title": null,
+                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                        "correct":true,
+                        "failureMessage": null,
+                        "successMessage": "Rust is a programming language".to_string()
+                    },
+                    {
+                        "id": "8107ae39-96aa-4f54-aa78-1a33362a19c1",
+                        "body": "AC",
+                        "order": 5,
+                        "title": null,
+                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                        "correct":false,
+                        "failureMessage": "AC is not a programming language".to_string(),
+                        "successMessage": null
+                    },
+                ],
+                "allAnswersCorrect": false,
+                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
+                "sharedOptionFeedbackMessage": null,
+                "usesSharedOptionFeedbackMessage": false
+            }],
+            "title": "Pretty good exercise",
+            "tries": 1,
+            "points": 2,
+            "section": 0,
+            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+            "deadline": "2021-12-17T07:15:33.479Z",
+            "createdAt": "2021-12-17T07:15:33.479Z",
+            "updatedAt": "2021-12-17T07:15:33.479Z",
+            "autoReject": false,
+            "autoConfirm": true,
+            "triesLimited": true,
+            "submitMessage": "your submit has been answered",
+            "excludedFromScore": true,
+            "grantPointsPolicy": "grant_whenever_possible",
+            "awardPointsEvenIfWrong": false}),
+    );
+
     create_page(
         conn,
         course.id,
@@ -1517,6 +1692,52 @@ async fn seed_sample_course(
                     Uuid::new_v5(&course_id, b"771b9c61-dbc9-4266-a980-dadc853455c9")
                 ),
                 quizzes_exercise_block_2
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        chapter_1.id,
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-5".to_string(),
+            title: "Page 5".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_3],
+            exercise_slides: vec![quizzes_exercise_slide_3],
+            exercise_tasks: vec![quizzes_exercise_task_3],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters multiple-choice-dropdown page",
+                    Uuid::new_v5(&course_id, b"7af470e7-cc4f-411e-ad5d-c137e353f7c3")
+                ),
+                quizzes_exercise_block_3
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        chapter_1.id,
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-6".to_string(),
+            title: "page 6".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_4],
+            exercise_slides: vec![quizzes_exercise_slide_4],
+            exercise_tasks: vec![quizzes_exercise_task_4],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters multiple-choice clickable page.",
+                    Uuid::new_v5(&course_id, b"6b7775c3-b46e-41e5-a730-0a2c2f0ba148")
+                ),
+                quizzes_exercise_block_4
             ]),
         },
     )

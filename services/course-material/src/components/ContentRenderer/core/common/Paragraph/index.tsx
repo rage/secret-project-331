@@ -198,7 +198,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         color: ${colorMapper(textColor)};
         background-color: ${bgColor};
         font-size: ${fontSizeMapper(fontSize)};
-        line-height: 2rem;
+        line-height: 1.6;
         text-align: ${align ?? "left"};
         ${backgroundColor && `padding: 1.25em 2.375em !important;`}
       `}

@@ -4,13 +4,13 @@
 
 const fontSizes: { [colorName: string]: string | undefined } = {
   small: "13px",
-  normal: "16px",
-  medium: "20px",
+  normal: "20px",
+  medium: "23px",
   large: "36px",
   huge: "42px",
 }
 
-const DEFAULT_FONT_SIZE = "16px"
+const DEFAULT_FONT_SIZE = "20px"
 
 const fontSizeMapper = (fontName: string | undefined): string => {
   if (!fontName) {

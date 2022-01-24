@@ -287,7 +287,7 @@ WHERE c.id = $1
             ..
         } <span class="op">=</span> <span class="ident">insert_data</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;example-exercise&quot;</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="ident">course_instance_enrollments::insert_enrollment</span>(
+        <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="ident">course_instance_enrollments::insert_enrollment_if_it_doesnt_exist</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">NewCourseInstanceEnrollment</span> {
                 <span class="ident">course_id</span>: <span class="ident">course</span>,
@@ -324,7 +324,7 @@ WHERE c.id = $1
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>()
         .<span class="ident">id</span>;
-        <span class="kw">let</span> <span class="ident">enrollment_2</span> <span class="op">=</span> <span class="ident">course_instance_enrollments::insert_enrollment</span>(
+        <span class="kw">let</span> <span class="ident">enrollment_2</span> <span class="op">=</span> <span class="ident">course_instance_enrollments::insert_enrollment_if_it_doesnt_exist</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">NewCourseInstanceEnrollment</span> {
                 <span class="ident">course_id</span>: <span class="ident">course</span>,

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["insert",""],["insert_enrollment",""],["insert_enrollment_and_set_as_current",""]],"struct":[["CourseInstanceEnrollment",""],["NewCourseInstanceEnrollment",""]]});
+initSidebarItems({"fn":[["insert",""],["insert_enrollment_and_set_as_current",""],["insert_enrollment_if_it_doesnt_exist","Inserts enrollment if it doesn’t exist yet."]],"struct":[["CourseInstanceEnrollment",""],["NewCourseInstanceEnrollment",""]]});

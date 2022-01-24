@@ -38,7 +38,7 @@ pub struct NewCourseInstanceEnrollment {
 }
 
 /**
-Inserts enrollment if it doesn't exist yet.#
+Inserts enrollment if it doesn't exist yet.
 
 If the enrollment exists, this just makes sure that the record is not deleted. This is useful because the user might accidentally request entrolling to the same course instance twice for example with two differet browser tabs.
 */

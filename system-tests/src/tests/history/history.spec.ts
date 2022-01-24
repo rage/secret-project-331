@@ -8,7 +8,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("test", async ({ page, headless }) => {
+test("history test", async ({ page, headless }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
@@ -79,12 +79,12 @@ test("test", async ({ page, headless }) => {
   ])
 
   // Triple click input[type="text"]
-  await page.click('input[type="text"]', {
-    clickCount: 3,
-  })
+  // await page.click('input[type="text"]', {
+  //   clickCount: 3,
+  // })
 
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "New title!")
+  await page.fill("text=Title", "New title!")
 
   // Click text=Save
   await page.click("text=Save")

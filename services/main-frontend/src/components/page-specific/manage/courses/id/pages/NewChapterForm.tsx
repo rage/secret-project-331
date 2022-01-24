@@ -1,11 +1,12 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { TextField } from "@material-ui/core"
+// import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { postNewChapter } from "../../../../../../services/backend/chapters"
 import Button from "../../../../../../shared-module/components/Button"
+import TextField from "../../../../../../shared-module/components/InputFields/TextField"
 
 const StyledTextField = styled(TextField)`
   margin: 0.3rem;
@@ -55,27 +56,27 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
         <FieldContainer>
           <StyledTextField
             required
-            id="outlined-required"
-            fullWidth
+            // id="outlined-required"
+            // fullWidth
             label={t("text-field-label-name")}
-            variant="outlined"
+            // variant="outlined"
             value={name}
-            onChange={(e) => {
-              setName(e.target.value)
+            onChange={(value) => {
+              setName(value)
             }}
           />
         </FieldContainer>
         <FieldContainer>
           <StyledTextField
             required
-            id="outlined-required"
-            fullWidth
+            // id="outlined-required"
+            // fullWidth
             label={t("text-field-label-chapter-number")}
-            variant="outlined"
+            // variant="outlined"
             type="number"
-            value={chapter}
-            onChange={(e) => {
-              setChapter(Number(e.target.value))
+            value={String(chapter)}
+            onChange={(value) => {
+              setChapter(Number(value))
             }}
           />
         </FieldContainer>

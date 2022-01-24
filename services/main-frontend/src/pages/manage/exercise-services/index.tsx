@@ -39,18 +39,18 @@ const ExerciseServicePage: React.FC = () => {
     })
   }
 
-  const onChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeName = (value: string) => {
     setExerciseService({
       ...exerciseService,
-      name: event.target.value,
-      slug: convertToSlug(event.target.value),
+      name: value,
+      slug: convertToSlug(value),
     })
   }
 
-  const onChangeCreationModal = (key: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeCreationModal = (key: string) => (value: string) => {
     setExerciseService({
       ...exerciseService,
-      [key]: event.target.type === "number" ? parseInt(event.target.value) : event.target.value,
+      [key]: value,
     })
   }
 

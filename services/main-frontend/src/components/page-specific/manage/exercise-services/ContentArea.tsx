@@ -1,13 +1,15 @@
 import { css } from "@emotion/css"
-import { TextField } from "@material-ui/core"
+// import { TextField } from "@material-ui/core"
 import React from "react"
+
+import TextField from "../../../../shared-module/components/InputFields/TextField"
 
 type inputType = "number" | "text"
 interface ContentAreaProps {
   title: string
   text: string | number | null
   editing: boolean
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onChange: (value: string) => void
   type: inputType
   error: boolean
 }
@@ -31,23 +33,25 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
       {editing && type == "text" && (
         <TextField
+          label=""
           error={error}
-          onChange={onChange}
-          fullWidth
-          value={text}
+          onChange={(value) => onChange(value)}
+          // fullWidth
+          value={String(text)}
           placeholder={`${title}...`}
         />
       )}
       {editing && type == "number" && (
         <TextField
+          label=""
           error={error}
-          onChange={onChange}
+          onChange={(value) => onChange(value)}
           type={"number"}
-          InputProps={{
-            inputProps: { min: 1 },
-          }}
-          fullWidth
-          value={text}
+          // InputProps={{
+          //   inputProps: { min: 1 },
+          // }}
+          // fullWidth
+          value={String(text)}
           placeholder={`${title}...`}
         />
       )}

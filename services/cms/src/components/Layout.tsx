@@ -54,28 +54,17 @@ const Layout: React.FC<LayoutProps> = ({
           min-height: 100vh;
         `}
       >
-        <div
-          className={css`
-            position: fixed;
-            top: 0;
-            z-index: 9002;
-            background-color: white;
-            width: 100%;
-          `}
-        >
-          <Navbar
-            faqUrl={faqUrl}
-            frontPageUrl={frontPageUrl ?? basePath()}
-            variant={navVariant ?? "complex"}
-            // Return to path can be override per page
-            returnToPath={returnToPath ?? returnPath}
-          ></Navbar>
-        </div>
+        <Navbar
+          faqUrl={faqUrl}
+          frontPageUrl={frontPageUrl ?? basePath()}
+          variant={navVariant ?? "complex"}
+          // Return to path can be override per page
+          returnToPath={returnToPath ?? returnPath}
+        ></Navbar>
         {/* Do not touch flex */}
         <main
           className={css`
             flex: 1;
-            margin-top: 90px;
           `}
         >
           {children}

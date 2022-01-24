@@ -17,7 +17,7 @@ pub enum ModelError {
     #[error("{0}")]
     PreconditionFailed(String),
     #[error("{description}")]
-    PreconditionFailedWithBlockId { id: Uuid, description: &'static str },
+    PreconditionFailedWithCMSAnchorBlockId { id: Uuid, description: &'static str },
     #[error("{0}")]
     InvalidRequest(String),
     #[error("{0}")]

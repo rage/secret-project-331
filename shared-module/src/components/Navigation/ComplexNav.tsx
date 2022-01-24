@@ -228,50 +228,44 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
   const [clicked, setClicked] = useState(false)
   const callback = () => setClicked(!clicked)
   return (
-    <div className="wrapper">
-      <nav role="navigation" className={cx(navbarItems)}>
-        <div className={cx(navbarLogo)}>
-          <a href="/" aria-label={t("home-page")} role="button">
-            <StyledIcon
-              icon={faBullseye}
-              aria-label={t("home-page")}
-              aria-hidden="true"
-            ></StyledIcon>
-          </a>
-        </div>
-        <div
-          className={cx(menuIcon)}
-          onClick={callback}
-          onKeyDown={(e) => runCallbackIfEnterPressed(e, callback)}
-          tabIndex={0}
-          role="button"
-          aria-label={t("open-menu")}
-        >
-          <Hamburger />
-        </div>
+    <nav role="navigation" className={cx(navbarItems)}>
+      <div className={cx(navbarLogo)}>
+        <a href="/" aria-label={t("home-page")} role="button">
+          <StyledIcon icon={faBullseye} aria-label={t("home-page")} aria-hidden="true"></StyledIcon>
+        </a>
+      </div>
+      <div
+        className={cx(menuIcon)}
+        onClick={callback}
+        onKeyDown={(e) => runCallbackIfEnterPressed(e, callback)}
+        tabIndex={0}
+        role="button"
+        aria-label={t("open-menu")}
+      >
+        <Hamburger />
+      </div>
 
-        <ol className={clicked ? cx(navMenu, active) : cx(navMenu)}>
-          <li className={cx(navLinks)}>{t("courses")}</li>
-          <li className={cx(navLinks)}>{t("modules")}</li>
-          <li className={cx(navLinks)}>{t("email-templates")}</li>
-          <LoginControls styles={[navLinks, hide]} returnToPath={returnToPath} />
-          <li className={cx(navLinks, hide)}>
-            <Button variant="primary" size="medium">
-              {t("translate")}
-            </Button>
-          </li>
-        </ol>
+      <ol className={clicked ? cx(navMenu, active) : cx(navMenu)}>
+        <li className={cx(navLinks)}>{t("courses")}</li>
+        <li className={cx(navLinks)}>{t("modules")}</li>
+        <li className={cx(navLinks)}>{t("email-templates")}</li>
+        <LoginControls styles={[navLinks, hide]} returnToPath={returnToPath} />
+        <li className={cx(navLinks, hide)}>
+          <Button variant="primary" size="medium">
+            {t("translate")}
+          </Button>
+        </li>
+      </ol>
 
-        <ol className={cx(secondaryLink)}>
-          <LoginControls styles={[secondaryLink]} returnToPath={returnToPath} />
-          <li>
-            <Button variant="primary" size="medium">
-              {t("translate")}
-            </Button>
-          </li>
-        </ol>
-      </nav>
-    </div>
+      <ol className={cx(secondaryLink)}>
+        <LoginControls styles={[secondaryLink]} returnToPath={returnToPath} />
+        <li>
+          <Button variant="primary" size="medium">
+            {t("translate")}
+          </Button>
+        </li>
+      </ol>
+    </nav>
   )
 }
 

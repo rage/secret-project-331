@@ -169,7 +169,7 @@ impl From<ModelError> for ControllerError {
         match err {
             ModelError::RecordNotFound(_) => Self::NotFound(err.to_string()),
             ModelError::PreconditionFailed(msg) => Self::BadRequest(msg),
-            ModelError::PreconditionFailedWithBlockId { description, id } => {
+            ModelError::PreconditionFailedWithCMSAnchorBlockId { description, id } => {
                 Self::BadRequestWithData(description.to_string(), ErrorData::BlockId(id))
             }
             ModelError::DatabaseConstraint { description, .. } => {

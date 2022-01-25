@@ -39,6 +39,7 @@ pub struct MoocfiCurrentUserResponseData {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MoocfiCurrentUser {
     pub id: Uuid,
+    pub username: Option<String>,
     pub email: String,
     pub upstream_id: i32,
 }
@@ -182,6 +183,7 @@ pub async fn get_user_from_moocfi(
             .context("Unexpected response from Mooc.fi")?;
         let upstream_id = current_user_response.data.current_user.upstream_id;
         let email = current_user_response.data.current_user.email;
+        let name = current_user_response.data.current_user.username;
         let moocfi_id = current_user_response.data.current_user.id;
 
         // fetch existing user or create new one
@@ -194,6 +196,7 @@ pub async fn get_user_from_moocfi(
                 models::users::insert_with_upstream_id_and_moocfi_id(
                     conn,
                     &email,
+                    name.as_deref(),
                     upstream_id,
                     moocfi_id,
                 )

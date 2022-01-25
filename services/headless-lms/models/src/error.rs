@@ -97,6 +97,7 @@ mod test {
         let err = crate::users::insert_with_id(
             tx.as_mut(),
             "invalid email",
+            None,
             Uuid::parse_str("92c2d6d6-e1b8-4064-8c60-3ae52266c62c").unwrap(),
         )
         .await

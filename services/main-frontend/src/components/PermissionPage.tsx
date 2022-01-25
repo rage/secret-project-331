@@ -221,10 +221,7 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
                 `}
                 key={ur.id}
               >
-                {
-                  // eslint-disable-next-line i18next/no-literal-string
-                  <td>placeholder</td>
-                }
+                <td>{ur.name || ""}</td>
                 <td>{ur.email}</td>
                 {editingRole?.userId !== ur.id && (
                   <>

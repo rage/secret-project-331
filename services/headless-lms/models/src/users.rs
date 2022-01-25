@@ -5,6 +5,7 @@ use crate::prelude::*;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 pub struct User {
     pub id: Uuid,
+    pub name: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -26,15 +27,21 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn insert_with_id(conn: &mut PgConnection, email: &str, id: Uuid) -> ModelResult<Uuid> {
+pub async fn insert_with_id(
+    conn: &mut PgConnection,
+    email: &str,
+    name: Option<&str>,
+    id: Uuid,
+) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO users (id, email)
-VALUES ($1, $2)
+INSERT INTO users (id, email, name)
+VALUES ($1, $2, $3)
 RETURNING id
 ",
         id,
-        email
+        email,
+        name
     )
     .fetch_one(conn)
     .await?;
@@ -44,6 +51,7 @@ RETURNING id
 pub async fn insert_with_upstream_id_and_moocfi_id(
     conn: &mut PgConnection,
     email: &str,
+    name: Option<&str>,
     upstream_id: i32,
     moocfi_id: Uuid,
 ) -> ModelResult<User> {
@@ -51,12 +59,13 @@ pub async fn insert_with_upstream_id_and_moocfi_id(
         User,
         r#"
 INSERT INTO
-  users (id, email, upstream_id)
-VALUES ($1, $2, $3)
+  users (id, email, name, upstream_id)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
           "#,
         moocfi_id,
         email,
+        name,
         upstream_id
     )
     .fetch_one(conn)
@@ -75,6 +84,21 @@ WHERE email = $1
         email
     )
     .fetch_one(conn)
+    .await?;
+    Ok(user)
+}
+
+pub async fn try_get_by_email(conn: &mut PgConnection, email: &str) -> ModelResult<Option<User>> {
+    let user = sqlx::query_as!(
+        User,
+        "
+SELECT *
+FROM users
+WHERE email = $1
+        ",
+        email
+    )
+    .fetch_optional(conn)
     .await?;
     Ok(user)
 }
@@ -118,40 +142,15 @@ pub async fn authenticate_test_user(
     // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
     assert!(application_configuration.test_mode);
     let user = if email == "admin@example.com" && password == "admin" {
-        crate::users::get_by_id(
-            conn,
-            Uuid::parse_str("02c79854-da22-4cfc-95c4-13038af25d2e")
-                .map_err(|o| ModelError::Generic(o.to_string()))?,
-        )
-        .await?
+        crate::users::get_by_email(conn, "admin@example.com").await?
     } else if email == "teacher@example.com" && password == "teacher" {
-        crate::users::get_by_id(
-            conn,
-            Uuid::parse_str("90643204-7656-4570-bdd9-aad5d297f9ce")
-                .map_err(|o| ModelError::Generic(o.to_string()))?,
-        )
-        .await?
+        crate::users::get_by_email(conn, "teacher@example.com").await?
     } else if email == "language.teacher@example.com" && password == "language.teacher" {
-        crate::users::get_by_id(
-            conn,
-            Uuid::parse_str("0fd8bd2d-cb4e-4035-b7db-89e798fe4df0")
-                .map_err(|o| ModelError::Generic(o.to_string()))?,
-        )
-        .await?
+        crate::users::get_by_email(conn, "language.teacher@example.com").await?
     } else if email == "user@example.com" && password == "user" {
-        crate::users::get_by_id(
-            conn,
-            Uuid::parse_str("849b8d32-d5f8-4994-9d21-5aa6259585b1")
-                .map_err(|o| ModelError::Generic(o.to_string()))?,
-        )
-        .await?
+        crate::users::get_by_email(conn, "user@example.com").await?
     } else if email == "assistant@example.com" && password == "assistant" {
-        crate::users::get_by_id(
-            conn,
-            Uuid::parse_str("24342539-f1ba-453e-ae13-14aa418db921")
-                .map_err(|o| ModelError::Generic(o.to_string()))?,
-        )
-        .await?
+        crate::users::get_by_email(conn, "assistant@example.com").await?
     } else {
         return Err(ModelError::Generic("Invalid email or password".to_string()));
     };

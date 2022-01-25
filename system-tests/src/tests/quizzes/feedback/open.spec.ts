@@ -24,8 +24,6 @@ test("test quizzes open feedback", async ({ headless, page }) => {
 
   const courseVariantSelector = await page.$$("text=Select course version to continue.")
 
-  await page.waitForTimeout(100)
-
   if (courseVariantSelector.length > 0) {
     await page.click('label:has-text("default")')
 

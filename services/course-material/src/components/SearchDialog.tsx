@@ -99,16 +99,6 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
     setOpen(true)
   }
 
-  useEffect(() => {
-    if (open && document) {
-      const element = document.getElementById("__next")
-      if (element !== null) {
-        // eslint-disable-next-line i18next/no-literal-string
-        element.setAttribute("aria-hidden", "false")
-      }
-    }
-  }, [open])
-
   return (
     <>
       <FontAwesomeIcon

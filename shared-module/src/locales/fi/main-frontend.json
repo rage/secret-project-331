@@ -166,5 +166,13 @@
   "role-reviewer": "Arvioija",
   "role-teacher": "Opettaja",
   "field-enter-email": "Syötä sähköposti",
-  "label-add-user": "Lisää käyttäjä"
+  "label-add-user": "Lisää käyttäjä",
+  "sort-by-name": "Järjestä nimen mukaan",
+  "sort-by-email": "Järjestä sähköpostin mukaan",
+  "sort-by-role": "Järjestä roolin mukaan",
+  "edit-role": "Muuta roolia",
+  "remove-role": "Poista rooli",
+  "save-edited-role": "Tallenna muutettu rooli",
+  "cancel-editing-role": "Peru roolin muuttaminen",
+  "global-permissions": "Globaalit oikeudet"
 }

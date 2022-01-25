@@ -10,6 +10,7 @@ import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"
 import { RoleDomain, RoleQuery, RoleUser, UserRole } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
+import SelectField from "../shared-module/components/InputFields/SelectField"
 
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"
@@ -123,8 +124,13 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
             >
               <th>
                 {t("text-field-label-name")}
-                <a
-                  href="?sort=name"
+                <button
+                  className={css`
+                    cursor: pointer;
+                    background-color: transparent;
+                    border: 0;
+                  `}
+                  aria-label={t("sort-by-name")}
                   onClick={(ev) => {
                     router.replace(
                       {
@@ -138,12 +144,17 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
                   }}
                 >
                   <ExpandMore />
-                </a>
+                </button>
               </th>
               <th>
                 {t("label-email")}
-                <a
-                  href="?sort=email"
+                <button
+                  className={css`
+                    cursor: pointer;
+                    background-color: transparent;
+                    border: 0;
+                  `}
+                  aria-label={t("sort-by-email")}
                   onClick={(ev) => {
                     router.replace(
                       {
@@ -157,12 +168,17 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
                   }}
                 >
                   <ExpandMore />
-                </a>
+                </button>
               </th>
               <th>
-                {t("label-role")}
-                <a
-                  href="?sort=role"
+                <label htmlFor={"editing-role"}>{t("label-role")}</label>
+                <button
+                  className={css`
+                    cursor: pointer;
+                    background-color: transparent;
+                    border: 0;
+                  `}
+                  aria-label={t("sort-by-role")}
                   onClick={(ev) => {
                     router.replace(
                       {
@@ -176,7 +192,7 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
                   }}
                 >
                   <ExpandMore />
-                </a>
+                </button>
               </th>
               <th>{t("label-action")}</th>
             </tr>
@@ -214,42 +230,64 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
                   <>
                     <td>{ur.role}</td>
                     <td>
-                      <Button
-                        variant="secondary"
-                        size="medium"
+                      <button
+                        aria-label={t("edit-role")}
+                        className={css`
+                          cursor: pointer;
+                          background-color: transparent;
+                          border: 0;
+                          height: 100%;
+                          margin-right: 8px;
+                        `}
                         onClick={() => setEditingRole({ userId: ur.id, newRole: ur.role })}
                       >
                         <Create />
-                      </Button>{" "}
-                      <Button
-                        variant="secondary"
-                        size="medium"
+                      </button>
+                      <button
+                        aria-label={t("remove-role")}
+                        className={css`
+                          cursor: pointer;
+                          background-color: transparent;
+                          border: 0;
+                          height: 100%;
+                        `}
                         onClick={() => removeMutation.mutate({ email: ur.email, role: ur.role })}
                       >
                         <Clear />
-                      </Button>
+                      </button>
                     </td>
                   </>
                 )}
                 {editingRole?.userId === ur.id && (
                   <>
                     <td>
-                      <select
-                        onChange={(ev) =>
-                          setEditingRole({ userId: ur.id, newRole: ev.target.value as UserRole })
-                        }
+                      <SelectField
+                        id={"editing-role"}
+                        onBlur={() => {
+                          // no-op
+                        }}
+                        onChange={(role) => {
+                          setEditingRole({ userId: ur.id, newRole: role })
+                        }}
+                        options={[
+                          { value: ADMIN, label: t("role-admin") },
+                          { value: ASSISTANT, label: t("role-assistant") },
+                          { value: REVIEWER, label: t("role-reviewer") },
+                          { value: TEACHER, label: t("role-teacher") },
+                        ]}
                         defaultValue={ur.role}
-                      >
-                        <option value={ADMIN}>{t("role-admin")}</option>
-                        <option value={ASSISTANT}>{t("role-assistant")}</option>
-                        <option value={REVIEWER}>{t("role-reviewer")}</option>
-                        <option value={TEACHER}>{t("role-teacher")}</option>
-                      </select>
+                      />
                     </td>
                     <td>
-                      <Button
-                        variant="secondary"
-                        size="medium"
+                      <button
+                        aria-label={t("save-edited-role")}
+                        className={css`
+                          cursor: pointer;
+                          background-color: transparent;
+                          border: 0;
+                          height: 100%;
+                          margin-right: 8px;
+                        `}
                         onClick={() => {
                           editMutation.mutate({
                             email: ur.email,
@@ -260,14 +298,19 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
                         }}
                       >
                         <Check />
-                      </Button>{" "}
-                      <Button
-                        variant="secondary"
-                        size="medium"
+                      </button>{" "}
+                      <button
+                        aria-label={t("cancel-editing-role")}
+                        className={css`
+                          cursor: pointer;
+                          background-color: transparent;
+                          border: 0;
+                          height: 100%;
+                        `}
                         onClick={() => setEditingRole(null)}
                       >
                         <Clear />
-                      </Button>
+                      </button>
                     </td>
                   </>
                 )}
@@ -308,22 +351,27 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
           className={css`
             display: flex;
             flex-direction: column;
-            width: 144px;
+            width: 200px;
             padding-right: 16px;
           `}
         >
-          <label htmlFor="role">{t("label-role")}</label>
-          <select
-            id="role"
-            name="role"
+          <SelectField
+            id={`adding-${t("label-role")}`}
+            label={t("label-role")}
+            onBlur={() => {
+              // no-op
+            }}
+            onChange={(role) => {
+              setNewRole(role)
+            }}
+            options={[
+              { value: ADMIN, label: t("role-admin") },
+              { value: ASSISTANT, label: t("role-assistant") },
+              { value: REVIEWER, label: t("role-reviewer") },
+              { value: TEACHER, label: t("role-teacher") },
+            ]}
             defaultValue={ASSISTANT}
-            onChange={(ev) => setNewRole(ev.target.value as UserRole)}
-          >
-            <option value={ADMIN}>{t("role-admin")}</option>
-            <option value={ASSISTANT}>{t("role-assistant")}</option>
-            <option value={REVIEWER}>{t("role-reviewer")}</option>
-            <option value={TEACHER}>{t("role-teacher")}</option>
-          </select>
+          />
         </div>
 
         <Button

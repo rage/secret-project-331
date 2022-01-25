@@ -207,5 +207,13 @@
   "role-reviewer": "Reviewer",
   "role-teacher": "Teacher",
   "field-enter-email": "Enter email",
-  "label-add-user": "Add user"
+  "label-add-user": "Add user",
+  "sort-by-name": "Sort by name",
+  "sort-by-email": "Sort by email",
+  "sort-by-role": "Sort by role",
+  "edit-role": "Edit role",
+  "remove-role": "Remove role",
+  "save-edited-role": "Save edited role",
+  "cancel-editing-role": "Cancel editing role",
+  "global-permissions": "Global permissions"
 }

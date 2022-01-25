@@ -144,7 +144,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
               role="note"
               aria-label={t("added-text")}
               className={css`
-                background: ${baseTheme.colors.blue[0]};
+                background: ${baseTheme.colors.blue[300]};
               `}
             >
               {diff.value}
@@ -156,7 +156,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
               role="note"
               aria-label={t("removed-text")}
               className={css`
-                background: ${baseTheme.colors.red[0]};
+                background: ${baseTheme.colors.red[300]};
               `}
             >
               {diff.value}
@@ -198,7 +198,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         color: ${colorMapper(textColor)};
         background-color: ${bgColor};
         font-size: ${fontSizeMapper(fontSize)};
-        line-height: 2rem;
+        line-height: 1.6;
         text-align: ${align ?? "left"};
         ${backgroundColor && `padding: 1.25em 2.375em !important;`}
       `}

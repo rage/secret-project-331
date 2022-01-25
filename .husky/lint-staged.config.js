@@ -13,4 +13,5 @@ module.exports = {
   "**/models/**/*.rs": () => [
     "./bin/sqlx-prepare-check",
   ],
+  "./system-tests/src/**/*.ts": () => `./bin/check-no-test-only-in-system-tests`,
 }

@@ -20,6 +20,8 @@ test("test quizzes open feedback", async ({ headless, page }) => {
 
   await Promise.all([page.waitForNavigation(), page.click("text=Introduction to everything")])
 
+  await page.waitForTimeout(100)
+
   const courseVariantSelector = await page.$$("text=Select course version to continue.")
 
   if (courseVariantSelector.length > 0) {

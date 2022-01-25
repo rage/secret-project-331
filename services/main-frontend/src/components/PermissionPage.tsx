@@ -69,23 +69,33 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
   // eslint-disable-next-line i18next/no-literal-string
   const [newRole, setNewRole] = useState<UserRole>("Assistant")
   const [editingRole, setEditingRole] = useState<EditingRole | null>(null)
+  const [mutationError, setMutationError] = useState<unknown | null>(null)
   const roleQuery = useQuery(`roles-${domain}`, () => fetchRoles(query))
   const addMutation = useMutation(
     () => {
       return giveRole(newEmail, newRole, domain)
     },
-    { onSuccess: () => roleQuery.refetch() },
+    {
+      onSuccess: () => roleQuery.refetch(),
+      onError: setMutationError,
+    },
   )
   const editMutation = useMutation(
     ({ email, oldRole, newRole }: { email: string; oldRole: UserRole; newRole: UserRole }) =>
       removeRole(email, oldRole, domain).then(() => giveRole(email, newRole, domain)),
-    { onSuccess: () => roleQuery.refetch() },
+    {
+      onSuccess: () => roleQuery.refetch(),
+      onError: setMutationError,
+    },
   )
   const removeMutation = useMutation(
     ({ email, role }: { email: string; role: UserRole }) => {
       return removeRole(email, role, domain)
     },
-    { onSuccess: () => roleQuery.refetch() },
+    {
+      onSuccess: () => roleQuery.refetch(),
+      onError: setMutationError,
+    },
   )
 
   let userList
@@ -321,7 +331,7 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
 
   return (
     <>
-      {roleQuery.isError && <ErrorBanner variant="readOnly" error={roleQuery.error} />}
+      {mutationError && <ErrorBanner variant="readOnly" error={mutationError} />}
       <div
         className={css`
           display: flex;

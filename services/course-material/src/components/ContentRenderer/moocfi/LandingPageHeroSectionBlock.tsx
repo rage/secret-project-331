@@ -7,13 +7,11 @@ import LandingPageHeroSection, {
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import DefaultBlock from "../DefaultBlock"
 
-const TITLE = "Introduction to Everything"
-
 const LandingPageHeroSectionBlock: React.FC<BlockRendererProps<LandingPageHeroSectionProps>> = (
   props,
 ) => {
   return (
-    <LandingPageHeroSection title={/* props.data.attributes.title */ TITLE}>
+    <LandingPageHeroSection title={props.data.attributes.title}>
       {props.data.innerBlocks.map((block) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
         return <Component key={block.clientId} data={block} />

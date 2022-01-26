@@ -107,7 +107,6 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
             grid-template-columns: 1fr 1fr;
             align-content: space-between;
             grid-gap: 1em;
-            /* place-self: center; */
             width: 15rem;
           `}
         >

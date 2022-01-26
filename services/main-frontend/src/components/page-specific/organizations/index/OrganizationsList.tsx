@@ -39,7 +39,7 @@ const OrganizationsList: React.FC = () => {
       {getOrganizations.isError && (
         <ErrorBanner variant={"readOnly"} error={getOrganizations.error} />
       )}
-      {getOrganizations.isLoading && <Spinner variant={"medium"} />}
+      {(getOrganizations.isLoading || getOrganizations.isIdle) && <Spinner variant={"medium"} />}
       {getOrganizations.isSuccess && (
         <div
           className={css`

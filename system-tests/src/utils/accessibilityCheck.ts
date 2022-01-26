@@ -14,11 +14,11 @@ export default async function accessibilityCheck(
   let resultsFiltered = []
   if (typeof axeSkip === "object") {
     resultsFiltered = results.violations.filter((violation) => {
-      return axeSkip.map((skippable) => {
-        if (!violation.id.includes(skippable)) {
-          return violation
-        }
-      })
+      if (axeSkip.find((skippable) => skippable === violation.id)) {
+        return
+      } else {
+        return violation
+      }
     })
   } else {
     resultsFiltered = results.violations

@@ -158,7 +158,7 @@ async function snapshotWithViewPort({
     console.warn("Not in headless mode, skipping screenshot")
   }
 
-  if (!axeSkip) {
+  if (!axeSkip || typeof axeSkip == "object") {
     // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
     // for accessibility
     await accessibilityCheck(pageObjectToUse, screenshotName, axeSkip)

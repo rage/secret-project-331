@@ -197,7 +197,7 @@ test("test", async ({ page, headless }) => {
     page,
     headless,
     snapshotName: "history-view-p4-before-compare",
-    waitForThisToBeVisibleAndStable: stableElement2,
+    waitForThisToBeVisibleAndStable: [stableElement2, "text=Compare"],
     toMatchSnapshotOptions: { threshold: 0.3 },
     beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)

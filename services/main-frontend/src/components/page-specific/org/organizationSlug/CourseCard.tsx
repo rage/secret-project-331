@@ -22,10 +22,10 @@ const CourseCard = styled.div`
 
   position: relative;
   max-width: 360px;
-  width: 360px;
+  width: 404px;
   height: 320px;
   background: #ededed;
-  border-radius: 1px;
+  border-radius: 3px;
   text-decoration: none;
 
   :hover {
@@ -50,8 +50,7 @@ const CourseContent = styled.div`
 // eslint-disable-next-line i18next/no-literal-string
 const CourseHeading = styled.div`
   font-family: ${headingFont};
-  font-weight: ${fontWeights["semibold"]};
-  font-size: 28px;
+  font-size: 30px;
   line-height: 28px;
   color: #333333;
   margin-bottom: 13px;

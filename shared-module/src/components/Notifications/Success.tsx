@@ -87,9 +87,8 @@ const SuccessHeader = styled.div`
 
 const SuccessMessage = styled.div`
   margin-top: auto;
-  opacity: 0.4;
   display: none;
-  color: ${baseTheme.colors.grey[700]};
+  color: ${baseTheme.colors.grey[500]};
   ${respondToOrLarger.xs} {
     display: block;
   }
@@ -108,7 +107,7 @@ const SuccessNotification = (props: SuccessNotificationProps) => {
             icon={faCheck}
           />
         </IconWrapper>
-        <TextWrapper>
+        <TextWrapper role="status">
           <SuccessHeader>{props.header ?? t("default-toast-success-title")}</SuccessHeader>
           <SuccessMessage>{props.message ?? t("default-toast-success-message")}</SuccessMessage>
         </TextWrapper>

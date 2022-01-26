@@ -87,9 +87,8 @@ const ErrorHeader = styled.div`
 
 const ErrorMessage = styled.div`
   margin-top: auto;
-  opacity: 0.4;
   display: none;
-  color: ${baseTheme.colors.grey[700]};
+  color: ${baseTheme.colors.grey[500]};
   ${respondToOrLarger.xs} {
     display: block;
   }
@@ -108,7 +107,7 @@ const ErrorNotification = (props: ErrorNotificationProps) => {
             icon={faTimesCircle}
           />
         </IconWrapper>
-        <TextWrapper>
+        <TextWrapper role="alert">
           <ErrorHeader>{props.header ?? t("default-toast-error-title")}</ErrorHeader>
           <ErrorMessage>{props.message ?? t("default-toast-error-message")}</ErrorMessage>
         </TextWrapper>

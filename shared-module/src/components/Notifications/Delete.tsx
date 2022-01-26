@@ -87,9 +87,8 @@ const DeleteHeader = styled.div`
 
 const DeleteMessage = styled.div`
   margin-top: auto;
-  opacity: 0.4;
   display: none;
-  color: ${baseTheme.colors.grey[700]};
+  color: ${baseTheme.colors.grey[500]};
   ${respondToOrLarger.xs} {
     display: block;
   }
@@ -108,7 +107,7 @@ const DeleteNotification = (props: DeleteNotificationProps) => {
             icon={faTimesCircle}
           />
         </IconWrapper>
-        <TextWrapper>
+        <TextWrapper role="status">
           <DeleteHeader>{props.header ?? t("default-toast-delete-title")}</DeleteHeader>
           <DeleteMessage>{props.message ?? t("default-toast-delete-message")}</DeleteMessage>
         </TextWrapper>

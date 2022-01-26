@@ -55,9 +55,8 @@ const TextWrapper = styled.div`
 `
 
 const LoadingMessage = styled.div`
-  opacity: 0.4;
   display: none;
-  color: ${baseTheme.colors.grey[700]};
+  color: ${baseTheme.colors.grey[500]};
   ${respondToOrLarger.xs} {
     display: block;
   }
@@ -71,7 +70,7 @@ const LoadingNotification = (props: LoadingNotificationProps) => {
         <IconWrapper>
           <Spinner variant={"medium"} />
         </IconWrapper>
-        <TextWrapper>
+        <TextWrapper role="status">
           <LoadingMessage>{props.message ?? t("default-toast-loading-message")}</LoadingMessage>
         </TextWrapper>
       </Content>

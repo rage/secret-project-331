@@ -37,7 +37,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
           font-style: normal;
           font-weight: bold;
           text-align: center;
-          padding-bottom: 12em;
+          padding-bottom: 2em;
         `}
       >
         {t("course-overview")}

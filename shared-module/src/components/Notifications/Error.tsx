@@ -21,7 +21,7 @@ const Wrapper = styled.div`
     min-height: 100px;
   }
   width: 150px;
-  background: ${baseTheme.colors.grey[200]};
+  background: ${baseTheme.colors.clear[200]};
 `
 
 const Content = styled.div`
@@ -62,7 +62,7 @@ const CloseIconWrapper = styled.div`
       opacity: 0.7;
     }
     &:hover {
-      background: ${baseTheme.colors.grey[300]};
+      background: ${baseTheme.colors.grey[100]};
       cursor: pointer;
     }
   }
@@ -81,7 +81,7 @@ const ErrorHeader = styled.div`
   ${respondToOrLarger.xs} {
     font-size: 1.25rem;
   }
-  color: ${baseTheme.colors.red[100]};
+  color: ${baseTheme.colors.red[700]};
   line-height: 18px;
 `
 
@@ -89,6 +89,7 @@ const ErrorMessage = styled.div`
   margin-top: auto;
   opacity: 0.4;
   display: none;
+  color: ${baseTheme.colors.grey[700]};
   ${respondToOrLarger.xs} {
     display: block;
   }
@@ -102,7 +103,7 @@ const ErrorNotification = (props: ErrorNotificationProps) => {
         <IconWrapper>
           <FontAwesomeIcon
             className={css`
-              color: ${baseTheme.colors.red[100]};
+              color: ${baseTheme.colors.red[700]};
             `}
             icon={faTimesCircle}
           />

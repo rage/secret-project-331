@@ -15,7 +15,7 @@ const Wrapper = styled.div`
     min-height: 100px;
   }
   width: 150px;
-  background: ${baseTheme.colors.grey[200]};
+  background: ${baseTheme.colors.clear[200]};
 `
 
 const Content = styled.div`
@@ -57,6 +57,7 @@ const TextWrapper = styled.div`
 const LoadingMessage = styled.div`
   opacity: 0.4;
   display: none;
+  color: ${baseTheme.colors.grey[700]};
   ${respondToOrLarger.xs} {
     display: block;
   }

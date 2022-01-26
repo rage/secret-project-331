@@ -21,7 +21,7 @@ const Wrapper = styled.div`
     min-height: 100px;
   }
   width: 150px;
-  background: ${baseTheme.colors.grey[200]};
+  background: ${baseTheme.colors.clear[200]};
 `
 
 const Content = styled.div`
@@ -81,7 +81,7 @@ const SuccessHeader = styled.div`
   ${respondToOrLarger.xs} {
     font-size: 1.25rem;
   }
-  color: ${baseTheme.colors.green[100]};
+  color: ${baseTheme.colors.green[600]};
   line-height: 18px;
 `
 
@@ -89,6 +89,7 @@ const SuccessMessage = styled.div`
   margin-top: auto;
   opacity: 0.4;
   display: none;
+  color: ${baseTheme.colors.grey[700]};
   ${respondToOrLarger.xs} {
     display: block;
   }
@@ -102,7 +103,7 @@ const SuccessNotification = (props: SuccessNotificationProps) => {
         <IconWrapper>
           <FontAwesomeIcon
             className={css`
-              color: ${baseTheme.colors.green[100]};
+              color: ${baseTheme.colors.green[600]};
             `}
             icon={faCheck}
           />

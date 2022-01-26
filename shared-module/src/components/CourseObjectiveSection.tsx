@@ -25,7 +25,7 @@ const TextBox = styled.div`
     font-weight: 400;
     z-index: 20;
     margin-bottom: 1em;
-    font-size: 4rem;
+    font-size: 3.5rem;
   }
 
   span {

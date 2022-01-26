@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import toast, { ToastOptions } from "react-hot-toast"
 import { MutationFunction, useMutation, UseMutationOptions, UseMutationResult } from "react-query"
 
@@ -47,6 +48,7 @@ export default function useToastMutation<
         )
       },
       {
+        ariaProps: { "aria-live": "polite", role: "status" },
         ...notificationOptions.toastOptions,
         id: toastId,
       },
@@ -59,6 +61,7 @@ export default function useToastMutation<
       if (notificationOptions.notify) {
         // Set toastId that is updated once operation is successful or erronous.
         toastId = toast.custom(<LoadingNotification message={notificationOptions.loadingText} />, {
+          ariaProps: { "aria-live": "polite", role: "status" },
           ...notificationOptions.toastOptions,
         })
       }
@@ -83,6 +86,11 @@ export default function useToastMutation<
                 message={notificationOptions.successMessage}
                 {...(notificationOptions.dismissable ? { id: toastId } : {})}
               />,
+              {
+                ariaProps: { "aria-live": "polite", role: "status" },
+                ...notificationOptions.toastOptions,
+                id: toastId,
+              },
             )
             break
           default:
@@ -105,7 +113,11 @@ export default function useToastMutation<
               />
             )
           },
-          { ...notificationOptions.toastOptions, id: toastId },
+          {
+            ariaProps: { "aria-live": "polite", role: "alert" },
+            ...notificationOptions.toastOptions,
+            id: toastId,
+          },
         )
       }
       if (mutationOptions?.onError) {

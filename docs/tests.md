@@ -2,9 +2,7 @@
 
 ## Skipping accessibility in tests / Guide to axeSkip
 
-If you need to skip some accessibility rules on tests, then you should use axeSkip.
-
-### Obtain error from browser
+Skipping accessibility violations is done by axeSkip, below we have some instructions.
 
 You can obtain the ID for the rule from browser by pressing 'more info' and then in the top left corner there is 'Rule ID'. Below there's also example of the violation in console, in console it is just "id"
 

@@ -1,1 +1,4 @@
-type Option<PreviousSubmission> = { submission: Submission; grading: Grading | null } | null
+type Option<PreviousSubmission> = {
+  submission: ExerciseTaskSubmission
+  grading: Grading | null
+} | null

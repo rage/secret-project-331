@@ -13,6 +13,7 @@ pub mod email_templates;
 pub mod exams;
 pub mod exercise_service_info;
 pub mod exercise_services;
+pub mod exercise_slide_submissions;
 pub mod exercise_slides;
 pub mod exercise_task_submissions;
 pub mod exercise_tasks;
@@ -34,7 +35,6 @@ pub mod users;
 
 mod error;
 mod prelude;
-
 #[cfg(test)]
 pub mod test_helper;
 

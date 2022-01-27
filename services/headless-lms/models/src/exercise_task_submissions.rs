@@ -4,11 +4,10 @@ use serde_json::Value;
 
 use crate::{
     courses::Course,
-    exercise_tasks::{
-        get_exercise_task_by_id, get_exercise_task_model_solution_spec_by_id, ExerciseTask,
-    },
+    exercise_slide_submissions,
+    exercise_tasks::{get_exercise_task_model_solution_spec_by_id, ExerciseTask},
     exercises::{Exercise, GradingProgress},
-    gradings::{grade_submission, new_grading, Grading},
+    gradings::{self, grade_submission, Grading},
     prelude::*,
 };
 
@@ -27,15 +26,11 @@ pub struct ExerciseTaskSubmission {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub exercise_id: Uuid,
-    pub course_id: Option<Uuid>,
-    pub course_instance_id: Option<Uuid>,
-    pub exam_id: Option<Uuid>,
+    pub exercise_slide_submission_id: Uuid,
     pub exercise_task_id: Uuid,
     pub data_json: Option<serde_json::Value>,
     pub grading_id: Option<Uuid>,
     pub metadata: Option<serde_json::Value>,
-    pub user_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -93,6 +88,7 @@ pub struct SubmissionInfo {
 pub struct SubmissionData {
     pub exercise_id: Uuid,
     pub course_id: Uuid,
+    pub exercise_slide_submission_id: Uuid,
     pub exercise_task_id: Uuid,
     pub user_id: Uuid,
     pub course_instance_id: Uuid,
@@ -136,24 +132,18 @@ pub async fn insert_with_id(
     let res = sqlx::query!(
         "
 INSERT INTO exercise_task_submissions (
-    exercise_id,
-    course_id,
+    id,
+    exercise_slide_submission_id,
     exercise_task_id,
-    user_id,
-    course_instance_id,
-    data_json,
-    id
+    data_json
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4)
 RETURNING id
-",
-        submission_data.exercise_id,
-        submission_data.course_id,
+        ",
+        submission_data.id,
+        submission_data.exercise_slide_submission_id,
         submission_data.exercise_task_id,
-        submission_data.user_id,
-        submission_data.course_instance_id,
         submission_data.data_json,
-        submission_data.id
     )
     .fetch_one(conn)
     .await?;
@@ -162,31 +152,22 @@ RETURNING id
 
 pub async fn insert(
     conn: &mut PgConnection,
-    exercise_id: Uuid,
-    course_id: Uuid,
+    exercise_slide_submission_id: Uuid,
     exercise_task_id: Uuid,
-    user_id: Uuid,
-    course_instance_id: Uuid,
     data_json: Value,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO exercise_task_submissions (
-    exercise_id,
-    course_id,
+    exercise_slide_submission_id,
     exercise_task_id,
-    user_id,
-    course_instance_id,
     data_json
   )
-  VALUES ($1, $2, $3, $4, $5, $6)
+  VALUES ($1, $2, $3)
   RETURNING id
 ",
-        exercise_id,
-        course_id,
+        exercise_slide_submission_id,
         exercise_task_id,
-        user_id,
-        course_instance_id,
         data_json,
     )
     .fetch_one(conn)
@@ -209,17 +190,70 @@ WHERE id = $1
     Ok(submission)
 }
 
+pub async fn get_by_exercise_slide_submission_id(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<Vec<ExerciseTaskSubmission>> {
+    let submissions = sqlx::query_as!(
+        ExerciseTaskSubmission,
+        "
+SELECT *
+FROM exercise_task_submissions
+WHERE exercise_slide_submission_id = $1
+  AND deleted_at IS NULL
+        ",
+        exercise_slide_submission_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
+pub async fn get_latest_exercise_task_submissions_for_exercise(
+    conn: &mut PgConnection,
+    exercise_id: &Uuid,
+    user_id: &Uuid,
+) -> ModelResult<Option<Vec<ExerciseTaskSubmission>>> {
+    let exercise_slide_submission =
+        exercise_slide_submissions::get_latest_exercise_slide_submission_by_exercise_and_user_ids(
+            conn,
+            exercise_id,
+            user_id,
+        )
+        .await?;
+    if let Some(exercise_slide_submission) = exercise_slide_submission {
+        let task_submissions = sqlx::query_as!(
+            ExerciseTaskSubmission,
+            "
+SELECT *
+FROM exercise_task_submissions
+WHERE exercise_slide_submission_id = $1
+    AND deleted_at IS NULL
+            ",
+            exercise_slide_submission.id
+        )
+        .fetch_all(conn)
+        .await?;
+        Ok(Some(task_submissions))
+    } else {
+        Ok(None)
+    }
+}
+
 pub async fn get_course_and_exam_id(
     conn: &mut PgConnection,
     id: Uuid,
 ) -> ModelResult<(Option<Uuid>, Option<Uuid>)> {
     let res = sqlx::query!(
         "
-SELECT course_id,
-  exam_id
-FROM exercise_task_submissions
-WHERE id = $1;
-",
+SELECT ess.course_id,
+  ess.exam_id
+FROM exercise_task_submissions ets
+  JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id
+WHERE ets.id = $1
+  AND ets.deleted_at IS NULL
+  AND ess.deleted_at IS NULL
+        ",
         id
     )
     .fetch_one(conn)
@@ -227,6 +261,7 @@ WHERE id = $1;
     Ok((res.course_id, res.exam_id))
 }
 
+// Move this to slide submissions
 pub async fn exercise_submission_count(
     conn: &mut PgConnection,
     exercise_id: Uuid,
@@ -234,7 +269,7 @@ pub async fn exercise_submission_count(
     let count = sqlx::query!(
         "
 SELECT COUNT(*) as count
-FROM exercise_task_submissions
+FROM exercise_slide_submissions
 WHERE exercise_id = $1
 ",
         exercise_id,
@@ -244,114 +279,31 @@ WHERE exercise_id = $1
     Ok(count.count.unwrap_or(0).try_into()?)
 }
 
-pub async fn exercise_submissions(
-    conn: &mut PgConnection,
-    exercise_id: Uuid,
-    pagination: Pagination,
-) -> ModelResult<Vec<ExerciseTaskSubmission>> {
-    let submissions = sqlx::query_as!(
-        ExerciseTaskSubmission,
-        r#"
-SELECT *
-FROM exercise_task_submissions
-WHERE exercise_id = $1
-  AND deleted_at IS NULL
-LIMIT $2
-OFFSET $3;
-        "#,
-        exercise_id,
-        pagination.limit(),
-        pagination.offset(),
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(submissions)
-}
-
-pub async fn get_user_exercise_submissions(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    exercise_id: Uuid,
-    pagination: Pagination,
-) -> ModelResult<Vec<ExerciseTaskSubmission>> {
-    let submissions = sqlx::query_as!(
-        ExerciseTaskSubmission,
-        r#"
-SELECT *
-FROM exercise_task_submissions
-WHERE exercise_id = $1
-  AND user_id = $2
-  AND deleted_at IS NULL
-LIMIT $3
-OFFSET $4;
-        "#,
-        exercise_id,
-        user_id,
-        pagination.limit(),
-        pagination.offset(),
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(submissions)
-}
-
-pub async fn get_latest_user_exercise_submission(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    exercise_id: Uuid,
-) -> ModelResult<Option<ExerciseTaskSubmission>> {
-    let submission = sqlx::query_as!(
-        ExerciseTaskSubmission,
-        r#"
-SELECT *
-FROM exercise_task_submissions
-WHERE exercise_id = $1
-  AND user_id = $2
-  AND deleted_at IS NULL
-ORDER BY created_at DESC
-LIMIT 1
-"#,
-        exercise_id,
-        user_id,
-    )
-    .fetch_optional(conn)
-    .await?;
-    Ok(submission)
-}
-
 pub async fn insert_submission(
     conn: &mut PgConnection,
-    new_submission: &NewSubmission,
-    user_id: Uuid,
     exercise: &Exercise,
+    exercise_task: &ExerciseTask,
+    exercise_slide_submission_id: Uuid,
+    data_json: Value,
 ) -> ModelResult<SubmissionResult> {
     let submission = sqlx::query_as!(
         ExerciseTaskSubmission,
-        r#"
+        "
 INSERT INTO exercise_task_submissions(
+    exercise_slide_submission_id,
     exercise_task_id,
-    data_json,
-    exercise_id,
-    course_id,
-    user_id,
-    course_instance_id,
-    exam_id
+    data_json
   )
-VALUES($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3)
 RETURNING *
-"#,
-        new_submission.exercise_task_id,
-        new_submission.data_json,
-        exercise.id,
-        exercise.course_id,
-        user_id,
-        new_submission.course_instance_id,
-        exercise.exam_id,
+        ",
+        exercise_slide_submission_id,
+        exercise_task.id,
+        data_json
     )
     .fetch_one(&mut *conn)
     .await?;
-    let exercise_task = get_exercise_task_by_id(conn, submission.exercise_task_id).await?;
-    let grading = new_grading(conn, &submission).await?;
+    let grading = gradings::new_grading(conn, exercise, &submission).await?;
     let updated_submission = sqlx::query_as!(
         ExerciseTaskSubmission,
         "
@@ -365,7 +317,8 @@ RETURNING *;
     )
     .fetch_one(&mut *conn)
     .await?;
-    let grading = grade_submission(conn, &submission, &exercise_task, exercise, &grading).await?;
+
+    let grading = grade_submission(conn, &submission, exercise_task, exercise, &grading).await?;
 
     let model_solution_spec =
         get_exercise_task_model_solution_spec_by_id(conn, submission.exercise_task_id).await?;
@@ -377,6 +330,7 @@ RETURNING *;
     })
 }
 
+// TODO: Move this to slide submissions
 pub async fn get_course_daily_submission_counts(
     conn: &mut PgConnection,
     course: &Course,
@@ -385,7 +339,7 @@ pub async fn get_course_daily_submission_counts(
         SubmissionCount,
         r#"
 SELECT DATE(created_at) date, count(*)::integer
-FROM exercise_task_submissions
+FROM exercise_slide_submissions
 WHERE course_id = $1
 GROUP BY date
 ORDER BY date;
@@ -397,6 +351,7 @@ ORDER BY date;
     Ok(res)
 }
 
+// TODO: Move this to slide submissions
 pub async fn get_course_submission_counts_by_weekday_and_hour(
     conn: &mut PgConnection,
     course: &Course,
@@ -405,7 +360,7 @@ pub async fn get_course_submission_counts_by_weekday_and_hour(
         SubmissionCountByWeekAndHour,
         r#"
 SELECT date_part('isodow', created_at)::integer isodow, date_part('hour', created_at)::integer "hour", count(*)::integer
-FROM exercise_task_submissions
+FROM exercise_slide_submissions
 WHERE course_id = $1
 GROUP BY isodow, "hour"
 ORDER BY isodow, hour;
@@ -417,6 +372,7 @@ ORDER BY isodow, hour;
     Ok(res)
 }
 
+// TODO: Move this to slide submissions
 pub async fn get_course_submission_counts_by_exercise(
     conn: &mut PgConnection,
     course: &Course,
@@ -427,7 +383,7 @@ pub async fn get_course_submission_counts_by_exercise(
 SELECT counts.*, exercises.name exercise_name
     FROM (
         SELECT exercise_id, count(*)::integer count
-        FROM exercise_task_submissions
+        FROM exercise_slide_submissions
         WHERE course_id = $1
         GROUP BY exercise_id
     ) counts
@@ -469,14 +425,15 @@ pub fn stream_exam_submissions(
 SELECT exercise_task_submissions.id,
   user_id,
   exercise_task_submissions.created_at,
-  exercise_task_submissions.exercise_id,
+  exercise_slide_submissions.exercise_id,
   exercise_task_submissions.exercise_task_id,
   gradings.score_given,
   exercise_task_submissions.data_json
 FROM exercise_task_submissions
+  JOIN exercise_slide_submissions ON exercise_task_submissions.exercise_slide_submission_id = exercise_slide_submissions.id
   JOIN gradings on exercise_task_submissions.grading_id = gradings.id
-  JOIN exercises on exercise_task_submissions.exercise_id = exercises.id
-WHERE exercise_task_submissions.exam_id = $1
+  JOIN exercises on exercise_slide_submissions.exercise_id = exercises.id
+WHERE exercise_slide_submissions.exam_id = $1
   AND exercise_task_submissions.deleted_at IS NULL
   AND gradings.deleted_at IS NULL
   AND exercises.deleted_at IS NULL;

@@ -181,7 +181,21 @@ async fn do_single_regrading(
             regrading_submission.submission_id,
         )
         .await?;
-        let not_ready_grading = models::gradings::new_grading(&mut *conn, &submission).await?;
+        // Need to rethink this but just please compile for now
+        let exercise_task = models::exercise_tasks::get_exercise_task_by_id(
+            &mut *conn,
+            submission.exercise_task_id,
+        )
+        .await?;
+        let exercise_slide = models::exercise_slides::get_exercise_slide(
+            &mut *conn,
+            exercise_task.exercise_slide_id,
+        )
+        .await?
+        .unwrap();
+        let exercise = models::exercises::get_by_id(&mut *conn, exercise_slide.exercise_id).await?;
+        let not_ready_grading =
+            models::gradings::new_grading(&mut *conn, &exercise, &submission).await?;
         models::regrading_submissions::set_grading_after_regrading(
             conn,
             regrading_submission.id,
@@ -222,7 +236,7 @@ async fn do_single_regrading(
                 });
             if entry.len() < limit {
                 let exercise =
-                    models::exercises::get_by_id(&mut *conn, submission.exercise_id).await?;
+                    models::exercises::get_by_id(&mut *conn, exercise_slide.exercise_id).await?;
                 let grade_url =
                     get_internal_grade_url(exercise_service, exercise_service_info).await?;
 
@@ -272,7 +286,10 @@ struct GradingData {
 #[cfg(test)]
 mod test {
     use mockito::Matcher;
-    use models::{exercise_services, exercises::GradingProgress};
+    use models::{
+        exercise_services, exercise_slide_submissions::NewExerciseSlideSubmission,
+        exercises::GradingProgress,
+    };
     use serde_json::Value;
 
     use super::*;
@@ -304,23 +321,34 @@ mod test {
         } = test_helper::insert_data(tx.as_mut(), "test-exercise")
             .await
             .unwrap();
-        let submission = models::exercise_task_submissions::insert(
+        let slide_submission =
+            models::exercise_slide_submissions::insert_exercise_slide_submission(
+                tx.as_mut(),
+                NewExerciseSlideSubmission {
+                    course_id: Some(course),
+                    course_instance_id: Some(instance),
+                    exam_id: None,
+                    exercise_id: exercise,
+                    user_id: user,
+                },
+            )
+            .await
+            .unwrap();
+        let task_submission = models::exercise_task_submissions::insert(
             tx.as_mut(),
-            exercise,
-            course,
+            slide_submission.id,
             task,
-            user,
-            instance,
             Value::Null,
         )
         .await
         .unwrap();
-        let grading = models::gradings::insert(tx.as_mut(), submission, course, exercise, task)
-            .await
-            .unwrap();
+        let grading =
+            models::gradings::insert(tx.as_mut(), task_submission, course, exercise, task)
+                .await
+                .unwrap();
         let regrading = models::regradings::insert(tx.as_mut()).await.unwrap();
         let regrading_submission_id =
-            models::regrading_submissions::insert(tx.as_mut(), regrading, submission, grading)
+            models::regrading_submissions::insert(tx.as_mut(), regrading, task_submission, grading)
                 .await
                 .unwrap();
 
@@ -400,23 +428,34 @@ mod test {
         } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
             .await
             .unwrap();
-        let submission = models::exercise_task_submissions::insert(
+        let slide_submission =
+            models::exercise_slide_submissions::insert_exercise_slide_submission(
+                tx.as_mut(),
+                NewExerciseSlideSubmission {
+                    course_id: Some(course),
+                    course_instance_id: Some(instance),
+                    exam_id: None,
+                    exercise_id: exercise,
+                    user_id: user,
+                },
+            )
+            .await
+            .unwrap();
+        let task_submission = models::exercise_task_submissions::insert(
             tx.as_mut(),
-            exercise,
-            course,
+            slide_submission.id,
             task,
-            user,
-            instance,
             Value::Null,
         )
         .await
         .unwrap();
-        let grading = models::gradings::insert(tx.as_mut(), submission, course, exercise, task)
-            .await
-            .unwrap();
+        let grading =
+            models::gradings::insert(tx.as_mut(), task_submission, course, exercise, task)
+                .await
+                .unwrap();
         let regrading = models::regradings::insert(tx.as_mut()).await.unwrap();
         let _regrading_submission_id =
-            models::regrading_submissions::insert(tx.as_mut(), regrading, submission, grading)
+            models::regrading_submissions::insert(tx.as_mut(), regrading, task_submission, grading)
                 .await
                 .unwrap();
 
@@ -507,40 +546,69 @@ mod test {
         )
         .await
         .unwrap();
-        let submission_1 = models::exercise_task_submissions::insert(
-            tx.as_mut(),
-            exercise,
-            course,
-            task_1,
-            user,
-            instance,
-            Value::Null,
-        )
-        .await
-        .unwrap();
-        let submission_2 = models::exercise_task_submissions::insert(
-            tx.as_mut(),
-            exercise,
-            course,
-            task_2,
-            user,
-            instance,
-            Value::Null,
-        )
-        .await
-        .unwrap();
-        let grading = models::gradings::insert(tx.as_mut(), submission_1, course, exercise, task_1)
+        let slide_submission_1 =
+            models::exercise_slide_submissions::insert_exercise_slide_submission(
+                tx.as_mut(),
+                NewExerciseSlideSubmission {
+                    course_id: Some(course),
+                    course_instance_id: Some(instance),
+                    exam_id: None,
+                    exercise_id: exercise,
+                    user_id: user,
+                },
+            )
             .await
             .unwrap();
+        let task_submission_1 = models::exercise_task_submissions::insert(
+            tx.as_mut(),
+            slide_submission_1.id,
+            task_1,
+            Value::Null,
+        )
+        .await
+        .unwrap();
+        let slide_submission_2 =
+            models::exercise_slide_submissions::insert_exercise_slide_submission(
+                tx.as_mut(),
+                NewExerciseSlideSubmission {
+                    course_id: Some(course),
+                    course_instance_id: Some(instance),
+                    exam_id: None,
+                    exercise_id: exercise,
+                    user_id: user,
+                },
+            )
+            .await
+            .unwrap();
+        let task_submission_2 = models::exercise_task_submissions::insert(
+            tx.as_mut(),
+            slide_submission_2.id,
+            task_2,
+            Value::Null,
+        )
+        .await
+        .unwrap();
+        let grading =
+            models::gradings::insert(tx.as_mut(), task_submission_1, course, exercise, task_1)
+                .await
+                .unwrap();
         let regrading = models::regradings::insert(tx.as_mut()).await.unwrap();
-        let _regrading_submission_1 =
-            models::regrading_submissions::insert(tx.as_mut(), regrading, submission_1, grading)
-                .await
-                .unwrap();
-        let _regrading_submission_2 =
-            models::regrading_submissions::insert(tx.as_mut(), regrading, submission_2, grading)
-                .await
-                .unwrap();
+        let _regrading_submission_1 = models::regrading_submissions::insert(
+            tx.as_mut(),
+            regrading,
+            task_submission_1,
+            grading,
+        )
+        .await
+        .unwrap();
+        let _regrading_submission_2 = models::regrading_submissions::insert(
+            tx.as_mut(),
+            regrading,
+            task_submission_2,
+            grading,
+        )
+        .await
+        .unwrap();
 
         let exercise_service_1 = models::exercise_services::insert_exercise_service(
             tx.as_mut(),
@@ -628,23 +696,34 @@ mod test {
         } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
             .await
             .unwrap();
-        let submission = models::exercise_task_submissions::insert(
+        let slide_submission =
+            models::exercise_slide_submissions::insert_exercise_slide_submission(
+                tx.as_mut(),
+                NewExerciseSlideSubmission {
+                    course_id: Some(course),
+                    course_instance_id: Some(instance),
+                    exam_id: None,
+                    exercise_id: exercise,
+                    user_id: user,
+                },
+            )
+            .await
+            .unwrap();
+        let task_submission = models::exercise_task_submissions::insert(
             tx.as_mut(),
-            exercise,
-            course,
+            slide_submission.id,
             task,
-            user,
-            instance,
             Value::Null,
         )
         .await
         .unwrap();
-        let grading = models::gradings::insert(tx.as_mut(), submission, course, exercise, task)
-            .await
-            .unwrap();
+        let grading =
+            models::gradings::insert(tx.as_mut(), task_submission, course, exercise, task)
+                .await
+                .unwrap();
         let regrading = models::regradings::insert(tx.as_mut()).await.unwrap();
         let _regrading_submission =
-            models::regrading_submissions::insert(tx.as_mut(), regrading, submission, grading)
+            models::regrading_submissions::insert(tx.as_mut(), regrading, task_submission, grading)
                 .await
                 .unwrap();
 

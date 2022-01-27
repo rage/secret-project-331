@@ -16,7 +16,7 @@ use headless_lms_models::{
     courses::NewCourse,
     exams,
     exams::NewExam,
-    exercise_services, exercise_task_submissions,
+    exercise_services, exercise_slide_submissions, exercise_task_submissions,
     exercise_task_submissions::GradingResult,
     exercises,
     exercises::GradingProgress,
@@ -2194,13 +2194,27 @@ async fn submit_and_grade(
 ) -> Result<()> {
     // combine the id with the user id to ensure it's unique
     let id = [id, &user_id.as_bytes()[..]].concat();
-    let sub = exercise_task_submissions::insert_with_id(
+    let slide_submission = exercise_slide_submissions::insert_exercise_slide_submission_with_id(
+        conn,
+        Uuid::new_v4(),
+        &exercise_slide_submissions::NewExerciseSlideSubmission {
+            course_id: Some(course_id),
+            course_instance_id: Some(course_instance_id),
+            exam_id: None,
+            exercise_id,
+            user_id,
+        },
+    )
+    .await
+    .unwrap();
+    let task_submission_id = exercise_task_submissions::insert_with_id(
         conn,
         &exercise_task_submissions::SubmissionData {
             id: Uuid::new_v5(&course_id, &id),
             exercise_id,
             course_id,
             exercise_task_id,
+            exercise_slide_submission_id: slide_submission.id,
             user_id,
             course_instance_id,
             data_json: Value::String(spec),
@@ -2208,8 +2222,9 @@ async fn submit_and_grade(
     )
     .await?;
 
-    let submission = exercise_task_submissions::get_by_id(conn, sub).await?;
-    let grading = gradings::new_grading(conn, &submission).await?;
+    let task_submission = exercise_task_submissions::get_by_id(conn, task_submission_id).await?;
+    let exercise = exercises::get_by_id(conn, exercise_id).await?;
+    let grading = gradings::new_grading(conn, &exercise, &task_submission).await?;
     let grading_result = GradingResult {
         feedback_json: Some(serde_json::json!([{"SelectedOptioIsCorrect": true}])),
         feedback_text: Some("Good job!".to_string()),
@@ -2217,10 +2232,9 @@ async fn submit_and_grade(
         score_given: out_of_100,
         score_maximum: 100,
     };
-    let exercise = exercises::get_by_id(conn, exercise_id).await?;
     let grading = gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
-    exercise_task_submissions::set_grading_id(conn, grading.id, submission.id).await?;
-    user_exercise_states::update_user_exercise_state(conn, &grading, &submission).await?;
+    exercise_task_submissions::set_grading_id(conn, grading.id, task_submission.id).await?;
+    user_exercise_states::update_user_exercise_state(conn, &grading, &task_submission).await?;
     Ok(())
 }
 

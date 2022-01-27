@@ -1,8 +1,7 @@
 type CourseMaterialExercise = {
   exercise: Exercise
-  current_exercise_task: CourseMaterialExerciseTask
-  current_exercise_task_service_info: CourseMaterialExerciseServiceInfo | null
+  current_exercise_tasks: Array<CourseMaterialExerciseTask>
   exercise_status: ExerciseStatus | null
-  previous_submission: Submission | null
+  previous_submission: ExerciseTaskSubmission | null
   grading: Grading | null
 }

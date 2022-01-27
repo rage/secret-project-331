@@ -1,6 +1,6 @@
 use crate::{
     course_instances, exercise_slides,
-    exercise_task_submissions::ExerciseTaskSubmission,
+    exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, CourseMaterialExerciseTask},
     gradings::Grading,
     prelude::*,
@@ -279,13 +279,15 @@ pub async fn get_course_material_exercise(
         grading_progress = user_exercise_state.grading_progress;
     }
 
+    // TODO: Handle properly for multiple tasks
     let previous_submission = if let Some(user_id) = user_id {
-        crate::exercise_task_submissions::get_latest_user_exercise_submission(
+        exercise_task_submissions::get_latest_exercise_task_submissions_for_exercise(
             conn,
-            user_id,
-            exercise_id,
+            &exercise_id,
+            &user_id,
         )
         .await?
+        .and_then(|mut submissions| submissions.pop())
     } else {
         None
     };
@@ -491,7 +493,7 @@ mod test {
         exercise_services::{self, ExerciseServiceNewOrUpdate},
         exercise_slides, exercise_tasks, organizations, pages,
         test_helper::Conn,
-        users,
+        user_exercise_states, users,
     };
 
     #[tokio::test]
@@ -612,22 +614,16 @@ mod test {
         .await
         .unwrap();
 
-        let res = sqlx::query!(
-            "
-SELECT selected_exercise_slide_id AS id
-FROM user_exercise_states
-WHERE user_id = $1
-  AND exercise_id = $2
-  AND course_instance_id = $3
-            ",
+        let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exits(
+            tx.as_mut(),
             user_id,
             exercise_id,
-            course_instance.id
+            Some(course_instance.id),
+            None,
         )
-        .fetch_optional(tx.as_mut())
         .await
         .unwrap();
-        assert!(res.is_none());
+        assert!(user_exercise_state.is_none());
 
         let exercise = get_course_material_exercise(tx.as_mut(), Some(user_id), exercise_id)
             .await
@@ -637,21 +633,21 @@ WHERE user_id = $1
             exercise_task_id
         );
 
-        let res = sqlx::query!(
-            "
-SELECT selected_exercise_slide_id AS id
-FROM user_exercise_states
-WHERE user_id = $1
-  AND exercise_id = $2
-  AND course_instance_id = $3
-",
+        let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exits(
+            tx.as_mut(),
             user_id,
             exercise_id,
-            course_instance.id
+            Some(course_instance.id),
+            None,
         )
-        .fetch_one(tx.as_mut())
         .await
         .unwrap();
-        assert_eq!(res.id.unwrap(), exercise_slide_id);
+        assert_eq!(
+            user_exercise_state
+                .unwrap()
+                .selected_exercise_slide_id
+                .unwrap(),
+            exercise_slide_id
+        );
     }
 }

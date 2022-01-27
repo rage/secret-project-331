@@ -22,6 +22,7 @@ use headless_lms_models::{
     email_templates::EmailTemplate,
     exams::{CourseExam, Exam, ExamEnrollment},
     exercise_services::ExerciseService,
+    exercise_slide_submissions::ExerciseSlideSubmission,
     exercise_task_submissions::{
         ExerciseTaskSubmission, SubmissionCount, SubmissionCountByExercise,
         SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
@@ -151,20 +152,27 @@ fn main() {
         order_number: 123,
         copied_from: None,
     };
-    let submission = ExerciseTaskSubmission {
+    let exercise_slide_submission = ExerciseSlideSubmission {
         id,
         created_at,
         updated_at,
         deleted_at,
-        exercise_id: id,
         course_id: Some(id),
         course_instance_id: Some(id),
         exam_id: None,
+        exercise_id: id,
+        user_id: id,
+    };
+    let exercise_task_submission = ExerciseTaskSubmission {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        exercise_slide_submission_id: id,
         exercise_task_id: id,
         data_json: Some(serde_json::json! {{"choice": "a"}}),
         grading_id: Some(id),
         metadata: None,
-        user_id: id,
     };
     let grading = Grading {
         id,
@@ -200,7 +208,7 @@ fn main() {
         course_instance_id: id,
     };
     let previous_submission = PreviousSubmission {
-        submission: submission.clone(),
+        submission: exercise_task_submission.clone(),
         grading: Some(grading.clone()),
     };
     let course = Course {
@@ -462,7 +470,7 @@ fn main() {
                 activity_progress: ActivityProgress::InProgress,
                 grading_progress: GradingProgress::NotReady
             }),
-            previous_submission: Some(submission.clone()),
+            previous_submission: Some(exercise_task_submission.clone()),
             grading: Some(grading.clone())
         }
     );
@@ -481,10 +489,18 @@ fn main() {
     write_docs!(
         SubmissionResult,
         SubmissionResult {
-            submission: submission.clone(),
+            submission: exercise_task_submission.clone(),
             grading: Some(grading.clone()),
             model_solution_spec: None
         }
+    );
+    write_docs!(
+        Vec<SubmissionResult>,
+        vec![SubmissionResult {
+            submission: exercise_task_submission.clone(),
+            grading: Some(grading.clone()),
+            model_solution_spec: None
+        }]
     );
     write_docs!(PreviousSubmission, previous_submission.clone());
     write_docs!(
@@ -580,7 +596,7 @@ fn main() {
     write_docs!(
         ExerciseSubmissions,
         ExerciseSubmissions {
-            data: vec![submission.clone()],
+            data: vec![exercise_slide_submission.clone()],
             total_pages: 1
         }
     );
@@ -651,7 +667,7 @@ fn main() {
     write_docs!(
         SubmissionInfo,
         SubmissionInfo {
-            submission: submission.clone(),
+            submission: exercise_task_submission.clone(),
             exercise: exercise.clone(),
             grading: Some(grading.clone()),
             iframe_path: "path".to_string(),

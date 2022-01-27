@@ -46,6 +46,7 @@ import {
   ExerciseServiceInfoApi,
   ExerciseServiceNewOrUpdate,
   ExerciseSlide,
+  ExerciseSlideSubmission,
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
@@ -951,6 +952,24 @@ export function isProposalCount(obj: any, _argumentName?: string): obj is Propos
   )
 }
 
+export function isExerciseSlideSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseSlideSubmission {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    (obj.course_id === null || typeof obj.course_id === "string") &&
+    (obj.course_instance_id === null || typeof obj.course_instance_id === "string") &&
+    (obj.exam_id === null || typeof obj.exam_id === "string") &&
+    typeof obj.exercise_id === "string" &&
+    typeof obj.user_id === "string"
+  )
+}
+
 export function isExerciseTaskSubmission(
   obj: any,
   _argumentName?: string,
@@ -961,13 +980,9 @@ export function isExerciseTaskSubmission(
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.exercise_id === "string" &&
-    (obj.course_id === null || typeof obj.course_id === "string") &&
-    (obj.course_instance_id === null || typeof obj.course_instance_id === "string") &&
-    (obj.exam_id === null || typeof obj.exam_id === "string") &&
+    typeof obj.exercise_slide_submission_id === "string" &&
     typeof obj.exercise_task_id === "string" &&
-    (obj.grading_id === null || typeof obj.grading_id === "string") &&
-    typeof obj.user_id === "string"
+    (obj.grading_id === null || typeof obj.grading_id === "string")
   )
 }
 
@@ -1155,7 +1170,7 @@ export function isExerciseSubmissions(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     Array.isArray(obj.data) &&
-    obj.data.every((e: any) => isExerciseTaskSubmission(e) as boolean) &&
+    obj.data.every((e: any) => isExerciseSlideSubmission(e) as boolean) &&
     typeof obj.total_pages === "number"
   )
 }

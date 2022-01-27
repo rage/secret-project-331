@@ -46,7 +46,7 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
                 <div>
                   {t("submitted-at-by", {
                     time: getSubmissionInfo.data.submission.created_at.toDateString(),
-                    user: getSubmissionInfo.data.submission.user_id,
+                    user: "TODO: fix later",
                   })}
                 </div>
               </div>

@@ -122,6 +122,8 @@ fn ts_binding_generator() {
         proposed_page_edits::PageProposal,
         proposed_page_edits::ProposalCount,
 
+        exercise_slide_submissions::ExerciseSlideSubmission,
+
         exercise_task_submissions::ExerciseTaskSubmission,
         exercise_task_submissions::SubmissionCount,
         exercise_task_submissions::SubmissionCountByWeekAndHour,

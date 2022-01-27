@@ -1,5 +1,5 @@
 type SubmissionInfo = {
-  submission: Submission
+  submission: ExerciseTaskSubmission
   exercise: Exercise
   exercise_task: ExerciseTask
   grading: Grading | null

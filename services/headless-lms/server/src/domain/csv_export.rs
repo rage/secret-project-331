@@ -260,6 +260,7 @@ mod test {
 
     use bytes::Bytes;
     use headless_lms_models::{
+        exercise_slide_submissions::{self, NewExerciseSlideSubmission},
         exercise_slides,
         exercise_task_submissions::{self, GradingResult},
         exercise_tasks,
@@ -359,11 +360,28 @@ mod test {
         ci: Uuid,
         score_given: f32,
     ) {
-        let s = exercise_task_submissions::insert(tx, ex, c, et, u, ci, Value::Null)
+        let exercise = exercises::get_by_id(tx, ex).await.unwrap();
+        let exercise_slide_submission =
+            exercise_slide_submissions::insert_exercise_slide_submission(
+                tx,
+                NewExerciseSlideSubmission {
+                    course_id: Some(c),
+                    course_instance_id: Some(ci),
+                    exam_id: None,
+                    exercise_id: ex,
+                    user_id: u,
+                },
+            )
             .await
             .unwrap();
+        let s =
+            exercise_task_submissions::insert(tx, exercise_slide_submission.id, et, Value::Null)
+                .await
+                .unwrap();
         let submission = exercise_task_submissions::get_by_id(tx, s).await.unwrap();
-        let grading = gradings::new_grading(tx, &submission).await.unwrap();
+        let grading = gradings::new_grading(tx, &exercise, &submission)
+            .await
+            .unwrap();
         let grading_result = GradingResult {
             feedback_json: None,
             feedback_text: None,

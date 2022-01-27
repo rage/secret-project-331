@@ -567,20 +567,28 @@ export interface ProposalCount {
   handled: number
 }
 
+export interface ExerciseSlideSubmission {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_id: string | null
+  course_instance_id: string | null
+  exam_id: string | null
+  exercise_id: string
+  user_id: string
+}
+
 export interface ExerciseTaskSubmission {
   id: string
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
-  exercise_id: string
-  course_id: string | null
-  course_instance_id: string | null
-  exam_id: string | null
+  exercise_slide_submission_id: string
   exercise_task_id: string
   data_json: unknown | null
   grading_id: string | null
   metadata: unknown | null
-  user_id: string
 }
 
 export interface SubmissionCount {
@@ -694,7 +702,7 @@ export interface UploadResult {
 }
 
 export interface ExerciseSubmissions {
-  data: Array<ExerciseTaskSubmission>
+  data: Array<ExerciseSlideSubmission>
   total_pages: number
 }
 

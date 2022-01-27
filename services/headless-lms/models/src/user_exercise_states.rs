@@ -3,6 +3,7 @@ use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use serde_json::Value;
 
 use crate::{
+    exercise_slide_submissions,
     exercise_task_submissions::ExerciseTaskSubmission,
     exercises::{ActivityProgress, GradingProgress},
     gradings::{Grading, UserPointsUpdateStrategy},
@@ -251,6 +252,38 @@ WHERE user_id = $1
     Ok(res)
 }
 
+pub async fn get_user_exercise_state(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<Option<UserExerciseState>> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress as "grading_progress: _",
+  activity_progress as "activity_progress: _",
+  selected_exercise_slide_id
+FROM user_exercise_states
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND deleted_at IS NULL
+        "#,
+        user_id,
+        exercise_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_user_exercise_state_if_exits(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -448,19 +481,18 @@ pub async fn update_user_exercise_state(
     grading: &Grading,
     submission: &ExerciseTaskSubmission,
 ) -> ModelResult<UserExerciseState> {
-    let ExerciseTaskSubmission {
-        user_id,
-        exercise_id,
-        course_instance_id,
-        exam_id,
-        ..
-    } = submission;
+    // Bad order to do this, function needs refactoring
+    let exercise_slide_submission =
+        exercise_slide_submissions::get_by_id(conn, submission.exercise_slide_submission_id)
+            .await?
+            .ok_or_else(|| ModelError::PreconditionFailed("Submission not found".to_string()))?;
+
     let current_state = get_or_create_user_exercise_state(
         conn,
-        *user_id,
-        *exercise_id,
-        *course_instance_id,
-        *exam_id,
+        exercise_slide_submission.user_id,
+        exercise_slide_submission.exercise_id,
+        exercise_slide_submission.course_instance_id,
+        exercise_slide_submission.exam_id,
     )
     .await?;
 
@@ -497,13 +529,13 @@ RETURNING user_id,
   activity_progress as "activity_progress: _",
   selected_exercise_slide_id;
     "#,
-        user_id,
-        exercise_id,
-        *course_instance_id,
+        exercise_slide_submission.user_id,
+        exercise_slide_submission.exercise_id,
+        exercise_slide_submission.course_instance_id,
         new_score_given,
         new_grading_progress as GradingProgress,
         new_activity_progress as ActivityProgress,
-        *exam_id
+        exercise_slide_submission.exam_id
     )
     .fetch_one(conn)
     .await?;
@@ -624,6 +656,7 @@ GROUP BY user_id,
 mod tests {
     use super::*;
     use crate::{
+        exercise_slide_submissions::NewExerciseSlideSubmission,
         exercise_task_submissions::{self, GradingResult, SubmissionData},
         exercises, gradings,
         test_helper::{insert_data, Conn},
@@ -833,8 +866,21 @@ mod tests {
         let mut tx = conn.begin().await;
 
         let data = insert_data(tx.as_mut(), "").await.unwrap();
-
-        let submission = exercise_task_submissions::insert_with_id(
+        let slide_submission =
+            exercise_slide_submissions::insert_exercise_slide_submission_with_id(
+                tx.as_mut(),
+                Uuid::new_v4(),
+                &NewExerciseSlideSubmission {
+                    course_id: Some(data.course),
+                    course_instance_id: Some(data.instance),
+                    exam_id: None,
+                    exercise_id: data.exercise,
+                    user_id: data.user,
+                },
+            )
+            .await
+            .unwrap();
+        let task_submission = exercise_task_submissions::insert_with_id(
             tx.as_mut(),
             &SubmissionData {
                 exercise_id: data.exercise,
@@ -844,17 +890,18 @@ mod tests {
                 course_instance_id: data.instance,
                 data_json: serde_json::json! {"abcd"},
                 id: Uuid::new_v4(),
+                exercise_slide_submission_id: slide_submission.id,
             },
         )
         .await
         .unwrap();
-        let submission = exercise_task_submissions::get_by_id(tx.as_mut(), submission)
-            .await
-            .unwrap();
-        let grading = gradings::new_grading(tx.as_mut(), &submission)
+        let submission = exercise_task_submissions::get_by_id(tx.as_mut(), task_submission)
             .await
             .unwrap();
         let exercise = exercises::get_by_id(tx.as_mut(), data.exercise)
+            .await
+            .unwrap();
+        let grading = gradings::new_grading(tx.as_mut(), &exercise, &submission)
             .await
             .unwrap();
         let grading = gradings::update_grading(

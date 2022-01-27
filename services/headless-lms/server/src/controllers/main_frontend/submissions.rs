@@ -24,13 +24,23 @@ async fn get_submission_info(
         return Err(anyhow::anyhow!("Submission not associated with course or exam").into());
     }
 
-    let submission =
-        models::exercise_task_submissions::get_by_id(&mut conn, *submission_id).await?;
-    let exercise = models::exercises::get_by_id(&mut conn, submission.exercise_id).await?;
-    let exercise_task =
-        models::exercise_tasks::get_exercise_task_by_id(&mut conn, submission.exercise_task_id)
-            .await?;
-    let grading = if let Some(id) = submission.grading_id {
+    let slide_submission = models::exercise_slide_submissions::get_by_id(&mut conn, *submission_id)
+        .await?
+        .ok_or_else(|| anyhow::anyhow!("Missing submission".to_string()))?;
+    let task_submission = models::exercise_task_submissions::get_by_exercise_slide_submission_id(
+        &mut conn,
+        slide_submission.id,
+    )
+    .await?
+    .pop()
+    .ok_or_else(|| anyhow::anyhow!("Missing task"))?;
+    let exercise = models::exercises::get_by_id(&mut conn, slide_submission.exercise_id).await?;
+    let exercise_task = models::exercise_tasks::get_exercise_task_by_id(
+        &mut conn,
+        task_submission.exercise_task_id,
+    )
+    .await?;
+    let grading = if let Some(id) = task_submission.grading_id {
         Some(models::gradings::get_by_id(&mut conn, id).await?)
     } else {
         None
@@ -42,7 +52,7 @@ async fn get_submission_info(
     .await?;
 
     Ok(web::Json(SubmissionInfo {
-        submission,
+        submission: task_submission,
         exercise,
         exercise_task,
         grading,

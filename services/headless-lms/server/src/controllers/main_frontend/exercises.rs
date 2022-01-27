@@ -1,13 +1,13 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 
 use futures::future;
-use models::exercise_task_submissions::ExerciseTaskSubmission;
+use models::exercise_slide_submissions::ExerciseSlideSubmission;
 
 use crate::controllers::prelude::*;
 
 #[derive(Debug, Serialize, TS)]
 pub struct ExerciseSubmissions {
-    pub data: Vec<ExerciseTaskSubmission>,
+    pub data: Vec<ExerciseSlideSubmission>,
     pub total_pages: u32,
 }
 
@@ -28,7 +28,7 @@ async fn get_exercise_submissions(
     let mut conn = pool.acquire().await?;
     let course_id = models::exercises::get_course_id(&mut conn, *exercise_id).await?;
     authorize(&mut conn, Act::View, user.id, Res::Course(course_id)).await?;
-    let submissions = models::exercise_task_submissions::exercise_submissions(
+    let submissions = models::exercise_slide_submissions::get_by_exercise_id(
         &mut conn,
         *exercise_id,
         *pagination,

@@ -116,9 +116,10 @@ pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Opt
 
 pub async fn new_grading(
     conn: &mut PgConnection,
+    exercise: &Exercise,
     submission: &ExerciseTaskSubmission,
 ) -> ModelResult<Grading> {
-    let update_strategy = if submission.exam_id.is_some() {
+    let update_strategy = if exercise.exam_id.is_some() {
         UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
     } else {
         UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
@@ -157,9 +158,9 @@ RETURNING id,
   deleted_at
 "#,
         submission.id,
-        submission.course_id,
-        submission.exam_id,
-        submission.exercise_id,
+        exercise.course_id,
+        exercise.exam_id,
+        exercise.id,
         submission.exercise_task_id,
         update_strategy as UserPointsUpdateStrategy
     )

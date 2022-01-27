@@ -32,7 +32,7 @@ async fn authorize_role_management(
 }
 
 /**
- * POST /api/v0/main-frontend/roles/set
+ * POST /api/v0/main-frontend/roles/set - Give a role to a user.
  */
 #[instrument(skip(pool))]
 pub async fn set(
@@ -49,7 +49,7 @@ pub async fn set(
 }
 
 /**
- * POST /api/v0/main-frontend/roles/unset
+ * POST /api/v0/main-frontend/roles/unset - Remove a role from a user.
  */
 #[instrument(skip(pool))]
 pub async fn unset(
@@ -109,7 +109,7 @@ impl TryFrom<RoleQuery> for RoleDomain {
 }
 
 /**
- * GET /api/v0/main-frontend/roles
+ * GET /api/v0/main-frontend/roles - Get all roles for the given domain.
  */
 #[instrument(skip(pool))]
 pub async fn fetch(

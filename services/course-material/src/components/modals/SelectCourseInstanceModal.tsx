@@ -42,7 +42,10 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
   }, [loginState, pageState])
 
   const handleSubmitAndClose = useCallback(
-    async (instanceId: string) => {
+    async (instanceId: string, reason?: string) => {
+      if (reason === "backdropClick") {
+        return
+      }
       try {
         await postCourseInstanceEnrollment(instanceId)
         setOpen(false)
@@ -65,14 +68,21 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
   }
 
   return (
-    <Dialog open={open} onClose={handleSubmitAndClose}>
+    <Dialog open={open} onClose={handleSubmitAndClose} aria-labelledby="dialog-label">
       <div
         className={css`
           margin: 1rem;
         `}
       >
         {submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
-        <h4>{t("title-select-course-version-to-continue")}.</h4>
+        <h1
+          className={css`
+            font-size: clamp(18px, 2vw, 20px);
+          `}
+          id="dialog-label"
+        >
+          {t("title-select-course-version-to-continue")}.
+        </h1>
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}

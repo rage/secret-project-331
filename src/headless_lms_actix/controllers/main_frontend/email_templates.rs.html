@@ -43,7 +43,7 @@
 <span class="doccomment">/**
 DELETE `/api/v0/main-frontend/email-templates/:id`
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">EmailTemplate</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_email_template</span>(
     <span class="ident">email_template_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,

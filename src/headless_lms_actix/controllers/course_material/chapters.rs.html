@@ -76,7 +76,7 @@
 <span class="doccomment">/**
 GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters_pages</span>(
     <span class="ident">chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -90,7 +90,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pag
 <span class="doccomment">/**
 GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in chapter.
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageWithExercises</span><span class="op">&gt;</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters_exercises</span>(
     <span class="ident">chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -105,7 +105,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of
 <span class="doccomment">/**
 GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` - Returns a list of pages in chapter mainfrontpage excluded.
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters_pages_without_main_frontpage</span>(
     <span class="ident">chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,

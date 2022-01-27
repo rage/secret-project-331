@@ -176,7 +176,7 @@ Content-Type: application/json
 }
 ```
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Page</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_new_page</span>(
     <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewPage</span><span class="op">&gt;</span>,
@@ -201,7 +201,7 @@ DELETE `/api/v0/main-frontend/pages/:page_id` - Delete a page, related exercises
 
 Request: `DELETE /api/v0/main-frontend/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Page</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_page</span>(
     <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -218,7 +218,7 @@ Request: `DELETE /api/v0/main-frontend/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c0
 <span class="doccomment">/**
 GET /api/v0/main-frontend/pages/:page_id/history
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageHistory</span><span class="op">&gt;</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">history</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -235,7 +235,7 @@ GET /api/v0/main-frontend/pages/:page_id/history
 <span class="doccomment">/**
 GET /api/v0/main-frontend/pages/:page_id/history_count
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">i64</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">history_count</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -251,7 +251,7 @@ GET /api/v0/main-frontend/pages/:page_id/history_count
 <span class="doccomment">/**
 POST /api/v0/main-frontend/pages/:page_id/restore
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Uuid</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">restore</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,

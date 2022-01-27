@@ -259,7 +259,7 @@ Content-Type: application/json
 }
 ```
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Chapter</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_new_chapter</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -289,7 +289,7 @@ Content-Type: application/json
 <span class="doccomment">/**
 DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a course part.
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Chapter</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_chapter</span>(
     <span class="ident">chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
@@ -327,7 +327,7 @@ Content-Type: application/json
 
 ```
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Chapter</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">payload</span>, <span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_chapter</span>(
     <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ChapterUpdate</span><span class="op">&gt;</span>,
@@ -362,7 +362,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Chapter</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">request</span>, <span class="ident">payload</span>, <span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_chapter_image</span>(
     <span class="ident">request</span>: <span class="ident">HttpRequest</span>,
@@ -423,7 +423,7 @@ Request:
 DELETE /api/v0/main-frontend/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
 ```
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(())]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove_chapter_image</span>(
     <span class="ident">chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,

@@ -128,7 +128,7 @@
 <span class="doccomment">/**
 DELETE `/api/v0/main-frontend/exercise-services/:id`
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">ExerciseService</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_exercise_service</span>(
     <span class="ident">exercise_service_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -146,7 +146,7 @@ DELETE `/api/v0/main-frontend/exercise-services/:id`
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/exercise-services`
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">ExerciseService</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">add_exercise_service</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -165,7 +165,7 @@ POST `/api/v0/main-frontend/exercise-services`
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/exercise-services/:id`
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">ExerciseService</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise_service_by_id</span>(
     <span class="ident">exercise_service_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
@@ -181,7 +181,7 @@ GET `/api/v0/main-frontend/exercise-services/:id`
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/exercise-services`
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseService</span><span class="op">&gt;</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise_services</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
@@ -195,7 +195,7 @@ GET `/api/v0/main-frontend/exercise-services`
 <span class="doccomment">/**
 PUT `/api/v0/main-frontend/exercise-services/:id`
 */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>(<span class="ident">ExerciseService</span>)]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_exercise_service</span>(
     <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ExerciseServiceNewOrUpdate</span><span class="op">&gt;</span>,

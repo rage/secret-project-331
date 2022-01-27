@@ -75,10 +75,10 @@ macro_rules! write_docs {
 fn main() {
     // reusable variables
     let id = Uuid::parse_str("307fa56f-9853-4f5c-afb9-a6736c232f32").unwrap();
-    let created_at = Utc::now();
-    let updated_at = Utc::now();
-    let deleted_at = None;
     let date_time = Utc.timestamp(1640988000, 0);
+    let created_at = date_time;
+    let updated_at = date_time;
+    let deleted_at = None;
     let naive_date = NaiveDate::from_ymd(2022, 1, 1);
     let page = Page {
         id,

@@ -107,7 +107,8 @@ const ErrorNotification = (props: ErrorNotificationProps) => {
             icon={faTimesCircle}
           />
         </IconWrapper>
-        <TextWrapper role="alert">
+        {/* eslint-disable-next-line i18next/no-literal-string */}
+        <TextWrapper role="alert" aria-live="assertive">
           <ErrorHeader>{props.header ?? t("default-toast-error-title")}</ErrorHeader>
           <ErrorMessage>{props.message ?? t("default-toast-error-message")}</ErrorMessage>
         </TextWrapper>

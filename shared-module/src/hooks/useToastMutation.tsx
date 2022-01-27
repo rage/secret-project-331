@@ -48,7 +48,6 @@ export default function useToastMutation<
         )
       },
       {
-        ariaProps: { "aria-live": "polite", role: "status" },
         ...notificationOptions.toastOptions,
         id: toastId,
       },
@@ -61,7 +60,6 @@ export default function useToastMutation<
       if (notificationOptions.notify) {
         // Set toastId that is updated once operation is successful or erronous.
         toastId = toast.custom(<LoadingNotification message={notificationOptions.loadingText} />, {
-          ariaProps: { "aria-live": "polite", role: "status" },
           ...notificationOptions.toastOptions,
         })
       }
@@ -87,7 +85,6 @@ export default function useToastMutation<
                 {...(notificationOptions.dismissable ? { id: toastId } : {})}
               />,
               {
-                ariaProps: { "aria-live": "polite", role: "status" },
                 ...notificationOptions.toastOptions,
                 id: toastId,
               },
@@ -114,7 +111,6 @@ export default function useToastMutation<
             )
           },
           {
-            ariaProps: { "aria-live": "polite", role: "alert" },
             ...notificationOptions.toastOptions,
             id: toastId,
           },

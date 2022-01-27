@@ -21,13 +21,7 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    // a unique name for the image
     snapshotName: "error-notification-test",
-    // a element, or selector, or an array of elements and selectors
-    // that need to be visible and not moving before taking the screenshot
-    // it is important to choose this carefully, because otherwise we might take the screenshot
-    // before the UI is ready for it
-    waitForThisToBeVisibleAndStable: "text=An error occured",
-    skipMobile: true,
+    waitForThisToBeVisibleAndStable: "text=Error",
   })
 })

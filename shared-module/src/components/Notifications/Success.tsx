@@ -107,7 +107,7 @@ const SuccessNotification = (props: SuccessNotificationProps) => {
             icon={faCheck}
           />
         </IconWrapper>
-        <TextWrapper role="status">
+        <TextWrapper role="alert">
           <SuccessHeader>{props.header ?? t("default-toast-success-title")}</SuccessHeader>
           <SuccessMessage>{props.message ?? t("default-toast-success-message")}</SuccessMessage>
         </TextWrapper>

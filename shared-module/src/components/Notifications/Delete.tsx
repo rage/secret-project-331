@@ -107,7 +107,7 @@ const DeleteNotification = (props: DeleteNotificationProps) => {
             icon={faTimesCircle}
           />
         </IconWrapper>
-        <TextWrapper role="status">
+        <TextWrapper role="alert">
           <DeleteHeader>{props.header ?? t("default-toast-delete-title")}</DeleteHeader>
           <DeleteMessage>{props.message ?? t("default-toast-delete-message")}</DeleteMessage>
         </TextWrapper>

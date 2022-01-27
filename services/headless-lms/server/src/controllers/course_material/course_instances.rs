@@ -12,7 +12,7 @@ use crate::controllers::prelude::*;
 /**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
 */
-#[generated_doc(UserCourseInstanceProgress)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance(
     user: AuthUser,
@@ -33,7 +33,7 @@ async fn get_user_progress_for_course_instance(
 /**
 GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.
 */
-#[generated_doc(UserCourseInstanceProgress)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance_chapter(
     user: AuthUser,
@@ -56,7 +56,7 @@ async fn get_user_progress_for_course_instance_chapter(
 /**
 GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.
 */
-#[generated_doc(UserCourseInstanceChapterExerciseProgress)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance_chapter_exercises(
     user: AuthUser,
@@ -91,7 +91,7 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
 /**
 POST /api/v0/course-material/course-instance/:course_instance_id/enroll - enrolls user to the course instance.
 */
-#[generated_doc(CourseInstanceEnrollment)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn add_user_enrollment(
     pool: web::Data<PgPool>,

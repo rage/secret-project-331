@@ -11,7 +11,7 @@ use crate::{
 /**
 GET `/api/v0/main-frontend/exams/:id
 */
-#[generated_doc(Exam)]
+#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_exam(
     pool: web::Data<PgPool>,
@@ -33,7 +33,7 @@ pub struct ExamCourseInfo {
 /**
 POST `/api/v0/main-frontend/exams/:id/set`
 */
-#[generated_doc(())]
+#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn set_course(
     pool: web::Data<PgPool>,
@@ -51,7 +51,7 @@ pub async fn set_course(
 /**
 POST `/api/v0/main-frontend/exams/:id/unset`
 */
-#[generated_doc(())]
+#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn unset_course(
     pool: web::Data<PgPool>,

@@ -255,7 +255,7 @@ pub struct ChapterWithStatus {
     pub opens_at: Option<DateTime<Utc>>,
     pub status: ChapterStatus,
 }
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, TS)]
 pub struct UserCourseInstanceChapterProgress {
     pub score_given: f32,
     pub score_maximum: i32,

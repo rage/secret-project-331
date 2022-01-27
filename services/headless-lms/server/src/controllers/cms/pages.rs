@@ -14,7 +14,7 @@ GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks 
 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
 */
-#[generated_doc(ContentManagementPage)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_page(
     page_id: web::Path<Uuid>,
@@ -51,7 +51,7 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc(ContentManagementPage)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn update_page(
     payload: web::Json<CmsPageUpdate>,

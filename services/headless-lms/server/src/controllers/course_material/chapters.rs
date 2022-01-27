@@ -7,7 +7,7 @@ use crate::controllers::prelude::*;
 /**
 GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.
 */
-#[generated_doc(Vec<Page>)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_chapters_pages(
     chapter_id: web::Path<Uuid>,
@@ -21,7 +21,7 @@ async fn get_chapters_pages(
 /**
 GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in chapter.
 */
-#[generated_doc(Vec<PageWithExercises>)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_chapters_exercises(
     chapter_id: web::Path<Uuid>,
@@ -36,7 +36,7 @@ async fn get_chapters_exercises(
 /**
 GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` - Returns a list of pages in chapter mainfrontpage excluded.
 */
-#[generated_doc(Vec<Page>)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_chapters_pages_without_main_frontpage(
     chapter_id: web::Path<Uuid>,

@@ -13,7 +13,6 @@ import DebugModal from "../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
@@ -98,7 +97,6 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     >
       <div
         className={css`
-          ${normalWidthCenteredComponentStyles}
           display: flex;
           align-items: center;
           margin-bottom: 1.5rem;
@@ -135,11 +133,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
           {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
         </div>
       </div>
-      <div
-        className={css`
-          ${normalWidthCenteredComponentStyles}
-        `}
-      >
+      <div>
         {postSubmissionMutation.data?.grading?.feedback_text &&
           postSubmissionMutation.data?.grading?.feedback_text}
       </div>
@@ -152,7 +146,6 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       />
       <div
         className={css`
-          ${normalWidthCenteredComponentStyles}
           button {
             margin-bottom: 0.5rem;
           }

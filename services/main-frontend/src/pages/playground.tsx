@@ -18,7 +18,6 @@ import ErrorBanner from "../shared-module/components/ErrorBanner"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
 import Spinner from "../shared-module/components/Spinner"
 import { monospaceFont } from "../shared-module/styles"
-import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 import { narrowContainerWidthPx } from "../shared-module/styles/constants"
 
 const Home: React.FC = () => {
@@ -147,7 +146,7 @@ const Home: React.FC = () => {
 
   return (
     <Layout>
-      <div className={normalWidthCenteredComponentStyles}>
+      <div>
         <Grow
           in={
             saveMutation.isError ||

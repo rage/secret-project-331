@@ -67,6 +67,7 @@ const Scale: React.FC<QuizItemComponentProps> = ({
             >
               <label htmlFor={value}>{value}</label>
               <input
+                aria-label={value}
                 type="radio"
                 key={value}
                 value={value}

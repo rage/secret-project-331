@@ -3,18 +3,34 @@ import { CheckResult } from "axe-core"
 import { Console } from "console"
 import { Page } from "playwright"
 
-export default async function accessibilityCheck(page: Page, contextName: string): Promise<void> {
+export default async function accessibilityCheck(
+  page: Page,
+  contextName: string,
+  axeSkip: boolean | string[],
+): Promise<void> {
   // force all console.group output to stderr
   const stdErrConsole = new Console(process.stderr)
   const results = await new AxeBuilder({ page }).analyze()
-  if (results.violations.length === 0) {
+  let resultsFiltered = []
+  if (typeof axeSkip === "object") {
+    resultsFiltered = results.violations.filter((violation) => {
+      if (axeSkip.find((skippable) => skippable === violation.id)) {
+        return
+      } else {
+        return violation
+      }
+    })
+  } else {
+    resultsFiltered = results.violations
+  }
+  if (resultsFiltered.length === 0) {
     return
   }
   stdErrConsole.error()
-  stdErrConsole.error(`Found ${results.violations.length} accessibility errors in ${contextName}`)
+  stdErrConsole.error(`Found ${resultsFiltered.length} accessibility errors in ${contextName}`)
   stdErrConsole.error()
   // https://www.deque.com/axe/core-documentation/api-documentation/#results-object
-  results.violations.forEach((violation, n) => {
+  resultsFiltered.forEach((violation, n) => {
     stdErrConsole.group(`Violation ${n + 1}\n-----------`)
     stdErrConsole.error(`Rule: ${violation.id}`)
     stdErrConsole.error(`Description: ${violation.description}`)
@@ -52,7 +68,7 @@ export default async function accessibilityCheck(page: Page, contextName: string
     stdErrConsole.groupEnd()
   })
 
-  throw new Error(`Found ${results.violations.length} accessibility errors in ${contextName}`)
+  throw new Error(`Found ${resultsFiltered.length} accessibility errors in ${contextName}`)
 }
 
 function displayChecksForNodes(nodes: CheckResult[], stdErrConsole: Console): void {

@@ -45,6 +45,7 @@ const Open: React.FC<QuizItemComponentProps> = ({
       <div>{quizItem.body && <MarkdownText text={quizItem.body} />}</div>
       <div>
         <TextField
+          aria-label={t("answer")}
           label={t("answer")}
           type="text"
           value={quizItemAnswerState?.textData ?? ""}

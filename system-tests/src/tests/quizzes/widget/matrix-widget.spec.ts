@@ -23,7 +23,6 @@ test("widget, matrix screenshot test", async ({ page, headless }) => {
   await (await frame.frameElement()).scrollIntoViewIfNeeded()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-matrix-initial",
     frame,
@@ -58,7 +57,6 @@ test("widget, matrix screenshot test", async ({ page, headless }) => {
     .fill('[aria-label="row: 1, column: 1"]', "2")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-matrix-two-cells-filled",
     waitForThisToBeVisibleAndStable: [`input[name="1"]`, `input[name="2"]`],
@@ -94,7 +92,6 @@ test("widget, matrix screenshot test", async ({ page, headless }) => {
     .fill('[aria-label="row: 5, column: 5"]', "6")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-matrix-whole-matrice-is-active",
     waitForThisToBeVisibleAndStable: [

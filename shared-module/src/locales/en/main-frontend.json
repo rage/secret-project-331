@@ -50,6 +50,7 @@
   "previous-title-current-title": "Previous: {{current-title}} | Current: {{selected-title}}",
   "current-text": "Current: {{ current-text }}",
   "proposed-text": "Proposal text: {{ changed-text }}",
+  "proposed-text-input-label": "Proposal text",
   "result": "Result: {{ result }}",
   "button-text-accept": "Accept",
   "button-text-reject": "Reject",

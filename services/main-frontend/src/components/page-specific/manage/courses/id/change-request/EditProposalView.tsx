@@ -57,6 +57,7 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
               `}
               multiline
               maxRows={4}
+              inputProps={{ "aria-label": t(`proposed-text-input-label`) }}
               defaultValue={block.accept_preview}
               onChange={(ev) =>
                 setBlockActions((ba) => {

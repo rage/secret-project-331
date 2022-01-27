@@ -68,7 +68,13 @@ test.describe("Uploading media as admin", async () => {
     const [newPage] = await Promise.all([page.waitForEvent("popup"), page.click("a[href$='.png']")])
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: true, // not for new screenshots
+      axeSkip: [
+        "html-has-lang",
+        "image-alt",
+        "landmark-one-main",
+        "page-has-heading-one",
+        "region",
+      ],
       page: newPage,
       snapshotName: "uploadMediaPicture.png",
       toMatchSnapshotOptions: { threshold: 0.2 },

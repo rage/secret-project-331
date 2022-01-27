@@ -11,6 +11,7 @@ import { RoleDomain, RoleQuery, RoleUser, UserRole } from "../shared-module/bind
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import SelectField from "../shared-module/components/InputFields/SelectField"
+import { respondToOrLarger } from "../shared-module/styles/respond"
 
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"
@@ -335,7 +336,12 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
       <div
         className={css`
           display: flex;
+          flex-direction: column;
           justify-content: space-around;
+
+          ${respondToOrLarger.sm} {
+            flex-direction: row;
+          }
         `}
       >
         <div

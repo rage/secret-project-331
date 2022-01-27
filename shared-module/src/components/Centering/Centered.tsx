@@ -28,7 +28,7 @@ export const narrowWidthCenteredComponentStyles = css`
   }
 `
 
-interface CenteredProps {
+export interface CenteredProps {
   variant: "default" | "narrow"
 }
 

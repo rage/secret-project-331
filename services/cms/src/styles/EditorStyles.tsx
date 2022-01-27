@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 
-import { defaultContainerWidth } from "../shared-module/styles/constants"
+import { narrowContainerWidthRem } from "../shared-module/styles/constants"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 
 /**
@@ -23,7 +23,7 @@ export const gutenbergControlsVisible = css`
 // Sidebar removed at 75rem, sidebar width 280px
 // eslint-disable-next-line i18next/no-literal-string
 export const cmsNormalWidthCenteredComponentStyles = css`
-  max-width: ${defaultContainerWidth}rem;
+  max-width: ${narrowContainerWidthRem}rem;
   margin-left: auto;
   margin-right: auto;
   ${respondToOrLarger.xl} {

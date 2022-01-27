@@ -124,7 +124,7 @@ const IFrame: React.FC = () => {
       <div
         className={css`
           width: 100%;
-          ${maxWidth && `max-width: ${maxWidth}rem;`}
+          ${maxWidth && `max-width: ${maxWidth}px;`}
           margin: 0 auto;
         `}
       >

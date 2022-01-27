@@ -23,7 +23,7 @@ const ExerciseBase: React.FC<Props> = ({
     <div
       className={css`
         width: 100%;
-        ${maxWidth && `max-width: ${maxWidth}rem;`}
+        ${maxWidth && `max-width: ${maxWidth}px;`}
         margin: 0 auto;
         display: flex;
         flex-direction: column;

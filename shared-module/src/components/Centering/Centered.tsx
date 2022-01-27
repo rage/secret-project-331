@@ -1,16 +1,12 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { defaultContainerWidth, wideContainerWidth } from "../../styles/constants"
+import { narrowContainerWidthRem, normalContainerWidthRem } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 
-// Centering is done with this because we don't want to constrict all components
-// in a page to be inside a container. Some elements need the entire width
-// of the page.
-
 // eslint-disable-next-line i18next/no-literal-string
-export const wideWidthCenteredComponentStyles = css`
-  max-width: ${wideContainerWidth}rem;
+export const defaultWidthCenteredComponentStyles = css`
+  max-width: ${normalContainerWidthRem}rem;
   margin-left: auto;
   margin-right: auto;
   padding: 0rem 1.375rem;
@@ -21,8 +17,8 @@ export const wideWidthCenteredComponentStyles = css`
 `
 
 // eslint-disable-next-line i18next/no-literal-string
-export const normalWidthCenteredComponentStyles = css`
-  max-width: ${defaultContainerWidth}rem;
+export const narrowWidthCenteredComponentStyles = css`
+  max-width: ${narrowContainerWidthRem}rem;
   margin-left: auto;
   margin-right: auto;
   padding: 0rem 1.375rem;
@@ -38,9 +34,9 @@ interface CenteredProps {
 
 const Centered: React.FC<CenteredProps> = ({ children, variant }) => {
   if (variant === "narrow") {
-    return <div className={normalWidthCenteredComponentStyles}>{children}</div>
+    return <div className={narrowWidthCenteredComponentStyles}>{children}</div>
   } else {
-    return <div className={wideWidthCenteredComponentStyles}>{children}</div>
+    return <div className={defaultWidthCenteredComponentStyles}>{children}</div>
   }
 }
 

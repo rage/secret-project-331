@@ -19,12 +19,12 @@ import MessageChannelIFrame from "../shared-module/components/MessageChannelIFra
 import Spinner from "../shared-module/components/Spinner"
 import { monospaceFont } from "../shared-module/styles"
 import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
-import { defaultContainerWidth } from "../shared-module/styles/constants"
+import { narrowContainerWidthPx } from "../shared-module/styles/constants"
 
 const Home: React.FC = () => {
   const { t } = useTranslation()
   const [exampleUrl, setExampleUrl] = useState<string>("")
-  const [exampleWidth, setExampleWidth] = useState<number>(defaultContainerWidth)
+  const [exampleWidth, setExampleWidth] = useState<number>(narrowContainerWidthPx)
   const [exampleData, setExampleData] = useState<string>("")
   const [exampleName, setExampleName] = useState<string>("")
   const [combinedUrl, setCombinedUrl] = useState<string>("")

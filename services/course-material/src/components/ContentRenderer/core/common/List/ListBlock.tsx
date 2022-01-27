@@ -3,7 +3,6 @@ import { css } from "@emotion/css"
 import { BlockRendererProps } from "../../.."
 import { ListAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { normalWidthCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
-import { defaultContainerWidth } from "../../../../../shared-module/styles/constants"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
@@ -27,7 +26,6 @@ const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
 
   const LIST_ITEM_CLASS = css`
     ${normalWidthCenteredComponentStyles}
-    max-width: ${defaultContainerWidth}rem;
     ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
     ${textColor && `color: ${colorMapper(textColor)};`}
     ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}

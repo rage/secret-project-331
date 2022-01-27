@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import { baseTheme, primaryFont, typography } from "../../shared-module/styles"
-import { defaultContainerWidth } from "../../shared-module/styles/constants"
+import { narrowContainerWidthPx } from "../../shared-module/styles/constants"
 import { runCallbackIfEnterPressed } from "../../shared-module/utils/accessibility"
 import {
   cmsNormalWidthCenteredComponentStyles,
@@ -158,7 +158,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
             <ExerciseTaskIFrameEditor
               onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
               privateSpec={privateSpecOnFirstRender}
-              url={`${url}?width=${defaultContainerWidth}`}
+              url={`${url}?width=${narrowContainerWidthPx}`}
             />
           )}
         </ExerciseTaskEditorCard>

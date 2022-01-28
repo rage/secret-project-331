@@ -16,7 +16,7 @@ pub struct PreviousSubmission {
 /**
 GET `/api/v0/course-material/previous-for-exercise/:id` - Gets the previous submission for the given exercise.
 */
-#[generated_doc(Option<PreviousSubmission>)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn previous_submission(
     pool: web::Data<PgPool>,

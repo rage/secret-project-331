@@ -20,6 +20,8 @@ test("test quizzes open feedback", async ({ headless, page }) => {
 
   await Promise.all([page.waitForNavigation(), page.click("text=Introduction to everything")])
 
+  await page.waitForTimeout(100)
+
   const courseVariantSelector = await page.$$("text=Select course version to continue.")
 
   if (courseVariantSelector.length > 0) {
@@ -29,12 +31,12 @@ test("test quizzes open feedback", async ({ headless, page }) => {
     await page.click('button:has-text("Continue")')
   }
 
-  await Promise.all([page.waitForNavigation(), await page.click("text=The Basics")])
+  await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
   expect(page.url()).toBe(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
-  await Promise.all([page.waitForNavigation(), await page.click("text=Page 4")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Page 4")])
   expect(page.url()).toBe(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-4",
   )

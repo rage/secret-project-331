@@ -14,7 +14,7 @@ GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks 
 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
 */
-#[generated_doc(ContentManagementPage)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_page(
     page_id: web::Path<Uuid>,
@@ -22,14 +22,8 @@ async fn get_page(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
-    let (course_id, exam_id) = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
-    if let Some(course_id) = course_id {
-        authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
-    } else if let Some(exam_id) = exam_id {
-        authorize(&mut conn, Act::Edit, user.id, Res::Exam(exam_id)).await?;
-    } else {
-        return Err(anyhow::anyhow!("No course or exam associated with page").into());
-    }
+    authorize(&mut conn, Act::Edit, user.id, Res::Page(*page_id)).await?;
+
     let cms_page = models::pages::get_page_with_exercises(&mut conn, *page_id).await?;
     Ok(web::Json(cms_page))
 }
@@ -57,7 +51,7 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc(ContentManagementPage)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn update_page(
     payload: web::Json<CmsPageUpdate>,
@@ -66,13 +60,10 @@ async fn update_page(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, user.id, Res::Page(*page_id)).await?;
+
     let page_update = payload.0;
-    let (course_id, exam_id) = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
-    if let Some(course_id) = course_id {
-        authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
-    } else if let Some(exam_id) = exam_id {
-        authorize(&mut conn, Act::Edit, user.id, Res::Exam(exam_id)).await?;
-    }
+    let (_, exam_id) = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
     let saved = models::pages::update_page(
         &mut conn,
         *page_id,

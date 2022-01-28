@@ -21,6 +21,7 @@ import {
   CmsPageUpdate,
   ContentManagementPage,
   Course,
+  CourseCount,
   CourseExam,
   CourseInstance,
   CourseInstanceEnrollment,
@@ -271,6 +272,7 @@ export function isCourse(obj: any, _argumentName?: string): obj is Course {
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
     typeof obj.name === "string" &&
+    (obj.description === null || typeof obj.description === "string") &&
     typeof obj.organization_id === "string" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.language_code === "string" &&
@@ -307,6 +309,13 @@ export function isNewCourse(obj: any, _argumentName?: string): obj is NewCourse 
     typeof obj.language_code === "string" &&
     typeof obj.teacher_in_charge_name === "string" &&
     typeof obj.teacher_in_charge_email === "string"
+  )
+}
+
+export function isCourseCount(obj: any, _argumentName?: string): obj is CourseCount {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.count === "number"
   )
 }
 

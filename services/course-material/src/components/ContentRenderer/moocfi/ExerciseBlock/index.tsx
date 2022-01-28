@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { useMutation, useQuery } from "react-query"
 
 import { BlockRendererProps } from "../.."
-import CoursePageContext from "../../../../contexts/CoursePageContext"
+import PageContext from "../../../../contexts/PageContext"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
 import { fetchExerciseById, postSubmission } from "../../../../services/backend"
 import Button from "../../../../shared-module/components/Button"
@@ -27,8 +27,8 @@ interface ExerciseBlockAttributes {
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
-  const coursePageContext = useContext(CoursePageContext)
-  const showExercise = props.isExam || (loginState.signedIn ? !!coursePageContext.settings : true)
+  const pageContext = useContext(PageContext)
+  const showExercise = props.isExam || (loginState.signedIn ? !!pageContext.settings : true)
   const [postThisStateToIFrame, dispatch] = useReducer(
     exerciseBlockPostThisStateToIFrameReducer,
     null,
@@ -81,11 +81,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     return <Spinner variant={"medium"} />
   }
 
-  const courseInstanceId = coursePageContext?.instance?.id
+  const courseInstanceId = pageContext?.instance?.id
 
-  const inEndedExam = coursePageContext?.exam?.ends_at
-    ? coursePageContext?.exam?.ends_at < new Date()
-    : false
+  const inEndedExam = pageContext?.exam?.ends_at ? pageContext?.exam?.ends_at < new Date() : false
   const noSubmission = getCourseMaterialExercise.data.previous_submission === null
   const cannotAnswerButNoSubmission = inEndedExam && noSubmission
 

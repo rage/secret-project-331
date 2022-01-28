@@ -2,7 +2,6 @@
 import styled from "@emotion/styled"
 import React from "react"
 import Particles from "react-tsparticles"
-import type { Container, Main } from "tsparticles"
 
 import Tick from "../img/tick.svg"
 
@@ -19,22 +18,10 @@ const StyledDiv = styled.div`
 `
 
 const Confetti: React.FC = () => {
-  const particlesInit = (main: Main) => {
-    console.log(main)
-
-    // you can initialize the tsParticles instance (main) here, adding custom shapes or presets
-  }
-
-  const particlesLoaded = (container: Container) => {
-    console.log(container)
-  }
-
   return (
     <StyledDiv>
       <Particles
         id="tsparticles"
-        init={particlesInit}
-        loaded={particlesLoaded}
         options={{
           background: {
             color: {

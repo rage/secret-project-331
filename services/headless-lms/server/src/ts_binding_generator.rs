@@ -54,6 +54,7 @@ fn ts_binding_generator() {
         courses::CourseStructure,
         courses::CourseUpdate,
         courses::NewCourse,
+        courses::CourseCount,
 
         email_templates::EmailTemplate,
         email_templates::EmailTemplateNew,

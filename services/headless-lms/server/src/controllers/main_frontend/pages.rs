@@ -35,7 +35,7 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc(Page)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn post_new_page(
     payload: web::Json<NewPage>,
@@ -60,7 +60,7 @@ DELETE `/api/v0/main-frontend/pages/:page_id` - Delete a page, related exercises
 
 Request: `DELETE /api/v0/main-frontend/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
 */
-#[generated_doc(Page)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn delete_page(
     page_id: web::Path<Uuid>,
@@ -68,14 +68,8 @@ async fn delete_page(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
-    let (course_id, exam_id) = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
-    if let Some(course_id) = course_id {
-        authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
-    } else if let Some(exam_id) = exam_id {
-        authorize(&mut conn, Act::Edit, user.id, Res::Exam(exam_id)).await?;
-    } else {
-        return Err(anyhow::anyhow!("Page not associated with course or exam").into());
-    }
+    authorize(&mut conn, Act::Edit, user.id, Res::Page(*page_id)).await?;
+
     let deleted_page = models::pages::delete_page_and_exercises(&mut conn, *page_id).await?;
     Ok(web::Json(deleted_page))
 }
@@ -83,7 +77,7 @@ async fn delete_page(
 /**
 GET /api/v0/main-frontend/pages/:page_id/history
 */
-#[generated_doc(Vec<PageHistory>)]
+#[generated_doc]
 async fn history(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
@@ -100,7 +94,7 @@ async fn history(
 /**
 GET /api/v0/main-frontend/pages/:page_id/history_count
 */
-#[generated_doc(i64)]
+#[generated_doc]
 async fn history_count(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
@@ -116,7 +110,7 @@ async fn history_count(
 /**
 POST /api/v0/main-frontend/pages/:page_id/restore
 */
-#[generated_doc(Uuid)]
+#[generated_doc]
 async fn restore(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,

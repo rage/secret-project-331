@@ -75,10 +75,10 @@ macro_rules! write_docs {
 fn main() {
     // reusable variables
     let id = Uuid::parse_str("307fa56f-9853-4f5c-afb9-a6736c232f32").unwrap();
-    let created_at = Utc::now();
-    let updated_at = Utc::now();
-    let deleted_at = None;
     let date_time = Utc.timestamp(1640988000, 0);
+    let created_at = date_time;
+    let updated_at = date_time;
+    let deleted_at = None;
     let naive_date = NaiveDate::from_ymd(2022, 1, 1);
     let page = Page {
         id,
@@ -223,6 +223,7 @@ fn main() {
         copied_from: None,
         content_search_language: Some("simple".to_string()),
         course_language_group_id: id,
+        description: Some("Example".to_string()),
     };
     let chapter = Chapter {
         id,
@@ -265,6 +266,16 @@ fn main() {
         url: "http://example.com".to_string(),
         width: 123,
         data: serde_json::json! {{}},
+    };
+    let organization = Organization {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        slug: "hy-cs".to_string(),
+        name: "University of Helsinki".to_string(),
+        description: None,
+        organization_image_url: None,
     };
 
     // write docs
@@ -349,6 +360,19 @@ fn main() {
         }
     );
     write_docs!(
+        Vec<UserCourseInstanceChapterExerciseProgress>,
+        vec![
+            UserCourseInstanceChapterExerciseProgress {
+                exercise_id: id,
+                score_given: 1.0
+            },
+            UserCourseInstanceChapterExerciseProgress {
+                exercise_id: id,
+                score_given: 2.0
+            }
+        ]
+    );
+    write_docs!(
         CourseInstanceEnrollment,
         CourseInstanceEnrollment {
             user_id: id,
@@ -370,6 +394,7 @@ fn main() {
     );
     write_docs!(CourseInstance, course_instance.clone());
     write_docs!(Vec<CourseInstance>, vec![course_instance.clone()]);
+    write_docs!(Option<CourseInstance>, Some(course_instance.clone()));
     write_docs!(
         Vec<ChapterWithStatus>,
         vec![ChapterWithStatus {
@@ -475,8 +500,8 @@ fn main() {
         }
     );
     write_docs!(
-        PageRoutingDataWithChapterStatus,
-        PageRoutingDataWithChapterStatus {
+        Option<PageRoutingDataWithChapterStatus>,
+        Some(PageRoutingDataWithChapterStatus {
             url_path: "/path-to-next/page".to_string(),
             title: "Name of the next page".to_string(),
             chapter_number: 1,
@@ -484,7 +509,7 @@ fn main() {
             chapter_opens_at: Some(date_time),
             chapter_front_page_id: Some(id),
             chapter_status: ChapterStatus::Open
-        }
+        })
     );
     write_docs!(
         SubmissionResult,
@@ -600,19 +625,8 @@ fn main() {
             total_pages: 1
         }
     );
-    write_docs!(
-        Organization,
-        Organization {
-            id,
-            created_at,
-            updated_at,
-            deleted_at,
-            slug: "hy-cs".to_string(),
-            name: "University of Helsinki".to_string(),
-            description: None,
-            organization_image_url: None
-        }
-    );
+    write_docs!(Organization, organization.clone());
+    write_docs!(Vec<Organization>, vec![organization.clone()]);
     write_docs!(Vec<Course>, vec![course.clone()]);
     write_docs!(
         Vec<CourseExam>,

@@ -11,7 +11,7 @@ use crate::{
 /**
 GET `/api/v0/main-frontend/exams/:id
 */
-#[generated_doc(Exam)]
+#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_exam(
     pool: web::Data<PgPool>,
@@ -20,6 +20,7 @@ pub async fn get_exam(
 ) -> ControllerResult<web::Json<Exam>> {
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::View, user.id, Res::Exam(*exam_id)).await?;
+
     let exam = exams::get(&mut conn, *exam_id).await?;
     Ok(web::Json(exam))
 }
@@ -32,7 +33,7 @@ pub struct ExamCourseInfo {
 /**
 POST `/api/v0/main-frontend/exams/:id/set`
 */
-#[generated_doc(())]
+#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn set_course(
     pool: web::Data<PgPool>,
@@ -50,7 +51,7 @@ pub async fn set_course(
 /**
 POST `/api/v0/main-frontend/exams/:id/unset`
 */
-#[generated_doc(())]
+#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn unset_course(
     pool: web::Data<PgPool>,
@@ -70,14 +71,15 @@ GET `/api/v0/main-frontend/exams/:id/export-points`
 */
 #[instrument(skip(pool))]
 pub async fn export_points(
-    exam_id_path: web::Path<Uuid>,
+    exam_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Teach, user.id, Res::Exam(*exam_id_path)).await?;
+    let exam_id = exam_id.into_inner();
+    authorize(&mut conn, Act::Teach, user.id, Res::Exam(exam_id)).await?;
+
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
-    let exam_id = exam_id_path.into_inner();
 
     // spawn handle that writes the csv row by row into the sender
     let mut handle_conn = pool.acquire().await?;
@@ -110,14 +112,15 @@ GET `/api/v0/main-frontend/exams/:id/export-submissions`
 */
 #[instrument(skip(pool))]
 pub async fn export_submissions(
-    exam_id_path: web::Path<Uuid>,
+    exam_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Teach, user.id, Res::Exam(*exam_id_path)).await?;
+    let exam_id = exam_id.into_inner();
+    authorize(&mut conn, Act::Teach, user.id, Res::Exam(exam_id)).await?;
+
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
-    let exam_id = exam_id_path.into_inner();
 
     // spawn handle that writes the csv row by row into the sender
     let mut handle_conn = pool.acquire().await?;

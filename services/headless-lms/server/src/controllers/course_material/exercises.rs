@@ -21,7 +21,7 @@ relevant context so that doing the exercise is possible based on the response.
 This endpoint does not expose exercise's private spec because it would
 expose the correct answers to the user.
 */
-#[generated_doc(CourseMaterialExercise)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_exercise(
     pool: web::Data<PgPool>,
@@ -58,8 +58,8 @@ Content-Type: application/json
 ]
 ```
 */
-#[generated_doc(Vec<SubmissionResult>)]
-// #[instrument(skip(pool))]
+#[generated_doc]
+#[instrument(skip(pool))]
 async fn post_submission(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,

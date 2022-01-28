@@ -20,6 +20,7 @@ export function validateResponse<T>(
       title: "Invalid data from API",
       message: `Data: ${JSON.stringify(data, undefined, 2)}`,
       source: response.request?.responseURL,
+      data: null,
     }
     response.data = error
     response.status = 422

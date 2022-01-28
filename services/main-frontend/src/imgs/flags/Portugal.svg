@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
   <g  transform="translate(-2431 -969)">
-    <rect  data-name="Rectangle 4" width="600" height="400" transform="translate(2431 969)" fill="red"/>
-    <rect  data-name="Rectangle 5" width="240" height="400" transform="translate(2431 969)" fill="#060"/>
+    <rect  width="600" height="400" transform="translate(2431 969)" fill="red"/>
+    <rect  width="240" height="400" transform="translate(2431 969)" fill="#060"/>
     <g  transform="translate(2431 969)">
       <path  d="M318.24,262.04c-30.21-.91-168.74-87.38-169.69-101.15l7.65-12.757c13.741,19.966,155.36,104.06,169.27,101.08l-7.23,12.823" fill="#ff0" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.573" fill-rule="evenodd"/>
       <path  d="M154.59,146.4c-2.71,7.294,36.149,31.318,82.9,59.754s87.065,46.006,90.053,43.486a26.192,26.192,0,0,0,1.352-2.523c-.56.844-1.923,1.11-4.051.5-12.631-3.643-45.575-18.765-86.374-43.506s-76.294-47.544-81.811-57.232a5.871,5.871,0,0,1-.6-2.849l-.134,0-1.175,2.053-.161.322h0ZM318.95,262.44c-.512.93-1.467.96-3.282.761-11.3-1.251-45.589-17.925-86.162-42.213-47.21-28.26-86.2-54.01-81.97-60.74l1.151-2.035.227.071c-3.8,11.4,76.948,57.578,81.7,60.522,46.724,28.947,86.115,45.851,89.6,41.458l-1.268,2.181v0Z" fill="#ff0" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.573" fill-rule="evenodd"/>
@@ -153,43 +153,43 @@
       </g>
       <g >
         <path  d="M232.636,202.406v.005a8.341,8.341,0,0,0,2.212,5.689,7.114,7.114,0,0,0,10.6.012,8.34,8.34,0,0,0,2.2-5.693V191.652l-14.992-.012-.027,10.766" fill="#039"/>
-        <circle  data-name="Ellipse 1" cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 194.249)" fill="#fff"/>
-        <circle  data-name="Ellipse 2" cx="1.486" cy="1.486" r="1.486" transform="translate(242.906 194.256)" fill="#fff"/>
-        <circle  data-name="Ellipse 3" cx="1.486" cy="1.486" r="1.486" transform="translate(238.739 198.249)" fill="#fff"/>
-        <circle  data-name="Ellipse 4" cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 202.43)" fill="#fff"/>
-        <circle  data-name="Ellipse 5" cx="1.486" cy="1.486" r="1.486" transform="translate(242.897 202.419)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 194.249)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(242.906 194.256)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(238.739 198.249)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 202.43)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(242.897 202.419)" fill="#fff"/>
       </g>
       <g  transform="translate(0 -26.016)">
         <path  d="M232.636,202.406v.005a8.341,8.341,0,0,0,2.212,5.689,7.114,7.114,0,0,0,10.6.012,8.34,8.34,0,0,0,2.2-5.693V191.652l-14.992-.012-.027,10.766" fill="#039"/>
-        <circle  data-name="Ellipse 6" cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 194.249)" fill="#fff"/>
-        <circle  data-name="Ellipse 7" cx="1.486" cy="1.486" r="1.486" transform="translate(242.906 194.256)" fill="#fff"/>
-        <circle  data-name="Ellipse 8" cx="1.486" cy="1.486" r="1.486" transform="translate(238.739 198.249)" fill="#fff"/>
-        <circle  data-name="Ellipse 9" cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 202.43)" fill="#fff"/>
-        <circle  data-name="Ellipse 10" cx="1.486" cy="1.486" r="1.486" transform="translate(242.897 202.419)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 194.249)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(242.906 194.256)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(238.739 198.249)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 202.43)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(242.897 202.419)" fill="#fff"/>
       </g>
       <g  transform="translate(-20.799)">
         <path  d="M232.636,202.406v.005a8.341,8.341,0,0,0,2.212,5.689,7.114,7.114,0,0,0,10.6.012,8.34,8.34,0,0,0,2.2-5.693V191.652l-14.992-.012-.027,10.766" fill="#039"/>
-        <circle  data-name="Ellipse 11" cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 194.249)" fill="#fff"/>
-        <circle  data-name="Ellipse 12" cx="1.486" cy="1.486" r="1.486" transform="translate(242.906 194.256)" fill="#fff"/>
-        <circle  data-name="Ellipse 13" cx="1.486" cy="1.486" r="1.486" transform="translate(238.739 198.249)" fill="#fff"/>
-        <circle  data-name="Ellipse 14" cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 202.43)" fill="#fff"/>
-        <circle  data-name="Ellipse 15" cx="1.486" cy="1.486" r="1.486" transform="translate(242.897 202.419)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 194.249)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(242.906 194.256)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(238.739 198.249)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 202.43)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(242.897 202.419)" fill="#fff"/>
       </g>
       <g  transform="translate(20.745)">
         <path  d="M232.636,202.406v.005a8.341,8.341,0,0,0,2.212,5.689,7.114,7.114,0,0,0,10.6.012,8.34,8.34,0,0,0,2.2-5.693V191.652l-14.992-.012-.027,10.766" fill="#039"/>
-        <circle  data-name="Ellipse 16" cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 194.249)" fill="#fff"/>
-        <circle  data-name="Ellipse 17" cx="1.486" cy="1.486" r="1.486" transform="translate(242.906 194.256)" fill="#fff"/>
-        <circle  data-name="Ellipse 18" cx="1.486" cy="1.486" r="1.486" transform="translate(238.739 198.249)" fill="#fff"/>
-        <circle  data-name="Ellipse 19" cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 202.43)" fill="#fff"/>
-        <circle  data-name="Ellipse 20" cx="1.486" cy="1.486" r="1.486" transform="translate(242.897 202.419)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 194.249)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(242.906 194.256)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(238.739 198.249)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 202.43)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(242.897 202.419)" fill="#fff"/>
       </g>
       <g  transform="translate(0 25.784)">
         <path  d="M232.636,202.406v.005a8.341,8.341,0,0,0,2.212,5.689,7.114,7.114,0,0,0,10.6.012,8.34,8.34,0,0,0,2.2-5.693V191.652l-14.992-.012-.027,10.766" fill="#039"/>
-        <circle  data-name="Ellipse 21" cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 194.249)" fill="#fff"/>
-        <circle  data-name="Ellipse 22" cx="1.486" cy="1.486" r="1.486" transform="translate(242.906 194.256)" fill="#fff"/>
-        <circle  data-name="Ellipse 23" cx="1.486" cy="1.486" r="1.486" transform="translate(238.739 198.249)" fill="#fff"/>
-        <circle  data-name="Ellipse 24" cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 202.43)" fill="#fff"/>
-        <circle  data-name="Ellipse 25" cx="1.486" cy="1.486" r="1.486" transform="translate(242.897 202.419)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 194.249)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(242.906 194.256)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(238.739 198.249)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(234.588 202.43)" fill="#fff"/>
+        <circle  cx="1.486" cy="1.486" r="1.486" transform="translate(242.897 202.419)" fill="#fff"/>
       </g>
     </g>
   </g>

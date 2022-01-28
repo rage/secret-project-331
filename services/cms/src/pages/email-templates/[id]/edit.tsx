@@ -1,6 +1,5 @@
 import dynamic from "next/dynamic"
 import React from "react"
-import { useTranslation } from "react-i18next"
 
 import Layout from "../../../components/Layout"
 import CourseContext from "../../../contexts/CourseContext"
@@ -10,6 +9,7 @@ import {
   updateExistingEmailTemplate,
 } from "../../../services/backend/email-templates"
 import { EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/bindings"
+import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useStateQuery from "../../../shared-module/hooks/useStateQuery"
@@ -30,7 +30,6 @@ export interface EmailTemplateEditProps {
 }
 
 const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
-  const { t } = useTranslation()
   const emailTemplateId = query.id
   // eslint-disable-next-line i18next/no-literal-string
   const templateQuery = useStateQuery(["email-template", emailTemplateId], (_emailTemplateId) =>
@@ -44,20 +43,19 @@ const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
 
   if (templateQuery.state === "error" || instanceQuery.state === "error") {
     return (
-      <div>
-        <h1>{t("error")}</h1>
-        <pre>{JSON.stringify(templateQuery.error, undefined, 2)}</pre>
-        <pre>{JSON.stringify(instanceQuery.error, undefined, 2)}</pre>
-      </div>
+      <>
+        <ErrorBanner variant={"readOnly"} error={templateQuery.error} />
+        <ErrorBanner variant={"readOnly"} error={instanceQuery.error} />
+      </>
     )
   }
 
   if (templateQuery.state !== "ready") {
-    return <div>{t("loading")}</div>
+    return <Spinner variant={"medium"} />
   }
 
   if (instanceQuery.state !== "ready") {
-    return <div>{t("loading")}</div>
+    return <Spinner variant={"medium"} />
   }
 
   const handleSave = async (template: EmailTemplateUpdate): Promise<EmailTemplate> => {

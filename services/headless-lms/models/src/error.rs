@@ -1,6 +1,7 @@
 use std::num::TryFromIntError;
 
 use thiserror::Error;
+use uuid::Uuid;
 
 pub type ModelResult<T> = Result<T, ModelError>;
 
@@ -15,6 +16,8 @@ pub enum ModelError {
     },
     #[error("{0}")]
     PreconditionFailed(String),
+    #[error("{description}")]
+    PreconditionFailedWithCMSAnchorBlockId { id: Uuid, description: &'static str },
     #[error("{0}")]
     InvalidRequest(String),
     #[error("{0}")]

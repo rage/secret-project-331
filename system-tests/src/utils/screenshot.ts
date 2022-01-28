@@ -21,6 +21,7 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   frame?: Frame
   pageScreenshotOptions?: PageScreenshotOptions
   axeSkip?: boolean
+  skipMobile?: boolean
 }
 
 export default async function expectScreenshotsToMatchSnapshots({
@@ -34,6 +35,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   pageScreenshotOptions,
   // keep false for new screenshots
   axeSkip = false,
+  skipMobile = false,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
   if (!page && !frame) {
     throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
@@ -59,18 +61,20 @@ export default async function expectScreenshotsToMatchSnapshots({
     container: visibilityWaitContainer,
   })
 
-  await snapshotWithViewPort({
-    snapshotName,
-    viewPortName: "mobile",
-    toMatchSnapshotOptions,
-    waitForThisToBeStable: elementHandle,
-    beforeScreenshot,
-    page,
-    frame,
-    headless,
-    pageScreenshotOptions,
-    axeSkip,
-  })
+  if (!skipMobile) {
+    await snapshotWithViewPort({
+      snapshotName,
+      viewPortName: "mobile",
+      toMatchSnapshotOptions,
+      waitForThisToBeStable: elementHandle,
+      beforeScreenshot,
+      page,
+      frame,
+      headless,
+      pageScreenshotOptions,
+      axeSkip,
+    })
+  }
 
   await snapshotWithViewPort({
     snapshotName,
@@ -100,7 +104,7 @@ interface SnapshotWithViewPortProps {
   headless: boolean
   persistMousePosition?: boolean
   pageScreenshotOptions?: PageScreenshotOptions
-  axeSkip: boolean
+  axeSkip: boolean | string[]
 }
 
 async function snapshotWithViewPort({
@@ -158,10 +162,10 @@ async function snapshotWithViewPort({
     console.warn("Not in headless mode, skipping screenshot")
   }
 
-  if (!axeSkip) {
+  if (!axeSkip || typeof axeSkip == "object") {
     // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
     // for accessibility
-    await accessibilityCheck(pageObjectToUse, screenshotName)
+    await accessibilityCheck(pageObjectToUse, screenshotName, axeSkip)
   }
   // show the typing caret again
   await style.evaluate((handle) => {

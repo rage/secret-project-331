@@ -21,7 +21,6 @@ test("widget, checkbox", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-checkbox-initial",
     waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,
@@ -35,7 +34,6 @@ test("widget, checkbox", async ({ page, headless }) => {
   await frame.check(':nth-match(input[type="checkbox"], 2)')
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-checkbox-both-checked",
     waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,
@@ -46,7 +44,6 @@ test("widget, checkbox", async ({ page, headless }) => {
   await frame.uncheck(':nth-match(input[type="checkbox"], 2)')
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-checkbox-other-unchecked",
     waitForThisToBeVisibleAndStable: `text="The s in https stands for secure."`,

@@ -97,7 +97,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
       return (
         <p
           className={css`
-            white-space: pre-line;
+            margin-bottom: 1.25rem;
             min-width: 1px;
             color: ${textColor};
             background-color: ${backgroundColor};
@@ -167,7 +167,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
       return (
         <p
           className={css`
-            white-space: pre-line;
+            margin-bottom: 1.25rem;
             min-width: 1px;
             color: ${textColor};
             background-color: ${backgroundColor};
@@ -189,7 +189,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
     <P
       className={css`
         ${dropCap ? hasDropCap : null}
-        white-space: pre-line;
+        margin-bottom: 1.25rem;
         min-width: 1px;
         color: ${colorMapper(textColor)};
         background-color: ${bgColor};

@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600">
   <g  transform="translate(-2431 -164)">
     <g >
-      <rect  data-name="Rectangle 1" width="1200" height="600" transform="translate(2431 164)" fill="#171796"/>
-      <rect  data-name="Rectangle 2" width="1200" height="400" transform="translate(2431 164)" fill="#fff"/>
-      <rect  data-name="Rectangle 3" width="1200" height="200" transform="translate(2431 164)" fill="red"/>
+      <rect  width="1200" height="600" transform="translate(2431 164)" fill="#171796"/>
+      <rect  width="1200" height="400" transform="translate(2431 164)" fill="#fff"/>
+      <rect  width="1200" height="200" transform="translate(2431 164)" fill="red"/>
       <path  d="M599.628,454.875h0c64.108,0,116.556-52.451,116.556-116.556v-138.5H483.069v138.5c0,64.108,52.451,116.556,116.556,116.556Z" transform="translate(2431 164)" fill="red"/>
       <path  d="M599.628,453.007h0c62.885,0,114.333-51.451,114.333-114.333V202.061H485.292V338.674C485.292,401.56,536.743,453.007,599.628,453.007Z" transform="translate(2431 164)" fill="#fff"/>
       <g  transform="translate(2431 164)">

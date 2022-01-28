@@ -50,7 +50,11 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
             margin: 0.5rem;
           `}
         >
-          <h2>{quizItem.title}</h2>
+          {quizItem.title ? (
+            <>
+              <h2>{quizItem.title}</h2>
+            </>
+          ) : null}
         </div>
         <div
           className={css`
@@ -58,7 +62,17 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
             margin: 0.5rem;
           `}
         >
-          <h4>{quizItem.body}</h4>
+          {quizItem.body ? (
+            <>
+              <h3
+                className={css`
+                  font-size: clamp(18px, 2vw, 20px) !important;
+                `}
+              >
+                {quizItem.body}
+              </h3>
+            </>
+          ) : null}
         </div>
       </div>
       <div
@@ -72,6 +86,7 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
         <select
           onBlur={(e) => console.log(e)}
           onChange={handleOptionSelect}
+          aria-label={t("answer")}
           className={css`
             display: flex;
             width: 100%;

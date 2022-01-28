@@ -91,7 +91,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
   const url = exerciseTaskTypes.find((o) => o.identifier === exerciseType)?.url
 
   return (
-    <div>
+    <div id={attributes.id}>
       <div>
         <div
           className={css`
@@ -136,7 +136,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
         </div>
       </div>
       {attributes.show_editor ? (
-        <ExerciseTaskEditorCard id={attributes.id}>
+        <ExerciseTaskEditorCard>
           <div
             className={css`
               padding: 1rem;

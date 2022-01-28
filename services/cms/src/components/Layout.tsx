@@ -2,10 +2,12 @@ import { css } from "@emotion/css"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode } from "react"
+import { Toaster } from "react-hot-toast"
 
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
+import useMedia from "../shared-module/hooks/useMedia"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 import basePath from "../shared-module/utils/base-path"
 
@@ -21,6 +23,9 @@ type LayoutProps = {
   returnToPath?: string
 }
 
+const TOAST_BOTTOM_LEFT = "bottom-left"
+const TOAST_BOTTOM_CENTER = "bottom-center"
+
 const Layout: React.FC<LayoutProps> = ({
   children,
   title = "Secret Project 331",
@@ -31,6 +36,7 @@ const Layout: React.FC<LayoutProps> = ({
   returnToPath,
 }) => {
   const router = useRouter()
+  const notMobile = useMedia(respondToOrLarger.xs)
   // eslint-disable-next-line i18next/no-literal-string
   const returnPath = `/login?return_to=${encodeURIComponent(
     process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
@@ -51,28 +57,17 @@ const Layout: React.FC<LayoutProps> = ({
           min-height: 100vh;
         `}
       >
-        <div
-          className={css`
-            position: fixed;
-            top: 0;
-            z-index: 9002;
-            background-color: white;
-            width: 100%;
-          `}
-        >
-          <Navbar
-            faqUrl={faqUrl}
-            frontPageUrl={frontPageUrl ?? basePath()}
-            variant={navVariant ?? "complex"}
-            // Return to path can be override per page
-            returnToPath={returnToPath ?? returnPath}
-          ></Navbar>
-        </div>
+        <Navbar
+          faqUrl={faqUrl}
+          frontPageUrl={frontPageUrl ?? basePath()}
+          variant={navVariant ?? "complex"}
+          // Return to path can be override per page
+          returnToPath={returnToPath ?? returnPath}
+        ></Navbar>
         {/* Do not touch flex */}
         <main
           className={css`
             flex: 1;
-            margin-top: 90px;
             /* Sidebar hidden on small screens */
             margin-right: 0;
             ${respondToOrLarger.xl} {
@@ -84,6 +79,7 @@ const Layout: React.FC<LayoutProps> = ({
           <Centered variant="narrow">{children}</Centered>
         </main>
       </div>
+      <Toaster position={notMobile ? TOAST_BOTTOM_LEFT : TOAST_BOTTOM_CENTER} />
       <Footer licenseUrl={licenseUrl} />
     </>
   )

@@ -5,14 +5,12 @@ import { ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 interface Props {
   alternatives: PublicAlternative[]
   selectedId: string | null
-  maxWidth: number | null
   onClick: (selectedId: string, name: string) => void
   interactable: boolean
   model_solutions: ModelSolutionApi | null
 }
 
 const ExerciseBase: React.FC<Props> = ({
-  maxWidth,
   alternatives,
   selectedId,
   onClick,
@@ -22,9 +20,6 @@ const ExerciseBase: React.FC<Props> = ({
   return (
     <div
       className={css`
-        width: 100%;
-        ${maxWidth && `max-width: ${maxWidth}px;`}
-        margin: 0 auto;
         display: flex;
         flex-direction: column;
       `}

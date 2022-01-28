@@ -6,7 +6,10 @@ import React, { ReactNode } from "react"
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
+import { respondToOrLarger } from "../shared-module/styles/respond"
 import basePath from "../shared-module/utils/base-path"
+
+export const SIDEBAR_WIDTH_PX = 280
 
 type LayoutProps = {
   children: ReactNode
@@ -70,6 +73,12 @@ const Layout: React.FC<LayoutProps> = ({
           className={css`
             flex: 1;
             margin-top: 90px;
+            /* Sidebar hidden on small screens */
+            margin-right: 0;
+            ${respondToOrLarger.xl} {
+              /* Sidebar visible screens */
+              margin-right: ${SIDEBAR_WIDTH_PX}px;
+            }
           `}
         >
           <Centered variant="narrow">{children}</Centered>

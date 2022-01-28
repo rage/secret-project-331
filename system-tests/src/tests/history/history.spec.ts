@@ -256,7 +256,7 @@ test("test", async ({ page, headless }) => {
     page,
     headless,
     snapshotName: "history-view-after-restore",
-    waitForThisToBeVisibleAndStable: "text=Best exercise",
+    waitForThisToBeVisibleAndStable: "text=core/paragraph",
     toMatchSnapshotOptions: { threshold: 0.3 },
     beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)

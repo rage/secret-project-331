@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "
 import { useDebounce } from "use-debounce"
 
 interface Props {
-  port: MessagePort
+  port: MessagePort | null
   children?: ReactNode
 }
 
@@ -42,6 +42,9 @@ const HeightTrackingContainer: React.FC<Props> = ({ port, children }) => {
 }
 
 function onHeightChange(newHeight: number, port: MessagePort) {
+  if (!port) {
+    return
+  }
   port.postMessage({
     message: "height-changed",
     data: newHeight,

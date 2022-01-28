@@ -13,7 +13,6 @@ import OpenFeedback from "./SubmissionComponents/Open"
 import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
 
 interface SubmissionProps {
-  maxWidth: number | null
   user_answer: QuizAnswer
   publicAlternatives: PublicQuiz
   modelSolutions: ModelSolutionQuiz | null

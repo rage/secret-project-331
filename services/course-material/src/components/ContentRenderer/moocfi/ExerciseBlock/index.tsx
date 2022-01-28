@@ -9,11 +9,12 @@ import PageContext from "../../../../contexts/PageContext"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
 import { fetchExerciseById, postSubmission } from "../../../../services/backend"
 import Button from "../../../../shared-module/components/Button"
+import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
+import Centered from "../../../../shared-module/components/Centering/Centered"
 import DebugModal from "../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
@@ -87,121 +88,120 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const cannotAnswerButNoSubmission = inEndedExam && noSubmission
 
   return (
-    <div
-      className={css`
-        width: 100%;
-        background: #f6f6f6;
-        margin-bottom: 1rem;
-        padding-top: 2rem;
-      `}
-      id={id}
-    >
+    <BreakFromCentered sidebar={false}>
       <div
         className={css`
-          ${normalWidthCenteredComponentStyles}
-          display: flex;
-          align-items: center;
-          margin-bottom: 1.5rem;
+          width: 100%;
+          background: #f6f6f6;
+          margin-bottom: 1rem;
+          padding-top: 2rem;
         `}
+        id={id}
       >
-        <HelpIcon
-          className={css`
-            height: 5rem !important;
-            width: 5rem !important;
-            margin-right: 1rem;
-          `}
-        />
-        <h2
-          className={css`
-            font-size: 2rem;
-            font-weight: 400;
-          `}
-        >
-          {getCourseMaterialExercise.data.exercise.name}
-        </h2>
-        <div
-          className={css`
-            flex: 1;
-          `}
-        />
-        <div
-          className={css`
-            font-size: 1rem;
-            text-align: center;
-          `}
-        >
-          {t("points-label")}
-          <br />
-          {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
-        </div>
-      </div>
-      <div
-        className={css`
-          ${normalWidthCenteredComponentStyles}
-        `}
-      >
-        {postSubmissionMutation.data?.grading?.feedback_text &&
-          postSubmissionMutation.data?.grading?.feedback_text}
-      </div>
-      <ExerciseTask
-        exercise={getCourseMaterialExercise.data}
-        postThisStateToIFrame={postThisStateToIFrame}
-        setAnswer={setAnswer}
-        setAnswerValid={setAnswerValid}
-        cannotAnswerButNoSubmission={cannotAnswerButNoSubmission}
-      />
-      <div
-        className={css`
-          ${normalWidthCenteredComponentStyles}
-          button {
-            margin-bottom: 0.5rem;
-          }
-        `}
-      >
-        {!cannotAnswerButNoSubmission && postThisStateToIFrame?.view_type !== "view-submission" && (
-          <Button
-            size="medium"
-            variant="primary"
-            disabled={postSubmissionMutation.isLoading || !answerValid}
-            onClick={() => {
-              if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
-                return
+        <Centered variant="narrow">
+          <div
+            className={css`
+              display: flex;
+              align-items: center;
+              margin-bottom: 1.5rem;
+            `}
+          >
+            <HelpIcon
+              className={css`
+                height: 5rem !important;
+                width: 5rem !important;
+                margin-right: 1rem;
+              `}
+            />
+            <h2
+              className={css`
+                font-size: 2rem;
+                font-weight: 400;
+              `}
+            >
+              {getCourseMaterialExercise.data.exercise.name}
+            </h2>
+            <div
+              className={css`
+                flex: 1;
+              `}
+            />
+            <div
+              className={css`
+                font-size: 1rem;
+                text-align: center;
+              `}
+            >
+              {t("points-label")}
+              <br />
+              {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
+            </div>
+          </div>
+          <div>
+            {postSubmissionMutation.data?.grading?.feedback_text &&
+              postSubmissionMutation.data?.grading?.feedback_text}
+          </div>
+          <ExerciseTask
+            exercise={getCourseMaterialExercise.data}
+            postThisStateToIFrame={postThisStateToIFrame}
+            setAnswer={setAnswer}
+            setAnswerValid={setAnswerValid}
+            cannotAnswerButNoSubmission={cannotAnswerButNoSubmission}
+          />
+          <div
+            className={css`
+              button {
+                margin-bottom: 0.5rem;
               }
-              postSubmissionMutation.mutate({
-                course_instance_id: courseInstanceId || null,
-                exercise_task_id: getCourseMaterialExercise.data.current_exercise_task.id,
+            `}
+          >
+            {!cannotAnswerButNoSubmission &&
+              postThisStateToIFrame?.view_type !== "view-submission" && (
+                <Button
+                  size="medium"
+                  variant="primary"
+                  disabled={postSubmissionMutation.isLoading || !answerValid}
+                  onClick={() => {
+                    if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
+                      return
+                    }
+                    postSubmissionMutation.mutate({
+                      course_instance_id: courseInstanceId || null,
+                      exercise_task_id: getCourseMaterialExercise.data.current_exercise_task.id,
 
-                data_json: answer,
-              })
-            }}
-          >
-            {t("submit-button")}
-          </Button>
-        )}
-        {postThisStateToIFrame?.view_type === "view-submission" && (
-          <Button
-            variant="primary"
-            size="medium"
-            onClick={() => {
-              dispatch({
-                type: "tryAgain",
-                payload: getCourseMaterialExercise.data,
-              })
-              postSubmissionMutation.reset()
-              setAnswerValid(false)
-            }}
-            disabled={getCourseMaterialExercise.isRefetching}
-          >
-            {t("try-again")}
-          </Button>
-        )}
-        {postSubmissionMutation.isError && (
-          <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
-        )}
-        <br />
-        <DebugModal data={getCourseMaterialExercise.data} />
+                      data_json: answer,
+                    })
+                  }}
+                >
+                  {t("submit-button")}
+                </Button>
+              )}
+            {postThisStateToIFrame?.view_type === "view-submission" && (
+              <Button
+                variant="primary"
+                size="medium"
+                onClick={() => {
+                  dispatch({
+                    type: "tryAgain",
+                    payload: getCourseMaterialExercise.data,
+                  })
+                  postSubmissionMutation.reset()
+                  setAnswerValid(false)
+                }}
+                disabled={getCourseMaterialExercise.isRefetching}
+              >
+                {t("try-again")}
+              </Button>
+            )}
+            {postSubmissionMutation.isError && (
+              <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
+            )}
+            <br />
+            <DebugModal data={getCourseMaterialExercise.data} />
+          </div>
+        </Centered>
       </div>
-    </div>
+    </BreakFromCentered>
   )
 }
 

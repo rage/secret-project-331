@@ -58,13 +58,13 @@ module.exports = {
             name: "@material-ui/core",
             importNames: ["Container"],
             message:
-              "Don't use Container from @material-ui. Please use normalWidthCenteredComponentStyles.",
+              "Don't use Container from @material-ui. Please use Centered from shared-module.",
           },
           {
             name: "@material-ui/core/Container",
             importNames: ["default"],
             message:
-              "Don't use Container from @material-ui. Please use normalWidthCenteredComponentStyles.",
+              "Don't use Container from @material-ui. Please use Centered from shared-module.",
           },
           {
             name: "@material-ui/core",

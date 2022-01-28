@@ -13,22 +13,18 @@ interface WithSidebar {
 
 export type BreakFromCenteredProps = NoSidebar | WithSidebar
 
-const commonStyles = css`
-  position: relative;
-  left: 50%;
-  right: 50%;
-`
-
 const BreakFromCentered: React.FC<BreakFromCenteredProps> = (props) => {
   if (props.sidebar) {
     if (props.sidebarPosition === "left") {
       return (
         <div
           className={css`
-            ${commonStyles}
-            width: calc(100vw - ${props.sidebarWidth});
+            position: relative;
+            left: 50%;
+            right: 50%;
             margin-left: calc(-50vw + ${props.sidebarWidth} / 2);
             margin-right: calc(-50vw + ${props.sidebarWidth} / 2);
+            width: calc(100vw - ${props.sidebarWidth});
           `}
         >
           {props.children}
@@ -38,10 +34,12 @@ const BreakFromCentered: React.FC<BreakFromCenteredProps> = (props) => {
       return (
         <div
           className={css`
-            ${commonStyles}
-            width: calc(100vw - ${props.sidebarWidth});
+            position: relative;
+            left: 50%;
+            right: 50%;
             margin-left: calc(-50vw + ${props.sidebarWidth} / 2);
             margin-right: calc(-50vw + ${props.sidebarWidth} / 2);
+            width: calc(100vw - ${props.sidebarWidth});
           `}
         >
           {props.children}
@@ -52,10 +50,12 @@ const BreakFromCentered: React.FC<BreakFromCenteredProps> = (props) => {
   return (
     <div
       className={css`
-        ${commonStyles}
-        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
         margin-left: -50vw;
         margin-right: -50vw;
+        width: 100vw;
       `}
     >
       {props.children}

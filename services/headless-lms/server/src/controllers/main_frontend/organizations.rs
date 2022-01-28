@@ -14,7 +14,7 @@ use actix_web::web::{self, Json};
 /**
 GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 */
-#[generated_doc(Organization)]
+#[generated_doc]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_all_organizations(
     pool: web::Data<PgPool>,
@@ -33,7 +33,7 @@ async fn get_all_organizations(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a list of all courses in a organization.
 */
-#[generated_doc(Vec<Course>)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_organization_courses(
     organization_id: web::Path<Uuid>,
@@ -101,7 +101,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[generated_doc(Organization)]
+#[generated_doc]
 #[instrument(skip(request, payload, pool, file_store, app_conf))]
 async fn set_organization_image(
     request: HttpRequest,
@@ -162,7 +162,7 @@ Request:
 DELETE /api/v0/main-frontend/organizations/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
 ```
 */
-#[generated_doc(())]
+#[generated_doc]
 #[instrument(skip(pool, file_store))]
 async fn remove_organization_image(
     organization_id: web::Path<Uuid>,
@@ -196,7 +196,7 @@ async fn remove_organization_image(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}` - Returns an organizations with id.
 */
-#[generated_doc(Organization)]
+#[generated_doc]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_organization(
     organization_id: web::Path<Uuid>,
@@ -215,7 +215,7 @@ async fn get_organization(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations with id.
 */
-#[generated_doc(Vec<CourseExam>)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_exams(
     pool: web::Data<PgPool>,

@@ -104,7 +104,7 @@ interface SnapshotWithViewPortProps {
   headless: boolean
   persistMousePosition?: boolean
   pageScreenshotOptions?: PageScreenshotOptions
-  axeSkip: boolean
+  axeSkip: boolean | string[]
 }
 
 async function snapshotWithViewPort({
@@ -162,10 +162,10 @@ async function snapshotWithViewPort({
     console.warn("Not in headless mode, skipping screenshot")
   }
 
-  if (!axeSkip) {
+  if (!axeSkip || typeof axeSkip == "object") {
     // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
     // for accessibility
-    await accessibilityCheck(pageObjectToUse, screenshotName)
+    await accessibilityCheck(pageObjectToUse, screenshotName, axeSkip)
   }
   // show the typing caret again
   await style.evaluate((handle) => {

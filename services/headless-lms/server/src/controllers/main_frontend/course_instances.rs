@@ -17,7 +17,7 @@ use crate::{
 /**
 GET /course-instances/:id
 */
-#[generated_doc(CourseInstance)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_instance(
     course_instance_id: web::Path<Uuid>,
@@ -29,7 +29,7 @@ async fn get_course_instance(
     Ok(web::Json(course_instance))
 }
 
-#[generated_doc(EmailTemplate)]
+#[generated_doc]
 #[instrument(skip(payload, pool))]
 async fn post_new_email_template(
     course_instance_id: web::Path<Uuid>,
@@ -49,7 +49,7 @@ async fn post_new_email_template(
     Ok(web::Json(email_template))
 }
 
-#[generated_doc(Vec<EmailTemplate>)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_email_templates_by_course_instance_id(
     course_instance_id: web::Path<Uuid>,
@@ -105,7 +105,7 @@ pub async fn point_export(
         .streaming(UnboundedReceiverStream::new(receiver)))
 }
 
-#[generated_doc(Points)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn points(
     course_instance_id: web::Path<Uuid>,

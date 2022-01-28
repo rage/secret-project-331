@@ -5,8 +5,7 @@ import ContentRenderer from "../.."
 import { Block } from "../../../../services/backend"
 import { CourseMaterialExercise } from "../../../../shared-module/bindings"
 import { IframeState } from "../../../../shared-module/iframe-protocol-types"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
-import { defaultContainerWidth } from "../../../../shared-module/styles/constants"
+import { narrowContainerWidthPx } from "../../../../shared-module/styles/constants"
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
 
@@ -43,16 +42,12 @@ const ExerciseTask: React.FC<Props> = ({
           isExam={isExam}
         />
       )}
-      {cannotAnswerButNoSubmission && (
-        <div className={normalWidthCenteredComponentStyles}>
-          {t("no-submission-received-for-this-exercise")}
-        </div>
-      )}
+      {cannotAnswerButNoSubmission && <div>{t("no-submission-received-for-this-exercise")}</div>}
       {!cannotAnswerButNoSubmission &&
         (url ? (
           <ExerciseTaskIframe
             postThisStateToIFrame={postThisStateToIFrame}
-            url={`${url}?width=${defaultContainerWidth}`}
+            url={`${url}?width=${narrowContainerWidthPx}`}
             setAnswer={setAnswer}
             setAnswerValid={setAnswerValid}
           />

@@ -255,7 +255,7 @@ test("test", async ({ page, headless }) => {
     headless,
     axeSkip: [`landmark-unique`],
     snapshotName: "history-view-after-restore",
-    waitForThisToBeVisibleAndStable: "text=Best exercise",
+    waitForThisToBeVisibleAndStable: "text=core/paragraph",
     toMatchSnapshotOptions: { threshold: 0.3 },
     beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)

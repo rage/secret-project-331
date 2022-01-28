@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next"
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
 import Spinner from "../../../../shared-module/components/Spinner"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExercisesInChapter from "./ExercisesInChapter"
@@ -28,7 +27,7 @@ const ExerciseInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
   }
 
   return (
-    <div className={normalWidthCenteredComponentStyles}>
+    <div>
       <ExercisesInChapter chapterId={chapterId} courseInstanceId={courseInstanceId} />
     </div>
   )

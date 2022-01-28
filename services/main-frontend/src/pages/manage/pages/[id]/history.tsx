@@ -1,10 +1,8 @@
-import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../../../../components/Layout"
 import HistoryView from "../../../../components/page-specific/manage/pages/id/history/HistoryView"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 
 const History: React.FC<unknown> = () => {
   const { t } = useTranslation()
@@ -22,11 +20,7 @@ const History: React.FC<unknown> = () => {
 
   return (
     <Layout navVariant="complex">
-      <div
-        className={css`
-          ${normalWidthCenteredComponentStyles}
-        `}
-      >
+      <div>
         <h2>{t("title-page-edit-history")}</h2>
         <HistoryView pageId={id} />
       </div>

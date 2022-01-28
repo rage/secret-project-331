@@ -5,7 +5,6 @@ import { BlockRendererProps } from "../../.."
 import { FileAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import Button from "../../../../../shared-module/components/Button"
 import ExternalLinkSVG from "../../../../../shared-module/img/external-link.svg"
-import { normalWidthCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 
 const FileBlock: React.FC<BlockRendererProps<FileAttributes>> = ({ data }) => {
   const { t } = useTranslation()
@@ -23,11 +22,7 @@ const FileBlock: React.FC<BlockRendererProps<FileAttributes>> = ({ data }) => {
     textLinkTarget,
   } = data.attributes
   return (
-    <div
-      className={css`
-        ${normalWidthCenteredComponentStyles}
-      `}
-    >
+    <div>
       <span>
         <a
           href={href}

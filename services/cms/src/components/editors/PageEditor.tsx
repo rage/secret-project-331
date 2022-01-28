@@ -16,7 +16,6 @@ import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
-import { cmsNormalWidthCenteredComponentStyles } from "../../styles/EditorStyles"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
@@ -91,7 +90,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>
       <div className="editor__component">
-        <div className={cmsNormalWidthCenteredComponentStyles}>
+        <div>
           {saveMutation.isError && <ErrorBanner variant={"text"} error={saveMutation.error} />}
           <LoadingButton
             // eslint-disable-next-line i18next/no-literal-string
@@ -107,7 +106,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />
         </div>
       </div>
-      <div className={cmsNormalWidthCenteredComponentStyles}>
+      <div>
         <GutenbergEditor
           content={content}
           onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
@@ -124,7 +123,6 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
       <div className="editor__component">
         <div
           className={css`
-            ${cmsNormalWidthCenteredComponentStyles}
             margin-top: 1rem;
             margin-bottom: 1rem;
           `}

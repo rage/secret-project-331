@@ -7,7 +7,6 @@ import {
   ButtonsAttributes,
 } from "../../../../../../types/GutenbergBlockAttributes"
 import Button from "../../../../../shared-module/components/Button"
-import { normalWidthCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 
@@ -119,7 +118,6 @@ const ButtonsBlock: React.FC<BlockRendererProps<ButtonsAttributes>> = ({ data })
   return (
     <div
       className={css`
-        ${normalWidthCenteredComponentStyles}
         display: flex;
         flex-wrap: wrap;
         ${orientation === "vertical" ? "flex-direction: column;" : "flex-direction: row;"}

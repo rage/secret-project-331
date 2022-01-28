@@ -8,7 +8,6 @@ import DebugModal from "../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import UHNoBG from "../../../../shared-module/img/uh_without_background.svg"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import { organizationCoursesPageHref } from "../../../../shared-module/utils/cross-routing"
 
@@ -22,7 +21,6 @@ const OrganizationsList: React.FC = () => {
     <div
       className={css`
         margin: 1em 0;
-        ${wideWidthCenteredComponentStyles}
       `}
     >
       <h1

@@ -9,10 +9,7 @@ import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import Button from "../../shared-module/components/Button"
 import TextField from "../../shared-module/components/InputFields/TextField"
 import { primaryFont, typography } from "../../shared-module/styles"
-import {
-  cmsNormalWidthCenteredComponentStyles,
-  gutenbergControlsHidden,
-} from "../../styles/EditorStyles"
+import { gutenbergControlsHidden } from "../../styles/EditorStyles"
 
 import { ExerciseAttributes } from "."
 
@@ -43,7 +40,7 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
 
   return (
     <ExerciseEditorCard id={attributes.id}>
-      <div className={cmsNormalWidthCenteredComponentStyles}>
+      <div>
         <div
           className={css`
             font-family: ${primaryFont};
@@ -66,7 +63,7 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
       <div className={gutenbergControlsHidden}>
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
       </div>
-      <div className={cmsNormalWidthCenteredComponentStyles}>
+      <div>
         <Button variant="primary" size="medium" onClick={handleAddNewSlide}>
           {t("add-slide")}
         </Button>

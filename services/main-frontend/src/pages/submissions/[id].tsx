@@ -8,7 +8,6 @@ import { fetchSubmissionInfo } from "../../services/backend/submissions"
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -23,7 +22,7 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
 
   return (
     <Layout navVariant="complex">
-      <div className={normalWidthCenteredComponentStyles}>
+      <div>
         {getSubmissionInfo.isError && (
           <ErrorBanner variant={"readOnly"} error={getSubmissionInfo.error} />
         )}

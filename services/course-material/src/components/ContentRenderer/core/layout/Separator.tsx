@@ -3,13 +3,12 @@ import React from "react"
 
 import { BlockRendererProps } from "../.."
 import { SeparatorAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../styles/colorMapper"
 
 const SeparatorBlock: React.FC<BlockRendererProps<SeparatorAttributes>> = ({ data }) => {
   const { anchor, className, color } = data.attributes
   return (
-    <div className={normalWidthCenteredComponentStyles}>
+    <div>
       <hr
         className={css`
           ${color && `background-color: ${colorMapper(color)};`}

@@ -9,7 +9,6 @@ import { User } from "../../../../shared-module/bindings"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -65,7 +64,6 @@ const CourseInstancePointsList: React.FC<CourseInstancePointsListProps> = ({ que
     <Layout navVariant="complex">
       <div
         className={css`
-          ${wideWidthCenteredComponentStyles}
           display: flex;
           flex-direction: column;
           color: #707070;

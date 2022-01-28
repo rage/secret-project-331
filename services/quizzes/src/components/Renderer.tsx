@@ -11,22 +11,28 @@ import Exercise from "./Exercise"
 import Submission from "./Submission"
 
 interface RendererProps {
-  state: State
+  state: State | null
   setState: Dispatch<SetStateAction<State | null>>
-  port: MessagePort
-  maxWidth: number
+  port: MessagePort | null
 }
 
-export const Renderer: React.FC<RendererProps> = ({ state, port, maxWidth }) => {
+export const Renderer: React.FC<RendererProps> = ({ state, port }) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
 
+  if (!port) {
+    return <>{t("waiting-for-port")}</>
+  }
+
+  if (!state) {
+    return <>{t("waiting-for-content")}</>
+  }
+
   if (state.viewType === "exercise") {
-    return <Exercise port={port} maxWidth={maxWidth} quiz={state.publicSpec} />
+    return <Exercise port={port} quiz={state.publicSpec} />
   } else if (state.viewType === "view-submission") {
     return (
       <Submission
-        maxWidth={maxWidth}
         publicAlternatives={state.publicSpec}
         modelSolutions={state.modelSolutions}
         user_answer={state.userAnswer}

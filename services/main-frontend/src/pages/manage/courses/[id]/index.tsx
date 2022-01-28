@@ -8,7 +8,6 @@ import { getCourse } from "../../../../services/backend/courses"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -26,7 +25,6 @@ const ManageCoursePage: React.FC<ManageCoursePageProps> = ({ query }) => {
     <Layout navVariant="complex">
       <div
         className={css`
-          ${wideWidthCenteredComponentStyles}
           margin-bottom: 1rem;
         `}
       >

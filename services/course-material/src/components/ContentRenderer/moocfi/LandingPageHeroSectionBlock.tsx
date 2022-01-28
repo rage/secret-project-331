@@ -1,6 +1,7 @@
 import React from "react"
 
 import { BlockRendererProps, blockToRendererMap } from ".."
+import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
 import LandingPageHeroSection, {
   LandingPageHeroSectionProps,
 } from "../../../shared-module/components/LandingPageHeroSection"
@@ -11,12 +12,14 @@ const LandingPageHeroSectionBlock: React.FC<BlockRendererProps<LandingPageHeroSe
   props,
 ) => {
   return (
-    <LandingPageHeroSection title={props.data.attributes.title}>
-      {props.data.innerBlocks.map((block) => {
-        const Component = blockToRendererMap[block.name] ?? DefaultBlock
-        return <Component key={block.clientId} data={block} />
-      })}
-    </LandingPageHeroSection>
+    <BreakFromCentered sidebar={false}>
+      <LandingPageHeroSection title={props.data.attributes.title}>
+        {props.data.innerBlocks.map((block) => {
+          const Component = blockToRendererMap[block.name] ?? DefaultBlock
+          return <Component key={block.clientId} data={block} />
+        })}
+      </LandingPageHeroSection>
+    </BreakFromCentered>
   )
 }
 

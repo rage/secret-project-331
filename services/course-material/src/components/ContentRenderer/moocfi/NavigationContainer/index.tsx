@@ -3,7 +3,6 @@ import React, { useContext } from "react"
 import PageContext from "../../../../contexts/PageContext"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 
 import NextPage from "./NextPage"
@@ -18,7 +17,7 @@ const NavigationContainer: React.FC = () => {
   }
 
   return (
-    <div className={normalWidthCenteredComponentStyles}>
+    <div>
       <NextPage
         chapterId={pageContext.pageData.chapter_id}
         currentPageId={pageContext.pageData.id}

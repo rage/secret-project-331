@@ -1,6 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { css, injectGlobal } from "@emotion/css"
 
+import { defaultFontSizePx } from "./constants"
 import cssReset from "./cssReset"
 
 import { headingFont, monospaceFont, primaryFont, typography } from "."
@@ -15,7 +16,7 @@ const globalCss = css`
 
   html, body {
     font-family: ${primaryFont};
-    font-size: 16px;
+    font-size: ${defaultFontSizePx}px;
   }
   h1,
   h2,

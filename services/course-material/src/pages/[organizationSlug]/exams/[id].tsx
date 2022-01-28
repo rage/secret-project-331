@@ -16,7 +16,6 @@ import { enrollInExam, fetchExam } from "../../../services/backend"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -158,7 +157,7 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
       <>
         <Layout organizationSlug={query.organizationSlug}>
           {examInfo}
-          <div className={normalWidthCenteredComponentStyles}>
+          <div>
             <ExamStartBanner
               onStart={async () => {
                 await enrollInExam(examId)
@@ -179,9 +178,7 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
       <>
         <Layout organizationSlug={query.organizationSlug}>
           {examInfo}
-          <div className={normalWidthCenteredComponentStyles}>
-            {t("exam-time-up", { "ends-at": exam.data.ends_at.toLocaleString() })}
-          </div>
+          <div>{t("exam-time-up", { "ends-at": exam.data.ends_at.toLocaleString() })}</div>
         </Layout>
       </>
     )

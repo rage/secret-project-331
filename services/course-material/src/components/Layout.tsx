@@ -5,6 +5,7 @@ import React, { ReactNode, useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../contexts/PageContext"
+import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
 import basePath from "../shared-module/utils/base-path"
@@ -84,7 +85,7 @@ const Layout: React.FC<LayoutProps> = ({
             flex: 1;
           `}
         >
-          {children}
+          <Centered variant="narrow">{children}</Centered>
         </main>
       </div>
       <div

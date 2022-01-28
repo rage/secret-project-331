@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { State } from "../pages/iframe"
-import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { CurrentStateMessage } from "../shared-module/iframe-protocol-types"
 import { Alternative } from "../util/stateInterfaces"
 
@@ -14,7 +13,6 @@ const CURRENT_STATE = "current-state"
 interface Props {
   state: Alternative[]
   setState: (newState: State) => void
-  maxWidth: number
   port: MessagePort
 }
 
@@ -54,41 +52,39 @@ const Editor: React.FC<Props> = ({ state, setState, port }) => {
   }, [state, port])
 
   return (
-    <HeightTrackingContainer port={port}>
-      <ButtonWrapper>
-        {state.map((o) => (
-          <ButtonEditor
-            key={o.id}
-            item={o}
-            onDelete={() => {
-              const newState = state.filter((e) => e.id !== o.id)
-              // eslint-disable-next-line i18next/no-literal-string
-              setState({ view_type: "exercise-editor", private_spec: newState })
-            }}
-            onChange={(task) => {
-              const newState = state.map((e) => {
-                if (e.id !== o.id) {
-                  return e
-                }
-                return task
-              })
-              // eslint-disable-next-line i18next/no-literal-string
-              setState({ view_type: "exercise-editor", private_spec: newState })
-            }}
-          />
-        ))}
-        <NewButton
-          onClick={() => {
-            const newState = [...state]
-            newState.push({ name: "", correct: false, id: v4() })
+    <ButtonWrapper>
+      {state.map((o) => (
+        <ButtonEditor
+          key={o.id}
+          item={o}
+          onDelete={() => {
+            const newState = state.filter((e) => e.id !== o.id)
             // eslint-disable-next-line i18next/no-literal-string
             setState({ view_type: "exercise-editor", private_spec: newState })
           }}
-        >
-          {t("new")}
-        </NewButton>
-      </ButtonWrapper>
-    </HeightTrackingContainer>
+          onChange={(task) => {
+            const newState = state.map((e) => {
+              if (e.id !== o.id) {
+                return e
+              }
+              return task
+            })
+            // eslint-disable-next-line i18next/no-literal-string
+            setState({ view_type: "exercise-editor", private_spec: newState })
+          }}
+        />
+      ))}
+      <NewButton
+        onClick={() => {
+          const newState = [...state]
+          newState.push({ name: "", correct: false, id: v4() })
+          // eslint-disable-next-line i18next/no-literal-string
+          setState({ view_type: "exercise-editor", private_spec: newState })
+        }}
+      >
+        {t("new")}
+      </NewButton>
+    </ButtonWrapper>
   )
 }
 

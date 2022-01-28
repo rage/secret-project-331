@@ -2,7 +2,6 @@ import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../../.."
 import { QuoteAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { normalWidthCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => {
@@ -26,7 +25,6 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => 
     return (
       <blockquote
         className={css`
-          ${normalWidthCenteredComponentStyles}
           margin-bottom: 1rem;
           padding: 0 1rem;
         `}
@@ -56,7 +54,6 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => 
     return (
       <blockquote
         className={css`
-          ${normalWidthCenteredComponentStyles}
           ${((align && align === "left") || !align) && styleLeftDefault}
           ${align && align === "right" && styleRightDefault}
           ${align && align === "center" && styleCenterDefault}

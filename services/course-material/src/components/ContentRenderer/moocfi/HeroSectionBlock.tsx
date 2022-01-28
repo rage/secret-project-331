@@ -1,12 +1,15 @@
 import React from "react"
 
 import { BlockRendererProps } from ".."
+import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
 import HeroSection, { HeroSectionProps } from "../../../shared-module/components/HeroSection"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 const HeroSectionBlock: React.FC<BlockRendererProps<HeroSectionProps>> = (props) => {
   return (
-    <HeroSection title={props.data.attributes.title} subtitle={props.data.attributes.subtitle} />
+    <BreakFromCentered sidebar={false}>
+      <HeroSection title={props.data.attributes.title} subtitle={props.data.attributes.subtitle} />
+    </BreakFromCentered>
   )
 }
 

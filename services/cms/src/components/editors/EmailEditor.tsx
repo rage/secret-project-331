@@ -10,7 +10,6 @@ import CourseContext from "../../contexts/CourseContext"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/bindings"
 import Spinner from "../../shared-module/components/Spinner"
-import { cmsNormalWidthCenteredComponentStyles } from "../../styles/EditorStyles"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
@@ -68,7 +67,7 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
   return (
     <>
       <div className="editor__component">
-        <div className={cmsNormalWidthCenteredComponentStyles}>
+        <div>
           {error && <pre>{error}</pre>}
           <LoadingButton
             // eslint-disable-next-line i18next/no-literal-string

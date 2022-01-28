@@ -8,10 +8,7 @@ import { useTranslation } from "react-i18next"
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import Button from "../../shared-module/components/Button"
 import { primaryFont, typography } from "../../shared-module/styles"
-import {
-  cmsNormalWidthCenteredComponentStyles,
-  gutenbergControlsHidden,
-} from "../../styles/EditorStyles"
+import { gutenbergControlsHidden } from "../../styles/EditorStyles"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-task"]
 
@@ -51,7 +48,7 @@ const ExerciseSlideEditor: React.FC<BlockEditProps<ExerciseSlideAttributes>> = (
       <div className={gutenbergControlsHidden}>
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
       </div>
-      <div className={cmsNormalWidthCenteredComponentStyles}>
+      <div>
         <Button variant="secondary" size="medium" onClick={handleAddNewTask}>
           {t("add-task")}
         </Button>

@@ -7,7 +7,6 @@ import { fetchUserCourseProgress } from "../../../../services/backend"
 import CircularProgress from "../../../../shared-module/components/CourseProgress/CircularProgress"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 
 interface CourseProgressProps {
   courseInstanceId: string
@@ -20,7 +19,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
   )
 
   return (
-    <div className={normalWidthCenteredComponentStyles}>
+    <div>
       {getUserCourseProgress.isError && (
         <ErrorBanner variant={"readOnly"} error={getUserCourseProgress.error} />
       )}

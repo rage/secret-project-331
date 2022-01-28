@@ -1,10 +1,11 @@
+import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import ReactDOM from "react-dom"
-import { useTranslation } from "react-i18next"
 
 import { Renderer } from "../components/Renderer"
 import { Grading } from "../shared-module/bindings"
+import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { Alternative, Answer, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 
@@ -40,8 +41,6 @@ export type State =
     }
 
 const Iframe: React.FC = () => {
-  const { t } = useTranslation()
-
   const [port, setPort] = useState<MessagePort | null>(null)
   const [state, setState] = useState<State | null>(null)
   const router = useRouter()
@@ -115,14 +114,19 @@ const Iframe: React.FC = () => {
     }
   }, [])
 
-  if (!port) {
-    return <>{t("waiting-for-port")}</>
-  }
-
-  if (!state) {
-    return <>{t("waiting-for-content")}</>
-  }
-  return <Renderer maxWidth={maxWidth} port={port} setState={setState} state={state} />
+  return (
+    <HeightTrackingContainer port={port}>
+      <div
+        className={css`
+          width: 100%;
+          ${maxWidth && `max-width: ${maxWidth}px;`}
+          margin: 0 auto;
+        `}
+      >
+        <Renderer port={port} setState={setState} state={state} />
+      </div>
+    </HeightTrackingContainer>
+  )
 }
 
 export default Iframe

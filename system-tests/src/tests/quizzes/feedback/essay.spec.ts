@@ -18,7 +18,10 @@ test("test quizzes essay feedback", async ({ headless, page }) => {
   ])
   expect(page.url()).toBe("http://project-331.local/org/uh-cs")
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Introduction to everything")])
+  await Promise.all([
+    page.waitForNavigation(),
+    page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`),
+  ])
 
   await page.waitForTimeout(100)
 

@@ -105,7 +105,7 @@ export function denormalizeDocument(document: ContentManagementPage): BlockInsta
               show_editor: false,
             },
             isValid: true,
-            innerBlocks: [],
+            innerBlocks: (task.assignment ?? []) as BlockInstance[],
           }
           return denormalizedTask
         }),

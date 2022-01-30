@@ -6,12 +6,11 @@ import Widget from "./widget"
 
 export interface ExerciseProps {
   port: MessagePort
-  maxWidth: number
   quiz: PublicQuiz
 }
 
-const Exercise: React.FC<ExerciseProps> = ({ port, maxWidth, quiz }) => {
-  return <Widget port={port} maxWidth={maxWidth} quiz={quiz} />
+const Exercise: React.FC<ExerciseProps> = ({ port, quiz }) => {
+  return <Widget port={port} quiz={quiz} />
 }
 
 export default Exercise

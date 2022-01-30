@@ -23,6 +23,8 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
     page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`),
   ])
 
+  await page.waitForTimeout(100)
+
   const courseVariantSelector = await page.$$("text=Select course version to continue.")
 
   if (courseVariantSelector.length > 0) {

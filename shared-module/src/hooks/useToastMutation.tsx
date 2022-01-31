@@ -1,5 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import toast, { ToastOptions } from "react-hot-toast"
+// eslint-disable-next-line no-restricted-imports
 import { MutationFunction, useMutation, UseMutationOptions, UseMutationResult } from "react-query"
 
 import DeleteNotification from "../components/Notifications/Delete"

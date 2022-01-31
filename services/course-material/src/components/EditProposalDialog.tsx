@@ -1,17 +1,16 @@
 import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useMutation } from "react-query"
 
 import { postProposedEdits } from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
+import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { baseTheme } from "../shared-module/styles"
 
 interface Props {
   courseId: string
   pageId: string
-  onSubmitSuccess: () => void
   close: () => unknown
   selectedBlockId: string | null
   clearSelectedBlockId: () => void
@@ -21,20 +20,23 @@ interface Props {
 const EditProposalDialog: React.FC<Props> = ({
   courseId,
   pageId,
-  onSubmitSuccess,
   close,
   selectedBlockId,
   clearSelectedBlockId,
   edits,
 }) => {
   const { t } = useTranslation()
-  const mutation = useMutation(
+  const mutation = useToastMutation(
     (block_edits: NewProposedBlockEdit[]) => {
       return postProposedEdits(courseId, { page_id: pageId, block_edits })
     },
     {
+      notify: true,
+      method: "POST",
+      successMessage: t("feedback-submitted-succesfully"),
+    },
+    {
       onSuccess: () => {
-        onSubmitSuccess()
         close()
       },
     },

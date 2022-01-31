@@ -42,7 +42,6 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     // Removing frontPageUrl for some unsolved reason returns to organization front page rather than root
     <Layout frontPageUrl="/">
       <div>
-        <h1>{t("title-organization-courses")}</h1>
         {getOrganizationBySlug.isSuccess && <h1>{getOrganizationBySlug.data.name}</h1>}
         {getOrganizationBySlug.isSuccess && (
           <a

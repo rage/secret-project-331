@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewExerciseSlideSubmission {
+    pub exercise_slide_id: Uuid,
     pub course_id: Option<Uuid>,
     pub course_instance_id: Option<Uuid>,
     pub exam_id: Option<Uuid>,
@@ -15,6 +16,7 @@ pub struct ExerciseSlideSubmission {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub exercise_slide_id: Uuid,
     pub course_id: Option<Uuid>,
     pub course_instance_id: Option<Uuid>,
     pub exam_id: Option<Uuid>,
@@ -30,15 +32,17 @@ pub async fn insert_exercise_slide_submission(
         ExerciseSlideSubmission,
         "
 INSERT INTO exercise_slide_submissions (
+    exercise_slide_id,
     course_id,
     course_instance_id,
     exam_id,
     exercise_id,
     user_id
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *
         ",
+        exercise_slide_submission.exercise_slide_id,
         exercise_slide_submission.course_id,
         exercise_slide_submission.course_instance_id,
         exercise_slide_submission.exam_id,
@@ -60,16 +64,18 @@ pub async fn insert_exercise_slide_submission_with_id(
         "
 INSERT INTO exercise_slide_submissions (
     id,
+    exercise_slide_id,
     course_id,
     course_instance_id,
     exam_id,
     exercise_id,
     user_id
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *
         ",
         id,
+        exercise_slide_submission.exercise_slide_id,
         exercise_slide_submission.course_id,
         exercise_slide_submission.course_instance_id,
         exercise_slide_submission.exam_id,
@@ -124,9 +130,9 @@ OFFSET $3;
     Ok(submissions)
 }
 
-pub async fn get_latest_exercise_slide_submission_by_exercise_and_user_ids(
+pub async fn get_users_latest_exercise_slide_submission(
     conn: &mut PgConnection,
-    exercise_id: &Uuid,
+    exercise_slide_id: &Uuid,
     user_id: &Uuid,
 ) -> ModelResult<Option<ExerciseSlideSubmission>> {
     let res = sqlx::query_as!(
@@ -134,13 +140,13 @@ pub async fn get_latest_exercise_slide_submission_by_exercise_and_user_ids(
         "
 SELECT *
 FROM exercise_slide_submissions
-WHERE exercise_id = $1
+WHERE exercise_slide_id = $1
   AND user_id = $2
   AND deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT 1
     ",
-        exercise_id,
+        exercise_slide_id,
         user_id
     )
     .fetch_optional(conn)

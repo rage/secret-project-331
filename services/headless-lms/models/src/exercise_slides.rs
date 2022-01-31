@@ -1,4 +1,7 @@
-use crate::prelude::*;
+use crate::{
+    exercise_tasks::{self, CourseMaterialExerciseTask},
+    prelude::*,
+};
 
 pub struct NewExerciseSlide {
     exercise_id: Uuid,
@@ -13,6 +16,12 @@ pub struct ExerciseSlide {
     pub deleted_at: Option<DateTime<Utc>>,
     pub exercise_id: Uuid,
     pub order_number: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize, TS)]
+pub struct CourseMaterialExerciseSlide {
+    pub id: Uuid,
+    pub exercise_tasks: Vec<CourseMaterialExerciseTask>,
 }
 
 pub async fn insert(
@@ -210,6 +219,22 @@ WHERE exercise_id = $1
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn get_course_material_exercise_slide_by_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+    user_id: Option<&Uuid>,
+    expose_model_solution_spec: bool,
+) -> ModelResult<CourseMaterialExerciseSlide> {
+    let exercise_tasks = exercise_tasks::get_course_material_exercise_tasks(
+        conn,
+        &id,
+        user_id,
+        expose_model_solution_spec,
+    )
+    .await?;
+    Ok(CourseMaterialExerciseSlide { id, exercise_tasks })
 }
 
 pub async fn delete_exercise_slides_by_exercise_ids(

@@ -1285,7 +1285,7 @@ async fn seed_sample_course(
     .await?;
 
     let exercise_c1p2_1 = Uuid::new_v5(&course_id, b"36e7f0c2-e663-4382-a503-081866cfe7d0");
-    // let exercise_slide_c1p2e1_1 = Uuid::new_v5(&course_id, b"0d85864d-a20d-4d65-9ace-9b4d377f38e8");
+    let exercise_slide_c1p2e1_1 = Uuid::new_v5(&course_id, b"0d85864d-a20d-4d65-9ace-9b4d377f38e8");
     let exercise_task_c1p2e1_1 = Uuid::new_v5(&course_id, b"e7fca192-2161-4ab8-8533-8c41dbaa2d69");
     let spec_c1p2e1t1_1 = Uuid::new_v5(&course_id, b"5898293f-2d41-43b1-9e44-92d487196ade");
     // let spec_c1p2e1t1_2 = Uuid::new_v5(&course_id, b"93d27d79-f9a1-44ab-839f-484accc67e32");
@@ -1305,7 +1305,7 @@ async fn seed_sample_course(
     let (exercise_block_2_1, exercise_2_1, exercise_slide_2_1, exercise_task_2_1) =
         example_exercise(
             exercise_c1p2_1,
-            Uuid::new_v5(&course_id, b"0d85864d-a20d-4d65-9ace-9b4d377f38e8"),
+            exercise_slide_c1p2e1_1,
             exercise_task_c1p2e1_1,
             Uuid::new_v5(&course_id, b"2dbb4649-bcac-47ab-a817-ca17dcd70378"),
             Uuid::new_v5(&course_id, b"c0986981-c8ae-4c0b-b558-1163a16760ec"),
@@ -1744,6 +1744,7 @@ async fn seed_sample_course(
     .await?;
 
     let exercise_c2p1_1 = Uuid::new_v5(&course_id, b"8bb4faf4-9a34-4df7-a166-89ade530d0f6");
+    let exercise_slide_c2p1e1_1 = Uuid::new_v5(&course_id, b"b99d1041-7835-491e-a1c8-b47eee8e7ab4");
     let exercise_task_c2p1e1_1 = Uuid::new_v5(&course_id, b"a6508b8a-f58e-43ac-9f02-785575e716f5");
     let spec_c2p1e1t1_1 = Uuid::new_v5(&course_id, b"fe464d17-2365-4e65-8b33-e0ebb5a67836");
     // let spec_c2p1e1t1_2 = Uuid::new_v5(&course_id, b"6633ffc7-c76e-4049-840e-90eefa6b49e8");
@@ -1751,7 +1752,7 @@ async fn seed_sample_course(
     let (exercise_block_3_1, exercise_3_1, exercise_slide_3_1, exercise_task_3_1) =
         example_exercise(
             exercise_c2p1_1,
-            Uuid::new_v5(&course_id, b"b99d1041-7835-491e-a1c8-b47eee8e7ab4"),
+            exercise_slide_c2p1e1_1,
             exercise_task_c2p1e1_1,
             Uuid::new_v5(&course_id, b"e869c471-b1b7-42a0-af05-dffd1d86a7bb"),
             Uuid::new_v5(&course_id, b"fe464d17-2365-4e65-8b33-e0ebb5a67836"),
@@ -1793,6 +1794,7 @@ async fn seed_sample_course(
             conn,
             b"8c447aeb-1791-4236-8471-204d8bc27507",
             exercise_c1p1_1,
+            exercise_slide_c2p1e1_1,
             course.id,
             exercise_task_c1p1e1_1,
             user_id,
@@ -1806,6 +1808,7 @@ async fn seed_sample_course(
             conn,
             b"a719fe25-5721-412d-adea-4696ccb3d883",
             exercise_c1p1_1,
+            exercise_slide_c2p1e1_1,
             course.id,
             exercise_task_c1p1e1_1,
             user_id,
@@ -1818,6 +1821,7 @@ async fn seed_sample_course(
             conn,
             b"bbc16d4b-1f91-4bd0-a47f-047665a32196",
             exercise_c1p1_1,
+            exercise_slide_c2p1e1_1,
             course.id,
             exercise_task_c1p1e1_1,
             user_id,
@@ -1830,6 +1834,7 @@ async fn seed_sample_course(
             conn,
             b"c60bf5e5-9b67-4f62-9df7-16d268c1b5f5",
             exercise_c1p1_1,
+            exercise_slide_c1p1_1,
             course.id,
             exercise_task_c1p1e1_1,
             user_id,
@@ -1842,6 +1847,7 @@ async fn seed_sample_course(
             conn,
             b"e0ec1386-72aa-4eed-8b91-72bba420c23b",
             exercise_c1p2_1,
+            exercise_slide_c1p2e1_1,
             course.id,
             exercise_task_c1p2e1_1,
             user_id,
@@ -1854,6 +1860,7 @@ async fn seed_sample_course(
             conn,
             b"02c9e1ad-6e4c-4473-a3e9-dbfab018a055",
             exercise_c2p1_1,
+            exercise_slide_c2p1e1_1,
             course.id,
             exercise_task_c2p1e1_1,
             user_id,
@@ -1866,6 +1873,7 @@ async fn seed_sample_course(
             conn,
             b"75df4600-d337-4083-99d1-e8e3b6bf6192",
             exercise_c1p1_1,
+            exercise_slide_c1p1_1,
             course.id,
             exercise_task_c1p1e1_1,
             user_id,
@@ -2406,6 +2414,7 @@ async fn submit_and_grade(
     conn: &mut PgConnection,
     id: &[u8],
     exercise_id: Uuid,
+    exercise_slide_id: Uuid,
     course_id: Uuid,
     exercise_task_id: Uuid,
     user_id: Uuid,
@@ -2419,6 +2428,7 @@ async fn submit_and_grade(
         conn,
         Uuid::new_v4(),
         &exercise_slide_submissions::NewExerciseSlideSubmission {
+            exercise_slide_id,
             course_id: Some(course_id),
             course_instance_id: Some(course_instance_id),
             exam_id: None,
@@ -2436,6 +2446,7 @@ async fn submit_and_grade(
             course_id,
             exercise_task_id,
             exercise_slide_submission_id: slide_submission.id,
+            exercise_slide_id,
             user_id,
             course_instance_id,
             data_json: Value::String(spec),

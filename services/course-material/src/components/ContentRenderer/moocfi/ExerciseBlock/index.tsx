@@ -61,7 +61,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         type: "submissionGraded",
         payload: {
           submissionResult: data2,
-          publicSpec: getCourseMaterialExercise.data?.current_exercise_tasks[0].public_spec,
+          publicSpec:
+            getCourseMaterialExercise.data?.current_exercise_slide.exercise_tasks[0].public_spec,
         },
       })
     },
@@ -84,7 +85,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const courseInstanceId = pageContext?.instance?.id
 
   const inEndedExam = pageContext?.exam?.ends_at ? pageContext?.exam?.ends_at < new Date() : false
-  const noSubmission = getCourseMaterialExercise.data.previous_submission === null
+  const noSubmission =
+    getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks[0].previous_submission ===
+    null
   const cannotAnswerButNoSubmission = inEndedExam && noSubmission
 
   return (
@@ -146,7 +149,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       </div>
       <ExerciseTask
         cannotAnswerButNoSubmission={cannotAnswerButNoSubmission}
-        exerciseTask={getCourseMaterialExercise.data.current_exercise_tasks[0]}
+        exerciseTask={getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks[0]}
         isExam={getCourseMaterialExercise.data.exercise.exam_id !== null}
         postThisStateToIFrame={postThisStateToIFrame}
         setAnswer={setAnswer}
@@ -172,7 +175,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               postSubmissionMutation.mutate([
                 {
                   course_instance_id: courseInstanceId || null,
-                  exercise_task_id: getCourseMaterialExercise.data.current_exercise_tasks[0].id,
+                  exercise_task_id:
+                    getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks[0].id,
                   data_json: answer,
                 },
               ])

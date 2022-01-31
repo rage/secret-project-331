@@ -1,3 +1,10 @@
+-- Revert foreign key constraints
+ALTER TABLE exercise_task_submissions DROP CONSTRAINT exercise_slide_submission_fk,
+  DROP CONSTRAINT exercise_task_fk;
+DROP INDEX exercise_task_and_slide_ids;
+DROP INDEX exercise_slide_and_submission_ids;
+-- Remove added column
+ALTER TABLE exercise_task_submissions DROP COLUMN exercise_slide_id;
 -- Restore columns and content to exercise_task_submissions
 ALTER TABLE exercise_task_submissions
 ADD COLUMN course_id UUID REFERENCES courses,

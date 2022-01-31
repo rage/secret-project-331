@@ -876,6 +876,7 @@ mod tests {
                     exam_id: None,
                     exercise_id: data.exercise,
                     user_id: data.user,
+                    exercise_slide_id: data.exercise_slide,
                 },
             )
             .await
@@ -888,6 +889,7 @@ mod tests {
                 exercise_task_id: data.task,
                 user_id: data.user,
                 course_instance_id: data.instance,
+                exercise_slide_id: data.exercise_slide,
                 data_json: serde_json::json! {"abcd"},
                 id: Uuid::new_v4(),
                 exercise_slide_submission_id: slide_submission.id,

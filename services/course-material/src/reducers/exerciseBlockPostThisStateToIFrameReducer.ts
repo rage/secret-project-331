@@ -35,22 +35,25 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
         return prev
       }
 
-      if (action.payload.previous_submission) {
+      if (action.payload.current_exercise_slide.exercise_tasks[0].previous_submission) {
         return {
           view_type: "view-submission",
           data: {
             grading: action.payload.grading,
-            user_answer: action.payload.previous_submission.data_json,
-            public_spec: action.payload.current_exercise_tasks[0].public_spec,
-            model_solution_spec: action.payload.current_exercise_tasks[0].model_solution_spec,
+            user_answer:
+              action.payload.current_exercise_slide.exercise_tasks[0].previous_submission.data_json,
+            public_spec: action.payload.current_exercise_slide.exercise_tasks[0].public_spec,
+            model_solution_spec:
+              action.payload.current_exercise_slide.exercise_tasks[0].model_solution_spec,
           },
         }
       } else {
         return {
           view_type: "exercise",
           data: {
-            public_spec: action.payload.current_exercise_tasks[0].public_spec,
-            previous_submission: action.payload.previous_submission,
+            public_spec: action.payload.current_exercise_slide.exercise_tasks[0].public_spec,
+            previous_submission:
+              action.payload.current_exercise_slide.exercise_tasks[0].previous_submission,
           },
         }
       }
@@ -69,8 +72,9 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
       return {
         view_type: "exercise",
         data: {
-          public_spec: action.payload.current_exercise_tasks[0].public_spec,
-          previous_submission: action.payload.previous_submission,
+          public_spec: action.payload.current_exercise_slide.exercise_tasks[0].public_spec,
+          previous_submission:
+            action.payload.current_exercise_slide.exercise_tasks[0].previous_submission,
         },
       }
     }

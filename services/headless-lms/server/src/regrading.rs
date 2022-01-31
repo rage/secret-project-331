@@ -316,6 +316,7 @@ mod test {
             course,
             instance,
             exercise,
+            exercise_slide,
             task,
             ..
         } = test_helper::insert_data(tx.as_mut(), "test-exercise")
@@ -330,6 +331,7 @@ mod test {
                     exam_id: None,
                     exercise_id: exercise,
                     user_id: user,
+                    exercise_slide_id: exercise_slide,
                 },
             )
             .await
@@ -337,6 +339,7 @@ mod test {
         let task_submission = models::exercise_task_submissions::insert(
             tx.as_mut(),
             slide_submission.id,
+            exercise_slide,
             task,
             Value::Null,
         )
@@ -423,6 +426,7 @@ mod test {
             course,
             instance,
             exercise,
+            exercise_slide,
             task,
             ..
         } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
@@ -432,6 +436,7 @@ mod test {
             models::exercise_slide_submissions::insert_exercise_slide_submission(
                 tx.as_mut(),
                 NewExerciseSlideSubmission {
+                    exercise_slide_id: exercise_slide,
                     course_id: Some(course),
                     course_instance_id: Some(instance),
                     exam_id: None,
@@ -444,6 +449,7 @@ mod test {
         let task_submission = models::exercise_task_submissions::insert(
             tx.as_mut(),
             slide_submission.id,
+            exercise_slide,
             task,
             Value::Null,
         )
@@ -527,6 +533,7 @@ mod test {
             course,
             instance,
             exercise,
+            exercise_slide,
             task: task_1,
             ..
         } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
@@ -550,6 +557,7 @@ mod test {
             models::exercise_slide_submissions::insert_exercise_slide_submission(
                 tx.as_mut(),
                 NewExerciseSlideSubmission {
+                    exercise_slide_id: exercise_slide,
                     course_id: Some(course),
                     course_instance_id: Some(instance),
                     exam_id: None,
@@ -562,6 +570,7 @@ mod test {
         let task_submission_1 = models::exercise_task_submissions::insert(
             tx.as_mut(),
             slide_submission_1.id,
+            exercise_slide,
             task_1,
             Value::Null,
         )
@@ -571,6 +580,7 @@ mod test {
             models::exercise_slide_submissions::insert_exercise_slide_submission(
                 tx.as_mut(),
                 NewExerciseSlideSubmission {
+                    exercise_slide_id: slide_2,
                     course_id: Some(course),
                     course_instance_id: Some(instance),
                     exam_id: None,
@@ -583,6 +593,7 @@ mod test {
         let task_submission_2 = models::exercise_task_submissions::insert(
             tx.as_mut(),
             slide_submission_2.id,
+            slide_2,
             task_2,
             Value::Null,
         )
@@ -691,6 +702,7 @@ mod test {
             course,
             instance,
             exercise,
+            exercise_slide,
             task,
             ..
         } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
@@ -700,6 +712,7 @@ mod test {
             models::exercise_slide_submissions::insert_exercise_slide_submission(
                 tx.as_mut(),
                 NewExerciseSlideSubmission {
+                    exercise_slide_id: exercise_slide,
                     course_id: Some(course),
                     course_instance_id: Some(instance),
                     exam_id: None,
@@ -712,6 +725,7 @@ mod test {
         let task_submission = models::exercise_task_submissions::insert(
             tx.as_mut(),
             slide_submission.id,
+            exercise_slide,
             task,
             Value::Null,
         )

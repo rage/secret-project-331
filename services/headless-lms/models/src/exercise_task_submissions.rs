@@ -28,6 +28,7 @@ pub struct ExerciseTaskSubmission {
     pub deleted_at: Option<DateTime<Utc>>,
     pub exercise_slide_submission_id: Uuid,
     pub exercise_task_id: Uuid,
+    pub exercise_slide_id: Uuid,
     pub data_json: Option<serde_json::Value>,
     pub grading_id: Option<Uuid>,
     pub metadata: Option<serde_json::Value>,
@@ -89,6 +90,7 @@ pub struct SubmissionData {
     pub exercise_id: Uuid,
     pub course_id: Uuid,
     pub exercise_slide_submission_id: Uuid,
+    pub exercise_slide_id: Uuid,
     pub exercise_task_id: Uuid,
     pub user_id: Uuid,
     pub course_instance_id: Uuid,
@@ -134,14 +136,16 @@ pub async fn insert_with_id(
 INSERT INTO exercise_task_submissions (
     id,
     exercise_slide_submission_id,
+    exercise_slide_id,
     exercise_task_id,
     data_json
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
         ",
         submission_data.id,
         submission_data.exercise_slide_submission_id,
+        submission_data.exercise_slide_id,
         submission_data.exercise_task_id,
         submission_data.data_json,
     )
@@ -153,6 +157,7 @@ RETURNING id
 pub async fn insert(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,
+    exercise_slide_id: Uuid,
     exercise_task_id: Uuid,
     data_json: Value,
 ) -> ModelResult<Uuid> {
@@ -160,13 +165,15 @@ pub async fn insert(
         "
 INSERT INTO exercise_task_submissions (
     exercise_slide_submission_id,
+    exercise_slide_id,
     exercise_task_id,
     data_json
   )
-  VALUES ($1, $2, $3)
+  VALUES ($1, $2, $3, $4)
   RETURNING id
 ",
         exercise_slide_submission_id,
+        exercise_slide_id,
         exercise_task_id,
         data_json,
     )
@@ -209,15 +216,15 @@ WHERE exercise_slide_submission_id = $1
     Ok(submissions)
 }
 
-pub async fn get_latest_exercise_task_submissions_for_exercise(
+pub async fn get_users_latest_exercise_task_submissions_for_exercise_slide(
     conn: &mut PgConnection,
-    exercise_id: &Uuid,
+    exercise_slide_id: &Uuid,
     user_id: &Uuid,
 ) -> ModelResult<Option<Vec<ExerciseTaskSubmission>>> {
     let exercise_slide_submission =
-        exercise_slide_submissions::get_latest_exercise_slide_submission_by_exercise_and_user_ids(
+        exercise_slide_submissions::get_users_latest_exercise_slide_submission(
             conn,
-            exercise_id,
+            exercise_slide_id,
             user_id,
         )
         .await?;
@@ -228,7 +235,7 @@ pub async fn get_latest_exercise_task_submissions_for_exercise(
 SELECT *
 FROM exercise_task_submissions
 WHERE exercise_slide_submission_id = $1
-    AND deleted_at IS NULL
+  AND deleted_at IS NULL
             ",
             exercise_slide_submission.id
         )

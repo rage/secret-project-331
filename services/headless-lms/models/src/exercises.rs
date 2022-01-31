@@ -1,7 +1,7 @@
 use crate::{
-    course_instances, exercise_slides,
-    exercise_task_submissions::{self, ExerciseTaskSubmission},
-    exercise_tasks::{self, CourseMaterialExerciseTask},
+    course_instances,
+    exercise_slides::{self, CourseMaterialExerciseSlide},
+    exercise_tasks,
     gradings::Grading,
     prelude::*,
     user_course_settings,
@@ -28,10 +28,9 @@ pub struct Exercise {
 #[derive(Debug, Serialize, Deserialize, TS)]
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
-    pub current_exercise_tasks: Vec<CourseMaterialExerciseTask>,
+    pub current_exercise_slide: CourseMaterialExerciseSlide,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
-    pub previous_submission: Option<ExerciseTaskSubmission>,
     pub grading: Option<Grading>,
 }
 
@@ -254,11 +253,11 @@ pub async fn get_course_material_exercise(
     exercise_id: Uuid,
 ) -> ModelResult<CourseMaterialExercise> {
     let exercise = get_by_id(conn, exercise_id).await?;
-    let (selected_exercise_tasks, instance_or_exam_id) =
-        get_or_select_exercise_tasks(&mut *conn, user_id, &exercise).await?;
-    info!("{:#?}", selected_exercise_tasks);
+    let (current_exercise_slide, instance_or_exam_id) =
+        get_or_select_exercise_slide(&mut *conn, user_id, &exercise).await?;
+    info!("{:#?}", current_exercise_slide);
 
-    let user_exercise_state = match (user_id, instance_or_exam_id) {
+    let _user_exercise_state = match (user_id, instance_or_exam_id) {
         (Some(user_id), Some(InstanceOrExamId::Instance(instance_id))) => {
             get_user_exercise_state_if_exits(conn, user_id, exercise.id, Some(instance_id), None)
                 .await?
@@ -270,53 +269,52 @@ pub async fn get_course_material_exercise(
         _ => None,
     };
 
-    let mut score_given = None;
-    let mut activity_progress = ActivityProgress::Initialized;
-    let mut grading_progress = GradingProgress::NotReady;
-    if let Some(user_exercise_state) = user_exercise_state {
-        score_given = user_exercise_state.score_given;
-        activity_progress = user_exercise_state.activity_progress;
-        grading_progress = user_exercise_state.grading_progress;
-    }
+    // let mut score_given = None;
+    // let mut activity_progress = ActivityProgress::Initialized;
+    // let mut grading_progress = GradingProgress::NotReady;
+    // if let Some(user_exercise_state) = user_exercise_state {
+    //     score_given = user_exercise_state.score_given;
+    //     activity_progress = user_exercise_state.activity_progress;
+    //     grading_progress = user_exercise_state.grading_progress;
+    // }
 
-    // TODO: Handle properly for multiple tasks
-    let previous_submission = if let Some(user_id) = user_id {
-        exercise_task_submissions::get_latest_exercise_task_submissions_for_exercise(
-            conn,
-            &exercise_id,
-            &user_id,
-        )
-        .await?
-        .and_then(|mut submissions| submissions.pop())
-    } else {
-        None
-    };
-    let grading = if let Some(grading_id) = previous_submission.as_ref().and_then(|s| s.grading_id)
-    {
-        if let Some(user_id) = user_id {
-            crate::gradings::get_for_student(conn, grading_id, user_id).await?
-        } else {
-            None
-        }
-    } else {
-        None
-    };
-    let exercise_status = if grading.is_some() {
-        Some(ExerciseStatus {
-            score_given,
-            activity_progress,
-            grading_progress,
-        })
-    } else {
-        None
-    };
+    // TODO: Figure out new grading stuff
+    // let previous_submission = if let Some(user_id) = user_id {
+    //     exercise_task_submissions::get_users_latest_exercise_task_submissions_for_exercise_slide(
+    //         conn,
+    //         &exercise_id,
+    //         &user_id,
+    //     )
+    //     .await?
+    //     .and_then(|mut submissions| submissions.pop())
+    // } else {
+    //     None
+    // };
+    // let grading = if let Some(grading_id) = previous_submission.as_ref().and_then(|s| s.grading_id)
+    // {
+    //     if let Some(user_id) = user_id {
+    //         crate::gradings::get_for_student(conn, grading_id, user_id).await?
+    //     } else {
+    //         None
+    //     }
+    // } else {
+    //     None
+    // };
+    // let exercise_status = if grading.is_some() {
+    //     Some(ExerciseStatus {
+    //         score_given,
+    //         activity_progress,
+    //         grading_progress,
+    //     })
+    // } else {
+    //     None
+    // };
 
     Ok(CourseMaterialExercise {
         exercise,
-        current_exercise_tasks: selected_exercise_tasks,
-        exercise_status,
-        previous_submission,
-        grading,
+        current_exercise_slide,
+        exercise_status: None,
+        grading: None,
     })
 }
 
@@ -325,24 +323,30 @@ enum InstanceOrExamId {
     Exam(Uuid),
 }
 
-async fn get_or_select_exercise_tasks(
+async fn get_or_select_exercise_slide(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
     exercise: &Exercise,
-) -> ModelResult<(Vec<CourseMaterialExerciseTask>, Option<InstanceOrExamId>)> {
+) -> ModelResult<(CourseMaterialExerciseSlide, Option<InstanceOrExamId>)> {
     match (user_id, exercise.course_id, exercise.exam_id) {
         (None, ..) => {
             // No signed in user. Show random exercise without model solution.
             let random_slide =
                 exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise.id).await?;
-            let random_slide_tasks =
-                exercise_tasks::get_course_material_exercise_tasks_by_exercise_slide_id(
-                    conn,
-                    random_slide.id,
-                    false,
-                )
-                .await?;
-            Ok((random_slide_tasks, None))
+            let random_slide_tasks = exercise_tasks::get_course_material_exercise_tasks(
+                conn,
+                &random_slide.id,
+                None,
+                false,
+            )
+            .await?;
+            Ok((
+                CourseMaterialExerciseSlide {
+                    id: random_slide.id,
+                    exercise_tasks: random_slide_tasks,
+                },
+                None,
+            ))
         }
         (Some(user_id), Some(course_id), None) => {
             // signed in, course exercise
@@ -371,7 +375,7 @@ async fn get_or_select_exercise_tasks(
                 }
                 Some(_) => {
                     // User is enrolled on a different language version of the course. Show exercise
-                    // task based on their latest enrollment or a random one.
+                    // slide based on their latest enrollment or a random one.
                     let latest_instance =
                         course_instances::course_instance_by_users_latest_enrollment(
                             conn, user_id, course_id,
@@ -379,7 +383,7 @@ async fn get_or_select_exercise_tasks(
                         .await?;
                     if let Some(instance) = latest_instance {
                         let exercise_tasks =
-                            exercise_tasks::get_existing_user_exercise_tasks_for_course_instance(
+                            exercise_tasks::get_existing_users_exercise_slide_for_course_instance(
                                 conn,
                                 user_id,
                                 exercise.id,
@@ -399,15 +403,21 @@ async fn get_or_select_exercise_tasks(
                                     exercise.id,
                                 )
                                 .await?;
-                            let random_tasks =
-                                exercise_tasks::get_course_material_exercise_tasks_by_exercise_slide_id(
-                                    conn,
-                                    random_slide.id,
-                                    false,
-                                )
-                                .await?;
+                            let random_tasks = exercise_tasks::get_course_material_exercise_tasks(
+                                conn,
+                                &random_slide.id,
+                                Some(&user_id),
+                                false,
+                            )
+                            .await?;
 
-                            Ok((random_tasks, None))
+                            Ok((
+                                CourseMaterialExerciseSlide {
+                                    id: random_slide.id,
+                                    exercise_tasks: random_tasks,
+                                },
+                                None,
+                            ))
                         }
                     } else {
                         // user is not enrolled on any instance related to the course
@@ -416,15 +426,21 @@ async fn get_or_select_exercise_tasks(
                             exercise.id,
                         )
                         .await?;
-                        let random_tasks =
-                                exercise_tasks::get_course_material_exercise_tasks_by_exercise_slide_id(
-                                    conn,
-                                    random_slide.id,
-                                    false,
-                                )
-                                .await?;
+                        let random_tasks = exercise_tasks::get_course_material_exercise_tasks(
+                            conn,
+                            &random_slide.id,
+                            Some(&user_id),
+                            false,
+                        )
+                        .await?;
 
-                        Ok((random_tasks, None))
+                        Ok((
+                            CourseMaterialExerciseSlide {
+                                id: random_slide.id,
+                                exercise_tasks: random_tasks,
+                            },
+                            None,
+                        ))
                     }
                 }
                 None => {
@@ -630,7 +646,13 @@ mod test {
             .await
             .unwrap();
         assert_eq!(
-            exercise.current_exercise_tasks.iter().next().unwrap().id,
+            exercise
+                .current_exercise_slide
+                .exercise_tasks
+                .iter()
+                .next()
+                .unwrap()
+                .id,
             exercise_task_id
         );
 

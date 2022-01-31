@@ -60,6 +60,7 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
             obj.data.previous_submission.deleted_at instanceof Date) &&
           typeof obj.data.previous_submission.exercise_slide_submission_id === "string" &&
           typeof obj.data.previous_submission.exercise_task_id === "string" &&
+          typeof obj.data.previous_submission.exercise_slide_id === "string" &&
           (obj.data.previous_submission.grading_id === null ||
             typeof obj.data.previous_submission.grading_id === "string")))) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -124,6 +125,7 @@ export function isIframeState(obj: any, _argumentName?: string): obj is IframeSt
             obj.data.previous_submission.deleted_at instanceof Date) &&
           typeof obj.data.previous_submission.exercise_slide_submission_id === "string" &&
           typeof obj.data.previous_submission.exercise_task_id === "string" &&
+          typeof obj.data.previous_submission.exercise_slide_id === "string" &&
           (obj.data.previous_submission.grading_id === null ||
             typeof obj.data.previous_submission.grading_id === "string")))) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&

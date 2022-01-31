@@ -111,7 +111,7 @@ async fn post_submission(
     let exercise_tasks: HashMap<Uuid, ExerciseTask> =
         models::exercise_tasks::get_exercise_tasks_by_exercise_slide_id(
             &mut conn,
-            selected_exercise_slide_id,
+            &selected_exercise_slide_id,
         )
         .await?
         .into_iter()
@@ -131,6 +131,7 @@ async fn post_submission(
                 exam_id: exercise.exam_id,
                 exercise_id: exercise.id,
                 user_id: user.id,
+                exercise_slide_id: selected_exercise_slide_id,
             },
         )
         .await?;

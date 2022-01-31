@@ -70,6 +70,7 @@ fn ts_binding_generator() {
         exercise_services::ExerciseService,
         exercise_services::ExerciseServiceNewOrUpdate,
 
+        exercise_slides::CourseMaterialExerciseSlide,
         exercise_slides::ExerciseSlide,
 
         exercise_tasks::CourseMaterialExerciseTask,

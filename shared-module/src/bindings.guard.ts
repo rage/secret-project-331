@@ -28,6 +28,7 @@ import {
   CourseInstanceForm,
   CourseMaterialExercise,
   CourseMaterialExerciseServiceInfo,
+  CourseMaterialExerciseSlide,
   CourseMaterialExerciseTask,
   CoursePageWithUserData,
   CourseStructure,
@@ -443,6 +444,18 @@ export function isExerciseServiceNewOrUpdate(
   )
 }
 
+export function isCourseMaterialExerciseSlide(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialExerciseSlide {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    Array.isArray(obj.exercise_tasks) &&
+    obj.exercise_tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean)
+  )
+}
+
 export function isExerciseSlide(obj: any, _argumentName?: string): obj is ExerciseSlide {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -463,7 +476,9 @@ export function isCourseMaterialExerciseTask(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.exercise_slide_id === "string" &&
-    typeof obj.exercise_iframe_url === "string"
+    (obj.exercise_iframe_url === null || typeof obj.exercise_iframe_url === "string") &&
+    (obj.previous_submission === null ||
+      (isExerciseTaskSubmission(obj.previous_submission) as boolean))
   )
 }
 
@@ -498,11 +513,8 @@ export function isCourseMaterialExercise(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isExercise(obj.exercise) as boolean) &&
-    Array.isArray(obj.current_exercise_tasks) &&
-    obj.current_exercise_tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean) &&
+    (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
     (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
-    (obj.previous_submission === null ||
-      (isExerciseTaskSubmission(obj.previous_submission) as boolean)) &&
     (obj.grading === null || (isGrading(obj.grading) as boolean))
   )
 }
@@ -971,6 +983,7 @@ export function isExerciseSlideSubmission(
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.exercise_slide_id === "string" &&
     (obj.course_id === null || typeof obj.course_id === "string") &&
     (obj.course_instance_id === null || typeof obj.course_instance_id === "string") &&
     (obj.exam_id === null || typeof obj.exam_id === "string") &&
@@ -991,6 +1004,7 @@ export function isExerciseTaskSubmission(
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.exercise_slide_submission_id === "string" &&
     typeof obj.exercise_task_id === "string" &&
+    typeof obj.exercise_slide_id === "string" &&
     (obj.grading_id === null || typeof obj.grading_id === "string")
   )
 }

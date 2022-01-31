@@ -282,6 +282,7 @@ mod test {
             course,
             instance,
             exercise,
+            exercise_slide,
             task,
             page,
             ..
@@ -320,10 +321,20 @@ mod test {
         )
         .await
         .unwrap();
-        submit_and_grade(tx.as_mut(), exercise, course, task, user, instance, 12.34).await;
-        submit_and_grade(tx.as_mut(), e2, course, et2, user, instance, 23.45).await;
-        submit_and_grade(tx.as_mut(), e2, course, et2, u2, instance, 34.56).await;
-        submit_and_grade(tx.as_mut(), e3, course, et3, u2, instance, 45.67).await;
+        submit_and_grade(
+            tx.as_mut(),
+            exercise,
+            exercise_slide,
+            course,
+            task,
+            user,
+            instance,
+            12.34,
+        )
+        .await;
+        submit_and_grade(tx.as_mut(), e2, s2, course, et2, user, instance, 23.45).await;
+        submit_and_grade(tx.as_mut(), e2, s2, course, et2, u2, instance, 34.56).await;
+        submit_and_grade(tx.as_mut(), e3, s3, course, et3, u2, instance, 45.67).await;
 
         let buf = vec![];
         let buf = export_course_instance_points(tx.as_mut(), instance, buf)
@@ -354,6 +365,7 @@ mod test {
     async fn submit_and_grade(
         tx: &mut PgConnection,
         ex: Uuid,
+        ex_slide: Uuid,
         c: Uuid,
         et: Uuid,
         u: Uuid,
@@ -370,14 +382,20 @@ mod test {
                     exam_id: None,
                     exercise_id: ex,
                     user_id: u,
+                    exercise_slide_id: ex_slide,
                 },
             )
             .await
             .unwrap();
-        let s =
-            exercise_task_submissions::insert(tx, exercise_slide_submission.id, et, Value::Null)
-                .await
-                .unwrap();
+        let s = exercise_task_submissions::insert(
+            tx,
+            exercise_slide_submission.id,
+            ex_slide,
+            et,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         let submission = exercise_task_submissions::get_by_id(tx, s).await.unwrap();
         let grading = gradings::new_grading(tx, &exercise, &submission)
             .await

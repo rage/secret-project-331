@@ -10,5 +10,10 @@
   "error-page-without-course": "Virhe: Sivu ei liity mihinkään kurssiin",
   "enroll": "Aloita",
   "instructions": "Ohjeet",
-  "exam-has-not-started-yet": "Koe ei ole vielä alkanut"
+  "exam-has-not-started-yet": "Koe ei ole vielä alkanut",
+  "acronyms": "Lyhenteet",
+  "meaning": "Merkitys",
+  "new-acronym": "Uusi lyhenne",
+  "new-meaning": "Uuden lyhenteen merkitys",
+  "save": "Tallenna"
 }

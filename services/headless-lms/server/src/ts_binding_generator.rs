@@ -34,6 +34,9 @@ fn ts_binding_generator() {
     let res = export! {
         &mut target,
 
+        acronyms::Acronym,
+        acronyms::AcronymUpdate,
+
         chapters::Chapter,
         chapters::ChapterStatus,
         chapters::ChapterUpdate,

@@ -1185,6 +1185,22 @@
       ]
     }
   },
+  "18e9e6a81ad17d77c4cd013e0a2549e7b920c06b18137d7aff0137f53ed0d524": {
+    "query": "\nINSERT INTO acronyms (acronym, meaning, language, course_id)\nSELECT $1, $2, $3, courses.id\nFROM courses WHERE courses.slug = $4\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Text", "Varchar", "Text"]
+      },
+      "nullable": [false]
+    }
+  },
   "19a6e3aaaddd659eb5cee0d7361c6ce7b72a8f77a14561cb51427fb4490fa36b": {
     "query": "\nINSERT INTO chapters (name, course_id, chapter_number)\nVALUES ($1, $2, $3)\nRETURNING id\n",
     "describe": {
@@ -1487,6 +1503,16 @@
       "nullable": [false, true, true, true]
     }
   },
+  "1c567bb82ecf365c4ef4cc3352f4ef3cb29ef88a3072aeaba9b40440fabe946f": {
+    "query": "\nDELETE FROM acronyms\nWHERE id = $1\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "1d480cfbf4a9dc142a798a9bacd391dd6c8c98df5c694697eee44162cbb2c95b": {
     "query": "SELECT COUNT(*) as count FROM submissions WHERE exercise_id = $1",
     "describe": {
@@ -1501,6 +1527,32 @@
         "Left": ["Uuid"]
       },
       "nullable": [null]
+    }
+  },
+  "23a66260f99f0d921b979acf47feb66d6aab2fb4a23fb869ffc97784ad408d33": {
+    "query": "\nSELECT acronyms.id,\n  acronyms.acronym,\n  acronyms.meaning\nFROM acronyms\n  JOIN courses ON slug = $1\nWHERE language = $2\n  AND acronyms.course_id = courses.id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "acronym",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "meaning",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": ["Text", "Text"]
+      },
+      "nullable": [false, false, false]
     }
   },
   "241d3dc5cad1e9b9f73fc6731066a9c2779626a3bcb7a40bc7c4694a136ef008": {
@@ -3458,6 +3510,16 @@
         "Left": ["Uuid", "Varchar", "Varchar", "Varchar"]
       },
       "nullable": [false]
+    }
+  },
+  "5ef14645244fe14b3cc0c6ef4e102fe81384f133b2c42b5fe4c7bc846d78a7ee": {
+    "query": "\nUPDATE acronyms\nSET acronym = $1,\n  meaning = $2\nWHERE id = $3\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Varchar", "Text", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "60fed3e48c5452f1f0d9aa6c6775f382456469221d08d6d2d450fd5c24648d31": {

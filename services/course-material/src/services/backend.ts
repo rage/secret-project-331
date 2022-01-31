@@ -1,4 +1,6 @@
 import {
+  Acronym,
+  AcronymUpdate,
   ChapterWithStatus,
   Course,
   CourseInstance,
@@ -22,6 +24,7 @@ import {
   UserCourseSettings,
 } from "../shared-module/bindings"
 import {
+  isAcronym,
   isChapterWithStatus,
   isCourse,
   isCourseInstance,
@@ -268,4 +271,22 @@ export const fetchPreviousSubmission = async (
     { responseType: "json" },
   )
   return validateResponse(response, isUnion(isNull, isPreviousSubmission))
+}
+
+export const fetchAcronyms = async (
+  courseId: string,
+  languageCode: string,
+): Promise<Array<Acronym>> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/acronyms/${languageCode}`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isAcronym))
+}
+
+export const newAcronym = async (
+  courseSlug: string,
+  languageCode: string,
+  newAcronym: AcronymUpdate,
+): Promise<void> => {
+  await courseMaterialClient.post(`/courses/${courseSlug}/acronyms/${languageCode}`, newAcronym)
 }

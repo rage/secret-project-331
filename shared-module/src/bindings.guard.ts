@@ -6,6 +6,8 @@
  * WARNING: Do not manually change this file.
  */
 import {
+  Acronym,
+  AcronymUpdate,
   ActivityProgress,
   BlockProposal,
   BlockProposalAction,
@@ -102,6 +104,23 @@ import {
   UserPointsUpdateStrategy,
   VariantStatus,
 } from "./bindings"
+
+export function isAcronym(obj: any, _argumentName?: string): obj is Acronym {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.acronym === "string" &&
+    typeof obj.meaning === "string"
+  )
+}
+
+export function isAcronymUpdate(obj: any, _argumentName?: string): obj is AcronymUpdate {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.acronym === "string" &&
+    typeof obj.meaning === "string"
+  )
+}
 
 export function isChapter(obj: any, _argumentName?: string): obj is Chapter {
   return (

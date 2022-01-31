@@ -1,18 +1,15 @@
 import { css } from "@emotion/css"
+import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode, useContext } from "react"
-import { Toaster } from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../contexts/PageContext"
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
-import useMedia from "../shared-module/hooks/useMedia"
-import { respondToOrLarger } from "../shared-module/styles/respond"
 import basePath from "../shared-module/utils/base-path"
-import withNoSsr from "../shared-module/utils/withNoSsr"
 
 import ScrollIndicator from "./ScrollIndicator"
 import SearchDialog from "./SearchDialog"
@@ -29,8 +26,10 @@ interface LayoutProps {
   organizationSlug: string
 }
 
-const TOAST_BOTTOM_LEFT = "bottom-left"
-const TOAST_BOTTOM_CENTER = "bottom-center"
+const DynamicToaster = dynamic(
+  () => import("../shared-module/components/Notifications/ToasterNotifications"),
+  { ssr: false },
+)
 
 const Layout: React.FC<LayoutProps> = ({
   children,
@@ -44,7 +43,6 @@ const Layout: React.FC<LayoutProps> = ({
   organizationSlug,
 }) => {
   const router = useRouter()
-  const notMobile = useMedia(respondToOrLarger.xs)
   const { t } = useTranslation()
   // eslint-disable-next-line i18next/no-literal-string
   const returnPath = `/login?return_to=${encodeURIComponent(
@@ -101,11 +99,11 @@ const Layout: React.FC<LayoutProps> = ({
           margin-top: 2rem;
         `}
       >
-        <Toaster position={notMobile ? TOAST_BOTTOM_LEFT : TOAST_BOTTOM_CENTER} />
+        <DynamicToaster />
         <Footer licenseUrl={licenseUrl} />
       </div>
     </>
   )
 }
 
-export default withNoSsr(Layout)
+export default Layout

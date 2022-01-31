@@ -1,16 +1,13 @@
 import { css } from "@emotion/css"
+import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode } from "react"
-import { Toaster } from "react-hot-toast"
 
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
-import useMedia from "../shared-module/hooks/useMedia"
-import { respondToOrLarger } from "../shared-module/styles/respond"
 import basePath from "../shared-module/utils/base-path"
-import { withNoSsr } from "../shared-module/utils/withNoSsr"
 
 type LayoutProps = {
   children: ReactNode
@@ -22,8 +19,10 @@ type LayoutProps = {
   returnToPath?: string
 }
 
-const TOAST_BOTTOM_LEFT = "bottom-left"
-const TOAST_BOTTOM_CENTER = "bottom-center"
+const DynamicToaster = dynamic(
+  () => import("../shared-module/components/Notifications/ToasterNotifications"),
+  { ssr: false },
+)
 
 const Layout: React.FC<LayoutProps> = ({
   children,
@@ -35,7 +34,6 @@ const Layout: React.FC<LayoutProps> = ({
   returnToPath,
 }) => {
   const router = useRouter()
-  const notMobile = useMedia(respondToOrLarger.xs)
   // eslint-disable-next-line i18next/no-literal-string
   const returnPath = `/login?return_to=${encodeURIComponent(
     process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
@@ -74,10 +72,10 @@ const Layout: React.FC<LayoutProps> = ({
           <Centered variant="default">{children}</Centered>
         </main>
       </div>
-      <Toaster position={notMobile ? TOAST_BOTTOM_LEFT : TOAST_BOTTOM_CENTER} />
+      <DynamicToaster />
       <Footer licenseUrl={licenseUrl} />
     </>
   )
 }
 
-export default withNoSsr(Layout)
+export default Layout

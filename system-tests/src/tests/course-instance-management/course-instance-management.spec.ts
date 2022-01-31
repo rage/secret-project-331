@@ -123,6 +123,9 @@ test("test", async ({ page, headless }) => {
     page,
   })
 
+  // Wait for Success notification to disappear.
+  await page.waitForTimeout(4000)
+
   // Click text=Delete course instance
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4' }*/),

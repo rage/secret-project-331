@@ -55,8 +55,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const postSubmissionMutation = useToastMutation(
     postSubmission,
     {
-      notify: true,
-      method: "POST",
+      notify: false,
     },
     {
       retry: 3,

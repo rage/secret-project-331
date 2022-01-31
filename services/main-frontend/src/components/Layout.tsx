@@ -10,6 +10,7 @@ import Navbar from "../shared-module/components/Navigation"
 import useMedia from "../shared-module/hooks/useMedia"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 import basePath from "../shared-module/utils/base-path"
+import { withNoSsr } from "../shared-module/utils/withNoSsr"
 
 type LayoutProps = {
   children: ReactNode
@@ -79,4 +80,4 @@ const Layout: React.FC<LayoutProps> = ({
   )
 }
 
-export default Layout
+export default withNoSsr(Layout)

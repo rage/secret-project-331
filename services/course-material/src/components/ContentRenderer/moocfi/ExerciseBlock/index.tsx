@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import HelpIcon from "@material-ui/icons/Help"
 import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useMutation, useQuery } from "react-query"
+import { useQuery } from "react-query"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
@@ -15,6 +15,7 @@ import DebugModal from "../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
+import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
@@ -51,21 +52,28 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     },
   })
 
-  const postSubmissionMutation = useMutation(postSubmission, {
-    retry: 3,
-    onSuccess: (data) => {
-      if (data.grading) {
-        setPoints(data.grading.score_given)
-      }
-      dispatch({
-        type: "submissionGraded",
-        payload: {
-          submissionResult: data,
-          publicSpec: getCourseMaterialExercise.data?.current_exercise_task.public_spec,
-        },
-      })
+  const postSubmissionMutation = useToastMutation(
+    postSubmission,
+    {
+      notify: true,
+      method: "POST",
     },
-  })
+    {
+      retry: 3,
+      onSuccess: (data) => {
+        if (data.grading) {
+          setPoints(data.grading.score_given)
+        }
+        dispatch({
+          type: "submissionGraded",
+          payload: {
+            submissionResult: data,
+            publicSpec: getCourseMaterialExercise.data?.current_exercise_task.public_spec,
+          },
+        })
+      },
+    },
+  )
   const [answer, setAnswer] = useState<unknown>(null)
   const [answerValid, setAnswerValid] = useState(false)
   const [points, setPoints] = useState<number | null>(null)

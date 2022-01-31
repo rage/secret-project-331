@@ -12,7 +12,7 @@ use crate::controllers::{
         proposed_edits::GetEditProposalsQuery,
         roles::{RoleInfo, RoleQuery},
     },
-    ErrorResponse, UploadResult,
+    ErrorData, ErrorResponse, UploadResult,
 };
 use headless_lms_models::*;
 use headless_lms_utils::pagination::Pagination;
@@ -160,6 +160,7 @@ fn ts_binding_generator() {
         GetFeedbackQuery,
         GetEditProposalsQuery,
         ErrorResponse,
+        ErrorData,
         Pagination
     };
     res.unwrap();

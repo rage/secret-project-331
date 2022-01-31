@@ -16,7 +16,6 @@ import Unsupported from "./Unsupported"
 
 interface WidgetProps {
   port: MessagePort
-  maxWidth: number | null
   quiz: PublicQuiz
 }
 

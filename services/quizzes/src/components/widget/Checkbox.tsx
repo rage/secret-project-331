@@ -37,6 +37,7 @@ const Checkbox: React.FC<QuizItemComponentProps> = ({
           type="checkbox"
           checked={quizItemAnswerState?.intData === 1}
           onChange={(e) => handleOptionToggle(e.target.checked)}
+          aria-label={quizItem.title}
         />
       </div>
       <div

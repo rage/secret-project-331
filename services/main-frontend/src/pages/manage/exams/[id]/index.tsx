@@ -12,7 +12,6 @@ import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -62,7 +61,6 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     <Layout frontPageUrl={"/"} navVariant={"complex"}>
       <div
         className={css`
-          ${wideWidthCenteredComponentStyles}
           margin-bottom: 1rem;
         `}
       >

@@ -10,7 +10,6 @@ import { newCourseInstance } from "../../../../services/backend/courses"
 import { CourseInstanceForm } from "../../../../shared-module/bindings"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -43,7 +42,6 @@ const NewCourseInstance: React.FC<Props> = ({ query }) => {
     <Layout navVariant="complex">
       <div
         className={css`
-          ${wideWidthCenteredComponentStyles}
           margin-bottom: 1rem;
         `}
       >

@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next"
 
 import Layout from "../../components/Layout"
 import { PermissionPage } from "../../components/PermissionPage"
-import { normalWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 
 const GlobalPermissions: React.FC<unknown> = () => {
@@ -14,8 +13,6 @@ const GlobalPermissions: React.FC<unknown> = () => {
     <Layout navVariant="complex">
       <div
         className={css`
-          ${normalWidthCenteredComponentStyles}
-
           margin-top: 40px;
           ${respondToOrLarger.sm} {
             margin-top: 80px;

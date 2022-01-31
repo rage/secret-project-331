@@ -9,7 +9,6 @@ import { fetchCourseInstance } from "../../../../services/backend/course-instanc
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import {
   dontRenderUntilQueryParametersReady,
@@ -31,8 +30,6 @@ const CourseInstancePermissions: React.FC<Props> = ({ query }) => {
     <Layout navVariant="complex">
       <div
         className={css`
-          ${wideWidthCenteredComponentStyles}
-
           margin-top: 40px;
           ${respondToOrLarger.sm} {
             margin-top: 80px;

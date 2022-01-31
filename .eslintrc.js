@@ -99,7 +99,13 @@ module.exports = {
           {
             name: "@emotion/react",
             importNames: ["css"],
-            message: 'Use this instad: import { css } from "@emotion/css"',
+            message: 'Use this instead: import { css } from "@emotion/css"',
+          },
+          {
+            name: "react-query",
+            importNames: ["useMutation"],
+            message:
+              "Don't use useMutation from react-query. Please use useToastMutation from shared-module",
           },
         ],
       },

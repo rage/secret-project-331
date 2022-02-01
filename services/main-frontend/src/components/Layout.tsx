@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode } from "react"
@@ -17,6 +18,11 @@ type LayoutProps = {
   licenseUrl?: string
   returnToPath?: string
 }
+
+const DynamicToaster = dynamic(
+  () => import("../shared-module/components/Notifications/ToasterNotifications"),
+  { ssr: false },
+)
 
 const Layout: React.FC<LayoutProps> = ({
   children,
@@ -66,6 +72,7 @@ const Layout: React.FC<LayoutProps> = ({
           <Centered variant="default">{children}</Centered>
         </main>
       </div>
+      <DynamicToaster />
       <Footer licenseUrl={licenseUrl} />
     </>
   )

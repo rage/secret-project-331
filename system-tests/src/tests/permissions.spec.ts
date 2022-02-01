@@ -16,10 +16,9 @@ test("test", async ({ headless, page }) => {
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
 
-  // Click text=Manage
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92' }*/),
-    page.click("text=Manage"),
+    page.waitForNavigation(),
+    page.click("[aria-label=\"Manage course 'Permission management'\"] svg"),
   ])
 
   // Click text=Manage permissions
@@ -32,7 +31,62 @@ test("test", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "initial-permission-management-page",
-    waitForThisToBeVisibleAndStable: ["text=Roles for organization"],
+    waitForThisToBeVisibleAndStable: ["text=Roles for course"],
+  })
+
+  // Click [placeholder="Enter email"]
+  await page.click('[placeholder="Enter email"]')
+
+  // Fill [placeholder="Enter email"]
+  await page.fill('[placeholder="Enter email"]', "teacher@example.com")
+
+  // Click text=RoleAdminAssistantReviewerTeacher >> div
+  await page.click("text=RoleAdminAssistantReviewerTeacher >> div")
+
+  // Select Admin
+  await page.selectOption("select", "Admin")
+
+  // Click text=Add user
+  await page.click("text=Add user")
+
+  // Click [placeholder="Enter email"]
+  await page.click('[placeholder="Enter email"]')
+
+  // Fill [placeholder="Enter email"]
+  await page.fill('[placeholder="Enter email"]', "admin@example.com")
+
+  // Click text=RoleAdminAssistantReviewerTeacher >> div
+  await page.click("text=RoleAdminAssistantReviewerTeacher >> div")
+
+  // Select Admin
+  await page.selectOption("select", "Teacher")
+
+  // Click text=Add user
+  await page.click("text=Add user")
+
+  // Click [aria-label="Sort by email"]
+  await page.click('[aria-label="Sort by email"]')
+  await expect(page).toHaveURL(
+    "http://project-331.local/manage/courses/a2002fc3-2c87-4aae-a5e5-9d14617aad2b/permissions?sort=email",
+  )
+
+  await expectScreenshotsToMatchSnapshots({
+    page,
+    headless,
+    snapshotName: "sorted-by-email",
+    waitForThisToBeVisibleAndStable: 'text="Operation successful!"',
+  })
+
+  // Click [aria-label="Sort by role"]
+  await page.click('[aria-label="Sort by role"]')
+  await expect(page).toHaveURL(
+    "http://project-331.local/manage/courses/a2002fc3-2c87-4aae-a5e5-9d14617aad2b/permissions?sort=role",
+  )
+
+  await expectScreenshotsToMatchSnapshots({
+    page,
+    headless,
+    snapshotName: "sorted-by-role",
   })
 
   // Click [aria-label="Edit role"]
@@ -58,7 +112,7 @@ test("test", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "edited-permission",
-    waitForThisToBeVisibleAndStable: ['td:text("Reviewer")'],
+    waitForThisToBeVisibleAndStable: 'text="Operation successful!"',
   })
 
   // Click [aria-label="Remove role"]
@@ -68,51 +122,6 @@ test("test", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "removed-permission",
-  })
-
-  // Click [placeholder="Enter email"]
-  await page.click('[placeholder="Enter email"]')
-
-  // Fill [placeholder="Enter email"]
-  await page.fill('[placeholder="Enter email"]', "teacher@example.com")
-
-  // Click text=RoleAdminAssistantReviewerTeacher >> div
-  await page.click("text=RoleAdminAssistantReviewerTeacher >> div")
-
-  // Select Admin
-  await page.selectOption("select", "Admin")
-
-  // Click text=Add user
-  await page.click("text=Add user")
-
-  await expectScreenshotsToMatchSnapshots({
-    page,
-    headless,
-    snapshotName: "added-permission",
-    waitForThisToBeVisibleAndStable: ["text=teacher@example.com"],
-  })
-
-  // Click [aria-label="Sort by email"]
-  await page.click('[aria-label="Sort by email"]')
-  await expect(page).toHaveURL(
-    "http://project-331.local/manage/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92/permissions?sort=email",
-  )
-
-  await expectScreenshotsToMatchSnapshots({
-    page,
-    headless,
-    snapshotName: "sorted-by-email",
-  })
-
-  // Click [aria-label="Sort by role"]
-  await page.click('[aria-label="Sort by role"]')
-  await expect(page).toHaveURL(
-    "http://project-331.local/manage/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92/permissions?sort=role",
-  )
-
-  await expectScreenshotsToMatchSnapshots({
-    page,
-    headless,
-    snapshotName: "sorted-by-role",
+    waitForThisToBeVisibleAndStable: 'text="Operation successful!"',
   })
 })

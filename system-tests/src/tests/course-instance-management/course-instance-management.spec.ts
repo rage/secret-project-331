@@ -79,6 +79,9 @@ test("test", async ({ page, headless }) => {
     "http://project-331.local/manage/course-instances/211556f5-7793-5705-ac63-b84465916da5",
   )
 
+  // Ensure the Submit notification above is gone
+  await page.waitForTimeout(4000)
+
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "initial-management-page",
@@ -124,6 +127,9 @@ test("test", async ({ page, headless }) => {
     waitForThisToBeVisibleAndStable: "text=Edit",
     page,
   })
+
+  // Wait for Success notification to disappear.
+  await page.waitForTimeout(4000)
 
   // Click text=Delete course instance
   await Promise.all([

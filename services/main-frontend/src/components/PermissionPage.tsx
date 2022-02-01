@@ -4,13 +4,14 @@ import { Check, Clear, Create, ExpandMore } from "@material-ui/icons"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useMutation, useQuery } from "react-query"
+import { useQuery } from "react-query"
 
 import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"
 import { RoleDomain, RoleQuery, RoleUser, UserRole } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import SelectField from "../shared-module/components/InputFields/SelectField"
+import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 
 const SORT_KEY_NAME = "name"
@@ -72,27 +73,33 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
   const [editingRole, setEditingRole] = useState<EditingRole | null>(null)
   const [mutationError, setMutationError] = useState<unknown | null>(null)
   const roleQuery = useQuery(`roles-${domain}`, () => fetchRoles(query))
-  const addMutation = useMutation(
+  const addMutation = useToastMutation(
     () => {
       return giveRole(newEmail, newRole, domain)
     },
+    { notify: true, method: "POST" },
     {
-      onSuccess: () => roleQuery.refetch(),
+      onSuccess: () => {
+        setNewEmail("")
+        roleQuery.refetch()
+      },
       onError: setMutationError,
     },
   )
-  const editMutation = useMutation(
+  const editMutation = useToastMutation(
     ({ email, oldRole, newRole }: { email: string; oldRole: UserRole; newRole: UserRole }) =>
       removeRole(email, oldRole, domain).then(() => giveRole(email, newRole, domain)),
+    { notify: true, method: "POST" },
     {
       onSuccess: () => roleQuery.refetch(),
       onError: setMutationError,
     },
   )
-  const removeMutation = useMutation(
+  const removeMutation = useToastMutation(
     ({ email, role }: { email: string; role: UserRole }) => {
       return removeRole(email, role, domain)
     },
+    { notify: true, method: "POST" },
     {
       onSuccess: () => roleQuery.refetch(),
       onError: setMutationError,

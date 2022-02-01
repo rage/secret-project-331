@@ -232,7 +232,7 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
                 `}
                 key={ur.id}
               >
-                <td>{ur.name || ""}</td>
+                <td>{ur.first_name ? `${ur.first_name} ${ur.last_name}` : ur.last_name}</td>
                 <td>{ur.email}</td>
                 {editingRole?.userId !== ur.id && (
                   <>

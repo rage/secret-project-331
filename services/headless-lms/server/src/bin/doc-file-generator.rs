@@ -244,7 +244,8 @@ fn main() {
     };
     let user = User {
         id,
-        name: Some("example".to_string()),
+        first_name: Some("User".to_string()),
+        last_name: Some("Example".to_string()),
         created_at,
         updated_at,
         deleted_at,

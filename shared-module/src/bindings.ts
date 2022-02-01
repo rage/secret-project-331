@@ -575,7 +575,8 @@ export interface ProposalCount {
 
 export interface RoleUser {
   id: string
-  name: string | null
+  first_name: string | null
+  last_name: string | null
   email: string
   role: UserRole
 }
@@ -674,7 +675,8 @@ export interface UserCourseInstanceProgress {
 
 export interface User {
   id: string
-  name: string | null
+  first_name: string | null
+  last_name: string | null
   created_at: Date
   updated_at: Date
   deleted_at: Date | null

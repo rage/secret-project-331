@@ -970,7 +970,8 @@ export function isRoleUser(obj: any, _argumentName?: string): obj is RoleUser {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
-    (obj.name === null || typeof obj.name === "string") &&
+    (obj.first_name === null || typeof obj.first_name === "string") &&
+    (obj.last_name === null || typeof obj.last_name === "string") &&
     typeof obj.email === "string" &&
     (isUserRole(obj.role) as boolean)
   )
@@ -1126,7 +1127,8 @@ export function isUser(obj: any, _argumentName?: string): obj is User {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
-    (obj.name === null || typeof obj.name === "string") &&
+    (obj.first_name === null || typeof obj.first_name === "string") &&
+    (obj.last_name === null || typeof obj.last_name === "string") &&
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&

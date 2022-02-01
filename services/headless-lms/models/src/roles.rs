@@ -58,7 +58,8 @@ pub enum RoleDomain {
 #[derive(Debug, Serialize, TS)]
 pub struct RoleUser {
     id: Uuid,
-    name: Option<String>,
+    first_name: Option<String>,
+    last_name: Option<String>,
     email: String,
     role: UserRole,
 }
@@ -70,7 +71,8 @@ pub async fn get(conn: &mut PgConnection, domain: RoleDomain) -> ModelResult<Vec
                 RoleUser,
                 r#"
 SELECT users.id AS "id!",
-  users.name,
+  users.first_name,
+  users.last_name,
   email AS "email!",
   role AS "role!: UserRole"
 FROM users
@@ -86,7 +88,8 @@ WHERE is_global = TRUE
                 RoleUser,
                 r#"
 SELECT users.id,
-  users.name,
+  users.first_name,
+  users.last_name,
   email,
   role AS "role: UserRole"
 FROM users
@@ -103,7 +106,8 @@ WHERE roles.organization_id = $1
                 RoleUser,
                 r#"
 SELECT users.id,
-  users.name,
+  users.first_name,
+  users.last_name,
   email,
   role AS "role: UserRole"
 FROM users
@@ -120,7 +124,8 @@ WHERE roles.course_id = $1
                 RoleUser,
                 r#"
 SELECT users.id,
-  users.name,
+  users.first_name,
+  users.last_name,
   email,
   role AS "role: UserRole"
 FROM users
@@ -137,7 +142,8 @@ WHERE roles.course_instance_id = $1
                 RoleUser,
                 r#"
 SELECT users.id,
-  users.name,
+  users.first_name,
+  users.last_name,
   email,
   role AS "role: UserRole"
 FROM users

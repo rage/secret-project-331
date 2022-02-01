@@ -5,7 +5,8 @@ use crate::prelude::*;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
 pub struct User {
     pub id: Uuid,
-    pub name: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -13,14 +14,21 @@ pub struct User {
     pub email: String,
 }
 
-pub async fn insert(conn: &mut PgConnection, email: &str) -> ModelResult<Uuid> {
+pub async fn insert(
+    conn: &mut PgConnection,
+    email: &str,
+    first_name: Option<&str>,
+    last_name: Option<&str>,
+) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO users (email)
-VALUES ($1)
+INSERT INTO users (email, first_name, last_name)
+VALUES ($1, $2, $3)
 RETURNING id
 ",
-        email
+        email,
+        first_name,
+        last_name
     )
     .fetch_one(conn)
     .await?;
@@ -30,18 +38,20 @@ RETURNING id
 pub async fn insert_with_id(
     conn: &mut PgConnection,
     email: &str,
-    name: Option<&str>,
+    first_name: Option<&str>,
+    last_name: Option<&str>,
     id: Uuid,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO users (id, email, name)
-VALUES ($1, $2, $3)
+INSERT INTO users (id, email, first_name, last_name)
+VALUES ($1, $2, $3, $4)
 RETURNING id
 ",
         id,
         email,
-        name
+        first_name,
+        last_name
     )
     .fetch_one(conn)
     .await?;
@@ -51,7 +61,8 @@ RETURNING id
 pub async fn insert_with_upstream_id_and_moocfi_id(
     conn: &mut PgConnection,
     email: &str,
-    name: Option<&str>,
+    first_name: Option<&str>,
+    last_name: Option<&str>,
     upstream_id: i32,
     moocfi_id: Uuid,
 ) -> ModelResult<User> {
@@ -59,13 +70,14 @@ pub async fn insert_with_upstream_id_and_moocfi_id(
         User,
         r#"
 INSERT INTO
-  users (id, email, name, upstream_id)
-VALUES ($1, $2, $3, $4)
+  users (id, email, first_name, last_name, upstream_id)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
           "#,
         moocfi_id,
         email,
-        name,
+        first_name,
+        last_name,
         upstream_id
     )
     .fetch_one(conn)

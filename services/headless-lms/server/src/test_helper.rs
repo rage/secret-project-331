@@ -100,6 +100,7 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
         &mut *conn,
         "test@example.com",
         None,
+        None,
         Uuid::parse_str("21a2b6b5-0e66-4708-8a0b-d818576ab950")?,
     )
     .await?;

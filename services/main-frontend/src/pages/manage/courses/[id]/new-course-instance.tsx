@@ -2,7 +2,6 @@ import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useMutation } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import NewCourseInstanceForm from "../../../../components/page-specific/manage/courses/id/new-course-instance/NewCourseInstanceForm"
@@ -10,6 +9,7 @@ import { newCourseInstance } from "../../../../services/backend/courses"
 import { CourseInstanceForm } from "../../../../shared-module/bindings"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -26,11 +26,16 @@ const NewCourseInstance: React.FC<Props> = ({ query }) => {
 
   const router = useRouter()
 
-  const mutation = useMutation(
+  const mutation = useToastMutation(
     async (form: CourseInstanceForm) => {
       await newCourseInstance(courseId, form)
     },
     {
+      notify: true,
+      method: "POST",
+    },
+    {
+      retry: 3,
       onSuccess: () => {
         // eslint-disable-next-line i18next/no-literal-string
         router.push(`/manage/courses/${courseId}`)

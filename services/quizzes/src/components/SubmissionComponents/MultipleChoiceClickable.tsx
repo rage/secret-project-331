@@ -28,36 +28,34 @@ const MultipleChoiceClickableFeedback: React.FC<QuizItemSubmissionComponentProps
       >
         {public_quiz_item.title || public_quiz_item.body}
       </h2>
-      <div
-        className={css`
-          display: flex;
-          flex-wrap: wrap;
-        `}
-      >
-        {public_quiz_item.options.map((o) => {
-          const optionSelected = user_quiz_item_answer.optionAnswers?.includes(o.id)
-          const correct = quiz_item_model_solution?.options.find((mo) => o.id === mo.id)?.correct
 
-          const correctColor = quizTheme.gradingCorrectItemBackground
-          const inCorrectColor = quizTheme.gradingWrongItemBackground
+      {public_quiz_item.options.map((o) => {
+        const optionSelected = user_quiz_item_answer.optionAnswers?.includes(o.id)
+        const correct = quiz_item_model_solution?.options.find((mo) => o.id === mo.id)?.correct
 
-          return (
-            <button
-              key={o.id}
-              value={o.id}
-              disabled
-              className={css`
-                display: flex;
-                margin: 0.5rem;
-                background-color: ${correct ? correctColor : inCorrectColor};
-                ${optionSelected && "border: 2px solid black;"}
-              `}
-            >
-              {o.title || o.body}
-            </button>
-          )
-        })}
-      </div>
+        const correctItemBackgroundColor = quizTheme.gradingCorrectItemBackground
+        const wrongItemBackgroundColor = quizTheme.gradingWrongItemBackground
+        const correctItemForegroundColor = quizTheme.gradingCorrectItemColor
+        const wrongItemForegroundColor = quizTheme.gradingWrongItemColor
+
+        return (
+          <button
+            key={o.id}
+            value={o.id}
+            disabled
+            className={css`
+              display: flex;
+              margin: 0.5rem;
+              flex-grow: 1;
+              color: ${correct ? correctItemForegroundColor : wrongItemForegroundColor};
+              background-color: ${correct ? correctItemBackgroundColor : wrongItemBackgroundColor};
+              ${optionSelected && "border: 2px solid black;"}
+            `}
+          >
+            {o.title || o.body}
+          </button>
+        )
+      })}
     </div>
   )
 }

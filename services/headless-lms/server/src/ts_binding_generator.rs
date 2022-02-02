@@ -8,7 +8,7 @@ use crate::controllers::{
         courses::GetFeedbackQuery, exams::ExamCourseInfo, exercises::ExerciseSubmissions,
         feedback::MarkAsRead, proposed_edits::GetEditProposalsQuery,
     },
-    ErrorResponse, UploadResult,
+    ErrorData, ErrorResponse, UploadResult,
 };
 use headless_lms_models::*;
 use headless_lms_utils::pagination::Pagination;
@@ -153,6 +153,7 @@ fn ts_binding_generator() {
         GetFeedbackQuery,
         GetEditProposalsQuery,
         ErrorResponse,
+        ErrorData,
         Pagination
     };
     res.unwrap();

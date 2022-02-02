@@ -18,7 +18,12 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
   ])
   expect(page.url()).toBe("http://project-331.local/org/uh-cs")
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Introduction to everything")])
+  await Promise.all([
+    page.waitForNavigation(),
+    page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`),
+  ])
+
+  await page.waitForTimeout(100)
 
   const courseVariantSelector = await page.$$("text=Select course version to continue.")
 

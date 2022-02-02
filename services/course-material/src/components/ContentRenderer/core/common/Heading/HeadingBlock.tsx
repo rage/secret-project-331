@@ -5,7 +5,6 @@ import { DetailedHTMLProps, HTMLAttributes } from "react"
 
 import { BlockRendererProps } from "../../.."
 import { HeadingAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { normalWidthCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
@@ -30,7 +29,6 @@ const HeadingBlock: React.FC<BlockRendererProps<HeadingAttributes>> = ({ data })
       __html: sanitizeCourseMaterialHtml(content),
     },
     className: css`
-      ${normalWidthCenteredComponentStyles}
       ${textAlign && `text-align: ${textAlign};`}
       ${textColor && `color: ${colorMapper(textColor, "#000000")};`}
       ${backgroundColor && `background-color: ${colorMapper(backgroundColor)};`}

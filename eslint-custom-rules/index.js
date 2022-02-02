@@ -93,7 +93,7 @@ module.exports = {
         schema: [],
         messages: {
           noMaterialUiContainerImport:
-            "Don't use Container from @material-ui. Please use normalWidthCenteredComponentStyles.",
+            "Don't use Container from @material-ui. Please use Centered from shared-module.",
         },
       },
       create: function (context) {

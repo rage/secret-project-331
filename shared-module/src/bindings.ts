@@ -738,7 +738,10 @@ export interface ErrorResponse {
   title: string
   message: string
   source: string | null
+  data: ErrorData | null
 }
+
+export type ErrorData = { block_id: string }
 
 export interface Pagination {
   page?: number

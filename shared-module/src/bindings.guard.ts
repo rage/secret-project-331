@@ -37,6 +37,7 @@ import {
   EmailTemplate,
   EmailTemplateNew,
   EmailTemplateUpdate,
+  ErrorData,
   ErrorResponse,
   Exam,
   ExamCourseInfo,
@@ -1231,7 +1232,15 @@ export function isErrorResponse(obj: any, _argumentName?: string): obj is ErrorR
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.title === "string" &&
     typeof obj.message === "string" &&
-    (obj.source === null || typeof obj.source === "string")
+    (obj.source === null || typeof obj.source === "string") &&
+    (obj.data === null || (isErrorData(obj.data) as boolean))
+  )
+}
+
+export function isErrorData(obj: any, _argumentName?: string): obj is ErrorData {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.block_id === "string"
   )
 }
 

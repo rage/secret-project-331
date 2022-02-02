@@ -10,7 +10,6 @@ import { fetchOrganizationBySlug } from "../../services/backend/organizations"
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
-import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -42,7 +41,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   return (
     // Removing frontPageUrl for some unsolved reason returns to organization front page rather than root
     <Layout frontPageUrl="/">
-      <div className={wideWidthCenteredComponentStyles}>
+      <div>
         <h1>{t("title-organization-courses")}</h1>
         {(getOrganizationBySlug.isLoading || getOrganizationBySlug.isIdle) && (
           <Spinner variant={"medium"} />

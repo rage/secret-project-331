@@ -7,7 +7,6 @@ import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../shared-module/styles"
-import { wideWidthCenteredComponentStyles } from "../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 
 const SHORT = "short"
@@ -63,7 +62,6 @@ const ExamTimer: React.FC<ExamTimerProps> = ({
   return (
     <div
       className={cx(
-        wideWidthCenteredComponentStyles,
         css`
           display: flex;
           flex-direction: row;

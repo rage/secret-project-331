@@ -1,9 +1,8 @@
 import { css } from "@emotion/css"
-import { Alert, Grow } from "@material-ui/core"
 import TextField from "@material-ui/core/TextField"
 import React, { ChangeEvent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useMutation, useQuery } from "react-query"
+import { useQuery } from "react-query"
 
 import Layout from "../components/Layout"
 import {
@@ -17,55 +16,75 @@ import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
 import Spinner from "../shared-module/components/Spinner"
+import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { monospaceFont } from "../shared-module/styles"
-import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
-import { defaultContainerWidth } from "../shared-module/styles/constants"
+import { narrowContainerWidthPx } from "../shared-module/styles/constants"
 
 const Home: React.FC = () => {
   const { t } = useTranslation()
   const [exampleUrl, setExampleUrl] = useState<string>("")
-  const [exampleWidth, setExampleWidth] = useState<number>(defaultContainerWidth)
+  const [exampleWidth, setExampleWidth] = useState<number>(narrowContainerWidthPx)
   const [exampleData, setExampleData] = useState<string>("")
   const [exampleName, setExampleName] = useState<string>("")
   const [combinedUrl, setCombinedUrl] = useState<string>("")
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
   const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
-  const [msg, setMsg] = useState<string>("")
   const getPlaygroundExamples = useQuery("playground-examples", () => fetchPlaygroundExamples())
-  const saveMutation = useMutation(savePlaygroundExample, {
-    onSuccess: () => {
-      setMsg(t("message-saved-succesfully"))
-      getPlaygroundExamples.refetch()
-      setTimeout(() => saveMutation.reset(), 5000)
+  const saveMutation = useToastMutation(
+    savePlaygroundExample,
+    {
+      notify: true,
+      method: "POST",
+      successMessage: t("message-saved-succesfully"),
+      errorMessage: t("message-saving-failed"),
     },
-    onError: () => {
-      setMsg(t("message-saving-failed"))
-      setTimeout(() => saveMutation.reset(), 5000)
+    {
+      onSuccess: () => {
+        getPlaygroundExamples.refetch()
+        setTimeout(() => saveMutation.reset(), 5000)
+      },
+      onError: () => {
+        setTimeout(() => saveMutation.reset(), 5000)
+      },
     },
-  })
-  const updateMutation = useMutation(updatePlaygroundExample, {
-    onSuccess: () => {
-      setMsg(t("message-update-succesful"))
-      getPlaygroundExamples.refetch()
-      setTimeout(() => updateMutation.reset(), 5000)
+  )
+  const updateMutation = useToastMutation(
+    updatePlaygroundExample,
+    {
+      notify: true,
+      method: "PUT",
+      successMessage: t("message-update-succesful"),
+      errorMessage: t("message-update-failed"),
     },
-    onError: () => {
-      setMsg(t("message-update-failed"))
-      setTimeout(() => updateMutation.reset(), 5000)
+    {
+      onSuccess: () => {
+        getPlaygroundExamples.refetch()
+        setTimeout(() => updateMutation.reset(), 5000)
+      },
+      onError: () => {
+        setTimeout(() => updateMutation.reset(), 5000)
+      },
     },
-  })
-  const deleteMutation = useMutation(deletePlaygroundExample, {
-    onSuccess: () => {
-      setMsg(t("message-deleting-succesful"))
-      getPlaygroundExamples.refetch()
-      setSelectedExample(null)
-      setTimeout(() => deleteMutation.reset(), 5000)
+  )
+  const deleteMutation = useToastMutation(
+    deletePlaygroundExample,
+    {
+      notify: true,
+      method: "DELETE",
+      successMessage: t("message-deleting-succesful"),
+      errorMessage: t("message-deleting-failed"),
     },
-    onError: () => {
-      setMsg(t("message-deleting-failed"))
-      setTimeout(() => deleteMutation.reset(), 5000)
+    {
+      onSuccess: () => {
+        getPlaygroundExamples.refetch()
+        setSelectedExample(null)
+        setTimeout(() => deleteMutation.reset(), 5000)
+      },
+      onError: () => {
+        setTimeout(() => deleteMutation.reset(), 5000)
+      },
     },
-  })
+  )
 
   const onMessage = (message: unknown, responsePort: MessagePort) => {
     console.log(responsePort)
@@ -147,33 +166,7 @@ const Home: React.FC = () => {
 
   return (
     <Layout>
-      <div className={normalWidthCenteredComponentStyles}>
-        <Grow
-          in={
-            saveMutation.isError ||
-            saveMutation.isSuccess ||
-            updateMutation.isError ||
-            updateMutation.isSuccess ||
-            deleteMutation.isError ||
-            deleteMutation.isSuccess
-          }
-        >
-          <Alert
-            severity={
-              saveMutation.isSuccess || updateMutation.isSuccess || deleteMutation.isSuccess
-                ? "success"
-                : "error"
-            }
-          >
-            <div
-              className={css`
-                font-size: 150%;
-              `}
-            >
-              {msg}
-            </div>
-          </Alert>
-        </Grow>
+      <div>
         <h2>{t("title-playground-exercise-iframe")}</h2>
         {getPlaygroundExamples.isError && (
           <ErrorBanner variant={"readOnly"} error={getPlaygroundExamples.error} />

@@ -20,7 +20,8 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   page?: Page
   frame?: Frame
   pageScreenshotOptions?: PageScreenshotOptions
-  axeSkip?: boolean | string[]
+  axeSkip?: boolean
+  skipMobile?: boolean
 }
 
 export default async function expectScreenshotsToMatchSnapshots({
@@ -34,6 +35,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   pageScreenshotOptions,
   // keep false for new screenshots
   axeSkip = false,
+  skipMobile = false,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
   if (!page && !frame) {
     throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
@@ -59,18 +61,20 @@ export default async function expectScreenshotsToMatchSnapshots({
     container: visibilityWaitContainer,
   })
 
-  await snapshotWithViewPort({
-    snapshotName,
-    viewPortName: "mobile",
-    toMatchSnapshotOptions,
-    waitForThisToBeStable: elementHandle,
-    beforeScreenshot,
-    page,
-    frame,
-    headless,
-    pageScreenshotOptions,
-    axeSkip,
-  })
+  if (!skipMobile) {
+    await snapshotWithViewPort({
+      snapshotName,
+      viewPortName: "mobile",
+      toMatchSnapshotOptions,
+      waitForThisToBeStable: elementHandle,
+      beforeScreenshot,
+      page,
+      frame,
+      headless,
+      pageScreenshotOptions,
+      axeSkip,
+    })
+  }
 
   await snapshotWithViewPort({
     snapshotName,

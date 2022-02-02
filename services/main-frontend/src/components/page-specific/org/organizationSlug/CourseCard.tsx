@@ -17,7 +17,7 @@ const CourseGrid = styled.div`
   padding-bottom: 10px;
 `
 
-const CourseCard = styled.div`
+const CourseCard = styled.a`
   margin-bottom: 5px;
 
   position: relative;
@@ -123,10 +123,7 @@ const CourseComponent: React.FC<CourseCardProps> = ({
   const { t } = useTranslation()
 
   return (
-    <CourseCard
-      onClick={() => (location.href = `${navigateToCourseHref}`)}
-      aria-label={t("course-navigation", { title })}
-    >
+    <CourseCard href={navigateToCourseHref} aria-label={t("course-navigation", { title })}>
       {loginStateContext.signedIn && (
         <a aria-label={t("manage-course", { title })} href={manageHref}>
           <StyledSettingIcon />

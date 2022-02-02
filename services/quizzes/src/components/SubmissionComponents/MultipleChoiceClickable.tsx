@@ -33,10 +33,12 @@ const MultipleChoiceClickableFeedback: React.FC<QuizItemSubmissionComponentProps
         const optionSelected = user_quiz_item_answer.optionAnswers?.includes(o.id)
         const correct = quiz_item_model_solution?.options.find((mo) => o.id === mo.id)?.correct
 
-        const correctItemBackgroundColor = quizTheme.gradingCorrectItemBackground
-        const wrongItemBackgroundColor = quizTheme.gradingWrongItemBackground
-        const correctItemForegroundColor = quizTheme.gradingCorrectItemColor
-        const wrongItemForegroundColor = quizTheme.gradingWrongItemColor
+        const backgroundColor = correct
+          ? quizTheme.gradingCorrectItemBackground
+          : quizTheme.gradingWrongItemBackground
+        const foregroundColor = correct
+          ? quizTheme.gradingCorrectItemColor
+          : quizTheme.gradingWrongItemColor
 
         return (
           <button
@@ -47,9 +49,10 @@ const MultipleChoiceClickableFeedback: React.FC<QuizItemSubmissionComponentProps
               display: flex;
               margin: 0.5rem;
               flex-grow: 1;
-              color: ${correct ? correctItemForegroundColor : wrongItemForegroundColor};
-              background-color: ${correct ? correctItemBackgroundColor : wrongItemBackgroundColor};
-              ${optionSelected && "border: 2px solid black;"}
+              color: ${foregroundColor};
+              background-color: ${backgroundColor};
+              border: none;
+              outline: ${optionSelected ? `4px outset ${backgroundColor}` : "none"};
             `}
           >
             {o.title || o.body}

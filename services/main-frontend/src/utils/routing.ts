@@ -7,3 +7,7 @@ export function manageCourseInstancePageRoute(courseInstanceId: string) {
 export function manageCourseInstanceEmailsPageRoute(courseInstanceId: string) {
   return `/manage/course-instances/${courseInstanceId}/emails`
 }
+
+export function manageCourseInstancePermissionsPageRoute(courseInstanceId: string) {
+  return `/manage/course-instances/${courseInstanceId}/permissions`
+}

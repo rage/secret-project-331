@@ -23,6 +23,6 @@ test("course list renders", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "course-listing",
-    waitForThisToBeVisibleAndStable: ["text=Organization courses"],
+    waitForThisToBeVisibleAndStable: ["text=Courses:"],
   })
 })

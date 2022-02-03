@@ -87,8 +87,10 @@ pub enum Action {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 pub enum Resource {
+    GlobalPermissions,
     Chapter(Uuid),
     Course(Uuid),
+    CourseInstance(Uuid),
     Exam(Uuid),
     ExerciseTask(Uuid),
     Exercise(Uuid),
@@ -101,6 +103,14 @@ pub enum Resource {
     User,
     PlaygroundExample,
     ExerciseService,
+}
+
+#[derive(Default)]
+struct Ids {
+    organization_id: Option<Uuid>,
+    course_id: Option<Uuid>,
+    course_instance_id: Option<Uuid>,
+    exam_id: Option<Uuid>,
 }
 
 /// Can user_id action the resource?
@@ -129,40 +139,67 @@ pub async fn authorize(
         }
     }
 
-    let (exam_id, course_id, organization_id) = match resource {
-        Resource::Chapter(chapter_id) => (
-            None,
-            Some(models::chapters::get_course_id(conn, chapter_id).await?),
-            None,
-        ),
-        Resource::Course(course_id) => (None, Some(course_id), None),
-        Resource::ExerciseTask(id) => (
-            None,
-            Some(models::exercise_tasks::get_course_id(conn, id).await?),
-            None,
-        ),
-        Resource::Exercise(id) => (
-            None,
-            Some(models::exercises::get_course_id(conn, id).await?),
-            None,
-        ),
-        Resource::Grading(id) => (None, models::gradings::get_course_id(conn, id).await?, None),
-        Resource::Organization(id) => (None, None, Some(id)),
+    let Ids {
+        organization_id,
+        course_id,
+        course_instance_id,
+        exam_id,
+    } = match resource {
+        Resource::Chapter(id) => Ids {
+            course_id: Some(models::chapters::get_course_id(conn, id).await?),
+            ..Default::default()
+        },
+        Resource::Course(id) => Ids {
+            course_id: Some(id),
+            ..Default::default()
+        },
+        Resource::CourseInstance(id) => Ids {
+            course_instance_id: Some(id),
+            ..Default::default()
+        },
+        Resource::ExerciseTask(id) => Ids {
+            course_id: Some(models::exercise_tasks::get_course_id(conn, id).await?),
+            ..Default::default()
+        },
+        Resource::Exercise(id) => Ids {
+            course_id: Some(models::exercises::get_course_id(conn, id).await?),
+            ..Default::default()
+        },
+        Resource::Grading(id) => Ids {
+            course_id: models::gradings::get_course_id(conn, id).await?,
+            ..Default::default()
+        },
+        Resource::Organization(id) => Ids {
+            organization_id: Some(id),
+            ..Default::default()
+        },
         Resource::Page(id) => {
             let (course_id, exam_id) = models::pages::get_course_and_exam_id(conn, id).await?;
-            (exam_id, course_id, None)
+            Ids {
+                exam_id,
+                course_id,
+                ..Default::default()
+            }
         }
         Resource::Submission(id) => {
             let (course_id, exam_id) =
                 models::submissions::get_course_and_exam_id(conn, id).await?;
-            (exam_id, course_id, None)
+            Ids {
+                exam_id,
+                course_id,
+                ..Default::default()
+            }
         }
-        Resource::Exam(exam_id) => (Some(exam_id), None, None),
+        Resource::Exam(exam_id) => Ids {
+            exam_id: Some(exam_id),
+            ..Default::default()
+        },
         Resource::Role
         | Resource::User
         | Resource::AnyCourse
         | Resource::PlaygroundExample
-        | Resource::ExerciseService => (None, None, None),
+        | Resource::ExerciseService
+        | Resource::GlobalPermissions => Ids::default(),
     };
 
     // check exam role
@@ -178,6 +215,17 @@ pub async fn authorize(
     if let Some(course_id) = course_id {
         for role in &user_roles {
             if role.is_role_for_course(course_id) && has_permission(role.role, action) {
+                return Ok(());
+            }
+        }
+    }
+
+    // check course instance role
+    if let Some(course_instance_id) = course_instance_id {
+        for role in &user_roles {
+            if role.is_role_for_course_instance(course_instance_id)
+                && has_permission(role.role, action)
+            {
                 return Ok(());
             }
         }

@@ -926,7 +926,7 @@ mod test {
         )
         .await
         .unwrap();
-        let user_id = users::insert(tx.as_mut(), "user@example.com")
+        let user_id = users::insert(tx.as_mut(), "user@example.com", None, None)
             .await
             .unwrap();
         let (course, _page, _instance) = courses::insert_course(

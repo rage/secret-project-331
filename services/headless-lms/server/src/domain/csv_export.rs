@@ -285,7 +285,7 @@ mod test {
             page,
             ..
         } = insert_data(tx.as_mut(), "").await.unwrap();
-        let u2 = users::insert(tx.as_mut(), "second@example.org")
+        let u2 = users::insert(tx.as_mut(), "second@example.org", None, None)
             .await
             .unwrap();
         let c2 = chapters::insert(tx.as_mut(), "", course, 2).await.unwrap();

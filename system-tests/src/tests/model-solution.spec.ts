@@ -31,7 +31,7 @@ test.describe("Model solutions", () => {
       page.click("text=view submissions"),
     ])
     // Click a:has-text("link")
-    await page.click('a:has-text("link")')
+    await Promise.all([page.waitForNavigation(), page.click('a:has-text("link")')])
     expectPath(page, "/submissions/[id]")
 
     // Wait for the frame to be visible

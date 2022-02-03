@@ -59,6 +59,8 @@ export default function useToastMutation<
     ...mutationOptions,
     onMutate: (variables: TVariables) => {
       if (notificationOptions.notify) {
+        // Remove old toasts
+        toast.remove()
         // Set toastId that is updated once operation is successful or erronous.
         toastId = toast.custom(<LoadingNotification message={notificationOptions.loadingText} />, {
           ...notificationOptions.toastOptions,

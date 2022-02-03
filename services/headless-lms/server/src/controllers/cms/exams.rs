@@ -34,7 +34,7 @@ async fn add_media(
         request.headers(),
         payload,
         StoreKind::Exam(*exam_id),
-        &file_store,
+        file_store.as_ref(),
     )
     .await?;
     let download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());

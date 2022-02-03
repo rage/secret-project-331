@@ -1,10 +1,10 @@
+import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import CourseList from "../../components/page-specific/org/organizationSlug/CourseList"
-import OrganizationImageWidget from "../../components/page-specific/org/organizationSlug/OrganizationImageWidget"
 import { fetchOrganizationExams } from "../../services/backend/exams"
 import { fetchOrganizationBySlug } from "../../services/backend/organizations"
 import DebugModal from "../../shared-module/components/DebugModal"
@@ -42,7 +42,32 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     // Removing frontPageUrl for some unsolved reason returns to organization front page rather than root
     <Layout frontPageUrl="/">
       <div>
-        <h1>{t("title-organization-courses")}</h1>
+        {getOrganizationBySlug.isSuccess && <h1>{getOrganizationBySlug.data.name}</h1>}
+        {getOrganizationBySlug.isSuccess && (
+          <a
+            href={`/manage/organizations/${getOrganizationBySlug.data.id}`}
+            aria-label={`${t("link-manage")}`}
+          >
+            {t("manage")}
+          </a>
+        )}
+        {getOrganizationBySlug.isSuccess && (
+          <>
+            {getOrganizationBySlug.data.organization_image_url && (
+              <img
+                className={css`
+                  max-width: 20rem;
+                  max-height: 20rem;
+                `}
+                src={getOrganizationBySlug.data.organization_image_url}
+                alt={t("image-alt-what-to-display-on-organization")}
+              />
+            )}
+            {!getOrganizationBySlug.data.organization_image_url && (
+              <div>{t("no-organization-image")}</div>
+            )}
+          </>
+        )}
         {(getOrganizationBySlug.isLoading || getOrganizationBySlug.isIdle) && (
           <Spinner variant={"medium"} />
         )}
@@ -50,11 +75,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
           <ErrorBanner variant={"readOnly"} error={getOrganizationBySlug.error} />
         )}
         {getOrganizationBySlug.isSuccess && (
-          <div>
-            <OrganizationImageWidget
-              organization={getOrganizationBySlug.data}
-              onOrganizationUpdated={() => getOrganizationBySlug.refetch()}
-            />
+          <>
             <h2>{t("course-list")}</h2>
             {/* TODO: Implement perPage dropdown? */}
             <CourseList
@@ -62,9 +83,9 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
               organizationSlug={query.organizationSlug}
               perPage={15}
             />
-          </div>
+          </>
         )}
-        <h1>{t("organization-exams")}</h1>
+        <h2>{t("exam-list")}</h2>
         {(exams.isLoading || exams.isIdle) && <Spinner variant={"medium"} />}
         {exams.isError && <ErrorBanner variant={"readOnly"} error={exams.error} />}
         {exams.isSuccess &&

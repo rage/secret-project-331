@@ -31,6 +31,7 @@
 <span id="30">30</span>
 <span id="31">31</span>
 <span id="32">32</span>
+<span id="33">33</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">models::feedback</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
@@ -43,6 +44,7 @@
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/feedback/:id` - Creates new feedback.
 */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">mark_as_read</span>(
     <span class="ident">feedback_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">mark_as_read</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">MarkAsRead</span><span class="op">&gt;</span>,

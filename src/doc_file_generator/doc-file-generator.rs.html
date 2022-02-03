@@ -728,6 +728,7 @@
 <span id="727">727</span>
 <span id="728">728</span>
 <span id="729">729</span>
+<span id="730">730</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -748,7 +749,7 @@
     },
     <span class="ident">course_instance_enrollments::CourseInstanceEnrollment</span>,
     <span class="ident">course_instances</span>::{<span class="ident">ChapterScore</span>, <span class="ident">CourseInstance</span>, <span class="ident">Points</span>, <span class="ident">VariantStatus</span>},
-    <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseStructure</span>},
+    <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseCount</span>, <span class="ident">CourseStructure</span>},
     <span class="ident">email_templates::EmailTemplate</span>,
     <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">Exam</span>, <span class="ident">ExamEnrollment</span>},
     <span class="ident">exercise_service_info::CourseMaterialExerciseServiceInfo</span>,
@@ -1444,6 +1445,7 @@
         }
     );
     <span class="macro">write_docs!</span>(<span class="ident">User</span>, <span class="ident">user</span>.<span class="ident">clone</span>());
+    <span class="macro">write_docs!</span>(<span class="ident">CourseCount</span>, <span class="ident">CourseCount</span> { <span class="ident">count</span>: <span class="number">1234</span> });
 }
 
 <span class="kw">fn</span> <span class="ident">write_json</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">value</span>: <span class="ident">T</span>) {

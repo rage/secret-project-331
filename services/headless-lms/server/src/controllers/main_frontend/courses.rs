@@ -14,7 +14,7 @@ use crate::controllers::prelude::*;
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course(
     course_id: web::Path<Uuid>,
@@ -43,7 +43,7 @@ Content-Type: application/json
 }
 ```
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn post_new_course(
     pool: web::Data<PgPool>,
@@ -90,7 +90,7 @@ Content-Type: application/json
 
 ```
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn update_course(
     payload: web::Json<CourseUpdate>,
@@ -108,7 +108,7 @@ async fn update_course(
 /**
 DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn delete_course(
     course_id: web::Path<Uuid>,
@@ -167,7 +167,7 @@ GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure
 }
 ```
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_course_structure(
     course_id: web::Path<Uuid>,
@@ -202,7 +202,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media_for_course(
     course_id: web::Path<Uuid>,
@@ -231,7 +231,7 @@ async fn add_media_for_course(
 /**
 GET `/api/v0/main-frontend/courses/:id/exercises` - Returns all exercises for the course.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_all_exercises(
     pool: web::Data<PgPool>,
@@ -255,7 +255,7 @@ GET /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-
 Content-Type: application/json
 ```
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
@@ -286,7 +286,7 @@ Content-Type: application/json
 }
 ```
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn post_new_course_language_version(
     pool: web::Data<PgPool>,
@@ -306,7 +306,7 @@ pub async fn post_new_course_language_version(
 /**
 GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_daily_submission_counts(
     pool: web::Data<PgPool>,
@@ -323,7 +323,7 @@ async fn get_daily_submission_counts(
 /**
 GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns submission counts grouped by weekday and hour.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_weekday_hour_submission_counts(
     pool: web::Data<PgPool>,
@@ -342,7 +342,7 @@ async fn get_weekday_hour_submission_counts(
 /**
 GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns submission counts grouped by weekday and hour.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_submission_counts_by_exercise(
     pool: web::Data<PgPool>,
@@ -360,7 +360,7 @@ async fn get_submission_counts_by_exercise(
 /**
 GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course instances for given course id.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_instances(
     pool: web::Data<PgPool>,
@@ -384,7 +384,7 @@ pub struct GetFeedbackQuery {
 /**
 GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_feedback(
     course_id: web::Path<Uuid>,
@@ -402,7 +402,7 @@ pub async fn get_feedback(
 /**
 GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_feedback_count(
     course_id: web::Path<Uuid>,
@@ -419,7 +419,7 @@ pub async fn get_feedback_count(
 /**
 POST `/api/v0/main-frontend/courses/:id/new-course-instance`
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn new_course_instance(
     form: web::Json<CourseInstanceForm>,

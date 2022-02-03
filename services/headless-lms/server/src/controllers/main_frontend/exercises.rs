@@ -14,7 +14,7 @@ pub struct ExerciseSubmissions {
 /**
 GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exercise's submissions.
  */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_exercise_submissions(
     pool: web::Data<PgPool>,

@@ -18,7 +18,7 @@ use crate::controllers::prelude::*;
 /**
 GET `/api/v0/course-material/courses/:course_id` - Get course.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course(
     course_id: web::Path<Uuid>,
@@ -35,7 +35,7 @@ GET `/:course_slug/page-by-path/...` - Returns a course page by path
 # Example
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
@@ -64,7 +64,7 @@ async fn get_course_page_by_path(
 /**
 GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_current_course_instance(
     pool: web::Data<PgPool>,
@@ -86,7 +86,7 @@ async fn get_current_course_instance(
 /**
 GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 async fn get_course_instances(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -100,7 +100,7 @@ async fn get_course_instances(
 /**
 GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages in a course.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_pages(
     course_id: web::Path<Uuid>,
@@ -114,7 +114,7 @@ async fn get_course_pages(
 /**
 GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_chapters(
     course_id: web::Path<Uuid>,
@@ -151,7 +151,7 @@ async fn get_chapters(
 /**
 GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_user_course_settings(
     pool: web::Data<PgPool>,
@@ -188,7 +188,7 @@ Content-Type: application/json
 }
 ```
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn search_pages_with_phrase(
     course_id: web::Path<Uuid>,
@@ -219,7 +219,7 @@ Content-Type: application/json
 }
 ```
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn search_pages_with_words(
     course_id: web::Path<Uuid>,
@@ -235,7 +235,7 @@ async fn search_pages_with_words(
 /**
 POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 pub async fn feedback(
     course_id: web::Path<Uuid>,
     new_feedback: web::Json<Vec<NewFeedback>>,
@@ -280,7 +280,7 @@ pub async fn feedback(
 /**
 POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 async fn propose_edit(
     course_slug: web::Path<String>,
     edits: web::Json<NewProposedPageEdits>,

@@ -5,7 +5,7 @@ use crate::controllers::prelude::*;
 /**
 GET `/api/v0/main-frontend/submissions/{submission_id}/info"` - Returns data necessary for rendering a submission.
 */
-#[cfg_attr(doc, generated_doc)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_submission_info(
     submission_id: web::Path<Uuid>,

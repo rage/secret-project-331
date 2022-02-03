@@ -1,5 +1,6 @@
 target
 .env
+models/.env
 uploads
 requests.rest
 dbdoc

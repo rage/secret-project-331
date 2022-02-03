@@ -65,7 +65,7 @@ const LoadingMessage = styled.div`
 const LoadingNotification = (props: LoadingNotificationProps) => {
   const { t } = useTranslation()
   return (
-    <Wrapper>
+    <Wrapper className="toast-notification">
       <Content>
         <IconWrapper>
           <Spinner variant={"medium"} />

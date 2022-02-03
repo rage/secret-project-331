@@ -74,7 +74,7 @@ test("test", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "sorted-by-email",
-    waitForThisToBeVisibleAndStable: 'text="Operation successful!"',
+    waitForNotificationsToClear: true,
   })
 
   // Click [aria-label="Sort by role"]
@@ -112,7 +112,7 @@ test("test", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "edited-permission",
-    waitForThisToBeVisibleAndStable: 'text="Operation successful!"',
+    waitForThisToBeVisibleAndStable: 'text="Success"',
   })
 
   // Click [aria-label="Remove role"]
@@ -122,6 +122,6 @@ test("test", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "removed-permission",
-    waitForThisToBeVisibleAndStable: 'text="Operation successful!"',
+    waitForThisToBeVisibleAndStable: 'text="Success"',
   })
 })

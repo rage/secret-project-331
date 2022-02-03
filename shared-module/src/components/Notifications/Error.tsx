@@ -97,7 +97,7 @@ const ErrorMessage = styled.div`
 const ErrorNotification = (props: ErrorNotificationProps) => {
   const { t } = useTranslation()
   return (
-    <Wrapper>
+    <Wrapper className="toast-notification">
       <Content>
         <IconWrapper>
           <FontAwesomeIcon

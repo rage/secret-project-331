@@ -8,6 +8,7 @@ use crate::controllers::prelude::*;
 GET /api/v0/course-material/pages/exam/{page_id}
 */
 #[cfg_attr(doc, generated_doc)]
+#[instrument(skip(pool))]
 async fn get_by_exam_id(
     exam_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -42,6 +43,7 @@ async fn get_next_page(
  "chapter-1/page-2"
  ```
 */
+#[cfg_attr(doc, generated_doc)]
 #[instrument(skip(pool))]
 async fn get_url_path(
     page_id: web::Path<Uuid>,

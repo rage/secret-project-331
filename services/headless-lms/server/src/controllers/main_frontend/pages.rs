@@ -78,6 +78,7 @@ async fn delete_page(
 GET /api/v0/main-frontend/pages/:page_id/history
 */
 #[cfg_attr(doc, generated_doc)]
+#[instrument(skip(pool))]
 async fn history(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
@@ -95,6 +96,7 @@ async fn history(
 GET /api/v0/main-frontend/pages/:page_id/history_count
 */
 #[cfg_attr(doc, generated_doc)]
+#[instrument(skip(pool))]
 async fn history_count(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
@@ -111,6 +113,7 @@ async fn history_count(
 POST /api/v0/main-frontend/pages/:page_id/restore
 */
 #[cfg_attr(doc, generated_doc)]
+#[instrument(skip(pool))]
 async fn restore(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,

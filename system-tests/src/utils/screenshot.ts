@@ -15,6 +15,7 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   headless: boolean
   snapshotName: string
   waitForThisToBeVisibleAndStable?: string | ElementHandle | (string | ElementHandle)[]
+  waitForNotificationsToClear?: boolean
   toMatchSnapshotOptions?: ToMatchSnapshotOptions
   beforeScreenshot?: () => Promise<void>
   page?: Page
@@ -33,6 +34,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   frame,
   page,
   pageScreenshotOptions,
+  waitForNotificationsToClear = false,
   // keep false for new screenshots
   axeSkip = false,
   skipMobile = false,
@@ -54,6 +56,10 @@ export default async function expectScreenshotsToMatchSnapshots({
     const frameElement = await frame.frameElement()
     // The frame is not always visible, and waitForThisToBeVisibleAndStable won't work if the frame is not visible
     await frameElement.scrollIntoViewIfNeeded()
+  }
+
+  if (waitForNotificationsToClear) {
+    await page.waitForFunction(() => !document.querySelector(".toast-notification"))
   }
 
   const elementHandle = await waitToBeVisible({

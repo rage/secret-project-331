@@ -97,7 +97,7 @@ const SuccessMessage = styled.div`
 const SuccessNotification = (props: SuccessNotificationProps) => {
   const { t } = useTranslation()
   return (
-    <Wrapper>
+    <Wrapper className="toast-notification">
       <Content>
         <IconWrapper>
           <FontAwesomeIcon

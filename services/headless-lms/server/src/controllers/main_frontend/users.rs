@@ -5,7 +5,7 @@ use crate::controllers::prelude::*;
 /**
 GET `/api/v0/main-frontend/users/:id`
 */
-#[generated_doc]
+#[cfg_attr(doc, generated_doc)]
 #[instrument(skip(pool))]
 pub async fn get_user(
     user_id: web::Path<Uuid>,

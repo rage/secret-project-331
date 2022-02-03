@@ -9,11 +9,6 @@ use syn::{
 /// Convenience alias for #[cfg_attr(doc, doc = generated_docs!(MyType))]
 #[proc_macro_attribute]
 pub fn generated_doc(attr: TokenStream, item: TokenStream) -> TokenStream {
-    if !cfg!(doc) {
-        // skip for non-doc builds
-        return item;
-    }
-
     let mut item = syn::parse_macro_input!(item as ItemFn);
 
     let storage;
@@ -23,7 +18,7 @@ pub fn generated_doc(attr: TokenStream, item: TokenStream) -> TokenStream {
         storage = syn::parse_macro_input!(attr as Type);
         &storage
     };
-    let attr: Attribute = syn::parse_quote!(#[cfg(doc = generated_docs!(#arg))]);
+    let attr: Attribute = syn::parse_quote!(#[doc = generated_docs!(#arg)]);
 
     item.attrs.push(attr);
 

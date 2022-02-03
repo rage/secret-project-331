@@ -7,7 +7,7 @@ use crate::controllers::prelude::*;
 /**
 DELETE `/api/v0/main-frontend/email-templates/:id`
 */
-#[generated_doc]
+#[cfg_attr(doc, generated_doc)]
 #[instrument(skip(pool))]
 async fn delete_email_template(
     email_template_id: web::Path<Uuid>,

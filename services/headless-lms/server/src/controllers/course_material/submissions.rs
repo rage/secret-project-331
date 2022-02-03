@@ -24,7 +24,7 @@ Content-Type: application/json
 }
 ```
  */
-#[generated_doc]
+#[cfg_attr(doc, generated_doc)]
 #[instrument(skip(pool))]
 async fn post_submission(
     pool: web::Data<PgPool>,
@@ -76,7 +76,7 @@ pub struct PreviousSubmission {
 /**
 GET `/api/v0/course-material/previous-for-exercise/:id` - Gets the previous submission for the given exercise.
 */
-#[generated_doc]
+#[cfg_attr(doc, generated_doc)]
 #[instrument(skip(pool))]
 async fn previous_submission(
     pool: web::Data<PgPool>,

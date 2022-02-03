@@ -7,7 +7,7 @@ use crate::controllers::prelude::*;
 /**
 GET `/api/v0/main-frontend/org/:slug
 */
-#[generated_doc]
+#[cfg_attr(doc, generated_doc)]
 async fn get_organization_by_slug(
     pool: web::Data<PgPool>,
     organization_slug: web::Path<String>,
@@ -25,7 +25,7 @@ async fn get_organization_by_slug(
 /**
 GET `/api/v0/main-frontend/org/:slug/courses
 */
-#[generated_doc]
+#[cfg_attr(doc, generated_doc)]
 async fn get_organization_courses_by_slug(
     pool: web::Data<PgPool>,
     organization_slug: web::Path<String>,

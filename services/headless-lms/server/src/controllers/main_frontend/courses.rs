@@ -287,6 +287,7 @@ Content-Type: application/json
 ```
 */
 #[generated_doc]
+#[instrument(skip(pool))]
 pub async fn post_new_course_language_version(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -419,6 +420,7 @@ pub async fn get_feedback_count(
 POST `/api/v0/main-frontend/courses/:id/new-course-instance`
 */
 #[generated_doc]
+#[instrument(skip(pool))]
 async fn new_course_instance(
     form: web::Json<CourseInstanceForm>,
     course_id: web::Path<Uuid>,

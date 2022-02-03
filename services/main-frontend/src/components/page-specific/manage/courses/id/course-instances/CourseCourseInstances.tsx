@@ -11,6 +11,7 @@ import { queryClient } from "../../../../../../shared-module/services/appQueryCl
 import {
   manageCourseInstanceEmailsPageRoute,
   manageCourseInstancePageRoute,
+  manageCourseInstancePermissionsPageRoute,
 } from "../../../../../../utils/routing"
 import { CourseOverviewTabsProps } from "../index/CourseOverviewTabNavigator"
 
@@ -53,6 +54,11 @@ const CourseCourseInstances: React.FC<CourseOverviewTabsProps> = ({ courseId }) 
                 <Link href={manageCourseInstanceEmailsPageRoute(instance.id)} passHref>
                   <a href="replace" aria-label={`${t("link-manage-emails")} (${name})`}>
                     {t("link-manage-emails")}
+                  </a>
+                </Link>{" "}
+                <Link href={manageCourseInstancePermissionsPageRoute(instance.id)} passHref>
+                  <a href="replace" aria-label={`${t("link-manage-permissions")} (${name})`}>
+                    {t("link-manage-permissions")}
                   </a>
                 </Link>{" "}
                 <a

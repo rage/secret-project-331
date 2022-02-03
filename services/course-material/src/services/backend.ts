@@ -1,6 +1,4 @@
 import {
-  Acronym,
-  AcronymUpdate,
   ChapterWithStatus,
   Course,
   CourseInstance,
@@ -18,13 +16,14 @@ import {
   PageWithExercises,
   PreviousSubmission,
   SubmissionResult,
+  Term,
+  TermUpdate,
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
 } from "../shared-module/bindings"
 import {
-  isAcronym,
   isChapterWithStatus,
   isCourse,
   isCourseInstance,
@@ -37,6 +36,7 @@ import {
   isPageWithExercises,
   isPreviousSubmission,
   isSubmissionResult,
+  isTerm,
   isUserCourseInstanceChapterExerciseProgress,
   isUserCourseInstanceChapterProgress,
   isUserCourseInstanceProgress,
@@ -273,20 +273,16 @@ export const fetchPreviousSubmission = async (
   return validateResponse(response, isUnion(isNull, isPreviousSubmission))
 }
 
-export const fetchAcronyms = async (
-  courseId: string,
-  languageCode: string,
-): Promise<Array<Acronym>> => {
-  const response = await courseMaterialClient.get(`/courses/${courseId}/acronyms/${languageCode}`, {
+export const fetchGlossary = async (courseId: string): Promise<Array<Term>> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/glossary`, {
     responseType: "json",
   })
-  return validateResponse(response, isArray(isAcronym))
+  return validateResponse(response, isArray(isTerm))
 }
 
-export const newAcronym = async (
+export const newGlossaryTerm = async (
   courseSlug: string,
-  languageCode: string,
-  newAcronym: AcronymUpdate,
+  newAcronym: TermUpdate,
 ): Promise<void> => {
-  await courseMaterialClient.post(`/courses/${courseSlug}/acronyms/${languageCode}`, newAcronym)
+  await courseMaterialClient.post(`/courses/${courseSlug}/acronyms`, newAcronym)
 }

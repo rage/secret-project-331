@@ -193,5 +193,6 @@
   "create-new-account": "Create new account",
   "forgot-password": "Forgot your password?",
   "no-courses-in-org": "There are no courses in this organization.",
-  "no-description-available": "No description available"
+  "no-description-available": "No description available",
+  "manage-glossary": "Manage glossary"
 }

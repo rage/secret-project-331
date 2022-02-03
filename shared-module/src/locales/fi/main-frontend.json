@@ -151,5 +151,6 @@
   "create-new-account": "Luo käyttäjätunnus",
   "forgot-password": "Unohditko salasanasi?",
   "no-courses-in-org": "Organisaatiolla ei ole kursseja",
-  "no-description-available": "Kurssikuvausta ei saatavilla."
+  "no-description-available": "Kurssikuvausta ei saatavilla.",
+  "manage-glossary": "Hallitse sanastoa"
 }

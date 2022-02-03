@@ -2,13 +2,13 @@
 
 use chrono::Utc;
 use models::{
-    acronyms::{Acronym, AcronymUpdate},
     chapters::{ChapterStatus, ChapterWithStatus},
     course_instances::CourseInstance,
     courses,
     courses::Course,
     feedback,
     feedback::NewFeedback,
+    glossary::Term,
     pages::{CoursePageWithUserData, Page, PageSearchRequest, PageSearchResult},
     proposed_page_edits::{self, NewProposedPageEdits},
     user_course_settings::UserCourseSettings,
@@ -299,33 +299,15 @@ async fn propose_edit(
     Ok(web::Json(id))
 }
 
-#[generated_doc(Vec<Acronym>)]
+#[generated_doc]
 #[instrument(skip(pool))]
-async fn acronyms(
+async fn glossary(
     pool: web::Data<PgPool>,
-    params: web::Path<(String, String)>,
-) -> ControllerResult<web::Json<Vec<Acronym>>> {
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<Term>>> {
     let mut conn = pool.acquire().await?;
-    let (course_slug, language_code) = params.into_inner();
-    let acronyms =
-        models::acronyms::fetch_for_course(&mut conn, &course_slug, &language_code).await?;
-    Ok(web::Json(acronyms))
-}
-
-#[generated_doc(Vec<Acronym>)]
-#[instrument(skip(pool))]
-async fn new_acronym(
-    pool: web::Data<PgPool>,
-    query: web::Path<(String, String)>,
-    new_acronym: web::Json<AcronymUpdate>,
-) -> ControllerResult<web::Json<Uuid>> {
-    let mut conn = pool.acquire().await?;
-    let (course_slug, language_code) = query.into_inner();
-    let AcronymUpdate { acronym, meaning } = new_acronym.into_inner();
-    let acronym =
-        models::acronyms::insert(&mut conn, &acronym, &meaning, &language_code, &course_slug)
-            .await?;
-    Ok(web::Json(acronym))
+    let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
+    Ok(web::Json(glossary))
 }
 
 /**
@@ -365,12 +347,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_user_course_settings),
         )
         .route("/{course_id}/propose-edit", web::post().to(propose_edit))
-        .route(
-            "/{course_slug}/acronyms/{language_code}",
-            web::get().to(acronyms),
-        )
-        .route(
-            "/{course_slug}/acronyms/{language_code}",
-            web::post().to(new_acronym),
-        );
+        .route("/{course_id}/glossary", web::get().to(glossary));
 }

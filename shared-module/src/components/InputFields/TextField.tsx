@@ -6,8 +6,7 @@ import { primaryFont } from "../../styles/typography"
 
 interface TextFieldExtraProps {
   type?: "email" | "password" | "text" | "number"
-  id?: string
-  label?: string
+  label: string
   hint?: string
   error?: boolean
   placeholder?: string
@@ -67,42 +66,24 @@ const ERROR = "Error"
 
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldExtraProps
 
-const TextField = ({ onChange, className, id, ...rest }: TextFieldExtraProps) => {
-  const input = (
-    <>
-      <Input
-        id={id}
-        aria-describedby={`${rest.label}_error`}
-        onChange={({ target: { value } }) => onChange && onChange(value)}
-        {...rest}
-      />
-      <span
-        className={css`
-          ${cx(error)}
-          display: ${rest.error === undefined ? "none" : "inline-block"};
-        `}
-        id={`${rest.label}_error`}
-        role="alert"
-      >
-        {ERROR}
-      </span>
-    </>
+const TextField = ({ onChange, className, ...rest }: TextFieldExtraProps) => {
+  return (
+    <div className={className}>
+      <label>
+        <span className={cx(label)}>{rest.label}</span>
+        <Input
+          aria-describedby={`${rest.label}_error`}
+          onChange={({ target: { value } }) => onChange && onChange(value)}
+          {...rest}
+        />
+      </label>
+      {rest.error && (
+        <span className={cx(error)} id={`${rest.label}_error`} role="alert">
+          {ERROR}
+        </span>
+      )}
+    </div>
   )
-
-  if (rest.label) {
-    // label in component
-    return (
-      <span className={className}>
-        <label className={cx(label)}>
-          {rest.label}
-          {input}
-        </label>
-      </span>
-    )
-  } else {
-    // label outside component
-    return <span className={className}>{input}</span>
-  }
 }
 
 export default TextField

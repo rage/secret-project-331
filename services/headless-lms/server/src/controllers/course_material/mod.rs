@@ -5,12 +5,12 @@ This documents all endpoints. Select a module below for a category.
 
 */
 
-pub mod acronyms;
 pub mod chapters;
 pub mod course_instances;
 pub mod courses;
 pub mod exams;
 pub mod exercises;
+pub mod glossary;
 pub mod pages;
 pub mod proposed_edits;
 pub mod submissions;
@@ -27,5 +27,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/course-instances").configure(course_instances::_add_routes))
         .service(web::scope("/proposed-edits").configure(proposed_edits::_add_routes))
         .service(web::scope("/exams").configure(exams::_add_routes))
-        .service(web::scope("/acronyms").configure(acronyms::_add_routes));
+        .service(web::scope("/acronyms").configure(glossary::_add_routes));
 }

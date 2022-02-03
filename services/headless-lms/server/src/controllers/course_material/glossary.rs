@@ -1,4 +1,4 @@
-use models::acronyms::AcronymUpdate;
+use models::glossary::TermUpdate;
 
 use crate::controllers::prelude::*;
 
@@ -6,10 +6,10 @@ use crate::controllers::prelude::*;
 async fn update(
     pool: web::Data<PgPool>,
     acronym_id: web::Path<Uuid>,
-    update: web::Json<AcronymUpdate>,
+    update: web::Json<TermUpdate>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    models::acronyms::update(&mut conn, *acronym_id, &update.acronym, &update.meaning).await?;
+    models::glossary::update(&mut conn, *acronym_id, &update.term, &update.definition).await?;
     Ok(HttpResponse::Ok().finish())
 }
 
@@ -19,7 +19,7 @@ async fn delete(
     acronym_id: web::Path<Uuid>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    models::acronyms::delete(&mut conn, *acronym_id).await?;
+    models::glossary::delete(&mut conn, *acronym_id).await?;
     Ok(HttpResponse::Ok().finish())
 }
 

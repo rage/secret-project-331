@@ -486,6 +486,16 @@
       "nullable": [false, false, false, true, false, false, false, true, false]
     }
   },
+  "0a3ec731af676e23b67bd6eb547415800aa436639f2dfde55ad17b3ed904a27b": {
+    "query": "\nUPDATE glossary\nSET term = $1,\n  definition = $2\nWHERE id = $3\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Varchar", "Text", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "0abf4ceadb65c21805f0bdb6bed8b664a5442776880ab24eed295d6d88797ec0": {
     "query": "\nINSERT INTO exercises(\n    id,\n    course_id,\n    name,\n    order_number,\n    page_id,\n    chapter_id,\n    exam_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO\nUPDATE\nSET course_id = $2,\n  name = $3,\n  order_number = $4,\n  page_id = $5,\n  chapter_id = $6,\n  exam_id = $7,\n  deleted_at = NULL\nRETURNING id,\n  name,\n  order_number;\n            ",
     "describe": {
@@ -1185,22 +1195,6 @@
       ]
     }
   },
-  "18e9e6a81ad17d77c4cd013e0a2549e7b920c06b18137d7aff0137f53ed0d524": {
-    "query": "\nINSERT INTO acronyms (acronym, meaning, language, course_id)\nSELECT $1, $2, $3, courses.id\nFROM courses WHERE courses.slug = $4\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Text", "Varchar", "Text"]
-      },
-      "nullable": [false]
-    }
-  },
   "19a6e3aaaddd659eb5cee0d7361c6ce7b72a8f77a14561cb51427fb4490fa36b": {
     "query": "\nINSERT INTO chapters (name, course_id, chapter_number)\nVALUES ($1, $2, $3)\nRETURNING id\n",
     "describe": {
@@ -1503,16 +1497,6 @@
       "nullable": [false, true, true, true]
     }
   },
-  "1c567bb82ecf365c4ef4cc3352f4ef3cb29ef88a3072aeaba9b40440fabe946f": {
-    "query": "\nDELETE FROM acronyms\nWHERE id = $1\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "1d480cfbf4a9dc142a798a9bacd391dd6c8c98df5c694697eee44162cbb2c95b": {
     "query": "SELECT COUNT(*) as count FROM submissions WHERE exercise_id = $1",
     "describe": {
@@ -1527,32 +1511,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [null]
-    }
-  },
-  "23a66260f99f0d921b979acf47feb66d6aab2fb4a23fb869ffc97784ad408d33": {
-    "query": "\nSELECT acronyms.id,\n  acronyms.acronym,\n  acronyms.meaning\nFROM acronyms\n  JOIN courses ON slug = $1\nWHERE language = $2\n  AND acronyms.course_id = courses.id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "acronym",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "meaning",
-          "type_info": "Text"
-        }
-      ],
-      "parameters": {
-        "Left": ["Text", "Text"]
-      },
-      "nullable": [false, false, false]
     }
   },
   "241d3dc5cad1e9b9f73fc6731066a9c2779626a3bcb7a40bc7c4694a136ef008": {
@@ -3512,16 +3470,6 @@
       "nullable": [false]
     }
   },
-  "5ef14645244fe14b3cc0c6ef4e102fe81384f133b2c42b5fe4c7bc846d78a7ee": {
-    "query": "\nUPDATE acronyms\nSET acronym = $1,\n  meaning = $2\nWHERE id = $3\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Varchar", "Text", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "60fed3e48c5452f1f0d9aa6c6775f382456469221d08d6d2d450fd5c24648d31": {
     "query": "\nINSERT INTO chapters(name, course_id, chapter_number)\nVALUES($1, $2, $3)\nRETURNING *;\n",
     "describe": {
@@ -4190,6 +4138,32 @@
         "Left": ["UuidArray"]
       },
       "nullable": [false]
+    }
+  },
+  "7bc526c7d60f33c9469b085d6ff8d19dcc8fb6d16659593fe77e816569693d8f": {
+    "query": "\nSELECT glossary.id,\n  glossary.term,\n  glossary.definition\nFROM glossary\nWHERE glossary.course_id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "term",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "definition",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false]
     }
   },
   "7f1cb8b1bbc4ed001fa4fc6dcbbc90e30e0d509e64de0d75461ae1c82a285268": {
@@ -7540,6 +7514,22 @@
       "nullable": [false, false, true, true, false, false, true, true, false, false, true]
     }
   },
+  "bf72e4f9ddb0fde913ffd9dbc6031cf822382d1bad16b900e6fbb347b3d329a6": {
+    "query": "\nINSERT INTO glossary (term, definition, course_id)\nSELECT $1, $2, $3\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Text", "Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
   "bfa02fde6602f70bb732851aaa2e194cdff03a3562341959cc4b2791bc5176fb": {
     "query": "\nSELECT *\nFROM exercises\nWHERE exam_id = $1\n  AND deleted_at IS NULL\n",
     "describe": {
@@ -7846,6 +7836,16 @@
       "columns": [],
       "parameters": {
         "Left": ["Text", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
+  "c7f82dee6a7b89c0de8c1195e8dd7f3c0e909e140c3fb6b65692a95497022bf5": {
+    "query": "\nDELETE FROM glossary\nWHERE id = $1\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
       },
       "nullable": []
     }

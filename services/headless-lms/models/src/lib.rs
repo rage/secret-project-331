@@ -3,7 +3,6 @@ Functions and structs for interacting with the database.
 
 Each submodule corresponds to a database table.
 */
-pub mod acronyms;
 pub mod chapters;
 pub mod course_instance_enrollments;
 pub mod course_instances;
@@ -18,6 +17,7 @@ pub mod exercise_slides;
 pub mod exercise_tasks;
 pub mod exercises;
 pub mod feedback;
+pub mod glossary;
 pub mod gradings;
 pub mod organizations;
 pub mod page_history;

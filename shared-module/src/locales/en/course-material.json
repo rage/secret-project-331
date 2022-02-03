@@ -99,9 +99,7 @@
   "exam-timer-has-run-out": "Time has run out and the exam is now closed.",
   "try-again": "try again",
   "exam-has-not-started-yet": "The exam has not started yet",
-  "acronyms": "Acronyms",
-  "meaning": "Meaning",
-  "new-acronym": "New acronyms",
-  "new-meaning": "Meaning for new acronym",
-  "save": "Save"
+  "glossary": "Glossary",
+  "term": "Term",
+  "definition": "Definition"
 }

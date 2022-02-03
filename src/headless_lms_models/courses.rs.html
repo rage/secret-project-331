@@ -2019,7 +2019,7 @@ WHERE slug = $1
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;user@example.com&quot;</span>)
+        <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;user@example.com&quot;</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
         <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">_page</span>, <span class="ident">_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(

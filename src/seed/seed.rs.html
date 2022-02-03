@@ -2513,6 +2513,46 @@
 <span id="2512">2512</span>
 <span id="2513">2513</span>
 <span id="2514">2514</span>
+<span id="2515">2515</span>
+<span id="2516">2516</span>
+<span id="2517">2517</span>
+<span id="2518">2518</span>
+<span id="2519">2519</span>
+<span id="2520">2520</span>
+<span id="2521">2521</span>
+<span id="2522">2522</span>
+<span id="2523">2523</span>
+<span id="2524">2524</span>
+<span id="2525">2525</span>
+<span id="2526">2526</span>
+<span id="2527">2527</span>
+<span id="2528">2528</span>
+<span id="2529">2529</span>
+<span id="2530">2530</span>
+<span id="2531">2531</span>
+<span id="2532">2532</span>
+<span id="2533">2533</span>
+<span id="2534">2534</span>
+<span id="2535">2535</span>
+<span id="2536">2536</span>
+<span id="2537">2537</span>
+<span id="2538">2538</span>
+<span id="2539">2539</span>
+<span id="2540">2540</span>
+<span id="2541">2541</span>
+<span id="2542">2542</span>
+<span id="2543">2543</span>
+<span id="2544">2544</span>
+<span id="2545">2545</span>
+<span id="2546">2546</span>
+<span id="2547">2547</span>
+<span id="2548">2548</span>
+<span id="2549">2549</span>
+<span id="2550">2550</span>
+<span id="2551">2551</span>
+<span id="2552">2552</span>
+<span id="2553">2553</span>
+<span id="2554">2554</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -2544,8 +2584,8 @@
     <span class="ident">proposed_block_edits::NewProposedBlockEdit</span>,
     <span class="ident">proposed_page_edits</span>,
     <span class="ident">proposed_page_edits::NewProposedPageEdits</span>,
-    <span class="ident">roles</span>,
     <span class="ident">roles::UserRole</span>,
+    <span class="ident">roles</span>::{<span class="self">self</span>, <span class="ident">RoleDomain</span>},
     <span class="ident">submissions</span>,
     <span class="ident">submissions::GradingResult</span>,
     <span class="ident">user_exercise_states</span>, <span class="ident">users</span>,
@@ -2620,24 +2660,32 @@
     <span class="kw">let</span> <span class="ident">admin</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="string">&quot;admin@example.com&quot;</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;Admin&quot;</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;02c79854-da22-4cfc-95c4-13038af25d2e&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">teacher</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="string">&quot;teacher@example.com&quot;</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;Teacher&quot;</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;90643204-7656-4570-bdd9-aad5d297f9ce&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">language_teacher</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="string">&quot;language.teacher@example.com&quot;</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;Language&quot;</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;0fd8bd2d-cb4e-4035-b7db-89e798fe4df0&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">assistant</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="string">&quot;assistant@example.com&quot;</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;Assistant&quot;</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;24342539-f1ba-453e-ae13-14aa418db921&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -2645,6 +2693,8 @@
     <span class="kw">let</span> <span class="ident">student</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="string">&quot;user@example.com&quot;</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;User&quot;</span>),
+        <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;849b8d32-d5f8-4994-9d21-5aa6259585b1&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -2653,24 +2703,32 @@
         <span class="ident">users::insert_with_id</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
             <span class="string">&quot;user_1@example.com&quot;</span>,
+            <span class="prelude-val">Some</span>(<span class="string">&quot;User1&quot;</span>),
+            <span class="prelude-val">None</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;00e249d8-345f-4eff-aedb-7bdc4c44c1d5&quot;</span>)<span class="question-mark">?</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
         <span class="ident">users::insert_with_id</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
             <span class="string">&quot;user_2@example.com&quot;</span>,
+            <span class="prelude-val">Some</span>(<span class="string">&quot;User2&quot;</span>),
+            <span class="prelude-val">None</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8d7d6c8c-4c31-48ae-8e20-c68fa95c25cc&quot;</span>)<span class="question-mark">?</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
         <span class="ident">users::insert_with_id</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
             <span class="string">&quot;user_3@example.com&quot;</span>,
+            <span class="prelude-val">Some</span>(<span class="string">&quot;User3&quot;</span>),
+            <span class="prelude-val">None</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;fbeb9286-3dd8-4896-a6b8-3faffa3fabd6&quot;</span>)<span class="question-mark">?</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
         <span class="ident">users::insert_with_id</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
             <span class="string">&quot;user_4@example.com&quot;</span>,
+            <span class="prelude-val">Some</span>(<span class="string">&quot;User4&quot;</span>),
+            <span class="prelude-val">None</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3524d694-7fa8-4e73-aa1a-de9a20fd514b&quot;</span>)<span class="question-mark">?</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
@@ -2765,12 +2823,22 @@
         <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">seed_sample_course</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">uh_cs</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;a2002fc3-2c87-4aae-a5e5-9d14617aad2b&quot;</span>)<span class="question-mark">?</span>,
+        <span class="string">&quot;Permission management&quot;</span>,
+        <span class="string">&quot;permission-management&quot;</span>,
+        <span class="ident">admin</span>,
+        <span class="ident">student</span>,
+        <span class="kw-2">&amp;</span><span class="ident">users</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">roles::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">language_teacher</span>,
-        <span class="prelude-val">None</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">introduction_to_localizing</span>),
         <span class="ident">UserRole::Teacher</span>,
+        <span class="ident">RoleDomain::Course</span>(<span class="ident">introduction_to_localizing</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -2905,14 +2973,26 @@
 
     <span class="comment">// roles</span>
     <span class="macro">info!</span>(<span class="string">&quot;roles&quot;</span>);
-    <span class="ident">roles::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">admin</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="ident">UserRole::Admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">roles::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">teacher</span>, <span class="prelude-val">Some</span>(<span class="ident">uh_cs</span>), <span class="prelude-val">None</span>, <span class="ident">UserRole::Teacher</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">roles::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">admin</span>, <span class="ident">UserRole::Admin</span>, <span class="ident">RoleDomain::Global</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">roles::insert</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">teacher</span>,
+        <span class="ident">UserRole::Teacher</span>,
+        <span class="ident">RoleDomain::Organization</span>(<span class="ident">uh_cs</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">roles::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">assistant</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">uh_cs</span>),
-        <span class="prelude-val">Some</span>(<span class="ident">cs_intro</span>),
         <span class="ident">UserRole::Assistant</span>,
+        <span class="ident">RoleDomain::Organization</span>(<span class="ident">uh_cs</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">roles::insert</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">assistant</span>,
+        <span class="ident">UserRole::Assistant</span>,
+        <span class="ident">RoleDomain::Course</span>(<span class="ident">cs_intro</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

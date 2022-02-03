@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["UserRole",""]],"fn":[["get_roles",""],["insert",""]],"struct":[["Role",""]]});
+initSidebarItems({"enum":[["RoleDomain",""],["UserRole",""]],"fn":[["get",""],["get_roles",""],["insert",""],["remove",""]],"struct":[["Role",""],["RoleUser",""]]});

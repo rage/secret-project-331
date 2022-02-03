@@ -42,6 +42,8 @@
 <span id="41">41</span>
 <span id="42">42</span>
 <span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/main_frontend`.
 
@@ -62,6 +64,7 @@ This documents all endpoints. Select a module below for a category.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pages</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">playground_examples</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">proposed_edits</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">roles</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">submissions</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">users</span>;
 
@@ -83,7 +86,8 @@ This documents all endpoints. Select a module below for a category.
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/exercise-services&quot;</span>).<span class="ident">configure</span>(<span class="ident">exercise_services::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/playground_examples&quot;</span>).<span class="ident">configure</span>(<span class="ident">playground_examples::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/users&quot;</span>).<span class="ident">configure</span>(<span class="ident">users::_add_routes</span>))
-        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/exams&quot;</span>).<span class="ident">configure</span>(<span class="ident">exams::_add_routes</span>));
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/exams&quot;</span>).<span class="ident">configure</span>(<span class="ident">exams::_add_routes</span>))
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/roles&quot;</span>).<span class="ident">configure</span>(<span class="ident">roles::_add_routes</span>));
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>

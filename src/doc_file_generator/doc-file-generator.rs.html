@@ -726,6 +726,8 @@
 <span id="725">725</span>
 <span id="726">726</span>
 <span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -972,6 +974,8 @@
     };
     <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">User</span> {
         <span class="ident">id</span>,
+        <span class="ident">first_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;User&quot;</span>.<span class="ident">to_string</span>()),
+        <span class="ident">last_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>.<span class="ident">to_string</span>()),
         <span class="ident">created_at</span>,
         <span class="ident">updated_at</span>,
         <span class="ident">deleted_at</span>,

@@ -47,6 +47,7 @@ async fn get_organization_courses(
     Ok(web::Json(courses))
 }
 
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_organization_course_count(
     request_organization_id: web::Path<Uuid>,
@@ -58,6 +59,7 @@ async fn get_organization_course_count(
     Ok(Json(result))
 }
 
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_organization_active_courses(
     request_organization_id: web::Path<Uuid>,
@@ -74,6 +76,7 @@ async fn get_organization_active_courses(
     Ok(Json(courses))
 }
 
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_organization_active_courses_count(
     request_organization_id: web::Path<Uuid>,

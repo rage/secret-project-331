@@ -10,6 +10,7 @@ pub struct MarkAsRead {
 /**
 POST `/api/v0/main-frontend/feedback/:id` - Creates new feedback.
 */
+#[instrument(skip(pool))]
 pub async fn mark_as_read(
     feedback_id: web::Path<Uuid>,
     mark_as_read: web::Json<MarkAsRead>,

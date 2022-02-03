@@ -13,5 +13,6 @@
   "exam-has-not-started-yet": "Koe ei ole vielä alkanut",
   "glossary": "Sanasto",
   "term": "Termi",
-  "definition": "Määritelmä"
+  "definition": "Määritelmä",
+  "block-invalid-without-course": "Tätä lohkoa ei voi käyttää sivulla joka ei liity kurssiin."
 }

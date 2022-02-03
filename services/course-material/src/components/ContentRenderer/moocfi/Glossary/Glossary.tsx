@@ -1,28 +1,12 @@
 import { css } from "@emotion/css"
-import React, { useContext } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import PageContext from "../../../contexts/PageContext"
-import { fetchGlossary } from "../../../services/backend"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
-import { respondToOrLarger } from "../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
-
-const GlossaryBlock: React.FC = () => {
-  const pageContext = useContext(PageContext)
-
-  if (pageContext.state !== "ready") {
-    return <Spinner variant="small" />
-  }
-
-  if (pageContext.pageData.course_id === null) {
-    return <></>
-  }
-
-  return <Glossary courseId={pageContext.pageData.course_id} />
-}
+import { fetchGlossary } from "../../../../services/backend"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
 interface Props {
   courseId: string
@@ -114,4 +98,4 @@ const Glossary: React.FC<Props> = ({ courseId }) => {
   )
 }
 
-export default withErrorBoundary(GlossaryBlock)
+export default Glossary

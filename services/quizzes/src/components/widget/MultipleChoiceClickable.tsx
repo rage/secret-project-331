@@ -4,6 +4,7 @@ import React from "react"
 
 import { QuizItemAnswer } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import { quizTheme } from "../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
 
@@ -29,6 +30,9 @@ export const MultipleChoiceClickable: React.FunctionComponent<QuizItemComponentP
     setQuizItemAnswerState(newItemAnswer)
   }
 
+  const selectedBackgroundColor = quizTheme.selectedItemBackground
+  const selectedForegroundColor = quizTheme.selectedItemColor
+
   return (
     <div
       className={css`
@@ -46,27 +50,24 @@ export const MultipleChoiceClickable: React.FunctionComponent<QuizItemComponentP
       >
         {quizItem.title || quizItem.body}
       </h2>
-      <div
-        className={css`
-          display: flex;
-          flex-wrap: wrap;
-        `}
-      >
-        {quizItem.options.map((o) => (
-          <button
-            key={o.id}
-            value={o.id}
-            onClick={handleOptionSelect}
-            className={css`
-              display: flex;
-              margin: 0.5rem;
-              ${quizItemAnswerState?.optionAnswers?.includes(o.id) && "border: 2px solid #4caf50;"}
-            `}
-          >
-            {o.title || o.body}
-          </button>
-        ))}
-      </div>
+
+      {quizItem.options.map((o) => (
+        <button
+          key={o.id}
+          value={o.id}
+          onClick={handleOptionSelect}
+          className={css`
+            display: flex;
+            flex-grow: 1;
+            margin: 0.5rem;
+            border: none;
+            ${quizItemAnswerState?.optionAnswers?.includes(o.id) &&
+            `background-color: ${selectedBackgroundColor}; color: ${selectedForegroundColor}`}
+          `}
+        >
+          {o.title || o.body}
+        </button>
+      ))}
     </div>
   )
 }

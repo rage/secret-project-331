@@ -19,6 +19,7 @@ pub mod organizations;
 pub mod pages;
 pub mod playground_examples;
 pub mod proposed_edits;
+pub mod roles;
 pub mod submissions;
 pub mod users;
 
@@ -41,5 +42,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/playground_examples").configure(playground_examples::_add_routes))
         .service(web::scope("/users").configure(users::_add_routes))
         .service(web::scope("/exams").configure(exams::_add_routes))
-        .service(web::scope("/glossary").configure(glossary::_add_routes));
+        .service(web::scope("/glossary").configure(glossary::_add_routes))
+        .service(web::scope("/roles").configure(roles::_add_routes));
 }

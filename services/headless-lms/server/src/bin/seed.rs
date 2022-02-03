@@ -250,6 +250,17 @@ async fn main() -> Result<()> {
         &users,
     )
     .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,
+        "Glossary course",
+        "glossary-course",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
     roles::insert(
         &mut conn,
         language_teacher,
@@ -1265,7 +1276,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-1".to_string(),
             title: "Page One".to_string(),
@@ -1339,7 +1350,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-2".to_string(),
             title: "page 2".to_string(),
@@ -1655,7 +1666,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-3".to_string(),
             title: "page 3".to_string(),
@@ -1678,7 +1689,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-4".to_string(),
             title: "page 4".to_string(),
@@ -1701,7 +1712,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-5".to_string(),
             title: "Page 5".to_string(),
@@ -1724,7 +1735,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-6".to_string(),
             title: "page 6".to_string(),
@@ -1763,7 +1774,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_2.id,
+        Some(chapter_2.id),
         CmsPageUpdate {
             url_path: "/chapter-2/intro".to_string(),
             title: "In the second chapter...".to_string(),
@@ -1772,6 +1783,28 @@ async fn seed_sample_course(
             exercise_slides: vec![exercise_slide_3_1],
             exercise_tasks: vec![exercise_task_3_1],
             content: serde_json::json!([exercise_block_3_1]),
+        },
+    )
+    .await?;
+    create_page(
+        conn,
+        course.id,
+        admin,
+        None,
+        CmsPageUpdate {
+            url_path: "/glossary".to_string(),
+            title: "Glossary".to_string(),
+            chapter_id: None,
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: serde_json::json!([GutenbergBlock {
+                name: "moocfi/glossary".to_string(),
+                is_valid: true,
+                client_id: Uuid::parse_str("3a388f47-4aa7-409f-af14-a0290b916225").unwrap(),
+                attributes: attributes! {},
+                inner_blocks: vec![]
+            }]),
         },
     )
     .await?;
@@ -2104,7 +2137,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             .with_id(Uuid::parse_str("3693e92b-9cf0-485a-b026-2851de58e9cf")?),
         ]),
     };
-    create_page(conn, course.id, admin, chapter_1.id, design_content).await?;
+    create_page(conn, course.id, admin, Some(chapter_1.id), design_content).await?;
 
     // /chapter-1/human-machine-interface
     let content_b = CmsPageUpdate {
@@ -2143,7 +2176,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
         ]),
     };
-    create_page(conn, course.id, admin, chapter_1.id, content_b).await?;
+    create_page(conn, course.id, admin, Some(chapter_1.id), content_b).await?;
 
     // Chapter-2
     let new_chapter_2 = NewChapter {
@@ -2220,7 +2253,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         url_path: "/chapter-2/user-research".to_string(),
         title: "User research".to_string(),
     };
-    create_page(conn, course.id, admin, chapter_2.id, page_content).await?;
+    create_page(conn, course.id, admin, Some(chapter_2.id), page_content).await?;
 
     let page_content = include_str!("../assets/example-page.json");
     let parse_page_content = serde_json::from_str(page_content)?;
@@ -2228,7 +2261,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         conn,
         course.id,
         admin,
-        chapter_2.id,
+        Some(chapter_2.id),
         CmsPageUpdate {
             content: parse_page_content,
             exercises: vec![],
@@ -2248,7 +2281,7 @@ async fn create_page(
     conn: &mut PgConnection,
     course_id: Uuid,
     author: Uuid,
-    chapter_id: Uuid,
+    chapter_id: Option<Uuid>,
     page_data: CmsPageUpdate,
 ) -> Result<Uuid> {
     let new_page = NewPage {
@@ -2257,7 +2290,7 @@ async fn create_page(
         title: format!("{} WIP", page_data.title),
         course_id: Some(course_id),
         exam_id: None,
-        chapter_id: Some(chapter_id),
+        chapter_id,
         front_page_of_chapter_id: None,
         exercises: vec![],
         exercise_slides: vec![],
@@ -2275,7 +2308,7 @@ async fn create_page(
             exercise_tasks: page_data.exercise_tasks,
             url_path: page_data.url_path,
             title: page_data.title,
-            chapter_id: Some(chapter_id),
+            chapter_id,
         },
         author,
         true,

@@ -152,5 +152,9 @@
   "forgot-password": "Unohditko salasanasi?",
   "no-courses-in-org": "Organisaatiolla ei ole kursseja",
   "no-description-available": "Kurssikuvausta ei saatavilla.",
-  "manage-glossary": "Hallitse sanastoa"
+  "manage-glossary": "Hallitse sanastoa",
+  "new-term": "Uusi termi",
+  "new-definition": "Uusi määritelmä",
+  "updated-term": "Uusi termi",
+  "updated-definition": "Uusi määritelmä"
 }

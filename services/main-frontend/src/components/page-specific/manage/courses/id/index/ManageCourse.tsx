@@ -126,6 +126,15 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
       >
         {t("link-manage-change-requests")}
       </Link>
+      <br />
+      <Link
+        href={{
+          pathname: "/manage/courses/[id]/permissions",
+          query: { id: course.id },
+        }}
+      >
+        {t("link-manage-permissions")}
+      </Link>
 
       <h2>{t("title-all-course-language-versions")}</h2>
       <CourseLanguageVersionsList courseId={course.id} />

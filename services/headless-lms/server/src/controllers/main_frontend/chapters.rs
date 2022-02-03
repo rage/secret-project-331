@@ -152,7 +152,7 @@ async fn set_chapter_image(
         request.headers(),
         payload,
         StoreKind::Course(course.id),
-        &file_store,
+        file_store.as_ref(),
     )
     .await?
     .to_string_lossy()

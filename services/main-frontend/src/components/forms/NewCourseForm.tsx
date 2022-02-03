@@ -4,10 +4,10 @@ import { FormControlLabel, Radio, RadioGroup, TextField } from "@material-ui/cor
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { NewCourse } from "../../../../shared-module/bindings"
-import Button from "../../../../shared-module/components/Button"
-import { normalizeIETFLanguageTag } from "../../../../shared-module/utils/strings"
-import { normalizePath } from "../../../../utils/normalizePath"
+import { NewCourse } from "../../shared-module/bindings"
+import Button from "../../shared-module/components/Button"
+import { normalizeIETFLanguageTag } from "../../shared-module/utils/strings"
+import { normalizePath } from "../../utils/normalizePath"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -16,6 +16,7 @@ const FieldContainer = styled.div`
 interface NewCourseFormProps {
   organizationId: string
   onSubmitForm: (newCourse: NewCourse) => Promise<void>
+  onClose: () => void
 }
 
 const AMERICAN_ENGLISH_LANGUAGE_CODE = "en-US"
@@ -23,7 +24,7 @@ const FINNISH_LANGUAGE_CODE = "fi-FI"
 const SWEDISH_LANGUAGE_CODE = "sv-SE"
 const DEFAULT_LANGUAGE_CODE = AMERICAN_ENGLISH_LANGUAGE_CODE
 
-const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitForm }) => {
+const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitForm, onClose }) => {
   const { t } = useTranslation()
   const [name, setName] = useState("")
   const [slug, setSlug] = useState("")
@@ -195,6 +196,9 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
       <div>
         <Button size="medium" variant="primary" onClick={createNewCourse} disabled={submitDisabled}>
           {t("button-text-create")}
+        </Button>
+        <Button size="medium" variant="secondary" onClick={onClose}>
+          {t("button-text-close")}
         </Button>
       </div>
     </div>

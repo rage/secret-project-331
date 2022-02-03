@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../../../../components/Layout"
-import NewCourseInstanceForm from "../../../../components/page-specific/manage/courses/id/new-course-instance/NewCourseInstanceForm"
+import NewCourseInstanceForm from "../../../../components/page-specific/manage/courses/id/course-instances/NewCourseInstanceForm"
 import { newCourseInstance } from "../../../../services/backend/courses"
 import { CourseInstanceForm } from "../../../../shared-module/bindings"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"

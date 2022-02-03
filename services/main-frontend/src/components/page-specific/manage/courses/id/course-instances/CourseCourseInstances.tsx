@@ -1,5 +1,5 @@
 import Link from "next/link"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
@@ -7,22 +7,28 @@ import { fetchCourseInstances } from "../../../../../../services/backend/courses
 import Button from "../../../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import { queryClient } from "../../../../../../shared-module/services/appQueryClient"
 import {
   manageCourseInstanceEmailsPageRoute,
   manageCourseInstancePageRoute,
 } from "../../../../../../utils/routing"
+import { CourseOverviewTabsProps } from "../index/CourseOverviewTabNavigator"
 
+import NewCourseInstanceDialog from "./NewCourseInstanceDialog"
 import PointExportButton from "./PointExportButton"
 
-export interface CourseInstancesListProps {
-  courseId: string
-}
-
-const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) => {
+const CourseCourseInstances: React.FC<CourseOverviewTabsProps> = ({ courseId }) => {
   const { t } = useTranslation()
+  const [showDialog, setShowDialog] = useState(false)
   const getCourseInstances = useQuery(`course-${courseId}-course-instances`, () =>
     fetchCourseInstances(courseId),
   )
+
+  const handleCreateNewCourseInstance = async () => {
+    setShowDialog(false)
+    // eslint-disable-next-line i18next/no-literal-string
+    queryClient.invalidateQueries(`course-${courseId}-course-instances`)
+  }
 
   return (
     <>
@@ -61,18 +67,20 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
           })}
         </ul>
       )}
-      <Link
-        href={{ pathname: "/manage/courses/[id]/new-course-instance", query: { id: courseId } }}
-        passHref
-      >
-        <a href="replace">
-          <Button variant="primary" size="medium">
-            {t("button-text-new")}
-          </Button>
-        </a>
-      </Link>
+
+      {showDialog && (
+        <NewCourseInstanceDialog
+          onClose={() => setShowDialog(false)}
+          showDialog={showDialog}
+          courseId={courseId}
+          onSubmit={handleCreateNewCourseInstance}
+        />
+      )}
+      <Button variant="primary" size="medium" onClick={() => setShowDialog(true)}>
+        {t("button-text-new")}
+      </Button>
     </>
   )
 }
 
-export default CourseInstancesList
+export default CourseCourseInstances

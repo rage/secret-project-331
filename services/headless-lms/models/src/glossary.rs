@@ -2,9 +2,9 @@ use crate::prelude::*;
 
 #[derive(Debug, Serialize, TS)]
 pub struct Term {
-    id: Uuid,
-    term: String,
-    definition: String,
+    pub id: Uuid,
+    pub term: String,
+    pub definition: String,
 }
 
 #[derive(Debug, Deserialize, TS)]

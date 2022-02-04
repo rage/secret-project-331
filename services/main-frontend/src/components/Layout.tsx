@@ -7,7 +7,6 @@ import React, { ReactNode } from "react"
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
-import basePath from "../shared-module/utils/base-path"
 
 type LayoutProps = {
   children: ReactNode

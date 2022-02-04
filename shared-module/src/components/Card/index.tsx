@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
-import Link from "next/link"
 import React from "react"
+
+import basePath from "../../utils/base-path"
 
 // import CourseCard from "./CourseCard"
 import IllustrationCard from "./IllustrationCard"
@@ -38,20 +39,18 @@ const Card: React.FC<CardProps> = (props) => {
 
   if (props.url) {
     return (
-      <Link href={props.url} passHref>
-        <a
-          href="replace"
-          className={css`
-            text-decoration: none;
-            display: block;
-          `}
-          onClick={(e) => {
-            console.log(e)
-          }}
-        >
-          <Component {...props} />
-        </a>
-      </Link>
+      // This should be a next/link but there's a weird problem in firefox if you this when it's next/link
+      // and navigate back straight away, if you click this the click won't register but will just scroll the
+      // page up
+      <a
+        href={basePath() + props.url}
+        className={css`
+          text-decoration: none;
+          display: block;
+        `}
+      >
+        <Component {...props} />
+      </a>
     )
   }
 

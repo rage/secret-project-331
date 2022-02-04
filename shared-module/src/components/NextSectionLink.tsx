@@ -131,7 +131,12 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
             {url ? (
               <>
                 <Link href={url} passHref>
-                  <a href="replace">
+                  <a
+                    href="replace"
+                    className={css`
+                      text-decoration: none;
+                    `}
+                  >
                     <span>{nextTitle}</span>
                     <StyledArrow>
                       <ArrowSVGIcon

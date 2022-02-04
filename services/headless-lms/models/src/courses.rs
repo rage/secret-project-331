@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use headless_lms_utils::{
-    document_schema_processor::GutenbergBlock, file_store::FileStore, ApplicationConfiguration,
+    document_schema_processor::GutenbergBlock, file_store::FileStore,
+    language_tag_to_name::LANGUAGE_TAG_TO_NAME, ApplicationConfiguration,
 };
 use serde_json::Value;
 
@@ -50,10 +51,11 @@ pub async fn insert(
     language_code: &str,
     description: &str,
 ) -> ModelResult<Uuid> {
+    let content_search_language = get_cfgname_by_tag(conn, language_code.to_string()).await?;
     let res = sqlx::query!(
         "
-INSERT INTO courses (name, organization_id, slug, language_code, course_language_group_id, description)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO courses (name, organization_id, slug, language_code, course_language_group_id, description, content_search_language)
+VALUES ($1, $2, $3, $4, $5, $6, $7::regconfig)
 RETURNING id
 ",
         name,
@@ -61,7 +63,8 @@ RETURNING id
         slug,
         language_code,
         course_language_group_id,
-        description
+        description,
+        content_search_language as _,
     )
     .fetch_one(conn)
     .await?;
@@ -811,6 +814,31 @@ WHERE slug = $1
     .fetch_one(conn)
     .await?;
     Ok(course)
+}
+
+pub async fn get_cfgname_by_tag(
+    conn: &mut PgConnection,
+    ietf_language_tag: String,
+) -> ModelResult<String> {
+    let tag = ietf_language_tag
+        .split('-')
+        .next()
+        .unwrap_or_else(|| &ietf_language_tag[..]);
+
+    let lang_name = LANGUAGE_TAG_TO_NAME.get(&tag);
+
+    let name = sqlx::query!(
+        "SELECT cfgname::text FROM pg_ts_config WHERE cfgname = $1",
+        lang_name
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    let res = name
+        .and_then(|n| n.cfgname)
+        .unwrap_or_else(|| "simple".to_string());
+
+    Ok(res)
 }
 
 #[cfg(test)]

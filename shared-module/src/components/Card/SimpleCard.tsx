@@ -11,9 +11,7 @@ import { respondToOrLarger } from "../../styles/respond"
 import { CardExtraProps } from "."
 
 // eslint-disable-next-line i18next/no-literal-string
-const CourseGridWrapper = styled.a`
-  text-decoration: none;
-  display: block;
+const CourseGridWrapper = styled.div`
   max-width: ${cardMaxWidth}em;
   height: ${cardHeight * 0.75}em;
   border-radius: 1px;
@@ -115,8 +113,6 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, 
       className={css`
         background: ${bg};
       `}
-      // Pass href={url} if url defined
-      {...(url ? { href: url } : {})}
     >
       <CardContentWrapper>
         {!open && !url ? (

@@ -1,3 +1,5 @@
+import { css } from "@emotion/css"
+import Link from "next/link"
 import React from "react"
 
 // import CourseCard from "./CourseCard"
@@ -11,7 +13,7 @@ import SimpleCard from "./SimpleCard"
 // }
 
 export interface CardExtraProps {
-  variant: "simple" | "Illustration" | "course"
+  variant: "simple" | "illustration" | "course"
   title: string
   chapterNumber: number
   url?: string
@@ -25,18 +27,35 @@ export interface CardExtraProps {
 
 export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraProps
 
+const variantToComponent = {
+  simple: SimpleCard,
+  course: SimpleCard,
+  illustration: IllustrationCard,
+}
+
 const Card: React.FC<CardProps> = (props) => {
-  return (
-    <>
-      {props.variant === "simple" ? (
-        <SimpleCard {...props}></SimpleCard>
-      ) : props.variant === "course" ? (
-        <SimpleCard {...props}></SimpleCard>
-      ) : (
-        <IllustrationCard {...props} />
-      )}
-    </>
-  )
+  const Component = variantToComponent[props.variant]
+
+  if (props.url) {
+    return (
+      <Link href={props.url} passHref>
+        <a
+          href="replace"
+          className={css`
+            text-decoration: none;
+            display: block;
+          `}
+          onClick={(e) => {
+            console.log(e)
+          }}
+        >
+          <Component {...props} />
+        </a>
+      </Link>
+    )
+  }
+
+  return <Component {...props} />
 }
 
 export default Card

@@ -6,10 +6,12 @@ import { useQuery } from "react-query"
 import useTime from "../../../../hooks/useTime"
 import { fetchChaptersInTheCourse } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "../../../../shared-module/components/LandingPageHeroSection"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { cardMaxWidth } from "../../../../shared-module/styles/constants"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import { withMultipleClassNames } from "../../../../shared-module/utils/styles"
 
 import ChapterGridCard from "./ChapterGridCard"
 
@@ -26,9 +28,12 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
 
   return (
     <div
-      className={css`
-        padding: 7.5em 1em;
-      `}
+      className={withMultipleClassNames([
+        css`
+          padding: 7.5em 1em;
+        `,
+        CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING,
+      ])}
     >
       <h2
         className={css`

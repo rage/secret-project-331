@@ -79,7 +79,7 @@ const ExerciseServicePage: React.FC = () => {
   }
 
   return (
-    <Layout navVariant={"simple"} frontPageUrl={basePath() + "/../.."}>
+    <Layout navVariant={"simple"}>
       <div>
         <h1>{t("title-manage-exercise-services")}</h1>
         <Button onClick={openModal} variant="primary" size="medium">

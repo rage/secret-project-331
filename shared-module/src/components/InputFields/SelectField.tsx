@@ -1,31 +1,20 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-type OptionType = {
-  value: string
+interface SelectOption<T extends string> {
+  value: T
   label: string
-  id: string
 }
 
-const SELECT = "Select a name"
-const HENRIK = "Henrik"
-const SEBASTIEN = "Sebastien"
-const JORI = "Jori"
-
-const options: OptionType[] = [
-  { value: "", label: SELECT, id: "" },
-  { value: HENRIK, label: HENRIK, id: HENRIK },
-  { value: SEBASTIEN, label: SEBASTIEN, id: SEBASTIEN },
-  { value: JORI, label: JORI, id: JORI },
-]
-
-interface SelectMenuExtraProps {
-  name: string
-  label: string
+interface SelectMenuExtraProps<T extends string> {
+  id: string
+  label?: string
   error?: string
   value?: string
+  defaultValue?: T
+  options: SelectOption<T>[]
   onBlur: (event: React.FocusEvent<HTMLSelectElement>) => void
-  onChange: (value: string, name?: string) => void
+  onChange: (value: T, name?: string) => void
 }
 
 const Wrapper = styled.div`
@@ -83,27 +72,36 @@ const Wrapper = styled.div`
   }
 `
 
-export type SelectMenuProps = React.HTMLAttributes<HTMLInputElement> & SelectMenuExtraProps
+export type SelectMenuProps<T extends string> = React.HTMLAttributes<HTMLInputElement> &
+  SelectMenuExtraProps<T>
 
-const SelectMenu = ({ onChange, onBlur, ...rest }: SelectMenuExtraProps) => {
+const SelectMenu = <T extends string>({
+  id,
+  label,
+  onChange,
+  onBlur,
+  defaultValue,
+  options,
+  ...rest
+}: SelectMenuExtraProps<T>) => {
   return (
     <Wrapper>
-      <label htmlFor={rest.name}>
-        {rest.label}
-        <div className="select">
-          <select
-            onChange={({ target: { value } }) => onChange(value)}
-            onBlur={(event) => onBlur(event)}
-            {...rest}
-          >
-            {options.map((o) => (
-              <option value={o.value} key={o.label}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </label>
+      {label && <label htmlFor={id}>{label}</label>}
+      <div className="select">
+        <select
+          id={id}
+          onChange={({ target: { value } }) => onChange(value as T)}
+          onBlur={(event) => onBlur(event)}
+          defaultValue={defaultValue}
+          {...rest}
+        >
+          {options.map((o) => (
+            <option value={o.value} key={o.label}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
     </Wrapper>
   )
 }

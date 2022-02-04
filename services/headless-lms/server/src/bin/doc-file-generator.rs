@@ -18,7 +18,7 @@ use headless_lms_models::{
     },
     course_instance_enrollments::CourseInstanceEnrollment,
     course_instances::{ChapterScore, CourseInstance, Points, VariantStatus},
-    courses::{Course, CourseStructure},
+    courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
     exams::{CourseExam, Exam, ExamEnrollment},
     exercise_services::ExerciseService,
@@ -254,6 +254,8 @@ fn main() {
     };
     let user = User {
         id,
+        first_name: Some("User".to_string()),
+        last_name: Some("Example".to_string()),
         created_at,
         updated_at,
         deleted_at,
@@ -711,6 +713,7 @@ fn main() {
         }
     );
     write_docs!(User, user.clone());
+    write_docs!(CourseCount, CourseCount { count: 1234 });
 }
 
 fn write_json<T: Serialize>(path: &str, value: T) {

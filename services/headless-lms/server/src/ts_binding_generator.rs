@@ -5,8 +5,12 @@ use crate::controllers::{
         submissions::PreviousSubmission,
     },
     main_frontend::{
-        courses::GetFeedbackQuery, exams::ExamCourseInfo, exercises::ExerciseSubmissions,
-        feedback::MarkAsRead, proposed_edits::GetEditProposalsQuery,
+        courses::GetFeedbackQuery,
+        exams::ExamCourseInfo,
+        exercises::ExerciseSubmissions,
+        feedback::MarkAsRead,
+        proposed_edits::GetEditProposalsQuery,
+        roles::{RoleInfo, RoleQuery},
     },
     ErrorData, ErrorResponse, UploadResult,
 };
@@ -135,6 +139,10 @@ fn ts_binding_generator() {
         exercise_task_submissions::NewSubmission,
         exercise_task_submissions::GradingResult,
 
+        roles::RoleUser,
+        roles::RoleDomain,
+        roles::UserRole,
+
         user_course_settings::UserCourseSettings,
 
         user_exercise_states::UserCourseInstanceChapterExerciseProgress,
@@ -142,6 +150,8 @@ fn ts_binding_generator() {
 
         users::User,
 
+        RoleQuery,
+        RoleInfo,
         PreviousSubmission,
         ExamData,
         ExamEnrollmentData,

@@ -222,7 +222,7 @@ async fn add_media_for_course(
         request.headers(),
         payload,
         StoreKind::Course(course.id),
-        &file_store,
+        file_store.as_ref(),
     )
     .await?;
     let download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());
@@ -289,6 +289,7 @@ Content-Type: application/json
 ```
 */
 #[generated_doc]
+#[instrument(skip(pool))]
 pub async fn post_new_course_language_version(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -426,6 +427,7 @@ pub async fn get_feedback_count(
 POST `/api/v0/main-frontend/courses/:id/new-course-instance`
 */
 #[generated_doc]
+#[instrument(skip(pool))]
 async fn new_course_instance(
     form: web::Json<CourseInstanceForm>,
     course_id: web::Path<Uuid>,

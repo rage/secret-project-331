@@ -100,6 +100,7 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "editing-term",
     waitForThisToBeVisibleAndStable: "text=updated term",
+    waitForNotificationsToClear: true,
   })
 
   // Fill [placeholder="updated term"]
@@ -125,5 +126,6 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "final-glossary-page",
     waitForThisToBeVisibleAndStable: "text=Glossary",
+    waitForNotificationsToClear: true,
   })
 })

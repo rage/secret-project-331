@@ -1,0 +1,1 @@
+initSidebarItems({"static":[["LANGUAGE_TAG_TO_NAME",""]]});

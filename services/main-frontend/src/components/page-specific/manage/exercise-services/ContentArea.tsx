@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-// import { TextField } from "@material-ui/core"
 import React from "react"
 
 import TextField from "../../../../shared-module/components/InputFields/TextField"
@@ -36,7 +35,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           label=""
           error={error}
           onChange={(value) => onChange(value)}
-          // fullWidth
           value={String(text)}
           placeholder={`${title}...`}
         />
@@ -47,10 +45,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           error={error}
           onChange={(value) => onChange(value)}
           type={"number"}
-          // InputProps={{
-          //   inputProps: { min: 1 },
-          // }}
-          // fullWidth
           value={String(text)}
           placeholder={`${title}...`}
         />

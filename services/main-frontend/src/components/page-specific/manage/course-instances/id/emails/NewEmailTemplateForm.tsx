@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-// import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -36,10 +35,7 @@ const NewEmailTemplateForm: React.FC<NewEmailTemplateForm> = ({ onSubmitForm }) 
         <FieldContainer>
           <StyledTextField
             required
-            // id="outlined-required"
-            // fullWidth
             label={t("text-field-label-name")}
-            // variant="outlined"
             value={name}
             onChange={(value) => {
               setName(value)

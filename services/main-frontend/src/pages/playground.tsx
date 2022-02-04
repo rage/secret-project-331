@@ -203,7 +203,6 @@ const Home: React.FC = () => {
         )}
         <TextField
           value={exampleUrl || ""}
-          // fullWidth
           placeholder={invalidUrl ? t("invalid-url") : t("label-url")}
           label={t("label-url")}
           onChange={(value) => handleUrlChange(value)}
@@ -216,7 +215,6 @@ const Home: React.FC = () => {
           value={String(exampleWidth) || ""}
           placeholder={t("label-width")}
           label={t("label-width")}
-          // fullWidth
           onChange={(value) => handleWidthChange(value)}
           className={css`
             margin-bottom: 1rem !important;
@@ -226,7 +224,6 @@ const Home: React.FC = () => {
           value={exampleName}
           placeholder={t("label-example-name")}
           label={t("label-example-name")}
-          // fullWidth
           onChange={(value) => handleNameChange(value)}
           className={css`
             margin-bottom: 1rem !important;

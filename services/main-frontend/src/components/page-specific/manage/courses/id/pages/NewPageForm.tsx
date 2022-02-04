@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-// import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -63,10 +62,7 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
         <FieldContainer>
           <TextField
             required
-            // fullWidth
-            // id="outlined-required"
             label={t("text-field-label-title")}
-            // variant="outlined"
             value={title}
             onChange={(value) => {
               setTitle(value)
@@ -86,10 +82,7 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
             </span>
             <TextField
               required
-              // fullWidth
-              // id="outlined-required"
               label={t("text-field-label-path")}
-              // variant="outlined"
               value={path}
               onChange={(value) => {
                 setPath(value)

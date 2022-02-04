@@ -1,4 +1,3 @@
-// import { TextField } from "@material-ui/core"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
@@ -49,17 +48,13 @@ export const EssayModalContent: React.FC<ModalContentProps> = ({ item }) => {
       </ModalContent>
       <ModalContent>
         <MaxWords
-          // fullWidth
           label={t("max-words")}
-          // variant="outlined"
           value={String(item.maxWords) ?? ""}
           type="number"
           onChange={(value) => dispatch(editedItemMaxWords(item.id, Number(value)))}
         />
         <MinWords
-          // fullWidth
           label={t("min-words")}
-          // variant="outlined"
           value={String(item.minValue) ?? ""}
           type="number"
           onChange={(value) => dispatch(editedItemMinWords(item.id, Number(value)))}

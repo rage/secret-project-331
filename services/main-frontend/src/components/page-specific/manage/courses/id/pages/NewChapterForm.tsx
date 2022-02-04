@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-// import { TextField } from "@material-ui/core"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -56,10 +55,7 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
         <FieldContainer>
           <StyledTextField
             required
-            // id="outlined-required"
-            // fullWidth
             label={t("text-field-label-name")}
-            // variant="outlined"
             value={name}
             onChange={(value) => {
               setName(value)
@@ -69,10 +65,7 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
         <FieldContainer>
           <StyledTextField
             required
-            // id="outlined-required"
-            // fullWidth
             label={t("text-field-label-chapter-number")}
-            // variant="outlined"
             type="number"
             value={String(chapter)}
             onChange={(value) => {

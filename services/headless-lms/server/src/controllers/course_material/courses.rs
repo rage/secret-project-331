@@ -153,6 +153,7 @@ async fn get_chapters(
 GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
 */
 #[generated_doc]
+#[instrument(skip(pool))]
 async fn get_user_course_settings(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,

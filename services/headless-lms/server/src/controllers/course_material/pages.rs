@@ -8,6 +8,7 @@ use crate::controllers::prelude::*;
 GET /api/v0/course-material/pages/exam/{page_id}
 */
 #[generated_doc]
+#[instrument(skip(pool))]
 async fn get_by_exam_id(
     exam_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

@@ -196,7 +196,7 @@ test("history test", async ({ page, headless }) => {
     axeSkip: [`landmark-unique`],
     headless,
     snapshotName: "history-view-p4-before-compare",
-    waitForThisToBeVisibleAndStable: stableElement2,
+    waitForThisToBeVisibleAndStable: [stableElement2, "text=Compare"],
     toMatchSnapshotOptions: { threshold: 0.3 },
     beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)
@@ -255,7 +255,7 @@ test("history test", async ({ page, headless }) => {
     headless,
     axeSkip: [`landmark-unique`],
     snapshotName: "history-view-after-restore",
-    waitForThisToBeVisibleAndStable: "text=Best exercise",
+    waitForThisToBeVisibleAndStable: "text=core/paragraph",
     toMatchSnapshotOptions: { threshold: 0.3 },
     beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)

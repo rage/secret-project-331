@@ -1,6 +1,5 @@
 import { useState } from "react"
 
-import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { CurrentStateMessage } from "../shared-module/iframe-protocol-types"
 import { Answer, PublicAlternative } from "../util/stateInterfaces"
 
@@ -8,11 +7,10 @@ import ExerciseBase from "./ExerciseBase"
 
 interface Props {
   state: PublicAlternative[]
-  maxWidth: number | null
   port: MessagePort
 }
 
-const Exercise: React.FC<Props> = ({ port, maxWidth, state }) => {
+const Exercise: React.FC<Props> = ({ port, state }) => {
   const [selectedId, _setSelectedId] = useState<string | null>(null)
 
   const setSelectedId: typeof _setSelectedId = (value) => {
@@ -37,18 +35,15 @@ const Exercise: React.FC<Props> = ({ port, maxWidth, state }) => {
   }
 
   return (
-    <HeightTrackingContainer port={port}>
-      <ExerciseBase
-        alternatives={state}
-        selectedId={selectedId}
-        maxWidth={maxWidth}
-        onClick={(selectedId) => {
-          setSelectedId(selectedId)
-        }}
-        interactable={true}
-        model_solutions={null}
-      />
-    </HeightTrackingContainer>
+    <ExerciseBase
+      alternatives={state}
+      selectedId={selectedId}
+      onClick={(selectedId) => {
+        setSelectedId(selectedId)
+      }}
+      interactable={true}
+      model_solutions={null}
+    />
   )
 }
 

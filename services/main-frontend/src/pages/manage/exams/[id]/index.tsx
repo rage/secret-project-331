@@ -1,22 +1,20 @@
 import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useMutation, useQuery } from "react-query"
+import { useQuery } from "react-query"
 
-import Layout from "../../../components/Layout"
-import { fetchExam, setCourse, unsetCourse } from "../../../services/backend/exams"
-import { ErrorResponse } from "../../../shared-module/bindings"
-import { isErrorResponse } from "../../../shared-module/bindings.guard"
-import Button from "../../../shared-module/components/Button"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import TextField from "../../../shared-module/components/InputFields/TextField"
-import Spinner from "../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import { wideWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
+import Layout from "../../../../components/Layout"
+import { fetchExam, setCourse, unsetCourse } from "../../../../services/backend/exams"
+import Button from "../../../../shared-module/components/Button"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import TextField from "../../../../shared-module/components/InputFields/TextField"
+import Spinner from "../../../../shared-module/components/Spinner"
+import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"id">
@@ -26,34 +24,31 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   const { t } = useTranslation()
   const getExam = useQuery(`exam-${query.id}`, () => fetchExam(query.id))
   const [newCourse, setNewCourse] = useState("")
-  const [errorResponse, setErrorResponse] = useState<ErrorResponse | null>(null)
-  const setCourseMutation = useMutation(
+  const setCourseMutation = useToastMutation(
     ({ examId, courseId }: { examId: string; courseId: string }) => {
-      setErrorResponse(null)
       return setCourse(examId, courseId)
     },
     {
-      onSuccess: (data) => {
-        if (isErrorResponse(data)) {
-          setErrorResponse(data)
-        } else {
-          getExam.refetch()
-        }
+      notify: true,
+      method: "POST",
+    },
+    {
+      onSuccess: () => {
+        getExam.refetch()
       },
     },
   )
-  const unsetCourseMutation = useMutation(
+  const unsetCourseMutation = useToastMutation(
     ({ examId, courseId }: { examId: string; courseId: string }) => {
-      setErrorResponse(null)
       return unsetCourse(examId, courseId)
     },
     {
-      onSuccess: (data) => {
-        if (isErrorResponse(data)) {
-          setErrorResponse(data)
-        } else {
-          getExam.refetch()
-        }
+      notify: true,
+      method: "POST",
+    },
+    {
+      onSuccess: () => {
+        getExam.refetch()
       },
     },
   )
@@ -62,7 +57,6 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
     <Layout frontPageUrl={"/"} navVariant={"complex"}>
       <div
         className={css`
-          ${wideWidthCenteredComponentStyles}
           margin-bottom: 1rem;
         `}
       >
@@ -82,6 +76,14 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
               <li>
                 <a href={`/cms/pages/${getExam.data.page_id}`}>{t("manage-page")}</a> (
                 {getExam.data.page_id})
+              </li>
+              <li>
+                <a
+                  href={`/manage/exams/${getExam.data.id}/permissions`}
+                  aria-label={`${t("link-manage-permissions")} ${getExam.data.name}`}
+                >
+                  {t("link-manage-permissions")}
+                </a>
               </li>
               <li>
                 <a href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-points`}>
@@ -130,7 +132,12 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             >
               {t("add-course")}
             </Button>
-            {errorResponse && <ErrorBanner variant={"readOnly"} error={errorResponse} />}
+            {setCourseMutation.isError && (
+              <ErrorBanner variant={"readOnly"} error={setCourseMutation.error} />
+            )}
+            {unsetCourseMutation.isError && (
+              <ErrorBanner variant={"readOnly"} error={unsetCourseMutation.error} />
+            )}
           </>
         )}
       </div>

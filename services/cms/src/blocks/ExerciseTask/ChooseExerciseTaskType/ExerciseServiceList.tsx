@@ -1,8 +1,5 @@
 import { List, ListItem } from "@material-ui/core"
 import { useTranslation } from "react-i18next"
-
-import { cmsNormalWidthCenteredComponentStyles } from "../../../styles/EditorStyles"
-
 export interface ExerciseTaskTypes {
   name: string
   url: null | string
@@ -25,7 +22,7 @@ interface Props {
 const ExerciseServiceList: React.FC<Props> = ({ onChooseItem }) => {
   const { t } = useTranslation()
   return (
-    <div className={cmsNormalWidthCenteredComponentStyles}>
+    <div>
       <h2>{t("please-select-exercise-type")}</h2>
       <List>
         {exerciseTaskTypes.map((eit) => (

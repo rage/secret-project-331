@@ -10,6 +10,7 @@ import Spinner from "../../../../../../shared-module/components/Spinner"
 import {
   manageCourseInstanceEmailsPageRoute,
   manageCourseInstancePageRoute,
+  manageCourseInstancePermissionsPageRoute,
 } from "../../../../../../utils/routing"
 
 import PointExportButton from "./PointExportButton"
@@ -47,6 +48,11 @@ const CourseInstancesList: React.FC<CourseInstancesListProps> = ({ courseId }) =
                 <Link href={manageCourseInstanceEmailsPageRoute(instance.id)} passHref>
                   <a href="replace" aria-label={`${t("link-manage-emails")} (${name})`}>
                     {t("link-manage-emails")}
+                  </a>
+                </Link>{" "}
+                <Link href={manageCourseInstancePermissionsPageRoute(instance.id)} passHref>
+                  <a href="replace" aria-label={`${t("link-manage-permissions")} (${name})`}>
+                    {t("link-manage-permissions")}
                   </a>
                 </Link>{" "}
                 <a

@@ -6,7 +6,6 @@ import PageContext from "../../../../contexts/PageContext"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 
 import PagesInChapter from "./PagesInChapter"
@@ -27,7 +26,7 @@ const PagesInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
   }
 
   return (
-    <div className={normalWidthCenteredComponentStyles}>
+    <div>
       <PagesInChapter
         chapterId={chapterId}
         organizationSlug={organizationSlug}

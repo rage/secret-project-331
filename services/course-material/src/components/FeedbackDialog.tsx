@@ -1,19 +1,18 @@
 import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useMutation } from "react-query"
 
 import { postFeedback } from "../services/backend"
 import { FeedbackBlock } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
+import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { courseMaterialBlockClass } from "../utils/constants"
 
 interface Props {
   courseId: string
   lastSelection: string
   setLastSelection: (s: string) => void
-  onSubmitSuccess: () => void
   close: () => unknown
 }
 
@@ -23,18 +22,12 @@ interface Comment {
   relatedBlocks: Array<FeedbackBlock>
 }
 
-const FeedbackDialog: React.FC<Props> = ({
-  courseId,
-  lastSelection,
-  setLastSelection,
-  onSubmitSuccess,
-  close,
-}) => {
+const FeedbackDialog: React.FC<Props> = ({ courseId, lastSelection, setLastSelection, close }) => {
   const { t } = useTranslation()
   const [comments, setComments] = useState<Array<Comment>>([])
   const [comment, setComment] = useState("")
   const [error, setError] = useState<string | null>(null)
-  const mutation = useMutation(
+  const mutation = useToastMutation(
     (comments: Comment[]) => {
       const feedback = comments.map((c) => {
         return {
@@ -46,8 +39,12 @@ const FeedbackDialog: React.FC<Props> = ({
       return postFeedback(courseId, feedback)
     },
     {
+      notify: true,
+      method: "POST",
+      successMessage: t("feedback-submitted-succesfully"),
+    },
+    {
       onSuccess: () => {
-        onSubmitSuccess()
         close()
       },
     },

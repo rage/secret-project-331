@@ -8,7 +8,6 @@ import { fetchChaptersInTheCourse } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { cardMaxWidth } from "../../../../shared-module/styles/constants"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 
@@ -28,7 +27,6 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   return (
     <div
       className={css`
-        ${wideWidthCenteredComponentStyles}
         padding: 7.5em 1em;
       `}
     >

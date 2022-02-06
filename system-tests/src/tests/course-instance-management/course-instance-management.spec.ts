@@ -64,14 +64,16 @@ test("test", async ({ page, headless }) => {
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-management-page-with-new-instance",
-    waitForThisToBeVisibleAndStable: "text=some name",
+    waitForThisToBeVisibleAndStable: "text=Success",
     page,
   })
 
   // Click text=Default Manage Manage emails View Points Export points >> a
   await Promise.all([
     page.waitForNavigation(),
-    page.click("text=Default Manage Manage emails View Points Export points >> a"),
+    page.click(
+      "text=Default Manage Manage emails Manage permissions View Points Export points >> a",
+    ),
   ])
   await expect(page).toHaveURL(
     "http://project-331.local/manage/course-instances/211556f5-7793-5705-ac63-b84465916da5",
@@ -82,6 +84,7 @@ test("test", async ({ page, headless }) => {
     snapshotName: "initial-management-page",
     waitForThisToBeVisibleAndStable: "text=Course instance default",
     page,
+    waitForNotificationsToClear: true,
   })
 
   // Click text=Edit contact details
@@ -114,12 +117,10 @@ test("test", async ({ page, headless }) => {
     }
   })
 
-  await page.click("text=Course instance new name") // scroll to top
-
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "management-page-after-changes",
-    waitForThisToBeVisibleAndStable: "text=Edit",
+    waitForThisToBeVisibleAndStable: "text=Success",
     page,
   })
 

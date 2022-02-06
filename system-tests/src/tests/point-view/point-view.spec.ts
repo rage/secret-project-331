@@ -79,7 +79,6 @@ test("test", async ({ page, headless }) => {
     snapshotName: "point-view-top",
     waitForThisToBeVisibleAndStable: "text=TOTAL POINT DASHBOARD",
     page,
-    axeSkip: false,
   })
 
   await page.click("text=user_4@example.com")
@@ -89,6 +88,5 @@ test("test", async ({ page, headless }) => {
     snapshotName: "point-view-bottom",
     waitForThisToBeVisibleAndStable: "text=user_4@example.com",
     page,
-    axeSkip: false,
   })
 })

@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../../.."
 import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { normalWidthCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => {
@@ -35,11 +34,7 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
       : rel
 
   return (
-    <div
-      className={css`
-        ${normalWidthCenteredComponentStyles}
-      `}
-    >
+    <div>
       <figure
         className={css`
           ${align === "center" && `text-align: center; display: table; margin: 0 auto;`}

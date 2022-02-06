@@ -18,11 +18,14 @@ test("test quizzes open feedback", async ({ headless, page }) => {
   ])
   expect(page.url()).toBe("http://project-331.local/org/uh-cs")
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Introduction to everything")])
-
-  const courseVariantSelector = await page.$$("text=Select course version to continue.")
+  await Promise.all([
+    page.waitForNavigation(),
+    page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`),
+  ])
 
   await page.waitForTimeout(100)
+
+  const courseVariantSelector = await page.$$("text=Select course version to continue.")
 
   if (courseVariantSelector.length > 0) {
     await page.click('label:has-text("default")')

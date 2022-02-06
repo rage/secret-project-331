@@ -44,7 +44,6 @@ test("test", async ({ page, headless }) => {
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "initial-page",
@@ -175,9 +174,9 @@ test("test", async ({ page, headless }) => {
   const stableElement = await page.waitForSelector("text=core/paragraph")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
+    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p1",
     waitForThisToBeVisibleAndStable: stableElement,
     toMatchSnapshotOptions: { threshold: 0.3 },
@@ -193,11 +192,11 @@ test("test", async ({ page, headless }) => {
   const stableElement2 = await page.waitForSelector("text=core/paragraph")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
+    axeSkip: [`landmark-unique`],
     headless,
     snapshotName: "history-view-p4-before-compare",
-    waitForThisToBeVisibleAndStable: stableElement2,
+    waitForThisToBeVisibleAndStable: [stableElement2, "text=Compare"],
     toMatchSnapshotOptions: { threshold: 0.3 },
     beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)
@@ -226,9 +225,9 @@ test("test", async ({ page, headless }) => {
   await page.waitForSelector("text=Best exercise")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
+    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p4-after-compare",
     // wait for the diff to show up
     waitForThisToBeVisibleAndStable: [
@@ -252,11 +251,11 @@ test("test", async ({ page, headless }) => {
   await page.waitForTimeout(100)
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
+    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-after-restore",
-    waitForThisToBeVisibleAndStable: "text=Best exercise",
+    waitForThisToBeVisibleAndStable: "text=core/paragraph",
     toMatchSnapshotOptions: { threshold: 0.3 },
     beforeScreenshot: async () => {
       await replaceIdsAndTimesFromHistoryView(page)
@@ -293,7 +292,6 @@ test("test", async ({ page, headless }) => {
 
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "page-after-restore",

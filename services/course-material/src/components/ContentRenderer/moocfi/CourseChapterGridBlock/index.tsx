@@ -3,6 +3,7 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../../../contexts/PageContext"
+import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
 import Spinner from "../../../../shared-module/components/Spinner"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
@@ -21,13 +22,15 @@ const CourseChapterGridBlock: React.FC = () => {
   }
 
   return (
-    <div
-      className={css`
-        padding: 4em 0;
-      `}
-    >
-      <ChapterGrid courseId={pageContext.pageData.course_id} />
-    </div>
+    <BreakFromCentered sidebar={false}>
+      <div
+        className={css`
+          padding: 4em 0;
+        `}
+      >
+        <ChapterGrid courseId={pageContext.pageData.course_id} />
+      </div>
+    </BreakFromCentered>
   )
 }
 

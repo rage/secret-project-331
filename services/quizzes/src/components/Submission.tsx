@@ -7,12 +7,12 @@ import { QuizItemSubmissionComponentProps } from "./SubmissionComponents"
 import EssayFeedback from "./SubmissionComponents/Essay"
 import MatrixSubmission from "./SubmissionComponents/Matrix"
 import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
+import MultipleChoiceClickableFeedback from "./SubmissionComponents/MultipleChoiceClickable"
 import MultipleChoiceDropdownFeedback from "./SubmissionComponents/MultipleChoiceDropdown"
 import OpenFeedback from "./SubmissionComponents/Open"
 import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
 
 interface SubmissionProps {
-  maxWidth: number | null
   user_answer: QuizAnswer
   publicAlternatives: PublicQuiz
   modelSolutions: ModelSolutionQuiz | null
@@ -37,7 +37,7 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
     open: OpenFeedback,
     "custom-frontend-accept-data": UnsupportedSubmissionViewComponent,
     "multiple-choice-dropdown": MultipleChoiceDropdownFeedback,
-    "clickable-multiple-choice": UnsupportedSubmissionViewComponent,
+    "clickable-multiple-choice": MultipleChoiceClickableFeedback,
     matrix: MatrixSubmission,
   }
 

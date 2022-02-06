@@ -9,7 +9,6 @@ import { useMemo } from "use-memo-one"
 import { BlockRendererProps } from "../../.."
 import { ParagraphAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { baseTheme } from "../../../../../shared-module/styles"
-import { normalWidthCenteredComponentStyles } from "../../../../../shared-module/styles/componentStyles"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
@@ -98,8 +97,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
       return (
         <p
           className={css`
-            ${normalWidthCenteredComponentStyles}
-            white-space: pre-line;
+            margin-bottom: 1.25rem;
             min-width: 1px;
             color: ${textColor};
             background-color: ${backgroundColor};
@@ -169,8 +167,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
       return (
         <p
           className={css`
-            ${normalWidthCenteredComponentStyles}
-            white-space: pre-line;
+            margin-bottom: 1.25rem;
             min-width: 1px;
             color: ${textColor};
             background-color: ${backgroundColor};
@@ -191,14 +188,13 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
   return (
     <P
       className={css`
-        ${normalWidthCenteredComponentStyles}
         ${dropCap ? hasDropCap : null}
-        white-space: pre-line;
+        margin-bottom: 1.25rem;
         min-width: 1px;
         color: ${colorMapper(textColor)};
         background-color: ${bgColor};
         font-size: ${fontSizeMapper(fontSize)};
-        line-height: 2rem;
+        line-height: 1.6;
         text-align: ${align ?? "left"};
         ${backgroundColor && `padding: 1.25em 2.375em !important;`}
       `}

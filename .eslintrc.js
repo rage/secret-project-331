@@ -58,13 +58,13 @@ module.exports = {
             name: "@material-ui/core",
             importNames: ["Container"],
             message:
-              "Don't use Container from @material-ui. Please use normalWidthCenteredComponentStyles.",
+              "Don't use Container from @material-ui. Please use Centered from shared-module.",
           },
           {
             name: "@material-ui/core/Container",
             importNames: ["default"],
             message:
-              "Don't use Container from @material-ui. Please use normalWidthCenteredComponentStyles.",
+              "Don't use Container from @material-ui. Please use Centered from shared-module.",
           },
           {
             name: "@material-ui/core",
@@ -99,7 +99,13 @@ module.exports = {
           {
             name: "@emotion/react",
             importNames: ["css"],
-            message: 'Use this instad: import { css } from "@emotion/css"',
+            message: 'Use this instead: import { css } from "@emotion/css"',
+          },
+          {
+            name: "react-query",
+            importNames: ["useMutation"],
+            message:
+              "Don't use useMutation from react-query. Please use useToastMutation from shared-module",
           },
         ],
       },

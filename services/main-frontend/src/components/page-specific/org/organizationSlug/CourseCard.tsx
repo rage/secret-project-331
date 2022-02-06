@@ -83,7 +83,6 @@ const CourseLanguageContent = styled.div`
 const LanguageLabel = styled.div`
   font-family: ${primaryFont};
   color: #1a2333;
-  opacity: 0.9;
   font-size: 18px;
 `
 
@@ -92,7 +91,7 @@ const LanguageCode = styled.div`
   font-family: ${primaryFont};
   font-weight: ${fontWeights["semibold"]};
   color: #1a2333;
-  opacity: 0.6;
+  opacity: 0.8;
 `
 
 const FlagStyle = css`

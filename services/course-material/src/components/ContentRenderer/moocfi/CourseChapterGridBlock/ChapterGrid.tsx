@@ -30,16 +30,16 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
         padding: 7.5em 1em;
       `}
     >
-      <h2
+      <h1
         className={css`
           font-style: normal;
-          font-weight: bold;
+          font-weight: 400;
           text-align: center;
-          padding-bottom: 2em;
+          padding-bottom: 1em;
         `}
       >
         {t("course-overview")}
-      </h2>
+      </h1>
       {getChaptersInCourse.isError && (
         <ErrorBanner variant={"readOnly"} error={getChaptersInCourse.error} />
       )}

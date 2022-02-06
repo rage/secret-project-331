@@ -2,8 +2,6 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "../styles"
-
 import Button from "./Button"
 
 // eslint-disable-next-line i18next/no-literal-string

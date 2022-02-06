@@ -91,7 +91,6 @@ const LanguageCode = styled.div`
   font-family: ${primaryFont};
   font-weight: ${fontWeights["semibold"]};
   color: #1a2333;
-  opacity: 0.8;
 `
 
 const FlagStyle = css`

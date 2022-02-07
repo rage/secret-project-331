@@ -737,6 +737,16 @@ export interface ExamCourseInfo {
   course_id: string
 }
 
+export interface ExerciseSlideAnswer {
+  exercise_slide_id: string
+  exercise_task_submissions: Array<ExerciseTaskAnswer>
+}
+
+export interface ExerciseTaskAnswer {
+  exercise_task_id: string
+  data_json: unknown
+}
+
 export interface Login {
   email: string
   password: string

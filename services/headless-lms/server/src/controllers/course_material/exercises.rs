@@ -36,6 +36,12 @@ async fn get_exercise(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct ExerciseSlideAnswer {
+    exercise_slide_id: Uuid,
+    exercise_task_submissions: Vec<ExerciseTaskAnswer>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct ExerciseTaskAnswer {
     exercise_task_id: Uuid,
     data_json: Value,
@@ -50,12 +56,15 @@ exercise.
 POST /api/v0/course-material/exercises/:exercise_id/submissions HTTP/1.1
 Content-Type: application/json
 
-[
-  {
+{
+  "exercise_slide_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
+  "exercise_task_answers": [
+    {
       "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
       "data_json": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
-  }
-]
+    }
+  ]
+}
 ```
 */
 #[generated_doc]
@@ -63,7 +72,7 @@ Content-Type: application/json
 async fn post_submission(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
-    payload: web::Json<Vec<ExerciseTaskAnswer>>,
+    payload: web::Json<ExerciseSlideAnswer>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<SubmissionResult>>> {
     let mut conn = pool.acquire().await?;
@@ -118,7 +127,7 @@ async fn post_submission(
         .map(|task| (task.id, task))
         .collect();
 
-    let task_submissions = payload.0;
+    let task_submissions = payload.0.exercise_task_submissions;
     let mut results = Vec::with_capacity(task_submissions.len());
 
     let mut tx = conn.begin().await?;

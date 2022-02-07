@@ -2,6 +2,7 @@ use crate::controllers::{
     auth::Login,
     course_material::{
         exams::{ExamData, ExamEnrollmentData},
+        exercises::{ExerciseSlideAnswer, ExerciseTaskAnswer},
         submissions::PreviousSubmission,
     },
     main_frontend::{
@@ -156,6 +157,8 @@ fn ts_binding_generator() {
         ExamData,
         ExamEnrollmentData,
         ExamCourseInfo,
+        ExerciseSlideAnswer,
+        ExerciseTaskAnswer,
         Login,
         UploadResult,
         ExerciseSubmissions,

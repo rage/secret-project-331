@@ -48,6 +48,7 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
       obj.message === "set-state") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise" &&
+      typeof obj.exercise_task_id === "string" &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
       (obj.data.previous_submission === null ||
         (((obj.data.previous_submission !== null &&
@@ -67,6 +68,7 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
       obj.message === "set-state") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "view-submission" &&
+      typeof obj.exercise_task_id === "string" &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
       (obj.data.grading === null ||
         (((obj.data.grading !== null && typeof obj.data.grading === "object") ||
@@ -105,6 +107,7 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
       obj.message === "set-state") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise-editor" &&
+      typeof obj.exercise_task_id === "string" &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function"))
   )
 }
@@ -113,6 +116,7 @@ export function isIframeState(obj: any, _argumentName?: string): obj is IframeSt
   return (
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise" &&
+      typeof obj.exercise_task_id === "string" &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
       (obj.data.previous_submission === null ||
         (((obj.data.previous_submission !== null &&
@@ -130,6 +134,7 @@ export function isIframeState(obj: any, _argumentName?: string): obj is IframeSt
             typeof obj.data.previous_submission.grading_id === "string")))) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "view-submission" &&
+      typeof obj.exercise_task_id === "string" &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
       (obj.data.grading === null ||
         (((obj.data.grading !== null && typeof obj.data.grading === "object") ||
@@ -166,6 +171,7 @@ export function isIframeState(obj: any, _argumentName?: string): obj is IframeSt
             obj.data.grading.deleted_at instanceof Date)))) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise-editor" &&
+      typeof obj.exercise_task_id === "string" &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function"))
   )
 }

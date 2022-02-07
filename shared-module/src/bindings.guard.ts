@@ -49,10 +49,12 @@ import {
   ExerciseServiceInfoApi,
   ExerciseServiceNewOrUpdate,
   ExerciseSlide,
+  ExerciseSlideAnswer,
   ExerciseSlideSubmission,
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
+  ExerciseTaskAnswer,
   ExerciseTaskSubmission,
   ExerciseWithExerciseTasks,
   Feedback,
@@ -1230,6 +1232,25 @@ export function isExamCourseInfo(obj: any, _argumentName?: string): obj is ExamC
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.course_id === "string"
+  )
+}
+
+export function isExerciseSlideAnswer(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseSlideAnswer {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_slide_id === "string" &&
+    Array.isArray(obj.exercise_task_submissions) &&
+    obj.exercise_task_submissions.every((e: any) => isExerciseTaskAnswer(e) as boolean)
+  )
+}
+
+export function isExerciseTaskAnswer(obj: any, _argumentName?: string): obj is ExerciseTaskAnswer {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_task_id === "string"
   )
 }
 

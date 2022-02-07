@@ -298,13 +298,15 @@ pub async fn insert_submission(
         "
 INSERT INTO exercise_task_submissions(
     exercise_slide_submission_id,
+    exercise_slide_id,
     exercise_task_id,
     data_json
   )
-VALUES ($1, $2, $3)
+VALUES ($1, $2, $3, $4)
 RETURNING *
         ",
         exercise_slide_submission_id,
+        exercise_task.exercise_slide_id,
         exercise_task.id,
         data_json
     )

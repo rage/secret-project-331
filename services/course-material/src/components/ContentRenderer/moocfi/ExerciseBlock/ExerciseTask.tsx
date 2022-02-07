@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "../.."
@@ -13,9 +13,8 @@ interface ExerciseTaskProps {
   cannotAnswerButNoSubmission: boolean
   exerciseTask: CourseMaterialExerciseTask
   isExam: boolean
-  postThisStateToIFrame: IframeState | null
-  setAnswer: Dispatch<unknown>
-  setAnswerValid: Dispatch<SetStateAction<boolean>>
+  postThisStateToIFrame: IframeState
+  setAnswer: (answer: { valid: boolean; data: unknown }) => void
 }
 
 const ExerciseTask: React.FC<ExerciseTaskProps> = ({
@@ -24,10 +23,8 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
   isExam,
   postThisStateToIFrame,
   setAnswer,
-  setAnswerValid,
 }) => {
   const { t } = useTranslation()
-
   const currentExerciseTaskAssignment = exerciseTask.assignment as Block<unknown>[]
   const url = exerciseTask.exercise_iframe_url
 
@@ -49,7 +46,6 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
             postThisStateToIFrame={postThisStateToIFrame}
             url={`${url}?width=${narrowContainerWidthPx}`}
             setAnswer={setAnswer}
-            setAnswerValid={setAnswerValid}
           />
         ) : (
           t("dont-know-how-to-render-this-assignment")

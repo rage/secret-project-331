@@ -40,6 +40,7 @@ export type SetStateMessage = { message: "set-state" } & IframeState
 export type IframeState =
   | {
       view_type: "exercise"
+      exercise_task_id: string
       data: {
         public_spec: unknown
         previous_submission: ExerciseTaskSubmission | null
@@ -47,6 +48,7 @@ export type IframeState =
     }
   | {
       view_type: "view-submission"
+      exercise_task_id: string
       data: {
         grading: Grading | null
         user_answer: unknown
@@ -56,5 +58,6 @@ export type IframeState =
     }
   | {
       view_type: "exercise-editor"
+      exercise_task_id: string
       data: { private_spec: unknown }
     }

@@ -7,7 +7,7 @@ export interface TextAttributes {
   text: string
 }
 
-const KATEX_OUTPUT_FORMAT = "html"
+const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 
 const LatexBlock: React.FC<BlockRendererProps<TextAttributes>> = ({ data }) => {
   const attributes: TextAttributes = data.attributes

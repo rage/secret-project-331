@@ -11,7 +11,7 @@ relevant context so that doing the exercise is possible based on the response.
 This endpoint does not expose exercise's private spec because it would
 expose the correct answers to the user.
 */
-#[cfg_attr(doc, doc = generated_docs!(CourseMaterialExercise))]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_exercise(
     pool: web::Data<PgPool>,

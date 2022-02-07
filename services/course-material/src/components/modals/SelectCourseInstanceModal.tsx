@@ -4,7 +4,7 @@ import React, { useCallback, useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import CoursePageContext from "../../contexts/CoursePageContext"
+import PageContext from "../../contexts/PageContext"
 import { fetchCourseInstances, postCourseInstanceEnrollment } from "../../services/backend"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
@@ -18,34 +18,34 @@ export interface CourseInstanceSelectModalProps {
 const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ onClose }) => {
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
-  const coursePageState = useContext(CoursePageContext)
+  const pageState = useContext(PageContext)
 
   const [submitError, setSubmitError] = useState<unknown>()
   const [open, setOpen] = useState(false)
   const getCourseInstances = useQuery(
-    ["course-instances", coursePageState.pageData?.course_id],
+    ["course-instances", pageState.pageData?.course_id],
     () =>
       fetchCourseInstances(
-        (coursePageState.pageData as NonNullable<typeof coursePageState.pageData>)
+        (pageState.pageData as NonNullable<typeof pageState.pageData>)
           .course_id as NonNullable<string>,
       ),
     {
-      enabled:
-        coursePageState.pageData?.course_id !== null && open && coursePageState.state === "ready",
+      enabled: pageState.pageData?.course_id !== null && open && pageState.state === "ready",
     },
   )
 
   useEffect(() => {
     const signedIn = !!loginState.signedIn
     const shouldChooseInstance =
-      coursePageState.state === "ready" &&
-      coursePageState.instance === null &&
-      coursePageState.settings === null
+      pageState.state === "ready" && pageState.instance === null && pageState.settings === null
     setOpen(signedIn && shouldChooseInstance)
-  }, [loginState, coursePageState])
+  }, [loginState, pageState])
 
   const handleSubmitAndClose = useCallback(
-    async (instanceId: string) => {
+    async (instanceId: string, reason?: string) => {
+      if (reason === "backdropClick") {
+        return
+      }
       try {
         await postCourseInstanceEnrollment(instanceId)
         setOpen(false)
@@ -57,7 +57,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
     [onClose],
   )
 
-  if (coursePageState.pageData?.course_id === null) {
+  if (pageState.pageData?.course_id === null) {
     // No course id
     // eslint-disable-next-line i18next/no-literal-string
     return <ErrorBanner variant={"readOnly"} error={"No course ID defined"} />
@@ -68,14 +68,21 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
   }
 
   return (
-    <Dialog open={open} onClose={handleSubmitAndClose}>
+    <Dialog open={open} onClose={handleSubmitAndClose} aria-labelledby="dialog-label">
       <div
         className={css`
           margin: 1rem;
         `}
       >
         {submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
-        <h4>{t("title-select-course-version-to-continue")}.</h4>
+        <h1
+          className={css`
+            font-size: clamp(18px, 2vw, 20px);
+          `}
+          id="dialog-label"
+        >
+          {t("title-select-course-version-to-continue")}.
+        </h1>
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}

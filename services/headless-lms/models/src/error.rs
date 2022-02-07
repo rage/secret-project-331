@@ -1,6 +1,7 @@
 use std::num::TryFromIntError;
 
 use thiserror::Error;
+use uuid::Uuid;
 
 pub type ModelResult<T> = Result<T, ModelError>;
 
@@ -15,6 +16,8 @@ pub enum ModelError {
     },
     #[error("{0}")]
     PreconditionFailed(String),
+    #[error("{description}")]
+    PreconditionFailedWithCMSAnchorBlockId { id: Uuid, description: &'static str },
     #[error("{0}")]
     InvalidRequest(String),
     #[error("{0}")]
@@ -97,6 +100,8 @@ mod test {
         let err = crate::users::insert_with_id(
             tx.as_mut(),
             "invalid email",
+            None,
+            None,
             Uuid::parse_str("92c2d6d6-e1b8-4064-8c60-3ae52266c62c").unwrap(),
         )
         .await

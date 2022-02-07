@@ -120,6 +120,7 @@ export interface Course {
   created_at: Date
   updated_at: Date
   name: string
+  description: string | null
   organization_id: string
   deleted_at: Date | null
   language_code: string
@@ -145,6 +146,10 @@ export interface NewCourse {
   language_code: string
   teacher_in_charge_name: string
   teacher_in_charge_email: string
+}
+
+export interface CourseCount {
+  count: number
 }
 
 export interface EmailTemplate {
@@ -477,11 +482,12 @@ export interface PageWithExercises {
   course_id: string | null
   exam_id: string | null
   chapter_id: string | null
-  content: unknown
   url_path: string
   title: string
-  order_number: number
   deleted_at: Date | null
+  content: unknown
+  order_number: number
+  copied_from: string | null
   exercises: Array<Exercise>
 }
 
@@ -566,6 +572,23 @@ export interface ProposalCount {
   pending: number
   handled: number
 }
+
+export interface RoleUser {
+  id: string
+  first_name: string | null
+  last_name: string | null
+  email: string
+  role: UserRole
+}
+
+export type RoleDomain =
+  | { tag: "Global" }
+  | { tag: "Organization"; id: string }
+  | { tag: "Course"; id: string }
+  | { tag: "CourseInstance"; id: string }
+  | { tag: "Exam"; id: string }
+
+export type UserRole = "Admin" | "Assistant" | "Teacher" | "Reviewer"
 
 export interface Submission {
   id: string
@@ -652,11 +675,27 @@ export interface UserCourseInstanceProgress {
 
 export interface User {
   id: string
+  first_name: string | null
+  last_name: string | null
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
   upstream_id: number | null
   email: string
+}
+
+export interface RoleQuery {
+  global?: boolean
+  organization_id?: string
+  course_id?: string
+  course_instance_id?: string
+  exam_id?: string
+}
+
+export interface RoleInfo {
+  email: string
+  role: UserRole
+  domain: RoleDomain
 }
 
 export interface PreviousSubmission {
@@ -718,7 +757,10 @@ export interface ErrorResponse {
   title: string
   message: string
   source: string | null
+  data: ErrorData | null
 }
+
+export type ErrorData = { block_id: string }
 
 export interface Pagination {
   page?: number

@@ -1,15 +1,19 @@
 import { css } from "@emotion/css"
+import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode } from "react"
 
+import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
+import { respondToOrLarger } from "../shared-module/styles/respond"
 import basePath from "../shared-module/utils/base-path"
+
+export const SIDEBAR_WIDTH_PX = 280
 
 type LayoutProps = {
   children: ReactNode
-  frontPageUrl?: string
   navVariant?: "simple" | "complex"
   faqUrl?: string
   title?: string
@@ -17,11 +21,15 @@ type LayoutProps = {
   returnToPath?: string
 }
 
+const DynamicToaster = dynamic(
+  () => import("../shared-module/components/Notifications/ToasterNotifications"),
+  { ssr: false },
+)
+
 const Layout: React.FC<LayoutProps> = ({
   children,
   title = "Secret Project 331",
   navVariant,
-  frontPageUrl,
   faqUrl,
   licenseUrl,
   returnToPath,
@@ -47,33 +55,28 @@ const Layout: React.FC<LayoutProps> = ({
           min-height: 100vh;
         `}
       >
-        <div
-          className={css`
-            position: fixed;
-            top: 0;
-            z-index: 9002;
-            background-color: white;
-            width: 100%;
-          `}
-        >
-          <Navbar
-            faqUrl={faqUrl}
-            frontPageUrl={frontPageUrl ?? basePath()}
-            variant={navVariant ?? "complex"}
-            // Return to path can be override per page
-            returnToPath={returnToPath ?? returnPath}
-          ></Navbar>
-        </div>
+        <Navbar
+          faqUrl={faqUrl}
+          variant={navVariant ?? "complex"}
+          // Return to path can be override per page
+          returnToPath={returnToPath ?? returnPath}
+        ></Navbar>
         {/* Do not touch flex */}
         <main
           className={css`
             flex: 1;
-            margin-top: 90px;
+            /* Sidebar hidden on small screens */
+            margin-right: 0;
+            ${respondToOrLarger.xl} {
+              /* Sidebar visible screens */
+              margin-right: ${SIDEBAR_WIDTH_PX}px;
+            }
           `}
         >
-          {children}
+          <Centered variant="narrow">{children}</Centered>
         </main>
       </div>
+      <DynamicToaster />
       <Footer licenseUrl={licenseUrl} />
     </>
   )

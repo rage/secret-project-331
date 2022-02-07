@@ -2,14 +2,19 @@
 
 use std::{path::PathBuf, str::FromStr};
 
-use models::{courses::Course, exams::CourseExam, organizations::Organization};
+use models::{
+    courses::{Course, CourseCount},
+    exams::CourseExam,
+    organizations::Organization,
+};
 
 use crate::controllers::{helpers::media::upload_image_for_organization, prelude::*};
+use actix_web::web::{self, Json};
 
 /**
 GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 */
-#[cfg_attr(doc, doc = generated_docs!(Organization))]
+#[generated_doc]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_all_organizations(
     pool: web::Data<PgPool>,
@@ -28,15 +33,62 @@ async fn get_all_organizations(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a list of all courses in a organization.
 */
-#[cfg_attr(doc, doc = generated_docs!(Vec<Course>))]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_organization_courses(
     organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    pagination: web::Query<Pagination>,
 ) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-    let courses = models::courses::organization_courses(&mut conn, *organization_id).await?;
+    let courses =
+        models::courses::organization_courses_paginated(&mut conn, &organization_id, &pagination)
+            .await?;
     Ok(web::Json(courses))
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_organization_course_count(
+    request_organization_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<CourseCount>> {
+    let mut conn = pool.acquire().await?;
+    let result =
+        models::courses::organization_course_count(&mut conn, *request_organization_id).await?;
+    Ok(Json(result))
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_organization_active_courses(
+    request_organization_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    pagination: web::Query<Pagination>,
+) -> ControllerResult<Json<Vec<Course>>> {
+    let mut conn = pool.acquire().await?;
+    let courses = models::courses::get_active_courses_for_organization(
+        &mut conn,
+        *request_organization_id,
+        &pagination,
+    )
+    .await?;
+    Ok(Json(courses))
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_organization_active_courses_count(
+    request_organization_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<Json<CourseCount>> {
+    let mut conn = pool.acquire().await?;
+    let result = models::courses::get_active_courses_for_organization_count(
+        &mut conn,
+        *request_organization_id,
+    )
+    .await?;
+    Ok(Json(result))
 }
 
 /**
@@ -52,7 +104,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[cfg_attr(doc, doc = generated_docs!(Organization))]
+#[generated_doc]
 #[instrument(skip(request, payload, pool, file_store, app_conf))]
 async fn set_organization_image(
     request: HttpRequest,
@@ -113,7 +165,7 @@ Request:
 DELETE /api/v0/main-frontend/organizations/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
 ```
 */
-#[cfg_attr(doc, doc = generated_docs!(()))]
+#[generated_doc]
 #[instrument(skip(pool, file_store))]
 async fn remove_organization_image(
     organization_id: web::Path<Uuid>,
@@ -147,7 +199,7 @@ async fn remove_organization_image(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}` - Returns an organizations with id.
 */
-#[cfg_attr(doc, doc = generated_docs!(Organization))]
+#[generated_doc]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_organization(
     organization_id: web::Path<Uuid>,
@@ -166,15 +218,14 @@ async fn get_organization(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations with id.
 */
-#[cfg_attr(doc, doc = generated_docs!(Vec<CourseExam>))]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_exams(
     pool: web::Data<PgPool>,
     organization: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<Vec<CourseExam>>> {
     let mut conn = pool.acquire().await?;
-    let exams =
-        models::exams::get_exams_for_organization(&mut conn, organization.into_inner()).await?;
+    let exams = models::exams::get_exams_for_organization(&mut conn, *organization).await?;
     Ok(web::Json(exams))
 }
 
@@ -191,6 +242,18 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{organization_id}/courses",
             web::get().to(get_organization_courses),
+        )
+        .route(
+            "/{organization_id}/courses/count",
+            web::get().to(get_organization_course_count),
+        )
+        .route(
+            "/{organization_id}/courses/active",
+            web::get().to(get_organization_active_courses),
+        )
+        .route(
+            "/{organization_id}/courses/active/count",
+            web::get().to(get_organization_active_courses_count),
         )
         .route(
             "/{organization_id}/image",

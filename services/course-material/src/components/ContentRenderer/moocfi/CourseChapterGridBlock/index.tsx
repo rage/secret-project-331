@@ -2,7 +2,8 @@ import { css } from "@emotion/css"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import CoursePageContext from "../../../../contexts/CoursePageContext"
+import PageContext from "../../../../contexts/PageContext"
+import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
 import Spinner from "../../../../shared-module/components/Spinner"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
@@ -10,7 +11,7 @@ import ChapterGrid from "./ChapterGrid"
 
 const CourseChapterGridBlock: React.FC = () => {
   const { t } = useTranslation()
-  const pageContext = useContext(CoursePageContext)
+  const pageContext = useContext(PageContext)
 
   if (pageContext.state !== "ready") {
     return <Spinner variant={"small"} />
@@ -21,13 +22,15 @@ const CourseChapterGridBlock: React.FC = () => {
   }
 
   return (
-    <div
-      className={css`
-        padding: 4em 0;
-      `}
-    >
-      <ChapterGrid courseId={pageContext.pageData.course_id} />
-    </div>
+    <BreakFromCentered sidebar={false}>
+      <div
+        className={css`
+          padding: 4em 0;
+        `}
+      >
+        <ChapterGrid courseId={pageContext.pageData.course_id} />
+      </div>
+    </BreakFromCentered>
   )
 }
 

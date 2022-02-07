@@ -1,12 +1,15 @@
-import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
+import { css } from "@emotion/css"
+import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Box, Button, Fade, Modal, TextField } from "@material-ui/core"
+import { Box, Fade, Modal } from "@material-ui/core"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
+import Button from "../../../../shared-module/components/Button"
+import TextField from "../../../../shared-module/components/InputFields/TextField"
 import { deletedItem } from "../../../../store/editor/editorActions"
 import {
   setAdvancedEditing,
@@ -17,14 +20,8 @@ import {
   toggleFormatRegexTestingState,
   toggleValidRegexTestingState,
 } from "../../../../store/editor/itemVariables/itemVariableActions"
-import {
-  editedFormatRegex,
-  editedQuizItemBody,
-  editedQuizItemTitle,
-  editedValidityRegex,
-} from "../../../../store/editor/items/itemAction"
+import { editedFormatRegex, editedValidityRegex } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import MarkdownEditor from "../../../MarkdownEditor"
 
 import FormatRegexTesterModalContent from "./FormatRegexTesterModalContent"
 import OpenModalContent from "./OpenModalContent"
@@ -33,20 +30,9 @@ import ValidityRegexTesterModalContent from "./ValidityRegexTesterModalContent"
 const AdvancedBox = styled(Box)`
   background-color: #fafafa !important;
   min-width: 80% !important;
-  min-height: 50% !important;
   max-width: 80% !important;
   max-height: 50% !important;
   overflow-y: scroll !important;
-`
-
-const EditButtonWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end;
-`
-
-const ItemInfo = styled.div`
-  margin-bottom: 1rem;
-  margin-top: 1rem;
 `
 
 const StyledButton = styled(Button)`
@@ -70,8 +56,6 @@ const StyledBox = styled(Box)`
   background-color: #fafafa;
   min-width: 300px;
   min-height: 300px;
-  max-height: 300px;
-  max-width: 300px;
 `
 const CloseButton = styled(Button)`
   display: flex;
@@ -116,14 +100,6 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
 
   return (
     <>
-      <EditButtonWrapper>
-        <Button
-          onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))}
-          title={t("edit-item")}
-        >
-          <FontAwesomeIcon icon={faPen} size="2x"></FontAwesomeIcon>
-        </Button>
-      </EditButtonWrapper>
       <StyledModal
         open={variables.advancedEditing}
         onClose={() => dispatch(setAdvancedEditing(storeItem.id, false))}
@@ -131,13 +107,22 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
         <Fade in={variables.advancedEditing}>
           <AdvancedBox>
             <ModalButtonWrapper>
-              <CloseButton onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}>
+              <CloseButton
+                aria-label={t("close")}
+                size="medium"
+                variant="outlined"
+                onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}
+              >
                 <FontAwesomeIcon icon={faWindowClose} size="2x" />
               </CloseButton>
             </ModalButtonWrapper>
             <OpenModalContent item={storeItem} />
             <ModalButtonWrapper>
-              <DeleteButton onClick={() => dispatch(deletedItem(storeItem.id, quizId))}>
+              <DeleteButton
+                size="medium"
+                variant="outlined"
+                onClick={() => dispatch(deletedItem(storeItem.id, quizId))}
+              >
                 <FontAwesomeIcon icon={faTrash} color="red" size="2x" />
               </DeleteButton>
             </ModalButtonWrapper>
@@ -151,8 +136,10 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
         <StyledBox>
           <ModalButtonWrapper>
             <CloseButton
+              aria-label={t("close")}
               onClick={() => dispatch(toggleValidRegexTestingState(storeItem.id, false))}
-              size="small"
+              size="medium"
+              variant="outlined"
             >
               <FontAwesomeIcon icon={faWindowClose} size="2x" />
             </CloseButton>
@@ -167,8 +154,10 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
         <StyledBox>
           <ModalButtonWrapper>
             <CloseButton
+              aria-label={t("close")}
               onClick={() => dispatch(toggleFormatRegexTestingState(storeItem.id, false))}
-              size="small"
+              size="medium"
+              variant="outlined"
             >
               <FontAwesomeIcon icon={faWindowClose} size="2x" />
             </CloseButton>
@@ -176,33 +165,20 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
           <FormatRegexTesterModalContent item={item} />
         </StyledBox>
       </StyledModal>
-      <ItemInfo>
-        <MarkdownEditor
-          label={t("title")}
-          text={storeItem.title ?? ""}
-          onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
-        />
-      </ItemInfo>
-      <ItemInfo>
-        <MarkdownEditor
-          label={t("body")}
-          text={storeItem.body ?? ""}
-          onChange={(event) => dispatch(editedQuizItemBody(event.target.value, storeItem.id))}
-        />
-      </ItemInfo>
       <RegexContainer>
         <TextField
           error={!variables.validRegex}
-          fullWidth
           label={t("validity-regular-expression")}
-          variant="outlined"
           value={variables.regex ?? ""}
-          helperText={!variables.validRegex && t("invalid-regular-expression")}
-          onChange={(event) => {
-            dispatch(setValidityTestRegex(storeItem.id, event.target.value))
-            handleValidRegexChange(event.target.value)
+          onChange={(value) => {
+            dispatch(setValidityTestRegex(storeItem.id, value))
+            handleValidRegexChange(value)
           }}
+          className={css`
+            flex: 1;
+          `}
         />
+        {!variables.validRegex && <div>{t("invalid-regular-expression")}</div>}
         <StyledButton
           variant="outlined"
           onClick={() => dispatch(toggleValidRegexTestingState(storeItem.id, true))}
@@ -214,16 +190,17 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
       <RegexContainer>
         <TextField
           error={!variables.validFormatRegex}
-          fullWidth
           label={t("format-regular-expression")}
-          variant="outlined"
           value={variables.formatRegex ?? ""}
-          helperText={!variables.validFormatRegex && t("invalid-regular-expression")}
-          onChange={(event) => {
-            dispatch(setFormatTestRegex(storeItem.id, event.target.value))
-            handleFormatRegexChange(event.target.value)
+          onChange={(value) => {
+            dispatch(setFormatTestRegex(storeItem.id, value))
+            handleFormatRegexChange(value)
           }}
+          className={css`
+            flex: 1;
+          `}
         />
+        {!variables.validFormatRegex && <div>{t("invalid-regular-expression")}</div>}
         <StyledButton
           variant="outlined"
           onClick={() => dispatch(toggleFormatRegexTestingState(storeItem.id, true))}

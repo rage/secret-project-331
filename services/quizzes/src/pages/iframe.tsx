@@ -2,7 +2,6 @@ import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import ReactDOM from "react-dom"
-import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { ModelSolutionQuiz, PublicQuiz, Quiz, QuizAnswer } from "../../types/types"
@@ -31,8 +30,6 @@ export type State =
   | { viewType: "exercise-editor"; privateSpec: Quiz }
 
 const IFrame: React.FC = () => {
-  const { t } = useTranslation()
-
   const [port, setPort] = useState<MessagePort | null>(null)
   const [state, setState] = useState<State | null>(null)
   const router = useRouter()
@@ -112,23 +109,16 @@ const IFrame: React.FC = () => {
     }
   }, [])
 
-  if (!port) {
-    return <>{t("waiting-for-port")}</>
-  }
-
-  if (!state) {
-    return <>{t("waiting-for-content")}</>
-  }
   return (
     <HeightTrackingContainer port={port}>
       <div
         className={css`
           width: 100%;
-          ${maxWidth && `max-width: ${maxWidth}rem;`}
+          ${maxWidth && `max-width: ${maxWidth}px;`}
           margin: 0 auto;
         `}
       >
-        <Renderer maxWidth={maxWidth} port={port} setState={setState} state={state} />
+        <Renderer port={port} setState={setState} state={state} />
       </div>
     </HeightTrackingContainer>
   )

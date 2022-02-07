@@ -21,7 +21,6 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
   )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-multiple-choice-clickable",
     waitForThisToBeVisibleAndStable: [
@@ -40,7 +39,6 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
   ])
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-multiple-choice-clickable-answered",
     waitForThisToBeVisibleAndStable: [

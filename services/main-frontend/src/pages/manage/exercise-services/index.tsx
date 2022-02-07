@@ -12,7 +12,6 @@ import {
 import Button from "../../../shared-module/components/Button"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
-import { normalWidthCenteredComponentStyles } from "../../../shared-module/styles/componentStyles"
 import basePath from "../../../shared-module/utils/base-path"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { canSave } from "../../../utils/canSaveExerciseService"
@@ -80,8 +79,8 @@ const ExerciseServicePage: React.FC = () => {
   }
 
   return (
-    <Layout navVariant={"simple"} frontPageUrl={basePath() + "/../.."}>
-      <div className={normalWidthCenteredComponentStyles}>
+    <Layout navVariant={"simple"}>
+      <div>
         <h1>{t("title-manage-exercise-services")}</h1>
         <Button onClick={openModal} variant="primary" size="medium">
           {t("button-text-new")}

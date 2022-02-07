@@ -9,24 +9,30 @@ import Exercise from "./Exercise"
 import Submission from "./Submission"
 
 interface RendererProps {
-  state: State
+  state: State | null
   setState: Dispatch<SetStateAction<State | null>>
-  port: MessagePort
-  maxWidth: number
+  port: MessagePort | null
 }
 
-export const Renderer: React.FC<RendererProps> = ({ state, setState, port, maxWidth }) => {
+export const Renderer: React.FC<RendererProps> = ({ state, setState, port }) => {
   const { t } = useTranslation()
 
+  if (!port) {
+    return <>{t("waiting-for-port")}</>
+  }
+
+  if (!state) {
+    return <>{t("waiting-for-content")}</>
+  }
+
   if (state.view_type === "exercise") {
-    return <Exercise maxWidth={maxWidth} port={port} state={state.public_spec} />
+    return <Exercise port={port} state={state.public_spec} />
   } else if (state.view_type === "view-submission") {
     const feedbackJson: unknown | null = state.grading?.feedback_json
     const exerciseFeedback = feedbackJson ? (feedbackJson as ExerciseFeedback) : null
     return (
       <Submission
         port={port}
-        maxWidth={maxWidth}
         publicAlternatives={state.public_spec}
         selectedId={state.selectedOptionId}
         selectedOptionIsCorrect={exerciseFeedback?.selectedOptionIsCorrect || null}
@@ -34,7 +40,7 @@ export const Renderer: React.FC<RendererProps> = ({ state, setState, port, maxWi
       />
     )
   } else if (state.view_type === "exercise-editor") {
-    return <Editor state={state.private_spec} maxWidth={maxWidth} port={port} setState={setState} />
+    return <Editor state={state.private_spec} port={port} setState={setState} />
   } else {
     return <>{t("waiting-for-content")}</>
   }

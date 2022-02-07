@@ -488,6 +488,7 @@ mod test {
             course_language_group_id,
             "course-1",
             "en-US",
+            "",
         )
         .await
         .unwrap();
@@ -498,10 +499,11 @@ mod test {
             course_language_group_id,
             "course-2",
             "en-US",
+            "",
         )
         .await
         .unwrap();
-        users::insert(tx.as_mut(), "user-2347803@example.com")
+        users::insert(tx.as_mut(), "user-2347803@example.com", None, None)
             .await
             .unwrap();
 

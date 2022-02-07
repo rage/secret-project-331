@@ -24,7 +24,7 @@ pub async fn upload_media<'a>(
     headers: &HeaderMap,
     mut payload: Multipart,
     store_kind: StoreKind,
-    file_store: &Arc<dyn FileStore>,
+    file_store: &dyn FileStore,
 ) -> ControllerResult<PathBuf> {
     validate_media_headers(headers)?;
 
@@ -69,7 +69,7 @@ pub async fn upload_image_for_organization(
                     unsupported
                 ))),
             }?;
-            upload_media_to_storage(&path, field, file_store).await?;
+            upload_media_to_storage(&path, field, file_store.as_ref()).await?;
             Ok(path)
         }
         Err(err) => Err(ControllerError::InternalServerError(err.to_string())),

@@ -13,7 +13,7 @@ import {
 import { deleteCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
 import { Course, NewCourse } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
-import NewCourseForm from "../../../../../forms/NewCourseForm"
+import NewCourseForm from "../../../../org/organizationSlug/NewCourseForm"
 
 import CourseInstancesList from "./CourseInstancesList"
 import CourseLanguageVersionsList, {
@@ -125,6 +125,15 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
         }}
       >
         {t("link-manage-change-requests")}
+      </Link>
+      <br />
+      <Link
+        href={{
+          pathname: "/manage/courses/[id]/permissions",
+          query: { id: course.id },
+        }}
+      >
+        {t("link-manage-permissions")}
       </Link>
 
       <h2>{t("title-all-course-language-versions")}</h2>

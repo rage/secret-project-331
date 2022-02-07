@@ -34,7 +34,10 @@ test.describe("Uploading media as admin", async () => {
     ])
     expect(page.url().startsWith("http://project-331.local/org/")).toBe(true)
 
-    await Promise.all([page.waitForNavigation(), page.click("text=Manage")])
+    await Promise.all([
+      page.waitForNavigation(),
+      page.click("[aria-label=\"Manage course 'Introduction to everything'\"] svg"),
+    ])
     expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 
     await Promise.all([page.waitForNavigation(), page.click("text=Manage pages")])
@@ -65,7 +68,13 @@ test.describe("Uploading media as admin", async () => {
     const [newPage] = await Promise.all([page.waitForEvent("popup"), page.click("a[href$='.png']")])
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: true, // not for new screenshots
+      axeSkip: [
+        "html-has-lang",
+        "image-alt",
+        "landmark-one-main",
+        "page-has-heading-one",
+        "region",
+      ],
       page: newPage,
       snapshotName: "uploadMediaPicture.png",
       toMatchSnapshotOptions: { threshold: 0.2 },

@@ -19,7 +19,11 @@ test.describe("Model solutions", () => {
     expectPath(page, "/org/uh-cs")
 
     // Click text=Manage
-    await Promise.all([page.waitForNavigation(), await page.click("text=Manage")])
+    await Promise.all([
+      page.waitForNavigation(),
+      page.click("[aria-label=\"Manage course 'Introduction to everything'\"] svg"),
+    ])
+
     expectPath(page, "/manage/courses/[id]")
     // Click text=view submissions
     await Promise.all([
@@ -27,7 +31,7 @@ test.describe("Model solutions", () => {
       page.click("text=view submissions"),
     ])
     // Click a:has-text("link")
-    await page.click('a:has-text("link")')
+    await Promise.all([page.waitForNavigation(), page.click('a:has-text("link")')])
     expectPath(page, "/submissions/[id]")
 
     // Wait for the frame to be visible

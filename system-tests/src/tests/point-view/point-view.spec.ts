@@ -63,7 +63,7 @@ test("test", async ({ page, headless }) => {
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   // Click text=Point view for teachers Manage >> :nth-match(a, 2)
-  await page.click("text=Point view for teachers Manage >> :nth-match(a, 2)")
+  await page.click("[aria-label=\"Manage course 'Point view for teachers'\"] svg")
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/b4cb334c-11d6-4e93-8f3d-849c4abfcd67",
   )
@@ -79,7 +79,6 @@ test("test", async ({ page, headless }) => {
     snapshotName: "point-view-top",
     waitForThisToBeVisibleAndStable: "text=TOTAL POINT DASHBOARD",
     page,
-    axeSkip: false,
   })
 
   await page.click("text=user_4@example.com")
@@ -89,6 +88,5 @@ test("test", async ({ page, headless }) => {
     snapshotName: "point-view-bottom",
     waitForThisToBeVisibleAndStable: "text=user_4@example.com",
     page,
-    axeSkip: false,
   })
 })

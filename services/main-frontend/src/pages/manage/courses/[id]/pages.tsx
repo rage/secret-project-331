@@ -4,11 +4,10 @@ import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import ManageCourseStructure from "../../../../components/page-specific/manage/courses/id/pages/ManageCourseStructure"
-import { fetchCourseStructure, getCourse } from "../../../../services/backend/courses"
+import { fetchCourseStructure } from "../../../../services/backend/courses"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -26,7 +25,6 @@ const CoursePages: React.FC<CoursePagesProps> = ({ query }) => {
     <Layout navVariant="complex">
       <div
         className={css`
-          ${normalWidthCenteredComponentStyles}
           margin-bottom: 1rem;
         `}
       >

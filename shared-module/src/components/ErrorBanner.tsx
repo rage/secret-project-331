@@ -3,7 +3,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { ErrorResponse } from "../bindings"
-import { isErrorResponse } from "../bindings.guard"
+import { isErrorData, isErrorResponse } from "../bindings.guard"
 import { baseTheme } from "../styles"
 
 const BannerWrapper = styled.div`
@@ -52,7 +52,7 @@ const DetailTag = styled.div`
   }
 
   details[open] summary ~ * {
-    color: ${baseTheme.colors.grey[800]};
+    color: ${baseTheme.colors.grey[700]};
   }
 
   details[open] > div {
@@ -67,7 +67,7 @@ const DetailTag = styled.div`
     font-size: 1.1rem;
     font-weight: medium;
     list-style: none;
-    color: ${baseTheme.colors.grey[800]};
+    color: ${baseTheme.colors.grey[700]};
     outline: 0;
     ::-webkit-details-marker {
       display: none;
@@ -122,6 +122,14 @@ const Banner: React.FC<BannerProps> = (props) => {
     if (isErrorResponse(error.data)) {
       // response data contains an error response
       const data: ErrorResponse = error.data
+      const errorData = data.data
+      let linkComponent = <></>
+      if (isErrorData(errorData)) {
+        const url = window.location.href.replace(location.hash, "")
+        // eslint-disable-next-line i18next/no-literal-string
+        linkComponent = <a href={`${url}#${errorData.block_id}`}>Go to error</a>
+      }
+
       return (
         <BannerWrapper>
           <Content>
@@ -143,6 +151,7 @@ const Banner: React.FC<BannerProps> = (props) => {
                 </details>
               )}
             </DetailTag>
+            {data.data && <Text>{linkComponent}</Text>}
           </Content>
         </BannerWrapper>
       )

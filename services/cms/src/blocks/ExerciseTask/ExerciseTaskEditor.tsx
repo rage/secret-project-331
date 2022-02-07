@@ -9,12 +9,9 @@ import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import { baseTheme, primaryFont, typography } from "../../shared-module/styles"
-import { defaultContainerWidth } from "../../shared-module/styles/constants"
+import { narrowContainerWidthPx } from "../../shared-module/styles/constants"
 import { runCallbackIfEnterPressed } from "../../shared-module/utils/accessibility"
-import {
-  cmsNormalWidthCenteredComponentStyles,
-  gutenbergControlsVisible,
-} from "../../styles/EditorStyles"
+import { gutenbergControlsVisible } from "../../styles/EditorStyles"
 
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
 import { exerciseTaskTypes } from "./ChooseExerciseTaskType/ExerciseServiceList"
@@ -56,7 +53,7 @@ const grey500WithHover = css`
 // eslint-disable-next-line i18next/no-literal-string
 const StyledIconDark = styled(FontAwesomeIcon)`
   font-size: 1rem;
-  color: ${baseTheme.colors.grey[800]};
+  color: ${baseTheme.colors.grey[700]};
   margin: 1.5rem;
 `
 
@@ -94,8 +91,8 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
   const url = exerciseTaskTypes.find((o) => o.identifier === exerciseType)?.url
 
   return (
-    <div>
-      <div className={cmsNormalWidthCenteredComponentStyles}>
+    <div id={attributes.id}>
+      <div>
         <div
           className={css`
             align-items: stretch;
@@ -122,12 +119,9 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
             onClick={toggleEditor}
             role="button"
             tabIndex={0}
+            aria-label={attributes.show_editor ? t("close") : t("edit")}
           >
-            {attributes.show_editor ? (
-              <StyledIconLight icon={faWindowClose} aria-label={t("close")} />
-            ) : (
-              <StyledIconLight icon={faPenSquare} aria-label={t("edit")} />
-            )}
+            <StyledIconLight icon={attributes.show_editor ? faWindowClose : faPenSquare} />
           </div>
           <div
             className={cx(svgSquare, grey400WithHover)}
@@ -135,14 +129,22 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
             onClick={handleDeleteTask}
             role="button"
             tabIndex={0}
+            aria-label={t("delete")}
           >
-            <StyledIconDark icon={faTrashAlt} aria-label={t("delete")} />
+            <StyledIconDark icon={faTrashAlt} />
           </div>
         </div>
       </div>
       {attributes.show_editor ? (
-        <ExerciseTaskEditorCard id={attributes.id}>
-          <div className={gutenbergControlsVisible}>
+        <ExerciseTaskEditorCard>
+          <div
+            className={css`
+              padding: 1rem;
+              border: 1px solid black;
+              ${gutenbergControlsVisible}
+            `}
+          >
+            <h3>{t("title-assignment")}</h3>
             <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
           </div>
           {!exerciseType ? (
@@ -153,7 +155,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
             <ExerciseTaskIFrameEditor
               onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
               privateSpec={privateSpecOnFirstRender}
-              url={`${url}?width=${defaultContainerWidth}`}
+              url={`${url}?width=${narrowContainerWidthPx}`}
             />
           )}
         </ExerciseTaskEditorCard>

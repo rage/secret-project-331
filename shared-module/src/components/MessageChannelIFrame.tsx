@@ -7,16 +7,22 @@ import useMessageChannel from "../hooks/useMessageChannel"
 import { CurrentStateMessage, IframeState, SetStateMessage } from "../iframe-protocol-types"
 import { isCurrentStateMessage, isHeightChangedMessage } from "../iframe-protocol-types.guard"
 
+import BreakFromCentered, { BreakFromCenteredProps } from "./Centering/BreakFromCentered"
+
 interface MessageChannelIFrameProps {
   url: string
   postThisStateToIFrame: IframeState | null
   onMessageFromIframe: (message: CurrentStateMessage, responsePort: MessagePort) => void
+  breakFromCenteredProps?: BreakFromCenteredProps
 }
+
+const IFRAME_TITLE = "Exercise type specific content"
 
 const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   url,
   postThisStateToIFrame,
   onMessageFromIframe,
+  breakFromCenteredProps,
 }) => {
   const { t } = useTranslation()
   const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -123,30 +129,33 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   }
 
   return (
-    <div
-      className={css`
-        /*
+    // We have to force the iframe to take the full width of the page because the iframe protocol requires it
+    <BreakFromCentered {...(breakFromCenteredProps ?? { sidebar: false })}>
+      <div
+        className={css`
+          /*
           To see the size of the frame in development
           Only top and bottom because frame is 100% of window width.
         */
-        border: 0;
-        border-top: 1px solid black;
-        border-bottom: 1px solid black;
-        margin-bottom: 1rem;
-      `}
-    >
-      <iframe
-        sandbox="allow-scripts"
-        className={css`
-          overflow: hidden;
-          width: 100%;
           border: 0;
+          border-top: 1px solid black;
+          border-bottom: 1px solid black;
+          margin-bottom: 1rem;
         `}
-        title="Exercise type specific content"
-        ref={iframeRef}
-        src={url}
-      />
-    </div>
+      >
+        <iframe
+          sandbox="allow-scripts"
+          className={css`
+            overflow: hidden;
+            width: 100%;
+            border: 0;
+          `}
+          title={IFRAME_TITLE}
+          ref={iframeRef}
+          src={url}
+        />
+      </div>
+    </BreakFromCentered>
   )
 }
 

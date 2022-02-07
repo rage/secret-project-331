@@ -13,7 +13,7 @@ import { NavigationProps } from "."
 
 const StyledIcon = css`
   font-size: 1.8rem;
-  color: ${baseTheme.colors.grey[800]};
+  color: ${baseTheme.colors.grey[700]};
 `
 const NavbarItems = css`
   background: #f9f9f9;
@@ -23,7 +23,7 @@ const NavbarItems = css`
   align-items: center;
   font-size: 1rem;
   padding: 0 4rem;
-  border-bottom: 2px solid ${baseTheme.colors.grey[800]};
+  border-bottom: 2px solid ${baseTheme.colors.grey[700]};
 
   h1 {
     width: 165px;
@@ -32,7 +32,7 @@ const NavbarItems = css`
 `
 // eslint-disable-next-line i18next/no-literal-string
 const NavbarLogo = css`
-  color: ${baseTheme.colors.grey[800]};
+  color: ${baseTheme.colors.grey[700]};
   display: flex;
   justify-self: start;
   cursor: pointer;
@@ -50,7 +50,7 @@ const NavMenu = css`
 `
 // eslint-disable-next-line i18next/no-literal-string
 const NavLink = css`
-  color: ${baseTheme.colors.grey[800]};
+  color: ${baseTheme.colors.grey[700]};
   font-weight: 600;
   text-decoration: none;
   display: inline-block;
@@ -69,7 +69,7 @@ const NavLink = css`
     height: 2px;
     bottom: 0;
     left: 0;
-    background-color: ${baseTheme.colors.grey[800]};
+    background-color: ${baseTheme.colors.grey[700]};
     transform-origin: bottom right;
     transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
   }
@@ -91,7 +91,7 @@ const MenuIcon = css`
 `
 // eslint-disable-next-line i18next/no-literal-string
 const ToolTip = css`
-  background: ${baseTheme.colors.neutral[100]};
+  background: ${baseTheme.colors.clear[100]};
   border-color: #cacaca;
   top: 100px;
   right: 20px;
@@ -116,7 +116,7 @@ const ToolTip = css`
     position: absolute;
     pointer-events: none;
     border-color: rgba(0, 151, 167, 0);
-    border-bottom-color: ${baseTheme.colors.neutral[100]};
+    border-bottom-color: ${baseTheme.colors.clear[100]};
     border-width: 12px;
     margin-left: -12px;
   }
@@ -142,7 +142,7 @@ const ToolTip = css`
     }
 
     Button:hover {
-      color: ${baseTheme.colors.grey[800]};
+      color: ${baseTheme.colors.grey[700]};
       background-color: none;
     }
   }
@@ -152,12 +152,7 @@ const Hide = css`
   display: none;
 `
 
-const Navigation: React.FC<NavigationProps> = ({
-  frontPageUrl,
-  faqUrl,
-  returnToPath,
-  children,
-}) => {
+const Navigation: React.FC<NavigationProps> = ({ faqUrl, returnToPath, children }) => {
   const { t } = useTranslation()
   const [clicked, setClicked] = useState(false)
 
@@ -168,7 +163,7 @@ const Navigation: React.FC<NavigationProps> = ({
   return (
     <nav role="navigation" className={cx(NavbarItems)}>
       <div className={cx(NavbarLogo)}>
-        <a href={`${frontPageUrl}`} aria-label="Home page" role="button">
+        <a href="/" aria-label="Home page" role="button">
           <FontAwesomeIcon
             className={cx(StyledIcon)}
             icon={faBullseye}

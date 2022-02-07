@@ -22,7 +22,6 @@ test("widget, open", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-open-empty",
     waitForThisToBeVisibleAndStable: [
@@ -32,14 +31,13 @@ test("widget, open", async ({ page, headless }) => {
     frame,
   })
 
-  // Click input[type="text"]
-  await frame.click('input[type="text"]')
-
   // Fill input[type="text"]
-  await frame.fill('input[type="text"]', "2024")
+  await frame.fill(
+    'input:below(:text("Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."))',
+    "2024",
+  )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-open-invalid",
     waitForThisToBeVisibleAndStable: [
@@ -51,10 +49,12 @@ test("widget, open", async ({ page, headless }) => {
   })
 
   // Fill input[type="text"]
-  await frame.fill('input[type="text"]', "2024-02-29")
+  await frame.fill(
+    'input:below(:text("Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."))',
+    "2024-02-29",
+  )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-open-valid",
     waitForThisToBeVisibleAndStable: [

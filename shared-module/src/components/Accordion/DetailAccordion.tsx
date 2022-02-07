@@ -22,7 +22,7 @@ const TextWrapper = styled.div`
 
   details[open] summary ~ * {
     animation: ${openAnimation} 0.3s ease-in-out;
-    color: ${baseTheme.colors.grey[800]};
+    color: ${baseTheme.colors.grey[700]};
   }
 
   details[open] > div {
@@ -38,7 +38,7 @@ const TextWrapper = styled.div`
     font-size: 1.3rem;
     font-weight: medium;
     list-style: none;
-    color: ${baseTheme.colors.grey[800]};
+    color: ${baseTheme.colors.grey[700]};
     outline: 0;
     background: rgba(0, 0, 0, 0.1);
     ${respondToOrLarger.sm} {

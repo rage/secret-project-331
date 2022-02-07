@@ -97,7 +97,7 @@ const DeleteMessage = styled.div`
 const DeleteNotification = (props: DeleteNotificationProps) => {
   const { t } = useTranslation()
   return (
-    <Wrapper>
+    <Wrapper className="toast-notification">
       <Content>
         <IconWrapper>
           <FontAwesomeIcon

@@ -15,7 +15,7 @@ import dontRenderUntilQueryParametersReady, {
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { tryToScrollToSelector } from "../../../../utils/dom"
-import { courseFaqPageRoute, courseFrontPageRoute } from "../../../../utils/routing"
+import { courseFaqPageRoute } from "../../../../utils/routing"
 
 interface PagePageProps {
   // "organizationSlug" | "courseSlug" | "path"
@@ -100,7 +100,6 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
       <PageContext.Provider value={pageState}>
         <Layout
           faqUrl={courseFaqPageRoute(query.organizationSlug, courseSlug)}
-          frontPageUrl={courseFrontPageRoute(query.organizationSlug, courseSlug)}
           title={getCoursePageByPath.data.page.title}
           organizationSlug={query.organizationSlug}
           courseSlug={courseSlug}

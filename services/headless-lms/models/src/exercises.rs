@@ -476,6 +476,8 @@ mod test {
         let user_id = users::insert_with_id(
             tx.as_mut(),
             "test@example.com",
+            None,
+            None,
             Uuid::parse_str("e656e0a1-3f55-4f52-b0ae-96855faee5e7").unwrap(),
         )
         .await
@@ -502,6 +504,7 @@ mod test {
             course_language_group_id,
             "",
             "en-US",
+            "",
         )
         .await
         .unwrap();

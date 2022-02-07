@@ -7,7 +7,6 @@ import { fetchChaptersPagesExcludeFrontpage } from "../../../../services/backend
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import PagesInChapterBox from "../../../../shared-module/components/PagesInChapterBox"
 import Spinner from "../../../../shared-module/components/Spinner"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { coursePageRoute } from "../../../../utils/routing"
 
 export interface PagesInChapterProps {
@@ -29,7 +28,7 @@ const PagesInChapter: React.FC<PagesInChapterProps> = ({
 
   return (
     <>
-      <div className={normalWidthCenteredComponentStyles}>
+      <div>
         <div
           className={css`
             padding: 7.5em 1em;
@@ -51,17 +50,19 @@ const PagesInChapter: React.FC<PagesInChapterProps> = ({
             getPagesInChapterExcludeFrontpage.isIdle) && <Spinner variant={"medium"} />}
           {getPagesInChapterExcludeFrontpage.isSuccess && (
             <>
-              {getPagesInChapterExcludeFrontpage.data.map((page) => (
-                <PagesInChapterBox
-                  variant="text"
-                  chapterIndex={page.order_number}
-                  chapterTitle={page.title}
-                  selected={false}
-                  key={page.id}
-                  id={page.id}
-                  url={coursePageRoute(organizationSlug, courseSlug, page.url_path)}
-                />
-              ))}
+              {getPagesInChapterExcludeFrontpage.data
+                .sort((a, b) => a.order_number - b.order_number)
+                .map((page) => (
+                  <PagesInChapterBox
+                    variant="text"
+                    chapterIndex={page.order_number}
+                    chapterTitle={page.title}
+                    selected={false}
+                    key={page.id}
+                    id={page.id}
+                    url={coursePageRoute(organizationSlug, courseSlug, page.url_path)}
+                  />
+                ))}
             </>
           )}
         </div>

@@ -5,16 +5,18 @@ import React from "react"
 import { primaryFont } from "../../styles/typography"
 
 interface TextFieldExtraProps {
-  type?: "email" | "password" | "text"
+  type?: "email" | "password" | "text" | "number"
   label: string
   hint?: string
   error?: boolean
   placeholder?: string
   required?: boolean
   value?: string
-  /* onBlur?: (event: React.FocusEvent<HTMLSelectElement>) => void */
-  onChange: (value: string, name?: string) => void
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
+  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void
+  onChange?: (value: string, name?: string) => void
   className?: string
+  disabled?: boolean
 }
 
 const ERRORCOLOR = "#F76D82"
@@ -34,6 +36,7 @@ const Input = styled.input<InputExtraProps>`
   transition: ease-in-out, width 0.35s ease-in-out;
   outline: none;
   min-width: 280px;
+  width: 100%;
   display: block;
 
   &:focus,
@@ -59,7 +62,7 @@ const error = css`
 
 // Error string might change in the future
 
-const ERROR = "Please check the secret box"
+const ERROR = "Error"
 
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldExtraProps
 
@@ -70,7 +73,7 @@ const TextField = ({ onChange, className, ...rest }: TextFieldExtraProps) => {
         <span className={cx(label)}>{rest.label}</span>
         <Input
           aria-describedby={`${rest.label}_error`}
-          onChange={({ target: { value } }) => onChange(value)}
+          onChange={({ target: { value } }) => onChange && onChange(value)}
           {...rest}
         />
       </label>

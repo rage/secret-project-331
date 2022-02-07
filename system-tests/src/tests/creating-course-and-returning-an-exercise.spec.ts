@@ -36,7 +36,7 @@ test("test", async ({ page }) => {
   // Click :nth-match(:text("Manage"), 3)
   await Promise.all([
     page.waitForNavigation(),
-    await page.click("text=Introduction to System Level Testing Manage >> :nth-match(a, 2)"),
+    await page.click("[aria-label=\"Manage course 'Introduction to System Level Testing'\"] svg"),
   ])
   expect(page.url().startsWith("http://project-331.local/manage/courses/")).toBe(true)
 
@@ -144,7 +144,7 @@ test("test", async ({ page }) => {
   await page.click("text=Add task")
 
   // Click [aria-label="Block: ExerciseTask"] div[role="button"]
-  await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
+  await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
 
   // Click text=Type / to choose a block
   await page.click("text=Type / to choose a block")
@@ -201,6 +201,11 @@ test("test", async ({ page }) => {
 
   // Click button:has-text("Save")
   await page.click('button:has-text("Save")')
+  await page.waitForSelector(`text="Operation successful!"`)
+
+  // Check that the assignment still displays after saving
+  await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
+  await page.waitForSelector(`text="Please select the most correct alternative."`)
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),

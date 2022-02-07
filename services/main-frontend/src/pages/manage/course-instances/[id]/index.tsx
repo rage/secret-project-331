@@ -3,7 +3,7 @@ import { isPast } from "date-fns"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useMutation, useQuery } from "react-query"
+import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import NewCourseInstanceForm from "../../../../components/page-specific/manage/courses/id/new-course-instance/NewCourseInstanceForm"
@@ -17,7 +17,7 @@ import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
+import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import basePath from "../../../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -37,9 +37,13 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
     fetchCourseInstance(courseInstanceId),
   )
   const [editing, setEditing] = useState(false)
-  const mutation = useMutation(
+  const mutation = useToastMutation(
     async (update: CourseInstanceForm) => {
       await editCourseInstance(courseInstanceId, update)
+    },
+    {
+      notify: true,
+      method: "POST",
     },
     {
       onSuccess: () => {
@@ -47,9 +51,13 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
       },
     },
   )
-  const deleteMutation = useMutation(
+  const deleteMutation = useToastMutation(
     async (_courseId: string) => {
       await deleteCourseInstance(courseInstanceId)
+    },
+    {
+      notify: true,
+      method: "DELETE",
     },
     {
       onSuccess: (_, courseId) => {
@@ -131,10 +139,9 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
   }
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div
         className={css`
-          ${wideWidthCenteredComponentStyles}
           margin-bottom: 1rem;
         `}
       >

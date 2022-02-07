@@ -4,11 +4,8 @@ import { useQuery } from "react-query"
 import Layout from "../../../../components/Layout"
 import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
-import CoursePageContext, {
-  CoursePageDispatch,
-  defaultCoursePageState,
-} from "../../../../contexts/CoursePageContext"
-import coursePageStateReducer from "../../../../reducers/coursePageStateReducer"
+import PageContext, { CoursePageDispatch, defaultPageState } from "../../../../contexts/PageContext"
+import pageStateReducer from "../../../../reducers/pageStateReducer"
 import { fetchCoursePageByPath } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
@@ -18,7 +15,7 @@ import dontRenderUntilQueryParametersReady, {
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { tryToScrollToSelector } from "../../../../utils/dom"
-import { courseFaqPageRoute, courseFrontPageRoute } from "../../../../utils/routing"
+import { courseFaqPageRoute } from "../../../../utils/routing"
 
 interface PagePageProps {
   // "organizationSlug" | "courseSlug" | "path"
@@ -29,7 +26,7 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
   const courseSlug = query.courseSlug
   const path = `/${useQueryParameter("path")}`
 
-  const [pageState, pageStateDispatch] = useReducer(coursePageStateReducer, defaultCoursePageState)
+  const [pageState, pageStateDispatch] = useReducer(pageStateReducer, defaultPageState)
   const getCoursePageByPath = useQuery(`course-page-${courseSlug}-${path}`, () =>
     fetchCoursePageByPath(courseSlug, path),
   )
@@ -100,17 +97,16 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
 
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
-      <CoursePageContext.Provider value={pageState}>
+      <PageContext.Provider value={pageState}>
         <Layout
           faqUrl={courseFaqPageRoute(query.organizationSlug, courseSlug)}
-          frontPageUrl={courseFrontPageRoute(query.organizationSlug, courseSlug)}
           title={getCoursePageByPath.data.page.title}
           organizationSlug={query.organizationSlug}
           courseSlug={courseSlug}
         >
           <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
         </Layout>
-      </CoursePageContext.Provider>
+      </PageContext.Provider>
     </CoursePageDispatch.Provider>
   )
 }

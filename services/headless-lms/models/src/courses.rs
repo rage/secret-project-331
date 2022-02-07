@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use headless_lms_utils::{
-    document_schema_processor::GutenbergBlock, file_store::FileStore, ApplicationConfiguration,
+    document_schema_processor::GutenbergBlock, file_store::FileStore,
+    language_tag_to_name::LANGUAGE_TAG_TO_NAME, ApplicationConfiguration,
 };
 use serde_json::Value;
 
@@ -13,6 +14,11 @@ use crate::{
     prelude::*,
 };
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
+pub struct CourseCount {
+    pub count: u32,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct Course {
     pub id: Uuid,
@@ -20,6 +26,7 @@ pub struct Course {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
+    pub description: Option<String>,
     pub organization_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
     pub language_code: String,
@@ -42,11 +49,13 @@ pub async fn insert(
     course_language_group_id: Uuid,
     slug: &str,
     language_code: &str,
+    description: &str,
 ) -> ModelResult<Uuid> {
+    let content_search_language = get_cfgname_by_tag(conn, language_code.to_string()).await?;
     let res = sqlx::query!(
         "
-INSERT INTO courses (name, organization_id, slug, language_code, course_language_group_id)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO courses (name, organization_id, slug, language_code, course_language_group_id, description, content_search_language)
+VALUES ($1, $2, $3, $4, $5, $6, $7::regconfig)
 RETURNING id
 ",
         name,
@@ -54,6 +63,8 @@ RETURNING id
         slug,
         language_code,
         course_language_group_id,
+        description,
+        content_search_language as _,
     )
     .fetch_one(conn)
     .await?;
@@ -74,7 +85,8 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -101,7 +113,8 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
 FROM courses
 WHERE course_language_group_id = $1;
         ",
@@ -110,6 +123,68 @@ WHERE course_language_group_id = $1;
     .fetch_all(conn)
     .await?;
     Ok(courses)
+}
+
+pub async fn get_active_courses_for_organization(
+    conn: &mut PgConnection,
+    organization_id: Uuid,
+    pagination: &Pagination,
+) -> ModelResult<Vec<Course>> {
+    let course_instances = sqlx::query_as!(
+        Course,
+        r#"
+SELECT
+    DISTINCT(c.id),
+    c.name,
+    c.created_at,
+    c.updated_at,
+    c.organization_id,
+    c.deleted_at,
+    c.slug,
+    c.content_search_language::text,
+    c.language_code,
+    c.copied_from,
+    c.course_language_group_id,
+    c.description
+FROM courses as c
+    LEFT JOIN course_instances as ci on c.id = ci.course_id
+WHERE
+    c.organization_id = $1 AND
+    ci.starts_at < NOW() AND ci.ends_at > NOW() AND
+    c.deleted_at IS NULL AND ci.deleted_at IS NULL
+    LIMIT $2 OFFSET $3;
+        "#,
+        organization_id,
+        pagination.limit(),
+        pagination.offset()
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(course_instances)
+}
+
+pub async fn get_active_courses_for_organization_count(
+    conn: &mut PgConnection,
+    organization_id: Uuid,
+) -> ModelResult<CourseCount> {
+    let result = sqlx::query!(
+        r#"
+SELECT
+    COUNT(DISTINCT c.id) as count
+FROM courses as c
+    LEFT JOIN course_instances as ci on c.id = ci.course_id
+WHERE
+    c.organization_id = $1 AND
+    ci.starts_at < NOW() AND ci.ends_at > NOW() AND
+    c.deleted_at IS NULL AND ci.deleted_at IS NULL;
+        "#,
+        organization_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(CourseCount {
+        count: result.count.unwrap_or_default().try_into()?,
+    })
 }
 
 pub async fn copy_course(
@@ -168,7 +243,8 @@ RETURNING id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id;
+  course_language_group_id,
+  description;
     ",
         new_course.name,
         new_course.organization_id,
@@ -429,7 +505,8 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
 FROM courses
 WHERE id = $1;
     "#,
@@ -468,6 +545,40 @@ pub async fn get_course_structure(
     })
 }
 
+pub async fn organization_courses_paginated(
+    conn: &mut PgConnection,
+    organization_id: &Uuid,
+    pagination: &Pagination,
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  course_language_group_id,
+  description
+FROM courses
+WHERE organization_id = $1
+  AND deleted_at IS NULL
+  LIMIT $2 OFFSET $3;
+        "#,
+        organization_id,
+        pagination.limit(),
+        pagination.offset()
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
 pub async fn organization_courses(
     conn: &mut PgConnection,
     organization_id: Uuid,
@@ -485,16 +596,38 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL;
         "#,
-        organization_id
+        organization_id,
     )
     .fetch_all(conn)
     .await?;
     Ok(courses)
+}
+
+pub async fn organization_course_count(
+    conn: &mut PgConnection,
+    organization_id: Uuid,
+) -> ModelResult<CourseCount> {
+    let course_count = sqlx::query!(
+        r#"
+SELECT
+    COUNT(DISTINCT id) as count
+FROM courses
+WHERE organization_id = $1
+    AND deleted_at IS NULL;
+        "#,
+        organization_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(CourseCount {
+        count: course_count.count.unwrap_or_default().try_into()?,
+    })
 }
 
 // Represents the subset of page fields that are required to create a new course.
@@ -533,7 +666,8 @@ RETURNING id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id;
+  course_language_group_id,
+  description;
             "#,
         id,
         new_course.name,
@@ -616,7 +750,8 @@ RETURNING id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
     "#,
         course_update.name,
         course_id
@@ -643,7 +778,8 @@ RETURNING id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
     "#,
         course_id
     )
@@ -667,7 +803,8 @@ SELECT id,
   content_search_language::text,
   language_code,
   copied_from,
-  course_language_group_id
+  course_language_group_id,
+  description
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -677,6 +814,31 @@ WHERE slug = $1
     .fetch_one(conn)
     .await?;
     Ok(course)
+}
+
+pub async fn get_cfgname_by_tag(
+    conn: &mut PgConnection,
+    ietf_language_tag: String,
+) -> ModelResult<String> {
+    let tag = ietf_language_tag
+        .split('-')
+        .next()
+        .unwrap_or_else(|| &ietf_language_tag[..]);
+
+    let lang_name = LANGUAGE_TAG_TO_NAME.get(&tag);
+
+    let name = sqlx::query!(
+        "SELECT cfgname::text FROM pg_ts_config WHERE cfgname = $1",
+        lang_name
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    let res = name
+        .and_then(|n| n.cfgname)
+        .unwrap_or_else(|| "simple".to_string());
+
+    Ok(res)
 }
 
 #[cfg(test)]
@@ -725,6 +887,7 @@ mod test {
             course_language_group_id,
             "course",
             "en-US",
+            "",
         )
         .await;
         assert!(course_id.is_ok());
@@ -738,6 +901,7 @@ mod test {
             organization_id,
             course_language_group_id,
             "course",
+            "",
             "",
         )
         .await;
@@ -753,6 +917,7 @@ mod test {
             course_language_group_id,
             "course",
             "en-us",
+            "",
         )
         .await;
         assert!(course_id.is_err());
@@ -767,6 +932,7 @@ mod test {
             course_language_group_id,
             "course",
             "en_US",
+            "",
         )
         .await;
         assert!(course_id.is_err());
@@ -788,7 +954,7 @@ mod test {
         )
         .await
         .unwrap();
-        let user_id = users::insert(tx.as_mut(), "user@example.com")
+        let user_id = users::insert(tx.as_mut(), "user@example.com", None, None)
             .await
             .unwrap();
         let (course, _page, _instance) = courses::insert_course(

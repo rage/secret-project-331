@@ -1,4 +1,12 @@
 {
-  "about-mooc-center": "MOOC-keskusksesta",
-  "error-title": "Virhe"
+  "about-mooc-center": "MOOC-keskuksesta",
+  "default-toast-error-title": "Virhe",
+  "default-toast-error-message": "Tapahtui virhe",
+  "default-toast-edit-has-been-saved-": "Muutoksesi on tallennettu!",
+  "default-toast-request-successful-message": "Pyyntö onnistui.",
+  "default-toast-success-title": "Tallennettu",
+  "default-toast-success-message": "Toiminto onnistui!",
+  "default-toast-loading-message": "Suoritetaan toimintoa...",
+  "default-toast-delete-title": "Poistettu",
+  "default-toast-delete-message": "Poistettu onnistuneesti"
 }

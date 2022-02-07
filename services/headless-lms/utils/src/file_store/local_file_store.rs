@@ -40,7 +40,7 @@ impl FileStore for LocalFileStore {
         &self,
         path: &Path,
         contents: Vec<u8>,
-        _mime_type: String,
+        _mime_type: &str,
     ) -> Result<(), UtilError> {
         let full_path = self.base_path.join(path);
         fs::write(full_path, contents).await?;
@@ -74,7 +74,7 @@ impl FileStore for LocalFileStore {
         &self,
         path: &Path,
         mut contents: GenericPayload,
-        _mime_type: String,
+        _mime_type: &str,
     ) -> Result<(), UtilError> {
         let full_path = self.base_path.join(path);
         let parent_option = full_path.parent();
@@ -140,7 +140,7 @@ mod tests {
         let test_file_contents = "Test file contents".as_bytes().to_vec();
         // Put content to storage and read it back
         local_file_store
-            .upload(&path1, test_file_contents.clone(), "text/plain".to_string())
+            .upload(&path1, test_file_contents.clone(), "text/plain")
             .await
             .expect("Failed to put a file into local file storage.");
         let retrivied_file = local_file_store
@@ -169,7 +169,7 @@ mod tests {
         let test_file_contents = "Test file contents 2".as_bytes().to_vec();
         let path1 = Path::new("file1");
         local_file_store
-            .upload(&path1, test_file_contents.clone(), "text/plain".to_string())
+            .upload(&path1, test_file_contents.clone(), "text/plain")
             .await
             .expect("Failed to put a file into local file storage.");
         let url = local_file_store

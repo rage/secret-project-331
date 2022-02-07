@@ -38,3 +38,6 @@ components/GutenbergEditor
 
 # Shared module that has been copied to this project
 shared-module
+
+# monaco editor copied on postinstall
+public/monaco-editor

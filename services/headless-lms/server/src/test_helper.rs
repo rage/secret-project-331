@@ -99,6 +99,8 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
     let user = models::users::insert_with_id(
         &mut *conn,
         "test@example.com",
+        None,
+        None,
         Uuid::parse_str("21a2b6b5-0e66-4708-8a0b-d818576ab950")?,
     )
     .await?;
@@ -116,7 +118,7 @@ pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result
     )
     .await?;
     let course =
-        models::courses::insert(&mut *conn, "", org, clg_id, &random_string, "en-US").await?;
+        models::courses::insert(&mut *conn, "", org, clg_id, &random_string, "en-US", "").await?;
     let instance = models::course_instances::insert(
         &mut *conn,
         NewCourseInstance {

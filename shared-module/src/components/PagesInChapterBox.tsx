@@ -1,4 +1,6 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import Link from "next/link"
 import React from "react"
 
 import ArrowSVGIcon from "../img/arrow.svg"
@@ -8,10 +10,6 @@ const Wrapper = styled.div`
   border-radius: 10px;
   position: relative;
   width: 100%;
-`
-const Link = styled.a`
-  color: #1c3b40;
-  box-shadow: none;
 `
 
 const PageNumberBox = styled.div`
@@ -30,7 +28,7 @@ const ChapterParts = styled.div`
   margin-left: 0em;
   padding: 0.6em 1em;
   list-style-type: none;
-  color: ${baseTheme.colors.grey[800]};
+  color: ${baseTheme.colors.grey[700]};
   text-decoration: none;
   border-radius: 2px;
   margin-bottom: 0.4em;
@@ -79,7 +77,7 @@ export interface PagesInChapterBoxExtraProps {
   selected: boolean
   chapterIndex: number
   chapterTitle: string
-  url?: string
+  url: string
 }
 
 export type PagesInChapterBoxProps = React.HTMLAttributes<HTMLDivElement> &
@@ -89,14 +87,22 @@ const PagesInChapterBox: React.FC<PagesInChapterBoxProps> = (props) => {
   return (
     <Wrapper>
       <>
-        <Link href={`${props.url}`}>
-          <ChapterParts {...props}>
-            <PageNumberBox>
-              <span>{props.chapterIndex}</span>
-            </PageNumberBox>
-            <span>{props.chapterTitle}</span>
-            <ArrowSVGIcon role="presentation" alt="" width="20" />
-          </ChapterParts>
+        <Link href={props.url} passHref>
+          <a
+            href="replace"
+            className={css`
+              color: #1c3b40;
+              box-shadow: none;
+            `}
+          >
+            <ChapterParts {...props}>
+              <PageNumberBox>
+                <span>{props.chapterIndex}</span>
+              </PageNumberBox>
+              <span>{props.chapterTitle}</span>
+              <ArrowSVGIcon role="presentation" alt="" width="20" />
+            </ChapterParts>
+          </a>
         </Link>
       </>
     </Wrapper>

@@ -50,24 +50,30 @@ export const MultipleChoiceClickable: React.FunctionComponent<QuizItemComponentP
       >
         {quizItem.title || quizItem.body}
       </h2>
-
-      {quizItem.options.map((o) => (
-        <button
-          key={o.id}
-          value={o.id}
-          onClick={handleOptionSelect}
-          className={css`
-            display: flex;
-            flex-grow: 1;
-            margin: 0.5rem;
-            border: none;
-            ${quizItemAnswerState?.optionAnswers?.includes(o.id) &&
-            `background-color: ${selectedBackgroundColor}; color: ${selectedForegroundColor}`}
-          `}
-        >
-          {o.title || o.body}
-        </button>
-      ))}
+      <div
+        className={css`
+          display: flex;
+          flex-wrap: wrap;
+        `}
+      >
+        {quizItem.options.map((o) => (
+          <button
+            key={o.id}
+            value={o.id}
+            onClick={handleOptionSelect}
+            className={css`
+              display: flex;
+              flex-grow: 1;
+              margin: 0.5rem;
+              border: none;
+              ${quizItemAnswerState?.optionAnswers?.includes(o.id) &&
+              `background-color: ${selectedBackgroundColor}; color: ${selectedForegroundColor}`}
+            `}
+          >
+            {o.title || o.body}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

@@ -28,37 +28,42 @@ const MultipleChoiceClickableFeedback: React.FC<QuizItemSubmissionComponentProps
       >
         {public_quiz_item.title || public_quiz_item.body}
       </h2>
+      <div
+        className={css`
+          display: flex;
+          flex-wrap: wrap;
+        `}
+      >
+        {public_quiz_item.options.map((o) => {
+          const optionSelected = user_quiz_item_answer.optionAnswers?.includes(o.id)
+          const correct = quiz_item_model_solution?.options.find((mo) => o.id === mo.id)?.correct
 
-      {public_quiz_item.options.map((o) => {
-        const optionSelected = user_quiz_item_answer.optionAnswers?.includes(o.id)
-        const correct = quiz_item_model_solution?.options.find((mo) => o.id === mo.id)?.correct
+          const backgroundColor = correct
+            ? quizTheme.gradingCorrectItemBackground
+            : quizTheme.gradingWrongItemBackground
+          const foregroundColor = correct
+            ? quizTheme.gradingCorrectItemColor
+            : quizTheme.gradingWrongItemColor
 
-        const backgroundColor = correct
-          ? quizTheme.gradingCorrectItemBackground
-          : quizTheme.gradingWrongItemBackground
-        const foregroundColor = correct
-          ? quizTheme.gradingCorrectItemColor
-          : quizTheme.gradingWrongItemColor
-
-        return (
-          <button
-            key={o.id}
-            value={o.id}
-            disabled
-            className={css`
-              display: flex;
-              margin: 0.5rem;
-              flex-grow: 1;
-              color: ${foregroundColor};
-              background-color: ${backgroundColor};
-              border: none;
-              outline: ${optionSelected ? `4px outset ${backgroundColor}` : "none"};
-            `}
-          >
-            {o.title || o.body}
-          </button>
-        )
-      })}
+          return (
+            <button
+              key={o.id}
+              value={o.id}
+              disabled
+              className={css`
+                display: flex;
+                margin: 0.5rem;
+                flex-grow: 1;
+                color: ${foregroundColor};
+                background-color: ${backgroundColor};
+                border: ${optionSelected ? `2px solid black` : "none"};
+              `}
+            >
+              {o.title || o.body}
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }

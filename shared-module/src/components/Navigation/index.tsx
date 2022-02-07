@@ -9,7 +9,11 @@ export interface NavigationProps {
   frontPageUrl?: string
   faqUrl?: string
   returnToPath?: string
-  breadcrumbs?: BreadcrumbPiece
+  pieces?: BreakCrumbProps
+}
+
+export interface BreakCrumbProps {
+  pieces: BreadcrumbPiece[]
 }
 
 export interface BreadcrumbPiece {
@@ -21,7 +25,7 @@ const Navbar: React.FC<NavigationProps> = (props) => {
   if (props.variant === "simple") {
     return <SimpleNav {...props} />
   } else if (props.variant === "breadcrumbs" && props.breadcrumbs) {
-    return <BreadCrumbs {...props.breadcrumbs} />
+    return <BreadCrumbs {...props.pieces} />
   }
   return <ComplexNav {...props} />
 }

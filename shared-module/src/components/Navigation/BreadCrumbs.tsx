@@ -3,7 +3,7 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useRouter } from "next/router"
 
-import { BreadcrumbPiece } from "."
+import { BreadcrumbPiece, BreakCrumbProps } from "."
 
 const StyledBreadcrumb = styled.nav`
   font-size: 1rem;
@@ -53,13 +53,10 @@ const breadCrumbText = css`
   font-size: 22px;
 `
 
-const Breadcrumb: React.FC<BreadcrumbPiece> = (props) => {
-  let { url } = props
-
+const Breadcrumb: React.FC<BreakCrumbProps> = ({ pieces }) => {
   const navigate = useRouter()
 
-  url = "/jobs/IT/softwareEngineer/FE"
-  const pathnames = url.split("/").filter((path) => path)
+  const pathnames = pieces.filter((item) => item.url)
   const HOME = "Home"
 
   return (
@@ -89,7 +86,7 @@ const Breadcrumb: React.FC<BreadcrumbPiece> = (props) => {
               return isLast ? (
                 <li className="group">
                   <span className={cx(breadCrumbText)} aria-current="page">
-                    {name}
+                    {name.text}
                   </span>
                 </li>
               ) : (
@@ -99,7 +96,7 @@ const Breadcrumb: React.FC<BreadcrumbPiece> = (props) => {
                     className={cx(breadCrumbText, link)}
                     onClick={() => navigate.push(route)}
                   >
-                    {name}
+                    {name.text}
                   </a>
                   <span className="arrow" aria-hidden="true">
                     ›

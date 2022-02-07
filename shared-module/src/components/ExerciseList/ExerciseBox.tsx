@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
@@ -110,20 +111,27 @@ const ExerciseBox: React.FC<ExerciseBox> = ({
   return (
     <Wrapper>
       <StyledLink>
-        <Link href={url}>
-          <ExercisePart>
-            <ImageBox>
-              <div>
-                <p>{exerciseIndex}</p>
-              </div>
-            </ImageBox>
-            <span>{exerciseTitle}</span>
-            <CircularProgressBar
-              scoreMaximum={scoreMaximum}
-              userPoints={userPoints}
-              className="progress"
-            />
-          </ExercisePart>
+        <Link href={url} passHref>
+          <a
+            className={css`
+              text-decoration: none;
+            `}
+            href="replace"
+          >
+            <ExercisePart>
+              <ImageBox>
+                <div>
+                  <p>{exerciseIndex}</p>
+                </div>
+              </ImageBox>
+              <span>{exerciseTitle}</span>
+              <CircularProgressBar
+                scoreMaximum={scoreMaximum}
+                userPoints={userPoints}
+                className="progress"
+              />
+            </ExercisePart>
+          </a>
         </Link>
       </StyledLink>
     </Wrapper>

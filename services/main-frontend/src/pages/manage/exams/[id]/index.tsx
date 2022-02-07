@@ -54,7 +54,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   )
 
   return (
-    <Layout frontPageUrl={"/"} navVariant={"complex"}>
+    <Layout navVariant={"complex"}>
       <div
         className={css`
           margin-bottom: 1rem;

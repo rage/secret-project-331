@@ -19,6 +19,7 @@ const BreakFromCentered: React.FC<BreakFromCenteredProps> = (props) => {
       return (
         <div
           className={css`
+            z-index: 1;
             position: relative;
             left: 50%;
             right: 50%;
@@ -34,6 +35,7 @@ const BreakFromCentered: React.FC<BreakFromCenteredProps> = (props) => {
       return (
         <div
           className={css`
+            z-index: 1;
             position: relative;
             left: 50%;
             right: 50%;
@@ -50,6 +52,7 @@ const BreakFromCentered: React.FC<BreakFromCenteredProps> = (props) => {
   return (
     <div
       className={css`
+        z-index: 1;
         position: relative;
         left: 50%;
         right: 50%;

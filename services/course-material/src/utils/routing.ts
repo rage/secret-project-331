@@ -1,13 +1,13 @@
 /* eslint-disable i18next/no-literal-string */
 
-import basePath from "../shared-module/utils/base-path"
+// NOTE: the urls in this file don't have the base path in the beginning (i.e. /org) because when links are used with next/link, the base path is automatically added
 
 export function courseFrontPageRoute(organizationSlug: string, courseSlug: string) {
-  return `/org/${organizationSlug}/courses/${courseSlug}`
+  return `/${organizationSlug}/courses/${courseSlug}`
 }
 
 export function courseFaqPageRoute(organizationSlug: string, courseSlug: string) {
-  return `/org/${organizationSlug}/courses/${courseSlug}`
+  return `/${organizationSlug}/courses/${courseSlug}`
 }
 
 export function coursePageRoute(
@@ -15,7 +15,7 @@ export function coursePageRoute(
   courseSlug: string,
   relativePathWithSlash: string,
 ) {
-  return `${basePath()}/${organizationSlug}/courses/${courseSlug}${relativePathWithSlash}`
+  return `/${organizationSlug}/courses/${courseSlug}${relativePathWithSlash}`
 }
 
 export function coursePageSectionRoute(
@@ -24,5 +24,5 @@ export function coursePageSectionRoute(
   relativePathWithSlash: string,
   anchor: string,
 ) {
-  return `${basePath()}/${organizationSlug}/courses/${courseSlug}${relativePathWithSlash}#${anchor}`
+  return `/${organizationSlug}/courses/${courseSlug}${relativePathWithSlash}#${anchor}`
 }

@@ -14,7 +14,6 @@ export const SIDEBAR_WIDTH_PX = 280
 
 type LayoutProps = {
   children: ReactNode
-  frontPageUrl?: string
   navVariant?: "simple" | "complex"
   faqUrl?: string
   title?: string
@@ -31,7 +30,6 @@ const Layout: React.FC<LayoutProps> = ({
   children,
   title = "Secret Project 331",
   navVariant,
-  frontPageUrl,
   faqUrl,
   licenseUrl,
   returnToPath,
@@ -59,7 +57,6 @@ const Layout: React.FC<LayoutProps> = ({
       >
         <Navbar
           faqUrl={faqUrl}
-          frontPageUrl={frontPageUrl ?? basePath()}
           variant={navVariant ?? "complex"}
           // Return to path can be override per page
           returnToPath={returnToPath ?? returnPath}

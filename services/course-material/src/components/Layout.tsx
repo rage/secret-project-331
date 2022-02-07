@@ -9,14 +9,12 @@ import PageContext from "../contexts/PageContext"
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
-import basePath from "../shared-module/utils/base-path"
 
 import ScrollIndicator from "./ScrollIndicator"
 import SearchDialog from "./SearchDialog"
 
 interface LayoutProps {
   children: ReactNode
-  frontPageUrl?: string
   navVariant?: "simple" | "complex"
   faqUrl?: string
   title?: string
@@ -35,7 +33,6 @@ const Layout: React.FC<LayoutProps> = ({
   children,
   title = "Secret Project 331",
   navVariant,
-  frontPageUrl,
   faqUrl,
   licenseUrl,
   returnToPath,
@@ -71,7 +68,6 @@ const Layout: React.FC<LayoutProps> = ({
           <ScrollIndicator />
           <Navbar
             faqUrl={faqUrl}
-            frontPageUrl={frontPageUrl ?? basePath()}
             variant={navVariant ?? "simple"}
             // Return to path can be override per page
             returnToPath={returnToPath ?? returnPath}

@@ -5,7 +5,6 @@ import SimpleNav from "./SimpleNav"
 
 export interface NavigationProps {
   variant: "simple" | "complex"
-  frontPageUrl: string
   faqUrl?: string
   returnToPath?: string
 }

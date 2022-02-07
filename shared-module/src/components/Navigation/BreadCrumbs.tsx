@@ -54,12 +54,12 @@ const breadCrumbText = css`
 `
 
 const Breadcrumb: React.FC<BreadcrumbPiece> = (props) => {
-  /* const { text, url } = props */
+  let { url } = props
 
   const navigate = useRouter()
 
-  const pathname = "/jobs/IT/softwareEngineer/FE"
-  const pathnames = pathname.split("/").filter((path) => path)
+  url = "/jobs/IT/softwareEngineer/FE"
+  const pathnames = url.split("/").filter((path) => path)
   const HOME = "Home"
 
   return (

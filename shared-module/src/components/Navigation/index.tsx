@@ -9,13 +9,15 @@ export interface NavigationProps {
   frontPageUrl: string
   faqUrl?: string
   returnToPath?: string
+  text?: string
+  url?: string
 }
 
 const Navbar: React.FC<NavigationProps> = (props) => {
   if (props.variant === "simple") {
     return <SimpleNav {...props} />
   } else if (props.variant === "breadcrumbs") {
-    return <BreadCrumbs props={undefined} />
+    return <BreadCrumbs {...props} />
   }
   return <ComplexNav {...props} />
 }

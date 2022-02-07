@@ -1,7 +1,9 @@
 /* eslint-disable i18next/no-literal-string */
-import { css, cx, keyframes } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useRouter } from "next/router"
+
+import { NavigationProps } from "."
 
 const StyledBreadcrumb = styled.nav`
   font-size: 1rem;
@@ -51,15 +53,8 @@ const breadCrumbText = css`
   font-size: 22px;
 `
 
-export interface BreadcrumbProps {
-  props: unknown
-}
-
-const Breadcrumb: React.FC<BreadcrumbProps> = () => {
-  /*   const {
-    history,
-    location: { pathname }
-  } = props; */
+const Breadcrumb: React.FC<NavigationProps> = (/* props */) => {
+  /* const { text, url } = props */
 
   const navigate = useRouter()
 

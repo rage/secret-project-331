@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["delete",""],["fetch_for_course",""],["insert",""],["update",""]],"struct":[["Term",""],["TermUpdate",""]]});

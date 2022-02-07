@@ -2553,6 +2553,45 @@
 <span id="2552">2552</span>
 <span id="2553">2553</span>
 <span id="2554">2554</span>
+<span id="2555">2555</span>
+<span id="2556">2556</span>
+<span id="2557">2557</span>
+<span id="2558">2558</span>
+<span id="2559">2559</span>
+<span id="2560">2560</span>
+<span id="2561">2561</span>
+<span id="2562">2562</span>
+<span id="2563">2563</span>
+<span id="2564">2564</span>
+<span id="2565">2565</span>
+<span id="2566">2566</span>
+<span id="2567">2567</span>
+<span id="2568">2568</span>
+<span id="2569">2569</span>
+<span id="2570">2570</span>
+<span id="2571">2571</span>
+<span id="2572">2572</span>
+<span id="2573">2573</span>
+<span id="2574">2574</span>
+<span id="2575">2575</span>
+<span id="2576">2576</span>
+<span id="2577">2577</span>
+<span id="2578">2578</span>
+<span id="2579">2579</span>
+<span id="2580">2580</span>
+<span id="2581">2581</span>
+<span id="2582">2582</span>
+<span id="2583">2583</span>
+<span id="2584">2584</span>
+<span id="2585">2585</span>
+<span id="2586">2586</span>
+<span id="2587">2587</span>
+<span id="2588">2588</span>
+<span id="2589">2589</span>
+<span id="2590">2590</span>
+<span id="2591">2591</span>
+<span id="2592">2592</span>
+<span id="2593">2593</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -2575,7 +2614,7 @@
     <span class="ident">exercises::GradingProgress</span>,
     <span class="ident">feedback</span>,
     <span class="ident">feedback</span>::{<span class="ident">FeedbackBlock</span>, <span class="ident">NewFeedback</span>},
-    <span class="ident">gradings</span>, <span class="ident">organizations</span>,
+    <span class="ident">glossary</span>, <span class="ident">gradings</span>, <span class="ident">organizations</span>,
     <span class="ident">page_history::HistoryChangeReason</span>,
     <span class="ident">pages</span>,
     <span class="ident">pages</span>::{<span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">CmsPageUpdate</span>, <span class="ident">NewPage</span>},
@@ -2818,6 +2857,17 @@
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4&quot;</span>)<span class="question-mark">?</span>,
         <span class="string">&quot;Advanced course instance management&quot;</span>,
         <span class="string">&quot;advanced-course-instance-management&quot;</span>,
+        <span class="ident">admin</span>,
+        <span class="ident">student</span>,
+        <span class="kw-2">&amp;</span><span class="ident">users</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">seed_sample_course</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">uh_cs</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;c218ca00-dbde-4b0c-ab98-4f075c49425a&quot;</span>)<span class="question-mark">?</span>,
+        <span class="string">&quot;Glossary course&quot;</span>,
+        <span class="string">&quot;glossary-course&quot;</span>,
         <span class="ident">admin</span>,
         <span class="ident">student</span>,
         <span class="kw-2">&amp;</span><span class="ident">users</span>,
@@ -3860,7 +3910,7 @@
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">admin</span>,
-        <span class="ident">chapter_1</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
         <span class="ident">CmsPageUpdate</span> {
             <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-1&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">title</span>: <span class="string">&quot;Page One&quot;</span>.<span class="ident">to_string</span>(),
@@ -3934,7 +3984,7 @@
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">admin</span>,
-        <span class="ident">chapter_1</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
         <span class="ident">CmsPageUpdate</span> {
             <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-2&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">title</span>: <span class="string">&quot;page 2&quot;</span>.<span class="ident">to_string</span>(),
@@ -4250,7 +4300,7 @@
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">admin</span>,
-        <span class="ident">chapter_1</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
         <span class="ident">CmsPageUpdate</span> {
             <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-3&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">title</span>: <span class="string">&quot;page 3&quot;</span>.<span class="ident">to_string</span>(),
@@ -4273,7 +4323,7 @@
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">admin</span>,
-        <span class="ident">chapter_1</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
         <span class="ident">CmsPageUpdate</span> {
             <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-4&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">title</span>: <span class="string">&quot;page 4&quot;</span>.<span class="ident">to_string</span>(),
@@ -4296,7 +4346,7 @@
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">admin</span>,
-        <span class="ident">chapter_1</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
         <span class="ident">CmsPageUpdate</span> {
             <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-5&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">title</span>: <span class="string">&quot;Page 5&quot;</span>.<span class="ident">to_string</span>(),
@@ -4319,7 +4369,7 @@
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">admin</span>,
-        <span class="ident">chapter_1</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>),
         <span class="ident">CmsPageUpdate</span> {
             <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-6&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">title</span>: <span class="string">&quot;page 6&quot;</span>.<span class="ident">to_string</span>(),
@@ -4358,7 +4408,7 @@
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">admin</span>,
-        <span class="ident">chapter_2</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">chapter_2</span>.<span class="ident">id</span>),
         <span class="ident">CmsPageUpdate</span> {
             <span class="ident">url_path</span>: <span class="string">&quot;/chapter-2/intro&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">title</span>: <span class="string">&quot;In the second chapter...&quot;</span>.<span class="ident">to_string</span>(),
@@ -4367,6 +4417,28 @@
             <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[<span class="ident">exercise_slide_3_1</span>],
             <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[<span class="ident">exercise_task_3_1</span>],
             <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([<span class="ident">exercise_block_3_1</span>]),
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">create_page</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="ident">admin</span>,
+        <span class="prelude-val">None</span>,
+        <span class="ident">CmsPageUpdate</span> {
+            <span class="ident">url_path</span>: <span class="string">&quot;/glossary&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;Glossary&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+            <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([<span class="ident">GutenbergBlock</span> {
+                <span class="ident">name</span>: <span class="string">&quot;moocfi/glossary&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
+                <span class="ident">client_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3a388f47-4aa7-409f-af14-a0290b916225&quot;</span>).<span class="ident">unwrap</span>(),
+                <span class="ident">attributes</span>: <span class="macro">attributes!</span> {},
+                <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[]
+            }]),
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -4562,6 +4634,12 @@
     };
     <span class="ident">proposed_page_edits::insert</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="prelude-val">Some</span>(<span class="ident">student</span>), <span class="kw-2">&amp;</span><span class="ident">edits</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
+    <span class="comment">// acronyms</span>
+    <span class="ident">glossary::insert</span>(<span class="ident">conn</span>, <span class="string">&quot;CS&quot;</span>, <span class="string">&quot;Computer science. Computer science is an essential part of being successful in your life. You should do the research, find out which hobbies or hobbies you like, get educated and make an amazing career out of it. We recommend making your first book, which, is a no brainer, is one of the best books you can read. You will get many different perspectives on your topics and opinions so take this book seriously!&quot;</span>,  <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">glossary::insert</span>(<span class="ident">conn</span>, <span class="string">&quot;HDD&quot;</span>, <span class="string">&quot;Hard disk drive. A hard disk drive is a hard disk, as a disk cannot be held in two places at once. The reason for this is that the user&#39;s disk is holding one of the keys required of running Windows.&quot;</span>,  <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">glossary::insert</span>(<span class="ident">conn</span>, <span class="string">&quot;SSD&quot;</span>, <span class="string">&quot;Solid-state drive. A solid-state drive is a hard drive that&#39;s a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \&quot;super drives,\&quot; and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren&#39;t built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if&quot;</span>,  <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">glossary::insert</span>(<span class="ident">conn</span>, <span class="string">&quot;KB&quot;</span>, <span class="string">&quot;Keyboard.&quot;</span>, <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="comment">// exams</span>
 
     <span class="prelude-val">Ok</span>(<span class="ident">course</span>.<span class="ident">id</span>)
@@ -4693,7 +4771,7 @@
             .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3693e92b-9cf0-485a-b026-2851de58e9cf&quot;</span>)<span class="question-mark">?</span>),
         ]),
     };
-    <span class="ident">create_page</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">admin</span>, <span class="ident">chapter_1</span>.<span class="ident">id</span>, <span class="ident">design_content</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">create_page</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">admin</span>, <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>), <span class="ident">design_content</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// /chapter-1/human-machine-interface</span>
     <span class="kw">let</span> <span class="ident">content_b</span> <span class="op">=</span> <span class="ident">CmsPageUpdate</span> {
@@ -4732,7 +4810,7 @@
             .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;c96f56d5-ea35-4aae-918a-72a36847a49c&quot;</span>)<span class="question-mark">?</span>),
         ]),
     };
-    <span class="ident">create_page</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">admin</span>, <span class="ident">chapter_1</span>.<span class="ident">id</span>, <span class="ident">content_b</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">create_page</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">admin</span>, <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>), <span class="ident">content_b</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Chapter-2</span>
     <span class="kw">let</span> <span class="ident">new_chapter_2</span> <span class="op">=</span> <span class="ident">NewChapter</span> {
@@ -4809,7 +4887,7 @@
         <span class="ident">url_path</span>: <span class="string">&quot;/chapter-2/user-research&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">title</span>: <span class="string">&quot;User research&quot;</span>.<span class="ident">to_string</span>(),
     };
-    <span class="ident">create_page</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">admin</span>, <span class="ident">chapter_2</span>.<span class="ident">id</span>, <span class="ident">page_content</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">create_page</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">admin</span>, <span class="prelude-val">Some</span>(<span class="ident">chapter_2</span>.<span class="ident">id</span>), <span class="ident">page_content</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">page_content</span> <span class="op">=</span> <span class="macro">include_str!</span>(<span class="string">&quot;../assets/example-page.json&quot;</span>);
     <span class="kw">let</span> <span class="ident">parse_page_content</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="ident">page_content</span>)<span class="question-mark">?</span>;
@@ -4817,7 +4895,7 @@
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">admin</span>,
-        <span class="ident">chapter_2</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">chapter_2</span>.<span class="ident">id</span>),
         <span class="ident">CmsPageUpdate</span> {
             <span class="ident">content</span>: <span class="ident">parse_page_content</span>,
             <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
@@ -4837,7 +4915,7 @@
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">author</span>: <span class="ident">Uuid</span>,
-    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">page_data</span>: <span class="ident">CmsPageUpdate</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">new_page</span> <span class="op">=</span> <span class="ident">NewPage</span> {
@@ -4846,7 +4924,7 @@
         <span class="ident">title</span>: <span class="macro">format!</span>(<span class="string">&quot;{} WIP&quot;</span>, <span class="ident">page_data</span>.<span class="ident">title</span>),
         <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course_id</span>),
         <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_id</span>),
+        <span class="ident">chapter_id</span>,
         <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
         <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
@@ -4864,7 +4942,7 @@
             <span class="ident">exercise_tasks</span>: <span class="ident">page_data</span>.<span class="ident">exercise_tasks</span>,
             <span class="ident">url_path</span>: <span class="ident">page_data</span>.<span class="ident">url_path</span>,
             <span class="ident">title</span>: <span class="ident">page_data</span>.<span class="ident">title</span>,
-            <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter_id</span>),
+            <span class="ident">chapter_id</span>,
         },
         <span class="ident">author</span>,
         <span class="bool-val">true</span>,

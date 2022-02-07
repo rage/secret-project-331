@@ -338,6 +338,19 @@
 <span id="337">337</span>
 <span id="338">338</span>
 <span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.</span>
 
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
@@ -348,6 +361,7 @@
     <span class="ident">courses::Course</span>,
     <span class="ident">feedback</span>,
     <span class="ident">feedback::NewFeedback</span>,
+    <span class="ident">glossary::Term</span>,
     <span class="ident">pages</span>::{<span class="ident">CoursePageWithUserData</span>, <span class="ident">Page</span>, <span class="ident">PageSearchRequest</span>, <span class="ident">PageSearchResult</span>},
     <span class="ident">proposed_page_edits</span>::{<span class="self">self</span>, <span class="ident">NewProposedPageEdits</span>},
     <span class="ident">user_course_settings::UserCourseSettings</span>,
@@ -639,6 +653,17 @@ POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit pr
     <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">id</span>))
 }
 
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">glossary</span>(
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Term</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">glossary</span> <span class="op">=</span> <span class="ident">models::glossary::fetch_for_course</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">glossary</span>))
+}
+
 <span class="doccomment">/**
 Add a route for each controller in this module.
 
@@ -675,7 +700,8 @@ We add the routes by calling the route method instead of using the route annotat
             <span class="string">&quot;/{course_id}/user-settings&quot;</span>,
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_user_course_settings</span>),
         )
-        .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/propose-edit&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">propose_edit</span>));
+        .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/propose-edit&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">propose_edit</span>))
+        .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/glossary&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">glossary</span>));
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>

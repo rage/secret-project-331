@@ -1981,6 +1981,47 @@
       "nullable": [false]
     }
   },
+  "2b8baf4e767a3e3d591a65f5b99bfe8f1a44e8dce3d446800c8ae7ae5a3717a5": {
+    "query": "\nSELECT p.url_path as url_path,\n  p.title as title,\n  c.chapter_number as chapter_number,\n  c.id as chapter_id,\n  c.opens_at as chapter_opens_at,\n  c.front_page_id as chapter_front_page_id\nFROM chapters c\n  INNER JOIN pages p on c.id = p.chapter_id\nWHERE c.chapter_number = (\n    SELECT MIN(ca.chapter_number)\n    FROM chapters ca\n    WHERE ca.chapter_number > $1\n      AND ca.deleted_at IS NULL\n  )\n  AND c.course_id = $2\n  AND p.deleted_at IS NULL\nORDER BY p.order_number\nLIMIT 1;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "chapter_opens_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "chapter_front_page_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Int4", "Uuid"]
+      },
+      "nullable": [false, false, false, false, true, true]
+    }
+  },
   "2be222dd2d0d8fe97d036d6b5343d6db627290585973d62c44c3d97f41bd3ead": {
     "query": "\nSELECT course_id as \"course_id!\"\nFROM exercises\nWHERE id = (\n    SELECT s.exercise_id\n    FROM exercise_slides s\n      JOIN exercise_tasks t ON (s.id = t.exercise_slide_id)\n    WHERE s.deleted_at IS NULL\n      AND t.id = $1\n      AND t.deleted_at IS NULL\n  )\n  AND course_id IS NOT NULL\n",
     "describe": {
@@ -3283,6 +3324,35 @@
       "nullable": [false, false, false, false, false, false, false]
     }
   },
+  "56155ecd6a761f46cad91d593ec80171a4571b584176ca0d093c82f81c4c436d": {
+    "query": "\nINSERT INTO courses (name, organization_id, slug, language_code, course_language_group_id, description, content_search_language)\nVALUES ($1, $2, $3, $4, $5, $6, $7::regconfig)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Uuid",
+          "Text",
+          {
+            "Custom": {
+              "name": "regconfig",
+              "kind": "Simple"
+            }
+          }
+        ]
+      },
+      "nullable": [false]
+    }
+  },
   "5629bbd8991b5b3e8ac7f918491b67f7e37148c345c47984d86cadef99171257": {
     "query": "\nUPDATE courses\nSET name = $1\nWHERE id = $2\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description\n    ",
     "describe": {
@@ -3727,47 +3797,6 @@
       "nullable": [false, false, false, false, false, false, true, true, true, true, true]
     }
   },
-  "622d48bb4059134b3f8f954471b619a499c3396e8c42d5401210576aab29974b": {
-    "query": "\nSELECT p.url_path as url_path,\n  p.title as title,\n  c.chapter_number as chapter_number,\n  c.id as chapter_id,\n  c.opens_at as chapter_opens_at,\n  c.front_page_id as chapter_front_page_id\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.order_number = (\n    SELECT MIN(pa.order_number)\n    FROM pages pa\n    WHERE pa.order_number > $1\n      AND pa.deleted_at IS NULL\n  )\n  AND p.course_id = $2\n  AND c.chapter_number = $3;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "chapter_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 3,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "chapter_opens_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "chapter_front_page_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Int4", "Uuid", "Int4"]
-      },
-      "nullable": [false, false, false, false, true, true]
-    }
-  },
   "6263426899d28575a326f3f969a391461c623bc4397d4236f1a2bf048785927d": {
     "query": "\nSELECT pages.id,\n  pages.created_at,\n  pages.updated_at,\n  pages.course_id,\n  pages.exam_id,\n  pages.chapter_id,\n  pages.url_path,\n  pages.title,\n  pages.deleted_at,\n  pages.content,\n  pages.order_number,\n  pages.copied_from\nFROM pages\nWHERE exam_id = $1\nAND pages.deleted_at IS NULL\n",
     "describe": {
@@ -3839,45 +3868,20 @@
       "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
-  "678a1a79a8b5767c8d622268b1b0a06e92e8bc61124e367e83752b9064e82cac": {
-    "query": "\nSELECT p.url_path as url_path,\n  p.title as title,\n  c.chapter_number as chapter_number,\n  c.id as chapter_id,\n  c.opens_at as chapter_opens_at,\n  c.front_page_id as chapter_front_page_id\nFROM chapters c\n  INNER JOIN pages p on c.id = p.chapter_id\nWHERE c.chapter_number = (\n    SELECT MIN(ca.chapter_number)\n    FROM chapters ca\n    WHERE ca.chapter_number > $1\n      AND ca.deleted_at IS NULL\n  )\n  AND c.course_id = $2\nORDER BY p.order_number\nLIMIT 1;\n        ",
+  "65cc3c8d7fd2610ad86c2aec0773281029298a5165fcb245bdb10c1dfc9e73c6": {
+    "query": "SELECT cfgname::text FROM pg_ts_config WHERE cfgname = $1",
     "describe": {
       "columns": [
         {
           "ordinal": 0,
-          "name": "url_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "chapter_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 3,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "chapter_opens_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "chapter_front_page_id",
-          "type_info": "Uuid"
+          "name": "cfgname",
+          "type_info": "Text"
         }
       ],
       "parameters": {
-        "Left": ["Int4", "Uuid"]
+        "Left": ["Name"]
       },
-      "nullable": [false, false, false, false, true, true]
+      "nullable": [null]
     }
   },
   "680c5eed3c49d67d404af7d0a2df7dc8f9391db14848e8aff877a8a117335be2": {
@@ -4229,22 +4233,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false, false, false, false]
-    }
-  },
-  "7520c95b1fb035c03452f583dd231cb2a03783c53077256fb2c8b3c14e3551b1": {
-    "query": "\nINSERT INTO courses (name, organization_id, slug, language_code, course_language_group_id, description)\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Uuid", "Varchar", "Varchar", "Uuid", "Text"]
-      },
-      "nullable": [false]
     }
   },
   "76ce92c1173e95b850a803ae754c1a94af1c02eb4e5e553df48901d90eb6e923": {
@@ -7911,6 +7899,47 @@
         true,
         true
       ]
+    }
+  },
+  "bfdcfbd1636ce760cf858f149046a313f37b8b70b9349a7fd6fbcb32aeeb3ed9": {
+    "query": "\nSELECT p.url_path as url_path,\n  p.title as title,\n  c.chapter_number as chapter_number,\n  c.id as chapter_id,\n  c.opens_at as chapter_opens_at,\n  c.front_page_id as chapter_front_page_id\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.order_number = (\n    SELECT MIN(pa.order_number)\n    FROM pages pa\n    WHERE pa.order_number > $1\n      AND pa.deleted_at IS NULL\n  )\n  AND p.course_id = $2\n  AND c.chapter_number = $3\n  AND p.deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "url_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "chapter_opens_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "chapter_front_page_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Int4", "Uuid", "Int4"]
+      },
+      "nullable": [false, false, false, false, true, true]
     }
   },
   "c00028f92949b3e8d712a87d620c60b033e48b43583ed796d2e73d219df2931b": {

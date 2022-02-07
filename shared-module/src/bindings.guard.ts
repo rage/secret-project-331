@@ -97,6 +97,8 @@ import {
   SubmissionCountByWeekAndHour,
   SubmissionInfo,
   SubmissionResult,
+  Term,
+  TermUpdate,
   UploadResult,
   User,
   UserCourseInstanceChapterExerciseProgress,
@@ -107,6 +109,23 @@ import {
   UserRole,
   VariantStatus,
 } from "./bindings"
+
+export function isTerm(obj: any, _argumentName?: string): obj is Term {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.term === "string" &&
+    typeof obj.definition === "string"
+  )
+}
+
+export function isTermUpdate(obj: any, _argumentName?: string): obj is TermUpdate {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.term === "string" &&
+    typeof obj.definition === "string"
+  )
+}
 
 export function isChapter(obj: any, _argumentName?: string): obj is Chapter {
   return (

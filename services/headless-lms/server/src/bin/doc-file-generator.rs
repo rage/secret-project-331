@@ -28,6 +28,7 @@ use headless_lms_models::{
         ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
     },
     feedback::{Feedback, FeedbackBlock, FeedbackCount},
+    glossary::Term,
     gradings::{Grading, UserPointsUpdateStrategy},
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
@@ -715,6 +716,21 @@ fn main() {
     );
     write_docs!(User, user.clone());
     write_docs!(CourseCount, CourseCount { count: 1234 });
+    write_docs!(
+        Vec<Term>,
+        vec![
+            Term {
+                id,
+                term: "Term".to_string(),
+                definition: "Definition".to_string()
+            },
+            Term {
+                id,
+                term: "Another term".to_string(),
+                definition: "Another definition".to_string()
+            }
+        ]
+    )
 }
 
 fn write_json<T: Serialize>(path: &str, value: T) {

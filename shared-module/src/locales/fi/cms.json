@@ -30,5 +30,7 @@
   "label-title": "Otsikko",
   "button-text-select-media": "Valitse media (ei käytössä)",
   "serialize-to-html": "Näytä HTML-muodossa",
-  "slide-title": "Dia {{ number }}"
+  "slide-title": "Dia {{ number }}",
+  "glossary-placeholder": "Sanasto lohko",
+  "glossary-placeholder-explanation": "Tämä lohko sisältää kurssin sanaston."
 }

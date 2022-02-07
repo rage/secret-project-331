@@ -8,6 +8,7 @@ use models::{
     courses::Course,
     feedback,
     feedback::NewFeedback,
+    glossary::Term,
     pages::{CoursePageWithUserData, Page, PageSearchRequest, PageSearchResult},
     proposed_page_edits::{self, NewProposedPageEdits},
     user_course_settings::UserCourseSettings,
@@ -299,6 +300,17 @@ async fn propose_edit(
     Ok(web::Json(id))
 }
 
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn glossary(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<Term>>> {
+    let mut conn = pool.acquire().await?;
+    let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
+    Ok(web::Json(glossary))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -335,5 +347,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/user-settings",
             web::get().to(get_user_course_settings),
         )
-        .route("/{course_id}/propose-edit", web::post().to(propose_edit));
+        .route("/{course_id}/propose-edit", web::post().to(propose_edit))
+        .route("/{course_id}/glossary", web::get().to(glossary));
 }

@@ -16,6 +16,8 @@ import {
   PageWithExercises,
   PreviousSubmission,
   SubmissionResult,
+  Term,
+  TermUpdate,
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
@@ -34,6 +36,7 @@ import {
   isPageWithExercises,
   isPreviousSubmission,
   isSubmissionResult,
+  isTerm,
   isUserCourseInstanceChapterExerciseProgress,
   isUserCourseInstanceChapterProgress,
   isUserCourseInstanceProgress,
@@ -268,4 +271,18 @@ export const fetchPreviousSubmission = async (
     { responseType: "json" },
   )
   return validateResponse(response, isUnion(isNull, isPreviousSubmission))
+}
+
+export const fetchGlossary = async (courseId: string): Promise<Array<Term>> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/glossary`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isTerm))
+}
+
+export const newGlossaryTerm = async (
+  courseSlug: string,
+  newAcronym: TermUpdate,
+): Promise<void> => {
+  await courseMaterialClient.post(`/courses/${courseSlug}/acronyms`, newAcronym)
 }

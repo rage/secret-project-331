@@ -3,7 +3,7 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useRouter } from "next/router"
 
-import { BreadcrumbPiece, BreakCrumbProps } from "."
+import { BreakCrumbProps } from "."
 
 const StyledBreadcrumb = styled.nav`
   font-size: 1rem;

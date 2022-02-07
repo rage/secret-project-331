@@ -139,7 +139,7 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
   }
 
   return (
-    <Layout frontPageUrl={basePath()} navVariant="complex">
+    <Layout navVariant="complex">
       <div
         className={css`
           margin-bottom: 1rem;

@@ -50,17 +50,19 @@ const PagesInChapter: React.FC<PagesInChapterProps> = ({
             getPagesInChapterExcludeFrontpage.isIdle) && <Spinner variant={"medium"} />}
           {getPagesInChapterExcludeFrontpage.isSuccess && (
             <>
-              {getPagesInChapterExcludeFrontpage.data.map((page) => (
-                <PagesInChapterBox
-                  variant="text"
-                  chapterIndex={page.order_number}
-                  chapterTitle={page.title}
-                  selected={false}
-                  key={page.id}
-                  id={page.id}
-                  url={coursePageRoute(organizationSlug, courseSlug, page.url_path)}
-                />
-              ))}
+              {getPagesInChapterExcludeFrontpage.data
+                .sort((a, b) => a.order_number - b.order_number)
+                .map((page) => (
+                  <PagesInChapterBox
+                    variant="text"
+                    chapterIndex={page.order_number}
+                    chapterTitle={page.title}
+                    selected={false}
+                    key={page.id}
+                    id={page.id}
+                    url={coursePageRoute(organizationSlug, courseSlug, page.url_path)}
+                  />
+                ))}
             </>
           )}
         </div>

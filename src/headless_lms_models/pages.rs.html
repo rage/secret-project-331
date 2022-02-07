@@ -1879,6 +1879,8 @@
 <span id="1878">1878</span>
 <span id="1879">1879</span>
 <span id="1880">1880</span>
+<span id="1881">1881</span>
+<span id="1882">1882</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -3280,7 +3282,8 @@ WHERE p.order_number = (
       AND pa.deleted_at IS NULL
   )
   AND p.course_id = $2
-  AND c.chapter_number = $3;
+  AND c.chapter_number = $3
+  AND p.deleted_at IS NULL;
         &quot;</span>,
         <span class="ident">current_page_metadata</span>.<span class="ident">order_number</span>,
         <span class="ident">current_page_metadata</span>.<span class="ident">course_id</span>,
@@ -3314,6 +3317,7 @@ WHERE c.chapter_number = (
       AND ca.deleted_at IS NULL
   )
   AND c.course_id = $2
+  AND p.deleted_at IS NULL
 ORDER BY p.order_number
 LIMIT 1;
         &quot;</span>,

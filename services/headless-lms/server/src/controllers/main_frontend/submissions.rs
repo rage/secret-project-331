@@ -48,8 +48,8 @@ async fn get_submission_info(
         task_submission.exercise_task_id,
     )
     .await?;
-    let grading = if let Some(id) = task_submission.grading_id {
-        Some(models::gradings::get_by_id(&mut conn, id).await?)
+    let grading = if let Some(id) = task_submission.exercise_task_grading_id {
+        Some(models::exercise_task_gradings::get_by_id(&mut conn, id).await?)
     } else {
         None
     };

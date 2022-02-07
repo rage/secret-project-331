@@ -2,7 +2,6 @@
 
 use std::collections::HashMap;
 
-use chrono::{Duration, Utc};
 use models::{
     exams,
     exercise_slide_submissions::NewExerciseSlideSubmission,
@@ -79,16 +78,8 @@ async fn post_submission(
 
     // Check exercise details
     let exercise = exercises::get_by_id(&mut conn, *exercise_id).await?;
-    if let Some(exam_id) = exercise.exam_id.as_ref().copied() {
-        // check if the submission is still valid for the exam
-        let exam = exams::get(&mut conn, exam_id).await?;
-        let enrollment = exams::get_enrollment(&mut conn, exam_id, user.id)
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("User has no enrollment for the exam"))?;
-        let student_time_is_up =
-            Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into());
-        let exam_is_over = exam.ends_at.map(|ea| Utc::now() > ea).unwrap_or_default();
-        if student_time_is_up || exam_is_over {
+    if let Some(exam_id) = exercise.exam_id {
+        if !exams::verify_exam_submission_can_be_made(&mut conn, exam_id, user.id).await? {
             return Err(anyhow::anyhow!("Cannot submit for this exam anymore").into());
         }
     }
@@ -105,7 +96,7 @@ async fn post_submission(
         None
     };
     // Check that user is answering to correct tasks
-    let user_exercise_state = models::user_exercise_states::get_user_exercise_state_if_exits(
+    let user_exercise_state = models::user_exercise_states::get_user_exercise_state_if_exists(
         &mut conn,
         user.id,
         exercise.id,

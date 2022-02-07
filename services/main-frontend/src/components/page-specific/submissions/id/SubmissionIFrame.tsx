@@ -3,8 +3,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
+  ExerciseTaskGrading,
   ExerciseTaskSubmission,
-  Grading,
   SubmissionResult,
 } from "../../../../shared-module/bindings"
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
@@ -15,7 +15,7 @@ interface SubmissionIFrameProps {
   public_spec: unknown
   submission: ExerciseTaskSubmission
   model_solution_spec: unknown
-  grading: Grading | null
+  grading: ExerciseTaskGrading | null
 }
 
 interface SubmissionState {
@@ -56,6 +56,7 @@ const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
       }}
       postThisStateToIFrame={{
         view_type: VIEW_SUBMISSION,
+        exercise_task_id: submission.exercise_task_id,
         data: {
           public_spec: state.public_spec,
           user_answer: state.user_answer,

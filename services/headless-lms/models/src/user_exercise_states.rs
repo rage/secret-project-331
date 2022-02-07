@@ -4,9 +4,9 @@ use serde_json::Value;
 
 use crate::{
     exercise_slide_submissions,
+    exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
     exercise_task_submissions::ExerciseTaskSubmission,
     exercises::{ActivityProgress, GradingProgress},
-    gradings::{Grading, UserPointsUpdateStrategy},
     prelude::*,
 };
 
@@ -252,39 +252,7 @@ WHERE user_id = $1
     Ok(res)
 }
 
-pub async fn get_user_exercise_state(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    exercise_id: Uuid,
-) -> ModelResult<Option<UserExerciseState>> {
-    let res = sqlx::query_as!(
-        UserExerciseState,
-        r#"
-SELECT user_id,
-  exercise_id,
-  course_instance_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress as "grading_progress: _",
-  activity_progress as "activity_progress: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
-WHERE user_id = $1
-  AND exercise_id = $2
-  AND deleted_at IS NULL
-        "#,
-        user_id,
-        exercise_id
-    )
-    .fetch_optional(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn get_user_exercise_state_if_exits(
+pub async fn get_user_exercise_state_if_exists(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
@@ -478,7 +446,7 @@ fn figure_out_new_activity_progress(
 
 pub async fn update_user_exercise_state(
     conn: &mut PgConnection,
-    grading: &Grading,
+    grading: &ExerciseTaskGrading,
     submission: &ExerciseTaskSubmission,
 ) -> ModelResult<UserExerciseState> {
     // Bad order to do this, function needs refactoring
@@ -657,8 +625,9 @@ mod tests {
     use super::*;
     use crate::{
         exercise_slide_submissions::NewExerciseSlideSubmission,
+        exercise_task_gradings,
         exercise_task_submissions::{self, GradingResult, SubmissionData},
-        exercises, gradings,
+        exercises,
         test_helper::{insert_data, Conn},
     };
 
@@ -666,7 +635,8 @@ mod tests {
         use headless_lms_utils::numbers::f32_approx_eq;
 
         use crate::{
-            gradings::UserPointsUpdateStrategy, user_exercise_states::figure_out_new_score_given,
+            exercise_task_gradings::UserPointsUpdateStrategy,
+            user_exercise_states::figure_out_new_score_given,
         };
 
         #[test]
@@ -903,10 +873,10 @@ mod tests {
         let exercise = exercises::get_by_id(tx.as_mut(), data.exercise)
             .await
             .unwrap();
-        let grading = gradings::new_grading(tx.as_mut(), &exercise, &submission)
+        let grading = exercise_task_gradings::new_grading(tx.as_mut(), &exercise, &submission)
             .await
             .unwrap();
-        let grading = gradings::update_grading(
+        let grading = exercise_task_gradings::update_grading(
             tx.as_mut(),
             &grading,
             &GradingResult {

@@ -4,6 +4,7 @@ use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
+    exercise_slide_submissions,
     exercise_task_submissions::{
         SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour,
     },
@@ -319,7 +320,7 @@ async fn get_daily_submission_counts(
     authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let res =
-        models::exercise_task_submissions::get_course_daily_submission_counts(&mut conn, &course)
+        exercise_slide_submissions::get_course_daily_slide_submission_counts(&mut conn, &course)
             .await?;
     Ok(web::Json(res))
 }
@@ -337,7 +338,7 @@ async fn get_weekday_hour_submission_counts(
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let res = models::exercise_task_submissions::get_course_submission_counts_by_weekday_and_hour(
+    let res = exercise_slide_submissions::get_course_exercise_slide_submission_counts_by_weekday_and_hour(
         &mut conn, &course,
     )
     .await?;
@@ -357,7 +358,7 @@ async fn get_submission_counts_by_exercise(
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let res = models::exercise_task_submissions::get_course_submission_counts_by_exercise(
+    let res = exercise_slide_submissions::get_course_exercise_slide_submission_counts_by_exercise(
         &mut conn, &course,
     )
     .await?;

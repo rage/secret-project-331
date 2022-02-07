@@ -4,10 +4,7 @@ use std::collections::HashMap;
 
 use chrono::{NaiveDate, TimeZone, Utc};
 use headless_lms_actix::controllers::{
-    course_material::{
-        exams::{ExamData, ExamEnrollmentData},
-        submissions::PreviousSubmission,
-    },
+    course_material::exams::{ExamData, ExamEnrollmentData},
     main_frontend::exercises::ExerciseSubmissions,
     UploadResult,
 };
@@ -24,6 +21,7 @@ use headless_lms_models::{
     exercise_services::ExerciseService,
     exercise_slide_submissions::ExerciseSlideSubmission,
     exercise_slides::CourseMaterialExerciseSlide,
+    exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
     exercise_task_submissions::{
         ExerciseTaskSubmission, SubmissionCount, SubmissionCountByExercise,
         SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
@@ -33,7 +31,6 @@ use headless_lms_models::{
         ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
     },
     feedback::{Feedback, FeedbackBlock, FeedbackCount},
-    gradings::{Grading, UserPointsUpdateStrategy},
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
@@ -173,15 +170,15 @@ fn main() {
         exercise_slide_submission_id: id,
         exercise_task_id: id,
         data_json: Some(serde_json::json! {{"choice": "a"}}),
-        grading_id: Some(id),
+        exercise_task_grading_id: Some(id),
         metadata: None,
         exercise_slide_id: id,
     };
-    let grading = Grading {
+    let grading = ExerciseTaskGrading {
         id,
         created_at,
         updated_at,
-        submission_id: id,
+        exercise_task_submission_id: id,
         course_id: Some(id),
         exam_id: None,
         exercise_id: id,
@@ -209,10 +206,6 @@ fn main() {
         exercise_completions_threshold: Some(123),
         points_threshold: Some(123),
         course_instance_id: id,
-    };
-    let previous_submission = PreviousSubmission {
-        submission: exercise_task_submission.clone(),
-        grading: Some(grading.clone()),
     };
     let course = Course {
         id,
@@ -515,11 +508,6 @@ fn main() {
             grading: Some(grading.clone()),
             model_solution_spec: None
         }]
-    );
-    write_docs!(PreviousSubmission, previous_submission.clone());
-    write_docs!(
-        Option<PreviousSubmission>,
-        Some(previous_submission.clone())
     );
     write_docs!(Chapter, chapter.clone());
     write_docs!(

@@ -261,11 +261,11 @@ mod test {
     use bytes::Bytes;
     use headless_lms_models::{
         exercise_slide_submissions::{self, NewExerciseSlideSubmission},
-        exercise_slides,
+        exercise_slides, exercise_task_gradings,
         exercise_task_submissions::{self, GradingResult},
         exercise_tasks,
         exercises::{self, GradingProgress},
-        gradings, users,
+        users,
     };
     use serde_json::Value;
 
@@ -397,7 +397,7 @@ mod test {
         .await
         .unwrap();
         let submission = exercise_task_submissions::get_by_id(tx, s).await.unwrap();
-        let grading = gradings::new_grading(tx, &exercise, &submission)
+        let grading = exercise_task_gradings::new_grading(tx, &exercise, &submission)
             .await
             .unwrap();
         let grading_result = GradingResult {
@@ -408,9 +408,10 @@ mod test {
             score_maximum: 100,
         };
         let exercise = exercises::get_by_id(tx, ex).await.unwrap();
-        let grading = gradings::update_grading(tx, &grading, &grading_result, &exercise)
-            .await
-            .unwrap();
+        let grading =
+            exercise_task_gradings::update_grading(tx, &grading, &grading_result, &exercise)
+                .await
+                .unwrap();
         exercise_task_submissions::set_grading_id(tx, grading.id, submission.id)
             .await
             .unwrap();

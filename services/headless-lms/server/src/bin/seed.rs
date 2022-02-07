@@ -16,13 +16,14 @@ use headless_lms_models::{
     courses::NewCourse,
     exams,
     exams::NewExam,
-    exercise_services, exercise_slide_submissions, exercise_task_submissions,
+    exercise_services, exercise_slide_submissions, exercise_task_gradings,
+    exercise_task_submissions,
     exercise_task_submissions::GradingResult,
     exercises,
     exercises::GradingProgress,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
-    gradings, organizations,
+    organizations,
     page_history::HistoryChangeReason,
     pages,
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage},
@@ -2512,7 +2513,7 @@ async fn submit_and_grade(
 
     let task_submission = exercise_task_submissions::get_by_id(conn, task_submission_id).await?;
     let exercise = exercises::get_by_id(conn, exercise_id).await?;
-    let grading = gradings::new_grading(conn, &exercise, &task_submission).await?;
+    let grading = exercise_task_gradings::new_grading(conn, &exercise, &task_submission).await?;
     let grading_result = GradingResult {
         feedback_json: Some(serde_json::json!([{"SelectedOptioIsCorrect": true}])),
         feedback_text: Some("Good job!".to_string()),
@@ -2520,7 +2521,8 @@ async fn submit_and_grade(
         score_given: out_of_100,
         score_maximum: 100,
     };
-    let grading = gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
+    let grading =
+        exercise_task_gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
     exercise_task_submissions::set_grading_id(conn, grading.id, task_submission.id).await?;
     user_exercise_states::update_user_exercise_state(conn, &grading, &task_submission).await?;
     Ok(())

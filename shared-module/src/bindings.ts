@@ -278,7 +278,7 @@ export interface CourseMaterialExercise {
   exercise: Exercise
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
-  grading: Grading | null
+  grading: ExerciseTaskGrading | null
 }
 
 export interface Exercise {
@@ -332,11 +332,11 @@ export interface NewFeedback {
   related_blocks: Array<FeedbackBlock>
 }
 
-export interface Grading {
+export interface ExerciseTaskGrading {
   id: string
   created_at: Date
   updated_at: Date
-  submission_id: string
+  exercise_task_submission_id: string
   course_id: string | null
   exam_id: string | null
   exercise_id: string
@@ -599,7 +599,7 @@ export interface ExerciseTaskSubmission {
   exercise_task_id: string
   exercise_slide_id: string
   data_json: unknown | null
-  grading_id: string | null
+  exercise_task_grading_id: string | null
   metadata: unknown | null
 }
 
@@ -624,13 +624,13 @@ export interface SubmissionInfo {
   submission: ExerciseTaskSubmission
   exercise: Exercise
   exercise_task: ExerciseTask
-  grading: Grading | null
+  grading: ExerciseTaskGrading | null
   iframe_path: string
 }
 
 export interface SubmissionResult {
   submission: ExerciseTaskSubmission
-  grading: Grading | null
+  grading: ExerciseTaskGrading | null
   model_solution_spec: unknown | null
 }
 
@@ -710,11 +710,6 @@ export interface RoleInfo {
   email: string
   role: UserRole
   domain: RoleDomain
-}
-
-export interface PreviousSubmission {
-  submission: ExerciseTaskSubmission
-  grading: Grading | null
 }
 
 export interface ExamData {

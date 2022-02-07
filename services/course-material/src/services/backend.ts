@@ -14,7 +14,6 @@ import {
   PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
-  PreviousSubmission,
   SubmissionResult,
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
@@ -32,7 +31,6 @@ import {
   isPageRoutingDataWithChapterStatus,
   isPageSearchResult,
   isPageWithExercises,
-  isPreviousSubmission,
   isSubmissionResult,
   isUserCourseInstanceChapterExerciseProgress,
   isUserCourseInstanceChapterProgress,
@@ -264,14 +262,4 @@ export const saveExamAnswer = async (
   dataJson: unknown,
 ): Promise<void> => {
   await courseMaterialClient.post(`/exams/${examId}/save-answer/${exerciseId}`, dataJson)
-}
-
-export const fetchPreviousSubmission = async (
-  exerciseId: string,
-): Promise<PreviousSubmission | null> => {
-  const response = await courseMaterialClient.get(
-    `/submissions/previous-for-exercise/${exerciseId}`,
-    { responseType: "json" },
-  )
-  return validateResponse(response, isUnion(isNull, isPreviousSubmission))
 }

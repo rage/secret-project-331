@@ -1,11 +1,10 @@
 use crate::{
     course_instances,
     exercise_slides::{self, CourseMaterialExerciseSlide},
+    exercise_task_gradings::ExerciseTaskGrading,
     exercise_tasks,
-    gradings::Grading,
     prelude::*,
-    user_course_settings,
-    user_exercise_states::get_user_exercise_state_if_exits,
+    user_course_settings, user_exercise_states,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
@@ -31,7 +30,7 @@ pub struct CourseMaterialExercise {
     pub current_exercise_slide: CourseMaterialExerciseSlide,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
-    pub grading: Option<Grading>,
+    pub grading: Option<ExerciseTaskGrading>,
 }
 
 /**
@@ -259,12 +258,24 @@ pub async fn get_course_material_exercise(
 
     let _user_exercise_state = match (user_id, instance_or_exam_id) {
         (Some(user_id), Some(InstanceOrExamId::Instance(instance_id))) => {
-            get_user_exercise_state_if_exits(conn, user_id, exercise.id, Some(instance_id), None)
-                .await?
+            user_exercise_states::get_user_exercise_state_if_exists(
+                conn,
+                user_id,
+                exercise.id,
+                Some(instance_id),
+                None,
+            )
+            .await?
         }
         (Some(user_id), Some(InstanceOrExamId::Exam(exam_id))) => {
-            get_user_exercise_state_if_exits(conn, user_id, exercise.id, None, Some(exam_id))
-                .await?
+            user_exercise_states::get_user_exercise_state_if_exists(
+                conn,
+                user_id,
+                exercise.id,
+                None,
+                Some(exam_id),
+            )
+            .await?
         }
         _ => None,
     };
@@ -633,7 +644,7 @@ mod test {
         .await
         .unwrap();
 
-        let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exits(
+        let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
             tx.as_mut(),
             user_id,
             exercise_id,
@@ -658,7 +669,7 @@ mod test {
             exercise_task_id
         );
 
-        let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exits(
+        let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
             tx.as_mut(),
             user_id,
             exercise_id,

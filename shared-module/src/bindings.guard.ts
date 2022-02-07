@@ -55,6 +55,7 @@ import {
   ExerciseSubmissions,
   ExerciseTask,
   ExerciseTaskAnswer,
+  ExerciseTaskGrading,
   ExerciseTaskSubmission,
   ExerciseWithExerciseTasks,
   Feedback,
@@ -62,7 +63,6 @@ import {
   FeedbackCount,
   GetEditProposalsQuery,
   GetFeedbackQuery,
-  Grading,
   GradingProgress,
   GradingResult,
   HistoryChangeReason,
@@ -89,7 +89,6 @@ import {
   PlaygroundExampleData,
   PointMap,
   Points,
-  PreviousSubmission,
   ProposalCount,
   ProposalStatus,
   RoleDomain,
@@ -523,7 +522,7 @@ export function isCourseMaterialExercise(
     (isExercise(obj.exercise) as boolean) &&
     (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
     (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
-    (obj.grading === null || (isGrading(obj.grading) as boolean))
+    (obj.grading === null || (isExerciseTaskGrading(obj.grading) as boolean))
   )
 }
 
@@ -606,13 +605,16 @@ export function isNewFeedback(obj: any, _argumentName?: string): obj is NewFeedb
   )
 }
 
-export function isGrading(obj: any, _argumentName?: string): obj is Grading {
+export function isExerciseTaskGrading(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseTaskGrading {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
-    typeof obj.submission_id === "string" &&
+    typeof obj.exercise_task_submission_id === "string" &&
     (obj.course_id === null || typeof obj.course_id === "string") &&
     (obj.exam_id === null || typeof obj.exam_id === "string") &&
     typeof obj.exercise_id === "string" &&
@@ -1013,7 +1015,7 @@ export function isExerciseTaskSubmission(
     typeof obj.exercise_slide_submission_id === "string" &&
     typeof obj.exercise_task_id === "string" &&
     typeof obj.exercise_slide_id === "string" &&
-    (obj.grading_id === null || typeof obj.grading_id === "string")
+    (obj.exercise_task_grading_id === null || typeof obj.exercise_task_grading_id === "string")
   )
 }
 
@@ -1055,7 +1057,7 @@ export function isSubmissionInfo(obj: any, _argumentName?: string): obj is Submi
     (isExerciseTaskSubmission(obj.submission) as boolean) &&
     (isExercise(obj.exercise) as boolean) &&
     (isExerciseTask(obj.exercise_task) as boolean) &&
-    (obj.grading === null || (isGrading(obj.grading) as boolean)) &&
+    (obj.grading === null || (isExerciseTaskGrading(obj.grading) as boolean)) &&
     typeof obj.iframe_path === "string"
   )
 }
@@ -1064,7 +1066,7 @@ export function isSubmissionResult(obj: any, _argumentName?: string): obj is Sub
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isExerciseTaskSubmission(obj.submission) as boolean) &&
-    (obj.grading === null || (isGrading(obj.grading) as boolean))
+    (obj.grading === null || (isExerciseTaskGrading(obj.grading) as boolean))
   )
 }
 
@@ -1188,14 +1190,6 @@ export function isRoleInfo(obj: any, _argumentName?: string): obj is RoleInfo {
     typeof obj.email === "string" &&
     (isUserRole(obj.role) as boolean) &&
     (isRoleDomain(obj.domain) as boolean)
-  )
-}
-
-export function isPreviousSubmission(obj: any, _argumentName?: string): obj is PreviousSubmission {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isExerciseTaskSubmission(obj.submission) as boolean) &&
-    (obj.grading === null || (isGrading(obj.grading) as boolean))
   )
 }
 

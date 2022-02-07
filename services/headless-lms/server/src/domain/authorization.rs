@@ -166,7 +166,7 @@ pub async fn authorize(
             ..Default::default()
         },
         Resource::Grading(id) => Ids {
-            course_id: models::gradings::get_course_id(conn, id).await?,
+            course_id: models::exercise_task_gradings::get_course_id(conn, id).await?,
             ..Default::default()
         },
         Resource::Organization(id) => Ids {

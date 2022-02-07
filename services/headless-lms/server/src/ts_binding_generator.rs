@@ -3,7 +3,6 @@ use crate::controllers::{
     course_material::{
         exams::{ExamData, ExamEnrollmentData},
         exercises::{ExerciseSlideAnswer, ExerciseTaskAnswer},
-        submissions::PreviousSubmission,
     },
     main_frontend::{
         courses::GetFeedbackQuery,
@@ -92,8 +91,8 @@ fn ts_binding_generator() {
         feedback::FeedbackCount,
         feedback::NewFeedback,
 
-        gradings::Grading,
-        gradings::UserPointsUpdateStrategy,
+        exercise_task_gradings::ExerciseTaskGrading,
+        exercise_task_gradings::UserPointsUpdateStrategy,
 
         organizations::Organization,
 
@@ -153,7 +152,6 @@ fn ts_binding_generator() {
 
         RoleQuery,
         RoleInfo,
-        PreviousSubmission,
         ExamData,
         ExamEnrollmentData,
         ExamCourseInfo,

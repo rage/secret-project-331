@@ -1,4 +1,10 @@
-use crate::prelude::*;
+use crate::{
+    courses::Course,
+    exercise_task_submissions::{
+        SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour,
+    },
+    prelude::*,
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct NewExerciseSlideSubmission {
@@ -150,6 +156,90 @@ LIMIT 1
         user_id
     )
     .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn exercise_slide_submission_count(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<u32> {
+    let count = sqlx::query!(
+        "
+SELECT COUNT(*) as count
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+",
+        exercise_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count.count.unwrap_or(0).try_into()?)
+}
+
+pub async fn get_course_daily_slide_submission_counts(
+    conn: &mut PgConnection,
+    course: &Course,
+) -> ModelResult<Vec<SubmissionCount>> {
+    let res = sqlx::query_as!(
+        SubmissionCount,
+        r#"
+SELECT DATE(created_at) date, count(*)::integer
+FROM exercise_slide_submissions
+WHERE course_id = $1
+GROUP BY date
+ORDER BY date;
+          "#,
+        course.id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_course_exercise_slide_submission_counts_by_weekday_and_hour(
+    conn: &mut PgConnection,
+    course: &Course,
+) -> ModelResult<Vec<SubmissionCountByWeekAndHour>> {
+    let res = sqlx::query_as!(
+        SubmissionCountByWeekAndHour,
+        r#"
+SELECT date_part('isodow', created_at)::integer isodow,
+  date_part('hour', created_at)::integer "hour",
+  count(*)::integer
+FROM exercise_slide_submissions
+WHERE course_id = $1
+GROUP BY isodow,
+  "hour"
+ORDER BY isodow,
+  hour;
+          "#,
+        course.id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_course_exercise_slide_submission_counts_by_exercise(
+    conn: &mut PgConnection,
+    course: &Course,
+) -> ModelResult<Vec<SubmissionCountByExercise>> {
+    let res = sqlx::query_as!(
+        SubmissionCountByExercise,
+        r#"
+SELECT counts.*, exercises.name exercise_name
+    FROM (
+        SELECT exercise_id, count(*)::integer count
+        FROM exercise_slide_submissions
+        WHERE course_id = $1
+        GROUP BY exercise_id
+    ) counts
+    JOIN exercises ON (counts.exercise_id = exercises.id);
+          "#,
+        course.id
+    )
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }

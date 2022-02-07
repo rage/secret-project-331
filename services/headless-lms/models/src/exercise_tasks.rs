@@ -209,7 +209,7 @@ pub async fn get_existing_users_exercise_slide_for_course_instance(
     exercise_id: Uuid,
     course_instance_id: Uuid,
 ) -> ModelResult<Option<CourseMaterialExerciseSlide>> {
-    let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exits(
+    let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
         conn,
         user_id,
         exercise_id,

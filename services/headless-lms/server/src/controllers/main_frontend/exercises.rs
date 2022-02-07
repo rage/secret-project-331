@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 
 use futures::future;
-use models::exercise_slide_submissions::ExerciseSlideSubmission;
+use models::exercise_slide_submissions::{self, ExerciseSlideSubmission};
 
 use crate::controllers::prelude::*;
 
@@ -24,7 +24,7 @@ async fn get_exercise_submissions(
 ) -> ControllerResult<web::Json<ExerciseSubmissions>> {
     let mut conn = pool.acquire().await?;
     let submission_count =
-        models::exercise_task_submissions::exercise_submission_count(&mut conn, *exercise_id);
+        exercise_slide_submissions::exercise_slide_submission_count(&mut conn, *exercise_id);
     let mut conn = pool.acquire().await?;
     let course_id = models::exercises::get_course_id(&mut conn, *exercise_id).await?;
     authorize(&mut conn, Act::View, user.id, Res::Course(course_id)).await?;

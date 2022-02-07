@@ -18,10 +18,10 @@ use headless_lms_models::{
     self as models,
     exercise_service_info::ExerciseServiceInfo,
     exercise_services::{get_internal_grade_url, ExerciseService},
+    exercise_task_gradings::ExerciseTaskGrading,
+    exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
     exercise_task_submissions::GradingResult,
     exercises::{Exercise, GradingProgress},
-    gradings::Grading,
-    regrading_submissions::RegradingSubmission,
     ModelResult,
 };
 
@@ -112,7 +112,7 @@ pub async fn regrade(
                     exercise_service_name,
                     err
                 );
-                models::gradings::set_grading_progress(
+                models::exercise_task_gradings::set_grading_progress(
                     &mut *conn,
                     grading.id,
                     GradingProgress::Failed,
@@ -121,7 +121,13 @@ pub async fn regrade(
                 continue;
             }
         };
-        models::gradings::update_grading(&mut *conn, &grading, &grading_result, &exercise).await?;
+        models::exercise_task_gradings::update_grading(
+            &mut *conn,
+            &grading,
+            &grading_result,
+            &exercise,
+        )
+        .await?;
         models::exercise_task_submissions::set_grading_id(
             &mut *conn,
             grading.id,
@@ -156,7 +162,11 @@ async fn do_single_regrading(
 
     // for each regrading, process all related submissions
     let regrading_submissions =
-        models::regrading_submissions::get_regrading_submissions(&mut *conn, regrading_id).await?;
+        models::exercise_task_regrading_submissions::get_regrading_submissions(
+            &mut *conn,
+            regrading_id,
+        )
+        .await?;
     tracing::info!(
         "found {} submissions for regrading {}",
         regrading_submissions.len(),
@@ -167,7 +177,7 @@ async fn do_single_regrading(
 
         if let Some(grading_id) = regrading_submission.grading_after_regrading {
             // this submission has previously been at least partially regraded
-            let grading = models::gradings::get_by_id(&mut *conn, grading_id).await?;
+            let grading = models::exercise_task_gradings::get_by_id(&mut *conn, grading_id).await?;
             if grading.grading_progress == GradingProgress::FullyGraded {
                 // already fully graded, continue to the next one
                 continue;
@@ -178,7 +188,7 @@ async fn do_single_regrading(
         // create new grading for the submission
         let submission = models::exercise_task_submissions::get_submission(
             &mut *conn,
-            regrading_submission.submission_id,
+            regrading_submission.exercise_task_submission_id,
         )
         .await?;
         // Need to rethink this but just please compile for now
@@ -195,8 +205,8 @@ async fn do_single_regrading(
         .unwrap();
         let exercise = models::exercises::get_by_id(&mut *conn, exercise_slide.exercise_id).await?;
         let not_ready_grading =
-            models::gradings::new_grading(&mut *conn, &exercise, &submission).await?;
-        models::regrading_submissions::set_grading_after_regrading(
+            models::exercise_task_gradings::new_grading(&mut *conn, &exercise, &submission).await?;
+        models::exercise_task_regrading_submissions::set_grading_after_regrading(
             conn,
             regrading_submission.id,
             not_ready_grading.id,
@@ -213,7 +223,7 @@ async fn do_single_regrading(
             exercise_services_by_type.get(&exercise_task.exercise_type)
         {
             // mark the grading as pending
-            models::gradings::set_grading_progress(
+            models::exercise_task_gradings::set_grading_progress(
                 &mut *conn,
                 not_ready_grading.id,
                 GradingProgress::Pending,
@@ -241,15 +251,18 @@ async fn do_single_regrading(
                     get_internal_grade_url(exercise_service, exercise_service_info).await?;
 
                 let exercise_service_name = exercise_service.name.clone();
-                let grading_future =
-                    models::gradings::send_grading_request(grade_url, &exercise_task, &submission)
-                        .map(move |exercise_service_result| GradingData {
-                            exercise_service_name,
-                            regrading_submission,
-                            grading: not_ready_grading,
-                            exercise,
-                            exercise_service_result,
-                        });
+                let grading_future = models::exercise_task_gradings::send_grading_request(
+                    grade_url,
+                    &exercise_task,
+                    &submission,
+                )
+                .map(move |exercise_service_result| GradingData {
+                    exercise_service_name,
+                    regrading_submission,
+                    grading: not_ready_grading,
+                    exercise,
+                    exercise_service_result,
+                });
                 entry.push(Box::pin(grading_future));
             } else {
                 // we can't send this submission right now
@@ -261,7 +274,7 @@ async fn do_single_regrading(
                 exercise_task.exercise_type,
             );
             tracing::error!("{}", msg);
-            models::gradings::set_grading_progress(
+            models::exercise_task_gradings::set_grading_progress(
                 &mut *conn,
                 not_ready_grading.id,
                 GradingProgress::Failed,
@@ -277,8 +290,8 @@ async fn do_single_regrading(
 
 struct GradingData {
     exercise_service_name: String,
-    regrading_submission: RegradingSubmission,
-    grading: Grading,
+    regrading_submission: ExerciseTaskRegradingSubmission,
+    grading: ExerciseTaskGrading,
     exercise: Exercise,
     exercise_service_result: ModelResult<GradingResult>,
 }
@@ -345,15 +358,24 @@ mod test {
         )
         .await
         .unwrap();
-        let grading =
-            models::gradings::insert(tx.as_mut(), task_submission, course, exercise, task)
-                .await
-                .unwrap();
+        let grading = models::exercise_task_gradings::insert(
+            tx.as_mut(),
+            task_submission,
+            course,
+            exercise,
+            task,
+        )
+        .await
+        .unwrap();
         let regrading = models::regradings::insert(tx.as_mut()).await.unwrap();
-        let regrading_submission_id =
-            models::regrading_submissions::insert(tx.as_mut(), regrading, task_submission, grading)
-                .await
-                .unwrap();
+        let regrading_submission_id = models::exercise_task_regrading_submissions::insert(
+            tx.as_mut(),
+            regrading,
+            task_submission,
+            grading,
+        )
+        .await
+        .unwrap();
 
         let exercise_service = models::exercise_services::insert_exercise_service(
             tx.as_mut(),
@@ -382,24 +404,26 @@ mod test {
         let mut services = HashMap::new();
         services.insert("test-exercise".to_string(), (exercise_service, info));
 
-        let regrading_submission = models::regrading_submissions::get_regrading_submission(
-            tx.as_mut(),
-            regrading_submission_id,
-        )
-        .await
-        .unwrap();
+        let regrading_submission =
+            models::exercise_task_regrading_submissions::get_regrading_submission(
+                tx.as_mut(),
+                regrading_submission_id,
+            )
+            .await
+            .unwrap();
         assert!(regrading_submission.grading_after_regrading.is_none());
 
         regrade(tx.as_mut(), &services).await.unwrap();
 
-        let regrading_submission = models::regrading_submissions::get_regrading_submission(
-            tx.as_mut(),
-            regrading_submission_id,
-        )
-        .await
-        .unwrap();
+        let regrading_submission =
+            models::exercise_task_regrading_submissions::get_regrading_submission(
+                tx.as_mut(),
+                regrading_submission_id,
+            )
+            .await
+            .unwrap();
         let new_grading = regrading_submission.grading_after_regrading.unwrap();
-        let grading = models::gradings::get_by_id(tx.as_mut(), new_grading)
+        let grading = models::exercise_task_gradings::get_by_id(tx.as_mut(), new_grading)
             .await
             .unwrap();
         assert_eq!(grading.score_given, Some(0.0))
@@ -455,15 +479,24 @@ mod test {
         )
         .await
         .unwrap();
-        let grading =
-            models::gradings::insert(tx.as_mut(), task_submission, course, exercise, task)
-                .await
-                .unwrap();
+        let grading = models::exercise_task_gradings::insert(
+            tx.as_mut(),
+            task_submission,
+            course,
+            exercise,
+            task,
+        )
+        .await
+        .unwrap();
         let regrading = models::regradings::insert(tx.as_mut()).await.unwrap();
-        let _regrading_submission_id =
-            models::regrading_submissions::insert(tx.as_mut(), regrading, task_submission, grading)
-                .await
-                .unwrap();
+        let _regrading_submission_id = models::exercise_task_regrading_submissions::insert(
+            tx.as_mut(),
+            regrading,
+            task_submission,
+            grading,
+        )
+        .await
+        .unwrap();
 
         let exercise_service = models::exercise_services::insert_exercise_service(
             tx.as_mut(),
@@ -599,12 +632,17 @@ mod test {
         )
         .await
         .unwrap();
-        let grading =
-            models::gradings::insert(tx.as_mut(), task_submission_1, course, exercise, task_1)
-                .await
-                .unwrap();
+        let grading = models::exercise_task_gradings::insert(
+            tx.as_mut(),
+            task_submission_1,
+            course,
+            exercise,
+            task_1,
+        )
+        .await
+        .unwrap();
         let regrading = models::regradings::insert(tx.as_mut()).await.unwrap();
-        let _regrading_submission_1 = models::regrading_submissions::insert(
+        let _regrading_submission_1 = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
             regrading,
             task_submission_1,
@@ -612,7 +650,7 @@ mod test {
         )
         .await
         .unwrap();
-        let _regrading_submission_2 = models::regrading_submissions::insert(
+        let _regrading_submission_2 = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
             regrading,
             task_submission_2,
@@ -731,15 +769,24 @@ mod test {
         )
         .await
         .unwrap();
-        let grading =
-            models::gradings::insert(tx.as_mut(), task_submission, course, exercise, task)
-                .await
-                .unwrap();
+        let grading = models::exercise_task_gradings::insert(
+            tx.as_mut(),
+            task_submission,
+            course,
+            exercise,
+            task,
+        )
+        .await
+        .unwrap();
         let regrading = models::regradings::insert(tx.as_mut()).await.unwrap();
-        let _regrading_submission =
-            models::regrading_submissions::insert(tx.as_mut(), regrading, task_submission, grading)
-                .await
-                .unwrap();
+        let _regrading_submission = models::exercise_task_regrading_submissions::insert(
+            tx.as_mut(),
+            regrading,
+            task_submission,
+            grading,
+        )
+        .await
+        .unwrap();
 
         let services = HashMap::new();
         regrade(tx.as_mut(), &services).await.unwrap();

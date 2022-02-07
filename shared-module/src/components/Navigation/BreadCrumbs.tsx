@@ -3,7 +3,7 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useRouter } from "next/router"
 
-import { NavigationProps } from "."
+import { BreadcrumbPiece } from "."
 
 const StyledBreadcrumb = styled.nav`
   font-size: 1rem;
@@ -53,7 +53,7 @@ const breadCrumbText = css`
   font-size: 22px;
 `
 
-const Breadcrumb: React.FC<NavigationProps> = (/* props */) => {
+const Breadcrumb: React.FC<BreadcrumbPiece> = (props) => {
   /* const { text, url } = props */
 
   const navigate = useRouter()

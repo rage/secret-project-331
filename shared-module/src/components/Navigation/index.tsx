@@ -6,18 +6,22 @@ import SimpleNav from "./SimpleNav"
 
 export interface NavigationProps {
   variant: "simple" | "complex" | "breadcrumbs"
-  frontPageUrl: string
+  frontPageUrl?: string
   faqUrl?: string
   returnToPath?: string
-  text?: string
+  breadcrumbs?: BreadcrumbPiece
+}
+
+export interface BreadcrumbPiece {
+  text: string
   url?: string
 }
 
 const Navbar: React.FC<NavigationProps> = (props) => {
   if (props.variant === "simple") {
     return <SimpleNav {...props} />
-  } else if (props.variant === "breadcrumbs") {
-    return <BreadCrumbs {...props} />
+  } else if (props.variant === "breadcrumbs" && props.breadcrumbs) {
+    return <BreadCrumbs {...props.breadcrumbs} />
   }
   return <ComplexNav {...props} />
 }

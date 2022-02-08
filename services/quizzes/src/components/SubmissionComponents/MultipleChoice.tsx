@@ -53,8 +53,6 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
   const direction: "row" | "column" =
     public_quiz_item.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
 
-  console.log(public_quiz_item, user_quiz_item_answer)
-
   return (
     <div
       className={css`

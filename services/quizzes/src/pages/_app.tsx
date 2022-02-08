@@ -1,6 +1,6 @@
 import { injectGlobal } from "@emotion/css"
 import { config } from "@fortawesome/fontawesome-svg-core"
-import { ThemeProvider } from "@material-ui/core"
+import { ThemeProvider } from "@mui/material"
 import type { AppProps } from "next/app"
 import Head from "next/head"
 import React, { useEffect } from "react"

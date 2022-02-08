@@ -1,5 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
-import { createTheme } from "@material-ui/core"
+import { createTheme } from "@mui/material"
 
 import { primaryFont } from "./typography"
 

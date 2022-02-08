@@ -1,4 +1,4 @@
-import { Button, Checkbox, FormControl, FormControlLabel, TextField } from "@material-ui/core"
+import { Button, Checkbox, FormControl, FormControlLabel, TextField } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"

@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Box, Dialog, Pagination } from "@material-ui/core"
+import { Box, Dialog, Pagination } from "@mui/material"
 import { useRouter } from "next/router"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"

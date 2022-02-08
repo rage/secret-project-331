@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { faAngleDown, faAngleUp, faPen } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Button } from "@material-ui/core"
+import { Button } from "@mui/material"
 import { TFunction } from "i18next"
 import React from "react"
 import { useTranslation } from "react-i18next"

@@ -10,21 +10,6 @@ import { respondToOrLarger } from "../../styles/respond"
 
 import { CardExtraProps } from "."
 
-// eslint-disable-next-line i18next/no-literal-string
-const CourseGridWrapper = styled.a`
-  text-decoration: none;
-  display: block;
-  max-width: ${cardMaxWidth}em;
-  height: ${cardHeight * 0.75}em;
-  border-radius: 1px;
-  position: relative;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  background: #48cfad;
-
-  ${respondToOrLarger.sm} {
-    height: ${cardHeight}em;
-  }
-`
 const StCardSvg = styled(CardSVG)`
   width: 40px;
   opacity: 0.8;
@@ -61,7 +46,7 @@ const CardContentWrapper = styled.div`
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, date, time }) => {
+const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, date, time }) => {
   const { t } = useTranslation()
   // If URL defined, the chapter is open
 
@@ -115,12 +100,19 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, 
     }
   }
   return (
-    <CourseGridWrapper
+    <div
       className={css`
-        background: ${bg};
+        max-width: ${cardMaxWidth}em;
+        height: ${cardHeight * 0.75}em;
+        border-radius: 1px;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        background: #48cfad;
+
+        ${respondToOrLarger.sm} {
+          height: ${cardHeight}em;
+        }
       `}
-      // Pass href={url} if url defined
-      {...(url ? { href: url } : {})}
     >
       <CardContentWrapper>
         {!open && !url ? (
@@ -175,7 +167,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, 
           </div>
         </div>
       </CardContentWrapper>
-    </CourseGridWrapper>
+    </div>
   )
 }
 

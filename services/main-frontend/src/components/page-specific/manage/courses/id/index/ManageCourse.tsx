@@ -109,6 +109,10 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
         {t("manage-pages")}
       </Link>
       <br />
+      <Link href={{ pathname: "/manage/courses/[id]/glossary", query: { id: course.id } }}>
+        {t("manage-glossary")}
+      </Link>
+      <br />
       <Link
         href={{
           pathname: "/manage/courses/[id]/feedback",

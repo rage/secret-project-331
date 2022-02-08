@@ -152,12 +152,7 @@ const Hide = css`
   display: none;
 `
 
-const Navigation: React.FC<NavigationProps> = ({
-  frontPageUrl,
-  faqUrl,
-  returnToPath,
-  children,
-}) => {
+const Navigation: React.FC<NavigationProps> = ({ faqUrl, returnToPath, children }) => {
   const { t } = useTranslation()
   const [clicked, setClicked] = useState(false)
 
@@ -168,7 +163,7 @@ const Navigation: React.FC<NavigationProps> = ({
   return (
     <nav role="navigation" className={cx(NavbarItems)}>
       <div className={cx(NavbarLogo)}>
-        <a href={`${frontPageUrl}`} aria-label="Home page" role="button">
+        <a href="/" aria-label="Home page" role="button">
           <FontAwesomeIcon
             className={cx(StyledIcon)}
             icon={faBullseye}

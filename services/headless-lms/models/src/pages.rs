@@ -1399,7 +1399,8 @@ WHERE p.order_number = (
       AND pa.deleted_at IS NULL
   )
   AND p.course_id = $2
-  AND c.chapter_number = $3;
+  AND c.chapter_number = $3
+  AND p.deleted_at IS NULL;
         ",
         current_page_metadata.order_number,
         current_page_metadata.course_id,
@@ -1433,6 +1434,7 @@ WHERE c.chapter_number = (
       AND ca.deleted_at IS NULL
   )
   AND c.course_id = $2
+  AND p.deleted_at IS NULL
 ORDER BY p.order_number
 LIMIT 1;
         ",

@@ -36,9 +36,11 @@ const PagesInChapter: React.FC<PagesInChapterProps> = ({
         >
           <h2
             className={css`
-              font-size: 1.25rem;
+              font-size: 2.5rem;
+              font-weight: 400;
               text-align: center;
               color: #505050;
+              margin-bottom: 2rem;
             `}
           >
             {t("table-of-contents")}

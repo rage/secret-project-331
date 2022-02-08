@@ -24,6 +24,7 @@
     "@material-ui/icons": "^5.0.0-beta.5",
     "@material-ui/lab": "^5.0.0-alpha.41",
     "@monaco-editor/react": "^4.3.1",
+    "@next/bundle-analyzer": "^12.0.10",
     "@types/commonmark": "^0.27.5",
     "axios": "^0.25.0",
     "commonmark": "^0.30.0",

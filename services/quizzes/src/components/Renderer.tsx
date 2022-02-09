@@ -1,11 +1,8 @@
 import dynamic from "next/dynamic"
 import React, { Dispatch, SetStateAction } from "react"
 import { useTranslation } from "react-i18next"
-import { useDispatch } from "react-redux"
 
 import { State } from "../pages/iframe"
-import { initializedEditor } from "../store/editor/editorActions"
-import { normalizeData } from "../util/normalizerFunctions"
 
 // Dynamic imports for different view types to keep the bundle size down
 const Editor = dynamic(() => import("./Editor"), { ssr: false })
@@ -20,7 +17,6 @@ interface RendererProps {
 
 export const Renderer: React.FC<RendererProps> = ({ state, port }) => {
   const { t } = useTranslation()
-  const dispatch = useDispatch()
 
   if (!port) {
     return <>{t("waiting-for-port")}</>
@@ -42,8 +38,7 @@ export const Renderer: React.FC<RendererProps> = ({ state, port }) => {
       />
     )
   } else if (state.viewType === "exercise-editor") {
-    dispatch(initializedEditor(normalizeData(state.privateSpec), state.privateSpec))
-    return <Editor port={port} />
+    return <Editor port={port} privateSpec={state.privateSpec} />
   } else {
     return <>{t("waiting-for-content")}</>
   }

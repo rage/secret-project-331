@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 
 import { useSendEditorStateOnChange } from "../../hooks/useSendEditorStateOnChange"
-import HeightTrackingContainer from "../../shared-module/components/HeightTrackingContainer"
 import { initializedEditor } from "../../store/editor/editorActions"
 import { useTypedSelector } from "../../store/store"
 import { normalizeData } from "../../util/normalizerFunctions"
@@ -26,11 +25,10 @@ const EditorImpl: React.FC<EditorProps> = ({ port, privateSpec }) => {
   }
 
   return (
-    // HeightTracking container needed here again because of Redux
-    <HeightTrackingContainer port={port}>
+    <>
       <QuizItems />
       <BasicInformation />
-    </HeightTrackingContainer>
+    </>
   )
 }
 

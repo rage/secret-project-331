@@ -34,12 +34,12 @@
   },
   "keywords": [],
   "devDependencies": {
-    "@playwright/test": "^1.17.2",
-    "playwright": "^1.17.2",
-    "typescript": "^4.5.4"
+    "@playwright/test": "^1.18.1",
+    "playwright": "^1.18.1",
+    "typescript": "^4.5.5"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.3.2",
-    "axe-core": "^4.3.5"
+    "axe-core": "^4.4.1"
   }
 }

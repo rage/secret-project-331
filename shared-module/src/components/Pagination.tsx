@@ -3,7 +3,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
   MoreHoriz as MoreHorizIcon,
-} from "@material-ui/icons"
+} from "@mui/icons-material"
 import React from "react"
 
 import { headingFont } from "../styles"

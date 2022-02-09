@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@material-ui/core"
+import { Dialog } from "@mui/material"
 import { groupBy, max } from "lodash"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"

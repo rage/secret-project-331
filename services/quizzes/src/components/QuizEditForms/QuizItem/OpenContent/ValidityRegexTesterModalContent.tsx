@@ -1,9 +1,9 @@
+import styled from "@emotion/styled"
 import { faCheck, faQuestion, faTimesCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
 import TextField from "../../../../shared-module/components/InputFields/TextField"

@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { respondToOrLarger } from "../../shared-module/styles/respond"
-import { MarkdownText } from "../MarkdownText"
+import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
 

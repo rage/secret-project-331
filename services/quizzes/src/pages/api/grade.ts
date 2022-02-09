@@ -51,7 +51,7 @@ const handlePost = (req: NextApiRequest, res: NextApiResponse<GradingResult>) =>
     feedback_text: exercise_spec.submitMessage,
     grading_progress: "FullyGraded",
     score_given: score,
-    score_maximum: exercise_spec.points,
+    score_maximum: exercise_spec.items.length,
   })
 }
 
@@ -59,12 +59,14 @@ const handlePost = (req: NextApiRequest, res: NextApiResponse<GradingResult>) =>
 // eg. quizzes which have max points 4 and 2 quiz items both items are worth 2 points
 // quiz item is either correct or incorrect
 function gradeAnswer(assessedAnswer: QuizItemAnswerGrading[], quiz: Quiz): number {
+  // for now all quiz items are worth 1 point
+  const maxPoints = quiz.items.length
   if (quiz.awardPointsEvenIfWrong) {
-    return quiz.points
+    return maxPoints
   }
   const nCorrect = assessedAnswer.filter((answer) => answer.correct).length
   const total = quiz.items.length
-  const points = (nCorrect / total) * quiz.points
+  const points = (nCorrect / total) * maxPoints
   return points
 }
 

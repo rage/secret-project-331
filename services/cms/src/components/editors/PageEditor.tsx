@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import SaveIcon from "@material-ui/icons/Save"
-import LoadingButton from "@material-ui/lab/LoadingButton"
+import SaveIcon from "@mui/icons-material/Save"
+import LoadingButton from "@mui/lab/LoadingButton"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useReducer, useState } from "react"

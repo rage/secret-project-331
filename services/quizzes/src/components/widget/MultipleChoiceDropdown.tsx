@@ -84,7 +84,6 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
         `}
       >
         <select
-          onBlur={(e) => console.log(e)}
           onChange={handleOptionSelect}
           aria-label={t("answer")}
           className={css`

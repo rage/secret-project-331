@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { quizTheme } from "../../styles/QuizStyles"
-import { MarkdownText } from "../MarkdownText"
+import MarkdownText from "../MarkdownText"
 
 import { QuizItemSubmissionComponentProps } from "."
 
@@ -52,8 +52,6 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
   // device width. Sanitized since the value is used in CSS.
   const direction: "row" | "column" =
     public_quiz_item.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
-
-  console.log(public_quiz_item, user_quiz_item_answer)
 
   return (
     <div

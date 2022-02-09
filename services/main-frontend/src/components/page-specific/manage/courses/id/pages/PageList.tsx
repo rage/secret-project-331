@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faTrash } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Dialog } from "@material-ui/core"
+import { Dialog } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 

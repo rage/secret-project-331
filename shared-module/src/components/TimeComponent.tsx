@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
-import { IconButton } from "@material-ui/core"
-import InfoIcon from "@material-ui/icons/Info"
+import InfoIcon from "@mui/icons-material/Info"
+import { IconButton } from "@mui/material"
 import React, { useLayoutEffect, useRef, useState } from "react"
 
 import { dateToString } from "../utils/time"

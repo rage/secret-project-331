@@ -15,7 +15,7 @@ extern crate doc_macro;
 
 use std::sync::Arc;
 
-use actix_http::{body::AnyBody, StatusCode};
+use actix_http::{body::MessageBody, StatusCode};
 use actix_web::{
     error::InternalError,
     web::{self, Data, ServiceConfig},
@@ -42,12 +42,8 @@ pub fn configure(
             .error_handler(|err, _req| -> actix_web::Error {
                 info!("Bad request: {}", &err);
                 let body = format!("{{\"title\": \"Bad Request\", \"message\": \"{}\"}}", &err);
-                let body_bytes = body.as_bytes();
                 // create custom error response
-                let response = HttpResponse::with_body(
-                    StatusCode::BAD_REQUEST,
-                    AnyBody::copy_from_slice(body_bytes),
-                );
+                let response = HttpResponse::with_body(StatusCode::BAD_REQUEST, body.boxed());
                 InternalError::from_response(err, response).into()
             });
     config

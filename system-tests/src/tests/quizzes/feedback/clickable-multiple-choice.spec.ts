@@ -53,11 +53,9 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
 
   await frame.waitForSelector("text=Pick all the programming languages from below")
 
-  await Promise.all([
-    frame.click(`button:text("Java")`),
-    frame.click(`button:text("Erlang")`),
-    frame.click(`button:text("Rust")`),
-  ])
+  await frame.click(`button:text("Java")`)
+  await frame.click(`button:text("Erlang")`)
+  await frame.click(`button:text("Rust")`)
 
   await page.click("text=Submit")
 
@@ -73,7 +71,8 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
 
   await frame.waitForSelector("text=Pick all the programming languages from below")
 
-  await Promise.all([frame.click(`button:text("AC")`), frame.click(`button:text("Jupiter")`)])
+  await frame.click(`button:text("AC")`)
+  await frame.click(`button:text("Jupiter")`)
 
   await page.click("text=Submit")
 

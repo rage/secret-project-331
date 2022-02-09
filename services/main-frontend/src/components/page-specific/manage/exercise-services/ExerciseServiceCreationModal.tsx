@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Card, CardContent, CardHeader, Modal } from "@material-ui/core"
+import { Card, CardContent, CardHeader, Modal } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 

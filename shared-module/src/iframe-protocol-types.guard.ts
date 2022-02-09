@@ -45,8 +45,8 @@ export function isReadyMessage(obj: any, _argumentName?: string): obj is ReadyMe
 export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetStateMessage {
   return (
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.message === "set-state") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.message === "set-state" &&
+      ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise" &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
       (obj.data.previous_submission === null ||
@@ -70,8 +70,8 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
             typeof obj.data.previous_submission.grading_id === "string") &&
           typeof obj.data.previous_submission.user_id === "string"))) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.message === "set-state") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.message === "set-state" &&
+      ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "view-submission" &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
       (obj.data.grading === null ||
@@ -108,8 +108,8 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
           (obj.data.grading.deleted_at === null ||
             obj.data.grading.deleted_at instanceof Date)))) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.message === "set-state") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.message === "set-state" &&
+      ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise-editor" &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function"))
   )

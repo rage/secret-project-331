@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Alert, FormControl, Input, InputLabel } from "@material-ui/core"
+import { Alert, FormControl, Input, InputLabel } from "@mui/material"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useContext, useState } from "react"

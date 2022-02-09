@@ -1,4 +1,4 @@
-import { Alert } from "@material-ui/lab"
+import { Alert } from "@mui/lab"
 import React, { Dispatch } from "react"
 import { useTranslation } from "react-i18next"
 

@@ -1,4 +1,4 @@
-import { Pagination } from "@material-ui/core"
+import { Pagination } from "@mui/material"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"

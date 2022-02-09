@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { ItemAnswerFeedback } from "../../pages/api/grade"
 import TextField from "../../shared-module/components/InputFields/TextField"
 import { quizTheme } from "../../styles/QuizStyles"
-import { MarkdownText } from "../MarkdownText"
+import MarkdownText from "../MarkdownText"
 
 import { QuizItemSubmissionComponentProps } from "."
 

@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import HelpIcon from "@material-ui/icons/Help"
+import HelpIcon from "@mui/icons-material/Help"
 import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"

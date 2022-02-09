@@ -1,4 +1,4 @@
-import { Pagination } from "@material-ui/core"
+import { Pagination } from "@mui/material"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useQuery } from "react-query"

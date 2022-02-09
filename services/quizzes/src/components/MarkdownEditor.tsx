@@ -6,7 +6,7 @@ import styled from "styled-components"
 import Button from "../shared-module/components/Button"
 import TextField from "../shared-module/components/InputFields/TextField"
 
-import { MarkdownText } from "./MarkdownText"
+import MarkdownText from "./MarkdownText"
 
 const EditorWrapper = styled.div`
   width: 100%;

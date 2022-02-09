@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { quizTheme } from "../../styles/QuizStyles"
-import { MarkdownText } from "../MarkdownText"
+import MarkdownText from "../MarkdownText"
 
 import { QuizItemSubmissionComponentProps } from "."
 

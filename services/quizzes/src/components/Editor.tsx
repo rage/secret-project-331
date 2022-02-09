@@ -1,8 +1,10 @@
+import { ThemeProvider } from "@mui/material"
 import React from "react"
+import { Provider } from "react-redux"
 
 import { useSendEditorStateOnChange } from "../hooks/useSendEditorStateOnChange"
-import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
-import { useTypedSelector } from "../store/store"
+import muiTheme from "../shared-module/styles/muiTheme"
+import store, { useTypedSelector } from "../store/store"
 
 import BasicInformation from "./QuizEditForms/BasicInfo"
 import QuizItems from "./QuizEditForms/QuizItems"
@@ -16,10 +18,12 @@ const Editor: React.FC<EditorProps> = ({ port }) => {
   useSendEditorStateOnChange(port, state)
 
   return (
-    <HeightTrackingContainer port={port}>
-      <QuizItems />
-      <BasicInformation />
-    </HeightTrackingContainer>
+    <Provider store={store}>
+      <ThemeProvider theme={muiTheme}>
+        <QuizItems />
+        <BasicInformation />
+      </ThemeProvider>
+    </Provider>
   )
 }
 

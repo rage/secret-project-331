@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.14&#x2F;src&#x2F;header&#x2F;shared&#x2F;quality_item.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>quality_item.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-rc.1&#x2F;src&#x2F;header&#x2F;shared&#x2F;quality_item.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>quality_item.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -305,173 +305,73 @@
 <span id="304">304</span>
 <span id="305">305</span>
 <span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
-<span id="365">365</span>
-<span id="366">366</span>
-<span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cmp</span>,
-    <span class="ident">convert</span>::{<span class="ident">TryFrom</span>, <span class="ident">TryInto</span>},
-    <span class="ident">fmt</span>,
-    <span class="ident">str</span>::{<span class="self">self</span>, <span class="ident">FromStr</span>},
-};
-
-<span class="kw">use</span> <span class="ident">derive_more</span>::{<span class="ident">Display</span>, <span class="ident">Error</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">convert::TryFrom</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">fmt</span>, <span class="ident">str</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::ParseError</span>;
 
-<span class="kw">const</span> <span class="ident">MAX_QUALITY</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="number">1000</span>;
-<span class="kw">const</span> <span class="ident">MAX_FLOAT_QUALITY</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">1.0</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Quality</span>;
 
-<span class="doccomment">/// Represents a quality used in quality values.</span>
+<span class="doccomment">/// Represents an item with a quality value as defined</span>
+<span class="doccomment">/// in [RFC 7231 §5.3.1](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.1).</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Can be created with the [`q`] function.</span>
+<span class="doccomment">/// # Parsing and Formatting</span>
+<span class="doccomment">/// This wrapper be used to parse header value items that have a q-factor annotation as well as</span>
+<span class="doccomment">/// serialize items with a their q-factor.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Implementation notes</span>
+<span class="doccomment">/// # Ordering</span>
+<span class="doccomment">/// Since this context of use for this type is header value items, ordering is defined for</span>
+<span class="doccomment">/// `QualityItem`s but _only_ considers the item&#39;s quality. Order of appearance should be used as</span>
+<span class="doccomment">/// the secondary sorting parameter; i.e., a stable sort over the quality values will produce a</span>
+<span class="doccomment">/// correctly sorted sequence.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// The quality value is defined as a number between 0 and 1 with three decimal</span>
-<span class="doccomment">/// places. This means there are 1001 possible values. Since floating point</span>
-<span class="doccomment">/// numbers are not exact and the smallest floating point data type (`f32`)</span>
-<span class="doccomment">/// consumes four bytes, hyper uses an `u16` value to store the</span>
-<span class="doccomment">/// quality internally. For performance reasons you may set quality directly to</span>
-<span class="doccomment">/// a value between 0 and 1000 e.g. `Quality(532)` matches the quality</span>
-<span class="doccomment">/// `q=0.532`.</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// # use actix_http::header::{QualityItem, q};</span>
+<span class="doccomment">/// let q_item: QualityItem&lt;String&gt; = &quot;hello;q=0.3&quot;.parse().unwrap();</span>
+<span class="doccomment">/// assert_eq!(&amp;q_item.item, &quot;hello&quot;);</span>
+<span class="doccomment">/// assert_eq!(q_item.quality, q(0.3));</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// [RFC7231 Section 5.3.1](https://tools.ietf.org/html/rfc7231#section-5.3.1)</span>
-<span class="doccomment">/// gives more information on quality values in HTTP header fields.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Quality</span>(<span class="ident">u16</span>);
-
-<span class="kw">impl</span> <span class="ident">Quality</span> {
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics in debug mode when value is not in the range 0.0 &lt;= n &lt;= 1.0.</span>
-    <span class="kw">fn</span> <span class="ident">from_f32</span>(<span class="ident">value</span>: <span class="ident">f32</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// Check that `value` is within range should be done before calling this method.</span>
-        <span class="comment">// Just in case, this debug_assert should catch if we were forgetful.</span>
-        <span class="macro">debug_assert!</span>(
-            (<span class="number">0.0f32</span>..<span class="op">=</span><span class="number">1.0f32</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>),
-            <span class="string">&quot;q value must be between 0.0 and 1.0&quot;</span>
-        );
-
-        <span class="ident">Quality</span>((<span class="ident">value</span> <span class="op">*</span> <span class="ident">MAX_QUALITY</span> <span class="kw">as</span> <span class="ident">f32</span>) <span class="kw">as</span> <span class="ident">u16</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Quality</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Quality</span> {
-        <span class="ident">Quality</span>(<span class="ident">MAX_QUALITY</span>)
-    }
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Display</span>, <span class="ident">Error</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">QualityOutOfBounds</span>;
-
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Quality</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">QualityOutOfBounds</span>;
-
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">u16</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> (<span class="number">0</span>..<span class="op">=</span><span class="ident">MAX_QUALITY</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">Quality</span>(<span class="ident">value</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">QualityOutOfBounds</span>)
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Quality</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">QualityOutOfBounds</span>;
-
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">f32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> (<span class="number">0.0</span>..<span class="op">=</span><span class="ident">MAX_FLOAT_QUALITY</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">Quality::from_f32</span>(<span class="ident">value</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">QualityOutOfBounds</span>)
-        }
-    }
-}
-
-<span class="doccomment">/// Represents an item with a quality value as defined in</span>
-<span class="doccomment">/// [RFC7231](https://tools.ietf.org/html/rfc7231#section-5.3.1).</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
+<span class="doccomment">/// // note that format is normalized compared to parsed item</span>
+<span class="doccomment">/// assert_eq!(q_item.to_string(), &quot;hello; q=0.3&quot;);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // item with q=0.3 is greater than item with q=0.1</span>
+<span class="doccomment">/// let q_item_fallback: QualityItem&lt;String&gt; = &quot;abc;q=0.1&quot;.parse().unwrap();</span>
+<span class="doccomment">/// assert!(q_item &gt; q_item_fallback);</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The actual contents of the field.</span>
+    <span class="doccomment">/// The wrapped contents of the field.</span>
     <span class="kw">pub</span> <span class="ident">item</span>: <span class="ident">T</span>,
+
     <span class="doccomment">/// The quality (client or server preference) for the value.</span>
     <span class="kw">pub</span> <span class="ident">quality</span>: <span class="ident">Quality</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new `QualityItem` from an item and a quality.</span>
-    <span class="doccomment">/// The item can be of any type.</span>
-    <span class="doccomment">/// The quality should be a value in the range [0, 1].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">item</span>: <span class="ident">T</span>, <span class="ident">quality</span>: <span class="ident">Quality</span>) -&gt; <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Constructs a new `QualityItem` from an item and a quality value.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The item can be of any type. The quality should be a value in the range [0, 1].</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">item</span>: <span class="ident">T</span>, <span class="ident">quality</span>: <span class="ident">Quality</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">QualityItem</span> { <span class="ident">item</span>, <span class="ident">quality</span> }
+    }
+
+    <span class="doccomment">/// Constructs a new `QualityItem` from an item, using the maximum q-value.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max</span>(<span class="ident">item</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">item</span>, <span class="ident">Quality::MAX</span>)
+    }
+
+    <span class="doccomment">/// Constructs a new `QualityItem` from an item, using the minimum, non-zero q-value.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min</span>(<span class="ident">item</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">item</span>, <span class="ident">Quality::MIN</span>)
+    }
+
+    <span class="doccomment">/// Constructs a new `QualityItem` from an item, using zero q-value of zero.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span>(<span class="ident">item</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">item</span>, <span class="ident">Quality::ZERO</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PartialEq</span><span class="op">&gt;</span> <span class="ident">cmp::PartialOrd</span> <span class="kw">for</span> <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PartialEq</span><span class="op">&gt;</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp::Ordering</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">quality</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">quality</span>)
     }
@@ -481,86 +381,71 @@
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">fmt::Display::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">quality</span>.<span class="number">0</span> {
-            <span class="ident">MAX_QUALITY</span> =&gt; <span class="prelude-val">Ok</span>(()),
-            <span class="number">0</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;; q=0&quot;</span>),
-            <span class="ident">x</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;; q=0.{}&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{:03}&quot;</span>, <span class="ident">x</span>).<span class="ident">trim_end_matches</span>(<span class="string">&#39;0&#39;</span>)),
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">quality</span> {
+            <span class="comment">// q-factor value is implied for max value</span>
+            <span class="ident">Quality::MAX</span> =&gt; <span class="prelude-val">Ok</span>(()),
+
+            <span class="comment">// fast path for zero</span>
+            <span class="ident">Quality::ZERO</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;; q=0&quot;</span>),
+
+            <span class="comment">// quality formatting is already using itoa</span>
+            <span class="ident">q</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;; q={}&quot;</span>, <span class="ident">q</span>),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromStr</span><span class="op">&gt;</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">str::FromStr</span><span class="op">&gt;</span> <span class="ident">str::FromStr</span> <span class="kw">for</span> <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">ParseError</span>;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">qitem_str</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">qitem_str</span>.<span class="ident">is_ascii</span>() {
+    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">q_item_str</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">q_item_str</span>.<span class="ident">is_ascii</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>);
         }
 
-        <span class="comment">// Set defaults used if parsing fails.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw_item</span> <span class="op">=</span> <span class="ident">qitem_str</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quality</span> <span class="op">=</span> <span class="number">1f32</span>;
+        <span class="comment">// set defaults used if quality-item parsing fails, i.e., item has no q attribute</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw_item</span> <span class="op">=</span> <span class="ident">q_item_str</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quality</span> <span class="op">=</span> <span class="ident">Quality::MAX</span>;
 
-        <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">qitem_str</span>.<span class="ident">rsplitn</span>(<span class="number">2</span>, <span class="string">&#39;;&#39;</span>).<span class="ident">map</span>(<span class="ident">str::trim</span>).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">q_item_str</span>
+            .<span class="ident">rsplit_once</span>(<span class="string">&#39;;&#39;</span>)
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">item</span>, <span class="ident">q_attr</span>)<span class="op">|</span> (<span class="ident">item</span>.<span class="ident">trim</span>(), <span class="ident">q_attr</span>.<span class="ident">trim</span>()));
 
-        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">val</span>, <span class="ident">q_attr</span>)) <span class="op">=</span> <span class="ident">parts</span> {
             <span class="comment">// example for item with q-factor:</span>
             <span class="comment">//</span>
-            <span class="comment">// gzip; q=0.65</span>
-            <span class="comment">//       ^^^^^^  parts[0]</span>
-            <span class="comment">//       ^^      start</span>
-            <span class="comment">//         ^^^^  q_val</span>
-            <span class="comment">// ^^^^          parts[1]</span>
+            <span class="comment">// gzip;q=0.65</span>
+            <span class="comment">// ^^^^         val</span>
+            <span class="comment">//      ^^^^^^  q_attr</span>
+            <span class="comment">//      ^^      q</span>
+            <span class="comment">//        ^^^^  q_val</span>
 
-            <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
+            <span class="kw">if</span> <span class="ident">q_attr</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
                 <span class="comment">// Can&#39;t possibly be an attribute since an attribute needs at least a name followed</span>
                 <span class="comment">// by an equals sign. And bare identifiers are forbidden.</span>
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>);
             }
 
-            <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">parts</span>[<span class="number">0</span>][<span class="number">0</span>..<span class="number">2</span>];
+            <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">q_attr</span>[<span class="number">0</span>..<span class="number">2</span>];
 
-            <span class="kw">if</span> <span class="ident">start</span> <span class="op">==</span> <span class="string">&quot;q=&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">start</span> <span class="op">==</span> <span class="string">&quot;Q=&quot;</span> {
-                <span class="kw">let</span> <span class="ident">q_val</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">parts</span>[<span class="number">0</span>][<span class="number">2</span>..];
+            <span class="kw">if</span> <span class="ident">q</span> <span class="op">==</span> <span class="string">&quot;q=&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">q</span> <span class="op">==</span> <span class="string">&quot;Q=&quot;</span> {
+                <span class="kw">let</span> <span class="ident">q_val</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">q_attr</span>[<span class="number">2</span>..];
                 <span class="kw">if</span> <span class="ident">q_val</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">5</span> {
                     <span class="comment">// longer than 5 indicates an over-precise q-factor</span>
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>);
                 }
 
                 <span class="kw">let</span> <span class="ident">q_value</span> <span class="op">=</span> <span class="ident">q_val</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ParseError::Header</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">q_value</span> <span class="op">=</span> <span class="ident">Quality::try_from</span>(<span class="ident">q_value</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ParseError::Header</span>)<span class="question-mark">?</span>;
 
-                <span class="kw">if</span> (<span class="number">0f32</span>..<span class="op">=</span><span class="number">1f32</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">q_value</span>) {
-                    <span class="ident">quality</span> <span class="op">=</span> <span class="ident">q_value</span>;
-                    <span class="ident">raw_item</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">1</span>];
-                } <span class="kw">else</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>);
-                }
+                <span class="ident">quality</span> <span class="op">=</span> <span class="ident">q_value</span>;
+                <span class="ident">raw_item</span> <span class="op">=</span> <span class="ident">val</span>;
             }
         }
 
         <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="ident">raw_item</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ParseError::Header</span>)<span class="question-mark">?</span>;
 
-        <span class="comment">// we already checked above that the quality is within range</span>
-        <span class="prelude-val">Ok</span>(<span class="ident">QualityItem::new</span>(<span class="ident">item</span>, <span class="ident">Quality::from_f32</span>(<span class="ident">quality</span>)))
+        <span class="prelude-val">Ok</span>(<span class="ident">QualityItem::new</span>(<span class="ident">item</span>, <span class="ident">quality</span>))
     }
-}
-
-<span class="doccomment">/// Convenience function to wrap a value in a `QualityItem`</span>
-<span class="doccomment">/// Sets `q` to the default 1.0</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">qitem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">item</span>: <span class="ident">T</span>) -&gt; <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">QualityItem::new</span>(<span class="ident">item</span>, <span class="ident">Quality::default</span>())
-}
-
-<span class="doccomment">/// Convenience function to create a `Quality` from a float or integer.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Implemented for `u16` and `f32`. Panics if value is out of range.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">q</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">val</span>: <span class="ident">T</span>) -&gt; <span class="ident">Quality</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">TryInto</span><span class="op">&lt;</span><span class="ident">Quality</span><span class="op">&gt;</span>,
-    <span class="ident">T::Error</span>: <span class="ident">fmt::Debug</span>,
-{
-    <span class="comment">// TODO: on next breaking change, handle unwrap differently</span>
-    <span class="ident">val</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>()
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -597,7 +482,7 @@
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">Encoding</span> {
+    <span class="kw">impl</span> <span class="ident">str::FromStr</span> <span class="kw">for</span> <span class="ident">Encoding</span> {
         <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::error::ParseError</span>;
         <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Encoding</span>, <span class="ident"><span class="kw">crate</span>::error::ParseError</span><span class="op">&gt;</span> {
             <span class="kw">use</span> <span class="ident">Encoding</span>::<span class="kw-2">*</span>;
@@ -617,7 +502,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_quality_item_fmt_q_1</span>() {
         <span class="kw">use</span> <span class="ident">Encoding</span>::<span class="kw-2">*</span>;
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">qitem</span>(<span class="ident">Chunked</span>);
+        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">QualityItem::max</span>(<span class="ident">Chunked</span>);
         <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">x</span>), <span class="string">&quot;chunked&quot;</span>);
     }
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -716,25 +601,8 @@
     <span class="kw">fn</span> <span class="ident">test_quality_item_ordering</span>() {
         <span class="kw">let</span> <span class="ident">x</span>: <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span> <span class="op">=</span> <span class="string">&quot;gzip; q=0.5&quot;</span>.<span class="ident">parse</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">y</span>: <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span> <span class="op">=</span> <span class="string">&quot;gzip; q=0.273&quot;</span>.<span class="ident">parse</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">comparision_result</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">gt</span>(<span class="kw-2">&amp;</span><span class="ident">y</span>);
-        <span class="macro">assert!</span>(<span class="ident">comparision_result</span>)
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>(<span class="number">0.5</span>), <span class="ident">Quality</span>(<span class="number">500</span>));
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality_invalid</span>() {
-        <span class="ident">q</span>(<span class="op">-</span><span class="number">1.0</span>);
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality_invalid2</span>() {
-        <span class="ident">q</span>(<span class="number">2.0</span>);
+        <span class="kw">let</span> <span class="ident">comparison_result</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">gt</span>(<span class="kw-2">&amp;</span><span class="ident">y</span>);
+        <span class="macro">assert!</span>(<span class="ident">comparison_result</span>)
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>

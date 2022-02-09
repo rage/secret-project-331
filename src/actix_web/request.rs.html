@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-web-4.0.0-beta.13&#x2F;src&#x2F;request.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>request.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-web-4.0.0-rc.2&#x2F;src&#x2F;request.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>request.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -811,6 +811,108 @@
 <span id="810">810</span>
 <span id="811">811</span>
 <span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">cell</span>::{<span class="ident">Ref</span>, <span class="ident">RefCell</span>, <span class="ident">RefMut</span>},
     <span class="ident">fmt</span>, <span class="ident">net</span>,
@@ -818,10 +920,7 @@
     <span class="ident">str</span>,
 };
 
-<span class="kw">use</span> <span class="ident">actix_http</span>::{
-    <span class="ident">http</span>::{<span class="ident">HeaderMap</span>, <span class="ident">Method</span>, <span class="ident">Uri</span>, <span class="ident">Version</span>},
-    <span class="ident">Extensions</span>, <span class="ident">HttpMessage</span>, <span class="ident">Message</span>, <span class="ident">Payload</span>, <span class="ident">RequestHead</span>,
-};
+<span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">Message</span>, <span class="ident">RequestHead</span>};
 <span class="kw">use</span> <span class="ident">actix_router</span>::{<span class="ident">Path</span>, <span class="ident">Url</span>};
 <span class="kw">use</span> <span class="ident">actix_utils::future</span>::{<span class="ident">ok</span>, <span class="ident">Ready</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
@@ -829,8 +928,14 @@
 <span class="kw">use</span> <span class="ident">smallvec::SmallVec</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">app_service::AppInitServiceState</span>, <span class="ident">config::AppConfig</span>, <span class="ident">error::UrlGenerationError</span>,
-    <span class="ident">info::ConnectionInfo</span>, <span class="ident">rmap::ResourceMap</span>, <span class="ident">Error</span>, <span class="ident">FromRequest</span>,
+    <span class="ident">app_service::AppInitServiceState</span>,
+    <span class="ident">config::AppConfig</span>,
+    <span class="ident">dev</span>::{<span class="ident">Extensions</span>, <span class="ident">Payload</span>},
+    <span class="ident">error::UrlGenerationError</span>,
+    <span class="ident">http</span>::{<span class="ident">header::HeaderMap</span>, <span class="ident">Method</span>, <span class="ident">Uri</span>, <span class="ident">Version</span>},
+    <span class="ident">info::ConnectionInfo</span>,
+    <span class="ident">rmap::ResourceMap</span>,
+    <span class="ident">Error</span>, <span class="ident">FromRequest</span>, <span class="ident">HttpMessage</span>,
 };
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
@@ -850,6 +955,8 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">head</span>: <span class="ident">Message</span><span class="op">&lt;</span><span class="ident">RequestHead</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">path</span>: <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">app_data</span>: <span class="ident">SmallVec</span><span class="op">&lt;</span>[<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span>; <span class="number">4</span>]<span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">conn_data</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">extensions</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">app_state</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">AppInitServiceState</span><span class="op">&gt;</span>,
 }
 
@@ -860,6 +967,8 @@
         <span class="ident">head</span>: <span class="ident">Message</span><span class="op">&lt;</span><span class="ident">RequestHead</span><span class="op">&gt;</span>,
         <span class="ident">app_state</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">AppInitServiceState</span><span class="op">&gt;</span>,
         <span class="ident">app_data</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span>,
+        <span class="ident">conn_data</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">extensions</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">HttpRequest</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">SmallVec</span>::<span class="op">&lt;</span>[<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span>; <span class="number">4</span>]<span class="op">&gt;</span><span class="ident">::new</span>();
         <span class="ident">data</span>.<span class="ident">push</span>(<span class="ident">app_data</span>);
@@ -870,6 +979,8 @@
                 <span class="ident">path</span>,
                 <span class="ident">app_state</span>,
                 <span class="ident">app_data</span>: <span class="ident">data</span>,
+                <span class="ident">conn_data</span>,
+                <span class="ident">extensions</span>,
             }),
         }
     }
@@ -913,7 +1024,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">head</span>().<span class="ident">headers</span>
     }
 
-    <span class="doccomment">/// The target path of this Request.</span>
+    <span class="doccomment">/// The target path of this request.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="self">self</span>.<span class="ident">head</span>().<span class="ident">uri</span>.<span class="ident">path</span>()
@@ -921,23 +1032,32 @@
 
     <span class="doccomment">/// The query string in the URL.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// E.g., id=10</span>
+    <span class="doccomment">/// Example: `id=10`</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="self">self</span>.<span class="ident">uri</span>().<span class="ident">query</span>().<span class="ident">unwrap_or_default</span>()
     }
 
-    <span class="doccomment">/// Get a reference to the Path parameters.</span>
+    <span class="doccomment">/// Returns a reference to the URL parameters container.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Params is a container for url parameters.</span>
-    <span class="doccomment">/// A variable segment is specified in the form `{identifier}`,</span>
-    <span class="doccomment">/// where the identifier can be used later in a request handler to</span>
-    <span class="doccomment">/// access the matched value for that segment.</span>
+    <span class="doccomment">/// A URL parameter is specified in the form `{identifier}`, where the identifier can be used</span>
+    <span class="doccomment">/// later in a request handler to access the matched value for that parameter.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Percent Encoding and URL Parameters</span>
+    <span class="doccomment">/// Because each URL parameter is able to capture multiple path segments, none of</span>
+    <span class="doccomment">/// `[&quot;%2F&quot;, &quot;%25&quot;, &quot;%2B&quot;]` found in the request URI are decoded into `[&quot;/&quot;, &quot;%&quot;, &quot;+&quot;]` in order</span>
+    <span class="doccomment">/// to preserve path integrity. If a URL parameter is expected to contain these characters, then</span>
+    <span class="doccomment">/// it is on the user to decode them or use the [`web::Path`](crate::web::Path) extractor which</span>
+    <span class="doccomment">/// _will_ decode these special sequences.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">path</span>
     }
 
+    <span class="doccomment">/// Returns a mutable reference to the URL parameters container.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// Panics if this `HttpRequest` has been cloned.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">match_info_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;mut</span> <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>).<span class="ident">unwrap</span>().<span class="ident">path</span>
@@ -962,35 +1082,43 @@
         <span class="self">self</span>.<span class="ident">resource_map</span>().<span class="ident">match_name</span>(<span class="self">self</span>.<span class="ident">path</span>())
     }
 
-    <span class="doccomment">/// Request extensions</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">head</span>().<span class="ident">extensions</span>()
-    }
-
-    <span class="doccomment">/// Mutable reference to a the request&#39;s extensions</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extensions_mut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">head</span>().<span class="ident">extensions_mut</span>()
-    }
-
-    <span class="doccomment">/// Generate url for named resource</span>
+    <span class="doccomment">/// Returns a reference a piece of connection data set in an [on-connect] callback.</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// ```ignore</span>
+    <span class="doccomment">/// let opt_t = req.conn_data::&lt;PeerCertificate&gt;();</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [on-connect]: crate::HttpServer::on_connect</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">conn_data</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">inner</span>
+            .<span class="ident">conn_data</span>
+            .<span class="ident">as_deref</span>()
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">container</span><span class="op">|</span> <span class="ident">container</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>())
+    }
+
+    <span class="doccomment">/// Generates URL for a named resource.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This substitutes in sequence all URL parameters that appear in the resource itself and in</span>
+    <span class="doccomment">/// parent [scopes](crate::web::scope), if any.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// It is worth noting that the characters `[&#39;/&#39;, &#39;%&#39;]` are not escaped and therefore a single</span>
+    <span class="doccomment">/// URL parameter may expand into multiple path segments and `elements` can be percent-encoded</span>
+    <span class="doccomment">/// beforehand without worrying about double encoding. Any other character that is not valid in</span>
+    <span class="doccomment">/// a URL path context is escaped using percent-encoding.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// # use actix_web::{web, App, HttpRequest, HttpResponse};</span>
-    <span class="doccomment">/// #</span>
     <span class="doccomment">/// fn index(req: HttpRequest) -&gt; HttpResponse {</span>
-    <span class="doccomment">///     let url = req.url_for(&quot;foo&quot;, &amp;[&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]); // &lt;- generate url for &quot;foo&quot; resource</span>
+    <span class="doccomment">///     let url = req.url_for(&quot;foo&quot;, &amp;[&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]); // &lt;- generate URL for &quot;foo&quot; resource</span>
     <span class="doccomment">///     HttpResponse::Ok().into()</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// fn main() {</span>
-    <span class="doccomment">///     let app = App::new()</span>
-    <span class="doccomment">///         .service(web::resource(&quot;/test/{one}/{two}/{three}&quot;)</span>
-    <span class="doccomment">///              .name(&quot;foo&quot;)  // &lt;- set resource name, then it could be used in `url_for`</span>
-    <span class="doccomment">///              .route(web::get().to(|| HttpResponse::Ok()))</span>
-    <span class="doccomment">///         );</span>
-    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// let app = App::new()</span>
+    <span class="doccomment">///     .service(web::resource(&quot;/test/{one}/{two}/{three}&quot;)</span>
+    <span class="doccomment">///          .name(&quot;foo&quot;)  // &lt;- set resource name so it can be used in `url_for`</span>
+    <span class="doccomment">///          .route(web::get().to(|| HttpResponse::Ok()))</span>
+    <span class="doccomment">///     );</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url_for</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">elements</span>: <span class="ident">U</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">url::Url</span>, <span class="ident">UrlGenerationError</span><span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -1000,7 +1128,7 @@
         <span class="self">self</span>.<span class="ident">resource_map</span>().<span class="ident">url_for</span>(<span class="self">self</span>, <span class="ident">name</span>, <span class="ident">elements</span>)
     }
 
-    <span class="doccomment">/// Generate url for named resource</span>
+    <span class="doccomment">/// Generate URL for named resource</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is similar to `HttpRequest::url_for()` but it can be used</span>
     <span class="doccomment">/// for urls that do not contain variable parts.</span>
@@ -1009,32 +1137,42 @@
         <span class="self">self</span>.<span class="ident">url_for</span>(<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">NO_PARAMS</span>)
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="doccomment">/// Get a reference to a `ResourceMap` of current application.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resource_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ResourceMap</span> {
         <span class="self">self</span>.<span class="ident">app_state</span>().<span class="ident">rmap</span>()
     }
 
-    <span class="doccomment">/// Peer socket address.</span>
+    <span class="doccomment">/// Returns peer socket address.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Peer address is the directly connected peer&#39;s socket address. If a proxy is used in front of</span>
     <span class="doccomment">/// the Actix Web server, then it would be address of this proxy.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// To get client connection information `.connection_info()` should be used.</span>
+    <span class="doccomment">/// For expanded client connection information, use [`connection_info`] instead.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Will only return None when called in unit tests.</span>
+    <span class="doccomment">/// Will only return None when called in unit tests unless [`TestRequest::peer_addr`] is used.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`TestRequest::peer_addr`]: crate::test::TestRequest::peer_addr</span>
+    <span class="doccomment">/// [`connection_info`]: Self::connection_info</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peer_addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">head</span>().<span class="ident">peer_addr</span>
     }
 
-    <span class="doccomment">/// Get *ConnectionInfo* for the current request.</span>
+    <span class="doccomment">/// Returns connection info for the current request.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This method panics if request&#39;s extensions container is already</span>
-    <span class="doccomment">/// borrowed.</span>
+    <span class="doccomment">/// The return type, [`ConnectionInfo`], can also be used as an extractor.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// Panics if request&#39;s extensions container is already borrowed.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">ConnectionInfo</span><span class="op">&gt;</span> {
-        <span class="ident">ConnectionInfo::get</span>(<span class="self">self</span>.<span class="ident">head</span>(), <span class="self">self</span>.<span class="ident">app_config</span>())
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">extensions</span>().<span class="ident">contains</span>::<span class="op">&lt;</span><span class="ident">ConnectionInfo</span><span class="op">&gt;</span>() {
+            <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">ConnectionInfo::new</span>(<span class="self">self</span>.<span class="ident">head</span>(), <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">app_config</span>());
+            <span class="self">self</span>.<span class="ident">extensions_mut</span>().<span class="ident">insert</span>(<span class="ident">info</span>);
+        }
+
+        <span class="ident">Ref::map</span>(<span class="self">self</span>.<span class="ident">extensions</span>(), <span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">data</span>.<span class="ident">get</span>().<span class="ident">unwrap</span>())
     }
 
     <span class="doccomment">/// App config</span>
@@ -1043,14 +1181,34 @@
         <span class="self">self</span>.<span class="ident">app_state</span>().<span class="ident">config</span>()
     }
 
-    <span class="doccomment">/// Get an application data object stored with `App::data` or `App::app_data`</span>
-    <span class="doccomment">/// methods during application configuration.</span>
+    <span class="doccomment">/// Retrieves a piece of application state.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// If `App::data` was used to store object, use `Data&lt;T&gt;`:</span>
+    <span class="doccomment">/// Extracts any object stored with [`App::app_data()`](crate::App::app_data) (or the</span>
+    <span class="doccomment">/// counterpart methods on [`Scope`](crate::Scope::app_data) and</span>
+    <span class="doccomment">/// [`Resource`](crate::Resource::app_data)) during application configuration.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// ```ignore</span>
-    <span class="doccomment">/// let opt_t = req.app_data::&lt;Data&lt;T&gt;&gt;();</span>
+    <span class="doccomment">/// Since the Actix Web router layers application data, the returned object will reference the</span>
+    <span class="doccomment">/// &quot;closest&quot; instance of the type. For example, if an `App` stores a `u32`, a nested `Scope`</span>
+    <span class="doccomment">/// also stores a `u32`, and the delegated request handler falls within that `Scope`, then</span>
+    <span class="doccomment">/// calling `.app_data::&lt;u32&gt;()` on an `HttpRequest` within that handler will return the</span>
+    <span class="doccomment">/// `Scope`&#39;s instance. However, using the same router set up and a request that does not get</span>
+    <span class="doccomment">/// captured by the `Scope`, `.app_data::&lt;u32&gt;()` would return the `App`&#39;s instance.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the state was stored using the [`Data`] wrapper, then it must also be retrieved using</span>
+    <span class="doccomment">/// this same type.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See also the [`Data`] extractor.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">/// ```no_run</span>
+    <span class="doccomment">/// # use actix_web::{test::TestRequest, web::Data};</span>
+    <span class="doccomment">/// # let req = TestRequest::default().to_http_request();</span>
+    <span class="doccomment">/// # type T = u32;</span>
+    <span class="doccomment">/// let opt_t: Option&lt;&amp;Data&lt;T&gt;&gt; = req.app_data::&lt;Data&lt;T&gt;&gt;();</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`Data`]: crate::web::Data</span>
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">alias</span> <span class="op">=</span> <span class="string">&quot;state&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_data</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">for</span> <span class="ident">container</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">app_data</span>.<span class="ident">iter</span>().<span class="ident">rev</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">data</span>) <span class="op">=</span> <span class="ident">container</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() {
@@ -1069,7 +1227,7 @@
     <span class="doccomment">/// Load request cookies.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cookies</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">CookieParseError</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">actix_http::http::header::COOKIE</span>;
+        <span class="kw">use</span> <span class="ident">actix_http::header::COOKIE</span>;
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">extensions</span>().<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">Cookies</span><span class="op">&gt;</span>().<span class="ident">is_none</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cookies</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -1107,21 +1265,18 @@
     <span class="kw">type</span> <span class="ident">Stream</span> <span class="op">=</span> ();
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="doccomment">/// Returns Request&#39;s headers.</span>
     <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">head</span>().<span class="ident">headers</span>
     }
 
-    <span class="doccomment">/// Request extensions</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">extensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">head</span>.<span class="ident">extensions</span>()
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">extensions</span>.<span class="ident">borrow</span>()
     }
 
-    <span class="doccomment">/// Mutable reference to a the request&#39;s extensions</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">extensions_mut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">head</span>.<span class="ident">extensions_mut</span>()
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">extensions</span>.<span class="ident">borrow_mut</span>()
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -1134,17 +1289,21 @@
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="comment">// if possible, contribute to current worker&#39;s HttpRequest allocation pool</span>
 
-        <span class="comment">// This relies on no Weak&lt;HttpRequestInner&gt; exists anywhere.(There is none)</span>
+        <span class="comment">// This relies on no weak references to inner existing anywhere within the codebase.</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">inner</span>) <span class="op">=</span> <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>) {
             <span class="kw">if</span> <span class="ident">inner</span>.<span class="ident">app_state</span>.<span class="ident">pool</span>().<span class="ident">is_available</span>() {
                 <span class="comment">// clear additional app_data and keep the root one for reuse.</span>
                 <span class="ident">inner</span>.<span class="ident">app_data</span>.<span class="ident">truncate</span>(<span class="number">1</span>);
-                <span class="comment">// inner is borrowed mut here. get head&#39;s Extension mutably</span>
-                <span class="comment">// to reduce borrow check</span>
-                <span class="ident">inner</span>.<span class="ident">head</span>.<span class="ident">extensions</span>.<span class="ident">get_mut</span>().<span class="ident">clear</span>();
+
+                <span class="comment">// Inner is borrowed mut here and; get req data mutably to reduce borrow check. Also</span>
+                <span class="comment">// we know the req_data Rc will not have any cloned at this point to unwrap is okay.</span>
+                <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="ident">inner</span>.<span class="ident">extensions</span>)
+                    .<span class="ident">unwrap</span>()
+                    .<span class="ident">get_mut</span>()
+                    .<span class="ident">clear</span>();
 
                 <span class="comment">// a re-borrow of pool is necessary here.</span>
-                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clone</span>();
+                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">Rc::clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>);
                 <span class="self">self</span>.<span class="ident">app_state</span>().<span class="ident">pool</span>().<span class="ident">push</span>(<span class="ident">req</span>);
             }
         }
@@ -1261,14 +1420,15 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">actix_service::Service</span>;
     <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::dev</span>::{<span class="ident">ResourceDef</span>, <span class="ident">ResourceMap</span>};
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::http</span>::{<span class="ident">header</span>, <span class="ident">StatusCode</span>};
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test</span>::{<span class="ident">call_service</span>, <span class="ident">init_service</span>, <span class="ident">read_body</span>, <span class="ident">TestRequest</span>};
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">web</span>, <span class="ident">App</span>, <span class="ident">HttpResponse</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::{
+        <span class="ident">dev</span>::{<span class="ident">ResourceDef</span>, <span class="ident">ResourceMap</span>, <span class="ident">Service</span>},
+        <span class="ident">http</span>::{<span class="ident">header</span>, <span class="ident">StatusCode</span>},
+        <span class="ident">test</span>::{<span class="self">self</span>, <span class="ident">call_service</span>, <span class="ident">init_service</span>, <span class="ident">read_body</span>, <span class="ident">TestRequest</span>},
+        <span class="ident">web</span>, <span class="ident">App</span>, <span class="ident">HttpResponse</span>,
+    };
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_debug</span>() {
@@ -1621,6 +1781,50 @@
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::get</span>().<span class="ident">uri</span>(<span class="string">&quot;/not-exist&quot;</span>).<span class="ident">to_request</span>();
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
         <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">url_for_closest_named_resource</span>() {
+        <span class="comment">// we mount the route named &#39;nested&#39; on 2 different scopes, &#39;a&#39; and &#39;b&#39;</span>
+        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">test::init_service</span>(
+            <span class="ident">App::new</span>()
+                .<span class="ident">service</span>(
+                    <span class="ident">web::scope</span>(<span class="string">&quot;/foo&quot;</span>)
+                        .<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/nested&quot;</span>).<span class="ident">name</span>(<span class="string">&quot;nested&quot;</span>).<span class="ident">route</span>(<span class="ident">web::get</span>().<span class="ident">to</span>(
+                            <span class="op">|</span><span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">|</span> {
+                                <span class="ident">HttpResponse::Ok</span>()
+                                    .<span class="ident">body</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">req</span>.<span class="ident">url_for_static</span>(<span class="string">&quot;nested&quot;</span>).<span class="ident">unwrap</span>()))
+                            },
+                        )))
+                        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/baz&quot;</span>).<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;deep&quot;</span>)))
+                        .<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;{foo_param}&quot;</span>)),
+                )
+                .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/bar&quot;</span>).<span class="ident">service</span>(
+                    <span class="ident">web::resource</span>(<span class="string">&quot;/nested&quot;</span>).<span class="ident">name</span>(<span class="string">&quot;nested&quot;</span>).<span class="ident">route</span>(<span class="ident">web::get</span>().<span class="ident">to</span>(
+                        <span class="op">|</span><span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">|</span> {
+                            <span class="ident">HttpResponse::Ok</span>()
+                                .<span class="ident">body</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">req</span>.<span class="ident">url_for_static</span>(<span class="string">&quot;nested&quot;</span>).<span class="ident">unwrap</span>()))
+                        },
+                    )),
+                )),
+        )
+        .<span class="kw">await</span>;
+
+        <span class="kw">let</span> <span class="ident">foo_resp</span> <span class="op">=</span>
+            <span class="ident">test::call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">TestRequest::with_uri</span>(<span class="string">&quot;/foo/nested&quot;</span>).<span class="ident">to_request</span>()).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(<span class="ident">foo_resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">read_body</span>(<span class="ident">foo_resp</span>).<span class="kw">await</span>;
+        <span class="comment">// `body` equals http://localhost:8080/bar/nested</span>
+        <span class="comment">// because nested from /bar overrides /foo&#39;s</span>
+        <span class="comment">// to do this any other way would require something like a custom tree search</span>
+        <span class="comment">// see https://github.com/actix/actix-web/issues/1763</span>
+        <span class="macro">assert_eq!</span>(<span class="ident">body</span>, <span class="string">&quot;http://localhost:8080/bar/nested&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">bar_resp</span> <span class="op">=</span>
+            <span class="ident">test::call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">TestRequest::with_uri</span>(<span class="string">&quot;/bar/nested&quot;</span>).<span class="ident">to_request</span>()).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(<span class="ident">bar_resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">read_body</span>(<span class="ident">bar_resp</span>).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(<span class="ident">body</span>, <span class="string">&quot;http://localhost:8080/bar/nested&quot;</span>);
     }
 }
 </code></pre></div>

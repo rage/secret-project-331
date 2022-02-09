@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-router-0.5.0-beta.3&#x2F;src&#x2F;resource.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>resource.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-router-0.5.0-rc.3&#x2F;src&#x2F;resource.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>resource.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_router/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1806,19 +1806,6 @@
 <span id="1805">1805</span>
 <span id="1806">1806</span>
 <span id="1807">1807</span>
-<span id="1808">1808</span>
-<span id="1809">1809</span>
-<span id="1810">1810</span>
-<span id="1811">1811</span>
-<span id="1812">1812</span>
-<span id="1813">1813</span>
-<span id="1814">1814</span>
-<span id="1815">1815</span>
-<span id="1816">1816</span>
-<span id="1817">1817</span>
-<span id="1818">1818</span>
-<span id="1819">1819</span>
-<span id="1820">1820</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">borrow</span>::{<span class="ident">Borrow</span>, <span class="ident">Cow</span>},
     <span class="ident">collections::HashMap</span>,
@@ -1829,10 +1816,7 @@
 <span class="kw">use</span> <span class="ident">firestorm</span>::{<span class="ident">profile_fn</span>, <span class="ident">profile_method</span>, <span class="ident">profile_section</span>};
 <span class="kw">use</span> <span class="ident">regex</span>::{<span class="ident">escape</span>, <span class="ident">Regex</span>, <span class="ident">RegexSet</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">path</span>::{<span class="ident">Path</span>, <span class="ident">PathItem</span>},
-    <span class="ident">IntoPatterns</span>, <span class="ident">Patterns</span>, <span class="ident">Resource</span>, <span class="ident">ResourcePath</span>,
-};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">path::PathItem</span>, <span class="ident">IntoPatterns</span>, <span class="ident">Patterns</span>, <span class="ident">Resource</span>, <span class="ident">ResourcePath</span>};
 
 <span class="kw">const</span> <span class="ident">MAX_DYNAMIC_SEGMENTS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">16</span>;
 
@@ -1850,26 +1834,25 @@
 <span class="doccomment">///</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Pattern Format and Matching Behavior</span>
-<span class="doccomment">///</span>
 <span class="doccomment">/// Resource pattern is defined as a string of zero or more _segments_ where each segment is</span>
 <span class="doccomment">/// preceded by a slash `/`.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This means that pattern string __must__ either be empty or begin with a slash (`/`).</span>
-<span class="doccomment">/// This also implies that a trailing slash in pattern defines an empty segment.</span>
-<span class="doccomment">/// For example, the pattern `&quot;/user/&quot;` has two segments: `[&quot;user&quot;, &quot;&quot;]`</span>
+<span class="doccomment">/// This means that pattern string __must__ either be empty or begin with a slash (`/`). This also</span>
+<span class="doccomment">/// implies that a trailing slash in pattern defines an empty segment. For example, the pattern</span>
+<span class="doccomment">/// `&quot;/user/&quot;` has two segments: `[&quot;user&quot;, &quot;&quot;]`</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// A key point to underhand is that `ResourceDef` matches segments, not strings.</span>
-<span class="doccomment">/// It matches segments individually.</span>
-<span class="doccomment">/// For example, the pattern `/user/` is not considered a prefix for the path `/user/123/456`,</span>
-<span class="doccomment">/// because the second segment doesn&#39;t match: `[&quot;user&quot;, &quot;&quot;]` vs `[&quot;user&quot;, &quot;123&quot;, &quot;456&quot;]`.</span>
+<span class="doccomment">/// A key point to understand is that `ResourceDef` matches segments, not strings. Segments are</span>
+<span class="doccomment">/// matched individually. For example, the pattern `/user/` is not considered a prefix for the path</span>
+<span class="doccomment">/// `/user/123/456`, because the second segment doesn&#39;t match: `[&quot;user&quot;, &quot;&quot;]`</span>
+<span class="doccomment">/// vs `[&quot;user&quot;, &quot;123&quot;, &quot;456&quot;]`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This definition is consistent with the definition of absolute URL path in</span>
-<span class="doccomment">/// [RFC 3986 (section 3.3)](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3)</span>
+<span class="doccomment">/// [RFC 3986 §3.3](https://datatracker.ietf.org/doc/html/rfc3986#section-3.3)</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Static Resources</span>
-<span class="doccomment">/// A static resource is the most basic type of definition. Pass a pattern to</span>
-<span class="doccomment">/// [new][Self::new]. Conforming paths must match the pattern exactly.</span>
+<span class="doccomment">/// A static resource is the most basic type of definition. Pass a pattern to [new][Self::new].</span>
+<span class="doccomment">/// Conforming paths must match the pattern exactly.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ## Examples</span>
 <span class="doccomment">/// ```</span>
@@ -1883,7 +1866,6 @@
 <span class="doccomment">/// assert!(!resource.is_match(&quot;/homes&quot;));</span>
 <span class="doccomment">/// assert!(!resource.is_match(&quot;/search&quot;));</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Dynamic Segments</span>
 <span class="doccomment">/// Also known as &quot;path parameters&quot;. Resources can define sections of a pattern that be extracted</span>
@@ -1923,15 +1905,15 @@
 <span class="doccomment">/// assert_eq!(path.get(&quot;id&quot;).unwrap(), &quot;123&quot;);</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///</span>
 <span class="doccomment">/// # Prefix Resources</span>
 <span class="doccomment">/// A prefix resource is defined as pattern that can match just the start of a path, up to a</span>
 <span class="doccomment">/// segment boundary.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Prefix patterns with a trailing slash may have an unexpected, though correct, behavior.</span>
-<span class="doccomment">/// They define and therefore require an empty segment in order to match. Examples are given below.</span>
+<span class="doccomment">/// They define and therefore require an empty segment in order to match. It is easier to understand</span>
+<span class="doccomment">/// this behavior after reading the [matching behavior section]. Examples are given below.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Empty pattern matches any path as a prefix.</span>
+<span class="doccomment">/// The empty pattern (`&quot;&quot;`), as a prefix, matches any path.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Prefix resources can contain dynamic segments.</span>
 <span class="doccomment">///</span>
@@ -1950,7 +1932,6 @@
 <span class="doccomment">/// assert!(!resource.is_match(&quot;/user/123/stars&quot;));</span>
 <span class="doccomment">/// assert!(!resource.is_match(&quot;/user/123&quot;));</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Custom Regex Segments</span>
 <span class="doccomment">/// Dynamic segments can be customised to only match a specific regular expression. It can be</span>
@@ -1979,7 +1960,6 @@
 <span class="doccomment">/// assert!(!resource.is_match(&quot;/user/abc&quot;));</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///</span>
 <span class="doccomment">/// # Tail Segments</span>
 <span class="doccomment">/// As a shortcut to defining a custom regex for matching _all_ remaining characters (not just those</span>
 <span class="doccomment">/// up until a `/` character), there is a special pattern to match (and capture) the remaining</span>
@@ -2000,7 +1980,6 @@
 <span class="doccomment">/// assert_eq!(path.get(&quot;tail&quot;).unwrap(), &quot;main/LICENSE&quot;);</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///</span>
 <span class="doccomment">/// # Multi-Pattern Resources</span>
 <span class="doccomment">/// For resources that can map to multiple distinct paths, it may be suitable to use</span>
 <span class="doccomment">/// multi-pattern resources by passing an array/vec to [`new`][Self::new]. They will be combined</span>
@@ -2019,7 +1998,6 @@
 <span class="doccomment">/// assert!(resource.is_match(&quot;/index&quot;));</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///</span>
 <span class="doccomment">/// # Trailing Slashes</span>
 <span class="doccomment">/// It should be noted that this library takes no steps to normalize intra-path or trailing slashes.</span>
 <span class="doccomment">/// As such, all resource definitions implicitly expect a pre-processing step to normalize paths if</span>
@@ -2033,6 +2011,8 @@
 <span class="doccomment">/// assert!(!ResourceDef::new(&quot;/root/&quot;).is_match(&quot;/root&quot;));</span>
 <span class="doccomment">/// assert!(!ResourceDef::prefix(&quot;/root/&quot;).is_match(&quot;/root&quot;));</span>
 <span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// [matching behavior section]: #pattern-format-and-matching-behavior</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResourceDef</span> {
     <span class="ident">id</span>: <span class="ident">u16</span>,
@@ -2100,7 +2080,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPatterns</span><span class="op">&gt;</span>(<span class="ident">paths</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">profile_method!</span>(<span class="ident">new</span>);
-        <span class="ident"><span class="self">Self</span>::new2</span>(<span class="ident">paths</span>, <span class="bool-val">false</span>)
+        <span class="ident"><span class="self">Self</span>::construct</span>(<span class="ident">paths</span>, <span class="bool-val">false</span>)
     }
 
     <span class="doccomment">/// Constructs a new resource definition using a pattern that performs prefix matching.</span>
@@ -2113,7 +2093,7 @@
     <span class="doccomment">/// resource definition with a tail segment; use [`new`][Self::new] in this case.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics if path regex pattern is malformed.</span>
+    <span class="doccomment">/// Panics if path pattern is malformed.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
@@ -2128,14 +2108,14 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prefix</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPatterns</span><span class="op">&gt;</span>(<span class="ident">paths</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">profile_method!</span>(<span class="ident">prefix</span>);
-        <span class="ident">ResourceDef::new2</span>(<span class="ident">paths</span>, <span class="bool-val">true</span>)
+        <span class="ident">ResourceDef::construct</span>(<span class="ident">paths</span>, <span class="bool-val">true</span>)
     }
 
     <span class="doccomment">/// Constructs a new resource definition using a string pattern that performs prefix matching,</span>
-    <span class="doccomment">/// inserting a `/` to beginning of the pattern if absent and pattern is not empty.</span>
+    <span class="doccomment">/// ensuring a leading `/` if pattern is not empty.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics if path regex pattern is malformed.</span>
+    <span class="doccomment">/// Panics if path pattern is malformed.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
@@ -2336,8 +2316,8 @@
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
         <span class="kw">match</span> <span class="ident">patterns</span>.<span class="ident">len</span>() {
-            <span class="number">1</span> =&gt; <span class="ident">ResourceDef::new2</span>(<span class="kw-2">&amp;</span><span class="ident">patterns</span>[<span class="number">0</span>], <span class="ident">other</span>.<span class="ident">is_prefix</span>()),
-            <span class="kw">_</span> =&gt; <span class="ident">ResourceDef::new2</span>(<span class="ident">patterns</span>, <span class="ident">other</span>.<span class="ident">is_prefix</span>()),
+            <span class="number">1</span> =&gt; <span class="ident">ResourceDef::construct</span>(<span class="kw-2">&amp;</span><span class="ident">patterns</span>[<span class="number">0</span>], <span class="ident">other</span>.<span class="ident">is_prefix</span>()),
+            <span class="kw">_</span> =&gt; <span class="ident">ResourceDef::construct</span>(<span class="ident">patterns</span>, <span class="ident">other</span>.<span class="ident">is_prefix</span>()),
         }
     }
 
@@ -2440,7 +2420,7 @@
         }
     }
 
-    <span class="doccomment">/// Collects dynamic segment values into `path`.</span>
+    <span class="doccomment">/// Collects dynamic segment values into `resource`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `true` if `path` matches this resource.</span>
     <span class="doccomment">///</span>
@@ -2460,9 +2440,9 @@
     <span class="doccomment">/// assert_eq!(path.get(&quot;path&quot;).unwrap(), &quot;HEAD/Cargo.toml&quot;);</span>
     <span class="doccomment">/// assert_eq!(path.unprocessed(), &quot;&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capture_match_info</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ResourcePath</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capture_match_info</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Resource</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">resource</span>: <span class="kw-2">&amp;mut</span> <span class="ident">R</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">profile_method!</span>(<span class="ident">capture_match_info</span>);
-        <span class="self">self</span>.<span class="ident">capture_match_info_fn</span>(<span class="ident">path</span>, <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>, ())
+        <span class="self">self</span>.<span class="ident">capture_match_info_fn</span>(<span class="ident">resource</span>, <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>)
     }
 
     <span class="doccomment">/// Collects dynamic segment values into `resource` after matching paths and executing</span>
@@ -2480,13 +2460,12 @@
     <span class="doccomment">/// use actix_router::{Path, ResourceDef};</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// fn try_match(resource: &amp;ResourceDef, path: &amp;mut Path&lt;&amp;str&gt;) -&gt; bool {</span>
-    <span class="doccomment">///     let admin_allowed = std::env::var(&quot;ADMIN_ALLOWED&quot;).ok();</span>
+    <span class="doccomment">///     let admin_allowed = std::env::var(&quot;ADMIN_ALLOWED&quot;).is_ok();</span>
     <span class="doccomment">///</span>
     <span class="doccomment">///     resource.capture_match_info_fn(</span>
     <span class="doccomment">///         path,</span>
     <span class="doccomment">///         // when env var is not set, reject when path contains &quot;admin&quot;</span>
-    <span class="doccomment">///         |res, admin_allowed| !res.path().contains(&quot;admin&quot;),</span>
-    <span class="doccomment">///         &amp;admin_allowed</span>
+    <span class="doccomment">///         |res| !(!admin_allowed &amp;&amp; res.path().contains(&quot;admin&quot;)),</span>
     <span class="doccomment">///     )</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">///</span>
@@ -2503,22 +2482,16 @@
     <span class="doccomment">/// assert!(!try_match(&amp;resource, &amp;mut path));</span>
     <span class="doccomment">/// assert_eq!(path.unprocessed(), &quot;/user/admin/stars&quot;);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capture_match_info_fn</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">U</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">resource</span>: <span class="kw-2">&amp;mut</span> <span class="ident">R</span>,
-        <span class="ident">check_fn</span>: <span class="ident">F</span>,
-        <span class="ident">user_data</span>: <span class="ident">U</span>,
-    ) -&gt; <span class="ident">bool</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capture_match_info_fn</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">resource</span>: <span class="kw-2">&amp;mut</span> <span class="ident">R</span>, <span class="ident">check_fn</span>: <span class="ident">F</span>) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
-        <span class="ident">R</span>: <span class="ident">Resource</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-        <span class="ident">T</span>: <span class="ident">ResourcePath</span>,
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">R</span>, <span class="ident">U</span>) -&gt; <span class="ident">bool</span>,
+        <span class="ident">R</span>: <span class="ident">Resource</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">R</span>) -&gt; <span class="ident">bool</span>,
     {
         <span class="macro">profile_method!</span>(<span class="ident">capture_match_info_fn</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">segments</span> <span class="op">=</span> <span class="op">&lt;</span>[<span class="ident">PathItem</span>; <span class="ident">MAX_DYNAMIC_SEGMENTS</span>]<span class="op">&gt;</span><span class="ident">::default</span>();
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">resource</span>.<span class="ident">resource_path</span>();
-        <span class="kw">let</span> <span class="ident">path_str</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">path</span>();
+        <span class="kw">let</span> <span class="ident">path_str</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">unprocessed</span>();
 
         <span class="kw">let</span> (<span class="ident">matched_len</span>, <span class="ident">matched_vars</span>) <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pat_type</span> {
             <span class="ident">PatternType::Static</span>(<span class="ident">pattern</span>) =&gt; {
@@ -2536,7 +2509,7 @@
                 <span class="kw">let</span> <span class="ident">captures</span> <span class="op">=</span> {
                     <span class="macro">profile_section!</span>(<span class="ident">pattern_dynamic_regex_exec</span>);
 
-                    <span class="kw">match</span> <span class="ident">re</span>.<span class="ident">captures</span>(<span class="ident">path</span>.<span class="ident">path</span>()) {
+                    <span class="kw">match</span> <span class="ident">re</span>.<span class="ident">captures</span>(<span class="ident">path</span>.<span class="ident">unprocessed</span>()) {
                         <span class="prelude-val">Some</span>(<span class="ident">captures</span>) =&gt; <span class="ident">captures</span>,
                         <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
                     }
@@ -2564,7 +2537,7 @@
             <span class="ident">PatternType::DynamicSet</span>(<span class="ident">re</span>, <span class="ident">params</span>) =&gt; {
                 <span class="macro">profile_section!</span>(<span class="ident">pattern_dynamic_set</span>);
 
-                <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">path</span>();
+                <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">unprocessed</span>();
                 <span class="kw">let</span> (<span class="ident">pattern</span>, <span class="ident">names</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">re</span>.<span class="ident">matches</span>(<span class="ident">path</span>).<span class="ident">into_iter</span>().<span class="ident">next</span>() {
                     <span class="prelude-val">Some</span>(<span class="ident">idx</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">params</span>[<span class="ident">idx</span>],
                     <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
@@ -2588,7 +2561,7 @@
             }
         };
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">check_fn</span>(<span class="ident">resource</span>, <span class="ident">user_data</span>) {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">check_fn</span>(<span class="ident">resource</span>) {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
 
@@ -2683,7 +2656,7 @@
         <span class="ident">S</span>: <span class="ident">BuildHasher</span>,
     {
         <span class="macro">profile_method!</span>(<span class="ident">resource_path_from_map</span>);
-        <span class="self">self</span>.<span class="ident">build_resource_path</span>(<span class="ident">path</span>, <span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident">values</span>.<span class="ident">get</span>(<span class="ident">name</span>).<span class="ident">map</span>(<span class="ident">AsRef</span>::<span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="ident">::as_ref</span>))
+        <span class="self">self</span>.<span class="ident">build_resource_path</span>(<span class="ident">path</span>, <span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident">values</span>.<span class="ident">get</span>(<span class="ident">name</span>))
     }
 
     <span class="doccomment">/// Returns true if `prefix` acts as a proper prefix (i.e., separated by a slash) in `path`.</span>
@@ -2702,8 +2675,8 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">new2</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPatterns</span><span class="op">&gt;</span>(<span class="ident">paths</span>: <span class="ident">T</span>, <span class="ident">is_prefix</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">profile_method!</span>(<span class="ident">new2</span>);
+    <span class="kw">fn</span> <span class="ident">construct</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPatterns</span><span class="op">&gt;</span>(<span class="ident">paths</span>: <span class="ident">T</span>, <span class="ident">is_prefix</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
+        <span class="macro">profile_method!</span>(<span class="ident">construct</span>);
 
         <span class="kw">let</span> <span class="ident">patterns</span> <span class="op">=</span> <span class="ident">paths</span>.<span class="ident">patterns</span>();
         <span class="kw">let</span> (<span class="ident">pat_type</span>, <span class="ident">segments</span>) <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">patterns</span> {
@@ -2983,6 +2956,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Path</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">equivalence</span>() {
@@ -3635,7 +3609,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">prefix_plus_tail_match_is_allowed</span>() {
+    <span class="kw">fn</span> <span class="ident">prefix_plus_tail_match_disallowed</span>() {
         <span class="ident">ResourceDef::prefix</span>(<span class="string">&quot;/user/{id}*&quot;</span>);
     }
 }

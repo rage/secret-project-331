@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.14&#x2F;src&#x2F;header&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-rc.1&#x2F;src&#x2F;header&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
@@ -81,14 +81,6 @@
 <span id="80">80</span>
 <span id="81">81</span>
 <span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
-<span id="86">86</span>
-<span id="87">87</span>
-<span id="88">88</span>
-<span id="89">89</span>
-<span id="90">90</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Pre-defined `HeaderName`s, traits for parsing and conversion, and other header utility methods.</span>
 
 <span class="kw">use</span> <span class="ident">percent_encoding</span>::{<span class="ident">AsciiSet</span>, <span class="ident">CONTROLS</span>};
@@ -102,22 +94,20 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">http::header</span>::{
     <span class="ident">ACCEPT</span>, <span class="ident">ACCEPT_CHARSET</span>, <span class="ident">ACCEPT_ENCODING</span>, <span class="ident">ACCEPT_LANGUAGE</span>, <span class="ident">ACCEPT_RANGES</span>,
     <span class="ident">ACCESS_CONTROL_ALLOW_CREDENTIALS</span>, <span class="ident">ACCESS_CONTROL_ALLOW_HEADERS</span>,
-    <span class="ident">ACCESS_CONTROL_ALLOW_METHODS</span>, <span class="ident">ACCESS_CONTROL_ALLOW_ORIGIN</span>,
-    <span class="ident">ACCESS_CONTROL_EXPOSE_HEADERS</span>, <span class="ident">ACCESS_CONTROL_MAX_AGE</span>,
-    <span class="ident">ACCESS_CONTROL_REQUEST_HEADERS</span>, <span class="ident">ACCESS_CONTROL_REQUEST_METHOD</span>, <span class="ident">AGE</span>, <span class="ident">ALLOW</span>, <span class="ident">ALT_SVC</span>,
-    <span class="ident">AUTHORIZATION</span>, <span class="ident">CACHE_CONTROL</span>, <span class="ident">CONNECTION</span>, <span class="ident">CONTENT_DISPOSITION</span>, <span class="ident">CONTENT_ENCODING</span>,
-    <span class="ident">CONTENT_LANGUAGE</span>, <span class="ident">CONTENT_LENGTH</span>, <span class="ident">CONTENT_LOCATION</span>, <span class="ident">CONTENT_RANGE</span>,
-    <span class="ident">CONTENT_SECURITY_POLICY</span>, <span class="ident">CONTENT_SECURITY_POLICY_REPORT_ONLY</span>, <span class="ident">CONTENT_TYPE</span>, <span class="ident">COOKIE</span>,
-    <span class="ident">DATE</span>, <span class="ident">DNT</span>, <span class="ident">ETAG</span>, <span class="ident">EXPECT</span>, <span class="ident">EXPIRES</span>, <span class="ident">FORWARDED</span>, <span class="ident">FROM</span>, <span class="ident">HOST</span>, <span class="ident">IF_MATCH</span>,
-    <span class="ident">IF_MODIFIED_SINCE</span>, <span class="ident">IF_NONE_MATCH</span>, <span class="ident">IF_RANGE</span>, <span class="ident">IF_UNMODIFIED_SINCE</span>, <span class="ident">LAST_MODIFIED</span>,
-    <span class="ident">LINK</span>, <span class="ident">LOCATION</span>, <span class="ident">MAX_FORWARDS</span>, <span class="ident">ORIGIN</span>, <span class="ident">PRAGMA</span>, <span class="ident">PROXY_AUTHENTICATE</span>,
-    <span class="ident">PROXY_AUTHORIZATION</span>, <span class="ident">PUBLIC_KEY_PINS</span>, <span class="ident">PUBLIC_KEY_PINS_REPORT_ONLY</span>, <span class="ident">RANGE</span>, <span class="ident">REFERER</span>,
-    <span class="ident">REFERRER_POLICY</span>, <span class="ident">REFRESH</span>, <span class="ident">RETRY_AFTER</span>, <span class="ident">SEC_WEBSOCKET_ACCEPT</span>,
-    <span class="ident">SEC_WEBSOCKET_EXTENSIONS</span>, <span class="ident">SEC_WEBSOCKET_KEY</span>, <span class="ident">SEC_WEBSOCKET_PROTOCOL</span>,
+    <span class="ident">ACCESS_CONTROL_ALLOW_METHODS</span>, <span class="ident">ACCESS_CONTROL_ALLOW_ORIGIN</span>, <span class="ident">ACCESS_CONTROL_EXPOSE_HEADERS</span>,
+    <span class="ident">ACCESS_CONTROL_MAX_AGE</span>, <span class="ident">ACCESS_CONTROL_REQUEST_HEADERS</span>, <span class="ident">ACCESS_CONTROL_REQUEST_METHOD</span>, <span class="ident">AGE</span>,
+    <span class="ident">ALLOW</span>, <span class="ident">ALT_SVC</span>, <span class="ident">AUTHORIZATION</span>, <span class="ident">CACHE_CONTROL</span>, <span class="ident">CONNECTION</span>, <span class="ident">CONTENT_DISPOSITION</span>,
+    <span class="ident">CONTENT_ENCODING</span>, <span class="ident">CONTENT_LANGUAGE</span>, <span class="ident">CONTENT_LENGTH</span>, <span class="ident">CONTENT_LOCATION</span>, <span class="ident">CONTENT_RANGE</span>,
+    <span class="ident">CONTENT_SECURITY_POLICY</span>, <span class="ident">CONTENT_SECURITY_POLICY_REPORT_ONLY</span>, <span class="ident">CONTENT_TYPE</span>, <span class="ident">COOKIE</span>, <span class="ident">DATE</span>,
+    <span class="ident">DNT</span>, <span class="ident">ETAG</span>, <span class="ident">EXPECT</span>, <span class="ident">EXPIRES</span>, <span class="ident">FORWARDED</span>, <span class="ident">FROM</span>, <span class="ident">HOST</span>, <span class="ident">IF_MATCH</span>, <span class="ident">IF_MODIFIED_SINCE</span>,
+    <span class="ident">IF_NONE_MATCH</span>, <span class="ident">IF_RANGE</span>, <span class="ident">IF_UNMODIFIED_SINCE</span>, <span class="ident">LAST_MODIFIED</span>, <span class="ident">LINK</span>, <span class="ident">LOCATION</span>, <span class="ident">MAX_FORWARDS</span>,
+    <span class="ident">ORIGIN</span>, <span class="ident">PRAGMA</span>, <span class="ident">PROXY_AUTHENTICATE</span>, <span class="ident">PROXY_AUTHORIZATION</span>, <span class="ident">PUBLIC_KEY_PINS</span>,
+    <span class="ident">PUBLIC_KEY_PINS_REPORT_ONLY</span>, <span class="ident">RANGE</span>, <span class="ident">REFERER</span>, <span class="ident">REFERRER_POLICY</span>, <span class="ident">REFRESH</span>, <span class="ident">RETRY_AFTER</span>,
+    <span class="ident">SEC_WEBSOCKET_ACCEPT</span>, <span class="ident">SEC_WEBSOCKET_EXTENSIONS</span>, <span class="ident">SEC_WEBSOCKET_KEY</span>, <span class="ident">SEC_WEBSOCKET_PROTOCOL</span>,
     <span class="ident">SEC_WEBSOCKET_VERSION</span>, <span class="ident">SERVER</span>, <span class="ident">SET_COOKIE</span>, <span class="ident">STRICT_TRANSPORT_SECURITY</span>, <span class="ident">TE</span>, <span class="ident">TRAILER</span>,
-    <span class="ident">TRANSFER_ENCODING</span>, <span class="ident">UPGRADE</span>, <span class="ident">UPGRADE_INSECURE_REQUESTS</span>, <span class="ident">USER_AGENT</span>, <span class="ident">VARY</span>, <span class="ident">VIA</span>,
-    <span class="ident">WARNING</span>, <span class="ident">WWW_AUTHENTICATE</span>, <span class="ident">X_CONTENT_TYPE_OPTIONS</span>, <span class="ident">X_DNS_PREFETCH_CONTROL</span>,
-    <span class="ident">X_FRAME_OPTIONS</span>, <span class="ident">X_XSS_PROTECTION</span>,
+    <span class="ident">TRANSFER_ENCODING</span>, <span class="ident">UPGRADE</span>, <span class="ident">UPGRADE_INSECURE_REQUESTS</span>, <span class="ident">USER_AGENT</span>, <span class="ident">VARY</span>, <span class="ident">VIA</span>, <span class="ident">WARNING</span>,
+    <span class="ident">WWW_AUTHENTICATE</span>, <span class="ident">X_CONTENT_TYPE_OPTIONS</span>, <span class="ident">X_DNS_PREFETCH_CONTROL</span>, <span class="ident">X_FRAME_OPTIONS</span>,
+    <span class="ident">X_XSS_PROTECTION</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">error::ParseError</span>, <span class="ident">HttpMessage</span>};
@@ -129,35 +119,29 @@
 <span class="kw">mod</span> <span class="ident">shared</span>;
 <span class="kw">mod</span> <span class="ident">utils</span>;
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::shared</span>::<span class="kw-2">*</span>;
-
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::as_name::AsHeaderName</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::into_pair::IntoHeaderPair</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::into_value::IntoHeaderValue</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::into_pair::TryIntoHeaderPair</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::into_value::TryIntoHeaderValue</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::map::HeaderMap</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::shared</span>::{
+    <span class="ident">parse_extended_value</span>, <span class="ident">q</span>, <span class="ident">Charset</span>, <span class="ident">ContentEncoding</span>, <span class="ident">ExtendedValue</span>, <span class="ident">HttpDate</span>, <span class="ident">LanguageTag</span>,
+    <span class="ident">Quality</span>, <span class="ident">QualityItem</span>,
+};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::utils</span>::{
     <span class="ident">fmt_comma_delimited</span>, <span class="ident">from_comma_delimited</span>, <span class="ident">from_one_raw_str</span>, <span class="ident">http_percent_encode</span>,
 };
 
 <span class="doccomment">/// An interface for types that already represent a valid header.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Header</span>: <span class="ident">IntoHeaderValue</span> {
-    <span class="doccomment">/// Returns the name of the header field</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Header</span>: <span class="ident">TryIntoHeaderValue</span> {
+    <span class="doccomment">/// Returns the name of the header field.</span>
     <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">HeaderName</span>;
 
-    <span class="doccomment">/// Parse a header</span>
-    <span class="kw">fn</span> <span class="ident">parse</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HttpMessage</span><span class="op">&gt;</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">ParseError</span><span class="op">&gt;</span>;
-}
-
-<span class="doccomment">/// Convert `http::HeaderMap` to our `HeaderMap`.</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">http::HeaderMap</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HeaderMap</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw-2">mut</span> <span class="ident">map</span>: <span class="ident">http::HeaderMap</span>) -&gt; <span class="ident">HeaderMap</span> {
-        <span class="ident">HeaderMap::from_drain</span>(<span class="ident">map</span>.<span class="ident">drain</span>())
-    }
+    <span class="doccomment">/// Parse the header from a HTTP message.</span>
+    <span class="kw">fn</span> <span class="ident">parse</span><span class="op">&lt;</span><span class="ident">M</span>: <span class="ident">HttpMessage</span><span class="op">&gt;</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">M</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">ParseError</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">/// This encode set is used for HTTP header values and is defined at</span>
-<span class="doccomment">/// &lt;https://tools.ietf.org/html/rfc5987#section-3.2&gt;.</span>
+<span class="doccomment">/// &lt;https://datatracker.ietf.org/doc/html/rfc5987#section-3.2&gt;.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">HTTP_VALUE</span>: <span class="kw-2">&amp;</span><span class="ident">AsciiSet</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">CONTROLS</span>
     .<span class="ident">add</span>(<span class="string">b&#39; &#39;</span>)
     .<span class="ident">add</span>(<span class="string">b&#39;&quot;&#39;</span>)

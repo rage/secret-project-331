@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-web-4.0.0-beta.13&#x2F;src&#x2F;http&#x2F;header&#x2F;content_disposition.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>content_disposition.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-web-4.0.0-rc.2&#x2F;src&#x2F;http&#x2F;header&#x2F;content_disposition.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>content_disposition.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../actix_web/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -980,19 +980,30 @@
 <span id="979">979</span>
 <span id="980">980</span>
 <span id="981">981</span>
-</pre><pre class="rust"><code><span class="doccomment">//! # References</span>
+<span id="982">982</span>
+<span id="983">983</span>
+<span id="984">984</span>
+<span id="985">985</span>
+<span id="986">986</span>
+<span id="987">987</span>
+<span id="988">988</span>
+</pre><pre class="rust"><code><span class="doccomment">//! The `Content-Disposition` header and associated types.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! &quot;The Content-Disposition Header Field&quot; &lt;https://www.ietf.org/rfc/rfc2183.txt&gt;</span>
-<span class="doccomment">//! &quot;The Content-Disposition Header Field in the Hypertext Transfer Protocol (HTTP)&quot; &lt;https://www.ietf.org/rfc/rfc6266.txt&gt;</span>
-<span class="doccomment">//! &quot;Returning Values from Forms: multipart/form-data&quot; &lt;https://www.ietf.org/rfc/rfc7578.txt&gt;</span>
-<span class="doccomment">//! Browser conformance tests at: &lt;http://greenbytes.de/tech/tc2231/&gt;</span>
-<span class="doccomment">//! IANA assignment: &lt;http://www.iana.org/assignments/cont-disp/cont-disp.xhtml&gt;</span>
+<span class="doccomment">//! # References</span>
+<span class="doccomment">//! - &quot;The Content-Disposition Header Field&quot;:</span>
+<span class="doccomment">//!   &lt;https://datatracker.ietf.org/doc/html/rfc2183&gt;</span>
+<span class="doccomment">//! - &quot;The Content-Disposition Header Field in the Hypertext Transfer Protocol (HTTP)&quot;:</span>
+<span class="doccomment">//!   &lt;https://datatracker.ietf.org/doc/html/rfc6266&gt;</span>
+<span class="doccomment">//! - &quot;Returning Values from Forms: multipart/form-data&quot;:</span>
+<span class="doccomment">//!   &lt;https://datatracker.ietf.org/doc/html/rfc7578&gt;</span>
+<span class="doccomment">//! - Browser conformance tests at: &lt;http://greenbytes.de/tech/tc2231/&gt;</span>
+<span class="doccomment">//! - IANA assignment: &lt;http://www.iana.org/assignments/cont-disp/cont-disp.xhtml&gt;</span>
 
 <span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
 <span class="kw">use</span> <span class="ident">regex::Regex</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Write</span>};
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ExtendedValue</span>, <span class="ident">Header</span>, <span class="ident">IntoHeaderValue</span>, <span class="ident">Writer</span>};
+<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ExtendedValue</span>, <span class="ident">Header</span>, <span class="ident">TryIntoHeaderValue</span>, <span class="ident">Writer</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::http::header</span>;
 
 <span class="doccomment">/// Split at the index of the first `needle` if it exists or at the end.</span>
@@ -1023,8 +1034,9 @@
     <span class="doccomment">/// rather than process it normally (as per its media type).</span>
     <span class="ident">Attachment</span>,
 
-    <span class="doccomment">/// Used in *multipart/form-data* as defined in [RFC7578](https://tools.ietf.org/html/rfc7578)</span>
-    <span class="doccomment">/// to carry the field name and optional filename.</span>
+    <span class="doccomment">/// Used in *multipart/form-data* as defined in</span>
+    <span class="doccomment">/// [RFC 7578](https://datatracker.ietf.org/doc/html/rfc7578) to carry the field name and</span>
+    <span class="doccomment">/// optional filename.</span>
     <span class="ident">FormData</span>,
 
     <span class="doccomment">/// Extension type. Should be handled by recipients the same way as Attachment.</span>
@@ -1064,26 +1076,29 @@
 
     <span class="doccomment">/// A plain file name.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// It is [not supposed](https://tools.ietf.org/html/rfc6266#appendix-D) to contain any</span>
-    <span class="doccomment">/// non-ASCII characters when used in a *Content-Disposition* HTTP response header, where</span>
+    <span class="doccomment">/// It is [not supposed](https://datatracker.ietf.org/doc/html/rfc6266#appendix-D) to contain</span>
+    <span class="doccomment">/// any non-ASCII characters when used in a *Content-Disposition* HTTP response header, where</span>
     <span class="doccomment">/// [`FilenameExt`](DispositionParam::FilenameExt) with charset UTF-8 may be used instead</span>
     <span class="doccomment">/// in case there are Unicode characters in file names.</span>
     <span class="ident">Filename</span>(<span class="ident">String</span>),
 
     <span class="doccomment">/// An extended file name. It must not exist for `ContentType::Formdata` according to</span>
-    <span class="doccomment">/// [RFC7578 Section 4.2](https://tools.ietf.org/html/rfc7578#section-4.2).</span>
+    <span class="doccomment">/// [RFC 7578 §4.2](https://datatracker.ietf.org/doc/html/rfc7578#section-4.2).</span>
     <span class="ident">FilenameExt</span>(<span class="ident">ExtendedValue</span>),
 
     <span class="doccomment">/// An unrecognized regular parameter as defined in</span>
-    <span class="doccomment">/// [RFC5987](https://tools.ietf.org/html/rfc5987) as *reg-parameter*, in</span>
-    <span class="doccomment">/// [RFC6266](https://tools.ietf.org/html/rfc6266) as *token &quot;=&quot; value*. Recipients should</span>
-    <span class="doccomment">/// ignore unrecognizable parameters.</span>
+    <span class="doccomment">/// [RFC 5987 §3.2.1](https://datatracker.ietf.org/doc/html/rfc5987#section-3.2.1) as</span>
+    <span class="doccomment">/// `reg-parameter`, in</span>
+    <span class="doccomment">/// [RFC 6266 §4.1](https://datatracker.ietf.org/doc/html/rfc6266#section-4.1) as</span>
+    <span class="doccomment">/// `token &quot;=&quot; value`. Recipients should ignore unrecognizable parameters.</span>
     <span class="ident">Unknown</span>(<span class="ident">String</span>, <span class="ident">String</span>),
 
     <span class="doccomment">/// An unrecognized extended parameter as defined in</span>
-    <span class="doccomment">/// [RFC5987](https://tools.ietf.org/html/rfc5987) as *ext-parameter*, in</span>
-    <span class="doccomment">/// [RFC6266](https://tools.ietf.org/html/rfc6266) as *ext-token &quot;=&quot; ext-value*. The single</span>
-    <span class="doccomment">/// trailing asterisk is not included. Recipients should ignore unrecognizable parameters.</span>
+    <span class="doccomment">/// [RFC 5987 §3.2.1](https://datatracker.ietf.org/doc/html/rfc5987#section-3.2.1) as</span>
+    <span class="doccomment">/// `ext-parameter`, in</span>
+    <span class="doccomment">/// [RFC 6266 §4.1](https://datatracker.ietf.org/doc/html/rfc6266#section-4.1) as</span>
+    <span class="doccomment">/// `ext-token &quot;=&quot; ext-value`. The single trailing asterisk is not included. Recipients should</span>
+    <span class="doccomment">/// ignore unrecognizable parameters.</span>
     <span class="ident">UnknownExt</span>(<span class="ident">String</span>, <span class="ident">ExtendedValue</span>),
 }
 
@@ -1177,10 +1192,10 @@
 }
 
 <span class="doccomment">/// A *Content-Disposition* header. It is compatible to be used either as</span>
-<span class="doccomment">/// [a response header for the main body](https://mdn.io/Content-Disposition#As_a_response_header_for_the_main_body)</span>
-<span class="doccomment">/// as (re)defined in [RFC6266](https://tools.ietf.org/html/rfc6266), or as</span>
+<span class="doccomment">/// [a response header for the main body](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#as_a_response_header_for_the_main_body)</span>
+<span class="doccomment">/// as (re)defined in [RFC 6266](https://datatracker.ietf.org/doc/html/rfc6266), or as</span>
 <span class="doccomment">/// [a header for a multipart body](https://mdn.io/Content-Disposition#As_a_header_for_a_multipart_body)</span>
-<span class="doccomment">/// as (re)defined in [RFC7587](https://tools.ietf.org/html/rfc7578).</span>
+<span class="doccomment">/// as (re)defined in [RFC 7587](https://datatracker.ietf.org/doc/html/rfc7578).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// In a regular HTTP response, the *Content-Disposition* response header is a header indicating if</span>
 <span class="doccomment">/// the content is expected to be displayed *inline* in the browser, that is, as a Web page or as</span>
@@ -1194,7 +1209,7 @@
 <span class="doccomment">/// itself, *Content-Disposition* has no effect.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # ABNF</span>
-<span class="doccomment">/// ```text</span>
+<span class="doccomment">/// ```plain</span>
 <span class="doccomment">/// content-disposition = &quot;Content-Disposition&quot; &quot;:&quot;</span>
 <span class="doccomment">///                       disposition-type *( &quot;;&quot; disposition-parm )</span>
 <span class="doccomment">///</span>
@@ -1215,19 +1230,17 @@
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Note</span>
+<span class="doccomment">/// *filename* is [not supposed](https://datatracker.ietf.org/doc/html/rfc6266#appendix-D) to</span>
+<span class="doccomment">/// contain any non-ASCII characters when used in a *Content-Disposition* HTTP response header,</span>
+<span class="doccomment">/// where filename* with charset UTF-8 may be used instead in case there are Unicode characters in</span>
+<span class="doccomment">/// file names. Filename is [acceptable](https://datatracker.ietf.org/doc/html/rfc7578#section-4.2)</span>
+<span class="doccomment">/// to be UTF-8 encoded directly in a *Content-Disposition* header for</span>
+<span class="doccomment">/// *multipart/form-data*, though.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// filename is [not supposed](https://tools.ietf.org/html/rfc6266#appendix-D) to contain any</span>
-<span class="doccomment">/// non-ASCII characters when used in a *Content-Disposition* HTTP response header, where</span>
-<span class="doccomment">/// filename* with charset UTF-8 may be used instead in case there are Unicode characters in file</span>
-<span class="doccomment">/// names.</span>
-<span class="doccomment">/// filename is [acceptable](https://tools.ietf.org/html/rfc7578#section-4.2) to be UTF-8 encoded</span>
-<span class="doccomment">/// directly in a *Content-Disposition* header for *multipart/form-data*, though.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// filename* [must not](https://tools.ietf.org/html/rfc7578#section-4.2) be used within</span>
+<span class="doccomment">/// *filename* [must not](https://datatracker.ietf.org/doc/html/rfc7578#section-4.2) be used within</span>
 <span class="doccomment">/// *multipart/form-data*.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use actix_web::http::header::{</span>
 <span class="doccomment">///     Charset, ContentDisposition, DispositionParam, DispositionType,</span>
@@ -1273,11 +1286,10 @@
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Security Note</span>
-<span class="doccomment">///</span>
 <span class="doccomment">/// If &quot;filename&quot; parameter is supplied, do not use the file name blindly, check and possibly</span>
 <span class="doccomment">/// change to match local file system conventions if applicable, and do not use directory path</span>
-<span class="doccomment">/// information that may be present. See [RFC2183](https://tools.ietf.org/html/rfc2183#section-2.3).</span>
-<span class="comment">// TODO: private fields and use smallvec</span>
+<span class="doccomment">/// information that may be present.</span>
+<span class="doccomment">/// See [RFC 2183 §2.3](https://datatracker.ietf.org/doc/html/rfc2183#section-2.3).</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ContentDisposition</span> {
     <span class="doccomment">/// The disposition type</span>
@@ -1324,7 +1336,7 @@
             } <span class="kw">else</span> {
                 <span class="comment">// regular parameters</span>
                 <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">left</span>.<span class="ident">starts_with</span>(<span class="string">&#39;\&quot;&#39;</span>) {
-                    <span class="comment">// quoted-string: defined in RFC6266 -&gt; RFC2616 Section 3.6</span>
+                    <span class="comment">// quoted-string: defined in RFC 6266 -&gt; RFC 2616 Section 3.6</span>
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">escaping</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quoted_string</span> <span class="op">=</span> <span class="macro">vec!</span>[];
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">end</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -1375,22 +1387,22 @@
         <span class="prelude-val">Ok</span>(<span class="ident">cd</span>)
     }
 
-    <span class="doccomment">/// Returns `true` if it is [`Inline`](DispositionType::Inline).</span>
+    <span class="doccomment">/// Returns `true` if type is [`Inline`](DispositionType::Inline).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_inline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">disposition</span>, <span class="ident">DispositionType::Inline</span>)
     }
 
-    <span class="doccomment">/// Returns `true` if it is [`Attachment`](DispositionType::Attachment).</span>
+    <span class="doccomment">/// Returns `true` if type is [`Attachment`](DispositionType::Attachment).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_attachment</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">disposition</span>, <span class="ident">DispositionType::Attachment</span>)
     }
 
-    <span class="doccomment">/// Returns `true` if it is [`FormData`](DispositionType::FormData).</span>
+    <span class="doccomment">/// Returns `true` if type is [`FormData`](DispositionType::FormData).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_form_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">disposition</span>, <span class="ident">DispositionType::FormData</span>)
     }
 
-    <span class="doccomment">/// Returns `true` if it is [`Ext`](DispositionType::Ext) and the `disp_type` matches.</span>
+    <span class="doccomment">/// Returns `true` if type is [`Ext`](DispositionType::Ext) and the `disp_type` matches.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_ext</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">disp_type</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(
             <span class="self">self</span>.<span class="ident">disposition</span>,
@@ -1430,7 +1442,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">IntoHeaderValue</span> <span class="kw">for</span> <span class="ident">ContentDisposition</span> {
+<span class="kw">impl</span> <span class="ident">TryIntoHeaderValue</span> <span class="kw">for</span> <span class="ident">ContentDisposition</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">header::InvalidHeaderValue</span>;
 
     <span class="kw">fn</span> <span class="ident">try_into_value</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">header::HeaderValue</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
@@ -1469,7 +1481,9 @@
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="comment">// All ASCII control characters (0-30, 127) including horizontal tab, double quote, and</span>
         <span class="comment">// backslash should be escaped in quoted-string (i.e. &quot;foobar&quot;).</span>
-        <span class="comment">// Ref: RFC6266 S4.1 -&gt; RFC2616 S3.6</span>
+        <span class="comment">//</span>
+        <span class="comment">// Ref: RFC 6266 §4.1 -&gt; RFC 2616 §3.6</span>
+        <span class="comment">//</span>
         <span class="comment">// filename-parm  = &quot;filename&quot; &quot;=&quot; value</span>
         <span class="comment">// value          = token | quoted-string</span>
         <span class="comment">// quoted-string  = ( &lt;&quot;&gt; *(qdtext | quoted-pair ) &lt;&quot;&gt; )</span>
@@ -1483,7 +1497,7 @@
         <span class="comment">// CTL            = &lt;any US-ASCII control character</span>
         <span class="comment">//                  (octets 0 - 31) and DEL (127)&gt;</span>
         <span class="comment">//</span>
-        <span class="comment">// Ref: RFC7578 S4.2 -&gt; RFC2183 S2 -&gt; RFC2045 S5.1</span>
+        <span class="comment">// Ref: RFC 7578 S4.2 -&gt; RFC 2183 S2 -&gt; RFC 2045 S5.1</span>
         <span class="comment">// parameter := attribute &quot;=&quot; value</span>
         <span class="comment">// attribute := token</span>
         <span class="comment">//              ; Matching of attributes</span>
@@ -1728,7 +1742,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_raw_with_unicode</span>() {
-        <span class="comment">/* RFC7578 Section 4.2:
+        <span class="comment">/* RFC 7578 Section 4.2:
         Some commonly deployed systems use multipart/form-data with file names directly encoded
         including octets outside the US-ASCII range. The encoding used for the file names is
         typically UTF-8, although HTML forms will use the charset associated with the form.
@@ -1801,9 +1815,9 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_from_raw_unnecessary_percent_decode</span>() {
-        <span class="comment">// In fact, RFC7578 (multipart/form-data) Section 2 and 4.2 suggests that filename with</span>
+        <span class="comment">// In fact, RFC 7578 (multipart/form-data) Section 2 and 4.2 suggests that filename with</span>
         <span class="comment">// non-ASCII characters MAY be percent-encoded.</span>
-        <span class="comment">// On the contrary, RFC6266 or other RFCs related to Content-Disposition response header</span>
+        <span class="comment">// On the contrary, RFC 6266 or other RFCs related to Content-Disposition response header</span>
         <span class="comment">// do not mention such percent-encoding.</span>
         <span class="comment">// So, it appears to be undecidable whether to percent-decode or not without</span>
         <span class="comment">// knowing the usage scenario (multipart/form-data v.s. HTTP response header) and</span>

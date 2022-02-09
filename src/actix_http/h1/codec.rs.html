@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.14&#x2F;src&#x2F;h1&#x2F;codec.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>codec.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-rc.1&#x2F;src&#x2F;h1&#x2F;codec.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>codec.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -239,6 +239,8 @@
 <span id="238">238</span>
 <span id="239">239</span>
 <span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">io</span>};
 
 <span class="kw">use</span> <span class="ident">actix_codec</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>};
@@ -246,21 +248,19 @@
 <span class="kw">use</span> <span class="ident">bytes::BytesMut</span>;
 <span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">Method</span>, <span class="ident">Version</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::decoder</span>::{<span class="ident">PayloadDecoder</span>, <span class="ident">PayloadItem</span>, <span class="ident">PayloadType</span>};
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">decoder</span>, <span class="ident">encoder</span>};
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Message</span>, <span class="ident">MessageType</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::body::BodySize</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::config::ServiceConfig</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::ParseError</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::message::ConnectionType</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::request::Request</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::response::Response</span>;
+<span class="kw">use</span> <span class="kw">super</span>::{
+    <span class="ident">decoder</span>::{<span class="self">self</span>, <span class="ident">PayloadDecoder</span>, <span class="ident">PayloadItem</span>, <span class="ident">PayloadType</span>},
+    <span class="ident">encoder</span>, <span class="ident">Message</span>, <span class="ident">MessageType</span>,
+};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">body::BodySize</span>, <span class="ident">error::ParseError</span>, <span class="ident">ConnectionType</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">ServiceConfig</span>,
+};
 
 <span class="macro">bitflags!</span> {
     <span class="kw">struct</span> <span class="ident">Flags</span>: <span class="ident">u8</span> {
-        <span class="kw">const</span> <span class="ident">HEAD</span>              <span class="op">=</span> <span class="number">0b0000_0001</span>;
-        <span class="kw">const</span> <span class="ident">KEEPALIVE_ENABLED</span> <span class="op">=</span> <span class="number">0b0000_0010</span>;
-        <span class="kw">const</span> <span class="ident">STREAM</span>            <span class="op">=</span> <span class="number">0b0000_0100</span>;
+        <span class="kw">const</span> <span class="ident">HEAD</span>               <span class="op">=</span> <span class="number">0b0000_0001</span>;
+        <span class="kw">const</span> <span class="ident">KEEP_ALIVE_ENABLED</span> <span class="op">=</span> <span class="number">0b0000_0010</span>;
+        <span class="kw">const</span> <span class="ident">STREAM</span>             <span class="op">=</span> <span class="number">0b0000_0100</span>;
     }
 }
 
@@ -285,7 +285,9 @@
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Codec</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;h1::Codec({:?})&quot;</span>, <span class="self">self</span>.<span class="ident">flags</span>)
+        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;h1::Codec&quot;</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;flags&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">flags</span>)
+            .<span class="ident">finish_non_exhaustive</span>()
     }
 }
 
@@ -294,8 +296,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// `keepalive_enabled` how response `connection` header get generated.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">config</span>: <span class="ident">ServiceConfig</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">flags</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">keep_alive_enabled</span>() {
-            <span class="ident">Flags::KEEPALIVE_ENABLED</span>
+        <span class="kw">let</span> <span class="ident">flags</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">keep_alive</span>().<span class="ident">enabled</span>() {
+            <span class="ident">Flags::KEEP_ALIVE_ENABLED</span>
         } <span class="kw">else</span> {
             <span class="ident">Flags::empty</span>()
         };
@@ -319,14 +321,14 @@
 
     <span class="doccomment">/// Check if last response is keep-alive.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keepalive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">conn_type</span> <span class="op">==</span> <span class="ident">ConnectionType::KeepAlive</span>
     }
 
     <span class="doccomment">/// Check if keep-alive enabled on server level.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keepalive_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::KEEPALIVE_ENABLED</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::KEEP_ALIVE_ENABLED</span>)
     }
 
     <span class="doccomment">/// Check last request&#39;s message type.</span>
@@ -367,7 +369,7 @@
             <span class="self">self</span>.<span class="ident">version</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">version</span>;
             <span class="self">self</span>.<span class="ident">conn_type</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">connection_type</span>();
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">conn_type</span> <span class="op">==</span> <span class="ident">ConnectionType::KeepAlive</span>
-                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::KEEPALIVE_ENABLED</span>)
+                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::KEEP_ALIVE_ENABLED</span>)
             {
                 <span class="self">self</span>.<span class="ident">conn_type</span> <span class="op">=</span> <span class="ident">ConnectionType::Close</span>
             }
@@ -422,9 +424,11 @@
                     <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config</span>,
                 )<span class="question-mark">?</span>;
             }
+
             <span class="ident">Message::Chunk</span>(<span class="prelude-val">Some</span>(<span class="ident">bytes</span>)) =&gt; {
                 <span class="self">self</span>.<span class="ident">encoder</span>.<span class="ident">encode_chunk</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>(), <span class="ident">dst</span>)<span class="question-mark">?</span>;
             }
+
             <span class="ident">Message::Chunk</span>(<span class="prelude-val">None</span>) =&gt; {
                 <span class="self">self</span>.<span class="ident">encoder</span>.<span class="ident">encode_eof</span>(<span class="ident">dst</span>)<span class="question-mark">?</span>;
             }
@@ -440,7 +444,7 @@
     <span class="kw">use</span> <span class="ident">http::Method</span>;
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::HttpMessage</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::HttpMessage</span> <span class="kw">as</span> <span class="kw">_</span>;
 
     <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_http_request_chunked_payload_and_next_message</span>() {

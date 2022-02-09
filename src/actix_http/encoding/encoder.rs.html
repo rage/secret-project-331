@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.14&#x2F;src&#x2F;encoding&#x2F;encoder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>encoder.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-rc.1&#x2F;src&#x2F;encoding&#x2F;encoder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>encoder.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -364,6 +364,68 @@
 <span id="363">363</span>
 <span id="364">364</span>
 <span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Stream encoders.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{
@@ -378,10 +440,7 @@
 <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
 <span class="kw">use</span> <span class="ident">derive_more::Display</span>;
 <span class="kw">use</span> <span class="ident">futures_core::ready</span>;
-<span class="kw">use</span> <span class="ident">pin_project::pin_project</span>;
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-brotli&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">brotli2::write::BrotliEncoder</span>;
+<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">flate2::write</span>::{<span class="ident">GzEncoder</span>, <span class="ident">ZlibEncoder</span>};
@@ -389,93 +448,98 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-zstd&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">zstd::stream::write::Encoder</span> <span class="kw">as</span> <span class="ident">ZstdEncoder</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body</span>::{<span class="ident">AnyBody</span>, <span class="ident">BodySize</span>, <span class="ident">MessageBody</span>},
-    <span class="ident">http</span>::{
-        <span class="ident">header</span>::{<span class="ident">ContentEncoding</span>, <span class="ident">CONTENT_ENCODING</span>},
-        <span class="ident">HeaderValue</span>, <span class="ident">StatusCode</span>,
-    },
-    <span class="ident">ResponseHead</span>,
-};
-
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Writer</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::BlockingError</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">body</span>::{<span class="self">self</span>, <span class="ident">BodySize</span>, <span class="ident">MessageBody</span>},
+    <span class="ident">error::BlockingError</span>,
+    <span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">ContentEncoding</span>, <span class="ident">HeaderValue</span>, <span class="ident">CONTENT_ENCODING</span>},
+    <span class="ident">ResponseHead</span>, <span class="ident">StatusCode</span>,
+};
 
 <span class="kw">const</span> <span class="ident">MAX_CHUNK_SIZE_ENCODE_IN_PLACE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1024</span>;
 
-<span class="attribute">#[<span class="ident">pin_project</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Encoder</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="ident">eof</span>: <span class="ident">bool</span>,
-    <span class="attribute">#[<span class="ident">pin</span>]</span>
-    <span class="ident">body</span>: <span class="ident">EncoderBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
-    <span class="ident">encoder</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentEncoder</span><span class="op">&gt;</span>,
-    <span class="ident">fut</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ContentEncoder</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">MessageBody</span><span class="op">&gt;</span> <span class="ident">Encoder</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">response</span>(
-        <span class="ident">encoding</span>: <span class="ident">ContentEncoding</span>,
-        <span class="ident">head</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ResponseHead</span>,
-        <span class="ident">body</span>: <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">AnyBody</span><span class="op">&lt;</span><span class="ident">Encoder</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">can_encode</span> <span class="op">=</span> <span class="op">!</span>(<span class="ident">head</span>.<span class="ident">headers</span>().<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">CONTENT_ENCODING</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="ident">head</span>.<span class="ident">status</span> <span class="op">==</span> <span class="ident">StatusCode::SWITCHING_PROTOCOLS</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">head</span>.<span class="ident">status</span> <span class="op">==</span> <span class="ident">StatusCode::NO_CONTENT</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">ContentEncoding::Identity</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">ContentEncoding::Auto</span>);
-
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">body</span> {
-            <span class="ident">AnyBody::None</span> =&gt; <span class="kw">return</span> <span class="ident">AnyBody::None</span>,
-            <span class="ident">AnyBody::Bytes</span>(<span class="ident">buf</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">can_encode</span> {
-                    <span class="ident">EncoderBody::Bytes</span>(<span class="ident">buf</span>)
-                } <span class="kw">else</span> {
-                    <span class="kw">return</span> <span class="ident">AnyBody::Bytes</span>(<span class="ident">buf</span>);
-                }
-            }
-            <span class="ident">AnyBody::Body</span>(<span class="ident">body</span>) =&gt; <span class="ident">EncoderBody::Stream</span>(<span class="ident">body</span>),
-        };
-
-        <span class="kw">if</span> <span class="ident">can_encode</span> {
-            <span class="comment">// Modify response body only if encoder is not None</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">enc</span>) <span class="op">=</span> <span class="ident">ContentEncoder::encoder</span>(<span class="ident">encoding</span>) {
-                <span class="ident">update_head</span>(<span class="ident">encoding</span>, <span class="ident">head</span>);
-                <span class="ident">head</span>.<span class="ident">no_chunking</span>(<span class="bool-val">false</span>);
-
-                <span class="kw">return</span> <span class="ident">AnyBody::Body</span>(<span class="ident">Encoder</span> {
-                    <span class="ident">body</span>,
-                    <span class="ident">eof</span>: <span class="bool-val">false</span>,
-                    <span class="ident">fut</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">encoder</span>: <span class="prelude-val">Some</span>(<span class="ident">enc</span>),
-                });
-            }
-        }
-
-        <span class="ident">AnyBody::Body</span>(<span class="ident">Encoder</span> {
-            <span class="ident">body</span>,
-            <span class="ident">eof</span>: <span class="bool-val">false</span>,
-            <span class="ident">fut</span>: <span class="prelude-val">None</span>,
-            <span class="ident">encoder</span>: <span class="prelude-val">None</span>,
-        })
+<span class="macro">pin_project!</span> {
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Encoder</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
+        <span class="attribute">#[<span class="ident">pin</span>]</span>
+        <span class="ident">body</span>: <span class="ident">EncoderBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
+        <span class="ident">encoder</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentEncoder</span><span class="op">&gt;</span>,
+        <span class="ident">fut</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ContentEncoder</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">eof</span>: <span class="ident">bool</span>,
     }
 }
 
-<span class="attribute">#[<span class="ident">pin_project</span>(<span class="ident">project</span> <span class="op">=</span> <span class="ident">EncoderBodyProj</span>)]</span>
-<span class="kw">enum</span> <span class="ident">EncoderBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="ident">Bytes</span>(<span class="ident">Bytes</span>),
-    <span class="ident">Stream</span>(<span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">B</span>),
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">MessageBody</span><span class="op">&gt;</span> <span class="ident">Encoder</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">none</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident">Encoder</span> {
+            <span class="ident">body</span>: <span class="ident">EncoderBody::None</span> {
+                <span class="ident">body</span>: <span class="ident">body::None::new</span>(),
+            },
+            <span class="ident">encoder</span>: <span class="prelude-val">None</span>,
+            <span class="ident">fut</span>: <span class="prelude-val">None</span>,
+            <span class="ident">eof</span>: <span class="bool-val">true</span>,
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">response</span>(<span class="ident">encoding</span>: <span class="ident">ContentEncoding</span>, <span class="ident">head</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ResponseHead</span>, <span class="ident">body</span>: <span class="ident">B</span>) -&gt; <span class="self">Self</span> {
+        <span class="comment">// no need to compress an empty body</span>
+        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">body</span>.<span class="ident">size</span>(), <span class="ident">BodySize::None</span>) {
+            <span class="kw">return</span> <span class="ident"><span class="self">Self</span>::none</span>();
+        }
+
+        <span class="kw">let</span> <span class="ident">should_encode</span> <span class="op">=</span> <span class="op">!</span>(<span class="ident">head</span>.<span class="ident">headers</span>().<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">CONTENT_ENCODING</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">head</span>.<span class="ident">status</span> <span class="op">==</span> <span class="ident">StatusCode::SWITCHING_PROTOCOLS</span>
+            <span class="op">|</span><span class="op">|</span> <span class="ident">head</span>.<span class="ident">status</span> <span class="op">==</span> <span class="ident">StatusCode::NO_CONTENT</span>
+            <span class="op">|</span><span class="op">|</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">ContentEncoding::Identity</span>);
+
+        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">body</span>.<span class="ident">try_into_bytes</span>() {
+            <span class="prelude-val">Ok</span>(<span class="ident">body</span>) =&gt; <span class="ident">EncoderBody::Full</span> { <span class="ident">body</span> },
+            <span class="prelude-val">Err</span>(<span class="ident">body</span>) =&gt; <span class="ident">EncoderBody::Stream</span> { <span class="ident">body</span> },
+        };
+
+        <span class="kw">if</span> <span class="ident">should_encode</span> {
+            <span class="comment">// wrap body only if encoder is feature-enabled</span>
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">enc</span>) <span class="op">=</span> <span class="ident">ContentEncoder::select</span>(<span class="ident">encoding</span>) {
+                <span class="ident">update_head</span>(<span class="ident">encoding</span>, <span class="ident">head</span>);
+
+                <span class="kw">return</span> <span class="ident">Encoder</span> {
+                    <span class="ident">body</span>,
+                    <span class="ident">encoder</span>: <span class="prelude-val">Some</span>(<span class="ident">enc</span>),
+                    <span class="ident">fut</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">eof</span>: <span class="bool-val">false</span>,
+                };
+            }
+        }
+
+        <span class="ident">Encoder</span> {
+            <span class="ident">body</span>,
+            <span class="ident">encoder</span>: <span class="prelude-val">None</span>,
+            <span class="ident">fut</span>: <span class="prelude-val">None</span>,
+            <span class="ident">eof</span>: <span class="bool-val">false</span>,
+        }
+    }
+}
+
+<span class="macro">pin_project!</span> {
+    <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">EncoderBodyProj</span>]</span>
+    <span class="kw">enum</span> <span class="ident">EncoderBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
+        <span class="prelude-val">None</span> { <span class="ident">body</span>: <span class="ident">body::None</span> },
+        <span class="ident">Full</span> { <span class="ident">body</span>: <span class="ident">Bytes</span> },
+        <span class="ident">Stream</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">body</span>: <span class="ident">B</span> },
+    }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">EncoderBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">B</span>: <span class="ident">MessageBody</span>,
 {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">EncoderError</span><span class="op">&lt;</span><span class="ident">B::Error</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">EncoderError</span>;
 
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">EncoderBody::Bytes</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) =&gt; <span class="ident">b</span>.<span class="ident">size</span>(),
-            <span class="ident">EncoderBody::Stream</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) =&gt; <span class="ident">b</span>.<span class="ident">size</span>(),
+            <span class="ident">EncoderBody::None</span> { <span class="ident">body</span> } =&gt; <span class="ident">body</span>.<span class="ident">size</span>(),
+            <span class="ident">EncoderBody::Full</span> { <span class="ident">body</span> } =&gt; <span class="ident">body</span>.<span class="ident">size</span>(),
+            <span class="ident">EncoderBody::Stream</span> { <span class="ident">body</span> } =&gt; <span class="ident">body</span>.<span class="ident">size</span>(),
         }
     }
 
@@ -484,14 +548,27 @@
         <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">project</span>() {
-            <span class="ident">EncoderBodyProj::Bytes</span>(<span class="ident">b</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">is_empty</span>() {
-                    <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">std::mem::take</span>(<span class="ident">b</span>))))
-                }
+            <span class="ident">EncoderBodyProj::None</span> { <span class="ident">body</span> } =&gt; {
+                <span class="ident">Pin::new</span>(<span class="ident">body</span>).<span class="ident">poll_next</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">err</span> {})
             }
-            <span class="ident">EncoderBodyProj::Stream</span>(<span class="ident">b</span>) =&gt; <span class="ident">b</span>.<span class="ident">poll_next</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="ident">EncoderError::Body</span>),
+            <span class="ident">EncoderBodyProj::Full</span> { <span class="ident">body</span> } =&gt; {
+                <span class="ident">Pin::new</span>(<span class="ident">body</span>).<span class="ident">poll_next</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">err</span> {})
+            }
+            <span class="ident">EncoderBodyProj::Stream</span> { <span class="ident">body</span> } =&gt; <span class="ident">body</span>
+                .<span class="ident">poll_next</span>(<span class="ident">cx</span>)
+                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">EncoderError::Body</span>(<span class="ident">err</span>.<span class="ident">into</span>())),
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">try_into_bytes</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Sized</span>,
+    {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">EncoderBody::None</span> { <span class="ident">body</span> } =&gt; <span class="prelude-val">Ok</span>(<span class="ident">body</span>.<span class="ident">try_into_bytes</span>().<span class="ident">unwrap</span>()),
+            <span class="ident">EncoderBody::Full</span> { <span class="ident">body</span> } =&gt; <span class="prelude-val">Ok</span>(<span class="ident">body</span>.<span class="ident">try_into_bytes</span>().<span class="ident">unwrap</span>()),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="self">self</span>),
         }
     }
 }
@@ -500,13 +577,14 @@
 <span class="kw">where</span>
     <span class="ident">B</span>: <span class="ident">MessageBody</span>,
 {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">EncoderError</span><span class="op">&lt;</span><span class="ident">B::Error</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">EncoderError</span>;
 
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encoder</span>.<span class="ident">is_none</span>() {
-            <span class="self">self</span>.<span class="ident">body</span>.<span class="ident">size</span>()
-        } <span class="kw">else</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encoder</span>.<span class="ident">is_some</span>() {
             <span class="ident">BodySize::Stream</span>
+        } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">body</span>.<span class="ident">size</span>()
         }
     }
 
@@ -515,6 +593,7 @@
         <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
+
         <span class="kw">loop</span> {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">eof</span> {
                 <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>);
@@ -563,6 +642,7 @@
                 <span class="prelude-val">None</span> =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">encoder</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">encoder</span>.<span class="ident">take</span>() {
                         <span class="kw">let</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="ident">encoder</span>.<span class="ident">finish</span>().<span class="ident">map_err</span>(<span class="ident">EncoderError::Io</span>)<span class="question-mark">?</span>;
+
                         <span class="kw">if</span> <span class="ident">chunk</span>.<span class="ident">is_empty</span>() {
                             <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>);
                         } <span class="kw">else</span> {
@@ -576,50 +656,75 @@
             }
         }
     }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">try_into_bytes</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Sized</span>,
+    {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encoder</span>.<span class="ident">is_some</span>() {
+            <span class="prelude-val">Err</span>(<span class="self">self</span>)
+        } <span class="kw">else</span> {
+            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">body</span>.<span class="ident">try_into_bytes</span>() {
+                <span class="prelude-val">Ok</span>(<span class="ident">body</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">body</span>),
+                <span class="prelude-val">Err</span>(<span class="ident">body</span>) =&gt; {
+                    <span class="self">self</span>.<span class="ident">body</span> <span class="op">=</span> <span class="ident">body</span>;
+                    <span class="prelude-val">Err</span>(<span class="self">self</span>)
+                }
+            }
+        }
+    }
 }
 
 <span class="kw">fn</span> <span class="ident">update_head</span>(<span class="ident">encoding</span>: <span class="ident">ContentEncoding</span>, <span class="ident">head</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ResponseHead</span>) {
-    <span class="ident">head</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(
-        <span class="ident">CONTENT_ENCODING</span>,
-        <span class="ident">HeaderValue::from_static</span>(<span class="ident">encoding</span>.<span class="ident">as_str</span>()),
-    );
+    <span class="ident">head</span>.<span class="ident">headers_mut</span>()
+        .<span class="ident">insert</span>(<span class="ident">header::CONTENT_ENCODING</span>, <span class="ident">encoding</span>.<span class="ident">to_header_value</span>());
+    <span class="ident">head</span>.<span class="ident">headers_mut</span>()
+        .<span class="ident">insert</span>(<span class="ident">header::VARY</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;accept-encoding&quot;</span>));
+
+    <span class="ident">head</span>.<span class="ident">no_chunking</span>(<span class="bool-val">false</span>);
 }
 
 <span class="kw">enum</span> <span class="ident">ContentEncoder</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
     <span class="ident">Deflate</span>(<span class="ident">ZlibEncoder</span><span class="op">&lt;</span><span class="ident">Writer</span><span class="op">&gt;</span>),
+
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
     <span class="ident">Gzip</span>(<span class="ident">GzEncoder</span><span class="op">&lt;</span><span class="ident">Writer</span><span class="op">&gt;</span>),
+
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-brotli&quot;</span>)]</span>
-    <span class="ident">Br</span>(<span class="ident">BrotliEncoder</span><span class="op">&lt;</span><span class="ident">Writer</span><span class="op">&gt;</span>),
-    <span class="comment">// We need explicit &#39;static lifetime here because ZstdEncoder need lifetime</span>
-    <span class="comment">// argument, and we use `spawn_blocking` in `Encoder::poll_next` that require `FnOnce() -&gt; R + Send + &#39;static`</span>
+    <span class="ident">Brotli</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">brotli::CompressorWriter</span><span class="op">&lt;</span><span class="ident">Writer</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+
+    <span class="comment">// Wwe need explicit &#39;static lifetime here because ZstdEncoder needs a lifetime argument and we</span>
+    <span class="comment">// use `spawn_blocking` in `Encoder::poll_next` that requires `FnOnce() -&gt; R + Send + &#39;static`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-zstd&quot;</span>)]</span>
     <span class="ident">Zstd</span>(<span class="ident">ZstdEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">Writer</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">ContentEncoder</span> {
-    <span class="kw">fn</span> <span class="ident">encoder</span>(<span class="ident">encoding</span>: <span class="ident">ContentEncoding</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">select</span>(<span class="ident">encoding</span>: <span class="ident">ContentEncoding</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">encoding</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
             <span class="ident">ContentEncoding::Deflate</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">ContentEncoder::Deflate</span>(<span class="ident">ZlibEncoder::new</span>(
                 <span class="ident">Writer::new</span>(),
                 <span class="ident">flate2::Compression::fast</span>(),
             ))),
+
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
             <span class="ident">ContentEncoding::Gzip</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">ContentEncoder::Gzip</span>(<span class="ident">GzEncoder::new</span>(
                 <span class="ident">Writer::new</span>(),
                 <span class="ident">flate2::Compression::fast</span>(),
             ))),
+
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-brotli&quot;</span>)]</span>
-            <span class="ident">ContentEncoding::Br</span> =&gt; {
-                <span class="prelude-val">Some</span>(<span class="ident">ContentEncoder::Br</span>(<span class="ident">BrotliEncoder::new</span>(<span class="ident">Writer::new</span>(), <span class="number">3</span>)))
-            }
+            <span class="ident">ContentEncoding::Brotli</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">ContentEncoder::Brotli</span>(<span class="ident">new_brotli_compressor</span>())),
+
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-zstd&quot;</span>)]</span>
             <span class="ident">ContentEncoding::Zstd</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">ZstdEncoder::new</span>(<span class="ident">Writer::new</span>(), <span class="number">3</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>;
                 <span class="prelude-val">Some</span>(<span class="ident">ContentEncoder::Zstd</span>(<span class="ident">encoder</span>))
             }
+
             <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
@@ -628,11 +733,14 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Bytes</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-brotli&quot;</span>)]</span>
-            <span class="ident">ContentEncoder::Br</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">encoder</span>) =&gt; <span class="ident">encoder</span>.<span class="ident">get_mut</span>().<span class="ident">take</span>(),
+            <span class="ident">ContentEncoder::Brotli</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">encoder</span>) =&gt; <span class="ident">encoder</span>.<span class="ident">get_mut</span>().<span class="ident">take</span>(),
+
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
             <span class="ident">ContentEncoder::Deflate</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">encoder</span>) =&gt; <span class="ident">encoder</span>.<span class="ident">get_mut</span>().<span class="ident">take</span>(),
+
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
             <span class="ident">ContentEncoder::Gzip</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">encoder</span>) =&gt; <span class="ident">encoder</span>.<span class="ident">get_mut</span>().<span class="ident">take</span>(),
+
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-zstd&quot;</span>)]</span>
             <span class="ident">ContentEncoder::Zstd</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">encoder</span>) =&gt; <span class="ident">encoder</span>.<span class="ident">get_mut</span>().<span class="ident">take</span>(),
         }
@@ -641,20 +749,23 @@
     <span class="kw">fn</span> <span class="ident">finish</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">io::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-brotli&quot;</span>)]</span>
-            <span class="ident">ContentEncoder::Br</span>(<span class="ident">encoder</span>) =&gt; <span class="kw">match</span> <span class="ident">encoder</span>.<span class="ident">finish</span>() {
-                <span class="prelude-val">Ok</span>(<span class="ident">writer</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">writer</span>.<span class="ident">buf</span>.<span class="ident">freeze</span>()),
+            <span class="ident">ContentEncoder::Brotli</span>(<span class="kw-2">mut</span> <span class="ident">encoder</span>) =&gt; <span class="kw">match</span> <span class="ident">encoder</span>.<span class="ident">flush</span>() {
+                <span class="prelude-val">Ok</span>(()) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">encoder</span>.<span class="ident">into_inner</span>().<span class="ident">buf</span>.<span class="ident">freeze</span>()),
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">err</span>),
             },
+
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
             <span class="ident">ContentEncoder::Gzip</span>(<span class="ident">encoder</span>) =&gt; <span class="kw">match</span> <span class="ident">encoder</span>.<span class="ident">finish</span>() {
                 <span class="prelude-val">Ok</span>(<span class="ident">writer</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">writer</span>.<span class="ident">buf</span>.<span class="ident">freeze</span>()),
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">err</span>),
             },
+
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
             <span class="ident">ContentEncoder::Deflate</span>(<span class="ident">encoder</span>) =&gt; <span class="kw">match</span> <span class="ident">encoder</span>.<span class="ident">finish</span>() {
                 <span class="prelude-val">Ok</span>(<span class="ident">writer</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">writer</span>.<span class="ident">buf</span>.<span class="ident">freeze</span>()),
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">err</span>),
             },
+
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-zstd&quot;</span>)]</span>
             <span class="ident">ContentEncoder::Zstd</span>(<span class="ident">encoder</span>) =&gt; <span class="kw">match</span> <span class="ident">encoder</span>.<span class="ident">finish</span>() {
                 <span class="prelude-val">Ok</span>(<span class="ident">writer</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">writer</span>.<span class="ident">buf</span>.<span class="ident">freeze</span>()),
@@ -666,34 +777,37 @@
     <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-brotli&quot;</span>)]</span>
-            <span class="ident">ContentEncoder::Br</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">encoder</span>) =&gt; <span class="kw">match</span> <span class="ident">encoder</span>.<span class="ident">write_all</span>(<span class="ident">data</span>) {
+            <span class="ident">ContentEncoder::Brotli</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">encoder</span>) =&gt; <span class="kw">match</span> <span class="ident">encoder</span>.<span class="ident">write_all</span>(<span class="ident">data</span>) {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">trace!</span>(<span class="string">&quot;Error decoding br encoding: {}&quot;</span>, <span class="ident">err</span>);
+                    <span class="macro">log::trace!</span>(<span class="string">&quot;Error decoding br encoding: {}&quot;</span>, <span class="ident">err</span>);
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>)
                 }
             },
+
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
             <span class="ident">ContentEncoder::Gzip</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">encoder</span>) =&gt; <span class="kw">match</span> <span class="ident">encoder</span>.<span class="ident">write_all</span>(<span class="ident">data</span>) {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">trace!</span>(<span class="string">&quot;Error decoding gzip encoding: {}&quot;</span>, <span class="ident">err</span>);
+                    <span class="macro">log::trace!</span>(<span class="string">&quot;Error decoding gzip encoding: {}&quot;</span>, <span class="ident">err</span>);
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>)
                 }
             },
+
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
             <span class="ident">ContentEncoder::Deflate</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">encoder</span>) =&gt; <span class="kw">match</span> <span class="ident">encoder</span>.<span class="ident">write_all</span>(<span class="ident">data</span>) {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">trace!</span>(<span class="string">&quot;Error decoding deflate encoding: {}&quot;</span>, <span class="ident">err</span>);
+                    <span class="macro">log::trace!</span>(<span class="string">&quot;Error decoding deflate encoding: {}&quot;</span>, <span class="ident">err</span>);
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>)
                 }
             },
+
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-zstd&quot;</span>)]</span>
             <span class="ident">ContentEncoder::Zstd</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">encoder</span>) =&gt; <span class="kw">match</span> <span class="ident">encoder</span>.<span class="ident">write_all</span>(<span class="ident">data</span>) {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">trace!</span>(<span class="string">&quot;Error decoding ztsd encoding: {}&quot;</span>, <span class="ident">err</span>);
+                    <span class="macro">log::trace!</span>(<span class="string">&quot;Error decoding ztsd encoding: {}&quot;</span>, <span class="ident">err</span>);
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>)
                 }
             },
@@ -701,11 +815,21 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-brotli&quot;</span>)]</span>
+<span class="kw">fn</span> <span class="ident">new_brotli_compressor</span>() -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">brotli::CompressorWriter</span><span class="op">&lt;</span><span class="ident">Writer</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="ident">Box::new</span>(<span class="ident">brotli::CompressorWriter::new</span>(
+        <span class="ident">Writer::new</span>(),
+        <span class="number">32</span> <span class="op">*</span> <span class="number">1024</span>, <span class="comment">// 32 KiB buffer</span>
+        <span class="number">3</span>,         <span class="comment">// BROTLI_PARAM_QUALITY</span>
+        <span class="number">22</span>,        <span class="comment">// BROTLI_PARAM_LGWIN</span>
+    ))
+}
+
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Display</span>)]</span>
 <span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EncoderError</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EncoderError</span> {
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;body&quot;</span>)]</span>
-    <span class="ident">Body</span>(<span class="ident">E</span>),
+    <span class="ident">Body</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span>),
 
     <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;blocking&quot;</span>)]</span>
     <span class="ident">Blocking</span>(<span class="ident">BlockingError</span>),
@@ -714,18 +838,18 @@
     <span class="ident">Io</span>(<span class="ident">io::Error</span>),
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">StdError</span> <span class="kw">for</span> <span class="ident">EncoderError</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">StdError</span> <span class="kw">for</span> <span class="ident">EncoderError</span> {
     <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">EncoderError::Body</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">err</span>),
+            <span class="ident">EncoderError::Body</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">err</span>),
             <span class="ident">EncoderError::Blocking</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">err</span>),
             <span class="ident">EncoderError::Io</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">err</span>),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">EncoderError</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">EncoderError</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">EncoderError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">EncoderError</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="kw">crate</span>::Error::new_encoder</span>().<span class="ident">with_cause</span>(<span class="ident">err</span>)
     }
 }

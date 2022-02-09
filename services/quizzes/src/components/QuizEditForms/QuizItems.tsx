@@ -1,9 +1,9 @@
+import styled from "@emotion/styled"
 import { faSitemap } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Divider } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import styled from "styled-components"
 
 import { useTypedSelector } from "../../store/store"
 

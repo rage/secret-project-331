@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { faAngleDown, faAngleUp, faPen } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button } from "@mui/material"
@@ -6,7 +7,6 @@ import { TFunction } from "i18next"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../types/types"
 import { setAdvancedEditing } from "../../../store/editor/itemVariables/itemVariableActions"

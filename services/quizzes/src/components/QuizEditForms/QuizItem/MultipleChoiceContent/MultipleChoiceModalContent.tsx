@@ -1,3 +1,4 @@
+import styled from "@emotion/styled"
 import { faPlus } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
@@ -17,7 +18,6 @@ import {
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
 import { createdNewOption } from "../../../../store/editor/editorActions"

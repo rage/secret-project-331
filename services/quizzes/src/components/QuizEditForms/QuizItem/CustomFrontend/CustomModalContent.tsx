@@ -1,6 +1,6 @@
+import styled from "@emotion/styled"
 import { Box } from "@mui/material"
 import React from "react"
-import styled from "styled-components"
 
 const EmptyBox = styled(Box)`
   width: 100%;

@@ -15,11 +15,11 @@ headless-lms-utils = { path = "../utils" }
 doc-macro = { path = "../doc-macro" }
 
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
-actix-web = "=4.0.0-beta.13"
+actix-web = "=4.0.0-rc.2"
 # Static file serving for Actix Web
-actix-files = "=0.6.0-beta.9"
+actix-files = "=0.6.0-beta.16"
 # Multipart form support for Actix web.
-actix-multipart = "=0.4.0-beta.7"
+actix-multipart = "=0.4.0-beta.13"
 # Strongly Typed Mimes
 mime = "0.3.16"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
@@ -31,7 +31,7 @@ futures = "0.3.13"
 # A `dotenv` implementation for Rust
 dotenv = "0.15.0"
 # A simple library to work with listenfds passed from the outside (systemd/catflap socket activation)
-listenfd = "0.3.3"
+listenfd = "0.5.0"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.38"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
@@ -64,7 +64,7 @@ walkdir = "2.3.2"
 # higher level HTTP client library
 reqwest = { version = "0.11.3", features = ["brotli", "gzip", "json"] }
 # Sessions for Actix web
-actix-session = "=0.5.0-beta.4"
+actix-session = "=0.5.0-beta.7"
 # An extensible, strongly-typed implementation of OAuth2
 oauth2 = "4"
 # URL library for Rust, based on the WHATWG URL Standard
@@ -74,7 +74,7 @@ tracing = "0.1"
 # Utilities for implementing and composing `tracing` subscribers.
 tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
 # Structured logging middleware for actix-web.
-tracing-actix-web = "=0.5.0-beta.4"
+tracing-actix-web = "=0.5.0-rc.2"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.0"
 # Provides compatibility between `tracing` and the `log` crate.
@@ -90,7 +90,7 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "3d0fd4f71fd1698e4236
 ] }
 # restricting the transitive dependencies of actix-web during beta.
 # HTTP primitives for the Actix ecosystem .
-actix-http = "=3.0.0-beta.14"
+actix-http = "=3.0.0-rc.1"
 # Fast CSV parsing with support for serde.
 csv = "1"
 # Email client

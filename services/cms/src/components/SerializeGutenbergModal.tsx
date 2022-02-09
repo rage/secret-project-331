@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Dialog, Paper } from "@material-ui/core"
+import { Dialog, Paper } from "@mui/material"
 import { BlockInstance, serialize } from "@wordpress/blocks"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"

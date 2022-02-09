@@ -34,7 +34,6 @@ interface GradingRequest {
 
 const handlePost = (req: NextApiRequest, res: NextApiResponse<GradingResult>) => {
   const gradingRequest: GradingRequest = req.body
-  console.log(gradingRequest)
 
   if (!gradingRequest?.submission_data?.selectedOptionId) {
     return res.status(200).json({

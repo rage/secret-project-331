@@ -1,8 +1,8 @@
-import { Button, Checkbox, FormControl, FormControlLabel, TextField } from "@material-ui/core"
+import styled from "@emotion/styled"
+import { Button, Checkbox, FormControl, FormControlLabel, TextField } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
 import {

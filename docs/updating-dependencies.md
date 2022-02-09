@@ -16,13 +16,16 @@ Check if we are using the current node LTS version from by comparing a `.nvmcrc`
 
 1. Run `bin/update-rust`
 2. cd to `services/headless-lms`
-3. Run command: `docker pull rust:bullseye && docker build . -f DockerfileBase.dockerfile -t eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base`
+3. Run command: `bin/build-dockerfile-development-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base`
+4: Run command: `bin/build-dockerfile-production-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-production-base`
 
 ## Updating node dependencies
 
 When updating dependencies, you need to pay special attention to the cms service. It includes the gutenberg dependency, you **must"** always read the changelog for it so that you can determine if it breaks backwards compatibility in some way. Tests won't catch all backwards incompatible changes.
 
-One by one cd to a service and run `npm ci`. After that run `npx npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `npx tsc --noEmit` to catch new type errors and then commit the results. Finally, you can run `npm audit fix`.
+Before you start: Run this: `npm ci && bin/npm-ci-all`
+
+One by one cd to a service and run `npx npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `npx tsc --noEmit` to catch new type errors and then commit the results. Finally, you can run `npm audit fix`.
 
 You can get a list of targets that need updating by running: `find -name 'package.json' | grep --invert-match 'node_modules'`.
 

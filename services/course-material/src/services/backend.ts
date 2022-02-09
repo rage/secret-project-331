@@ -15,6 +15,8 @@ import {
   PageSearchResult,
   PageWithExercises,
   SubmissionResult,
+  Term,
+  TermUpdate,
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
@@ -32,6 +34,7 @@ import {
   isPageSearchResult,
   isPageWithExercises,
   isSubmissionResult,
+  isTerm,
   isUserCourseInstanceChapterExerciseProgress,
   isUserCourseInstanceChapterProgress,
   isUserCourseInstanceProgress,
@@ -262,4 +265,18 @@ export const saveExamAnswer = async (
   dataJson: unknown,
 ): Promise<void> => {
   await courseMaterialClient.post(`/exams/${examId}/save-answer/${exerciseId}`, dataJson)
+}
+
+export const fetchGlossary = async (courseId: string): Promise<Array<Term>> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/glossary`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isTerm))
+}
+
+export const newGlossaryTerm = async (
+  courseSlug: string,
+  newAcronym: TermUpdate,
+): Promise<void> => {
+  await courseMaterialClient.post(`/courses/${courseSlug}/acronyms`, newAcronym)
 }

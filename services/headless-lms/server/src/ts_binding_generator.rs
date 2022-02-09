@@ -38,6 +38,9 @@ fn ts_binding_generator() {
     let res = export! {
         &mut target,
 
+        glossary::Term,
+        glossary::TermUpdate,
+
         chapters::Chapter,
         chapters::ChapterStatus,
         chapters::ChapterUpdate,

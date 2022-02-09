@@ -22,13 +22,17 @@ import Slovenia from "../../../../imgs/flags/Slovenia.svg"
 import Spain from "../../../../imgs/flags/Spain.svg"
 import Sweden from "../../../../imgs/flags/Sweden.svg"
 import USA from "../../../../imgs/flags/USA.svg"
+import UK from "../../../../imgs/flags/United_Kingdom.svg"
 
 import Finland from ".../../../../imgs/flags/Finland.svg"
+
+export const DEFAULT_FLAG_CLIP_PATH = "circle(25% at 42% 50%)"
 
 const LANGUAGE: {
   [languageCode: string]: {
     humanReadableName: string
     image: React.FC<React.SVGProps<SVGSVGElement>>
+    clipPath?: string
   }
 } = {
   // eslint-disable-next-line i18next/no-literal-string
@@ -49,6 +53,8 @@ const LANGUAGE: {
   "sv-SE": { humanReadableName: "swedish", image: Sweden },
   // eslint-disable-next-line i18next/no-literal-string
   "en-US": { humanReadableName: "english", image: USA },
+  // eslint-disable-next-line i18next/no-literal-string
+  "en-GB": { humanReadableName: "english", image: UK, clipPath: "circle(25% at 50% 50%)" },
   // eslint-disable-next-line i18next/no-literal-string
   "nl-NL": { humanReadableName: "dutch", image: Netherlands },
   // eslint-disable-next-line i18next/no-literal-string

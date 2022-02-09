@@ -10,6 +10,7 @@ use models::{
     },
     exercises::Exercise,
     feedback::{self, Feedback, FeedbackCount},
+    glossary::{Term, TermUpdate},
 };
 
 use crate::controllers::prelude::*;
@@ -454,6 +455,41 @@ async fn new_course_instance(
     Ok(web::Json(ci.id))
 }
 
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn glossary(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<Term>>> {
+    let mut conn = pool.acquire().await?;
+    let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
+    Ok(web::Json(glossary))
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn new_term(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<Term>>> {
+    let mut conn = pool.acquire().await?;
+    let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
+    Ok(web::Json(glossary))
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn new_glossary_term(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    new_term: web::Json<TermUpdate>,
+) -> ControllerResult<web::Json<Uuid>> {
+    let mut conn = pool.acquire().await?;
+    let TermUpdate { term, definition } = new_term.into_inner();
+    let term = models::glossary::insert(&mut conn, &term, &definition, *course_id).await?;
+    Ok(web::Json(term))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -504,5 +540,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/new-course-instance",
             web::post().to(new_course_instance),
-        );
+        )
+        .route("/{course_id}/glossary", web::get().to(glossary))
+        .route("/{course_id}/glossary", web::post().to(new_glossary_term));
 }

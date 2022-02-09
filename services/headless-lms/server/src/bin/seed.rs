@@ -23,7 +23,7 @@ use headless_lms_models::{
     exercises::GradingProgress,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
-    organizations,
+    glossary, organizations,
     page_history::HistoryChangeReason,
     pages,
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage},
@@ -264,6 +264,17 @@ async fn main() -> Result<()> {
         Uuid::parse_str("1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4")?,
         "Advanced course instance management",
         "advanced-course-instance-management",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,
+        "Glossary course",
+        "glossary-course",
         admin,
         student,
         &users,
@@ -1310,7 +1321,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-1".to_string(),
             title: "Page One".to_string(),
@@ -1393,7 +1404,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-2".to_string(),
             title: "page 2".to_string(),
@@ -1709,7 +1720,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-3".to_string(),
             title: "page 3".to_string(),
@@ -1732,7 +1743,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-4".to_string(),
             title: "page 4".to_string(),
@@ -1755,7 +1766,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-5".to_string(),
             title: "Page 5".to_string(),
@@ -1778,7 +1789,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-6".to_string(),
             title: "page 6".to_string(),
@@ -1821,7 +1832,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_2.id,
+        Some(chapter_2.id),
         CmsPageUpdate {
             url_path: "/chapter-2/intro".to_string(),
             title: "In the second chapter...".to_string(),
@@ -1830,6 +1841,28 @@ async fn seed_sample_course(
             exercise_slides: vec![exercise_slide_5],
             exercise_tasks: vec![exercise_task_5],
             content: serde_json::json!([exercise_block_5]),
+        },
+    )
+    .await?;
+    create_page(
+        conn,
+        course.id,
+        admin,
+        None,
+        CmsPageUpdate {
+            url_path: "/glossary".to_string(),
+            title: "Glossary".to_string(),
+            chapter_id: None,
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: serde_json::json!([GutenbergBlock {
+                name: "moocfi/glossary".to_string(),
+                is_valid: true,
+                client_id: Uuid::parse_str("3a388f47-4aa7-409f-af14-a0290b916225").unwrap(),
+                attributes: attributes! {},
+                inner_blocks: vec![]
+            }]),
         },
     )
     .await?;
@@ -2032,6 +2065,12 @@ async fn seed_sample_course(
     };
     proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
 
+    // acronyms
+    glossary::insert(conn, "CS", "Computer science. Computer science is an essential part of being successful in your life. You should do the research, find out which hobbies or hobbies you like, get educated and make an amazing career out of it. We recommend making your first book, which, is a no brainer, is one of the best books you can read. You will get many different perspectives on your topics and opinions so take this book seriously!",  course.id).await?;
+    glossary::insert(conn, "HDD", "Hard disk drive. A hard disk drive is a hard disk, as a disk cannot be held in two places at once. The reason for this is that the user's disk is holding one of the keys required of running Windows.",  course.id).await?;
+    glossary::insert(conn, "SSD", "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",  course.id).await?;
+    glossary::insert(conn, "KB", "Keyboard.", course.id).await?;
+
     // exams
 
     Ok(course.id)
@@ -2163,7 +2202,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             .with_id(Uuid::parse_str("3693e92b-9cf0-485a-b026-2851de58e9cf")?),
         ]),
     };
-    create_page(conn, course.id, admin, chapter_1.id, design_content).await?;
+    create_page(conn, course.id, admin, Some(chapter_1.id), design_content).await?;
 
     // /chapter-1/human-machine-interface
     let content_b = CmsPageUpdate {
@@ -2202,7 +2241,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
         ]),
     };
-    create_page(conn, course.id, admin, chapter_1.id, content_b).await?;
+    create_page(conn, course.id, admin, Some(chapter_1.id), content_b).await?;
 
     // Chapter-2
     let new_chapter_2 = NewChapter {
@@ -2279,7 +2318,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         url_path: "/chapter-2/user-research".to_string(),
         title: "User research".to_string(),
     };
-    create_page(conn, course.id, admin, chapter_2.id, page_content).await?;
+    create_page(conn, course.id, admin, Some(chapter_2.id), page_content).await?;
 
     let page_content = include_str!("../assets/example-page.json");
     let parse_page_content = serde_json::from_str(page_content)?;
@@ -2287,7 +2326,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         conn,
         course.id,
         admin,
-        chapter_2.id,
+        Some(chapter_2.id),
         CmsPageUpdate {
             content: parse_page_content,
             exercises: vec![],
@@ -2307,7 +2346,7 @@ async fn create_page(
     conn: &mut PgConnection,
     course_id: Uuid,
     author: Uuid,
-    chapter_id: Uuid,
+    chapter_id: Option<Uuid>,
     page_data: CmsPageUpdate,
 ) -> Result<Uuid> {
     let new_page = NewPage {
@@ -2316,7 +2355,7 @@ async fn create_page(
         title: format!("{} WIP", page_data.title),
         course_id: Some(course_id),
         exam_id: None,
-        chapter_id: Some(chapter_id),
+        chapter_id,
         front_page_of_chapter_id: None,
         exercises: vec![],
         exercise_slides: vec![],
@@ -2334,7 +2373,7 @@ async fn create_page(
             exercise_tasks: page_data.exercise_tasks,
             url_path: page_data.url_path,
             title: page_data.title,
-            chapter_id: Some(chapter_id),
+            chapter_id,
         },
         author,
         true,

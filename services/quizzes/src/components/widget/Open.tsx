@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import TextField from "../../shared-module/components/InputFields/TextField"
 import { stripNonPrintableCharacters } from "../../shared-module/utils/strings"
-import { MarkdownText } from "../MarkdownText"
+import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
 

@@ -16,14 +16,13 @@ const normalResponseHeaders = [
   {
     key: "Content-Security-Policy",
     value:
-      "default-src 'self'; connect-src 'self'; font-src 'self' https://cdn.jsdelivr.net; frame-src *; img-src 'self' data: https://storage.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/base/worker/workerMain.js https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/editor/editor.main.js https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/editor/editor.main.nls.js https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/language/json/jsonMode.js https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/language/json/jsonWorker.js https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/loader.js; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/editor/",
+      "default-src 'self'; connect-src 'self'; font-src 'self' https://cdn.jsdelivr.net; frame-src *; img-src 'self' data: blob: https://storage.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'",
   },
   {
     key: "X-Frame-Options",
     value: "SAMEORIGIN",
   },
 ]
-
 // Mostly allows the page to be embedded in an iframe
 const externallyEmbeddableIFrameResponseHeaders = [
   {
@@ -42,7 +41,7 @@ const externallyEmbeddableIFrameResponseHeaders = [
   {
     key: "Content-Security-Policy",
     value:
-      "default-src 'self'; connect-src 'self'; font-src 'self' https://cdn.jsdelivr.net; frame-src *; img-src 'self' data: https://storage.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/base/worker/workerMain.js https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/editor/editor.main.js https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/editor/editor.main.nls.js https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/language/json/jsonMode.js https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/language/json/jsonWorker.js https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/loader.js; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/monaco-editor@0.28.1/min/vs/editor/",
+      "default-src 'self'; connect-src 'self'; font-src 'self' https://cdn.jsdelivr.net; frame-src *; img-src 'self' data: blob: https://storage.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'",
   },
 ]
 

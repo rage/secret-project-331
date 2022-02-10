@@ -19,7 +19,7 @@ pub use crate::attributes;
 #[macro_export]
 macro_rules! attributes {
     () => {{
-        Map::<String, serde_json::Value>::new()
+        serde_json::Map::<String, serde_json::Value>::new()
     }};
     ($($name: tt: $value: expr),+ $(,)*) => {{
         let mut map = serde_json::Map::<String, serde_json::Value>::new();

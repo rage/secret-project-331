@@ -26,3 +26,8 @@ Complex.args = {
   children: "Navigation",
   variant: "complex",
 }
+export const Breadcrumbs: Story<ComponentProps> = Template.bind({})
+Breadcrumbs.args = {
+  children: "Navigation",
+  variant: "breadcrumbs",
+}

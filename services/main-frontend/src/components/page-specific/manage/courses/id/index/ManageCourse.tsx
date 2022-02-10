@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@material-ui/core"
+import { Dialog } from "@mui/material"
 import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -101,6 +101,10 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
       <br />
       <Link href={{ pathname: "/manage/courses/[id]/pages", query: { id: course.id } }}>
         {t("link-pages")}
+      </Link>
+      <br />
+      <Link href={{ pathname: "/manage/courses/[id]/glossary", query: { id: course.id } }}>
+        {t("manage-glossary")}
       </Link>
       <br />
       <Link

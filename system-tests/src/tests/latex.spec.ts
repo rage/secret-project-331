@@ -100,18 +100,23 @@ test("latex-block renders", async ({ headless, page }) => {
   // Fill textarea
   await page.fill("textarea", "\\int^\\infty_{-\\infty} e^{-x^2} dx = \\sqrt{\\pi}")
 
+  await page.click(`[aria-label="Options"]`)
+  await page.waitForTimeout(100)
+  await page.click(`text=Insert after`)
+  await page.waitForTimeout(100)
+
   // Click p[role="button"]
-  await page.click('p[role="button"]')
-  // Press Enter
+  await page.click(
+    `[aria-label="Empty block; start writing or type forward slash to choose a block"]`,
+  )
   await page.type(
-    '[aria-label="Empty block; start writing or type forward slash to choose a block"]',
+    `[aria-label="Empty block; start writing or type forward slash to choose a block"]`,
     "Inline latex: [latex]e = \\lim_{n \\rightarrow \\infty} (1 + \\frac{1}{n})^n[/latex]",
   )
   await page.press(
     "text=Inline latex: [latex]e = \\lim_{n \\rightarrow \\infty} (1 + \\frac{1}{n})^n[/latex]",
     "Enter",
   )
-  // Press Enter
   await page.type(
     '[aria-label="Empty block; start writing or type forward slash to choose a block"]',
     "Wubba Lubba Dub Dub",

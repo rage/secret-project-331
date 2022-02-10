@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Dialog, DialogContentText, DialogTitle } from "@material-ui/core"
+import { Dialog, DialogContentText, DialogTitle } from "@mui/material"
 import { useTranslation } from "react-i18next"
 
 import { newCourseInstance } from "../../../../../../services/backend/courses"

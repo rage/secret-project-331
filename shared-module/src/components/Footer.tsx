@@ -13,7 +13,7 @@ import Banner from "./Banner/Banner"
 
 const Wrapper = styled.div`
   display: grid;
-  background: #f1f1f1;
+  background: #d8dbdd;
   grid-template-rows: 1fr;
   padding: 1.5rem;
   color: #231f20;
@@ -22,7 +22,7 @@ const Wrapper = styled.div`
 
   ${respondToOrLarger.md} {
     grid-template-columns: 0.5fr 1fr 0.5fr;
-    padding: 4.5rem;
+    padding: 5rem 4.5rem 4.5rem 4.5rem;
     gap: 20px;
   }
 
@@ -60,14 +60,14 @@ const StyledLink = styled.a`
   }
 `
 const Text = styled.div`
-  width: 100%;
+  width: 80%;
   padding: 0;
 
   ${respondToOrLarger.md} {
     padding: 0 2rem 0 2rem;
   }
   span {
-    font-size: 16px;
+    font-size: 20px;
     padding-right: 0;
     opacity: 0.7;
   }
@@ -75,7 +75,7 @@ const Text = styled.div`
 const Links = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: end;
+  /* justify-content: end; */
 `
 
 export interface FooterExtraProps {
@@ -107,7 +107,7 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
             grid-template-columns: 1fr 1fr;
             align-content: space-between;
             grid-gap: 1em;
-            place-self: center;
+            width: 15rem;
           `}
         >
           {/* eslint-disable-next-line i18next/no-literal-string */}

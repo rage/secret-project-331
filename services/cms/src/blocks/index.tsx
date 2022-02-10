@@ -9,6 +9,7 @@ import Exercise from "./Exercise"
 import ExerciseInChapter from "./ExerciseInChapter"
 import ExerciseSlide from "./ExerciseSlide"
 import ExerciseTask from "./ExerciseTask"
+import Glossary from "./Glossary"
 import HeroSection from "./HeroSection"
 import LandingPageHeroSection from "./LandingPageHeroSection"
 import Latex from "./Latex"
@@ -30,6 +31,7 @@ export const blockTypeMapForPages = [
   ["moocfi/unsupported-block-type", UnsupportedBlock],
   ["moocfi/latex", Latex],
   ["moocfi/hero-section", HeroSection],
+  ["moocfi/glossary", Glossary],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
@@ -40,5 +42,6 @@ export const blockTypeMapForTopLevelPages = [
   ["moocfi/latex", Latex],
   ["moocfi/landing-page-hero-section", LandingPageHeroSection],
   ["moocfi/course-objective-section", CourseObjectiveSection],
+  ["moocfi/glossary", Glossary],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>

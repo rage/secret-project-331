@@ -1,5 +1,5 @@
 import { config } from "@fortawesome/fontawesome-svg-core"
-import { ThemeProvider } from "@material-ui/core"
+import { ThemeProvider } from "@mui/material"
 import type { AppProps } from "next/app"
 import React, { useEffect } from "react"
 import { QueryClientProvider } from "react-query"

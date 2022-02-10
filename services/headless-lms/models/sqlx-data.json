@@ -496,6 +496,16 @@
       "nullable": [false, false, false, true, false, false, false, true, false]
     }
   },
+  "0a3ec731af676e23b67bd6eb547415800aa436639f2dfde55ad17b3ed904a27b": {
+    "query": "\nUPDATE glossary\nSET term = $1,\n  definition = $2\nWHERE id = $3\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Varchar", "Text", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "0abf4ceadb65c21805f0bdb6bed8b664a5442776880ab24eed295d6d88797ec0": {
     "query": "\nINSERT INTO exercises(\n    id,\n    course_id,\n    name,\n    order_number,\n    page_id,\n    chapter_id,\n    exam_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO\nUPDATE\nSET course_id = $2,\n  name = $3,\n  order_number = $4,\n  page_id = $5,\n  chapter_id = $6,\n  exam_id = $7,\n  deleted_at = NULL\nRETURNING id,\n  name,\n  order_number;\n            ",
     "describe": {
@@ -4436,6 +4446,32 @@
       "nullable": [false]
     }
   },
+  "7bc526c7d60f33c9469b085d6ff8d19dcc8fb6d16659593fe77e816569693d8f": {
+    "query": "\nSELECT glossary.id,\n  glossary.term,\n  glossary.definition\nFROM glossary\nWHERE glossary.course_id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "term",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "definition",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false]
+    }
+  },
   "7f1cb8b1bbc4ed001fa4fc6dcbbc90e30e0d509e64de0d75461ae1c82a285268": {
     "query": "UPDATE chapters SET opens_at = $1 WHERE id = $2",
     "describe": {
@@ -7811,6 +7847,22 @@
       "nullable": [false, false, true, true, false, false, true, true, false, false, true]
     }
   },
+  "bf72e4f9ddb0fde913ffd9dbc6031cf822382d1bad16b900e6fbb347b3d329a6": {
+    "query": "\nINSERT INTO glossary (term, definition, course_id)\nSELECT $1, $2, $3\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Text", "Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
   "bfa02fde6602f70bb732851aaa2e194cdff03a3562341959cc4b2791bc5176fb": {
     "query": "\nSELECT *\nFROM exercises\nWHERE exam_id = $1\n  AND deleted_at IS NULL\n",
     "describe": {
@@ -8179,6 +8231,16 @@
       "columns": [],
       "parameters": {
         "Left": ["Text", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
+  "c7f82dee6a7b89c0de8c1195e8dd7f3c0e909e140c3fb6b65692a95497022bf5": {
+    "query": "\nDELETE FROM glossary\nWHERE id = $1\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
       },
       "nullable": []
     }

@@ -94,9 +94,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const courseInstanceId = pageContext?.instance?.id
 
   const inEndedExam = pageContext?.exam?.ends_at ? pageContext?.exam?.ends_at < new Date() : false
-  const noSubmission =
-    getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks[0].previous_submission ===
-    null
+  const noSubmission = getCourseMaterialExercise.data.exercise_status === null
+
   const cannotAnswerButNoSubmission = inEndedExam && noSubmission
 
   return (

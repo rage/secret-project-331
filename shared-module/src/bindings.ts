@@ -266,6 +266,7 @@ export interface CourseMaterialExerciseTask {
   public_spec: unknown | null
   model_solution_spec: unknown | null
   previous_submission: ExerciseTaskSubmission | null
+  previous_submission_grading: ExerciseTaskGrading | null
 }
 
 export interface ExerciseTask {
@@ -289,7 +290,6 @@ export interface CourseMaterialExercise {
   exercise: Exercise
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
-  grading: ExerciseTaskGrading | null
 }
 
 export interface Exercise {

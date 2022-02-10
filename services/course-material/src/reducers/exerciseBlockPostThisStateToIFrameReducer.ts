@@ -42,8 +42,8 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
             data: {
               public_spec: exerciseTask.public_spec,
               model_solution_spec: exerciseTask.model_solution_spec,
-              grading: null,
-              user_answer: null,
+              grading: exerciseTask.previous_submission_grading,
+              user_answer: exerciseTask.previous_submission.data_json,
             },
           }
         }

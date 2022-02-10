@@ -7,6 +7,7 @@ use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use crate::{
     exams, exercise_service_info,
     exercise_slides::{self, CourseMaterialExerciseSlide},
+    exercise_task_gradings::{self, ExerciseTaskGrading},
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercises,
     prelude::*,
@@ -26,6 +27,7 @@ pub struct CourseMaterialExerciseTask {
     pub public_spec: Option<serde_json::Value>,
     pub model_solution_spec: Option<serde_json::Value>,
     pub previous_submission: Option<ExerciseTaskSubmission>,
+    pub previous_submission_grading: Option<ExerciseTaskGrading>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
@@ -151,6 +153,12 @@ pub async fn get_course_material_exercise_tasks(
         } else {
             None
         };
+        let previous_submission = latest_submissions_by_task_id.remove(&exercise_task.id);
+        let previous_submission_grading = if let Some(submission) = previous_submission.as_ref() {
+            exercise_task_gradings::get_by_exercise_task_submission_id(conn, &submission.id).await?
+        } else {
+            None
+        };
         material_tasks.push(CourseMaterialExerciseTask {
             id: exercise_task.id,
             exercise_slide_id: exercise_task.exercise_slide_id,
@@ -158,7 +166,8 @@ pub async fn get_course_material_exercise_tasks(
             assignment: exercise_task.assignment,
             public_spec: exercise_task.public_spec,
             model_solution_spec,
-            previous_submission: latest_submissions_by_task_id.remove(&exercise_task.id),
+            previous_submission,
+            previous_submission_grading,
         });
     }
     Ok(material_tasks)

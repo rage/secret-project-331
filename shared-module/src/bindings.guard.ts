@@ -504,7 +504,9 @@ export function isCourseMaterialExerciseTask(
     typeof obj.exercise_slide_id === "string" &&
     (obj.exercise_iframe_url === null || typeof obj.exercise_iframe_url === "string") &&
     (obj.previous_submission === null ||
-      (isExerciseTaskSubmission(obj.previous_submission) as boolean))
+      (isExerciseTaskSubmission(obj.previous_submission) as boolean)) &&
+    (obj.previous_submission_grading === null ||
+      (isExerciseTaskGrading(obj.previous_submission_grading) as boolean))
   )
 }
 
@@ -540,8 +542,7 @@ export function isCourseMaterialExercise(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isExercise(obj.exercise) as boolean) &&
     (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
-    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
-    (obj.grading === null || (isExerciseTaskGrading(obj.grading) as boolean))
+    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean))
   )
 }
 

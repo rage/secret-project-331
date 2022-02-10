@@ -1,7 +1,6 @@
 use crate::{
     course_instances,
     exercise_slides::{self, CourseMaterialExerciseSlide},
-    exercise_task_gradings::ExerciseTaskGrading,
     exercise_tasks,
     prelude::*,
     user_course_settings, user_exercise_states,
@@ -30,7 +29,6 @@ pub struct CourseMaterialExercise {
     pub current_exercise_slide: CourseMaterialExerciseSlide,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
-    pub grading: Option<ExerciseTaskGrading>,
 }
 
 /**
@@ -256,7 +254,7 @@ pub async fn get_course_material_exercise(
         get_or_select_exercise_slide(&mut *conn, user_id, &exercise).await?;
     info!("{:#?}", current_exercise_slide);
 
-    let _user_exercise_state = match (user_id, instance_or_exam_id) {
+    let user_exercise_state = match (user_id, instance_or_exam_id) {
         (Some(user_id), Some(InstanceOrExamId::Instance(instance_id))) => {
             user_exercise_states::get_user_exercise_state_if_exists(
                 conn,
@@ -280,52 +278,16 @@ pub async fn get_course_material_exercise(
         _ => None,
     };
 
-    // let mut score_given = None;
-    // let mut activity_progress = ActivityProgress::Initialized;
-    // let mut grading_progress = GradingProgress::NotReady;
-    // if let Some(user_exercise_state) = user_exercise_state {
-    //     score_given = user_exercise_state.score_given;
-    //     activity_progress = user_exercise_state.activity_progress;
-    //     grading_progress = user_exercise_state.grading_progress;
-    // }
-
-    // TODO: Figure out new grading stuff
-    // let previous_submission = if let Some(user_id) = user_id {
-    //     exercise_task_submissions::get_users_latest_exercise_task_submissions_for_exercise_slide(
-    //         conn,
-    //         &exercise_id,
-    //         &user_id,
-    //     )
-    //     .await?
-    //     .and_then(|mut submissions| submissions.pop())
-    // } else {
-    //     None
-    // };
-    // let grading = if let Some(grading_id) = previous_submission.as_ref().and_then(|s| s.grading_id)
-    // {
-    //     if let Some(user_id) = user_id {
-    //         crate::gradings::get_for_student(conn, grading_id, user_id).await?
-    //     } else {
-    //         None
-    //     }
-    // } else {
-    //     None
-    // };
-    // let exercise_status = if grading.is_some() {
-    //     Some(ExerciseStatus {
-    //         score_given,
-    //         activity_progress,
-    //         grading_progress,
-    //     })
-    // } else {
-    //     None
-    // };
+    let exercise_status = user_exercise_state.map(|user_exercise_state| ExerciseStatus {
+        score_given: user_exercise_state.score_given,
+        activity_progress: user_exercise_state.activity_progress,
+        grading_progress: user_exercise_state.grading_progress,
+    });
 
     Ok(CourseMaterialExercise {
         exercise,
         current_exercise_slide,
-        exercise_status: None,
-        grading: None,
+        exercise_status,
     })
 }
 

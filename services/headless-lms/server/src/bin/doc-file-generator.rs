@@ -471,15 +471,15 @@ fn main() {
                         serde_json::json! {[{"id":"7ab2591c-b0f3-4543-9548-a113849b0f94","name":"a"},{"id":"a833d1df-f27b-4fbf-b516-883a62c09d88","name":"b"},{"id":"03d4b3d4-88af-4125-88b7-4ee052fd876f","name":"c"}]}
                     ),
                     model_solution_spec: None,
-                    previous_submission: Some(exercise_task_submission.clone())
+                    previous_submission: Some(exercise_task_submission.clone()),
+                    previous_submission_grading: Some(grading.clone()),
                 }],
             },
             exercise_status: Some(ExerciseStatus {
                 score_given: None,
                 activity_progress: ActivityProgress::InProgress,
                 grading_progress: GradingProgress::NotReady
-            }),
-            grading: Some(grading.clone())
+            })
         }
     );
     write_docs!(

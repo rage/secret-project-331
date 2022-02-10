@@ -4,8 +4,7 @@ use serde_json::Value;
 
 use crate::{
     exercise_slide_submissions,
-    exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
-    exercise_task_submissions::ExerciseTaskSubmission,
+    exercise_task_gradings::{self, UserPointsUpdateStrategy},
     exercises::{ActivityProgress, GradingProgress},
     prelude::*,
 };
@@ -446,12 +445,10 @@ fn figure_out_new_activity_progress(
 
 pub async fn update_user_exercise_state(
     conn: &mut PgConnection,
-    grading: &ExerciseTaskGrading,
-    submission: &ExerciseTaskSubmission,
+    exercise_slide_submission_id: &Uuid,
 ) -> ModelResult<UserExerciseState> {
-    // Bad order to do this, function needs refactoring
     let exercise_slide_submission =
-        exercise_slide_submissions::get_by_id(conn, submission.exercise_slide_submission_id)
+        exercise_slide_submissions::get_by_id(conn, *exercise_slide_submission_id)
             .await?
             .ok_or_else(|| ModelError::PreconditionFailed("Submission not found".to_string()))?;
 
@@ -464,17 +461,31 @@ pub async fn update_user_exercise_state(
     )
     .await?;
 
+    // There used to be only one task per exercise. For now this data is summarized from a set of
+    // submissions belonging to a slide submission.
+    let score_given = exercise_task_gradings::get_total_score_given_for_exercise_slide_submission(
+        conn,
+        exercise_slide_submission_id,
+    )
+    .await?;
+    let (grading_progress, points_update_strategy) =
+        exercise_task_gradings::get_point_update_strategy_from_gradings(
+            conn,
+            exercise_slide_submission_id,
+        )
+        .await?;
     info!(
         "Using user points updating strategy {:?}",
-        grading.user_points_update_strategy
+        points_update_strategy
     );
     let new_score_given = figure_out_new_score_given(
         current_state.score_given,
-        grading.score_given,
-        grading.user_points_update_strategy,
+        score_given,
+        points_update_strategy,
     );
+
     let new_grading_progress =
-        figure_out_new_grading_progress(current_state.grading_progress, grading.grading_progress);
+        figure_out_new_grading_progress(current_state.grading_progress, grading_progress);
     let new_activity_progress = figure_out_new_activity_progress(current_state.activity_progress);
 
     let res = sqlx::query_as!(
@@ -896,7 +907,7 @@ mod tests {
         let submission = exercise_task_submissions::get_by_id(tx.as_mut(), submission.id)
             .await
             .unwrap();
-        update_user_exercise_state(tx.as_mut(), &grading, &submission)
+        update_user_exercise_state(tx.as_mut(), &submission.exercise_slide_submission_id)
             .await
             .unwrap();
         let state = get_or_create_user_exercise_state(

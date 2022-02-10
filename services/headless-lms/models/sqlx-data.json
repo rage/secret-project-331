@@ -1133,6 +1133,44 @@
       ]
     }
   },
+  "18f64f885751669664bc19f59dd1b38f26dee8453199e07395c707bd5b3033a4": {
+    "query": "\nSELECT etg.grading_progress as \"grading_progress: GradingProgress\",\n  etg.user_points_update_strategy as \"user_points_update_strategy: UserPointsUpdateStrategy\"\nFROM exercise_task_gradings etg\n  JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id\nWHERE ets.exercise_slide_submission_id = $1\n  AND etg.deleted_at IS NULL\n  AND ets.deleted_at IS NULL\nLIMIT 1\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "grading_progress: GradingProgress",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 1,
+          "name": "user_points_update_strategy: UserPointsUpdateStrategy",
+          "type_info": {
+            "Custom": {
+              "name": "user_points_update_strategy",
+              "kind": {
+                "Enum": [
+                  "can-add-points-but-cannot-remove-points",
+                  "can-add-points-and-can-remove-points"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false]
+    }
+  },
   "19a6e3aaaddd659eb5cee0d7361c6ce7b72a8f77a14561cb51427fb4490fa36b": {
     "query": "\nINSERT INTO chapters (name, course_id, chapter_number)\nVALUES ($1, $2, $3)\nRETURNING id\n",
     "describe": {
@@ -2578,6 +2616,149 @@
         "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false, false, true, true, false, false, true, true, false, false, true]
+    }
+  },
+  "4259ec089db3e3a1025b9558604253650202334b42ec60eb22a9d9359b87fc18": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  exercise_task_submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  user_points_update_strategy as \"user_points_update_strategy: _\",\n  unscaled_score_maximum,\n  unscaled_score_given,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\nFROM exercise_task_gradings\nWHERE exercise_task_submission_id = $1\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "exercise_task_submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "exercise_task_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "grading_priority",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 9,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 10,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "user_points_update_strategy: _",
+          "type_info": {
+            "Custom": {
+              "name": "user_points_update_strategy",
+              "kind": {
+                "Enum": [
+                  "can-add-points-but-cannot-remove-points",
+                  "can-add-points-and-can-remove-points"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 12,
+          "name": "unscaled_score_maximum",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 13,
+          "name": "unscaled_score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 14,
+          "name": "grading_started_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 15,
+          "name": "grading_completed_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 16,
+          "name": "feedback_json",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 17,
+          "name": "feedback_text",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 18,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "42bb90fd049adc897da8bdd2b82ab5b13af558433fae08261cecd5facb0c2f4f": {
@@ -6509,6 +6690,22 @@
         "Left": ["Uuid", "Uuid", "Int4"]
       },
       "nullable": [false]
+    }
+  },
+  "ad05712486467ad76850b5d365d57b87a302263d16b4bdc830f02e8a1092e6cc": {
+    "query": "\nSELECT SUM(COALESCE(etg.score_given, 0))::real\nFROM exercise_task_gradings etg\n  JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id\nWHERE ets.exercise_slide_submission_id = $1\n  AND etg.deleted_at IS NULL\n  AND ets.deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "sum",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [null]
     }
   },
   "ae09c81de80462c665df90dd6805e0ed516ac05cdf706e973e734d0302c90e7d": {

@@ -106,6 +106,86 @@ WHERE id = $1
     Ok(res)
 }
 
+pub async fn get_by_exercise_task_submission_id(
+    conn: &mut PgConnection,
+    exercise_task_submission_id: &Uuid,
+) -> ModelResult<Option<ExerciseTaskGrading>> {
+    let res = sqlx::query_as!(
+        ExerciseTaskGrading,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  exercise_task_submission_id,
+  course_id,
+  exam_id,
+  exercise_id,
+  exercise_task_id,
+  grading_priority,
+  score_given,
+  grading_progress as "grading_progress: _",
+  user_points_update_strategy as "user_points_update_strategy: _",
+  unscaled_score_maximum,
+  unscaled_score_given,
+  grading_started_at,
+  grading_completed_at,
+  feedback_json,
+  feedback_text,
+  deleted_at
+FROM exercise_task_gradings
+WHERE exercise_task_submission_id = $1
+  AND deleted_at IS NULL
+        "#,
+        exercise_task_submission_id,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_total_score_given_for_exercise_slide_submission(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: &Uuid,
+) -> ModelResult<Option<f32>> {
+    let res = sqlx::query!(
+        "
+SELECT SUM(COALESCE(etg.score_given, 0))::real
+FROM exercise_task_gradings etg
+  JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id
+WHERE ets.exercise_slide_submission_id = $1
+  AND etg.deleted_at IS NULL
+  AND ets.deleted_at IS NULL
+        ",
+        exercise_slide_submission_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.sum)
+}
+
+/// For now gets this information from some task submission in a slide submission.
+pub async fn get_point_update_strategy_from_gradings(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: &Uuid,
+) -> ModelResult<(GradingProgress, UserPointsUpdateStrategy)> {
+    let res = sqlx::query!(
+        r#"
+SELECT etg.grading_progress as "grading_progress: GradingProgress",
+  etg.user_points_update_strategy as "user_points_update_strategy: UserPointsUpdateStrategy"
+FROM exercise_task_gradings etg
+  JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id
+WHERE ets.exercise_slide_submission_id = $1
+  AND etg.deleted_at IS NULL
+  AND ets.deleted_at IS NULL
+LIMIT 1
+    "#,
+        exercise_slide_submission_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok((res.grading_progress, res.user_points_update_strategy))
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Option<Uuid>> {
     let course_id = sqlx::query!(
         "
@@ -209,7 +289,7 @@ pub async fn grade_submission(
     let grade_url = get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
     let obj = send_grading_request(grade_url, exercise_task, submission).await?;
     let updated_grading = update_grading(conn, grading, &obj, exercise).await?;
-    update_user_exercise_state(conn, &updated_grading, submission).await?;
+    update_user_exercise_state(conn, &submission.exercise_slide_submission_id).await?;
     Ok(updated_grading)
 }
 

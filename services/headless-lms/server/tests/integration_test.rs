@@ -1,6 +1,9 @@
 use std::{env, sync::Arc};
 
-use actix_http::{body::AnyBody, Request};
+use actix_http::{
+    body::{BoxBody, EitherBody},
+    Request,
+};
 use actix_session::CookieSession;
 use actix_web::{dev::ServiceResponse, test, web::Data, App};
 use headless_lms_actix::setup_tracing;
@@ -50,7 +53,11 @@ pub async fn init_db() -> String {
 
 /// Initialises the actix server for testing
 pub async fn init_actix() -> (
-    impl actix_web::dev::Service<Request, Response = ServiceResponse<AnyBody>, Error = actix_web::Error>,
+    impl actix_web::dev::Service<
+        Request,
+        Response = ServiceResponse<EitherBody<BoxBody>>,
+        Error = actix_web::Error,
+    >,
     PgPool,
 ) {
     let db = init_db().await;
@@ -89,6 +96,6 @@ async fn gets_organizations() {
     .await
     .unwrap();
     let req = test::TestRequest::with_uri("/api/v0/main-frontend/organizations").to_request();
-    let organizations: Vec<Organization> = test::read_response_json(&actix, req).await;
+    let organizations: Vec<Organization> = test::call_and_read_body_json(&actix, req).await;
     assert_eq!(organizations.len(), 1);
 }

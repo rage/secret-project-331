@@ -4,26 +4,15 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CardSVG from "../../img/cardNext.svg"
-import { baseTheme, typography } from "../../styles"
+import { baseTheme, headingFont, typography } from "../../styles"
 import { cardHeight, cardMaxWidth } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 
 import { CardExtraProps } from "."
 
-// eslint-disable-next-line i18next/no-literal-string
-const CourseGridWrapper = styled.a`
-  text-decoration: none;
-  display: block;
-  max-width: ${cardMaxWidth}em;
-  height: ${cardHeight * 0.75}em;
-  border-radius: 1px;
-  position: relative;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  background: #48cfad;
-
-  ${respondToOrLarger.sm} {
-    height: ${cardHeight}em;
-  }
+const StCardSvg = styled(CardSVG)`
+  width: 40px;
+  opacity: 0.8;
 `
 
 const CardContentWrapper = styled.div`
@@ -57,7 +46,7 @@ const CardContentWrapper = styled.div`
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, date, time }) => {
+const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, date, time }) => {
   const { t } = useTranslation()
   // If URL defined, the chapter is open
 
@@ -111,12 +100,19 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, 
     }
   }
   return (
-    <CourseGridWrapper
+    <div
       className={css`
-        background: ${bg};
+        max-width: ${cardMaxWidth}em;
+        height: ${cardHeight * 0.75}em;
+        border-radius: 1px;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        background: #48cfad;
+
+        ${respondToOrLarger.sm} {
+          height: ${cardHeight}em;
+        }
       `}
-      // Pass href={url} if url defined
-      {...(url ? { href: url } : {})}
     >
       <CardContentWrapper>
         {!open && !url ? (
@@ -134,16 +130,16 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, 
           <div
             className={css`
               flex: 0 1 auto;
-              padding: 2rem 2.5rem 0 2.5rem;
+              padding: 3rem 2.5rem 0 2.5rem;
             `}
           >
-            <CardSVG />
+            <StCardSvg />
           </div>
         )}
         <div
           className={css`
             flex: 1 1 auto;
-            padding: 0em 2.5rem 2rem 2.5rem;
+            padding: 0em 2.5rem 3rem 2.5rem;
           `}
         >
           <div
@@ -161,6 +157,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, 
               <span
                 className={css`
                   text-transform: uppercase;
+                  font-family: ${headingFont};
                 `}
               >
                 {t("chapter-chapter-number", { number: chapterNumber })}
@@ -170,7 +167,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, bg, 
           </div>
         </div>
       </CardContentWrapper>
-    </CourseGridWrapper>
+    </div>
   )
 }
 

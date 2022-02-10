@@ -4,6 +4,7 @@ pub mod document_schema_processor;
 pub mod email_processor;
 pub mod file_store;
 pub mod folder_checksum;
+pub mod language_tag_to_name;
 pub mod merge_edits;
 pub mod numbers;
 pub mod pagination;

@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import Link from "next/link"
 import React, { Fragment } from "react"
 
 import ArrowSVGIcon from "../img/arrow.svg"
@@ -39,7 +40,6 @@ const StyledArrow = styled.div`
   height: 100%;
   padding: 1rem 1rem;
   background: #cacaca;
-  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -65,7 +65,7 @@ const StyledArrow = styled.div`
 `
 
 // eslint-disable-next-line i18next/no-literal-string
-const StyledLink = styled.a`
+const StyledLinkWrapper = styled.div`
   position: relative;
   color: #c4c4c4;
   text-decoration: none;
@@ -99,12 +99,6 @@ const StyledLink = styled.a`
   }
 `
 
-const ButtonWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  margin-top: 0.5rem;
-`
-
 export interface NextSectionLinkExtraProps {
   title: string
   subtitle: string
@@ -126,32 +120,58 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
           {title}
         </h2>
         <p>{subtitle}</p>
-        <ButtonWrapper>
-          <StyledLink {...(url ? { href: url } : {})}>
-            <span>{nextTitle}</span>
-            <StyledArrow>
-              {url ? (
-                <ArrowSVGIcon
-                  id="svg-icon"
-                  role="presentation"
-                  alt=""
-                  width="38.7"
-                  height="38.7"
-                  viewBox="0 0 39 39"
-                />
-              ) : (
-                <LockIcon
-                  id="svg-icon"
-                  role="presentation"
-                  alt=""
-                  width="24"
-                  height="36"
-                  viewBox="0 0 24 36"
-                />
-              )}
-            </StyledArrow>
-          </StyledLink>
-        </ButtonWrapper>
+        <div
+          className={css`
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+          `}
+        >
+          <StyledLinkWrapper>
+            {url ? (
+              <>
+                <Link href={url} passHref>
+                  <a
+                    href="replace"
+                    className={css`
+                      text-decoration: none;
+                    `}
+                  >
+                    <span>{nextTitle}</span>
+                    <StyledArrow>
+                      <ArrowSVGIcon
+                        id="svg-icon"
+                        role="presentation"
+                        alt=""
+                        width="38.7"
+                        height="38.7"
+                        viewBox="0 0 39 39"
+                      />
+                    </StyledArrow>
+                  </a>
+                </Link>
+              </>
+            ) : (
+              <div
+                className={css`
+                  cursor: not-allowed;
+                `}
+              >
+                <span>{nextTitle}</span>
+                <StyledArrow>
+                  <LockIcon
+                    id="svg-icon"
+                    role="presentation"
+                    alt=""
+                    width="24"
+                    height="36"
+                    viewBox="0 0 24 36"
+                  />
+                </StyledArrow>
+              </div>
+            )}
+          </StyledLinkWrapper>
+        </div>
       </Fragment>
     </SectionWrapper>
   )

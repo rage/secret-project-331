@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Check, Clear, Create, ExpandMore } from "@material-ui/icons"
+import { Check, Clear, Create, ExpandMore } from "@mui/icons-material"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -30,8 +30,6 @@ interface EditingRole {
 interface Props {
   domain: RoleDomain
 }
-
-const EMAIL = "email"
 
 export const PermissionPage: React.FC<Props> = ({ domain }) => {
   const { t } = useTranslation()

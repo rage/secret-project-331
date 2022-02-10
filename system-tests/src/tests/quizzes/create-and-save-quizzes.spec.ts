@@ -77,7 +77,7 @@ test("create quizzes test", async ({ page }) => {
   await Promise.all([page.waitForNavigation(), page.click('a:has-text("first page")')])
 
   // Click :nth-match([aria-label="Add block"], 2)
-  await page.click(':nth-match([aria-label="Add block"], 2)')
+  await page.click(':nth-match([aria-label="Add block"], 1)')
 
   // Click [placeholder="Search"]
   await page.click('[placeholder="Search"]')
@@ -87,9 +87,6 @@ test("create quizzes test", async ({ page }) => {
 
   // Click button[role="option"]:has-text("Exercise")
   await page.click('button[role="option"]:has-text("Exercise")')
-
-  // Click p[role="button"]
-  await page.click('p[role="button"]')
 
   // Click [aria-label="Block: Exercise"] div:has-text("Exercise")
   await page.click('[aria-label="Block: Exercise"]')

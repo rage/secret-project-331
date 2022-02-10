@@ -53,14 +53,8 @@ const Pages = ({ query }: PagesProps) => {
       retry: 3,
     },
   )
-
-  let frontPageUrl = "/"
-  if (getPage.isSuccess && getPage.data.course_id) {
-    // eslint-disable-next-line i18next/no-literal-string
-    frontPageUrl = `/manage/courses/${getPage.data.course_id}/pages`
-  }
   return (
-    <Layout frontPageUrl={frontPageUrl}>
+    <Layout>
       {getPage.isError && <ErrorBanner variant={"readOnly"} error={getPage.error} />}
       {(getPage.isLoading || getPage.isIdle) && <Spinner variant={"medium"} />}
       {getPage.isSuccess && <PageEditor data={getPage.data} saveMutation={mutate} />}

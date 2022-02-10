@@ -1,13 +1,20 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material"
+import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
+import { useQuery, useQueryClient } from "react-query"
 
-import { NewCourse } from "../../../../shared-module/bindings"
+import { newCourseInstance, postNewCourseTranslation } from "../../../../services/backend/courses"
+import { fetchOrganizationCourses } from "../../../../services/backend/organizations"
+import { Course, NewCourse } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
+import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
+import SelectMenu from "../../../../shared-module/components/InputFields/SelectField"
 import { normalizeIETFLanguageTag } from "../../../../shared-module/utils/strings"
 import { normalizePath } from "../../../../utils/normalizePath"
+import { formatLanguageVersionsQueryKey } from "../../manage/courses/id/index/CourseLanguageVersionsList"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -34,8 +41,61 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
   const [languageCodeValidationError, setLanguageCodeValidationError] = useState<string | null>(
     null,
   )
+
+  const [createDuplicate, setCreateDuplicate] = useState<boolean>(false)
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+
+  let initialPage: number
+  if (typeof router.query.page === "string") {
+    initialPage = parseInt(router.query.page)
+  } else {
+    initialPage = 1
+  }
+  const [page, setPage] = useState(initialPage)
+
+  const getOrgCourses = useQuery(
+    [`organization-courses`, page, 100],
+    () => {
+      if (organizationId) {
+        return fetchOrganizationCourses(organizationId, page, 100)
+      } else {
+        // This should never happen, used for typescript because enabled boolean doesn't do type checking
+        return Promise.reject(new Error("Organization ID undefined"))
+      }
+    },
+    { enabled: !!organizationId },
+  )
+
+  const courses = getOrgCourses.data
+
+  const handleTemplateChanging = (e: string, coursesData: Course[]) => {
+    const findCourse = coursesData.find((course) => course.id === e)
+    const courseName = findCourse?.name ? findCourse?.name : ""
+    const courseSlug = findCourse?.slug ? findCourse?.slug : ""
+    const courseLanguage = findCourse?.language_code ? findCourse?.language_code : ""
+    setName(courseName)
+    setSlug(courseSlug)
+    setTeacherInChargeName("")
+    setTeacherInChargeEmail("")
+    setLanguageCode(courseLanguage)
+  }
+
+  const handleCreateNewLanguageVersion = async () => {
+    const newCourse: NewCourse = {
+      name: name,
+      slug: slug,
+      organization_id: organizationId,
+      language_code: languageCode,
+      teacher_in_charge_email: teacherInChargeEmail,
+      teacher_in_charge_name: teacherInChargeName,
+    }
+    const oldCourseId = courses?.find((course) => course.slug === slug)?.id
+    if (oldCourseId) {
+      await postNewCourseTranslation(oldCourseId, newCourse)
+    }
+  }
 
   const createNewCourse = async () => {
     try {
@@ -134,6 +194,27 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
             }}
           />
         </FieldContainer>
+        <FieldContainer>
+          <CheckBox
+            label={t("create-course-duplicate")}
+            onChange={() => setCreateDuplicate(!createDuplicate)}
+            checked={createDuplicate}
+          ></CheckBox>
+        </FieldContainer>
+        {courses && createDuplicate && (
+          <FieldContainer>
+            <SelectMenu
+              id="duplicate-course-select-menu"
+              onBlur={() => {
+                // no-op
+              }}
+              onChange={(e) => handleTemplateChanging(e, courses)}
+              options={courses.map((course) => {
+                return { label: course.name, value: course.id }
+              })}
+            ></SelectMenu>
+          </FieldContainer>
+        )}
         <div>{t("course-language")}</div>
         <FieldContainer aria-labelledby={t("course-version-selection")}>
           <RadioGroup
@@ -193,7 +274,12 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
         )}
       </div>
       <div>
-        <Button size="medium" variant="primary" onClick={createNewCourse} disabled={submitDisabled}>
+        <Button
+          size="medium"
+          variant="primary"
+          onClick={createDuplicate ? handleCreateNewLanguageVersion : createNewCourse}
+          disabled={submitDisabled}
+        >
           {t("button-text-create")}
         </Button>
       </div>

@@ -14,6 +14,8 @@
   "button-text-upload-image": "Upload image",
   "course-language": "Course language",
   "course-version-selection": "Course version selection",
+  "create-course-duplicate": "Create duplicate",
+  "create-course-duplicate-helper-text": "Tip: You can type part of the course in the field to sort out options",
   "daily-submissions-visualization-tooltip": "Day: {{day}}<br />Submissions: {{submissions}}",
   "default-course-instance-name": "Default",
   "edited-by-on": "Edited by {{user}} on {{time}}",

@@ -1,12 +1,10 @@
-import { TextField } from "@material-ui/core"
-import { DateTimePicker, LocalizationProvider } from "@material-ui/lab"
-import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { CourseInstance, CourseInstanceForm } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
+import TimePicker from "../../../../../../shared-module/components/InputFields/DateTimeLocal"
 import FormField from "../../../../../FormField"
 
 interface FormProps {
@@ -22,8 +20,6 @@ interface Fields {
   teacherName: string
   teacherEmail: string
 }
-
-const DATETIME_FORMAT = "yyyy-MM-dd HH:mm"
 
 const NewCourseInstanceForm: React.FC<FormProps> = ({ initialData, onSubmit, onCancel }) => {
   const { t } = useTranslation()
@@ -85,24 +81,14 @@ const NewCourseInstanceForm: React.FC<FormProps> = ({ initialData, onSubmit, onC
           register={register}
         />
         <br />
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DateTimePicker
-            label={t("opening-time")}
-            inputFormat={DATETIME_FORMAT}
-            renderInput={(props) => <TextField id={"openingTime"} {...props} />}
-            value={newOpeningTime}
-            onChange={(time) => setNewOpeningTime(time)}
-          />
-          <br />
-          <br />
-          <DateTimePicker
-            label={t("closing-time")}
-            inputFormat={DATETIME_FORMAT}
-            renderInput={(props) => <TextField id={"closingTime"} {...props} />}
-            value={newClosingTime}
-            onChange={(time) => setNewClosingTime(time)}
-          />
-        </LocalizationProvider>
+        <TimePicker
+          label={t("opening-time")}
+          onChange={(time) => setNewOpeningTime(new Date(time))}
+        />
+        <TimePicker
+          label={t("closing-time")}
+          onChange={(time) => setNewClosingTime(new Date(time))}
+        />
         <br />
         <br />
         <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>

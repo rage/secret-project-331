@@ -77,11 +77,6 @@ test("history test", async ({ page, headless }) => {
     page.click("text=Page One"),
   ])
 
-  // Triple click input[type="text"]
-  // await page.click('input[type="text"]', {
-  //   clickCount: 3,
-  // })
-
   // Fill input[type="text"]
   await page.fill("text=Title", "New title!")
 

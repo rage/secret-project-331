@@ -49,14 +49,8 @@ test("test", async ({ page }) => {
   // Click button:has-text("Add new chapter")
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
-  // Click input[type="text"]
-  // await page.click('input[type="text"]')
-
   // Fill input[type="text"]
   await page.fill("text=Name", "The Levels of testing")
-
-  // Click input[type="text"]
-  // await page.click('input[type="text"]')
 
   // Press ArrowRight
   await page.press("text=Chapter number", "ArrowRight")
@@ -70,12 +64,6 @@ test("test", async ({ page }) => {
   // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
-  // Click input[type="text"]
-  // await page.click('input[type="text"]')
-
-  // Click input[type="text"]
-  // await page.click('input[type="text"]')
-
   // Fill input[type="text"]
   await page.fill("text=Name", "Unit testing")
 
@@ -84,9 +72,6 @@ test("test", async ({ page }) => {
 
   // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
-
-  // Click input[type="text"]
-  // await page.click('input[type="text"]')
 
   // Fill input[type="text"]
   await page.fill("text=Title", "Integration Testing")
@@ -97,9 +82,6 @@ test("test", async ({ page }) => {
   // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
-  // Click input[type="text"]
-  // await page.click('input[type="text"]')
-
   // Fill input[type="text"]
   await page.fill("text=Title", "System Testing")
 
@@ -108,9 +90,6 @@ test("test", async ({ page }) => {
 
   // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
-
-  // Click input[type="text"]
-  // await page.click('input[type="text"]')
 
   // Fill input[type="text"]
   await page.fill("text=Title", "Acceptance Testing")

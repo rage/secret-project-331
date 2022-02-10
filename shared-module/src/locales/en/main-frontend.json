@@ -220,5 +220,6 @@
   "remove-role": "Remove role",
   "save-edited-role": "Save edited role",
   "cancel-editing-role": "Cancel editing role",
-  "global-permissions": "Global permissions"
+  "global-permissions": "Global permissions",
+  "skip-to-content": "Skip to content"
 }

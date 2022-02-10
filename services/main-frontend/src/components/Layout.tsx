@@ -1,13 +1,15 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
-
+import { baseTheme } from "../shared-module/styles"
 type LayoutProps = {
   children: ReactNode
   navVariant?: "simple" | "complex"
@@ -22,6 +24,22 @@ const DynamicToaster = dynamic(
   { ssr: false },
 )
 
+// eslint-disable-next-line i18next/no-literal-string
+const SkipLink = styled.a`
+  background: ${baseTheme.colors.green[600]};
+  color: ${baseTheme.colors.clear[100]};
+  font-weight: 700;
+  left: 50%;
+  padding: 6px;
+  position: absolute;
+  transform: translateY(-100%);
+  text-decoration: none;
+
+  &:focus {
+    transform: translateY(0%);
+  }
+`
+
 const Layout: React.FC<LayoutProps> = ({
   children,
   title = "Secret Project 331",
@@ -35,6 +53,8 @@ const Layout: React.FC<LayoutProps> = ({
   const returnPath = `/login?return_to=${encodeURIComponent(
     process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
   )}`
+  const { t } = useTranslation()
+
   return (
     <>
       <Head>
@@ -51,6 +71,9 @@ const Layout: React.FC<LayoutProps> = ({
           min-height: 100vh;
         `}
       >
+        {/* Skip to content*/}
+
+        <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
         <div>
           <Navbar
             faqUrl={faqUrl}
@@ -64,6 +87,7 @@ const Layout: React.FC<LayoutProps> = ({
           className={css`
             flex: 1;
           `}
+          id="maincontent"
         >
           <Centered variant="default">{children}</Centered>
         </main>

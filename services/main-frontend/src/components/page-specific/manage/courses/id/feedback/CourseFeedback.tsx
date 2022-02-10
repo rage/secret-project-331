@@ -3,11 +3,11 @@ import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CourseOverviewTabsProps } from "../index/CourseOverviewTabNavigator"
+import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 
 import FeedbackList from "./FeedbackList"
 
-const CourseFeedback: React.FC<CourseOverviewTabsProps> = ({ courseId }) => {
+const CourseFeedback: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
   const router = useRouter()
 

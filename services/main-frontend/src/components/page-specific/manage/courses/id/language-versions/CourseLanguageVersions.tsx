@@ -2,20 +2,20 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
+import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { getCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
 import { NewCourse } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import { queryClient } from "../../../../../../shared-module/services/appQueryClient"
-import { CourseOverviewTabsProps } from "../index/CourseOverviewTabNavigator"
 
 import CourseLanguageVersionsList, {
   formatLanguageVersionsQueryKey,
 } from "./CourseLanguageVersionsList"
 import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
 
-const CourseLanguageVersionsPage: React.FC<CourseOverviewTabsProps> = ({ courseId }) => {
+const CourseLanguageVersionsPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
   const getCourseQuery = useQuery(`course-${courseId}`, () => getCourse(courseId))

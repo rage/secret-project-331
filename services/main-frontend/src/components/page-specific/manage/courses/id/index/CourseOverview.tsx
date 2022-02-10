@@ -1,14 +1,13 @@
 import React from "react"
 import { useQuery } from "react-query"
 
+import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { getCourse } from "../../../../../../services/backend/courses"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import ManageCourse from "../index/ManageCourse"
 
-import { CourseOverviewTabsProps } from "./CourseOverviewTabNavigator"
-
-const CourseOverview: React.FC<CourseOverviewTabsProps> = ({ courseId }) => {
+const CourseOverview: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const getCourseQuery = useQuery(`course-${courseId}`, () => getCourse(courseId))
 
   return (

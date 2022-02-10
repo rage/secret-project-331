@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next"
 
-import { CourseOverviewTabsProps } from "../index/CourseOverviewTabNavigator"
+import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 
 import ExerciseList from "./ExerciseList"
 
-const CourseExercises: React.FC<CourseOverviewTabsProps> = ({ courseId }) => {
+const CourseExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
   return (
     <>

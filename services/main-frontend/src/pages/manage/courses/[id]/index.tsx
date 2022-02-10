@@ -1,3 +1,3 @@
-import CourseOverviewTabNavigator from "../../../../components/page-specific/manage/courses/id/index/CourseOverviewTabNavigator"
+import CourseManagementPageTabs from "./[...path]"
 
-export default CourseOverviewTabNavigator
+export default CourseManagementPageTabs

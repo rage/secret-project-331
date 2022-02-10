@@ -1,8 +1,10 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@material-ui/core"
+import { Dialog, DialogContentText, DialogTitle } from "@material-ui/core"
+import { useTranslation } from "react-i18next"
 
 import { newCourseInstance } from "../../../../../../services/backend/courses"
 import { CourseInstanceForm } from "../../../../../../shared-module/bindings"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 
 import NewCourseInstanceForm from "./NewCourseInstanceForm"
@@ -20,6 +22,7 @@ const NewCourseInstanceDialog: React.FC<NewCourseLanguageVersionDialogProps> = (
   showDialog,
   onSubmit,
 }) => {
+  const { t } = useTranslation()
   const mutation = useToastMutation(
     async (form: CourseInstanceForm) => {
       await newCourseInstance(courseId, form)
@@ -27,6 +30,11 @@ const NewCourseInstanceDialog: React.FC<NewCourseLanguageVersionDialogProps> = (
     {
       notify: true,
       method: "POST",
+    },
+    {
+      onSuccess: () => {
+        onSubmit()
+      },
     },
   )
   return (
@@ -38,21 +46,26 @@ const NewCourseInstanceDialog: React.FC<NewCourseLanguageVersionDialogProps> = (
         }
         onClose()
       }}
+      className={css`
+        z-index: 10000;
+      `}
+      // eslint-disable-next-line i18next/no-literal-string
+      aria-label="New Course Instance dialog"
+      role="dialog"
     >
-      <div
-        className={css`
-          margin: 1rem;
-        `}
-      >
+      <DialogTitle id="alert-dialog-title">
+        <h1>{t("new-course-instance")}</h1>
+      </DialogTitle>
+      <DialogContentText role="main" id="alert-dialog-description">
+        {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
         <NewCourseInstanceForm
           initialData={null}
-          onSubmit={async (data) => {
+          onSubmit={(data) => {
             mutation.mutate(data)
-            await onSubmit()
           }}
           onCancel={onClose}
         />
-      </div>
+      </DialogContentText>
     </Dialog>
   )
 }

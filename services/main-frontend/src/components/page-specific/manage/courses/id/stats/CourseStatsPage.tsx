@@ -1,12 +1,12 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { CourseOverviewTabsProps } from "../index/CourseOverviewTabNavigator"
+import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 
 import CourseSubmissionsByDay from "./CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "./CourseSubmissionsByWeekdayAndHour"
 
-const CourseStatsPage: React.FC<CourseOverviewTabsProps> = ({ courseId }) => {
+const CourseStatsPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
   return (
     <>

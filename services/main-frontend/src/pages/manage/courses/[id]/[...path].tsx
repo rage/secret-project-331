@@ -7,6 +7,7 @@ import CourseChangeRequests from "../../../../components/page-specific/manage/co
 import CourseCourseInstances from "../../../../components/page-specific/manage/courses/id/course-instances/CourseCourseInstances"
 import CourseExercises from "../../../../components/page-specific/manage/courses/id/exercises/CourseExercises"
 import CourseFeedback from "../../../../components/page-specific/manage/courses/id/feedback/CourseFeedback"
+import CourseGlossary from "../../../../components/page-specific/manage/courses/id/glossary/CourseGlossary"
 import CourseOverview from "../../../../components/page-specific/manage/courses/id/index/CourseOverview"
 import CourseLanguageVersionsPage from "../../../../components/page-specific/manage/courses/id/language-versions/CourseLanguageVersions"
 import CoursePages from "../../../../components/page-specific/manage/courses/id/pages/CoursePages"
@@ -38,6 +39,7 @@ const CourseManagementPageTabs: { [key: string]: React.FC<CourseManagementPagesP
   "course-instances": CourseCourseInstances,
   "language-versions": CourseLanguageVersionsPage,
   permissions: CoursePermissions,
+  glossary: CourseGlossary,
   stats: CourseStatsPage,
 }
 

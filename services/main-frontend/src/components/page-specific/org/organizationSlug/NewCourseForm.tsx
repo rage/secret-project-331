@@ -64,23 +64,32 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
     if (!onSubmitDuplicateCourseForm) {
       return null
     }
-    const normalizedLanguageCode = normalizeIETFLanguageTag(languageCode)
-    const newCourse: NewCourse = {
-      name: name,
-      slug: slug,
-      organization_id: organizationId,
-      language_code: normalizedLanguageCode,
-      teacher_in_charge_email: teacherInChargeEmail,
-      teacher_in_charge_name: teacherInChargeName,
-    }
-    if (courseId) {
+    try {
       setSubmitDisabled(true)
-      onSubmitDuplicateCourseForm(courseId, newCourse)
-      setLanguageCode(DEFAULT_LANGUAGE_CODE)
-      setSlug("")
-      setTeacherInChargeName("")
-      setTeacherInChargeEmail("")
-      setError(null)
+      const normalizedLanguageCode = normalizeIETFLanguageTag(languageCode)
+      const newCourse: NewCourse = {
+        name: name,
+        slug: slug,
+        organization_id: organizationId,
+        language_code: normalizedLanguageCode,
+        teacher_in_charge_email: teacherInChargeEmail,
+        teacher_in_charge_name: teacherInChargeName,
+      }
+      if (courseId) {
+        await onSubmitDuplicateCourseForm(courseId, newCourse)
+        setLanguageCode(DEFAULT_LANGUAGE_CODE)
+        setSlug("")
+        setTeacherInChargeName("")
+        setTeacherInChargeEmail("")
+        setError(null)
+      }
+    } catch (e) {
+      if (!(e instanceof Error)) {
+        throw e
+      }
+      setError(e.toString())
+    } finally {
+      setSubmitDisabled(false)
     }
   }
 

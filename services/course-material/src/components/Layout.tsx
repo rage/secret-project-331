@@ -9,6 +9,7 @@ import PageContext from "../contexts/PageContext"
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
+import SkipLink from "../shared-module/components/SkipLink"
 
 import ScrollIndicator from "./ScrollIndicator"
 import SearchDialog from "./SearchDialog"
@@ -64,6 +65,7 @@ const Layout: React.FC<LayoutProps> = ({
           min-height: 100vh;
         `}
       >
+        <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
         <nav role="navigation" aria-label={t("navigation-menu")}>
           <ScrollIndicator />
           <Navbar
@@ -86,6 +88,7 @@ const Layout: React.FC<LayoutProps> = ({
           className={css`
             flex: 1;
           `}
+          id="maincontent"
         >
           <Centered variant="narrow">{children}</Centered>
         </main>

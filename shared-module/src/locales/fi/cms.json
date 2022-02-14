@@ -32,5 +32,6 @@
   "serialize-to-html": "Näytä HTML-muodossa",
   "slide-title": "Dia {{ number }}",
   "glossary-placeholder": "Sanasto lohko",
-  "glossary-placeholder-explanation": "Tämä lohko sisältää kurssin sanaston."
+  "glossary-placeholder-explanation": "Tämä lohko sisältää kurssin sanaston.",
+  "skip-to-content": "Siirry sisältöön"
 }

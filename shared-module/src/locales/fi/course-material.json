@@ -14,5 +14,6 @@
   "glossary": "Sanasto",
   "term": "Termi",
   "definition": "Määritelmä",
-  "block-invalid-without-course": "Tätä lohkoa ei voi käyttää sivulla joka ei liity kurssiin."
+  "block-invalid-without-course": "Tätä lohkoa ei voi käyttää sivulla joka ei liity kurssiin.",
+  "skip-to-content": "Siirry sisältöön"
 }

@@ -102,5 +102,6 @@
   "glossary": "Glossary",
   "term": "Term",
   "definition": "Definition",
-  "block-invalid-without-course": "This block cannot be used on a page not related to a course."
+  "block-invalid-without-course": "This block cannot be used on a page not related to a course.",
+  "skip-to-content": "Skip to content"
 }

@@ -3,10 +3,12 @@ import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
+import SkipLink from "../shared-module/components/SkipLink"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 import basePath from "../shared-module/utils/base-path"
 
@@ -39,6 +41,9 @@ const Layout: React.FC<LayoutProps> = ({
   const returnPath = `/login?return_to=${encodeURIComponent(
     process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
   )}`
+
+  const { t } = useTranslation()
+
   return (
     <>
       <Head>
@@ -55,6 +60,7 @@ const Layout: React.FC<LayoutProps> = ({
           min-height: 100vh;
         `}
       >
+        <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
         <Navbar
           faqUrl={faqUrl}
           variant={navVariant ?? "complex"}
@@ -72,6 +78,7 @@ const Layout: React.FC<LayoutProps> = ({
               margin-right: ${SIDEBAR_WIDTH_PX}px;
             }
           `}
+          id="maincontent"
         >
           <Centered variant="narrow">{children}</Centered>
         </main>

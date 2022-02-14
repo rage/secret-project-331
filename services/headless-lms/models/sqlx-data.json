@@ -2785,6 +2785,22 @@
       "nullable": [false, false, true, true, false, false, true, true, false, false, true]
     }
   },
+  "42788ebc1b44924d1a2fec48d2d374c6761a01819238903738e3ed94597f6bca": {
+    "query": "\nINSERT INTO url_redirections (destination_page_id, old_url_path, course_id)\nSELECT $1, $2, $3\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Text", "Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
   "436a4b6e66a08b6449ee12211e083a2291b3665a8b580e585fb211f451bd3a15": {
     "query": "\nUPDATE chapters\nSET front_page_id = $1\nWHERE id = $2\nRETURNING *;\n        ",
     "describe": {

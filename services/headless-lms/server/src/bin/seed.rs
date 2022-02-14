@@ -33,7 +33,7 @@ use headless_lms_models::{
     roles::{self, RoleDomain},
     submissions,
     submissions::GradingResult,
-    user_exercise_states, users,
+    url_redirections, user_exercise_states, users,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::Value;
@@ -285,6 +285,17 @@ async fn main() -> Result<()> {
         Uuid::parse_str("a2002fc3-2c87-4aae-a5e5-9d14617aad2b")?,
         "Permission management",
         "permission-management",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("f9579c00-d0bb-402b-affd-7db330dcb11f")?,
+        "Redirections",
+        "redirections",
         admin,
         student,
         &users,
@@ -2046,7 +2057,16 @@ async fn seed_sample_course(
     glossary::insert(conn, "SSD", "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",  course.id).await?;
     glossary::insert(conn, "KB", "Keyboard.", course.id).await?;
 
-    // exams
+    // url redirections
+
+    url_redirections::insert(
+        conn,
+        // http://project-331.local/org/uh-cs/courses/redirections/chapter-1/page-5
+        Uuid::parse_str("a77163f8-7772-4e33-b491-d72e2dd19120")?,
+        "/old-url",
+        Uuid::parse_str("f9579c00-d0bb-402b-affd-7db330dcb11f")?,
+    )
+    .await?;
 
     Ok(course.id)
 }

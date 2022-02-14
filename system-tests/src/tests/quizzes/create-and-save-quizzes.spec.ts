@@ -46,7 +46,7 @@ test("create quizzes test", async ({ page }) => {
   expectPath(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
-  await Promise.all([page.waitForNavigation(), page.click("text=Manage pages")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
   expectPath(page, "/manage/courses/[id]/pages")
 
   // Click text=Add new chapter

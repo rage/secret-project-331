@@ -68,7 +68,7 @@ test("history test", async ({ page, headless }) => {
   expectPath(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
-  await Promise.all([page.waitForNavigation(), page.click("text=Manage pages")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
   expectPath(page, "/manage/courses/[id]/pages")
 
   // Click text=Page One
@@ -146,7 +146,7 @@ test("history test", async ({ page, headless }) => {
   expectPath(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
-  await Promise.all([page.waitForNavigation(), page.click("text=Manage pages")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
   expectPath(page, "/manage/courses/[id]/pages")
 
   // Click text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)
@@ -159,7 +159,7 @@ test("history test", async ({ page, headless }) => {
 
   // Go back and navigate to the page again to workaround a race condition related to monaco editor fonts. This way the font used by monaco editor is already cached
   await page.goBack()
-  await page.waitForSelector("text=Course overview for Introduction to history")
+  await page.waitForSelector("text=Course pages for Introduction to history")
 
   await Promise.all([
     page.waitForNavigation(),

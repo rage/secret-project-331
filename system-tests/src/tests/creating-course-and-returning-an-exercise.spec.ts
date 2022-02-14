@@ -43,7 +43,7 @@ test("test", async ({ page }) => {
   // Click text=Manage pages
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1bd0eaef-ba4b-4c94-ba76-83ecab229274/pages' }*/),
-    page.click("text=Manage pages"),
+    page.click("text=Pages"),
   ])
 
   // Click button:has-text("Add new chapter")

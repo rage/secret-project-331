@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
@@ -9,7 +8,8 @@ import { useTranslation } from "react-i18next"
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
-import { baseTheme } from "../shared-module/styles"
+import SkipLink from "../shared-module/components/SkipLink"
+
 type LayoutProps = {
   children: ReactNode
   navVariant?: "simple" | "complex"
@@ -23,22 +23,6 @@ const DynamicToaster = dynamic(
   () => import("../shared-module/components/Notifications/ToasterNotifications"),
   { ssr: false },
 )
-
-// eslint-disable-next-line i18next/no-literal-string
-const SkipLink = styled.a`
-  background: ${baseTheme.colors.green[600]};
-  color: ${baseTheme.colors.clear[100]};
-  font-weight: 700;
-  left: 50%;
-  padding: 6px;
-  position: absolute;
-  transform: translateY(-100%);
-  text-decoration: none;
-
-  &:focus {
-    transform: translateY(0%);
-  }
-`
 
 const Layout: React.FC<LayoutProps> = ({
   children,
@@ -72,7 +56,6 @@ const Layout: React.FC<LayoutProps> = ({
         `}
       >
         {/* Skip to content*/}
-
         <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
         <div>
           <Navbar

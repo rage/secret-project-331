@@ -4,7 +4,7 @@ CREATE TABLE url_redirections (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   destination_page_id UUID REFERENCES pages NOT NUll,
-  old_url_path TEXT NOT NULL UNIQUE,
+  old_url_path TEXT NOT NULL,
   course_id UUID REFERENCES courses NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE
@@ -17,3 +17,5 @@ COMMENT ON COLUMN url_redirections.deleted_at IS 'Timestamp when the record was 
 COMMENT ON COLUMN url_redirections.destination_page_id IS 'Which page the redirection will redirect to.';
 COMMENT ON COLUMN url_redirections.old_url_path IS 'Url path where the page was previously available.';
 COMMENT ON COLUMN url_redirections.course_id IS 'Course where the redirection is valid. A redirection only works within one course.';
+CREATE UNIQUE INDEX old_url_pathold_url_path_uniqueness ON url_redirections (course_id, old_url_path)
+WHERE deleted_at IS NULL;

@@ -517,6 +517,20 @@ WHERE id = $1;
     Ok(course)
 }
 
+pub async fn get_nondeleted_course_id_by_slug(
+    conn: &mut PgConnection,
+    slug: &str,
+) -> ModelResult<Uuid> {
+    let id = sqlx::query!(
+        "SELECT id FROM courses WHERE slug = $1 AND deleted_at IS NULL",
+        slug
+    )
+    .fetch_one(conn)
+    .await?
+    .id;
+    Ok(id)
+}
+
 pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let organization_id = sqlx::query!("SELECT organization_id FROM courses WHERE id = $1", id)
         .fetch_one(conn)

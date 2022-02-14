@@ -15,9 +15,9 @@ import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
+import NewCourseForm from "../../../forms/NewCourseForm"
 
 import { CourseComponent, CourseGrid } from "./CourseCard"
-import NewCourseForm from "./NewCourseForm"
 
 interface Props {
   organizationId: string
@@ -166,6 +166,7 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
               courses={getOrgCourses.data}
               onSubmitNewCourseForm={handleSubmitNewCourse}
               onSubmitDuplicateCourseForm={handleSubmitDuplicateCourse}
+              onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}
             />
           </div>
         </Dialog>

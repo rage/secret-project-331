@@ -4,12 +4,12 @@ import { FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Course, NewCourse } from "../../../../shared-module/bindings"
-import Button from "../../../../shared-module/components/Button"
-import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
-import SelectMenu from "../../../../shared-module/components/InputFields/SelectField"
-import { normalizeIETFLanguageTag } from "../../../../shared-module/utils/strings"
-import { normalizePath } from "../../../../utils/normalizePath"
+import { Course, NewCourse } from "../../shared-module/bindings"
+import Button from "../../shared-module/components/Button"
+import CheckBox from "../../shared-module/components/InputFields/CheckBox"
+import SelectMenu from "../../shared-module/components/InputFields/SelectField"
+import { normalizeIETFLanguageTag } from "../../shared-module/utils/strings"
+import { normalizePath } from "../../utils/normalizePath"
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
@@ -19,6 +19,7 @@ interface NewCourseFormProps {
   onSubmitNewCourseForm: (newCourse: NewCourse) => Promise<void>
   onSubmitDuplicateCourseForm?: (oldCourseId: string, newCourse: NewCourse) => Promise<void>
   courses?: Course[]
+  onClose: () => void
 }
 
 const AMERICAN_ENGLISH_LANGUAGE_CODE = "en-US"
@@ -31,6 +32,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
   onSubmitNewCourseForm,
   onSubmitDuplicateCourseForm,
   courses,
+  onClose,
 }) => {
   const { t } = useTranslation()
   const [courseId, setCourseId] = useState("")
@@ -283,6 +285,9 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
           disabled={submitDisabled}
         >
           {t("button-text-create")}
+        </Button>
+        <Button size="medium" variant="secondary" onClick={onClose}>
+          {t("button-text-close")}
         </Button>
       </div>
     </div>

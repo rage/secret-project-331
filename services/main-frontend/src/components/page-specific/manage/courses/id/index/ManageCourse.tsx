@@ -96,7 +96,7 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
           <div>{t("create-new-language-version-of", { "course-name": course.name })}</div>
           <NewCourseForm
             organizationId={course.organization_id}
-            onSubmitForm={handleCreateNewLanguageVersion}
+            onSubmitNewCourseForm={handleCreateNewLanguageVersion}
           />
         </div>
       </Dialog>

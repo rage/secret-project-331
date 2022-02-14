@@ -1,28 +1,24 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material"
-import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery, useQueryClient } from "react-query"
 
-import { newCourseInstance, postNewCourseTranslation } from "../../../../services/backend/courses"
-import { fetchOrganizationCourses } from "../../../../services/backend/organizations"
 import { Course, NewCourse } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
 import SelectMenu from "../../../../shared-module/components/InputFields/SelectField"
 import { normalizeIETFLanguageTag } from "../../../../shared-module/utils/strings"
 import { normalizePath } from "../../../../utils/normalizePath"
-import { formatLanguageVersionsQueryKey } from "../../manage/courses/id/index/CourseLanguageVersionsList"
-
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
 
 interface NewCourseFormProps {
   organizationId: string
-  onSubmitForm: (newCourse: NewCourse) => Promise<void>
+  onSubmitNewCourseForm: (newCourse: NewCourse) => Promise<void>
+  onSubmitDuplicateCourseForm?: (oldCourseId: string, newCourse: NewCourse) => Promise<void>
+  courses?: Course[]
 }
 
 const AMERICAN_ENGLISH_LANGUAGE_CODE = "en-US"
@@ -30,8 +26,14 @@ const FINNISH_LANGUAGE_CODE = "fi-FI"
 const SWEDISH_LANGUAGE_CODE = "sv-SE"
 const DEFAULT_LANGUAGE_CODE = AMERICAN_ENGLISH_LANGUAGE_CODE
 
-const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitForm }) => {
+const NewCourseForm: React.FC<NewCourseFormProps> = ({
+  organizationId,
+  onSubmitNewCourseForm,
+  onSubmitDuplicateCourseForm,
+  courses,
+}) => {
   const { t } = useTranslation()
+  const [courseId, setCourseId] = useState("")
   const [name, setName] = useState("")
   const [slug, setSlug] = useState("")
   const [teacherInChargeName, setTeacherInChargeName] = useState("")
@@ -45,55 +47,40 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
   const [createDuplicate, setCreateDuplicate] = useState<boolean>(false)
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
 
-  let initialPage: number
-  if (typeof router.query.page === "string") {
-    initialPage = parseInt(router.query.page)
-  } else {
-    initialPage = 1
-  }
-  const [page, setPage] = useState(initialPage)
-
-  const getOrgCourses = useQuery(
-    [`organization-courses`, page, 100],
-    () => {
-      if (organizationId) {
-        return fetchOrganizationCourses(organizationId, page, 100)
-      } else {
-        // This should never happen, used for typescript because enabled boolean doesn't do type checking
-        return Promise.reject(new Error("Organization ID undefined"))
-      }
-    },
-    { enabled: !!organizationId },
-  )
-
-  const courses = getOrgCourses.data
-
-  const handleTemplateChanging = (e: string, coursesData: Course[]) => {
+  const handleDuplicateMenu = (e: string, coursesData: Course[]) => {
     const findCourse = coursesData.find((course) => course.id === e)
     const courseName = findCourse?.name ? findCourse?.name : ""
-    const courseSlug = findCourse?.slug ? findCourse?.slug : ""
     const courseLanguage = findCourse?.language_code ? findCourse?.language_code : ""
+    setCourseId(e)
     setName(courseName)
-    setSlug(courseSlug)
+    setSlug("")
     setTeacherInChargeName("")
     setTeacherInChargeEmail("")
     setLanguageCode(courseLanguage)
   }
 
   const handleCreateNewLanguageVersion = async () => {
+    if (!onSubmitDuplicateCourseForm) {
+      return null
+    }
+    const normalizedLanguageCode = normalizeIETFLanguageTag(languageCode)
     const newCourse: NewCourse = {
       name: name,
       slug: slug,
       organization_id: organizationId,
-      language_code: languageCode,
+      language_code: normalizedLanguageCode,
       teacher_in_charge_email: teacherInChargeEmail,
       teacher_in_charge_name: teacherInChargeName,
     }
-    const oldCourseId = courses?.find((course) => course.slug === slug)?.id
-    if (oldCourseId) {
-      await postNewCourseTranslation(oldCourseId, newCourse)
+    if (courseId) {
+      setSubmitDisabled(true)
+      onSubmitDuplicateCourseForm(courseId, newCourse)
+      setLanguageCode(DEFAULT_LANGUAGE_CODE)
+      setSlug("")
+      setTeacherInChargeName("")
+      setTeacherInChargeEmail("")
+      setError(null)
     }
   }
 
@@ -101,7 +88,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
     try {
       setSubmitDisabled(true)
       const normalizedLanguageCode = normalizeIETFLanguageTag(languageCode)
-      await onSubmitForm({
+      await onSubmitNewCourseForm({
         name,
         slug,
         organization_id: organizationId,
@@ -194,13 +181,18 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
             }}
           />
         </FieldContainer>
-        <FieldContainer>
-          <CheckBox
-            label={t("create-course-duplicate")}
-            onChange={() => setCreateDuplicate(!createDuplicate)}
-            checked={createDuplicate}
-          ></CheckBox>
-        </FieldContainer>
+        {courses && (
+          <FieldContainer>
+            <CheckBox
+              label={t("create-course-duplicate")}
+              onChange={() => {
+                setCreateDuplicate(!createDuplicate)
+                handleDuplicateMenu(courses[0].id, courses)
+              }}
+              checked={createDuplicate}
+            ></CheckBox>
+          </FieldContainer>
+        )}
         {courses && createDuplicate && (
           <FieldContainer>
             <SelectMenu
@@ -208,7 +200,8 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
               onBlur={() => {
                 // no-op
               }}
-              onChange={(e) => handleTemplateChanging(e, courses)}
+              defaultValue={courses[0].id}
+              onChange={(e) => handleDuplicateMenu(e, courses)}
               options={courses.map((course) => {
                 return { label: course.name, value: course.id }
               })}

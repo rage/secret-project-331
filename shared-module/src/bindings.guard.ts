@@ -1029,6 +1029,7 @@ export function isExerciseSlideSubmissionResult(
 ): obj is ExerciseSlideSubmissionResult {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
     Array.isArray(obj.exercise_task_submission_results) &&
     obj.exercise_task_submission_results.every((e: any) => isSubmissionResult(e) as boolean)
   )

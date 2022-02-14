@@ -79,7 +79,7 @@ impl GradingProgress {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct ExerciseStatus {
     // None when grading has not completed yet. Max score can be found from the associated exercise.
     pub score_given: Option<f32>,

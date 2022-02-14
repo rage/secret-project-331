@@ -7,7 +7,7 @@ use crate::{
         SubmissionCountByWeekAndHour, SubmissionResult,
     },
     exercise_tasks::{self, ExerciseTask},
-    exercises::Exercise,
+    exercises::{Exercise, ExerciseStatus},
     prelude::*,
     user_exercise_states::{self, UserExerciseState},
 };
@@ -38,6 +38,7 @@ pub struct ExerciseSlideSubmission {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct ExerciseSlideSubmissionResult {
+    pub exercise_status: Option<ExerciseStatus>,
     pub exercise_task_submission_results: Vec<SubmissionResult>,
 }
 
@@ -163,13 +164,20 @@ pub async fn create_exercise_slide_submission_for_exercise(
         results.push(submission)
     }
 
-    user_exercise_states::update_user_exercise_state_after_submission(
+    let user_exercise_state = user_exercise_states::update_user_exercise_state_after_submission(
         &mut tx,
         &exercise_slide_submission,
     )
     .await?;
     tx.commit().await?;
+
+    let exercise_status = Some(ExerciseStatus {
+        score_given: user_exercise_state.score_given,
+        activity_progress: user_exercise_state.activity_progress,
+        grading_progress: user_exercise_state.grading_progress,
+    });
     Ok(ExerciseSlideSubmissionResult {
+        exercise_status,
         exercise_task_submission_results: results,
     })
 }

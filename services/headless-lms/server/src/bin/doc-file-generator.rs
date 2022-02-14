@@ -273,6 +273,11 @@ fn main() {
     };
     let exercise_slide_submission_result = ExerciseSlideSubmissionResult {
         exercise_task_submission_results: vec![submission_result.clone()],
+        exercise_status: Some(ExerciseStatus {
+            score_given: None,
+            activity_progress: ActivityProgress::InProgress,
+            grading_progress: GradingProgress::NotReady,
+        }),
     };
     let organization = Organization {
         id,

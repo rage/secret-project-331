@@ -602,6 +602,7 @@ export interface ExerciseSlideSubmission {
 }
 
 export interface ExerciseSlideSubmissionResult {
+  exercise_status: ExerciseStatus | null
   exercise_task_submission_results: Array<SubmissionResult>
 }
 

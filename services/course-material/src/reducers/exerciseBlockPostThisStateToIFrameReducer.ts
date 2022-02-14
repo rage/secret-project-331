@@ -1,5 +1,8 @@
 /* eslint-disable i18next/no-literal-string */
-import { CourseMaterialExerciseTask, SubmissionResult } from "../shared-module/bindings"
+import {
+  CourseMaterialExerciseTask,
+  ExerciseSlideSubmissionResult,
+} from "../shared-module/bindings"
 import { IframeState } from "../shared-module/iframe-protocol-types"
 
 export interface ExerciseDownloadedAction {
@@ -9,10 +12,7 @@ export interface ExerciseDownloadedAction {
 
 export interface SubmissionGradedAction {
   type: "submissionGraded"
-  payload: Array<{
-    submissionResult: SubmissionResult
-    publicSpec: unknown
-  }>
+  payload: ExerciseSlideSubmissionResult
 }
 
 export interface TryAgain {
@@ -57,15 +57,20 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
         }
       })
     case "submissionGraded": {
-      return action.payload.map((submissionResult) => {
+      return action.payload.exercise_task_submission_results.map((submissionResult) => {
+        const prevTask = prev?.find(
+          (x) => x.exercise_task_id === submissionResult.submission.exercise_task_id,
+        )
+        const public_spec =
+          !prevTask || prevTask.view_type === "exercise-editor" ? null : prevTask.data.public_spec
         return {
           view_type: "view-submission",
-          exercise_task_id: submissionResult.submissionResult.submission.exercise_task_id,
+          exercise_task_id: submissionResult.submission.exercise_task_id,
           data: {
-            grading: submissionResult.submissionResult.grading,
-            model_solution_spec: submissionResult.submissionResult.model_solution_spec,
-            public_spec: submissionResult.publicSpec,
-            user_answer: submissionResult.submissionResult.submission.data_json,
+            grading: submissionResult.grading,
+            model_solution_spec: submissionResult.model_solution_spec,
+            public_spec,
+            user_answer: submissionResult.submission.data_json,
           },
         }
       })

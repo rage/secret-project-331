@@ -62,17 +62,12 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     {
       retry: 3,
       onSuccess: (data) => {
-        if (data.exercise_task_submission_results[0].grading) {
-          setPoints(data.exercise_task_submission_results[0].grading.score_given)
+        if (data.exercise_status) {
+          setPoints(data.exercise_status.score_given)
         }
         dispatch({
           type: "submissionGraded",
-          payload: data.exercise_task_submission_results.map((x) => ({
-            submissionResult: x,
-            publicSpec: getCourseMaterialExercise.data?.current_exercise_slide.exercise_tasks.find(
-              (y) => y.id === x.submission.exercise_task_id,
-            )?.public_spec,
-          })),
+          payload: data,
         })
       },
     },

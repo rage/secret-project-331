@@ -45,54 +45,54 @@ module.exports = {
       {
         paths: [
           {
-            name: "@material-ui/core",
+            name: "@mui/material",
             importNames: ["Grid"],
             message: "Don't use Grid from @material-ui. Please use either css flexbox or css grid.",
           },
           {
-            name: "@material-ui/core/Grid",
+            name: "@mui/material/Grid",
             importNames: ["default"],
             message: "Don't use Grid from @material-ui. Please use either css flexbox or css grid.",
           },
           {
-            name: "@material-ui/core",
+            name: "@mui/material",
             importNames: ["Container"],
             message:
               "Don't use Container from @material-ui. Please use Centered from shared-module.",
           },
           {
-            name: "@material-ui/core/Container",
+            name: "@mui/material/Container",
             importNames: ["default"],
             message:
               "Don't use Container from @material-ui. Please use Centered from shared-module.",
           },
           {
-            name: "@material-ui/core",
+            name: "@mui/material",
             importNames: ["Typography"],
             message: "Don't use Typography from @material-ui. Please use p, h1, h2, h3...",
           },
           {
-            name: "@material-ui/core/Typography",
+            name: "@mui/material/Typography",
             importNames: ["default"],
             message: "Don't use Typography from @material-ui. Please use p, h1, h2, h3...",
           },
           {
-            name: "@material-ui/core",
+            name: "@mui/material",
             importNames: ["Button"],
             message: "Don't use Button from @material-ui. Please use Button from shared-module.",
           },
           {
-            name: "@material-ui/core/Button",
+            name: "@mui/material/Button",
             importNames: ["default"],
             message: "Don't use Button from @material-ui. Please use Button from shared-module.",
           },
           {
-            name: "@material-ui/styles",
+            name: "@mui/styles",
             importNames: ["withStyles"],
             message: "Don't use withStyles from @material-ui. Please use emotion.js.",
           },
           {
-            name: "@material-ui/styles/withStyles",
+            name: "@mui/styles/withStyles",
             importNames: ["default"],
             message: "Don't use withStyles from @material-ui. Please use emotion.js.",
           },

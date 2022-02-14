@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@material-ui/core"
+import { Dialog } from "@mui/material"
 import { groupBy, max } from "lodash"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -13,14 +13,17 @@ import ChapterImageWidget from "./ChapterImageWidget"
 import NewChapterForm from "./NewChapterForm"
 import PageList from "./PageList"
 
-interface Props {
+export interface ManageCourseStructureProps {
   courseStructure: CourseStructure
   refetch: (
     options?: (RefetchOptions & RefetchQueryFilters<unknown>) | undefined,
   ) => Promise<QueryObserverResult<CourseStructure, unknown>>
 }
 
-const ManageCourseStructure: React.FC<Props> = ({ courseStructure, refetch }) => {
+const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
+  courseStructure,
+  refetch,
+}) => {
   const { t } = useTranslation()
   const [showForm, setShowForm] = useState(false)
   const handleCreateChapter = async () => {
@@ -34,7 +37,7 @@ const ManageCourseStructure: React.FC<Props> = ({ courseStructure, refetch }) =>
   const maxPart = max(courseStructure.chapters.map((p) => p.chapter_number))
   return (
     <>
-      <h1>{t("course-overview-for", { "course-name": courseStructure.course.name })}</h1>
+      <h1>{t("course-pages-for", { "course-name": courseStructure.course.name })}</h1>
       <h2>{t("pages")}</h2>
       <PageList
         data={courseStructure.pages.filter((page) => !page.chapter_id)}

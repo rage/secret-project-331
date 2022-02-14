@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Box, Dialog, Pagination } from "@material-ui/core"
+import { Box, Dialog, Pagination } from "@mui/material"
 import { useRouter } from "next/router"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -15,9 +15,9 @@ import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
+import NewCourseForm from "../../../forms/NewCourseForm"
 
 import { CourseComponent, CourseGrid } from "./CourseCard"
-import NewCourseForm from "./NewCourseForm"
 
 interface Props {
   organizationId: string
@@ -147,14 +147,11 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
               margin: 1rem;
             `}
           >
-            <Button
-              size="medium"
-              variant="secondary"
-              onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
-            >
-              {t("button-text-close")}
-            </Button>
-            <NewCourseForm organizationId={organizationId} onSubmitForm={handleSubmitNewCourse} />
+            <NewCourseForm
+              organizationId={organizationId}
+              onSubmitForm={handleSubmitNewCourse}
+              onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}
+            />
           </div>
         </Dialog>
       </div>

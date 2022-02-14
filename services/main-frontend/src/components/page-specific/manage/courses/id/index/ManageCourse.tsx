@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@material-ui/core"
+import { Dialog } from "@mui/material"
 import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -13,13 +13,13 @@ import {
 import { deleteCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
 import { Course, NewCourse } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
-import NewCourseForm from "../../../../org/organizationSlug/NewCourseForm"
-
-import CourseInstancesList from "./CourseInstancesList"
+import NewCourseForm from "../../../../../forms/NewCourseForm"
+import CourseCourseInstances from "../course-instances/CourseCourseInstances"
+import ExerciseList from "../exercises/ExerciseList"
 import CourseLanguageVersionsList, {
   formatLanguageVersionsQueryKey,
-} from "./CourseLanguageVersionsList"
-import ExerciseList from "./ExerciseList"
+} from "../language-versions/CourseLanguageVersionsList"
+
 import UpdateCourseForm from "./UpdateCourseForm"
 
 interface Props {
@@ -86,27 +86,21 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
             margin: 1rem;
           `}
         >
-          <Button
-            size="medium"
-            variant="secondary"
-            onClick={() => setShowNewLanguageVersionForm(false)}
-          >
-            {t("button-text-close")}
-          </Button>
           <div>{t("create-new-language-version-of", { "course-name": course.name })}</div>
           <NewCourseForm
             organizationId={course.organization_id}
             onSubmitForm={handleCreateNewLanguageVersion}
+            onClose={() => setShowNewLanguageVersionForm(false)}
           />
         </div>
       </Dialog>
-      <br />
+      {/* <br />
       <Link href={{ pathname: "/manage/courses/[id]/stats", query: { id: course.id } }}>
         {t("stats")}
       </Link>
       <br />
       <Link href={{ pathname: "/manage/courses/[id]/pages", query: { id: course.id } }}>
-        {t("manage-pages")}
+        {t("link-pages")}
       </Link>
       <br />
       <Link href={{ pathname: "/manage/courses/[id]/glossary", query: { id: course.id } }}>
@@ -119,7 +113,7 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
           query: { id: course.id },
         }}
       >
-        {t("manage-feedback")}
+        {t("link-feedback")}
       </Link>
       <br />
       <Link
@@ -128,7 +122,7 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
           query: { id: course.id },
         }}
       >
-        {t("link-manage-change-requests")}
+        {t("link-change-requests")}
       </Link>
       <br />
       <Link
@@ -138,7 +132,7 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
         }}
       >
         {t("link-manage-permissions")}
-      </Link>
+      </Link> */}
 
       <h2>{t("title-all-course-language-versions")}</h2>
       <CourseLanguageVersionsList courseId={course.id} />
@@ -146,7 +140,7 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
         {t("button-text-new")}
       </Button>
       <h2>{t("title-all-course-instances")}</h2>
-      <CourseInstancesList courseId={course.id} />
+      <CourseCourseInstances courseId={course.id} />
       <h2>{t("title-all-exercises")}</h2>
       <ExerciseList courseId={course.id} />
     </>

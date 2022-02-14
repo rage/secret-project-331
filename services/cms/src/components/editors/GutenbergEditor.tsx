@@ -17,12 +17,13 @@ import {
   BlockEditorProvider,
   BlockInspector,
   BlockList,
-  // BlockTools,
   EditorBlockListSettings,
   EditorSettings,
   ObserveTyping,
   WritingFlow,
 } from "@wordpress/block-editor"
+// @ts-ignore: no type definition
+import { BlockTools } from "@wordpress/block-editor/build-module/components/"
 import { registerCoreBlocks } from "@wordpress/block-library"
 import {
   BlockInstance,
@@ -71,11 +72,9 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   }, [mediaUpload])
 
   const handleChanges = (newContent: BlockInstance[]): void => {
-    console.log(newContent)
     onContentChange(newContent)
   }
   const handleInput = (newContent: BlockInstance[]): void => {
-    console.log(newContent)
     onContentChange(newContent)
   }
 
@@ -120,6 +119,11 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
 
     // Remove Gutenberg Default Button styles and add own
     modifyBlockButton()
+
+    // core/image block crashes if there's no wp global. Setting it to null is enough fix the existing null checks
+    // in the core/image code.
+    // @ts-expect-error: setting a global
+    window.wp = null
   }, [allowedBlockVariations, allowedBlocks, customBlocks])
 
   return (
@@ -140,19 +144,18 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
               <BlockInspector />
             </div>
             <div className="editor__content">
-              {/* <BlockTools> */}
-              <div className="editor-styles-wrapper">
-                <Popover.Slot />
-                {/* @ts-ignore: type signature incorrect */}
-                <BlockEditorKeyboardShortcuts.Register />
-                <BlockEditorKeyboardShortcuts />
-                <WritingFlow>
-                  <ObserveTyping>
-                    <BlockList />
-                  </ObserveTyping>
-                </WritingFlow>
-              </div>
-              {/* </BlockTools> */}
+              <BlockTools>
+                <div className="editor-styles-wrapper">
+                  {/* @ts-ignore: type signature incorrect */}
+                  <BlockEditorKeyboardShortcuts.Register />
+                  <BlockEditorKeyboardShortcuts />
+                  <WritingFlow>
+                    <ObserveTyping>
+                      <BlockList />
+                    </ObserveTyping>
+                  </WritingFlow>
+                </div>
+              </BlockTools>
             </div>
             <Popover.Slot />
           </BlockEditorProvider>

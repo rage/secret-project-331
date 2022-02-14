@@ -67,6 +67,7 @@ import {
   QuoteDeprecated3Attributes,
   SeparatorAttributes,
   SpacerAttributes,
+  SpacerDeprecated1Attributes,
   TableAttributes,
   VerseAttributes,
   VerseDeprecated1Attributes,
@@ -1088,7 +1089,10 @@ export function isColumnsAttributes(obj: any, _argumentName?: string): obj is Co
     (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
     (typeof obj.style === "undefined" ||
       (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+      typeof obj.style === "function") &&
+    (typeof obj.layout === "undefined" ||
+      (obj.layout !== null && typeof obj.layout === "object") ||
+      typeof obj.layout === "function")
   )
 }
 
@@ -1444,12 +1448,27 @@ export function isSeparatorAttributes(
 export function isSpacerAttributes(obj: any, _argumentName?: string): obj is SpacerAttributes {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.height === "string" &&
+    (typeof obj.width === "undefined" || typeof obj.width === "string") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
+    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
+    (typeof obj.className === "undefined" || typeof obj.className === "string")
+  )
+}
+
+export function isSpacerDeprecated1Attributes(
+  obj: any,
+  _argumentName?: string,
+): obj is SpacerDeprecated1Attributes {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.height === "number" &&
     (typeof obj.width === "undefined" || typeof obj.width === "number") &&
     (typeof obj.lock === "undefined" ||
       (obj.lock !== null && typeof obj.lock === "object") ||
       typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string")
   )
 }

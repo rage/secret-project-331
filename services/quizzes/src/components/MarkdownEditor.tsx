@@ -1,12 +1,12 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import styled from "styled-components"
 
 import Button from "../shared-module/components/Button"
 import TextField from "../shared-module/components/InputFields/TextField"
 
-import { MarkdownText } from "./MarkdownText"
+import MarkdownText from "./MarkdownText"
 
 const EditorWrapper = styled.div`
   width: 100%;

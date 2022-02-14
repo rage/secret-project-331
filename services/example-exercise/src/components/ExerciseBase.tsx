@@ -27,7 +27,6 @@ const ExerciseBase: React.FC<Props> = ({
       {alternatives.map((option) => {
         let correct = false
         if (model_solutions) {
-          console.log(model_solutions)
           correct = model_solutions.correctOptionIds.includes(option.id)
         }
         const selected = selectedId === option.id

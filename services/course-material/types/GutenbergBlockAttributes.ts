@@ -835,6 +835,9 @@ export interface ColumnsAttributes {
   style?: {
     [k: string]: unknown
   }
+  layout?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1102,12 +1105,25 @@ export interface SeparatorAttributes {
 }
 
 export interface SpacerAttributes {
+  height: string
+  width?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  anchor?: string
+  className?: string
+}
+
+/**
+ * @deprecated This is an older version of SpacerAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface SpacerDeprecated1Attributes {
   height: number
   width?: number
   lock?: {
     [k: string]: unknown
   }
-  anchor?: string
   className?: string
 }
 

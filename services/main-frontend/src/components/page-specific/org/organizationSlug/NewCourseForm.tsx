@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { FormControlLabel, Radio, RadioGroup, TextField } from "@material-ui/core"
+import { FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 

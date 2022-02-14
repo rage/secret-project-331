@@ -1,11 +1,9 @@
 import { HtmlRenderer, Parser } from "commonmark"
 import React from "react"
 
-interface MarkDownTextProps {
-  text: string
-}
+import { MarkDownTextProps } from "."
 
-export const MarkdownText: React.FC<MarkDownTextProps> = ({ text }) => {
+const MarkdownTextImpl: React.FC<MarkDownTextProps> = ({ text }) => {
   const reader = new Parser()
   const writer = new HtmlRenderer()
 
@@ -17,3 +15,5 @@ export const MarkdownText: React.FC<MarkDownTextProps> = ({ text }) => {
     ></div>
   )
 }
+
+export default MarkdownTextImpl

@@ -2,8 +2,9 @@
 
 use std::{path::PathBuf, sync::Arc};
 
+use actix_http::header::HeaderMap;
 use actix_multipart::Field;
-use actix_web::http::{header, HeaderMap};
+use actix_web::http::header;
 use futures::StreamExt;
 use headless_lms_utils::{
     file_store::file_utils::{get_extension_from_filename, upload_media_to_storage},
@@ -101,9 +102,7 @@ fn generate_audio_path(field: &Field, store_kind: StoreKind) -> ControllerResult
 }
 
 fn generate_file_path(field: &Field, store_kind: StoreKind) -> ControllerResult<PathBuf> {
-    let field_content = field
-        .content_disposition()
-        .ok_or_else(|| ControllerError::BadRequest("Missing field content-disposition".into()))?;
+    let field_content = field.content_disposition();
     let field_content_name = field_content.get_filename().ok_or_else(|| {
         ControllerError::BadRequest("Missing file name in content-disposition".into())
     })?;

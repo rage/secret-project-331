@@ -7,7 +7,7 @@ import SettingIcon from "../../../../imgs/setting.svg"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import { fontWeights, headingFont, primaryFont } from "../../../../shared-module/styles"
 
-import Language from "./Language"
+import Language, { DEFAULT_FLAG_CLIP_PATH } from "./Language"
 
 const CourseGrid = styled.div`
   margin: 0 auto;
@@ -83,7 +83,6 @@ const CourseLanguageContent = styled.div`
 const LanguageLabel = styled.div`
   font-family: ${primaryFont};
   color: #1a2333;
-  opacity: 0.9;
   font-size: 18px;
 `
 
@@ -92,14 +91,6 @@ const LanguageCode = styled.div`
   font-family: ${primaryFont};
   font-weight: ${fontWeights["semibold"]};
   color: #1a2333;
-  opacity: 0.6;
-`
-
-const FlagStyle = css`
-  width: 45px;
-  height: 45px;
-  clip-path: circle(25% at 42% 50%);
-  margin-left: 35px;
 `
 
 interface CourseCardProps {
@@ -141,8 +132,29 @@ const CourseComponent: React.FC<CourseCardProps> = ({
       </CourseContent>
       <CourseLanguageContent>
         <LanguageLabel>{LANGUAGE_TEXT}</LanguageLabel>
-        <LanguageComponent.image className={FlagStyle} />
-        <LanguageCode>{capitalizeFirstLetter(LanguageComponent.humanReadableName)} </LanguageCode>
+        {LanguageComponent && (
+          <LanguageComponent.image
+            className={css`
+              width: 45px;
+              height: 45px;
+              clip-path: ${LanguageComponent.clipPath ?? DEFAULT_FLAG_CLIP_PATH};
+              margin-left: 35px;
+            `}
+          />
+        )}
+        <LanguageCode>
+          {LanguageComponent ? (
+            capitalizeFirstLetter(LanguageComponent.humanReadableName)
+          ) : (
+            <span
+              className={css`
+                margin-left: 1rem;
+              `}
+            >
+              {languageCode}
+            </span>
+          )}
+        </LanguageCode>
       </CourseLanguageContent>
     </CourseCard>
   )

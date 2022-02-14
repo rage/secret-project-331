@@ -10,7 +10,7 @@ rust-version = "1.56.0"  # minimum required Rust version, update if you use a ne
 # and the comment from there.
 [dependencies]
 # Multipart form support for Actix web.
-actix-multipart = "=0.4.0-beta.7"
+actix-multipart = "=0.4.0-beta.13"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio = { version = "1.2.0", features = ["fs", "io-util"] }
 # Additional utilities for working with Tokio.

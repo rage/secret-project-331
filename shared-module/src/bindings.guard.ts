@@ -747,7 +747,8 @@ export function isCoursePageWithUserData(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isPage(obj.page) as boolean) &&
     (obj.instance === null || (isCourseInstance(obj.instance) as boolean)) &&
-    (obj.settings === null || (isUserCourseSettings(obj.settings) as boolean))
+    (obj.settings === null || (isUserCourseSettings(obj.settings) as boolean)) &&
+    typeof obj.was_redirected === "boolean"
   )
 }
 

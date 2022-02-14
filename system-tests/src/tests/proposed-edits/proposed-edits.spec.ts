@@ -139,7 +139,7 @@ test("test", async ({ page, headless }) => {
   )
 
   // Click text=Manage change requests
-  await Promise.all([page.waitForNavigation(), page.click("text=Manage change requests")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Change requests")])
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests?pending=true",
   )
@@ -191,7 +191,7 @@ test("test", async ({ page, headless }) => {
     page,
     headless,
     snapshotName: "manage-old-after-send",
-    waitForThisToBeVisibleAndStable: ".MuiTabs-indicator",
+    waitForThisToBeVisibleAndStable: "text=Accepted",
     beforeScreenshot: async () => {
       await replaceIds(page)
     },

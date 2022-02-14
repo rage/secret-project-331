@@ -2,29 +2,18 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import Layout from "../../../../components/Layout"
-import { fetchGlossary, postNewTerm } from "../../../../services/backend/courses"
-import { deleteTerm, updateTerm } from "../../../../services/backend/glossary"
-import Button from "../../../../shared-module/components/Button"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import TextAreaField from "../../../../shared-module/components/InputFields/TextAreaField"
-import TextField from "../../../../shared-module/components/InputFields/TextField"
-import Spinner from "../../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import {
-  dontRenderUntilQueryParametersReady,
-  SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
+import { fetchGlossary, postNewTerm } from "../../../../../../services/backend/courses"
+import { deleteTerm, updateTerm } from "../../../../../../services/backend/glossary"
+import Button from "../../../../../../shared-module/components/Button"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import TextAreaField from "../../../../../../shared-module/components/InputFields/TextAreaField"
+import TextField from "../../../../../../shared-module/components/InputFields/TextField"
+import Spinner from "../../../../../../shared-module/components/Spinner"
+import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 
-export interface Props {
-  query: SimplifiedUrlQuery<"id">
-}
-
-const ManageGlossary: React.FC<Props> = ({ query }) => {
+const CourseGlossary: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
-  const courseId = query.id
 
   const [newTerm, setNewTerm] = useState("")
   const [newDefinition, setNewDefinition] = useState("")
@@ -68,38 +57,32 @@ const ManageGlossary: React.FC<Props> = ({ query }) => {
     { onSuccess: () => glossary.refetch() },
   )
 
-  if (glossary.isIdle || glossary.isLoading) {
-    return <Spinner variant={"small"} />
-  }
-
-  if (glossary.isError) {
-    return <ErrorBanner variant={"readOnly"} error={glossary.error} />
-  }
-
   return (
-    <Layout navVariant={"complex"}>
-      <>
-        <h1>{t("manage-glossary")}</h1>
-        <div>
-          <TextField
-            label={t("new-term")}
-            placeholder={t("new-term")}
-            value={newTerm}
-            onChange={setNewTerm}
-          />
-          <TextAreaField
-            name={t("new-definition")}
-            placeholder={t("new-definition")}
-            label={t("new-definition")}
-            value={newDefinition}
-            onChange={setNewDefinition}
-            disabled={false}
-          />
-          <Button variant="primary" size="medium" onClick={() => createMutation.mutate()}>
-            {t("button-text-save")}
-          </Button>
-        </div>
-        {glossary.data
+    <>
+      <h1>{t("manage-glossary")}</h1>
+      {glossary.isError && <ErrorBanner variant={"readOnly"} error={glossary.error} />}
+      {(glossary.isIdle || glossary.isLoading) && <Spinner variant={"medium"} />}
+      <div>
+        <TextField
+          label={t("new-term")}
+          placeholder={t("new-term")}
+          value={newTerm}
+          onChange={setNewTerm}
+        />
+        <TextAreaField
+          name={t("new-definition")}
+          placeholder={t("new-definition")}
+          label={t("new-definition")}
+          value={newDefinition}
+          onChange={setNewDefinition}
+          disabled={false}
+        />
+        <Button variant="primary" size="medium" onClick={() => createMutation.mutate()}>
+          {t("button-text-save")}
+        </Button>
+      </div>
+      {glossary.isSuccess &&
+        glossary.data
           .sort((a, b) => a.term.localeCompare(b.term))
           .map((term) => {
             return editingTerm === term.id ? (
@@ -156,9 +139,8 @@ const ManageGlossary: React.FC<Props> = ({ query }) => {
               </div>
             )
           })}
-      </>
-    </Layout>
+    </>
   )
 }
 
-export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(ManageGlossary)))
+export default CourseGlossary

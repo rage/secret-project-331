@@ -24,7 +24,7 @@ test("test", async ({ headless, page }) => {
   // Click text=Manage permissions
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/organizations/8bb12295-53ac-4099-9644-ac0ff5e34d92/permissions' }*/),
-    page.click("text=Manage permissions"),
+    page.click("text=Permissions"),
   ])
 
   await expectScreenshotsToMatchSnapshots({

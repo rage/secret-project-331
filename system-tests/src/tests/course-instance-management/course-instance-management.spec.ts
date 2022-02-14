@@ -34,13 +34,11 @@ test("test", async ({ page, headless }) => {
     page,
   })
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.click(`:nth-match(button:text("New"):below(:text("All course instances")), 1)`),
-  ]),
-    await expect(page).toHaveURL(
-      "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/new-course-instance",
-    )
+  await Promise.all([page.waitForNavigation(), page.click("text=Course instances")])
+  await page.click(`:nth-match(button:text("New"):below(:text("All course instances")), 1)`)
+  // await expect(page).toHaveURL(
+  //   "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/new-course-instance",
+  // )
 
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -56,9 +54,9 @@ test("test", async ({ page, headless }) => {
   await page.fill("#supportEmail", "support@example.com")
   await page.fill("#openingTime", "2000-01-01 00:00")
   await page.fill("#closingTime", "2099-01-01 00:00")
-  await Promise.all([page.waitForNavigation(), page.click("text=Submit")])
+  await page.click("text=Submit")
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4",
+    "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/course-instances",
   )
 
   await expectScreenshotsToMatchSnapshots({

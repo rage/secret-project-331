@@ -1,15 +1,10 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
-use std::collections::HashMap;
-
 use models::{
-    exams,
-    exercise_slide_submissions::NewExerciseSlideSubmission,
-    exercise_task_submissions::SubmissionResult,
-    exercise_tasks::ExerciseTask,
-    exercises::{self, CourseMaterialExercise},
+    exercise_slide_submissions::{ExerciseSlideSubmissionResult, StudentExerciseSlideSubmission},
+    exercises::{CourseMaterialExercise, Exercise},
+    user_exercise_states::CourseInstanceOrExamId,
 };
-use serde_json::Value;
 
 use crate::controllers::prelude::*;
 
@@ -32,18 +27,6 @@ async fn get_exercise(
     let exercise =
         models::exercises::get_course_material_exercise(&mut conn, user_id, *exercise_id).await?;
     Ok(web::Json(exercise))
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct ExerciseSlideAnswer {
-    exercise_slide_id: Uuid,
-    exercise_task_submissions: Vec<ExerciseTaskAnswer>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct ExerciseTaskAnswer {
-    exercise_task_id: Uuid,
-    data_json: Value,
 }
 
 /**
@@ -71,91 +54,74 @@ Content-Type: application/json
 async fn post_submission(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
-    payload: web::Json<ExerciseSlideAnswer>,
+    payload: web::Json<StudentExerciseSlideSubmission>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<SubmissionResult>>> {
+) -> ControllerResult<web::Json<ExerciseSlideSubmissionResult>> {
     let mut conn = pool.acquire().await?;
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
 
-    // Check exercise details
-    let exercise = exercises::get_by_id(&mut conn, *exercise_id).await?;
-    if let Some(exam_id) = exercise.exam_id {
-        if !exams::verify_exam_submission_can_be_made(&mut conn, exam_id, user.id).await? {
-            return Err(anyhow::anyhow!("Cannot submit for this exam anymore").into());
-        }
-    }
-
-    let course_instance_id = if let Some(course_id) = exercise.course_id {
-        let user_course_settings =
-            models::user_course_settings::get_user_course_settings_by_course_id(
-                &mut conn, user.id, course_id,
-            )
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("No course settings"))?;
-        Some(user_course_settings.current_course_instance_id)
-    } else {
-        None
-    };
-    // Check that user is answering to correct tasks
+    let course_instance_or_exam_id =
+        resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
+            &mut conn, user.id, &exercise,
+        )
+        .await?;
     let user_exercise_state = models::user_exercise_states::get_user_exercise_state_if_exists(
         &mut conn,
         user.id,
         exercise.id,
-        course_instance_id,
-        exercise.exam_id,
+        course_instance_or_exam_id,
     )
     .await?
-    .ok_or_else(|| ControllerError::NotFound("Missing exercise state.".to_string()))?;
-    let selected_exercise_slide_id = user_exercise_state
-        .selected_exercise_slide_id
-        .ok_or_else(|| ControllerError::NotFound("Exercise slide not selected.".to_string()))?;
-    let exercise_tasks: HashMap<Uuid, ExerciseTask> =
-        models::exercise_tasks::get_exercise_tasks_by_exercise_slide_id(
-            &mut conn,
-            &selected_exercise_slide_id,
-        )
-        .await?
-        .into_iter()
-        .map(|task| (task.id, task))
-        .collect();
+    .ok_or_else(|| ControllerError::Unauthorized("Missing exercise state.".to_string()))?;
 
-    let task_submissions = payload.0.exercise_task_submissions;
-    let mut results = Vec::with_capacity(task_submissions.len());
+    let result = models::exercise_slide_submissions::create_exercise_slide_submission_for_exercise(
+        &mut conn,
+        &exercise,
+        &user_exercise_state,
+        payload.0,
+    )
+    .await?;
+    Ok(web::Json(result))
+}
 
-    let mut tx = conn.begin().await?;
-    let exercise_slide_submission =
-        models::exercise_slide_submissions::insert_exercise_slide_submission(
-            &mut tx,
-            NewExerciseSlideSubmission {
-                course_id: exercise.course_id,
-                course_instance_id: user_exercise_state.course_instance_id,
-                exam_id: exercise.exam_id,
-                exercise_id: exercise.id,
-                user_id: user.id,
-                exercise_slide_id: selected_exercise_slide_id,
-            },
+/// Submissions for exams are posted from course instances or from exams. Make respective validations
+/// while figuring out which.
+async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise: &Exercise,
+) -> ControllerResult<CourseInstanceOrExamId> {
+    if let Some(course_id) = exercise.course_id {
+        // If submitting for a course, there should be existing course settings that dictate which
+        // instance the user is on.
+        let settings = models::user_course_settings::get_user_course_settings_by_course_id(
+            conn, user_id, course_id,
         )
         .await?;
-    for answer in task_submissions.into_iter() {
-        let exercise_task = exercise_tasks
-            .get(&answer.exercise_task_id)
-            .ok_or_else(|| {
-                anyhow::anyhow!(
-                    "Attempting to submit exercise for illegal exercise_task_id.".to_string()
-                )
-            })?;
-        let submission = models::exercise_task_submissions::insert_submission(
-            &mut tx,
-            &exercise,
-            exercise_task,
-            exercise_slide_submission.id,
-            answer.data_json,
-        )
-        .await?;
-        results.push(submission)
+        if let Some(settings) = settings {
+            Ok(CourseInstanceOrExamId::Instance(
+                settings.current_course_instance_id,
+            ))
+        } else {
+            Err(ControllerError::Unauthorized(
+                "User is not enrolled on this course.".to_string(),
+            ))
+        }
+    } else if let Some(exam_id) = exercise.exam_id {
+        // If submitting for an exam, make sure that user's time is not up.
+        if models::exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await? {
+            Ok(CourseInstanceOrExamId::Exam(exam_id))
+        } else {
+            Err(ControllerError::Unauthorized(
+                "Submissions for this exam are no longer accepted.".to_string(),
+            ))
+        }
+    } else {
+        // On database level this scenario is impossible.
+        Err(ControllerError::InternalServerError(
+            "Exam doesn't belong to either a course nor exam.".to_string(),
+        ))
     }
-
-    tx.commit().await?;
-    Ok(web::Json(results))
 }
 
 /**

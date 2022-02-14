@@ -1,9 +1,15 @@
+use std::collections::HashMap;
+
 use crate::{
     courses::Course,
     exercise_task_submissions::{
-        SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour,
+        self, StudentExerciseTaskSubmission, SubmissionCount, SubmissionCountByExercise,
+        SubmissionCountByWeekAndHour, SubmissionResult,
     },
+    exercise_tasks::{self, ExerciseTask},
+    exercises::Exercise,
     prelude::*,
+    user_exercise_states::{self, UserExerciseState},
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -28,6 +34,18 @@ pub struct ExerciseSlideSubmission {
     pub exam_id: Option<Uuid>,
     pub exercise_id: Uuid,
     pub user_id: Uuid,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+pub struct ExerciseSlideSubmissionResult {
+    pub exercise_task_submission_results: Vec<SubmissionResult>,
+}
+
+/// Contains data sent by the student when they make a submission for an exercise slide.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct StudentExerciseSlideSubmission {
+    exercise_slide_id: Uuid,
+    exercise_task_submissions: Vec<StudentExerciseTaskSubmission>,
 }
 
 pub async fn insert_exercise_slide_submission(
@@ -91,6 +109,69 @@ RETURNING *
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn create_exercise_slide_submission_for_exercise(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    user_exercise_state: &UserExerciseState,
+    user_exercise_slide_submission: StudentExerciseSlideSubmission,
+) -> ModelResult<ExerciseSlideSubmissionResult> {
+    let selected_exercise_slide_id =
+        user_exercise_state
+            .selected_exercise_slide_id
+            .ok_or_else(|| {
+                ModelError::PreconditionFailed(
+                    "Exercise slide not selected for the student.".to_string(),
+                )
+            })?;
+    let exercise_tasks: HashMap<Uuid, ExerciseTask> =
+        exercise_tasks::get_exercise_tasks_by_exercise_slide_id(conn, &selected_exercise_slide_id)
+            .await?;
+    let user_exercise_task_submissions = user_exercise_slide_submission.exercise_task_submissions;
+
+    let mut tx = conn.begin().await?;
+    let mut results = Vec::with_capacity(user_exercise_task_submissions.len());
+
+    // Exercise is only needed for course id here.
+    let new_exercise_slide_submission = NewExerciseSlideSubmission {
+        exercise_slide_id: selected_exercise_slide_id,
+        course_id: exercise.course_id,
+        course_instance_id: user_exercise_state.course_instance_id,
+        exam_id: user_exercise_state.exam_id,
+        exercise_id: user_exercise_state.exercise_id,
+        user_id: user_exercise_state.user_id,
+    };
+    let exercise_slide_submission =
+        insert_exercise_slide_submission(&mut tx, new_exercise_slide_submission).await?;
+    for task_submission in user_exercise_task_submissions {
+        let exercise_task = exercise_tasks
+            .get(&task_submission.exercise_task_id)
+            .ok_or_else(|| {
+                ModelError::PreconditionFailed(
+                    "Attempting to submit exercise for illegal exercise_task_id.".to_string(),
+                )
+            })?;
+        let submission = exercise_task_submissions::create_exercise_task_submission_for_exercise(
+            &mut tx,
+            exercise,
+            exercise_task,
+            exercise_slide_submission.id,
+            task_submission.data_json,
+        )
+        .await?;
+        results.push(submission)
+    }
+
+    user_exercise_states::update_user_exercise_state_after_submission(
+        &mut tx,
+        &exercise_slide_submission,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(ExerciseSlideSubmissionResult {
+        exercise_task_submission_results: results,
+    })
 }
 
 pub async fn get_by_id(

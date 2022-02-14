@@ -12,7 +12,6 @@ use crate::{
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     prelude::*,
-    user_exercise_states::update_user_exercise_state,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
@@ -289,7 +288,6 @@ pub async fn grade_submission(
     let grade_url = get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
     let obj = send_grading_request(grade_url, exercise_task, submission).await?;
     let updated_grading = update_grading(conn, grading, &obj, exercise).await?;
-    update_user_exercise_state(conn, &submission.exercise_slide_submission_id).await?;
     Ok(updated_grading)
 }
 

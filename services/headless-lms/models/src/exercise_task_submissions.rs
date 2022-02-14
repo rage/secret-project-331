@@ -97,6 +97,12 @@ pub struct SubmissionData {
     pub id: Uuid,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct StudentExerciseTaskSubmission {
+    pub exercise_task_id: Uuid,
+    pub data_json: serde_json::Value,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct ExportedSubmission {
     pub id: Uuid,
@@ -267,7 +273,7 @@ WHERE ets.id = $1
     Ok((res.course_id, res.exam_id))
 }
 
-pub async fn insert_submission(
+pub async fn create_exercise_task_submission_for_exercise(
     conn: &mut PgConnection,
     exercise: &Exercise,
     exercise_task: &ExerciseTask,

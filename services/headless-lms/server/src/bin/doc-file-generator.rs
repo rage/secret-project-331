@@ -19,7 +19,7 @@ use headless_lms_models::{
     email_templates::EmailTemplate,
     exams::{CourseExam, Exam, ExamEnrollment},
     exercise_services::ExerciseService,
-    exercise_slide_submissions::ExerciseSlideSubmission,
+    exercise_slide_submissions::{ExerciseSlideSubmission, ExerciseSlideSubmissionResult},
     exercise_slides::CourseMaterialExerciseSlide,
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
     exercise_task_submissions::{
@@ -266,6 +266,14 @@ fn main() {
         width: 123,
         data: serde_json::json! {{}},
     };
+    let submission_result = SubmissionResult {
+        submission: exercise_task_submission.clone(),
+        grading: Some(grading.clone()),
+        model_solution_spec: None,
+    };
+    let exercise_slide_submission_result = ExerciseSlideSubmissionResult {
+        exercise_task_submission_results: vec![submission_result.clone()],
+    };
     let organization = Organization {
         id,
         created_at,
@@ -495,21 +503,11 @@ fn main() {
         })
     );
     write_docs!(
-        SubmissionResult,
-        SubmissionResult {
-            submission: exercise_task_submission.clone(),
-            grading: Some(grading.clone()),
-            model_solution_spec: None
-        }
+        ExerciseSlideSubmissionResult,
+        exercise_slide_submission_result
     );
-    write_docs!(
-        Vec<SubmissionResult>,
-        vec![SubmissionResult {
-            submission: exercise_task_submission.clone(),
-            grading: Some(grading.clone()),
-            model_solution_spec: None
-        }]
-    );
+    write_docs!(SubmissionResult, submission_result.clone());
+    write_docs!(Vec<SubmissionResult>, vec![submission_result.clone()]);
     write_docs!(Chapter, chapter.clone());
     write_docs!(
         Points,

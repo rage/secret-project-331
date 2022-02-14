@@ -8,7 +8,7 @@ import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
 import { fetchExerciseById, postSubmission } from "../../../../services/backend"
-import { ExerciseSlideAnswer } from "../../../../shared-module/bindings"
+import { StudentExerciseSlideSubmission } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../../../shared-module/components/Centering/Centered"
@@ -55,19 +55,19 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   })
 
   const postSubmissionMutation = useToastMutation(
-    (submission: ExerciseSlideAnswer) => postSubmission(id, submission),
+    (submission: StudentExerciseSlideSubmission) => postSubmission(id, submission),
     {
       notify: false,
     },
     {
       retry: 3,
       onSuccess: (data) => {
-        if (data[0].grading) {
-          setPoints(data[0].grading.score_given)
+        if (data.exercise_task_submission_results[0].grading) {
+          setPoints(data.exercise_task_submission_results[0].grading.score_given)
         }
         dispatch({
           type: "submissionGraded",
-          payload: data.map((x) => ({
+          payload: data.exercise_task_submission_results.map((x) => ({
             submissionResult: x,
             publicSpec: getCourseMaterialExercise.data?.current_exercise_slide.exercise_tasks.find(
               (y) => y.id === x.submission.exercise_task_id,
@@ -149,8 +149,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             </div>
           </div>
           <div>
-            {postSubmissionMutation.data?.[0].grading?.feedback_text &&
-              postSubmissionMutation.data?.[0].grading?.feedback_text}
+            {postSubmissionMutation.data?.exercise_task_submission_results[0].grading
+              ?.feedback_text &&
+              postSubmissionMutation.data?.exercise_task_submission_results[0].grading
+                ?.feedback_text}
           </div>
           {getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
             <ExerciseTask

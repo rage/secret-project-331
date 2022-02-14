@@ -1,9 +1,6 @@
 use crate::controllers::{
     auth::Login,
-    course_material::{
-        exams::{ExamData, ExamEnrollmentData},
-        exercises::{ExerciseSlideAnswer, ExerciseTaskAnswer},
-    },
+    course_material::exams::{ExamData, ExamEnrollmentData},
     main_frontend::{
         courses::GetFeedbackQuery,
         exams::ExamCourseInfo,
@@ -132,8 +129,11 @@ fn ts_binding_generator() {
         proposed_page_edits::ProposalCount,
 
         exercise_slide_submissions::ExerciseSlideSubmission,
+        exercise_slide_submissions::ExerciseSlideSubmissionResult,
+        exercise_slide_submissions::StudentExerciseSlideSubmission,
 
         exercise_task_submissions::ExerciseTaskSubmission,
+        exercise_task_submissions::StudentExerciseTaskSubmission,
         exercise_task_submissions::SubmissionCount,
         exercise_task_submissions::SubmissionCountByWeekAndHour,
         exercise_task_submissions::SubmissionCountByExercise,
@@ -158,8 +158,6 @@ fn ts_binding_generator() {
         ExamData,
         ExamEnrollmentData,
         ExamCourseInfo,
-        ExerciseSlideAnswer,
-        ExerciseTaskAnswer,
         Login,
         UploadResult,
         ExerciseSubmissions,

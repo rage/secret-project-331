@@ -3,7 +3,7 @@ use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use serde_json::Value;
 
 use crate::{
-    exercise_slide_submissions,
+    exercise_slide_submissions::ExerciseSlideSubmission,
     exercise_task_gradings::{self, UserPointsUpdateStrategy},
     exercises::{ActivityProgress, GradingProgress},
     prelude::*,
@@ -22,6 +22,51 @@ pub struct UserExerciseState {
     pub grading_progress: GradingProgress,
     pub activity_progress: ActivityProgress,
     pub selected_exercise_slide_id: Option<Uuid>,
+}
+
+/// Either a course instance or exam id.
+///
+/// Exercises can either be part of courses or exams. Many user-related actions need to differentiate
+/// between two, so `CourseInstanceOrExamId` helps when handling these separate scenarios.
+pub enum CourseInstanceOrExamId {
+    Instance(Uuid),
+    Exam(Uuid),
+}
+
+impl CourseInstanceOrExamId {
+    pub fn from_instance_and_exam_ids(
+        course_instance_id: Option<Uuid>,
+        exam_id: Option<Uuid>,
+    ) -> ModelResult<Self> {
+        match (course_instance_id, exam_id) {
+            (None, None) => Err(ModelError::Generic(
+                "Expected either course instance or exam id, but neither were provided.".into(),
+            )),
+            (Some(instance_id), None) => Ok(Self::Instance(instance_id)),
+            (None, Some(exam_id)) => Ok(Self::Exam(exam_id)),
+            (Some(_), Some(_)) => Err(ModelError::Generic(
+                "Expected either course instance or exam id, but both were provided.".into(),
+            )),
+        }
+    }
+
+    pub fn to_instance_and_exam_ids(&self) -> (Option<Uuid>, Option<Uuid>) {
+        match self {
+            CourseInstanceOrExamId::Instance(instance_id) => (Some(*instance_id), None),
+            CourseInstanceOrExamId::Exam(exam_id) => (None, Some(*exam_id)),
+        }
+    }
+}
+
+impl TryFrom<UserExerciseState> for CourseInstanceOrExamId {
+    type Error = ModelError;
+
+    fn try_from(user_exercise_state: UserExerciseState) -> Result<Self, Self::Error> {
+        Self::from_instance_and_exam_ids(
+            user_exercise_state.course_instance_id,
+            user_exercise_state.exam_id,
+        )
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
@@ -255,9 +300,9 @@ pub async fn get_user_exercise_state_if_exists(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Option<Uuid>,
-    exam_id: Option<Uuid>,
+    course_instance_or_exam_id: CourseInstanceOrExamId,
 ) -> ModelResult<Option<UserExerciseState>> {
+    let (course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
@@ -443,15 +488,10 @@ fn figure_out_new_activity_progress(
     ActivityProgress::Completed
 }
 
-pub async fn update_user_exercise_state(
+pub async fn update_user_exercise_state_after_submission(
     conn: &mut PgConnection,
-    exercise_slide_submission_id: &Uuid,
+    exercise_slide_submission: &ExerciseSlideSubmission,
 ) -> ModelResult<UserExerciseState> {
-    let exercise_slide_submission =
-        exercise_slide_submissions::get_by_id(conn, *exercise_slide_submission_id)
-            .await?
-            .ok_or_else(|| ModelError::PreconditionFailed("Submission not found".to_string()))?;
-
     let current_state = get_or_create_user_exercise_state(
         conn,
         exercise_slide_submission.user_id,
@@ -465,13 +505,13 @@ pub async fn update_user_exercise_state(
     // submissions belonging to a slide submission.
     let score_given = exercise_task_gradings::get_total_score_given_for_exercise_slide_submission(
         conn,
-        exercise_slide_submission_id,
+        &exercise_slide_submission.id,
     )
     .await?;
     let (grading_progress, points_update_strategy) =
         exercise_task_gradings::get_point_update_strategy_from_gradings(
             conn,
-            exercise_slide_submission_id,
+            &exercise_slide_submission.id,
         )
         .await?;
     info!(
@@ -635,7 +675,7 @@ GROUP BY user_id,
 mod tests {
     use super::*;
     use crate::{
-        exercise_slide_submissions::NewExerciseSlideSubmission,
+        exercise_slide_submissions::{self, NewExerciseSlideSubmission},
         exercise_task_gradings,
         exercise_task_submissions::{self, GradingResult, SubmissionData},
         exercises,
@@ -862,7 +902,7 @@ mod tests {
             )
             .await
             .unwrap();
-        let task_submission = exercise_task_submissions::insert_with_id(
+        let task_submission_id = exercise_task_submissions::insert_with_id(
             tx.as_mut(),
             &SubmissionData {
                 exercise_id: data.exercise,
@@ -878,18 +918,19 @@ mod tests {
         )
         .await
         .unwrap();
-        let submission = exercise_task_submissions::get_by_id(tx.as_mut(), task_submission)
+        let task_submission = exercise_task_submissions::get_by_id(tx.as_mut(), task_submission_id)
             .await
             .unwrap();
         let exercise = exercises::get_by_id(tx.as_mut(), data.exercise)
             .await
             .unwrap();
-        let grading = exercise_task_gradings::new_grading(tx.as_mut(), &exercise, &submission)
-            .await
-            .unwrap();
-        let grading = exercise_task_gradings::update_grading(
+        let task_grading =
+            exercise_task_gradings::new_grading(tx.as_mut(), &exercise, &task_submission)
+                .await
+                .unwrap();
+        exercise_task_gradings::update_grading(
             tx.as_mut(),
-            &grading,
+            &task_grading,
             &GradingResult {
                 feedback_json: None,
                 feedback_text: None,
@@ -901,13 +942,10 @@ mod tests {
         )
         .await
         .unwrap();
-        exercise_task_submissions::set_grading_id(tx.as_mut(), grading.id, submission.id)
+        exercise_task_submissions::set_grading_id(tx.as_mut(), task_grading.id, task_submission.id)
             .await
             .unwrap();
-        let submission = exercise_task_submissions::get_by_id(tx.as_mut(), submission.id)
-            .await
-            .unwrap();
-        update_user_exercise_state(tx.as_mut(), &submission.exercise_slide_submission_id)
+        update_user_exercise_state_after_submission(tx.as_mut(), &slide_submission)
             .await
             .unwrap();
         let state = get_or_create_user_exercise_state(

@@ -415,9 +415,12 @@ mod test {
         exercise_task_submissions::set_grading_id(tx, grading.id, submission.id)
             .await
             .unwrap();
-        user_exercise_states::update_user_exercise_state(tx, &exercise_slide_submission.id)
-            .await
-            .unwrap();
+        user_exercise_states::update_user_exercise_state_after_submission(
+            tx,
+            &exercise_slide_submission,
+        )
+        .await
+        .unwrap();
     }
 
     struct WriteAdapter {

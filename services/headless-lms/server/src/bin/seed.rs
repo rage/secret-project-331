@@ -2563,11 +2563,8 @@ async fn submit_and_grade(
     let grading =
         exercise_task_gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
     exercise_task_submissions::set_grading_id(conn, grading.id, task_submission.id).await?;
-    user_exercise_states::update_user_exercise_state(
-        conn,
-        &task_submission.exercise_slide_submission_id,
-    )
-    .await?;
+    user_exercise_states::update_user_exercise_state_after_submission(conn, &slide_submission)
+        .await?;
     Ok(())
 }
 

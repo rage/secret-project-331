@@ -601,6 +601,15 @@ export interface ExerciseSlideSubmission {
   user_id: string
 }
 
+export interface ExerciseSlideSubmissionResult {
+  exercise_task_submission_results: Array<SubmissionResult>
+}
+
+export interface StudentExerciseSlideSubmission {
+  exercise_slide_id: string
+  exercise_task_submissions: Array<StudentExerciseTaskSubmission>
+}
+
 export interface ExerciseTaskSubmission {
   id: string
   created_at: Date
@@ -612,6 +621,11 @@ export interface ExerciseTaskSubmission {
   data_json: unknown | null
   exercise_task_grading_id: string | null
   metadata: unknown | null
+}
+
+export interface StudentExerciseTaskSubmission {
+  exercise_task_id: string
+  data_json: unknown
 }
 
 export interface SubmissionCount {
@@ -741,16 +755,6 @@ export type ExamEnrollmentData =
 
 export interface ExamCourseInfo {
   course_id: string
-}
-
-export interface ExerciseSlideAnswer {
-  exercise_slide_id: string
-  exercise_task_submissions: Array<ExerciseTaskAnswer>
-}
-
-export interface ExerciseTaskAnswer {
-  exercise_task_id: string
-  data_json: unknown
 }
 
 export interface Login {

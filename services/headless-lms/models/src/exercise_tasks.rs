@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use futures::TryStreamExt;
 use serde_json::Value;
 
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
@@ -11,7 +12,7 @@ use crate::{
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercises,
     prelude::*,
-    user_exercise_states,
+    user_exercise_states::{self, CourseInstanceOrExamId},
 };
 
 #[derive(Debug, Serialize, Deserialize, TS)]
@@ -44,6 +45,22 @@ pub struct ExerciseTask {
     pub spec_file_id: Option<Uuid>,
     pub model_solution_spec: Option<serde_json::Value>,
     pub copied_from: Option<Uuid>,
+}
+
+impl FromIterator<ExerciseTask> for HashMap<Uuid, ExerciseTask> {
+    fn from_iter<I: IntoIterator<Item = ExerciseTask>>(iter: I) -> Self {
+        let mut map = HashMap::new();
+        map.extend(iter);
+        map
+    }
+}
+
+impl Extend<ExerciseTask> for HashMap<Uuid, ExerciseTask> {
+    fn extend<T: IntoIterator<Item = ExerciseTask>>(&mut self, iter: T) {
+        for exercise_task in iter {
+            self.insert(exercise_task.id, exercise_task);
+        }
+    }
 }
 
 pub async fn insert(
@@ -123,7 +140,8 @@ pub async fn get_course_material_exercise_tasks(
     user_id: Option<&Uuid>,
     expose_model_solution_spec: bool,
 ) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
-    let exercise_tasks = get_exercise_tasks_by_exercise_slide_id(conn, exercise_slide_id).await?;
+    let exercise_tasks: Vec<ExerciseTask> =
+        get_exercise_tasks_by_exercise_slide_id(conn, exercise_slide_id).await?;
     let mut latest_submissions_by_task_id = if let Some(user_id) = user_id {
         exercise_task_submissions::get_users_latest_exercise_task_submissions_for_exercise_slide(
             conn,
@@ -173,11 +191,14 @@ pub async fn get_course_material_exercise_tasks(
     Ok(material_tasks)
 }
 
-pub async fn get_exercise_tasks_by_exercise_slide_id(
+pub async fn get_exercise_tasks_by_exercise_slide_id<T>(
     conn: &mut PgConnection,
     exercise_slide_id: &Uuid,
-) -> ModelResult<Vec<ExerciseTask>> {
-    let exercise_tasks = sqlx::query_as!(
+) -> ModelResult<T>
+where
+    T: Default + Extend<ExerciseTask> + FromIterator<ExerciseTask>,
+{
+    let res = sqlx::query_as!(
         ExerciseTask,
         "
 SELECT *
@@ -187,9 +208,10 @@ WHERE exercise_slide_id = $1
         ",
         exercise_slide_id,
     )
-    .fetch_all(conn)
+    .fetch(conn)
+    .try_collect()
     .await?;
-    Ok(exercise_tasks)
+    Ok(res)
 }
 
 pub async fn get_exercise_tasks_by_exercise_slide_ids(
@@ -222,8 +244,7 @@ pub async fn get_existing_users_exercise_slide_for_course_instance(
         conn,
         user_id,
         exercise_id,
-        Some(course_instance_id),
-        None,
+        CourseInstanceOrExamId::Instance(course_instance_id),
     )
     .await?;
     let exercise_tasks = if let Some(user_exercise_state) = user_exercise_state {

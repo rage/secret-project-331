@@ -49,12 +49,11 @@ import {
   ExerciseServiceInfoApi,
   ExerciseServiceNewOrUpdate,
   ExerciseSlide,
-  ExerciseSlideAnswer,
   ExerciseSlideSubmission,
+  ExerciseSlideSubmissionResult,
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
-  ExerciseTaskAnswer,
   ExerciseTaskGrading,
   ExerciseTaskSubmission,
   ExerciseWithExerciseTasks,
@@ -95,6 +94,8 @@ import {
   RoleInfo,
   RoleQuery,
   RoleUser,
+  StudentExerciseSlideSubmission,
+  StudentExerciseTaskSubmission,
   SubmissionCount,
   SubmissionCountByExercise,
   SubmissionCountByWeekAndHour,
@@ -1022,6 +1023,29 @@ export function isExerciseSlideSubmission(
   )
 }
 
+export function isExerciseSlideSubmissionResult(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseSlideSubmissionResult {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.exercise_task_submission_results) &&
+    obj.exercise_task_submission_results.every((e: any) => isSubmissionResult(e) as boolean)
+  )
+}
+
+export function isStudentExerciseSlideSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is StudentExerciseSlideSubmission {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_slide_id === "string" &&
+    Array.isArray(obj.exercise_task_submissions) &&
+    obj.exercise_task_submissions.every((e: any) => isStudentExerciseTaskSubmission(e) as boolean)
+  )
+}
+
 export function isExerciseTaskSubmission(
   obj: any,
   _argumentName?: string,
@@ -1036,6 +1060,16 @@ export function isExerciseTaskSubmission(
     typeof obj.exercise_task_id === "string" &&
     typeof obj.exercise_slide_id === "string" &&
     (obj.exercise_task_grading_id === null || typeof obj.exercise_task_grading_id === "string")
+  )
+}
+
+export function isStudentExerciseTaskSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is StudentExerciseTaskSubmission {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_task_id === "string"
   )
 }
 
@@ -1246,25 +1280,6 @@ export function isExamCourseInfo(obj: any, _argumentName?: string): obj is ExamC
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.course_id === "string"
-  )
-}
-
-export function isExerciseSlideAnswer(
-  obj: any,
-  _argumentName?: string,
-): obj is ExerciseSlideAnswer {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_slide_id === "string" &&
-    Array.isArray(obj.exercise_task_submissions) &&
-    obj.exercise_task_submissions.every((e: any) => isExerciseTaskAnswer(e) as boolean)
-  )
-}
-
-export function isExerciseTaskAnswer(obj: any, _argumentName?: string): obj is ExerciseTaskAnswer {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_task_id === "string"
   )
 }
 

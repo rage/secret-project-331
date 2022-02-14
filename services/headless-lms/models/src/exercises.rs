@@ -3,7 +3,8 @@ use crate::{
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
     prelude::*,
-    user_course_settings, user_exercise_states,
+    user_course_settings,
+    user_exercise_states::{self, CourseInstanceOrExamId},
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
@@ -255,23 +256,12 @@ pub async fn get_course_material_exercise(
     info!("{:#?}", current_exercise_slide);
 
     let user_exercise_state = match (user_id, instance_or_exam_id) {
-        (Some(user_id), Some(InstanceOrExamId::Instance(instance_id))) => {
+        (Some(user_id), Some(course_instance_or_exam_id)) => {
             user_exercise_states::get_user_exercise_state_if_exists(
                 conn,
                 user_id,
                 exercise.id,
-                Some(instance_id),
-                None,
-            )
-            .await?
-        }
-        (Some(user_id), Some(InstanceOrExamId::Exam(exam_id))) => {
-            user_exercise_states::get_user_exercise_state_if_exists(
-                conn,
-                user_id,
-                exercise.id,
-                None,
-                Some(exam_id),
+                course_instance_or_exam_id,
             )
             .await?
         }
@@ -291,16 +281,11 @@ pub async fn get_course_material_exercise(
     })
 }
 
-enum InstanceOrExamId {
-    Instance(Uuid),
-    Exam(Uuid),
-}
-
 async fn get_or_select_exercise_slide(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
     exercise: &Exercise,
-) -> ModelResult<(CourseMaterialExerciseSlide, Option<InstanceOrExamId>)> {
+) -> ModelResult<(CourseMaterialExerciseSlide, Option<CourseInstanceOrExamId>)> {
     match (user_id, exercise.course_id, exercise.exam_id) {
         (None, ..) => {
             // No signed in user. Show random exercise without model solution.
@@ -341,7 +326,7 @@ async fn get_or_select_exercise_slide(
                         .await?;
                     Ok((
                         tasks,
-                        Some(InstanceOrExamId::Instance(
+                        Some(CourseInstanceOrExamId::Instance(
                             settings.current_course_instance_id,
                         )),
                     ))
@@ -366,7 +351,7 @@ async fn get_or_select_exercise_slide(
                         if let Some(exercise_tasks) = exercise_tasks {
                             Ok((
                                 exercise_tasks,
-                                Some(InstanceOrExamId::Instance(instance.id)),
+                                Some(CourseInstanceOrExamId::Instance(instance.id)),
                             ))
                         } else {
                             // no exercise task has been chosen for the user
@@ -438,7 +423,7 @@ async fn get_or_select_exercise_slide(
                 )
                 .await?;
             info!("selecting exam task {:#?}", tasks);
-            Ok((tasks, Some(InstanceOrExamId::Exam(exam_id))))
+            Ok((tasks, Some(CourseInstanceOrExamId::Exam(exam_id))))
         }
         (Some(_), ..) => Err(ModelError::Generic(
             "The selected exercise is not attached to any course or exam".to_string(),
@@ -610,8 +595,7 @@ mod test {
             tx.as_mut(),
             user_id,
             exercise_id,
-            Some(course_instance.id),
-            None,
+            CourseInstanceOrExamId::Instance(course_instance.id),
         )
         .await
         .unwrap();
@@ -635,8 +619,7 @@ mod test {
             tx.as_mut(),
             user_id,
             exercise_id,
-            Some(course_instance.id),
-            None,
+            CourseInstanceOrExamId::Instance(course_instance.id),
         )
         .await
         .unwrap();

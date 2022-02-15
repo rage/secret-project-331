@@ -385,7 +385,8 @@ fn main() {
         CoursePageWithUserData {
             page: page.clone(),
             instance: Some(course_instance.clone()),
-            settings: Some(user_course_settings.clone())
+            settings: Some(user_course_settings.clone()),
+            was_redirected: false
         }
     );
     write_docs!(CourseInstance, course_instance.clone());

@@ -33,6 +33,9 @@ async fn get_course(
 
 /**
 GET `/:course_slug/page-by-path/...` - Returns a course page by path
+
+If the page has moved and there's a redirection, this will still return the moved page but the field `was_redirected` will indicate that the redirection happened. The new path can be found in the page object. The frontend is supposed to update the url of the page to the new location without reloading the page.
+
 # Example
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 */

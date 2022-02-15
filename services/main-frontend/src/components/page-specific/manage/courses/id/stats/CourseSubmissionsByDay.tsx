@@ -8,6 +8,8 @@ import { fetchCourseDailySubmissionCounts } from "../../../../../../services/bac
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import { dontRenderUntilQueryParametersReady } from "../../../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../../../shared-module/utils/withErrorBoundary"
 
 import Echarts from "./Echarts"
 
@@ -23,9 +25,8 @@ const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseI
     {
       select: (data) => {
         const eChartsData = groupBy(data, (o) => {
-          // @ts-expect-error: todo
-          const dateString = o.date
-          const year = dateString.substring(0, dateString.indexOf("-"))
+          const dateString = o.date as string | null
+          const year = dateString?.substring(0, dateString.indexOf("-"))
           return year
         })
         const maxValue = max(data.map((o) => o.count)) || 10000
@@ -105,4 +106,4 @@ const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseI
   )
 }
 
-export default CourseSubmissionsByDay
+export default withErrorBoundary(dontRenderUntilQueryParametersReady(CourseSubmissionsByDay))

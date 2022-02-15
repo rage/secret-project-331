@@ -684,6 +684,17 @@ export interface UserCourseInstanceProgress {
   completed_exercises: number | null
 }
 
+export interface ExerciseUserCounts {
+  exercise_name: string | null
+  exercise_order_number: number | null
+  page_order_number: number | null
+  chapter_number: number | null
+  exercise_id: string | null
+  n_users_attempted: number
+  n_users_with_some_points: number
+  n_users_with_max_points: number
+}
+
 export interface User {
   id: string
   first_name: string | null

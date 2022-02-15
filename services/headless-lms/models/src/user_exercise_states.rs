@@ -61,6 +61,21 @@ pub struct CourseInstanceExerciseMetrics {
     score_maximum: Option<i64>,
 }
 
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
+pub struct ExerciseUserCounts {
+    exercise_name: Option<String>,
+    exercise_order_number: Option<i32>,
+    page_order_number: Option<i32>,
+    chapter_number: Option<i32>,
+    exercise_id: Option<Uuid>,
+    #[ts(type = "number")]
+    n_users_attempted: Option<i64>,
+    #[ts(type = "number")]
+    n_users_with_some_points: Option<i64>,
+    #[ts(type = "number")]
+    n_users_with_max_points: Option<i64>,
+}
+
 pub async fn get_course_instance_metrics(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
@@ -618,6 +633,42 @@ GROUP BY user_id,
             .map_err(|e| sqlx::Error::Decode(Box::new(e)))
     })
     .fetch(conn)
+}
+
+pub async fn get_course_users_counts_by_exercise(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ExerciseUserCounts>> {
+    let res = sqlx::query_as!(
+        ExerciseUserCounts,
+        r#"
+SELECT exercises.name as exercise_name,
+        exercises.order_number as exercise_order_number,
+        pages.order_number     as page_order_number,
+        chapters.chapter_number,
+        stat_data.*
+ FROM (SELECT exercise_id,
+              COUNT(DISTINCT user_id) as n_users_attempted,
+              COUNT(DISTINCT user_id) FILTER ( WHERE ues.score_given IS NOT NULL and ues.score_given > 0 ) as n_users_with_some_points,
+              COUNT(DISTINCT user_id) FILTER ( WHERE ues.score_given IS NOT NULL and ues.score_given >= exercises.score_maximum ) as n_users_with_max_points
+       FROM exercises
+       JOIN user_exercise_states ues on exercises.id = ues.exercise_id
+       WHERE exercises.course_id = $1
+         AND exercises.deleted_at IS NULL
+         AND ues.deleted_at IS NULL
+       GROUP BY exercise_id) as stat_data
+        JOIN exercises ON stat_data.exercise_id = exercises.id
+        JOIN pages on exercises.page_id = pages.id
+        JOIN chapters on pages.chapter_id = chapters.id
+ WHERE exercises.deleted_at IS NULL
+   AND pages.deleted_at IS NULL
+   AND chapters.deleted_at IS NULL
+          "#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }
 
 #[cfg(test)]

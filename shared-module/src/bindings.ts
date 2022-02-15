@@ -431,6 +431,7 @@ export interface CoursePageWithUserData {
   page: Page
   instance: CourseInstance | null
   settings: UserCourseSettings | null
+  was_redirected: boolean
 }
 
 export interface ExerciseWithExerciseTasks {

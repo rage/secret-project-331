@@ -30,16 +30,18 @@ test("test", async ({ page, headless }) => {
   await page.click(`:nth-match(button:below(:text("All course language versions")):text("New"), 1)`)
 
   // Click input[type="text"]
-  await page.click('input[type="text"]')
+  await page.click('input[type="radio"]')
 
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "Johdatus lokalisointiin")
+  await page.fill("text=Name", "Johdatus lokalisointiin")
 
   // Click :nth-match(input[name="mui-913296558"], 2)
   await page.click(':nth-match(input[type="radio"], 2)')
 
-  await page.fill('input[id="teacher-in-charge-name"]', "teacher")
-  await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
+  await page.fill("text=Teacher in charge name", "teacher")
+  await page.fill("text=Teacher in charge email", "teacher@example.com")
+
+  // await page.fill("text=Description", "Course description")
 
   // Click text=Create course
   await page.click(`button:text("Create")`)

@@ -3,8 +3,9 @@ import React from "react"
 
 interface RadioFieldExtraProps {
   label: string
-  checked: boolean
+  checked?: boolean
   value?: string
+  name?: string
   /* onBlur?: (name?: string) => void */
   onChange: (value: string, name?: string) => void
 }

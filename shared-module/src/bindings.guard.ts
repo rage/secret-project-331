@@ -332,7 +332,8 @@ export function isNewCourse(obj: any, _argumentName?: string): obj is NewCourse 
     typeof obj.organization_id === "string" &&
     typeof obj.language_code === "string" &&
     typeof obj.teacher_in_charge_name === "string" &&
-    typeof obj.teacher_in_charge_email === "string"
+    typeof obj.teacher_in_charge_email === "string" &&
+    typeof obj.description === "string"
   )
 }
 

@@ -22,13 +22,15 @@ test("test", async ({ page }) => {
   await page.click(`button:text("Create")`)
 
   // Click input[type="text"]
-  await page.click('input[type="text"]')
+  await page.click('input[type="radio"]')
 
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "Introduction to System Level Testing")
+  await page.fill("text=Name", "Introduction to System Level Testing")
 
-  await page.fill('input[id="teacher-in-charge-name"]', "teacher")
-  await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
+  await page.fill("text=Teacher in charge name", "teacher")
+  await page.fill("text=Teacher in charge email", "teacher@example.com")
+
+  // await page.fill("text=Description", "Course description")
 
   // Click text=Create course
   await page.click(`button:text("Create"):below(:text("Course language"))`)

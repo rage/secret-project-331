@@ -20,6 +20,24 @@ export interface SearchDialogProps {
   organizationSlug: string
 }
 
+const StTextField = styled.input`
+  display: flex;
+  background: #ffffff;
+  width: 100%;
+  padding: 0 20px;
+  height: 70px;
+  box-shadow: 0px 8px 40px rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  border: 0 !important;
+  outline: 0 !important;
+  &:focus {
+    outline: none;
+  }
+`
+const StyledSearchResults = styled.div`
+  background: red;
+`
+
 const HeaderBar = styled.div`
   display: flex;
   padding: 0.5rem;
@@ -110,7 +128,8 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
       />
       {/* eslint-disable-next-line i18next/no-literal-string */}
       <Dialog
-        maxWidth="xl"
+        /* maxWidth="1200px" */
+        fullWidth={true}
         open={open}
         onClose={closeModal}
         aria-labelledby="search-for-pages-button"
@@ -118,7 +137,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
         <Paper
           className={css`
             overflow: hidden;
-            width: 500px;
+            width: 100%;
             min-height: 700px;
           `}
         >
@@ -139,73 +158,81 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
               padding: 0 1rem;
             `}
           >
-            <TextField
+            <StTextField
               value={query}
               onChange={(e) => {
                 setError(null)
                 setQuery(e.target.value)
               }}
-              fullWidth
+              /* fullWidth */
               placeholder={t("search-field-placeholder")}
             />
             <div
               className={css`
-                margin-top: 1rem;
+                /* margin-top: 1rem; */
               `}
             >
               {error && <div>{error}</div>}
-              {combinedResults?.map((result) => {
-                if (!result.title_headline) {
-                  return null
-                }
-                return (
-                  <Link
-                    href={`/${organizationSlug}/courses/${result.url_path}`}
-                    key={result.id}
-                    passHref
-                  >
-                    <a
-                      href="replace"
-                      className={css`
-                        text-decoration: none;
-                        color: unset;
-                        display: block;
-                        margin-bottom: 1rem;
+              {
+                <div
+                /* className={css`
 
-                        padding: 1rem;
-
-                        :hover {
-                          background: #f3f3f3;
-                        }
-                      `}
-                      key={result.id}
-                    >
-                      <h2
-                        className={css`
-                          font-size: 1.5rem;
-                          b {
-                            text-decoration: underline;
-                          }
-                        `}
-                        dangerouslySetInnerHTML={{
-                          __html: sanitizeCourseMaterialHtml(result.title_headline),
-                        }}
-                      />
-
-                      {result.content_headline && (
-                        <p
+                  `} */
+                >
+                  {combinedResults?.map((result) => {
+                    if (!result.title_headline) {
+                      return null
+                    }
+                    return (
+                      <Link
+                        href={`/${organizationSlug}/courses/${result.url_path}`}
+                        key={result.id}
+                        passHref
+                      >
+                        <a
+                          href="replace"
                           className={css`
-                            color: #5a5757;
+                            text-decoration: none;
+                            color: unset;
+                            display: block;
+                            margin-bottom: 1rem;
+
+                            padding: 1rem;
+
+                            :hover {
+                              background: #f3f3f3;
+                            }
                           `}
-                          dangerouslySetInnerHTML={{
-                            __html: sanitizeCourseMaterialHtml(result.content_headline),
-                          }}
-                        />
-                      )}
-                    </a>
-                  </Link>
-                )
-              })}
+                          key={result.id}
+                        >
+                          <h2
+                            className={css`
+                              font-size: 1.5rem;
+                              b {
+                                text-decoration: underline;
+                              }
+                            `}
+                            dangerouslySetInnerHTML={{
+                              __html: sanitizeCourseMaterialHtml(result.title_headline),
+                            }}
+                          />
+
+                          {result.content_headline && (
+                            <p
+                              className={css`
+                                color: #5a5757;
+                              `}
+                              dangerouslySetInnerHTML={{
+                                __html: sanitizeCourseMaterialHtml(result.content_headline),
+                              }}
+                            />
+                          )}
+                        </a>
+                      </Link>
+                    )
+                  })}
+                </div>
+              }
             </div>
           </div>
         </Paper>

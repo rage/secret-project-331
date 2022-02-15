@@ -11,11 +11,14 @@ import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { cardMaxWidth } from "../../../../shared-module/styles/constants"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import { stringToRandomNumber } from "../../../../shared-module/utils/strings"
 import { withMultipleClassNames } from "../../../../shared-module/utils/styles"
 
 import ChapterGridCard from "./ChapterGridCard"
 
 const YELLOW = "yellow"
+
+const COLORS_ARRAY = ["#215887", "#1F6964", "#822630", "#A84835", "#E3C954", "#6245A9", "#313947"]
 
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   const { t } = useTranslation()
@@ -78,6 +81,8 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
           {getChaptersInCourse.data
             .sort((a, b) => a.chapter_number - b.chapter_number)
             .map((chapter) => {
+              const randomNumber = stringToRandomNumber(chapter.id) % COLORS_ARRAY.length
+              const randomizedColor = COLORS_ARRAY[randomNumber]
               return (
                 <div
                   className={css`
@@ -93,7 +98,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                   key={chapter.id}
                 >
                   <ChapterGridCard
-                    bg={YELLOW}
+                    bg={randomizedColor}
                     now={now}
                     chapter={chapter}
                     courseSlug={courseSlug}

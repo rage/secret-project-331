@@ -10,34 +10,39 @@ import { respondToOrLarger } from "../../styles/respond"
 
 import { CardExtraProps } from "."
 
+export const BackgroundStyles = (props: CardExtraProps) => {
+  const CARD_BACKGROUND_STYLES = `
+    background: ${props.bg ? props.bg : "#fff"};
+  `
+  return CARD_BACKGROUND_STYLES
+}
 const StCardSvg = styled(CardSVG)`
   width: 40px;
   opacity: 0.8;
-`
-const StCardSvg = styled(CardSVG)`
-  width: 40px;
-  opacity: 0.8;
+  color: #fff;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const CardContentWrapper = styled.div`
   display: flex;
   height: 100%;
   text-align: left;
   flex-direction: column;
   word-break: break-all;
+  ${BackgroundStyles}
 
   h2 {
     font-size: ${typography.h3};
     font-weight: 700;
     z-index: 20;
     line-height: 1em;
-    color: rgba(40, 40, 40, 0.8);
+    color: #fff;
   }
 
   span {
-    color: ${baseTheme.colors.grey[700]};
+    color: #f5f6f7;
     font-size: 1.2em;
-    opacity: 0.8;
+    /* opacity: 0.8; */
     z-index: 20;
     font-weight: 500;
     width: 50%;
@@ -50,7 +55,7 @@ const CardContentWrapper = styled.div`
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, date, time }) => {
+const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, date, time, bg }) => {
   const { t } = useTranslation()
   // If URL defined, the chapter is open
 
@@ -118,7 +123,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, date
         }
       `}
     >
-      <CardContentWrapper>
+      <CardContentWrapper bg={bg}>
         {!open && !url ? (
           <div
             className={css`

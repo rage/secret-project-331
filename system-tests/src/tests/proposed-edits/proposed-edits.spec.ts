@@ -180,6 +180,7 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "manage-after-send",
     waitForThisToBeVisibleAndStable: "text=Reject",
+    waitForNotificationsToClear: true,
     beforeScreenshot: async () => {
       await replaceIds(page)
     },

@@ -131,7 +131,6 @@ async function snapshotWithViewPort({
   pageScreenshotOptions,
   axeSkip,
 }: SnapshotWithViewPortProps) {
-  await page.waitForTimeout(100)
   if (!persistMousePosition && page) {
     await page.mouse.move(0, 0)
   }

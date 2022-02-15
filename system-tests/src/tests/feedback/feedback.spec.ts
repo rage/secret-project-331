@@ -132,6 +132,7 @@ test("test", async ({ headless, page }) => {
     headless,
     snapshotName: "feedback-empty",
     waitForThisToBeVisibleAndStable: `text=No feedback`,
+    waitForNotificationsToClear: true,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 

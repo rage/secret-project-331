@@ -78,7 +78,6 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
       // Nextjs router adds the base path to the start of the url, so we need to remove it first
       const nextJsAdjustedPath = newPath.substring(basePath().length)
       // eslint-disable-next-line i18next/no-literal-string
-      // eslint-disable-next-line i18next/no-literal-string
       console.info(`Redirecting to ${newPath} (${nextJsAdjustedPath})`)
       router.replace(nextJsAdjustedPath, undefined, {
         shallow: true,

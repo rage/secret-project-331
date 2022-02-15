@@ -639,6 +639,7 @@ pub struct NewCourse {
     pub language_code: String,
     pub teacher_in_charge_name: String,
     pub teacher_in_charge_email: String,
+    pub description: String,
 }
 
 pub async fn insert_course(
@@ -887,7 +888,7 @@ mod test {
             course_language_group_id,
             "course",
             "en-US",
-            "",
+            "description",
         )
         .await;
         assert!(course_id.is_ok());
@@ -902,7 +903,7 @@ mod test {
             course_language_group_id,
             "course",
             "",
-            "",
+            "description",
         )
         .await;
         assert!(course_id.is_err());
@@ -917,7 +918,7 @@ mod test {
             course_language_group_id,
             "course",
             "en-us",
-            "",
+            "description",
         )
         .await;
         assert!(course_id.is_err());
@@ -932,7 +933,7 @@ mod test {
             course_language_group_id,
             "course",
             "en_US",
-            "",
+            "description",
         )
         .await;
         assert!(course_id.is_err());
@@ -949,7 +950,7 @@ mod test {
             tx.as_mut(),
             "",
             "",
-            "",
+            "description",
             Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
         )
         .await
@@ -968,6 +969,7 @@ mod test {
                 slug: "course".to_string(),
                 teacher_in_charge_name: "admin".to_string(),
                 teacher_in_charge_email: "admin@example.org".to_string(),
+                description: "description".to_string(),
             },
             user_id,
         )
@@ -1042,6 +1044,7 @@ mod test {
                 slug: "kurssi".to_string(),
                 teacher_in_charge_name: "admin".to_string(),
                 teacher_in_charge_email: "admin@example.org".to_string(),
+                description: "description".to_string(),
             },
         )
         .await

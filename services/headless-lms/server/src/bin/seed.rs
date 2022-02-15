@@ -357,6 +357,7 @@ async fn main() -> Result<()> {
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "description".to_string(),
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance) = courses::insert_course(
         &mut conn,
@@ -400,6 +401,7 @@ async fn main() -> Result<()> {
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "description".to_string(),
     };
     let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
         courses::insert_course(
@@ -1203,6 +1205,7 @@ async fn seed_sample_course(
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "description".to_string(),
     };
     let (course, _front_page, default_instance) = courses::insert_course(
         conn,
@@ -2060,6 +2063,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "description".to_string(),
     };
     let (course, front_page, _default_instance) = courses::insert_course(
         conn,

@@ -18,12 +18,14 @@ test("latex-block renders", async ({ headless, page }) => {
   // Click text=Add course
   await page.click(`button:text("Create")`)
   // Click input[type="text"]
-  await page.click('input[type="text"]')
+  await page.click('input[type="radio"]')
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "Latex course")
+  await page.fill("text=Name", "Latex course")
 
-  await page.fill('input[id="teacher-in-charge-name"]', "teacher")
-  await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
+  await page.fill("text=Teacher in charge name", "teacher")
+  await page.fill("text=Teacher in charge email", "teacher@example.com")
+
+  await page.fill('textarea:below(:text("Description"))', "Course description")
 
   // Click text=Create course
   await page.click(`button:text("Create"):below(:text("Course language"))`)

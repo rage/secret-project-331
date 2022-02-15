@@ -381,7 +381,7 @@ pub async fn get_page_with_user_data_by_path(
         }
     }
 
-    return Err(ModelError::NotFound("Page not found".to_string()));
+    Err(ModelError::NotFound("Page not found".to_string()))
 }
 
 pub async fn try_to_find_redirected_page(

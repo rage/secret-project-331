@@ -745,6 +745,7 @@
 <span id="744">744</span>
 <span id="745">745</span>
 <span id="746">746</span>
+<span id="747">747</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -1132,7 +1133,8 @@
         <span class="ident">CoursePageWithUserData</span> {
             <span class="ident">page</span>: <span class="ident">page</span>.<span class="ident">clone</span>(),
             <span class="ident">instance</span>: <span class="prelude-val">Some</span>(<span class="ident">course_instance</span>.<span class="ident">clone</span>()),
-            <span class="ident">settings</span>: <span class="prelude-val">Some</span>(<span class="ident">user_course_settings</span>.<span class="ident">clone</span>())
+            <span class="ident">settings</span>: <span class="prelude-val">Some</span>(<span class="ident">user_course_settings</span>.<span class="ident">clone</span>()),
+            <span class="ident">was_redirected</span>: <span class="bool-val">false</span>
         }
     );
     <span class="macro">write_docs!</span>(<span class="ident">CourseInstance</span>, <span class="ident">course_instance</span>.<span class="ident">clone</span>());

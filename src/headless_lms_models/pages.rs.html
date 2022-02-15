@@ -1881,6 +1881,69 @@
 <span id="1880">1880</span>
 <span id="1881">1881</span>
 <span id="1882">1882</span>
+<span id="1883">1883</span>
+<span id="1884">1884</span>
+<span id="1885">1885</span>
+<span id="1886">1886</span>
+<span id="1887">1887</span>
+<span id="1888">1888</span>
+<span id="1889">1889</span>
+<span id="1890">1890</span>
+<span id="1891">1891</span>
+<span id="1892">1892</span>
+<span id="1893">1893</span>
+<span id="1894">1894</span>
+<span id="1895">1895</span>
+<span id="1896">1896</span>
+<span id="1897">1897</span>
+<span id="1898">1898</span>
+<span id="1899">1899</span>
+<span id="1900">1900</span>
+<span id="1901">1901</span>
+<span id="1902">1902</span>
+<span id="1903">1903</span>
+<span id="1904">1904</span>
+<span id="1905">1905</span>
+<span id="1906">1906</span>
+<span id="1907">1907</span>
+<span id="1908">1908</span>
+<span id="1909">1909</span>
+<span id="1910">1910</span>
+<span id="1911">1911</span>
+<span id="1912">1912</span>
+<span id="1913">1913</span>
+<span id="1914">1914</span>
+<span id="1915">1915</span>
+<span id="1916">1916</span>
+<span id="1917">1917</span>
+<span id="1918">1918</span>
+<span id="1919">1919</span>
+<span id="1920">1920</span>
+<span id="1921">1921</span>
+<span id="1922">1922</span>
+<span id="1923">1923</span>
+<span id="1924">1924</span>
+<span id="1925">1925</span>
+<span id="1926">1926</span>
+<span id="1927">1927</span>
+<span id="1928">1928</span>
+<span id="1929">1929</span>
+<span id="1930">1930</span>
+<span id="1931">1931</span>
+<span id="1932">1932</span>
+<span id="1933">1933</span>
+<span id="1934">1934</span>
+<span id="1935">1935</span>
+<span id="1936">1936</span>
+<span id="1937">1937</span>
+<span id="1938">1938</span>
+<span id="1939">1939</span>
+<span id="1940">1940</span>
+<span id="1941">1941</span>
+<span id="1942">1942</span>
+<span id="1943">1943</span>
+<span id="1944">1944</span>
+<span id="1945">1945</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -1896,7 +1959,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">ChapterStatus</span>, <span class="ident">DatabaseChapter</span>},
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>},
-    <span class="ident">courses::Course</span>,
+    <span class="ident">courses</span>::{<span class="ident">get_nondeleted_course_id_by_slug</span>, <span class="ident">Course</span>},
     <span class="ident">exercise_service_info</span>,
     <span class="ident">exercise_services</span>::{<span class="ident">get_internal_public_spec_url</span>, <span class="ident">get_model_solution_url</span>},
     <span class="ident">exercise_slides::ExerciseSlide</span>,
@@ -1935,6 +1998,8 @@
     <span class="kw">pub</span> <span class="ident">page</span>: <span class="ident">Page</span>,
     <span class="kw">pub</span> <span class="ident">instance</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">settings</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserCourseSettings</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// If true, the frontend needs to update the url in the browser to match the path in the page object without reloading the page.</span>
+    <span class="kw">pub</span> <span class="ident">was_redirected</span>: <span class="ident">bool</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -2207,9 +2272,9 @@ WHERE id = $1;
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_by_path</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_slug</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">url_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Page</span>,
         <span class="string">&quot;
@@ -2226,16 +2291,14 @@ SELECT pages.id,
   pages.order_number,
   pages.copied_from
 FROM pages
-  JOIN courses ON (pages.course_id = courses.id)
-WHERE courses.slug = $1
+WHERE pages.course_id = $1
   AND url_path = $2
-  AND courses.deleted_at IS NULL
   AND pages.deleted_at IS NULL;
         &quot;</span>,
-        <span class="ident">course_slug</span>,
+        <span class="ident">course_id</span>,
         <span class="ident">url_path</span>
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">page</span>)
 }
@@ -2246,7 +2309,68 @@ WHERE courses.slug = $1
     <span class="ident">course_slug</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">url_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CoursePageWithUserData</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">get_page_by_path</span>(<span class="ident">conn</span>, <span class="ident">course_slug</span>, <span class="ident">url_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">get_nondeleted_course_id_by_slug</span>(<span class="ident">conn</span>, <span class="ident">course_slug</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">page_option</span> <span class="op">=</span> <span class="ident">get_page_by_path</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>, <span class="ident">url_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">page</span>) <span class="op">=</span> <span class="ident">page_option</span> {
+        <span class="kw">return</span> <span class="ident">get_course_page_with_user_data_from_selected_page</span>(<span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">page</span>, <span class="bool-val">false</span>).<span class="kw">await</span>;
+    } <span class="kw">else</span> {
+        <span class="kw">let</span> <span class="ident">potential_redirect</span> <span class="op">=</span> <span class="ident">try_to_find_redirected_page</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>, <span class="ident">url_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">redirected_page</span>) <span class="op">=</span> <span class="ident">potential_redirect</span> {
+            <span class="kw">return</span> <span class="ident">get_course_page_with_user_data_from_selected_page</span>(
+                <span class="ident">conn</span>,
+                <span class="ident">user_id</span>,
+                <span class="ident">redirected_page</span>,
+                <span class="bool-val">true</span>,
+            )
+            .<span class="kw">await</span>;
+        }
+    }
+
+    <span class="prelude-val">Err</span>(<span class="ident">ModelError::NotFound</span>(<span class="string">&quot;Page not found&quot;</span>.<span class="ident">to_string</span>()))
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_to_find_redirected_page</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">url_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">Page</span>,
+        <span class="string">&quot;
+SELECT pages.id,
+  pages.created_at,
+  pages.updated_at,
+  pages.course_id,
+  pages.exam_id,
+  pages.chapter_id,
+  pages.url_path,
+  pages.title,
+  pages.deleted_at,
+  pages.content,
+  pages.order_number,
+  pages.copied_from
+FROM url_redirections
+  JOIN pages on pages.id = url_redirections.destination_page_id
+WHERE url_redirections.course_id = $1
+  AND old_url_path = $2
+  AND url_redirections.deleted_at IS NULL
+  AND pages.deleted_at IS NULL;
+    &quot;</span>,
+        <span class="ident">course_id</span>,
+        <span class="ident">url_path</span>
+    )
+    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">page</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_page_with_user_data_from_selected_page</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">page</span>: <span class="ident">Page</span>,
+    <span class="ident">was_redirected</span>: <span class="ident">bool</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CoursePageWithUserData</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chapter_id</span>) <span class="op">=</span> <span class="ident">page</span>.<span class="ident">chapter_id</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">chapters::is_open</span>(<span class="ident">conn</span>, <span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::PreconditionFailed</span>(
@@ -2267,6 +2391,7 @@ WHERE courses.slug = $1
                 <span class="ident">page</span>,
                 <span class="ident">instance</span>,
                 <span class="ident">settings</span>,
+                <span class="ident">was_redirected</span>,
             });
         }
     }
@@ -2274,6 +2399,7 @@ WHERE courses.slug = $1
         <span class="ident">page</span>,
         <span class="ident">instance</span>: <span class="prelude-val">None</span>,
         <span class="ident">settings</span>: <span class="prelude-val">None</span>,
+        <span class="ident">was_redirected</span>,
     })
 }
 

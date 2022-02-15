@@ -2596,6 +2596,17 @@
 <span id="2595">2595</span>
 <span id="2596">2596</span>
 <span id="2597">2597</span>
+<span id="2598">2598</span>
+<span id="2599">2599</span>
+<span id="2600">2600</span>
+<span id="2601">2601</span>
+<span id="2602">2602</span>
+<span id="2603">2603</span>
+<span id="2604">2604</span>
+<span id="2605">2605</span>
+<span id="2606">2606</span>
+<span id="2607">2607</span>
+<span id="2608">2608</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -2631,7 +2642,7 @@
     <span class="ident">roles</span>::{<span class="self">self</span>, <span class="ident">RoleDomain</span>},
     <span class="ident">submissions</span>,
     <span class="ident">submissions::GradingResult</span>,
-    <span class="ident">user_exercise_states</span>, <span class="ident">users</span>,
+    <span class="ident">url_redirections</span>, <span class="ident">user_exercise_states</span>, <span class="ident">users</span>,
 };
 <span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{<span class="ident">attributes</span>, <span class="ident">document_schema_processor::GutenbergBlock</span>};
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -2883,6 +2894,17 @@
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;a2002fc3-2c87-4aae-a5e5-9d14617aad2b&quot;</span>)<span class="question-mark">?</span>,
         <span class="string">&quot;Permission management&quot;</span>,
         <span class="string">&quot;permission-management&quot;</span>,
+        <span class="ident">admin</span>,
+        <span class="ident">student</span>,
+        <span class="kw-2">&amp;</span><span class="ident">users</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">seed_sample_course</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">uh_cs</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;f9579c00-d0bb-402b-affd-7db330dcb11f&quot;</span>)<span class="question-mark">?</span>,
+        <span class="string">&quot;Redirections&quot;</span>,
+        <span class="string">&quot;redirections&quot;</span>,
         <span class="ident">admin</span>,
         <span class="ident">student</span>,
         <span class="kw-2">&amp;</span><span class="ident">users</span>,
@@ -3987,7 +4009,7 @@
             <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;c3f257c0-bdc2-4d81-99ff-a71c76fe670a&quot;</span>),
             <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;fca5a8ba-50e0-4375-8d4b-9d02762d908c&quot;</span>),
         );
-    <span class="ident">create_page</span>(
+    <span class="kw">let</span> <span class="ident">page2_id</span> <span class="op">=</span> <span class="ident">create_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">admin</span>,
@@ -4011,6 +4033,8 @@
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">url_redirections::insert</span>(<span class="ident">conn</span>, <span class="ident">page2_id</span>, <span class="string">&quot;/old-url&quot;</span>, <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> (
         <span class="ident">quizzes_exercise_block_1</span>,
@@ -4646,8 +4670,6 @@
     <span class="ident">glossary::insert</span>(<span class="ident">conn</span>, <span class="string">&quot;HDD&quot;</span>, <span class="string">&quot;Hard disk drive. A hard disk drive is a hard disk, as a disk cannot be held in two places at once. The reason for this is that the user&#39;s disk is holding one of the keys required of running Windows.&quot;</span>,  <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">glossary::insert</span>(<span class="ident">conn</span>, <span class="string">&quot;SSD&quot;</span>, <span class="string">&quot;Solid-state drive. A solid-state drive is a hard drive that&#39;s a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \&quot;super drives,\&quot; and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren&#39;t built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if&quot;</span>,  <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">glossary::insert</span>(<span class="ident">conn</span>, <span class="string">&quot;KB&quot;</span>, <span class="string">&quot;Keyboard.&quot;</span>, <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="comment">// exams</span>
 
     <span class="prelude-val">Ok</span>(<span class="ident">course</span>.<span class="ident">id</span>)
 }

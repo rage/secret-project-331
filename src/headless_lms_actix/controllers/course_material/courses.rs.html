@@ -351,6 +351,9 @@
 <span id="350">350</span>
 <span id="351">351</span>
 <span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.</span>
 
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
@@ -386,6 +389,9 @@ GET `/api/v0/course-material/courses/:course_id` - Get course.
 
 <span class="doccomment">/**
 GET `/:course_slug/page-by-path/...` - Returns a course page by path
+
+If the page has moved and there&#39;s a redirection, this will still return the moved page but the field `was_redirected` will indicate that the redirection happened. The new path can be found in the page object. The frontend is supposed to update the url of the page to the new location without reloading the page.
+
 # Example
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 */</span>

@@ -114,6 +114,8 @@
 <span id="113">113</span>
 <span id="114">114</span>
 <span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::num::TryFromIntError</span>;
 
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
@@ -125,6 +127,8 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ModelError</span> {
     <span class="attribute">#[<span class="ident">error</span>(<span class="ident">transparent</span>)]</span>
     <span class="ident">RecordNotFound</span>(<span class="ident">sqlx::Error</span>),
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;{0}&quot;</span>)]</span>
+    <span class="ident">NotFound</span>(<span class="ident">String</span>),
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;{description}&quot;</span>)]</span>
     <span class="ident">DatabaseConstraint</span> {
         <span class="ident">constraint</span>: <span class="ident">String</span>,

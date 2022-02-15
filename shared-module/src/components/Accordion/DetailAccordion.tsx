@@ -1,4 +1,4 @@
-import { css, cx, keyframes } from "@emotion/css"
+import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
@@ -10,9 +10,9 @@ const openAnimation = keyframes`
 100% { opacity: 1; }
 `
 
-const slideDown = keyframes`
-from { opacity: 0; height: 0; padding: 0;}
-to { opacity: 1; height: 100%; padding: 10px;}
+const fadeIn = keyframes`
+from { opacity: 0;  }
+to { opacity: 1; }
 `
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -20,27 +20,32 @@ const TextWrapper = styled.div`
   padding: 0;
   margin: 0;
 
+  details {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+  }
+
   details[open] summary ~ * {
     animation: ${openAnimation} 0.3s ease-in-out;
     color: ${baseTheme.colors.grey[700]};
   }
 
   details[open] > div {
-    animation-name: ${slideDown};
+    animation-name: ${fadeIn};
     animation-duration: 0.3s;
     animation-fill-mode: forwards;
+    padding: 1rem 1rem 1rem 2rem;
   }
 
   details summary {
     padding: 1rem;
     position: relative;
     cursor: pointer;
-    font-size: 1.3rem;
     font-weight: medium;
     list-style: none;
     color: ${baseTheme.colors.grey[700]};
     outline: 0;
-    background: rgba(0, 0, 0, 0.1);
+    background: ${baseTheme.colors.clear[100]};
     ${respondToOrLarger.sm} {
       padding: 1rem 1rem 1rem 2rem;
     }
@@ -51,14 +56,14 @@ const TextWrapper = styled.div`
   }
 
   details[open] > summary {
-    color: #1c1c1c;
+    color: ${baseTheme.colors.grey[700]};
   }
 
   details summary:after {
     content: "+";
-    color: black;
     position: absolute;
     font-size: 2.4rem;
+    color: ${baseTheme.colors.grey[700]};
     line-height: 0;
     margin-top: 0.75rem;
     top: 14px;
@@ -93,9 +98,6 @@ const TextWrapper = styled.div`
     list-style: none;
   }
 `
-const border = css`
-  border: 1px solid rgba(0, 0, 0, 0.2);
-`
 
 const PLACEHOLDER_HEADING = "This is a heading:"
 const PLACEHOLDER_TEXT = `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown
@@ -107,11 +109,14 @@ publishing software like Aldus PageMaker including versions of Lorem Ipsum`
 
 export type AccordionProps = React.DetailsHTMLAttributes<HTMLDetailsElement>
 
-const DetailAccordion: React.FC<AccordionProps> = () => {
+const DetailAccordion: React.FC<AccordionProps> = (props) => {
+  if (props.children) {
+    return <TextWrapper>{props.children}</TextWrapper>
+  }
   return (
     <div>
       <TextWrapper>
-        <details className={cx(border)}>
+        <details>
           <summary>{PLACEHOLDER_HEADING}</summary>
           <ul>
             <li>{PLACEHOLDER_TEXT}</li>

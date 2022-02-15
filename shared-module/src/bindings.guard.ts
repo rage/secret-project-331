@@ -575,12 +575,15 @@ export function isFeedback(obj: any, _argumentName?: string): obj is Feedback {
     typeof obj.id === "string" &&
     (obj.user_id === null || typeof obj.user_id === "string") &&
     typeof obj.course_id === "string" &&
+    (obj.page_id === null || typeof obj.page_id === "string") &&
     typeof obj.feedback_given === "string" &&
     (obj.selected_text === null || typeof obj.selected_text === "string") &&
     typeof obj.marked_as_read === "boolean" &&
     obj.created_at instanceof Date &&
     Array.isArray(obj.blocks) &&
-    obj.blocks.every((e: any) => isFeedbackBlock(e) as boolean)
+    obj.blocks.every((e: any) => isFeedbackBlock(e) as boolean) &&
+    (obj.page_title === null || typeof obj.page_title === "string") &&
+    (obj.page_url_path === null || typeof obj.page_url_path === "string")
   )
 }
 
@@ -588,7 +591,8 @@ export function isFeedbackBlock(obj: any, _argumentName?: string): obj is Feedba
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
-    (obj.text === null || typeof obj.text === "string")
+    (obj.text === null || typeof obj.text === "string") &&
+    (obj.order_number === null || typeof obj.order_number === "number")
   )
 }
 
@@ -606,7 +610,8 @@ export function isNewFeedback(obj: any, _argumentName?: string): obj is NewFeedb
     typeof obj.feedback_given === "string" &&
     (obj.selected_text === null || typeof obj.selected_text === "string") &&
     Array.isArray(obj.related_blocks) &&
-    obj.related_blocks.every((e: any) => isFeedbackBlock(e) as boolean)
+    obj.related_blocks.every((e: any) => isFeedbackBlock(e) as boolean) &&
+    typeof obj.page_id === "string"
   )
 }
 
@@ -973,7 +978,9 @@ export function isPageProposal(obj: any, _argumentName?: string): obj is PagePro
     typeof obj.pending === "boolean" &&
     obj.created_at instanceof Date &&
     Array.isArray(obj.block_proposals) &&
-    obj.block_proposals.every((e: any) => isBlockProposal(e) as boolean)
+    obj.block_proposals.every((e: any) => isBlockProposal(e) as boolean) &&
+    typeof obj.page_title === "string" &&
+    typeof obj.page_url_path === "string"
   )
 }
 

@@ -9,20 +9,13 @@ import CloseIcon from "../../img/close.svg"
 import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
+import { NotificationWrapper } from "./Base"
+
 interface DeleteNotificationProps {
   header?: string
   message?: string
   toastId?: string
 }
-
-const Wrapper = styled.div`
-  ${respondToOrLarger.xs} {
-    width: 400px;
-    min-height: 100px;
-  }
-  width: 150px;
-  background: ${baseTheme.colors.clear[200]};
-`
 
 const Content = styled.div`
   padding: 1rem 1rem;
@@ -97,7 +90,7 @@ const DeleteMessage = styled.div`
 const DeleteNotification = (props: DeleteNotificationProps) => {
   const { t } = useTranslation()
   return (
-    <Wrapper className="toast-notification">
+    <NotificationWrapper className="toast-notification">
       <Content>
         <IconWrapper>
           <FontAwesomeIcon
@@ -117,7 +110,7 @@ const DeleteNotification = (props: DeleteNotificationProps) => {
           </CloseIconWrapper>
         )}
       </Content>
-    </Wrapper>
+    </NotificationWrapper>
   )
 }
 

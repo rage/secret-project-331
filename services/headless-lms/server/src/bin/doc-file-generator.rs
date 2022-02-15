@@ -590,7 +590,14 @@ fn main() {
             selected_text: None,
             marked_as_read: false,
             created_at: date_time,
-            blocks: vec![FeedbackBlock { id, text: None }]
+            blocks: vec![FeedbackBlock {
+                id,
+                text: None,
+                order_number: Some(0)
+            }],
+            page_id: Some(Uuid::parse_str("bba0eda6-882b-4a0f-ad91-b02de1de4770").unwrap()),
+            page_title: Some("The title of the page".to_string()),
+            page_url_path: Some("/path-to-page".to_string())
         }]
     );
     write_docs!(FeedbackCount, FeedbackCount { read: 1, unread: 2 });
@@ -659,7 +666,9 @@ fn main() {
                 changed_text: "Hello, world!".to_string(),
                 status: ProposalStatus::Accepted,
                 accept_preview: Some("Hello, world!!".to_string())
-            }]
+            }],
+            page_title: "Page title".to_string(),
+            page_url_path: "/path/to/page".to_string()
         }]
     );
     write_docs!(

@@ -256,7 +256,7 @@ async function replaceIds(page: Page): Promise<void> {
     const divs = document.querySelectorAll("div")
     for (const div of divs) {
       if (div.children.length === 0 && div.textContent.includes("Sent by")) {
-        div.innerHTML = "Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx at yyyy-mm-ddThh:mm:ss.xxxZ"
+        div.innerHTML = "Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx at yyyy-mm-ddThh:mm:ss.xxxZ"
       }
     }
   })

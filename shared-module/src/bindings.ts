@@ -316,16 +316,20 @@ export interface Feedback {
   id: string
   user_id: string | null
   course_id: string
+  page_id: string | null
   feedback_given: string
   selected_text: string | null
   marked_as_read: boolean
   created_at: Date
   blocks: Array<FeedbackBlock>
+  page_title: string | null
+  page_url_path: string | null
 }
 
 export interface FeedbackBlock {
   id: string
   text: string | null
+  order_number: number | null
 }
 
 export interface FeedbackCount {
@@ -337,6 +341,7 @@ export interface NewFeedback {
   feedback_given: string
   selected_text: string | null
   related_blocks: Array<FeedbackBlock>
+  page_id: string
 }
 
 export interface Grading {
@@ -577,6 +582,8 @@ export interface PageProposal {
   pending: boolean
   created_at: Date
   block_proposals: Array<BlockProposal>
+  page_title: string
+  page_url_path: string
 }
 
 export interface ProposalCount {

@@ -545,24 +545,28 @@ impl CmsPageUpdate {
                 }
             })
             .collect::<ModelResult<HashMap<Uuid, bool>>>()?;
-        if exercise_ids.values().any(|x| !x) {
-            return Err(ModelError::PreconditionFailed(
-                "All exercises must have at least one slide.".to_string(),
-            ));
+
+        if let Some((exercise_id, _)) = exercise_ids.into_iter().find(|(_, x)| !x) {
+            return Err(ModelError::PreconditionFailedWithCMSAnchorBlockId {
+                id: exercise_id,
+                description: "Exercise must have at least one slide.",
+            });
         }
+
         for task in self.exercise_tasks.iter() {
             if let hash_map::Entry::Occupied(mut e) = slide_ids.entry(task.exercise_slide_id) {
                 e.insert(true);
             } else {
                 return Err(ModelError::PreconditionFailed(
-                    "Exercide slide ids in tasks don't match.".to_string(),
+                    "Exercise slide ids in tasks don't match.".to_string(),
                 ));
             }
         }
-        if slide_ids.values().any(|x| !x) {
-            return Err(ModelError::PreconditionFailed(
-                "All exercise slides must have at least one task.".to_string(),
-            ));
+        if let Some((slide_id, _)) = slide_ids.into_iter().find(|(_, x)| !x) {
+            return Err(ModelError::PreconditionFailedWithCMSAnchorBlockId {
+                id: slide_id,
+                description: "Exercise slide must have at least one task.",
+            });
         }
         Ok(())
     }
@@ -908,6 +912,7 @@ async fn upsert_exercise_tasks(
             existing_exercise_task
                 .map(|value| value.model_solution_spec.clone())
                 .flatten(),
+            task_update.id,
         )
         .await?;
         let public_spec: Option<serde_json::Value> = fetch_derived_spec(
@@ -918,6 +923,7 @@ async fn upsert_exercise_tasks(
             existing_exercise_task
                 .map(|value| value.public_spec.clone())
                 .flatten(),
+            task_update.id,
         )
         .await?;
         let safe_for_db_exercise_slide_id = remapped_slides
@@ -1006,6 +1012,7 @@ async fn fetch_derived_spec(
     urls_by_exercise_type: &HashMap<&String, Url>,
     client: &reqwest::Client,
     previous_spec: Option<serde_json::Value>,
+    cms_block_id: Uuid,
 ) -> Result<Option<serde_json::Value>, ModelError> {
     let result_spec: Option<serde_json::Value> = match existing_exercise_task {
         Some(exercise_task) if exercise_task.private_spec == task_update.private_spec => {
@@ -1015,8 +1022,9 @@ async fn fetch_derived_spec(
         _ => {
             let url = urls_by_exercise_type
                 .get(&task_update.exercise_type)
-                .ok_or_else(|| {
-                    ModelError::PreconditionFailed("Missing info for exercise type.".to_string())
+                .ok_or(ModelError::PreconditionFailedWithCMSAnchorBlockId {
+                    id: cms_block_id,
+                    description: "Missing exercise type for exercise task.",
                 })?
                 .clone();
             let res = client
@@ -1391,7 +1399,8 @@ WHERE p.order_number = (
       AND pa.deleted_at IS NULL
   )
   AND p.course_id = $2
-  AND c.chapter_number = $3;
+  AND c.chapter_number = $3
+  AND p.deleted_at IS NULL;
         ",
         current_page_metadata.order_number,
         current_page_metadata.course_id,
@@ -1425,6 +1434,7 @@ WHERE c.chapter_number = (
       AND ca.deleted_at IS NULL
   )
   AND c.course_id = $2
+  AND p.deleted_at IS NULL
 ORDER BY p.order_number
 LIMIT 1;
         ",

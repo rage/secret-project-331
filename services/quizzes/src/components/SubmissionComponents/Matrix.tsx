@@ -33,12 +33,9 @@ interface isCellCorrectObject {
 }
 
 const MatrixSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
-  public_quiz_item,
   quiz_item_model_solution,
   user_quiz_item_answer,
 }) => {
-  console.log(public_quiz_item, user_quiz_item_answer, quiz_item_model_solution)
-
   const correctAnswers = quiz_item_model_solution?.optionCells
   const studentAnswers = user_quiz_item_answer.optionCells
 

@@ -20,7 +20,7 @@ use headless_lms_models::{
     exercises::GradingProgress,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
-    gradings, organizations,
+    glossary, gradings, organizations,
     page_history::HistoryChangeReason,
     pages,
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage},
@@ -29,8 +29,8 @@ use headless_lms_models::{
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
-    roles,
     roles::UserRole,
+    roles::{self, RoleDomain},
     submissions,
     submissions::GradingResult,
     user_exercise_states, users,
@@ -105,24 +105,32 @@ async fn main() -> Result<()> {
     let admin = users::insert_with_id(
         &mut conn,
         "admin@example.com",
+        Some("Admin"),
+        Some("Example"),
         Uuid::parse_str("02c79854-da22-4cfc-95c4-13038af25d2e")?,
     )
     .await?;
     let teacher = users::insert_with_id(
         &mut conn,
         "teacher@example.com",
+        Some("Teacher"),
+        Some("Example"),
         Uuid::parse_str("90643204-7656-4570-bdd9-aad5d297f9ce")?,
     )
     .await?;
     let language_teacher = users::insert_with_id(
         &mut conn,
         "language.teacher@example.com",
+        Some("Language"),
+        Some("Example"),
         Uuid::parse_str("0fd8bd2d-cb4e-4035-b7db-89e798fe4df0")?,
     )
     .await?;
     let assistant = users::insert_with_id(
         &mut conn,
         "assistant@example.com",
+        Some("Assistant"),
+        Some("Example"),
         Uuid::parse_str("24342539-f1ba-453e-ae13-14aa418db921")?,
     )
     .await?;
@@ -130,6 +138,8 @@ async fn main() -> Result<()> {
     let student = users::insert_with_id(
         &mut conn,
         "user@example.com",
+        Some("User"),
+        Some("Example"),
         Uuid::parse_str("849b8d32-d5f8-4994-9d21-5aa6259585b1")?,
     )
     .await?;
@@ -138,24 +148,32 @@ async fn main() -> Result<()> {
         users::insert_with_id(
             &mut conn,
             "user_1@example.com",
+            Some("User1"),
+            None,
             Uuid::parse_str("00e249d8-345f-4eff-aedb-7bdc4c44c1d5")?,
         )
         .await?,
         users::insert_with_id(
             &mut conn,
             "user_2@example.com",
+            Some("User2"),
+            None,
             Uuid::parse_str("8d7d6c8c-4c31-48ae-8e20-c68fa95c25cc")?,
         )
         .await?,
         users::insert_with_id(
             &mut conn,
             "user_3@example.com",
+            Some("User3"),
+            None,
             Uuid::parse_str("fbeb9286-3dd8-4896-a6b8-3faffa3fabd6")?,
         )
         .await?,
         users::insert_with_id(
             &mut conn,
             "user_4@example.com",
+            Some("User4"),
+            None,
             Uuid::parse_str("3524d694-7fa8-4e73-aa1a-de9a20fd514b")?,
         )
         .await?,
@@ -250,12 +268,33 @@ async fn main() -> Result<()> {
         &users,
     )
     .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,
+        "Glossary course",
+        "glossary-course",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("a2002fc3-2c87-4aae-a5e5-9d14617aad2b")?,
+        "Permission management",
+        "permission-management",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
     roles::insert(
         &mut conn,
         language_teacher,
-        None,
-        Some(introduction_to_localizing),
         UserRole::Teacher,
+        RoleDomain::Course(introduction_to_localizing),
     )
     .await?;
 
@@ -390,14 +429,26 @@ async fn main() -> Result<()> {
 
     // roles
     info!("roles");
-    roles::insert(&mut conn, admin, None, None, UserRole::Admin).await?;
-    roles::insert(&mut conn, teacher, Some(uh_cs), None, UserRole::Teacher).await?;
+    roles::insert(&mut conn, admin, UserRole::Admin, RoleDomain::Global).await?;
+    roles::insert(
+        &mut conn,
+        teacher,
+        UserRole::Teacher,
+        RoleDomain::Organization(uh_cs),
+    )
+    .await?;
     roles::insert(
         &mut conn,
         assistant,
-        Some(uh_cs),
-        Some(cs_intro),
         UserRole::Assistant,
+        RoleDomain::Organization(uh_cs),
+    )
+    .await?;
+    roles::insert(
+        &mut conn,
+        assistant,
+        UserRole::Assistant,
+        RoleDomain::Course(cs_intro),
     )
     .await?;
 
@@ -1265,7 +1316,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-1".to_string(),
             title: "Page One".to_string(),
@@ -1339,7 +1390,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-2".to_string(),
             title: "page 2".to_string(),
@@ -1476,11 +1527,186 @@ async fn seed_sample_course(
             "awardPointsEvenIfWrong": false}),
     );
 
+    let (
+        quizzes_exercise_block_3,
+        quizzes_exercise_3,
+        quizzes_exercise_slide_3,
+        quizzes_exercise_task_3,
+    ) = quizzes_exercise(
+        Uuid::new_v5(&course_id, b"9bcf634d-584c-4fef-892c-3c0e97dab1d5"),
+        Uuid::new_v5(&course_id, b"984457f6-bc9b-4604-b54c-80fb4adfab76"),
+        Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
+        Uuid::new_v5(&course_id, b"52939561-af36-4ab6-bffa-be97e94d3314"),
+        Uuid::new_v5(&course_id, b"8845b17e-2320-4384-97f8-24e42457cb5e"),
+        serde_json::json!({
+            "id": "f1f0520e-3037-409c-b52d-163ad0bc5c59",
+            "body": "very hard",
+            "open": "2021-12-17T07:15:33.479Z",
+            "part": 0,
+            "items": [{
+                "id": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                "body": "",
+                "type": "multiple-choice-dropdown",
+                "multi": false,
+                "order": 0,
+                "title": "Choose the right answer from given options.",
+                "quizId": "f1f0520e-3037-409c-b52d-163ad0bc5c59",
+                "options": [{
+                    "id": "86a2d838-04aa-4b1c-8115-2c15ed19e7b3",
+                    "body": "The right answer",
+                    "order": 1,
+                    "title": null,
+                    "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                    "correct":true,
+                    "failureMessage": null,
+                    "successMessage": "You chose wisely...".to_string()
+                },
+                {
+                    "id": "fef8cd36-04ab-48f2-861c-51769ccad52f",
+                    "body": "The Wright answer",
+                    "order": 2,
+                    "title": null,
+                    "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                    "correct":false,
+                    "failureMessage": "You chose poorly...".to_string(),
+                    "successMessage": null
+                }],
+                "maxValue": null,
+                "maxWords": null,
+                "minValue": null,
+                "minWords": null,
+                "createdAt": "2021-12-17T07:16:23.202Z",
+                "direction": "row",
+                "updatedAt": "2021-12-17T07:16:23.202Z",
+                "formatRegex": null,
+                "validityRegex": null,
+                "failureMessage": null,
+                "successMessage": null,
+                "allAnswersCorrect": false,
+                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
+                "sharedOptionFeedbackMessage": null,
+                "usesSharedOptionFeedbackMessage": false
+            }],
+            "title": "Pretty good exercise",
+            "tries": 1,
+            "points": 2,
+            "section": 0,
+            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+            "deadline": "2021-12-17T07:15:33.479Z",
+            "createdAt": "2021-12-17T07:15:33.479Z",
+            "updatedAt": "2021-12-17T07:15:33.479Z",
+            "autoReject": false,
+            "autoConfirm": true,
+            "triesLimited": true,
+            "submitMessage": "your submit has been answered",
+            "excludedFromScore": true,
+            "grantPointsPolicy": "grant_whenever_possible",
+            "awardPointsEvenIfWrong": false}),
+    );
+
+    let (
+        quizzes_exercise_block_4,
+        quizzes_exercise_4,
+        quizzes_exercise_slide_4,
+        quizzes_exercise_task_4,
+    ) = quizzes_exercise(
+        Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
+        Uuid::new_v5(&course_id, b"6a8e65be-f5cd-4c87-b4f9-9522cb37bbcb"),
+        Uuid::new_v5(&course_id, b"b5e1e7e87-0678-4296-acf7-a8ac926ff94b"),
+        Uuid::new_v5(&course_id, b"50e26d7f-f11f-4a8a-990d-fb17c3371d1d"),
+        Uuid::new_v5(&course_id, b"7ca39a36-2dcd-4521-bbf6-bfc5849874e3"),
+        serde_json::json!({
+            "id": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
+            "body": "very hard",
+            "open": "2021-12-17T07:15:33.479Z",
+            "part": 0,
+            "items": [{
+                "id": "d30bec57-4011-4ac4-b676-79fe766d6424",
+                "body": null,
+                "type": "clickable-multiple-choice",
+                "multi": false,
+                "order": 0,
+                "title": "Pick all the programming languages from below",
+                "quizId": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
+                "options": [
+                    {
+                        "id": "55a63887-a896-425c-91ae-2f85032c3d58",
+                        "body": "Java",
+                        "order": 1,
+                        "title": null,
+                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                        "correct":true,
+                        "failureMessage": null,
+                        "successMessage": "Java is a programming language".to_string()
+                    },
+                    {
+                        "id": "534bf512-014e-47b6-a67b-8bea6dc65177",
+                        "body": "Erlang",
+                        "order": 2,
+                        "title": null,
+                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                        "correct":true,
+                        "failureMessage": null,
+                        "successMessage": "Erlang is a programming language".to_string()
+                    },
+                    {
+                        "id": "ea4e0bb4-f84e-4048-be2f-f819a391396f",
+                        "body": "Jupiter",
+                        "order": 3,
+                        "title": null,
+                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                        "correct":false,
+                        "failureMessage": "Jupiter is not a programming language".to_string(),
+                        "successMessage": null
+                    },
+                    {
+                        "id": "b851f1b3-ae90-46bd-8f10-fd6d968695ef",
+                        "body": "Rust",
+                        "order": 4,
+                        "title": null,
+                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                        "correct":true,
+                        "failureMessage": null,
+                        "successMessage": "Rust is a programming language".to_string()
+                    },
+                    {
+                        "id": "8107ae39-96aa-4f54-aa78-1a33362a19c1",
+                        "body": "AC",
+                        "order": 5,
+                        "title": null,
+                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
+                        "correct":false,
+                        "failureMessage": "AC is not a programming language".to_string(),
+                        "successMessage": null
+                    },
+                ],
+                "allAnswersCorrect": false,
+                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
+                "sharedOptionFeedbackMessage": null,
+                "usesSharedOptionFeedbackMessage": false
+            }],
+            "title": "Pretty good exercise",
+            "tries": 1,
+            "points": 2,
+            "section": 0,
+            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+            "deadline": "2021-12-17T07:15:33.479Z",
+            "createdAt": "2021-12-17T07:15:33.479Z",
+            "updatedAt": "2021-12-17T07:15:33.479Z",
+            "autoReject": false,
+            "autoConfirm": true,
+            "triesLimited": true,
+            "submitMessage": "your submit has been answered",
+            "excludedFromScore": true,
+            "grantPointsPolicy": "grant_whenever_possible",
+            "awardPointsEvenIfWrong": false}),
+    );
+
     create_page(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-3".to_string(),
             title: "page 3".to_string(),
@@ -1503,7 +1729,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_1.id,
+        Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-4".to_string(),
             title: "page 4".to_string(),
@@ -1517,6 +1743,52 @@ async fn seed_sample_course(
                     Uuid::new_v5(&course_id, b"771b9c61-dbc9-4266-a980-dadc853455c9")
                 ),
                 quizzes_exercise_block_2
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-5".to_string(),
+            title: "Page 5".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_3],
+            exercise_slides: vec![quizzes_exercise_slide_3],
+            exercise_tasks: vec![quizzes_exercise_task_3],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters multiple-choice-dropdown page",
+                    Uuid::new_v5(&course_id, b"7af470e7-cc4f-411e-ad5d-c137e353f7c3")
+                ),
+                quizzes_exercise_block_3
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-6".to_string(),
+            title: "page 6".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_4],
+            exercise_slides: vec![quizzes_exercise_slide_4],
+            exercise_tasks: vec![quizzes_exercise_task_4],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters multiple-choice clickable page.",
+                    Uuid::new_v5(&course_id, b"6b7775c3-b46e-41e5-a730-0a2c2f0ba148")
+                ),
+                quizzes_exercise_block_4
             ]),
         },
     )
@@ -1542,7 +1814,7 @@ async fn seed_sample_course(
         conn,
         course.id,
         admin,
-        chapter_2.id,
+        Some(chapter_2.id),
         CmsPageUpdate {
             url_path: "/chapter-2/intro".to_string(),
             title: "In the second chapter...".to_string(),
@@ -1551,6 +1823,28 @@ async fn seed_sample_course(
             exercise_slides: vec![exercise_slide_3_1],
             exercise_tasks: vec![exercise_task_3_1],
             content: serde_json::json!([exercise_block_3_1]),
+        },
+    )
+    .await?;
+    create_page(
+        conn,
+        course.id,
+        admin,
+        None,
+        CmsPageUpdate {
+            url_path: "/glossary".to_string(),
+            title: "Glossary".to_string(),
+            chapter_id: None,
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: serde_json::json!([GutenbergBlock {
+                name: "moocfi/glossary".to_string(),
+                is_valid: true,
+                client_id: Uuid::parse_str("3a388f47-4aa7-409f-af14-a0290b916225").unwrap(),
+                attributes: attributes! {},
+                inner_blocks: vec![]
+            }]),
         },
     )
     .await?;
@@ -1746,6 +2040,12 @@ async fn seed_sample_course(
     };
     proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
 
+    // acronyms
+    glossary::insert(conn, "CS", "Computer science. Computer science is an essential part of being successful in your life. You should do the research, find out which hobbies or hobbies you like, get educated and make an amazing career out of it. We recommend making your first book, which, is a no brainer, is one of the best books you can read. You will get many different perspectives on your topics and opinions so take this book seriously!",  course.id).await?;
+    glossary::insert(conn, "HDD", "Hard disk drive. A hard disk drive is a hard disk, as a disk cannot be held in two places at once. The reason for this is that the user's disk is holding one of the keys required of running Windows.",  course.id).await?;
+    glossary::insert(conn, "SSD", "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",  course.id).await?;
+    glossary::insert(conn, "KB", "Keyboard.", course.id).await?;
+
     // exams
 
     Ok(course.id)
@@ -1877,7 +2177,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             .with_id(Uuid::parse_str("3693e92b-9cf0-485a-b026-2851de58e9cf")?),
         ]),
     };
-    create_page(conn, course.id, admin, chapter_1.id, design_content).await?;
+    create_page(conn, course.id, admin, Some(chapter_1.id), design_content).await?;
 
     // /chapter-1/human-machine-interface
     let content_b = CmsPageUpdate {
@@ -1916,7 +2216,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
         ]),
     };
-    create_page(conn, course.id, admin, chapter_1.id, content_b).await?;
+    create_page(conn, course.id, admin, Some(chapter_1.id), content_b).await?;
 
     // Chapter-2
     let new_chapter_2 = NewChapter {
@@ -1993,7 +2293,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         url_path: "/chapter-2/user-research".to_string(),
         title: "User research".to_string(),
     };
-    create_page(conn, course.id, admin, chapter_2.id, page_content).await?;
+    create_page(conn, course.id, admin, Some(chapter_2.id), page_content).await?;
 
     let page_content = include_str!("../assets/example-page.json");
     let parse_page_content = serde_json::from_str(page_content)?;
@@ -2001,7 +2301,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         conn,
         course.id,
         admin,
-        chapter_2.id,
+        Some(chapter_2.id),
         CmsPageUpdate {
             content: parse_page_content,
             exercises: vec![],
@@ -2021,7 +2321,7 @@ async fn create_page(
     conn: &mut PgConnection,
     course_id: Uuid,
     author: Uuid,
-    chapter_id: Uuid,
+    chapter_id: Option<Uuid>,
     page_data: CmsPageUpdate,
 ) -> Result<Uuid> {
     let new_page = NewPage {
@@ -2030,7 +2330,7 @@ async fn create_page(
         title: format!("{} WIP", page_data.title),
         course_id: Some(course_id),
         exam_id: None,
-        chapter_id: Some(chapter_id),
+        chapter_id,
         front_page_of_chapter_id: None,
         exercises: vec![],
         exercise_slides: vec![],
@@ -2048,7 +2348,7 @@ async fn create_page(
             exercise_tasks: page_data.exercise_tasks,
             url_path: page_data.url_path,
             title: page_data.title,
-            chapter_id: Some(chapter_id),
+            chapter_id,
         },
         author,
         true,

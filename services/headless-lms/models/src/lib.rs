@@ -17,6 +17,7 @@ pub mod exercise_slides;
 pub mod exercise_tasks;
 pub mod exercises;
 pub mod feedback;
+pub mod glossary;
 pub mod gradings;
 pub mod organizations;
 pub mod page_history;

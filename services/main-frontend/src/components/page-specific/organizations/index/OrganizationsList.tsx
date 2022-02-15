@@ -8,7 +8,6 @@ import DebugModal from "../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import UHNoBG from "../../../../shared-module/img/uh_without_background.svg"
-import { wideWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import { organizationCoursesPageHref } from "../../../../shared-module/utils/cross-routing"
 
@@ -22,16 +21,15 @@ const OrganizationsList: React.FC = () => {
     <div
       className={css`
         margin: 1em 0;
-        ${wideWidthCenteredComponentStyles}
       `}
     >
       <h1
         className={css`
           text-align: center;
           font-weight: 600;
-          font-size: 3em;
-          margin: 2em 0em;
-          color: #656565;
+          font-size: 4em;
+          margin: 2em 0em 1em 0em;
+          color: #333;
         `}
       >
         {t("organizations-heading")}
@@ -62,28 +60,30 @@ const OrganizationsList: React.FC = () => {
                   flex-direction: column;
                   display: flex;
                   align-items: center;
-                  background-color: rgb(216, 216, 216, 0.7);
+                  background-color: #f5f6f7;
                   margin-bottom: 1em;
+                  height: 15rem;
                   &:hover {
                     cursor: pointer;
-                    background-color: rgb(216, 216, 216);
+                    background-color: #ebedee;
                   }
                   ${respondToOrLarger.lg} {
                     flex-direction: row;
-                    max-height: 15rem;
+                    max-height: 20rem;
                   }
                 `}
               >
                 <div
                   className={css`
-                    background: #b5b5b5;
+                    background: #1a2333;
                     display: flex;
                     align-items: center;
                     width: 100%;
+                    height: auto;
                     padding: 1em 1em;
                     ${respondToOrLarger.lg} {
                       width: 20%;
-                      height: 10rem;
+                      height: 100%;
                     }
                   `}
                 >
@@ -110,18 +110,28 @@ const OrganizationsList: React.FC = () => {
                   className={css`
                     width: 80%;
                     margin: 1em;
+                    padding: 0.5rem 1rem;
                   `}
                 >
                   <h2
                     className={css`
-                      color: #656565;
+                      color: #333;
                       font-weight: 600;
-                      font-size: 1.5em;
+                      font-size: 1.8em;
+                      text-transform: uppercase;
                     `}
                   >
                     {organization.name}
                   </h2>
-                  <span>{organization.description}</span>
+                  <span
+                    className={css`
+                      font-size: 20px;
+                      color: #333;
+                      opacity: 0.8;
+                    `}
+                  >
+                    {organization.description}
+                  </span>
                 </div>
               </div>
             </a>

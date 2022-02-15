@@ -1,17 +1,15 @@
-import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
+import styled from "@emotion/styled"
+import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Box, Button, Fade, Modal } from "@material-ui/core"
+import { Box, Button, Fade, Modal } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
 import { deletedItem } from "../../../../store/editor/editorActions"
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
-import { editedQuizItemTitle } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import MarkdownEditor from "../../../MarkdownEditor"
 
 import MatrixModalContent from "./MatrixModalContent"
 import TableContent from "./TableContent"
@@ -30,10 +28,6 @@ const QuizContentLineContainer = styled.div`
   @media only screen and (max-width: 600px) {
     flex-wrap: wrap;
   }
-`
-const EditButtonWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end !important;
 `
 
 const StyledModal = styled(Modal)`
@@ -69,23 +63,15 @@ interface MatrixContentProps {
 }
 
 const MatrixContent: React.FC<MatrixContentProps> = ({ item }) => {
-  const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
 
   const dispatch = useDispatch()
+  const { t } = useTranslation()
 
   return (
     <>
-      <EditButtonWrapper>
-        <Button
-          onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))}
-          title={t("edit-item")}
-        >
-          <FontAwesomeIcon icon={faPen} size="2x"></FontAwesomeIcon>
-        </Button>
-      </EditButtonWrapper>
       <StyledModal
         open={variables.advancedEditing}
         onClose={() => dispatch(setAdvancedEditing(storeItem.id, false))}
@@ -93,7 +79,10 @@ const MatrixContent: React.FC<MatrixContentProps> = ({ item }) => {
         <Fade in={variables.advancedEditing}>
           <AdvancedBox>
             <ModalButtonWrapper>
-              <CloseButton onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}>
+              <CloseButton
+                aria-label={t("close")}
+                onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}
+              >
                 <FontAwesomeIcon icon={faWindowClose} size="2x" />
               </CloseButton>
             </ModalButtonWrapper>
@@ -110,11 +99,6 @@ const MatrixContent: React.FC<MatrixContentProps> = ({ item }) => {
           </AdvancedBox>
         </Fade>
       </StyledModal>
-      <MarkdownEditor
-        label={t("title")}
-        onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
-        text={storeItem.title ?? ""}
-      />
       <QuizContentLineContainer>
         <QuizContent>
           <TableContent item={item}> </TableContent>{" "}

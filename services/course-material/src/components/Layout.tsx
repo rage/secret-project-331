@@ -1,20 +1,21 @@
 import { css } from "@emotion/css"
+import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode, useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../contexts/PageContext"
+import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
-import basePath from "../shared-module/utils/base-path"
+import SkipLink from "../shared-module/components/SkipLink"
 
 import ScrollIndicator from "./ScrollIndicator"
 import SearchDialog from "./SearchDialog"
 
 interface LayoutProps {
   children: ReactNode
-  frontPageUrl?: string
   navVariant?: "simple" | "complex"
   faqUrl?: string
   title?: string
@@ -24,11 +25,15 @@ interface LayoutProps {
   organizationSlug: string
 }
 
+const DynamicToaster = dynamic(
+  () => import("../shared-module/components/Notifications/ToasterNotifications"),
+  { ssr: false },
+)
+
 const Layout: React.FC<LayoutProps> = ({
   children,
   title = "Secret Project 331",
   navVariant,
-  frontPageUrl,
   faqUrl,
   licenseUrl,
   returnToPath,
@@ -60,11 +65,11 @@ const Layout: React.FC<LayoutProps> = ({
           min-height: 100vh;
         `}
       >
+        <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
         <nav role="navigation" aria-label={t("navigation-menu")}>
           <ScrollIndicator />
           <Navbar
             faqUrl={faqUrl}
-            frontPageUrl={frontPageUrl ?? basePath()}
             variant={navVariant ?? "simple"}
             // Return to path can be override per page
             returnToPath={returnToPath ?? returnPath}
@@ -83,8 +88,9 @@ const Layout: React.FC<LayoutProps> = ({
           className={css`
             flex: 1;
           `}
+          id="maincontent"
         >
-          {children}
+          <Centered variant="narrow">{children}</Centered>
         </main>
       </div>
       <div
@@ -92,6 +98,7 @@ const Layout: React.FC<LayoutProps> = ({
           margin-top: 2rem;
         `}
       >
+        <DynamicToaster />
         <Footer licenseUrl={licenseUrl} />
       </div>
     </>

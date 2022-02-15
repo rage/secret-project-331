@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { MarkdownText } from "../MarkdownText"
+import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
 
@@ -37,6 +37,7 @@ const Checkbox: React.FC<QuizItemComponentProps> = ({
           type="checkbox"
           checked={quizItemAnswerState?.intData === 1}
           onChange={(e) => handleOptionToggle(e.target.checked)}
+          aria-label={quizItem.title}
         />
       </div>
       <div

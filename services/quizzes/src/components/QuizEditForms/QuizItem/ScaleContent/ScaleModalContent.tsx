@@ -1,8 +1,8 @@
-import { FormControlLabel, FormGroup, Radio, TextField } from "@material-ui/core"
+import styled from "@emotion/styled"
+import { FormControlLabel, FormGroup, Radio, TextField } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
 import {
@@ -50,23 +50,18 @@ export const ScaleModalContent: React.FC<ScaleItemEditorModalProps> = ({ item })
   const dispatch = useDispatch()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
+  const minValid = variables.scaleMin >= 0 && variables.scaleMin < variables.scaleMax
+  const maxValid =
+    variables.scaleMax >= 0 && variables.scaleMax > variables.scaleMin && variables.scaleMax < 11
 
   const handleMinValueChange = (value: number) => {
-    if (value >= 0 && value < variables.scaleMax) {
-      dispatch(setScaleMin(storeItem.id, value, true))
-      dispatch(editedScaleMinValue(storeItem.id, value))
-    } else {
-      dispatch(setScaleMin(storeItem.id, value, false))
-    }
+    dispatch(editedScaleMinValue(storeItem.id, value))
+    dispatch(setScaleMin(storeItem.id, value))
   }
 
   const handleMaxValueChange = (value: number) => {
-    if (value >= 0 && value > variables.scaleMin && value < 11) {
-      dispatch(setScaleMax(storeItem.id, value, true))
-      dispatch(editedScaleMaxValue(storeItem.id, value))
-    } else {
-      dispatch(setScaleMax(storeItem.id, value, false))
-    }
+    dispatch(setScaleMax(storeItem.id, value))
+    dispatch(editedScaleMaxValue(storeItem.id, value))
   }
 
   return (
@@ -86,8 +81,8 @@ export const ScaleModalContent: React.FC<ScaleItemEditorModalProps> = ({ item })
       </ModalContent>
       <ModalContent>
         <ValueFieldContainer
-          error={!variables.validMin}
-          helperText={!variables.validMin ? t("invalid-minimum-value") : ""}
+          error={!minValid}
+          helperText={!minValid ? t("invalid-minimum-value") : ""}
           type="number"
           label={t("minimum")}
           value={variables.scaleMin ?? ""}
@@ -98,8 +93,8 @@ export const ScaleModalContent: React.FC<ScaleItemEditorModalProps> = ({ item })
       </ModalContent>
       <ModalContent>
         <ValueFieldContainer
-          error={!variables.validMax}
-          helperText={!variables.validMax ? t("invalid-maximum-value") : ""}
+          error={!maxValid}
+          helperText={!maxValid ? t("invalid-maximum-value") : ""}
           type="number"
           label={t("maximum")}
           value={variables.scaleMax ?? ""}

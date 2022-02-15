@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Menu, MenuItem } from "@material-ui/core"
+import { Menu, MenuItem } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -43,7 +43,6 @@ const FeedbackHandler: React.FC<Props> = ({
   const [showFeedbackTooltipTimeout, setShowFeedbackTooltipTimeout] =
     useState<NodeJS.Timeout | null>(null)
   const [selectionRect, setSelectionRect] = useState<SelectionPosition | null>(null)
-  const [showSubmitSuccess, setShowSubmitSuccess] = useState(false)
 
   function handleSelectionChange(newSelection: string, rect: DOMRect | null) {
     if (showFeedbackTooltipTimeout !== null) {
@@ -74,31 +73,8 @@ const FeedbackHandler: React.FC<Props> = ({
     setFeedbackDialogOpen(true)
   }
 
-  function onSubmitSuccess() {
-    setShowSubmitSuccess(true)
-    setTimeout(() => {
-      setShowSubmitSuccess(false)
-    }, 5000)
-  }
-
   return (
     <>
-      {showSubmitSuccess && (
-        <div
-          className={css`
-            position: fixed;
-            text-align: center;
-            width: 120px;
-            height: 80px;
-            bottom: 10px;
-            right: 200px;
-            background-color: LightGreen;
-            z-index: 100;
-          `}
-        >
-          {t("feedback-submitted-succesfully")}
-        </div>
-      )}
       {!feedbackDialogOpen && !editProposalDialogOpen && (
         <div
           className={css`
@@ -147,7 +123,6 @@ const FeedbackHandler: React.FC<Props> = ({
           close={() => setFeedbackDialogOpen(false)}
           lastSelection={lastSelection}
           setLastSelection={setLastSelection}
-          onSubmitSuccess={onSubmitSuccess}
         />
       )}
       {editProposalDialogOpen && (
@@ -158,7 +133,6 @@ const FeedbackHandler: React.FC<Props> = ({
             setEditProposalDialogOpen(false)
             onExitEditProposalMode()
           }}
-          onSubmitSuccess={onSubmitSuccess}
           selectedBlockId={selectedBlockId}
           clearSelectedBlockId={clearSelectedBlockId}
           edits={edits}

@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@material-ui/core"
+import { Dialog } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
@@ -15,7 +15,6 @@ import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -52,7 +51,6 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
     <Layout navVariant="complex">
       <div
         className={css`
-          ${normalWidthCenteredComponentStyles}
           margin-bottom: 1rem;
         `}
       >

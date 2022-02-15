@@ -1,9 +1,10 @@
+import styled from "@emotion/styled"
 import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Box, Button, Fade, Modal } from "@material-ui/core"
+import { Box, Button, Fade, Modal } from "@mui/material"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
 import { deletedItem } from "../../../../store/editor/editorActions"
@@ -36,7 +37,6 @@ const StyledModal = styled(Modal)`
 const AdvancedBox = styled(Box)`
   background-color: #fafafa !important;
   min-width: 80% !important;
-  min-height: 50% !important;
   max-width: 80% !important;
   max-height: 50% !important;
   overflow-y: scroll !important;
@@ -58,6 +58,7 @@ const ModalButtonWrapper = styled.div`
 `
 
 export const CustomFrontend: React.FC<CustomFrontendProps> = ({ item }) => {
+  const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
@@ -71,7 +72,10 @@ export const CustomFrontend: React.FC<CustomFrontendProps> = ({ item }) => {
         <Fade in={variables.advancedEditing}>
           <AdvancedBox>
             <ModalButtonWrapper>
-              <CloseButton onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}>
+              <CloseButton
+                aria-label={t("close")}
+                onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}
+              >
                 <FontAwesomeIcon icon={faWindowClose} size="2x" />
               </CloseButton>
             </ModalButtonWrapper>

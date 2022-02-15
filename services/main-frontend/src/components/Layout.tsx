@@ -1,15 +1,17 @@
 import { css } from "@emotion/css"
+import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 
+import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
-import basePath from "../shared-module/utils/base-path"
+import SkipLink from "../shared-module/components/SkipLink"
 
 type LayoutProps = {
   children: ReactNode
-  frontPageUrl?: string
   navVariant?: "simple" | "complex"
   faqUrl?: string
   title?: string
@@ -17,11 +19,15 @@ type LayoutProps = {
   returnToPath?: string
 }
 
+const DynamicToaster = dynamic(
+  () => import("../shared-module/components/Notifications/ToasterNotifications"),
+  { ssr: false },
+)
+
 const Layout: React.FC<LayoutProps> = ({
   children,
   title = "Secret Project 331",
   navVariant,
-  frontPageUrl,
   faqUrl,
   licenseUrl,
   returnToPath,
@@ -31,6 +37,8 @@ const Layout: React.FC<LayoutProps> = ({
   const returnPath = `/login?return_to=${encodeURIComponent(
     process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
   )}`
+  const { t } = useTranslation()
+
   return (
     <>
       <Head>
@@ -47,10 +55,11 @@ const Layout: React.FC<LayoutProps> = ({
           min-height: 100vh;
         `}
       >
+        {/* Skip to content*/}
+        <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
         <div>
           <Navbar
             faqUrl={faqUrl}
-            frontPageUrl={frontPageUrl ?? basePath()}
             variant={navVariant ?? "simple"}
             // Return to path can be override per page
             returnToPath={returnToPath ?? returnPath}
@@ -61,10 +70,12 @@ const Layout: React.FC<LayoutProps> = ({
           className={css`
             flex: 1;
           `}
+          id="maincontent"
         >
-          {children}
+          <Centered variant="default">{children}</Centered>
         </main>
       </div>
+      <DynamicToaster />
       <Footer licenseUrl={licenseUrl} />
     </>
   )

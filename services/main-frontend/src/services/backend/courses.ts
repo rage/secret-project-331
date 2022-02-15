@@ -9,6 +9,8 @@ import {
   NewCourse,
   SubmissionCount,
   SubmissionCountByWeekAndHour,
+  Term,
+  TermUpdate,
 } from "../../shared-module/bindings"
 import {
   isCourse,
@@ -17,6 +19,7 @@ import {
   isExercise,
   isExerciseUserCounts,
   isSubmissionCountByWeekAndHour,
+  isTerm,
 } from "../../shared-module/bindings.guard"
 import { isArray, isString, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
@@ -128,4 +131,23 @@ export const newCourseInstance = async (
     { responseType: "json" },
   )
   return validateResponse(response, isString)
+}
+
+export const fetchGlossary = async (courseId: string): Promise<Array<Term>> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/glossary`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isTerm))
+}
+
+export const postNewTerm = async (
+  courseId: string,
+  newTerm: string,
+  newDefinition: string,
+): Promise<void> => {
+  const term: TermUpdate = {
+    term: newTerm,
+    definition: newDefinition,
+  }
+  await mainFrontendClient.post(`/courses/${courseId}/glossary`, term)
 }

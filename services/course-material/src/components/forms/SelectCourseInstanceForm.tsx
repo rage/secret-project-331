@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import { FormControlLabel, Radio, RadioGroup } from "@material-ui/core"
+import { FormControlLabel, Radio, RadioGroup } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 

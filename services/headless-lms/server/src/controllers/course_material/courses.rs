@@ -8,6 +8,7 @@ use models::{
     courses::Course,
     feedback,
     feedback::NewFeedback,
+    glossary::Term,
     pages::{CoursePageWithUserData, Page, PageSearchRequest, PageSearchResult},
     proposed_page_edits::{self, NewProposedPageEdits},
     user_course_settings::UserCourseSettings,
@@ -18,7 +19,7 @@ use crate::controllers::prelude::*;
 /**
 GET `/api/v0/course-material/courses/:course_id` - Get course.
 */
-#[generated_doc(Course)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course(
     course_id: web::Path<Uuid>,
@@ -35,7 +36,7 @@ GET `/:course_slug/page-by-path/...` - Returns a course page by path
 # Example
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 */
-#[generated_doc(CoursePageWithUserData)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
@@ -64,7 +65,7 @@ async fn get_course_page_by_path(
 /**
 GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
 */
-#[generated_doc(CourseInstance)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_current_course_instance(
     pool: web::Data<PgPool>,
@@ -86,7 +87,7 @@ async fn get_current_course_instance(
 /**
 GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
 */
-#[generated_doc(Vec<CourseInstance>)]
+#[generated_doc]
 async fn get_course_instances(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -100,7 +101,7 @@ async fn get_course_instances(
 /**
 GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages in a course.
 */
-#[generated_doc(Vec<Page>)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_pages(
     course_id: web::Path<Uuid>,
@@ -114,7 +115,7 @@ async fn get_course_pages(
 /**
 GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
 */
-#[generated_doc(Vec<ChapterWithStatus>)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_chapters(
     course_id: web::Path<Uuid>,
@@ -151,7 +152,8 @@ async fn get_chapters(
 /**
 GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
 */
-#[generated_doc(Option<UserCourseSettings>)]
+#[generated_doc]
+#[instrument(skip(pool))]
 async fn get_user_course_settings(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -187,7 +189,7 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc(Vec<PageSearchResult>)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn search_pages_with_phrase(
     course_id: web::Path<Uuid>,
@@ -218,7 +220,7 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc(Vec<PageSearchResult>)]
+#[generated_doc]
 #[instrument(skip(pool))]
 async fn search_pages_with_words(
     course_id: web::Path<Uuid>,
@@ -234,7 +236,7 @@ async fn search_pages_with_words(
 /**
 POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
 */
-#[generated_doc(Vec<Uuid>)]
+#[generated_doc]
 pub async fn feedback(
     course_id: web::Path<Uuid>,
     new_feedback: web::Json<Vec<NewFeedback>>,
@@ -279,7 +281,7 @@ pub async fn feedback(
 /**
 POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
 */
-#[generated_doc(Uuid)]
+#[generated_doc]
 async fn propose_edit(
     course_slug: web::Path<String>,
     edits: web::Json<NewProposedPageEdits>,
@@ -296,6 +298,17 @@ async fn propose_edit(
     )
     .await?;
     Ok(web::Json(id))
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn glossary(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<Term>>> {
+    let mut conn = pool.acquire().await?;
+    let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
+    Ok(web::Json(glossary))
 }
 
 /**
@@ -334,5 +347,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/user-settings",
             web::get().to(get_user_course_settings),
         )
-        .route("/{course_id}/propose-edit", web::post().to(propose_edit));
+        .route("/{course_id}/propose-edit", web::post().to(propose_edit))
+        .route("/{course_id}/glossary", web::get().to(glossary));
 }

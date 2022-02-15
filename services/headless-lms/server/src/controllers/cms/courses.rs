@@ -16,7 +16,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[generated_doc(UploadResult)]
+#[generated_doc]
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media(
     course_id: web::Path<Uuid>,
@@ -36,7 +36,7 @@ async fn add_media(
         request.headers(),
         payload,
         StoreKind::Course(course.id),
-        &file_store,
+        file_store.as_ref(),
     )
     .await?;
     let download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());

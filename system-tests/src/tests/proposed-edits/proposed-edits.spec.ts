@@ -139,13 +139,12 @@ test("test", async ({ page, headless }) => {
   )
 
   // Click text=Manage change requests
-  await Promise.all([page.waitForNavigation(), page.click("text=Manage change requests")])
+  await Promise.all([page.waitForNavigation(), page.click("text=Change requests")])
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests?pending=true",
   )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "manage-initial",
@@ -162,13 +161,13 @@ test("test", async ({ page, headless }) => {
   await page.click(':nth-match(:text("Reject"), 3)')
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "manage-before-send",
     waitForThisToBeVisibleAndStable: "text=Send",
     beforeScreenshot: async () => {
       await replaceIds(page)
+      await page.evaluate(() => window.scrollTo(0, 0))
     },
   })
 
@@ -177,7 +176,6 @@ test("test", async ({ page, headless }) => {
   await page.click('text="Change requests"')
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "manage-after-send",
@@ -190,11 +188,10 @@ test("test", async ({ page, headless }) => {
   await page.click('text="Old"')
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "manage-old-after-send",
-    waitForThisToBeVisibleAndStable: ".MuiTabs-indicator",
+    waitForThisToBeVisibleAndStable: "text=Accepted",
     beforeScreenshot: async () => {
       await replaceIds(page)
     },
@@ -230,7 +227,6 @@ test("test", async ({ page, headless }) => {
   await page.click("text=So big")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     page,
     headless,
     snapshotName: "after-changes",

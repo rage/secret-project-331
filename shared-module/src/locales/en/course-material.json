@@ -98,5 +98,10 @@
   "template-exercise-instructions": "You can submit your answer to each question to save their state before submitting the exam. You will see the results after you submit the exam or the timer runs out.",
   "exam-timer-has-run-out": "Time has run out and the exam is now closed.",
   "try-again": "try again",
-  "exam-has-not-started-yet": "The exam has not started yet"
+  "exam-has-not-started-yet": "The exam has not started yet",
+  "glossary": "Glossary",
+  "term": "Term",
+  "definition": "Definition",
+  "block-invalid-without-course": "This block cannot be used on a page not related to a course.",
+  "skip-to-content": "Skip to content"
 }

@@ -1,4 +1,4 @@
-import { Checkbox, FormControl, FormControlLabel } from "@material-ui/core"
+import { Checkbox, FormControl, FormControlLabel } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
@@ -48,7 +48,7 @@ export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
         <MarkdownEditor
           label={t("option-title")}
           text={storeOption.title ?? ""}
-          onChange={(event) => dispatch(editedOptionTitle(event.target.value, storeOption.id))}
+          onChange={(value) => dispatch(editedOptionTitle(value, storeOption.id))}
         />
       </ModalContent>
       <ModalContent>
@@ -61,8 +61,8 @@ export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
           }
           onChange={
             storeOption.correct
-              ? (event) => dispatch(editedOptionSuccessMessage(storeOption.id, event.target.value))
-              : (event) => dispatch(editedOptionFailureMessage(storeOption.id, event.target.value))
+              ? (value) => dispatch(editedOptionSuccessMessage(storeOption.id, value))
+              : (value) => dispatch(editedOptionFailureMessage(storeOption.id, value))
           }
         />
       </ModalContent>

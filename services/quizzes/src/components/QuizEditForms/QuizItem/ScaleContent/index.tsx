@@ -1,21 +1,13 @@
-import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
+import styled from "@emotion/styled"
+import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-  Box,
-  Button,
-  Fade,
-  FormControlLabel,
-  FormGroup,
-  Modal,
-  Radio,
-  TextField,
-} from "@material-ui/core"
+import { Box, Button, Fade, Modal } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
+import TextField from "../../../../shared-module/components/InputFields/TextField"
 import { deletedItem } from "../../../../store/editor/editorActions"
 import {
   setAdvancedEditing,
@@ -35,38 +27,20 @@ import ScaleModalContent from "./ScaleModalContent"
 const ScaleContainer = styled.div`
   padding-top: 1rem;
   padding-bottom: 1rem;
-  display: flex;
-`
-
-const PreviewContainer = styled.div`
-  width: 50% !important;
-  justify-content: center !important;
-  display: flex !important;
 `
 
 const MinMaxContainer = styled.div`
-  width: 50% !important;
   display: flex;
 `
 
 const MinField = styled(TextField)`
   margin-right: 1rem !important;
-  display: flex;
+  width: 100%;
 `
 
 const MaxField = styled(TextField)`
   margin-left: 0.5rem !important;
-  display: flex;
-`
-
-const StyledFormLabel = styled(FormControlLabel)`
-  margin-left: 0px !important;
-  margin-right: 0px !important;
-`
-
-const EditButtonWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end !important;
+  width: 100%;
 `
 
 const StyledModal = styled(Modal)`
@@ -78,7 +52,6 @@ const StyledModal = styled(Modal)`
 const AdvancedBox = styled(Box)`
   background-color: #fafafa !important;
   min-width: 80% !important;
-  min-height: 50% !important;
   max-width: 80% !important;
   max-height: 50% !important;
   overflow-y: scroll !important;
@@ -107,34 +80,22 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
   const dispatch = useDispatch()
 
+  const minValid = variables.scaleMin >= 0 && variables.scaleMin < variables.scaleMax
+  const maxValid =
+    variables.scaleMax >= 0 && variables.scaleMax > variables.scaleMin && variables.scaleMax < 11
+
   const handleMinValueChange = (value: number) => {
-    if (value >= 0 && value < variables.scaleMax) {
-      dispatch(setScaleMin(storeItem.id, value, true))
-      dispatch(editedScaleMinValue(storeItem.id, value))
-    } else {
-      dispatch(setScaleMin(storeItem.id, value, false))
-    }
+    dispatch(editedScaleMinValue(storeItem.id, value))
+    dispatch(setScaleMin(storeItem.id, value))
   }
 
   const handleMaxValueChange = (value: number) => {
-    if (value >= 0 && value > variables.scaleMin && value < 11) {
-      dispatch(setScaleMax(storeItem.id, value, true))
-      dispatch(editedScaleMaxValue(storeItem.id, value))
-    } else {
-      dispatch(setScaleMax(storeItem.id, value, false))
-    }
+    dispatch(setScaleMax(storeItem.id, value))
+    dispatch(editedScaleMaxValue(storeItem.id, value))
   }
 
   return (
     <>
-      <EditButtonWrapper>
-        <Button
-          onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))}
-          title={t("edit-item")}
-        >
-          <FontAwesomeIcon icon={faPen} size="2x"></FontAwesomeIcon>
-        </Button>
-      </EditButtonWrapper>
       <StyledModal
         open={variables.advancedEditing}
         onClose={() => dispatch(setAdvancedEditing(storeItem.id, false))}
@@ -142,7 +103,10 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
         <Fade in={variables.advancedEditing}>
           <AdvancedBox>
             <ModalButtonWrapper>
-              <CloseButton onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}>
+              <CloseButton
+                aria-label={t("close")}
+                onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}
+              >
                 <FontAwesomeIcon icon={faWindowClose} size="2x" />
               </CloseButton>
             </ModalButtonWrapper>
@@ -163,39 +127,26 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
         <MarkdownEditor
           label={t("title")}
           text={storeItem.title ?? ""}
-          onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
+          onChange={(value) => dispatch(editedQuizItemTitle(value, storeItem.id))}
         />
-        <PreviewContainer>
-          <FormGroup row>
-            {variables.array.map((item) => {
-              return (
-                <div key={item}>
-                  <StyledFormLabel disabled control={<Radio />} label={item} labelPlacement="top" />
-                </div>
-              )
-            })}
-          </FormGroup>
-        </PreviewContainer>
       </ScaleContainer>
       <MinMaxContainer>
         <MinField
-          error={!variables.validMin}
-          helperText={!variables.validMin ? t("invalid-minimum-value") : ""}
+          error={!minValid}
           label={t("minimum")}
-          value={variables.scaleMin ?? ""}
-          variant="outlined"
+          value={variables.scaleMin?.toString() ?? ""}
           type="number"
-          onChange={(event) => handleMinValueChange(Number(event.target.value))}
+          onChange={(value) => handleMinValueChange(Number(value))}
         />
+        {!minValid && t("invalid-minimum-value")}
         <MaxField
-          error={!variables.validMax}
-          helperText={!variables.validMax ? t("invalid-maximum-value") : ""}
+          error={!maxValid}
           label={t("maximum")}
-          value={variables.scaleMax ?? ""}
-          variant="outlined"
+          value={variables.scaleMax?.toString() ?? ""}
           type="number"
-          onChange={(event) => handleMaxValueChange(Number(event.target.value))}
+          onChange={(value) => handleMaxValueChange(Number(value))}
         />
+        {!maxValid && t("invalid-maximum-value")}
       </MinMaxContainer>
     </>
   )

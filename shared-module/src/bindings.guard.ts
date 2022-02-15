@@ -36,6 +36,7 @@ import {
   EmailTemplate,
   EmailTemplateNew,
   EmailTemplateUpdate,
+  ErrorData,
   ErrorResponse,
   Exam,
   ExamCourseInfo,
@@ -87,12 +88,18 @@ import {
   PreviousSubmission,
   ProposalCount,
   ProposalStatus,
+  RoleDomain,
+  RoleInfo,
+  RoleQuery,
+  RoleUser,
   Submission,
   SubmissionCount,
   SubmissionCountByExercise,
   SubmissionCountByWeekAndHour,
   SubmissionInfo,
   SubmissionResult,
+  Term,
+  TermUpdate,
   UploadResult,
   User,
   UserCourseInstanceChapterExerciseProgress,
@@ -100,8 +107,26 @@ import {
   UserCourseInstanceProgress,
   UserCourseSettings,
   UserPointsUpdateStrategy,
+  UserRole,
   VariantStatus,
 } from "./bindings"
+
+export function isTerm(obj: any, _argumentName?: string): obj is Term {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.term === "string" &&
+    typeof obj.definition === "string"
+  )
+}
+
+export function isTermUpdate(obj: any, _argumentName?: string): obj is TermUpdate {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.term === "string" &&
+    typeof obj.definition === "string"
+  )
+}
 
 export function isChapter(obj: any, _argumentName?: string): obj is Chapter {
   return (
@@ -239,7 +264,7 @@ export function isCourseInstanceForm(obj: any, _argumentName?: string): obj is C
 export function isPointMap(obj: any, _argumentName?: string): obj is PointMap {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    Object.entries(obj).every(
+    Object.entries<any>(obj).every(
       ([key, value]) => typeof value === "number" && typeof key === "string",
     )
   )
@@ -254,7 +279,7 @@ export function isPoints(obj: any, _argumentName?: string): obj is Points {
     obj.users.every((e: any) => isUser(e) as boolean) &&
     ((obj.user_chapter_points !== null && typeof obj.user_chapter_points === "object") ||
       typeof obj.user_chapter_points === "function") &&
-    Object.entries(obj.user_chapter_points).every(
+    Object.entries<any>(obj.user_chapter_points).every(
       ([key, value]) => (isPointMap(value) as boolean) && typeof key === "string",
     )
   )
@@ -315,7 +340,7 @@ export function isNewCourse(obj: any, _argumentName?: string): obj is NewCourse 
 export function isCourseCount(obj: any, _argumentName?: string): obj is CourseCount {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.count === "bigint"
+    typeof obj.count === "number"
   )
 }
 
@@ -961,6 +986,40 @@ export function isProposalCount(obj: any, _argumentName?: string): obj is Propos
   )
 }
 
+export function isRoleUser(obj: any, _argumentName?: string): obj is RoleUser {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    (obj.first_name === null || typeof obj.first_name === "string") &&
+    (obj.last_name === null || typeof obj.last_name === "string") &&
+    typeof obj.email === "string" &&
+    (isUserRole(obj.role) as boolean)
+  )
+}
+
+export function isRoleDomain(obj: any, _argumentName?: string): obj is RoleDomain {
+  return (
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "Global") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "Organization" &&
+      typeof obj.id === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "Course" &&
+      typeof obj.id === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "CourseInstance" &&
+      typeof obj.id === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.tag === "Exam" &&
+      typeof obj.id === "string")
+  )
+}
+
+export function isUserRole(obj: any, _argumentName?: string): obj is UserRole {
+  return obj === "Admin" || obj === "Assistant" || obj === "Teacher" || obj === "Reviewer"
+}
+
 export function isSubmission(obj: any, _argumentName?: string): obj is Submission {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1102,11 +1161,33 @@ export function isUser(obj: any, _argumentName?: string): obj is User {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
+    (obj.first_name === null || typeof obj.first_name === "string") &&
+    (obj.last_name === null || typeof obj.last_name === "string") &&
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     (obj.upstream_id === null || typeof obj.upstream_id === "number") &&
     typeof obj.email === "string"
+  )
+}
+
+export function isRoleQuery(obj: any, _argumentName?: string): obj is RoleQuery {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (typeof obj.global === "undefined" || obj.global === false || obj.global === true) &&
+    (typeof obj.organization_id === "undefined" || typeof obj.organization_id === "string") &&
+    (typeof obj.course_id === "undefined" || typeof obj.course_id === "string") &&
+    (typeof obj.course_instance_id === "undefined" || typeof obj.course_instance_id === "string") &&
+    (typeof obj.exam_id === "undefined" || typeof obj.exam_id === "string")
+  )
+}
+
+export function isRoleInfo(obj: any, _argumentName?: string): obj is RoleInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.email === "string" &&
+    (isUserRole(obj.role) as boolean) &&
+    (isRoleDomain(obj.domain) as boolean)
   )
 }
 
@@ -1214,7 +1295,15 @@ export function isErrorResponse(obj: any, _argumentName?: string): obj is ErrorR
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.title === "string" &&
     typeof obj.message === "string" &&
-    (obj.source === null || typeof obj.source === "string")
+    (obj.source === null || typeof obj.source === "string") &&
+    (obj.data === null || (isErrorData(obj.data) as boolean))
+  )
+}
+
+export function isErrorData(obj: any, _argumentName?: string): obj is ErrorData {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.block_id === "string"
   )
 }
 

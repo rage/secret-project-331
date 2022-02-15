@@ -1,10 +1,10 @@
+import styled from "@emotion/styled"
 import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Box, Button, Fade, Modal } from "@material-ui/core"
+import { Box, Button, Fade, Modal } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
 import { NormalizedQuizItemOption } from "../../../../../types/types"
 import { deletedOption } from "../../../../store/editor/editorActions"
@@ -22,7 +22,6 @@ const StyledModal = styled(Modal)`
 const StyledBox = styled(Box)`
   background-color: #fafafa;
   min-width: 50% !important;
-  min-height: 50% !important;
 `
 
 const CloseButton = styled(Button)`
@@ -76,7 +75,10 @@ const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option, ind
       >
         <Fade in={variables.optionEditing}>
           <StyledBox>
-            <CloseButton onClick={() => dispatch(setOptionEditing(storeOption.id, false))}>
+            <CloseButton
+              aria-label={t("close")}
+              onClick={() => dispatch(setOptionEditing(storeOption.id, false))}
+            >
               <FontAwesomeIcon icon={faWindowClose} size="2x" />
             </CloseButton>
             <OptionModalContent option={storeOption} />

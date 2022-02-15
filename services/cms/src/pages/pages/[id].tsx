@@ -1,13 +1,14 @@
 import dynamic from "next/dynamic"
 import React from "react"
-import { useQuery } from "react-query"
+import { useQuery, useQueryClient } from "react-query"
 
 import Layout from "../../components/Layout"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
-import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
+import { CmsPageUpdate, Page } from "../../shared-module/bindings"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
 import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
+import useToastMutation from "../../shared-module/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -27,6 +28,7 @@ const PageEditor = dynamic(() => import("../../components/editors/PageEditor"), 
 
 const Pages = ({ query }: PagesProps) => {
   const { id } = query
+  const queryClient = useQueryClient()
   const getPage = useQuery(`page-${id}`, () => fetchPageWithId(id), {
     select: (data) => {
       const page: Page = { ...data.page, content: denormalizeDocument(data) }
@@ -34,24 +36,28 @@ const Pages = ({ query }: PagesProps) => {
     },
   })
 
-  const handleSave = async (page: CmsPageUpdate): Promise<ContentManagementPage> => {
-    const res = await updateExistingPage(id, page)
-    console.log(res)
-    // NB! Refetched page content isn't used atm, only url, ids etc. Updated content is returned instead.
-    await getPage.refetch()
-    return res
-  }
-
-  let frontPageUrl = "/"
-  if (getPage.isSuccess && getPage.data.course_id) {
-    // eslint-disable-next-line i18next/no-literal-string
-    frontPageUrl = `/manage/courses/${getPage.data.course_id}/pages`
-  }
+  const mutate = useToastMutation(
+    (newPage: CmsPageUpdate) => updateExistingPage(id, newPage),
+    {
+      notify: true,
+      dismissable: true,
+      method: "PUT",
+      toastOptions: { duration: 5000 },
+    },
+    {
+      onSuccess: (newData) => {
+        // Refetch, setQueryData or invalidateQueries?
+        // eslint-disable-next-line i18next/no-literal-string
+        queryClient.setQueryData(`page-${id}`, newData)
+      },
+      retry: 3,
+    },
+  )
   return (
-    <Layout frontPageUrl={frontPageUrl}>
+    <Layout>
       {getPage.isError && <ErrorBanner variant={"readOnly"} error={getPage.error} />}
       {(getPage.isLoading || getPage.isIdle) && <Spinner variant={"medium"} />}
-      {getPage.isSuccess && <PageEditor data={getPage.data} handleSave={handleSave} />}
+      {getPage.isSuccess && <PageEditor data={getPage.data} saveMutation={mutate} />}
     </Layout>
   )
 }

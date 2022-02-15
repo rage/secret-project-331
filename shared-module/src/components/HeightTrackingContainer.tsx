@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "
 import { useDebounce } from "use-debounce"
 
 interface Props {
-  port: MessagePort
+  port: MessagePort | null
   children?: ReactNode
 }
 
@@ -28,8 +28,30 @@ const HeightTrackingContainer: React.FC<Props> = ({ port, children }) => {
       setHeight(ref.getBoundingClientRect().height)
     }
     window.addEventListener("resize", onResize)
-    return () => window.removeEventListener("resize", onResize)
+    return () => {
+      window.removeEventListener("resize", onResize)
+    }
   }, [])
+
+  // mutation observer, catches changes that don't trigger useLayoutEffect
+  useEffect(() => {
+    const ref = contentRef.current
+    if (!ref) {
+      return
+    }
+    const onResize = () => {
+      const ref = contentRef.current
+      if (!ref) {
+        return
+      }
+      setHeight(ref.getBoundingClientRect().height)
+    }
+    const observer = new MutationObserver(onResize)
+    observer.observe(ref, { attributes: true, childList: true, subtree: true })
+    return () => {
+      observer.disconnect()
+    }
+  }, [contentRef])
 
   useEffect(() => {
     if (!port) {
@@ -42,6 +64,9 @@ const HeightTrackingContainer: React.FC<Props> = ({ port, children }) => {
 }
 
 function onHeightChange(newHeight: number, port: MessagePort) {
+  if (!port) {
+    return
+  }
   port.postMessage({
     message: "height-changed",
     data: newHeight,

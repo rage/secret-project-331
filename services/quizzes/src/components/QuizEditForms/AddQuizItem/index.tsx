@@ -1,6 +1,6 @@
+import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import styled from "styled-components"
 
 import AddQuizItemButton from "./AddQuizItemButton"
 
@@ -15,7 +15,6 @@ const AddQuizItemWrapper = styled.div`
 const TypeContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
   width: 100%;
   margin-top: 1rem;
   margin-bottom: 1rem;
@@ -27,10 +26,9 @@ const TYPES = [
   "open",
   "multiple-choice",
   "checkbox",
-  "custom-frontend-accept-data",
+  "matrix",
   "multiple-choice-dropdown",
   "clickable-multiple-choice",
-  "matrix",
 ]
 
 export const AddQuizItem: React.FC = () => {

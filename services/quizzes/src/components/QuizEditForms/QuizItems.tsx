@@ -1,9 +1,9 @@
+import styled from "@emotion/styled"
 import { faSitemap } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Divider } from "@material-ui/core"
+import { Divider } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import styled from "styled-components"
 
 import { useTypedSelector } from "../../store/store"
 
@@ -19,6 +19,7 @@ const ItemsTitleContainer = styled.div`
 const SubsectionTitleWrapper = styled.div`
   display: flex;
   width: auto;
+  margin-top: 1rem;
 `
 
 const TitleIcon = styled(FontAwesomeIcon)`

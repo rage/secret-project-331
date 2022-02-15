@@ -5,7 +5,6 @@ import { BlockRendererProps } from "../.."
 import { ColumnAttributes, ColumnsAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { Block } from "../../../../services/backend"
 import { NewProposedBlockEdit } from "../../../../shared-module/bindings"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import colorMapper from "../../../../styles/colorMapper"
 
@@ -39,7 +38,6 @@ const ColumnsBlock: React.FC<BlockRendererProps<ColumnsAttributes>> = ({ data, i
           flex-wrap: nowrap;
         }
 
-        ${normalWidthCenteredComponentStyles}
         ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
         ${gradient && `background: ${colorMapper(gradient)};`}
         ${textColor && `color: ${colorMapper(textColor)};`}

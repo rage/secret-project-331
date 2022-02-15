@@ -42,14 +42,14 @@ module.exports = {
       meta: {
         type: "problem",
         docs: {
-          description: "Warns if Grid component is imported from @material-ui",
+          description: "Warns if Grid component is imported from material-ui",
           category: "Best Practices",
           recommended: "error",
         },
         schema: [],
         messages: {
           noMaterialUiGridImport:
-            "Don't use Grid from @material-ui. Please use either css flexbox or css grid.",
+            "Don't use Grid from material-ui. Please use either css flexbox or css grid.",
         },
       },
       create: function (context) {
@@ -60,7 +60,7 @@ module.exports = {
               specifiers,
             } = node
 
-            if (importedFrom.indexOf("@material-ui") < 0) {
+            if (importedFrom.indexOf("@mui") < 0) {
               return
             }
             const importedFromGrid = !!importedFrom.match(/Grid$/)
@@ -86,14 +86,14 @@ module.exports = {
       meta: {
         type: "problem",
         docs: {
-          description: "Warns if Container component is imported from @material-ui",
+          description: "Warns if Container component is imported from material-ui",
           category: "Best Practices",
           recommended: "error",
         },
         schema: [],
         messages: {
           noMaterialUiContainerImport:
-            "Don't use Container from @material-ui. Please use normalWidthCenteredComponentStyles.",
+            "Don't use Container from material-ui. Please use Centered from shared-module.",
         },
       },
       create: function (context) {
@@ -104,7 +104,7 @@ module.exports = {
               specifiers,
             } = node
 
-            if (importedFrom.indexOf("@material-ui") < 0) {
+            if (importedFrom.indexOf("@mui") < 0) {
               return
             }
             const importedFromGrid = !!importedFrom.match(/Container$/)

@@ -1,13 +1,15 @@
-import { faAngleDown, faAngleUp } from "@fortawesome/free-solid-svg-icons"
+import { css } from "@emotion/css"
+import styled from "@emotion/styled"
+import { faAngleDown, faAngleUp, faPen } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Button } from "@material-ui/core"
+import { Button } from "@mui/material"
 import { TFunction } from "i18next"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../types/types"
+import { setAdvancedEditing } from "../../../store/editor/itemVariables/itemVariableActions"
 import { decreasedItemOrder, increasedItemOrder } from "../../../store/editor/items/itemAction"
 
 import CheckBoxContent from "./CheckBoxContent"
@@ -22,11 +24,27 @@ import ScaleContent from "./ScaleContent"
 
 const TypeWrapper = styled.div`
   display: flex;
+  align-items: center;
 `
 
 const QuizItemContainer = styled.div`
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
+`
+
+const Container = styled.div`
+  padding: 1rem;
+  border: 1px solid black;
+  margin-bottom: 1rem;
+`
+
+const ControlButton = styled(Button)`
+  height: 20px;
+`
+
+const ControlIcon = styled(FontAwesomeIcon)`
+  height: 1.2rem !important;
+  width: 1.2rem !important;
 `
 
 interface QuizItemProps {
@@ -38,18 +56,29 @@ const QuizItem: React.FC<QuizItemProps> = ({ item }) => {
   const dispatch = useDispatch()
 
   return (
-    <>
+    <Container>
       <TypeWrapper>
         <h4>{item.type}</h4>
-        <Button onClick={() => dispatch(decreasedItemOrder(item.id))}>
-          <FontAwesomeIcon icon={faAngleUp} size="2x" />
-        </Button>
-        <Button onClick={() => dispatch(increasedItemOrder(item.id))}>
-          <FontAwesomeIcon icon={faAngleDown} size="2x" />
-        </Button>
+        <ControlButton onClick={() => dispatch(decreasedItemOrder(item.id))}>
+          <ControlIcon icon={faAngleUp} />
+        </ControlButton>
+        <ControlButton onClick={() => dispatch(increasedItemOrder(item.id))}>
+          <ControlIcon icon={faAngleDown} />
+        </ControlButton>
+        <div
+          className={css`
+            flex: 1;
+          `}
+        />
+        <ControlButton
+          onClick={() => dispatch(setAdvancedEditing(item.id, true))}
+          title={t("edit-item")}
+        >
+          <ControlIcon icon={faPen} />
+        </ControlButton>
       </TypeWrapper>
       <QuizItemContainer>{contentBasedOnType(item.type, item, t)}</QuizItemContainer>
-    </>
+    </Container>
   )
 }
 

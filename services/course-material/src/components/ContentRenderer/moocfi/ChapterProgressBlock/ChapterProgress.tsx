@@ -7,7 +7,6 @@ import { fetchUserChapterInstanceChapterProgress } from "../../../../services/ba
 import CircularProgress from "../../../../shared-module/components/CourseProgress/CircularProgress"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
-import { normalWidthCenteredComponentStyles } from "../../../../shared-module/styles/componentStyles"
 
 interface ChapterProgressProps {
   chapterId: string
@@ -22,7 +21,7 @@ const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInst
   )
 
   return (
-    <div className={normalWidthCenteredComponentStyles}>
+    <div>
       {getUserChapterProgress.isError && (
         <ErrorBanner variant={"readOnly"} error={getUserChapterProgress.error} />
       )}

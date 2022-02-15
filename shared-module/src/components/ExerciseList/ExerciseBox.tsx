@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
@@ -48,7 +49,7 @@ const ImageBox = styled.div`
     height: 100%;
     text-align: center;
     z-index: 3;
-    color: ${baseTheme.colors.grey[800]};
+    color: ${baseTheme.colors.grey[700]};
     font-size: 16px;
     margin-bottom: 0;
   }
@@ -59,7 +60,7 @@ const ExercisePart = styled.div`
   margin-left: 0em;
   padding: 0.6em 1em;
   list-style-type: none;
-  color: ${baseTheme.colors.grey[800]};
+  color: ${baseTheme.colors.grey[700]};
   text-decoration: none;
   border-radius: 2px;
   background: ${baseTheme.colors.grey[200]};
@@ -110,20 +111,27 @@ const ExerciseBox: React.FC<ExerciseBox> = ({
   return (
     <Wrapper>
       <StyledLink>
-        <Link href={url}>
-          <ExercisePart>
-            <ImageBox>
-              <div>
-                <p>{exerciseIndex}</p>
-              </div>
-            </ImageBox>
-            <span>{exerciseTitle}</span>
-            <CircularProgressBar
-              scoreMaximum={scoreMaximum}
-              userPoints={userPoints}
-              className="progress"
-            />
-          </ExercisePart>
+        <Link href={url} passHref>
+          <a
+            className={css`
+              text-decoration: none;
+            `}
+            href="replace"
+          >
+            <ExercisePart>
+              <ImageBox>
+                <div>
+                  <p>{exerciseIndex}</p>
+                </div>
+              </ImageBox>
+              <span>{exerciseTitle}</span>
+              <CircularProgressBar
+                scoreMaximum={scoreMaximum}
+                userPoints={userPoints}
+                className="progress"
+              />
+            </ExercisePart>
+          </a>
         </Link>
       </StyledLink>
     </Wrapper>

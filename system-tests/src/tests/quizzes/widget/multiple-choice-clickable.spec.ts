@@ -21,7 +21,6 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
   )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-multiple-choice-clickable",
     waitForThisToBeVisibleAndStable: [
@@ -33,14 +32,11 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
     frame,
   })
 
-  await Promise.all([
-    frame.click(`button:text("Cyan")`),
-    frame.click(`button:text("Sienna")`),
-    frame.click(`button:text("LawnGreen")`),
-  ])
+  await frame.click(`button:text("Cyan")`)
+  await frame.click(`button:text("Sienna")`)
+  await frame.click(`button:text("LawnGreen")`)
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: true, // not for new screenshots
     headless,
     snapshotName: "widget-multiple-choice-clickable-answered",
     waitForThisToBeVisibleAndStable: [

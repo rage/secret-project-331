@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { TextField } from "@material-ui/core"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import { useContext } from "react"
@@ -8,11 +7,9 @@ import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import Button from "../../shared-module/components/Button"
+import TextField from "../../shared-module/components/InputFields/TextField"
 import { primaryFont, typography } from "../../shared-module/styles"
-import {
-  cmsNormalWidthCenteredComponentStyles,
-  gutenbergControlsHidden,
-} from "../../styles/EditorStyles"
+import { gutenbergControlsHidden } from "../../styles/EditorStyles"
 
 import { ExerciseAttributes } from "."
 
@@ -43,7 +40,7 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
 
   return (
     <ExerciseEditorCard id={attributes.id}>
-      <div className={cmsNormalWidthCenteredComponentStyles}>
+      <div>
         <div
           className={css`
             font-family: ${primaryFont};
@@ -54,11 +51,10 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
           {t("exercise-title")}
         </div>
         <TextField
-          fullWidth
-          variant="outlined"
+          label={t("exercise-name")}
           placeholder={t("exercise-name")}
           value={attributes.name}
-          onChange={(e) => setAttributes({ name: e.target.value })}
+          onChange={(value) => setAttributes({ name: value })}
           className={css`
             margin-bottom: 1rem !important;
           `}
@@ -67,7 +63,7 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
       <div className={gutenbergControlsHidden}>
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
       </div>
-      <div className={cmsNormalWidthCenteredComponentStyles}>
+      <div>
         <Button variant="primary" size="medium" onClick={handleAddNewSlide}>
           {t("add-slide")}
         </Button>

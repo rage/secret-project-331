@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { FormControlLabel, Radio, RadioGroup, TextField } from "@material-ui/core"
+import { FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -16,6 +16,7 @@ const FieldContainer = styled.div`
 interface NewCourseFormProps {
   organizationId: string
   onSubmitForm: (newCourse: NewCourse) => Promise<void>
+  onClose: () => void
 }
 
 const AMERICAN_ENGLISH_LANGUAGE_CODE = "en-US"
@@ -23,7 +24,7 @@ const FINNISH_LANGUAGE_CODE = "fi-FI"
 const SWEDISH_LANGUAGE_CODE = "sv-SE"
 const DEFAULT_LANGUAGE_CODE = AMERICAN_ENGLISH_LANGUAGE_CODE
 
-const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitForm }) => {
+const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitForm, onClose }) => {
   const { t } = useTranslation()
   const [name, setName] = useState("")
   const [slug, setSlug] = useState("")
@@ -195,6 +196,9 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
       <div>
         <Button size="medium" variant="primary" onClick={createNewCourse} disabled={submitDisabled}>
           {t("button-text-create")}
+        </Button>
+        <Button size="medium" variant="secondary" onClick={onClose}>
+          {t("button-text-close")}
         </Button>
       </div>
     </div>

@@ -1,12 +1,11 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { Dialog, Paper } from "@material-ui/core"
-import dynamic from "next/dynamic"
+import { Dialog, Paper } from "@mui/material"
 import { Dispatch, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "./Button"
-import Spinner from "./Spinner"
+import MonacoEditor from "./monaco/MonacoEditor"
 
 export interface DebugModalProps {
   data: unknown
@@ -14,13 +13,6 @@ export interface DebugModalProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateDataOnClose?: Dispatch<any>
 }
-
-const MonacoLoading = <Spinner variant="medium" />
-
-const Editor = dynamic(() => import("@monaco-editor/react"), {
-  ssr: false,
-  loading: () => MonacoLoading,
-})
 
 const HeaderBar = styled.div`
   display: flex;
@@ -83,7 +75,7 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
               {t("close")}
             </Button>
           </HeaderBar>
-          <Editor
+          <MonacoEditor
             height="90vh"
             width="80vw"
             defaultLanguage="json"

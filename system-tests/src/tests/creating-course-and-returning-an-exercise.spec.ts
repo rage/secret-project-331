@@ -43,7 +43,7 @@ test("test", async ({ page }) => {
   // Click text=Manage pages
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1bd0eaef-ba4b-4c94-ba76-83ecab229274/pages' }*/),
-    page.click("text=Manage pages"),
+    page.click("text=Pages"),
   ])
 
   // Click button:has-text("Add new chapter")
@@ -144,7 +144,7 @@ test("test", async ({ page }) => {
   await page.click("text=Add task")
 
   // Click [aria-label="Block: ExerciseTask"] div[role="button"]
-  await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
+  await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
 
   // Click text=Type / to choose a block
   await page.click("text=Type / to choose a block")
@@ -201,6 +201,11 @@ test("test", async ({ page }) => {
 
   // Click button:has-text("Save")
   await page.click('button:has-text("Save")')
+  await page.waitForSelector(`text="Operation successful!"`)
+
+  // Check that the assignment still displays after saving
+  await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
+  await page.waitForSelector(`text="Please select the most correct alternative."`)
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),

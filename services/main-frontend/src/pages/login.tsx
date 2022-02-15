@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Alert, FormControl, Input, InputLabel } from "@material-ui/core"
+import { Alert, FormControl, Input, InputLabel } from "@mui/material"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useContext, useState } from "react"
@@ -10,7 +10,6 @@ import Button from "../shared-module/components/Button"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import { login } from "../shared-module/services/backend/auth"
-import { normalWidthCenteredComponentStyles } from "../shared-module/styles/componentStyles"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 
 const Login: React.FC = () => {
@@ -31,7 +30,6 @@ const Login: React.FC = () => {
     <Layout>
       <div
         className={css`
-          ${normalWidthCenteredComponentStyles}
           margin: 0 auto;
           a {
             text-decoration: none;

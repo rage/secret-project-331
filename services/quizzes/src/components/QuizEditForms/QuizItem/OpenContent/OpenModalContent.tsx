@@ -1,8 +1,8 @@
-import { Button, Checkbox, FormControl, FormControlLabel, TextField } from "@material-ui/core"
+import styled from "@emotion/styled"
+import { Button, Checkbox, FormControl, FormControlLabel, TextField } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
 import {
@@ -67,14 +67,14 @@ export const OpenModalContent: React.FC<ModalContentProps> = ({ item }) => {
         <MarkdownEditor
           label={t("title")}
           text={storeItem.title ?? ""}
-          onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
+          onChange={(value) => dispatch(editedQuizItemTitle(value, storeItem.id))}
         />
       </ModalContent>
       <ModalContent>
         <MarkdownEditor
           label={t("body")}
           text={storeItem.body ?? ""}
-          onChange={(event) => dispatch(editedQuizItemBody(event.target.value, storeItem.id))}
+          onChange={(value) => dispatch(editedQuizItemBody(value, storeItem.id))}
         />
       </ModalContent>
       <ModalContent>
@@ -119,14 +119,14 @@ export const OpenModalContent: React.FC<ModalContentProps> = ({ item }) => {
         <MarkdownEditor
           label={t("success-message")}
           text={storeItem.successMessage ?? ""}
-          onChange={(event) => dispatch(editedItemSuccessMessage(storeItem.id, event.target.value))}
+          onChange={(value) => dispatch(editedItemSuccessMessage(storeItem.id, value))}
         />
       </ModalContent>
       <ModalContent>
         <MarkdownEditor
           label={t("failure-message")}
           text={storeItem.failureMessage ?? ""}
-          onChange={(event) => dispatch(editedItemFailureMessage(storeItem.id, event.target.value))}
+          onChange={(value) => dispatch(editedItemFailureMessage(storeItem.id, value))}
         />
       </ModalContent>
     </>

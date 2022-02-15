@@ -1,10 +1,10 @@
-import { faPen, faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
+import styled from "@emotion/styled"
+import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Box, Button, Checkbox, Fade, Modal } from "@material-ui/core"
+import { Box, Button, Fade, Modal } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
 import { deletedItem } from "../../../../store/editor/editorActions"
@@ -20,40 +20,7 @@ interface ContentBoxProps {
 }
 
 const Container = styled.div`
-  display: flex;
   padding: 1rem;
-  justify-content: space-between;
-`
-
-const TitleField = styled.div`
-  display: flex !important;
-  width: 50%;
-`
-
-const PreviewField = styled.div`
-  display: flex !important;
-  justify-content: center;
-  align-items: center;
-  width: 50%;
-`
-
-// eslint-disable-next-line i18next/no-literal-string
-const StyledCheckBox = styled(Checkbox)`
-  display: flex !important;
-  justify-content: flex-end !important;
-  width: 20% !important;
-`
-
-// eslint-disable-next-line i18next/no-literal-string
-const CheckBoxTitleField = styled.div`
-  display: flex !important;
-  width: 80% !important;
-`
-
-// eslint-disable-next-line i18next/no-literal-string
-const StyledTypo = styled.h4`
-  display: flex !important;
-  align-self: flex-start !important;
 `
 
 const StyledModal = styled(Modal)`
@@ -66,7 +33,6 @@ const StyledModal = styled(Modal)`
 const AdvancedBox = styled(Box)`
   background-color: #fafafa !important;
   min-width: 80% !important;
-  min-height: 50% !important;
   max-width: 80% !important;
   max-height: 50% !important;
   overflow-y: scroll !important;
@@ -87,11 +53,6 @@ const ModalButtonWrapper = styled.div`
   justify-content: flex-end;
 `
 
-const EditButtonWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end !important;
-`
-
 const CheckBoxContent: React.FC<ContentBoxProps> = ({ item }) => {
   const { t } = useTranslation()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
@@ -100,14 +61,6 @@ const CheckBoxContent: React.FC<ContentBoxProps> = ({ item }) => {
   const dispatch = useDispatch()
   return (
     <>
-      <EditButtonWrapper>
-        <Button
-          onClick={() => dispatch(setAdvancedEditing(storeItem.id, true))}
-          title={t("edit-item")}
-        >
-          <FontAwesomeIcon icon={faPen} size="2x"></FontAwesomeIcon>
-        </Button>
-      </EditButtonWrapper>
       <StyledModal
         open={variables.advancedEditing}
         onClose={() => dispatch(setAdvancedEditing(storeItem.id, false))}
@@ -115,7 +68,10 @@ const CheckBoxContent: React.FC<ContentBoxProps> = ({ item }) => {
         <Fade in={variables.advancedEditing}>
           <AdvancedBox>
             <ModalButtonWrapper>
-              <CloseButton onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}>
+              <CloseButton
+                aria-label={t("close")}
+                onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}
+              >
                 <FontAwesomeIcon icon={faWindowClose} size="2x" />
               </CloseButton>
             </ModalButtonWrapper>
@@ -134,19 +90,13 @@ const CheckBoxContent: React.FC<ContentBoxProps> = ({ item }) => {
         </Fade>
       </StyledModal>
       <Container>
-        <TitleField>
+        <div>
           <MarkdownEditor
             label={t("title")}
-            onChange={(event) => dispatch(editedQuizItemTitle(event.target.value, storeItem.id))}
+            onChange={(value) => dispatch(editedQuizItemTitle(value, storeItem.id))}
             text={storeItem.title ?? ""}
           />
-        </TitleField>
-        <PreviewField>
-          <StyledCheckBox disableRipple={true} disableFocusRipple={true} />
-          <CheckBoxTitleField>
-            <StyledTypo>{storeItem.title}</StyledTypo>
-          </CheckBoxTitleField>
-        </PreviewField>
+        </div>
       </Container>
     </>
   )

@@ -5,10 +5,14 @@ use crate::controllers::{
         submissions::PreviousSubmission,
     },
     main_frontend::{
-        courses::GetFeedbackQuery, exams::ExamCourseInfo, exercises::ExerciseSubmissions,
-        feedback::MarkAsRead, proposed_edits::GetEditProposalsQuery,
+        courses::GetFeedbackQuery,
+        exams::ExamCourseInfo,
+        exercises::ExerciseSubmissions,
+        feedback::MarkAsRead,
+        proposed_edits::GetEditProposalsQuery,
+        roles::{RoleInfo, RoleQuery},
     },
-    ErrorResponse, UploadResult,
+    ErrorData, ErrorResponse, UploadResult,
 };
 use headless_lms_models::*;
 use headless_lms_utils::pagination::Pagination;
@@ -33,6 +37,9 @@ fn ts_binding_generator() {
     let mut target = std::fs::File::create("../../../shared-module/src/bindings.ts").unwrap();
     let res = export! {
         &mut target,
+
+        glossary::Term,
+        glossary::TermUpdate,
 
         chapters::Chapter,
         chapters::ChapterStatus,
@@ -123,6 +130,10 @@ fn ts_binding_generator() {
         proposed_page_edits::PageProposal,
         proposed_page_edits::ProposalCount,
 
+        roles::RoleUser,
+        roles::RoleDomain,
+        roles::UserRole,
+
         submissions::Submission,
         submissions::SubmissionCount,
         submissions::SubmissionCountByWeekAndHour,
@@ -140,6 +151,8 @@ fn ts_binding_generator() {
 
         users::User,
 
+        RoleQuery,
+        RoleInfo,
         PreviousSubmission,
         ExamData,
         ExamEnrollmentData,
@@ -151,6 +164,7 @@ fn ts_binding_generator() {
         GetFeedbackQuery,
         GetEditProposalsQuery,
         ErrorResponse,
+        ErrorData,
         Pagination
     };
     res.unwrap();

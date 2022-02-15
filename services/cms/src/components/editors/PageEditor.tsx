@@ -1,11 +1,12 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import SaveIcon from "@material-ui/icons/Save"
-import LoadingButton from "@material-ui/lab/LoadingButton"
+import SaveIcon from "@mui/icons-material/Save"
+import LoadingButton from "@mui/lab/LoadingButton"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { UseMutationResult } from "react-query"
 
 import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
@@ -13,8 +14,8 @@ import { EditorContentDispatch, editorContentReducer } from "../../contexts/Edit
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
 import DebugModal from "../../shared-module/components/DebugModal"
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
-import { cmsNormalWidthCenteredComponentStyles } from "../../styles/EditorStyles"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
@@ -23,7 +24,7 @@ import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
 interface PageEditorProps {
   data: Page
-  handleSave: (page: CmsPageUpdate) => Promise<ContentManagementPage>
+  saveMutation: UseMutationResult<ContentManagementPage, unknown, CmsPageUpdate, unknown>
 }
 
 const EditorLoading = <Spinner variant="medium" />
@@ -47,7 +48,7 @@ const supportedBlocks = (chapter_id: string | null, exam_id: string | null): str
   return allSupportedBlocks
 }
 
-const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
+const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
   const { t } = useTranslation()
   const [title, setTitle] = useState(data.title)
   const [content, contentDispatch] = useReducer(
@@ -57,33 +58,24 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
       supportedBlocks(data.chapter_id, data.exam_id),
     ) as BlockInstance[],
   )
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const currentContentStateSaved = data.content === content
 
   const handleOnSave = async () => {
-    setSaving(true)
-    try {
-      const res = await handleSave(
-        normalizeDocument(
-          data.id,
-          removeUnsupportedBlockType(content),
-          title,
-          data.url_path,
-          data.chapter_id,
-        ),
-      )
-      setError(null)
-      contentDispatch({ type: "setContent", payload: denormalizeDocument(res) })
-    } catch (e: unknown) {
-      if (!(e instanceof Error)) {
-        throw e
-      }
-      setError(e.toString())
-    } finally {
-      setSaving(false)
-    }
+    saveMutation.mutate(
+      normalizeDocument(
+        data.id,
+        removeUnsupportedBlockType(content),
+        title,
+        data.url_path,
+        data.chapter_id,
+      ),
+      {
+        onSuccess: (data) => {
+          contentDispatch({ type: "setContent", payload: denormalizeDocument(data) })
+        },
+      },
+    )
   }
 
   let mediaUpload
@@ -98,22 +90,23 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>
       <div className="editor__component">
-        <div className={cmsNormalWidthCenteredComponentStyles}>
-          {error && <pre>{error}</pre>}
+        <div>
+          {saveMutation.isError && <ErrorBanner variant={"text"} error={saveMutation.error} />}
           <LoadingButton
             // eslint-disable-next-line i18next/no-literal-string
             loadingPosition="start"
             startIcon={<SaveIcon />}
-            loading={saving}
+            loading={saveMutation.isLoading}
             onClick={handleOnSave}
           >
+            {/* TODO: This doesn't work? */}
             {currentContentStateSaved ? t("saved") : t("save")}
           </LoadingButton>
 
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />
         </div>
       </div>
-      <div className={cmsNormalWidthCenteredComponentStyles}>
+      <div>
         <GutenbergEditor
           content={content}
           onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
@@ -130,7 +123,6 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, handleSave }) => {
       <div className="editor__component">
         <div
           className={css`
-            ${cmsNormalWidthCenteredComponentStyles}
             margin-top: 1rem;
             margin-bottom: 1rem;
           `}

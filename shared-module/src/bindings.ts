@@ -157,6 +157,7 @@ export interface NewCourse {
   language_code: string
   teacher_in_charge_name: string
   teacher_in_charge_email: string
+  description: string
 }
 
 export interface CourseCount {

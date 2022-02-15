@@ -102,7 +102,14 @@ const FeedbackView: React.FC<FeedbackViewProps> = ({ feedback, setRead }) => {
                   .sort((a, b) => a.text?.localeCompare(b.text ?? "") ?? 0)
                   .sort((a, b) => (a.order_number ?? 0) - (b.order_number ?? 0))
                   .map((b) => (
-                    <p key={b.id}>{b.text}</p>
+                    <p
+                      className={css`
+                        margin-bottom: 0.5rem;
+                      `}
+                      key={b.id}
+                    >
+                      {b.text}
+                    </p>
                   ))}
               </div>
             </details>

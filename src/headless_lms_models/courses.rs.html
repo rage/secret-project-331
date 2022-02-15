@@ -1119,6 +1119,9 @@
 <span id="1118">1118</span>
 <span id="1119">1119</span>
 <span id="1120">1120</span>
+<span id="1121">1121</span>
+<span id="1122">1122</span>
+<span id="1123">1123</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
@@ -1760,6 +1763,7 @@ WHERE organization_id = $1
     <span class="kw">pub</span> <span class="ident">language_code</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">teacher_in_charge_name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">teacher_in_charge_email</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">description</span>: <span class="ident">String</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_course</span>(
@@ -2008,7 +2012,7 @@ WHERE slug = $1
             <span class="ident">course_language_group_id</span>,
             <span class="string">&quot;course&quot;</span>,
             <span class="string">&quot;en-US&quot;</span>,
-            <span class="string">&quot;&quot;</span>,
+            <span class="string">&quot;description&quot;</span>,
         )
         .<span class="kw">await</span>;
         <span class="macro">assert!</span>(<span class="ident">course_id</span>.<span class="ident">is_ok</span>());
@@ -2023,7 +2027,7 @@ WHERE slug = $1
             <span class="ident">course_language_group_id</span>,
             <span class="string">&quot;course&quot;</span>,
             <span class="string">&quot;&quot;</span>,
-            <span class="string">&quot;&quot;</span>,
+            <span class="string">&quot;description&quot;</span>,
         )
         .<span class="kw">await</span>;
         <span class="macro">assert!</span>(<span class="ident">course_id</span>.<span class="ident">is_err</span>());
@@ -2038,7 +2042,7 @@ WHERE slug = $1
             <span class="ident">course_language_group_id</span>,
             <span class="string">&quot;course&quot;</span>,
             <span class="string">&quot;en-us&quot;</span>,
-            <span class="string">&quot;&quot;</span>,
+            <span class="string">&quot;description&quot;</span>,
         )
         .<span class="kw">await</span>;
         <span class="macro">assert!</span>(<span class="ident">course_id</span>.<span class="ident">is_err</span>());
@@ -2053,7 +2057,7 @@ WHERE slug = $1
             <span class="ident">course_language_group_id</span>,
             <span class="string">&quot;course&quot;</span>,
             <span class="string">&quot;en_US&quot;</span>,
-            <span class="string">&quot;&quot;</span>,
+            <span class="string">&quot;description&quot;</span>,
         )
         .<span class="kw">await</span>;
         <span class="macro">assert!</span>(<span class="ident">course_id</span>.<span class="ident">is_err</span>());
@@ -2070,7 +2074,7 @@ WHERE slug = $1
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="string">&quot;&quot;</span>,
             <span class="string">&quot;&quot;</span>,
-            <span class="string">&quot;&quot;</span>,
+            <span class="string">&quot;description&quot;</span>,
             <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8c34e601-b5db-4b33-a588-57cb6a5b1669&quot;</span>).<span class="ident">unwrap</span>(),
         )
         .<span class="kw">await</span>
@@ -2089,6 +2093,7 @@ WHERE slug = $1
                 <span class="ident">slug</span>: <span class="string">&quot;course&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.org&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
             },
             <span class="ident">user_id</span>,
         )
@@ -2163,6 +2168,7 @@ WHERE slug = $1
                 <span class="ident">slug</span>: <span class="string">&quot;kurssi&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.org&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
             },
         )
         .<span class="kw">await</span>

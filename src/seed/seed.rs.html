@@ -2592,6 +2592,10 @@
 <span id="2591">2591</span>
 <span id="2592">2592</span>
 <span id="2593">2593</span>
+<span id="2594">2594</span>
+<span id="2595">2595</span>
+<span id="2596">2596</span>
+<span id="2597">2597</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -2951,6 +2955,7 @@
         <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
     };
     <span class="kw">let</span> (<span class="ident">cs_course</span>, <span class="ident">_cs_front_page</span>, <span class="ident">_cs_default_course_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
@@ -2994,6 +2999,7 @@
         <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
     };
     <span class="kw">let</span> (<span class="ident">statistics_course</span>, <span class="ident">_statistics_front_page</span>, <span class="ident">_statistics_default_course_instance</span>) <span class="op">=</span>
         <span class="ident">courses::insert_course</span>(
@@ -3797,6 +3803,7 @@
         <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
     };
     <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">_front_page</span>, <span class="ident">default_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
         <span class="ident">conn</span>,
@@ -4654,6 +4661,7 @@
         <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
     };
     <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">front_page</span>, <span class="ident">_default_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
         <span class="ident">conn</span>,

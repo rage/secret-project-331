@@ -41,7 +41,7 @@ test("test", async ({ page, headless }) => {
   await page.fill("text=Teacher in charge name", "teacher")
   await page.fill("text=Teacher in charge email", "teacher@example.com")
 
-  // await page.fill("text=Description", "Course description")
+  await page.fill('textarea:below(:text("Description"))', "Course description")
 
   // Click text=Create course
   await page.click(`button:text("Create")`)

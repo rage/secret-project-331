@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CardSVG from "../../img/cardNext.svg"
-import { baseTheme, headingFont, typography } from "../../styles"
+import { headingFont, typography } from "../../styles"
 import { cardHeight, cardMaxWidth } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 

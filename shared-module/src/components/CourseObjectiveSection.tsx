@@ -26,6 +26,7 @@ const TextBox = styled.div`
     z-index: 20;
     margin-bottom: 1em;
     font-size: 3.5rem;
+    text-transform: uppercase;
   }
 
   span {

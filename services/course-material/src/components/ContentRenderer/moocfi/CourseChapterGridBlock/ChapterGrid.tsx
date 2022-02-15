@@ -16,9 +16,19 @@ import { withMultipleClassNames } from "../../../../shared-module/utils/styles"
 
 import ChapterGridCard from "./ChapterGridCard"
 
-const YELLOW = "yellow"
-
-const COLORS_ARRAY = ["#215887", "#1F6964", "#822630", "#A84835", "#E3C954", "#6245A9", "#313947"]
+const COLORS_ARRAY = [
+  "#215887",
+  "#1F6964",
+  "#822630",
+  "#A84835",
+  "#6245A9",
+  "#313947",
+  "#51309F",
+  "#065853",
+  "#1A2333",
+  "#065853",
+  "#08457A",
+]
 
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   const { t } = useTranslation()
@@ -44,6 +54,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
           font-weight: 400;
           text-align: center;
           padding-bottom: 1em;
+          text-transform: uppercase;
         `}
       >
         {t("course-overview")}

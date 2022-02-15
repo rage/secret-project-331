@@ -28,6 +28,7 @@ const TextBox = styled.div`
     margin-bottom: 0.5rem;
     margin-top: 1.5rem;
     line-height: 1;
+    text-transform: uppercase;
   }
 
   span {

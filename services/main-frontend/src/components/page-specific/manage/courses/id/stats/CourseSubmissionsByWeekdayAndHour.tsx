@@ -8,6 +8,8 @@ import { fetchCourseWeekdayHourSubmissionCounts } from "../../../../../../servic
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import { dontRenderUntilQueryParametersReady } from "../../../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../../../shared-module/utils/withErrorBoundary"
 
 import Echarts from "./Echarts"
 
@@ -91,17 +93,15 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
       <Echarts
         height={1000}
         options={{
-          title: Object.entries(getCourseWeekdayHourSubmissionCount.data.dataByWeekDay).map(
-            ([weekdayNumber, _entries], i) => {
-              return {
-                // eslint-disable-next-line i18next/no-literal-string
-                textBaseline: "middle",
-                top: ((i + 0.5) * 100) / 7 + "%",
-                // @ts-expect-error: todo
-                text: isodowToWeekdayName[weekdayNumber],
-              }
-            },
-          ),
+          title: Object.keys(isodowToWeekdayName).map((weekdayNumber, i) => {
+            return {
+              // eslint-disable-next-line i18next/no-literal-string
+              textBaseline: "middle",
+              top: ((i + 0.5) * 100) / 7 + "%",
+              // @ts-expect-error: todo
+              text: isodowToWeekdayName[weekdayNumber],
+            }
+          }),
           tooltip: {
             // eslint-disable-next-line i18next/no-literal-string
             position: "top",
@@ -157,4 +157,6 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
   )
 }
 
-export default CourseSubmissionsByWeekdayAndHour
+export default withErrorBoundary(
+  dontRenderUntilQueryParametersReady(CourseSubmissionsByWeekdayAndHour),
+)

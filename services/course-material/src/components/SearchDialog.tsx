@@ -125,7 +125,6 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
       />
       {/* eslint-disable-next-line i18next/no-literal-string */}
       <Dialog
-        /* maxWidth="1200px" */
         fullWidth={true}
         open={open}
         onClose={closeModal}
@@ -171,11 +170,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
             >
               {error && <div>{error}</div>}
               {
-                <div
-                /* className={css`
-
-                  `} */
-                >
+                <div>
                   {combinedResults?.map((result) => {
                     if (!result.title_headline) {
                       return null

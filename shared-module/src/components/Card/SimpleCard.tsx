@@ -10,9 +10,13 @@ import { respondToOrLarger } from "../../styles/respond"
 
 import { CardExtraProps } from "."
 
-export const BackgroundStyles = (props: CardExtraProps) => {
+export interface BackgroundProps {
+  bg: string | undefined
+}
+
+export const BackgroundStyles = ({ bg }: BackgroundProps) => {
   const CARD_BACKGROUND_STYLES = `
-    background: ${props.bg ? props.bg : "#fff"};
+    background: ${bg ? bg : "#fff"};
   `
   return CARD_BACKGROUND_STYLES
 }

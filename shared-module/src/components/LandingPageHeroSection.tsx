@@ -82,6 +82,7 @@ const LandingPageHeroSection: React.FC<CardProps> = ({ title, children }) => {
             // eslint-disable-next-line i18next/no-literal-string
             firstChapterGrid.scrollIntoView({ behavior: "smooth" })
           }}
+          disabled
         >
           {t("start-course")}
         </Button>

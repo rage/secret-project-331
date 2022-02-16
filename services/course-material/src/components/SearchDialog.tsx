@@ -169,7 +169,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
             />
             <div
               className={css`
-                /* margin-top: 1rem; */
+                margin-top: 1rem;
               `}
             >
               {error && <div>{error}</div>}
@@ -195,12 +195,12 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
                             text-decoration: none;
                             color: unset;
                             display: block;
-                            margin-bottom: 1rem;
-
+                            background: #f5f6f7;
+                            margin-bottom: 0.5rem;
                             padding: 1rem;
 
                             :hover {
-                              background: #f3f3f3;
+                              background: #ebedee;
                             }
                           `}
                           key={result.id}

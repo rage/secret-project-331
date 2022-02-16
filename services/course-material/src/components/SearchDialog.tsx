@@ -26,7 +26,7 @@ const StTextField = styled.input`
   width: 100%;
   padding: 0 20px;
   height: 70px;
-  box-shadow: 0px 8px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 8px 40px rgb(0 0 0 / 6%);
   border-radius: 3px;
   border: 0 !important;
   outline: 0 !important;

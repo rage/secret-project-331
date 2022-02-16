@@ -5,4 +5,6 @@ type Vec<PageProposal> = Array<{
   pending: boolean
   created_at: Date
   block_proposals: Array<BlockProposal>
+  page_title: string
+  page_url_path: string
 }>

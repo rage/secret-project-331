@@ -23,13 +23,15 @@ test.describe("quizzes tests", () => {
     await page.click(`button:text("Create")`)
 
     // Click input[type="text"]
-    await page.click('input[type="text"]')
+    await page.click('input[type="radio"]')
 
     // Fill input[type="text"]
-    await page.fill('input[type="text"]', "quizzes test")
+    await page.fill("text=Name", "quizzes test")
 
-    await page.fill('input[id="teacher-in-charge-name"]', "teacher")
-    await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
+    await page.fill("text=Teacher in charge name", "teacher")
+    await page.fill("text=Teacher in charge email", "teacher@example.com")
+
+    await page.fill('textarea:below(:text("Description"))', "Course description")
 
     // Click text=Create course
     await page.click(`button:text("Create"):below(:text("Course language"))`)
@@ -47,7 +49,7 @@ test.describe("quizzes tests", () => {
     expectPath(page, "/manage/courses/[id]")
 
     // Click text=Manage pages
-    await Promise.all([page.waitForNavigation(), page.click("text=Manage pages")])
+    await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
     expectPath(page, "/manage/courses/[id]/pages")
 
     // Click text=Add new chapter

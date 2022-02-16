@@ -3,12 +3,12 @@ import React from "react"
 
 interface TextAreaExtraProps {
   label: string
-  name: string
+  name?: string
   errorMessage?: string
   placeholder?: string
   required?: boolean
   value?: string
-  disabled: boolean
+  disabled?: boolean
   maxlength?: string
   onChange: (value: string, name?: string) => void
 }

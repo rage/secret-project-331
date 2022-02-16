@@ -22,13 +22,15 @@ test("test", async ({ page }) => {
   await page.click(`button:text("Create")`)
 
   // Click input[type="text"]
-  await page.click('input[type="text"]')
+  await page.click('input[type="radio"]')
 
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "Introduction to System Level Testing")
+  await page.fill("text=Name", "Introduction to System Level Testing")
 
-  await page.fill('input[id="teacher-in-charge-name"]', "teacher")
-  await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
+  await page.fill("text=Teacher in charge name", "teacher")
+  await page.fill("text=Teacher in charge email", "teacher@example.com")
+
+  await page.fill('textarea:below(:text("Description"))', "Course description")
 
   // Click text=Create course
   await page.click(`button:text("Create"):below(:text("Course language"))`)
@@ -43,7 +45,7 @@ test("test", async ({ page }) => {
   // Click text=Manage pages
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/1bd0eaef-ba4b-4c94-ba76-83ecab229274/pages' }*/),
-    page.click("text=Manage pages"),
+    page.click("text=Pages"),
   ])
 
   // Click button:has-text("Add new chapter")

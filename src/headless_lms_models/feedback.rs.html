@@ -172,6 +172,31 @@
 <span id="171">171</span>
 <span id="172">172</span>
 <span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">TS</span>)]</span>
@@ -179,12 +204,14 @@
     <span class="kw">pub</span> <span class="ident">feedback_given</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">selected_text</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">related_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FeedbackBlock</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FeedbackBlock</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">text</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
@@ -196,26 +223,28 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
-INSERT INTO feedback(user_id, course_id, feedback_given, selected_text)
-VALUES ($1, $2, $3, $4)
+INSERT INTO feedback(user_id, course_id, feedback_given, selected_text, page_id)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
 &quot;</span>,
         <span class="ident">user_id</span>,
         <span class="ident">course_id</span>,
         <span class="ident">new_feedback</span>.<span class="ident">feedback_given</span>,
-        <span class="ident">new_feedback</span>.<span class="ident">selected_text</span>
+        <span class="ident">new_feedback</span>.<span class="ident">selected_text</span>,
+        <span class="ident">new_feedback</span>.<span class="ident">page_id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">new_feedback</span>.<span class="ident">related_blocks</span> {
+    <span class="kw">for</span> (<span class="ident">n</span>, <span class="ident">block</span>) <span class="kw">in</span> <span class="ident">new_feedback</span>.<span class="ident">related_blocks</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;
-INSERT INTO block_feedback(feedback_id, block_id, block_text)
-VALUES ($1, $2, $3)
+INSERT INTO block_feedback(feedback_id, block_id, block_text, order_number)
+VALUES ($1, $2, $3, $4)
 &quot;</span>,
             <span class="ident">res</span>.<span class="ident">id</span>,
             <span class="ident">block</span>.<span class="ident">id</span>,
             <span class="ident">block</span>.<span class="ident">text</span>,
+            <span class="ident">n</span> <span class="kw">as</span> <span class="ident">i32</span>
         )
         .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -244,11 +273,14 @@ WHERE id = $2
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">feedback_given</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">selected_text</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">marked_as_read</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FeedbackBlock</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">page_title</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">page_url_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_feedback_for_course</span>(
@@ -259,34 +291,44 @@ WHERE id = $2
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Feedback</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
-SELECT feedback.id,
-  feedback.user_id,
-  feedback.course_id as &quot;course_id!&quot;,
-  feedback.feedback_given,
-  feedback.selected_text,
-  feedback.marked_as_read,
-  feedback.created_at,
-  array_agg(block_feedback.block_id) filter (
-    where block_feedback.block_id IS NOT NULL
-  ) AS &quot;block_ids: Vec&lt;Uuid&gt;&quot;,
-  array_agg(block_feedback.block_text) filter (
-    where block_feedback.block_id IS NOT NULL
-  ) AS &quot;block_texts: Vec&lt;Option&lt;String&gt;&gt;&quot;
-FROM feedback
-  LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id
-WHERE course_id = $1
-  AND feedback.marked_as_read = $2
-  AND feedback.deleted_at IS NULL
-  AND block_feedback.deleted_at IS NULL
-GROUP BY feedback.id,
-  feedback.user_id,
-  feedback.course_id,
-  feedback.feedback_given,
-  feedback.marked_as_read,
-  feedback.created_at
-ORDER BY feedback.created_at DESC,
-  feedback.id
-LIMIT $3 OFFSET $4
+SELECT fb.*,
+  pages.title as &quot;page_title&quot;,
+  pages.url_path as &quot;page_url_path&quot;
+FROM (
+    SELECT feedback.id as &quot;id!&quot;,
+      feedback.user_id,
+      feedback.course_id as &quot;course_id!&quot;,
+      feedback.page_id,
+      feedback.feedback_given as &quot;feedback_given!&quot;,
+      feedback.selected_text,
+      feedback.marked_as_read as &quot;marked_as_read!&quot;,
+      feedback.created_at as &quot;created_at!&quot;,
+      array_agg(block_feedback.block_id) filter (
+        where block_feedback.block_id IS NOT NULL
+      ) AS &quot;block_ids: Vec&lt;Uuid&gt;&quot;,
+      array_agg(block_feedback.block_text) filter (
+        where block_feedback.block_id IS NOT NULL
+      ) AS &quot;block_texts: Vec&lt;Option&lt;String&gt;&gt;&quot;,
+      array_agg(block_feedback.order_number) filter (
+        where block_feedback.block_id IS NOT NULL
+      ) AS &quot;block_order_numbers: Vec&lt;Option&lt;i32&gt;&gt;&quot;
+    FROM feedback
+      LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id
+    WHERE course_id = $1
+      AND feedback.marked_as_read = $2
+      AND feedback.deleted_at IS NULL
+      AND block_feedback.deleted_at IS NULL
+    GROUP BY feedback.id,
+      feedback.user_id,
+      feedback.course_id,
+      feedback.feedback_given,
+      feedback.marked_as_read,
+      feedback.created_at
+    ORDER BY feedback.created_at DESC,
+      feedback.id
+    LIMIT $3 OFFSET $4
+  ) fb
+  JOIN pages on pages.id = fb.page_id
 &quot;#</span>,
         <span class="ident">course_id</span>,
         <span class="ident">read</span>,
@@ -297,6 +339,7 @@ LIMIT $3 OFFSET $4
         <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
         <span class="ident">user_id</span>: <span class="ident">r</span>.<span class="ident">user_id</span>,
         <span class="ident">course_id</span>: <span class="ident">r</span>.<span class="ident">course_id</span>,
+        <span class="ident">page_id</span>: <span class="ident">r</span>.<span class="ident">page_id</span>,
         <span class="ident">feedback_given</span>: <span class="ident">r</span>.<span class="ident">feedback_given</span>,
         <span class="ident">selected_text</span>: <span class="ident">r</span>.<span class="ident">selected_text</span>,
         <span class="ident">marked_as_read</span>: <span class="ident">r</span>.<span class="ident">marked_as_read</span>,
@@ -306,8 +349,15 @@ LIMIT $3 OFFSET $4
             .<span class="ident">unwrap_or_default</span>()
             .<span class="ident">into_iter</span>()
             .<span class="ident">zip</span>(<span class="ident">r</span>.<span class="ident">block_texts</span>.<span class="ident">unwrap_or_default</span>())
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="ident">text</span>)<span class="op">|</span> <span class="ident">FeedbackBlock</span> { <span class="ident">id</span>, <span class="ident">text</span> })
+            .<span class="ident">zip</span>(<span class="ident">r</span>.<span class="ident">block_order_numbers</span>.<span class="ident">unwrap_or_default</span>())
+            .<span class="ident">map</span>(<span class="op">|</span>((<span class="ident">id</span>, <span class="ident">text</span>), <span class="ident">order_number</span>)<span class="op">|</span> <span class="ident">FeedbackBlock</span> {
+                <span class="ident">id</span>,
+                <span class="ident">text</span>,
+                <span class="ident">order_number</span>,
+            })
             .<span class="ident">collect</span>(),
+        <span class="ident">page_title</span>: <span class="ident">r</span>.<span class="ident">page_title</span>,
+        <span class="ident">page_url_path</span>: <span class="ident">r</span>.<span class="ident">page_url_path</span>,
     })
     .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

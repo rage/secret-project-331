@@ -2607,6 +2607,15 @@
 <span id="2606">2606</span>
 <span id="2607">2607</span>
 <span id="2608">2608</span>
+<span id="2609">2609</span>
+<span id="2610">2610</span>
+<span id="2611">2611</span>
+<span id="2612">2612</span>
+<span id="2613">2613</span>
+<span id="2614">2614</span>
+<span id="2615">2615</span>
+<span id="2616">2616</span>
+<span id="2617">2617</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -4327,7 +4336,7 @@
             <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
     );
 
-    <span class="ident">create_page</span>(
+    <span class="kw">let</span> <span class="ident">page_3</span> <span class="op">=</span> <span class="ident">create_page</span>(
         <span class="ident">conn</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">admin</span>,
@@ -4585,7 +4594,9 @@
                 <span class="string">&quot;blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas&quot;</span>
                     .<span class="ident">to_string</span>(),
             ),
+            <span class="ident">order_number</span>: <span class="prelude-val">Some</span>(<span class="number">0</span>),
         }],
+        <span class="ident">page_id</span>: <span class="ident">page_3</span>,
     };
     <span class="kw">let</span> <span class="ident">feedback</span> <span class="op">=</span> <span class="ident">feedback::insert</span>(<span class="ident">conn</span>, <span class="prelude-val">Some</span>(<span class="ident">student</span>), <span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">new_feedback</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">feedback::mark_as_read</span>(<span class="ident">conn</span>, <span class="ident">feedback</span>, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -4596,16 +4607,20 @@
             <span class="ident">FeedbackBlock</span> {
                 <span class="ident">id</span>: <span class="ident">block_id_1</span>,
                 <span class="ident">text</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;verything is a big topic.&quot;</span>.<span class="ident">to_string</span>()),
+                <span class="ident">order_number</span>: <span class="prelude-val">Some</span>(<span class="number">0</span>),
             },
             <span class="ident">FeedbackBlock</span> {
                 <span class="ident">id</span>: <span class="ident">block_id_4</span>,
                 <span class="ident">text</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;So big, that we need many paragraphs.&quot;</span>.<span class="ident">to_string</span>()),
+                <span class="ident">order_number</span>: <span class="prelude-val">Some</span>(<span class="number">1</span>),
             },
             <span class="ident">FeedbackBlock</span> {
                 <span class="ident">id</span>: <span class="ident">block_id_5</span>,
                 <span class="ident">text</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Like th&quot;</span>.<span class="ident">to_string</span>()),
+                <span class="ident">order_number</span>: <span class="prelude-val">Some</span>(<span class="number">2</span>),
             },
         ],
+        <span class="ident">page_id</span>: <span class="ident">page_3</span>,
     };
     <span class="ident">feedback::insert</span>(<span class="ident">conn</span>, <span class="prelude-val">Some</span>(<span class="ident">student</span>), <span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">new_feedback</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">feedback::insert</span>(
@@ -4618,7 +4633,9 @@
             <span class="ident">related_blocks</span>: <span class="macro">vec!</span>[<span class="ident">FeedbackBlock</span> {
                 <span class="ident">id</span>: <span class="ident">block_id_1</span>,
                 <span class="ident">text</span>: <span class="prelude-val">None</span>,
+                <span class="ident">order_number</span>: <span class="prelude-val">Some</span>(<span class="number">0</span>),
             }],
+            <span class="ident">page_id</span>: <span class="ident">page_3</span>,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -4630,6 +4647,7 @@
             <span class="ident">feedback_given</span>: <span class="string">&quot;Anonymous unrelated feedback&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">selected_text</span>: <span class="prelude-val">None</span>,
             <span class="ident">related_blocks</span>: <span class="macro">vec!</span>[],
+            <span class="ident">page_id</span>: <span class="ident">page_3</span>,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

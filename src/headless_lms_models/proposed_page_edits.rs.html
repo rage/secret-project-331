@@ -515,6 +515,13 @@
 <span id="514">514</span>
 <span id="515">515</span>
 <span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">hash_map::Entry</span>, <span class="ident">HashMap</span>};
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{<span class="ident">document_schema_processor::GutenbergBlock</span>, <span class="ident">merge_edits</span>};
@@ -543,6 +550,8 @@
     <span class="kw">pub</span> <span class="ident">pending</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">block_proposals</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockProposal</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">page_title</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">page_url_path</span>: <span class="ident">String</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">TS</span>)]</span>
@@ -628,7 +637,9 @@ SELECT proposed_page_edits.id AS &quot;page_proposal_id!&quot;,
   proposed_page_edits.pending as &quot;pending!&quot;,
   block_attribute,
   proposed_block_edits.status as &quot;block_proposal_status: ProposalStatus&quot;,
-  proposed_page_edits.created_at as &quot;created_at!&quot;
+  proposed_page_edits.created_at as &quot;created_at!&quot;,
+  pages.title as &quot;page_title!&quot;,
+  pages.url_path as &quot;page_url_path!&quot;
 FROM (
     SELECT id,
       page_id,
@@ -644,6 +655,7 @@ FROM (
     LIMIT $3 OFFSET $4
   ) proposed_page_edits
   LEFT JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id
+  LEFT JOIN pages ON proposed_page_edits.page_id = pages.id
 WHERE proposed_block_edits.deleted_at IS NULL
 &quot;#</span>,
         <span class="ident">course_id</span>,
@@ -711,6 +723,8 @@ WHERE proposed_block_edits.deleted_at IS NULL
                     <span class="ident">pending</span>: <span class="ident">page_proposal_pending</span>,
                     <span class="ident">created_at</span>,
                     <span class="ident">block_proposals</span>: <span class="ident">Vec::new</span>(),
+                    <span class="ident">page_title</span>: <span class="ident">r</span>.<span class="ident">page_title</span>,
+                    <span class="ident">page_url_path</span>: <span class="ident">r</span>.<span class="ident">page_url_path</span>,
                 });
         <span class="ident">page_proposal</span>.<span class="ident">block_proposals</span>.<span class="ident">push</span>(<span class="ident">BlockProposal</span> {
             <span class="ident">accept_preview</span>: <span class="ident">merge_edits::merge</span>(<span class="kw-2">&amp;</span><span class="ident">original_text</span>, <span class="kw-2">&amp;</span><span class="ident">changed_text</span>, <span class="kw-2">&amp;</span><span class="ident">content</span>),

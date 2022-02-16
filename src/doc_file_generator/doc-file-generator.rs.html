@@ -746,6 +746,15 @@
 <span id="745">745</span>
 <span id="746">746</span>
 <span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -1339,7 +1348,14 @@
             <span class="ident">selected_text</span>: <span class="prelude-val">None</span>,
             <span class="ident">marked_as_read</span>: <span class="bool-val">false</span>,
             <span class="ident">created_at</span>: <span class="ident">date_time</span>,
-            <span class="ident">blocks</span>: <span class="macro">vec!</span>[<span class="ident">FeedbackBlock</span> { <span class="ident">id</span>, <span class="ident">text</span>: <span class="prelude-val">None</span> }]
+            <span class="ident">blocks</span>: <span class="macro">vec!</span>[<span class="ident">FeedbackBlock</span> {
+                <span class="ident">id</span>,
+                <span class="ident">text</span>: <span class="prelude-val">None</span>,
+                <span class="ident">order_number</span>: <span class="prelude-val">Some</span>(<span class="number">0</span>)
+            }],
+            <span class="ident">page_id</span>: <span class="prelude-val">Some</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;bba0eda6-882b-4a0f-ad91-b02de1de4770&quot;</span>).<span class="ident">unwrap</span>()),
+            <span class="ident">page_title</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;The title of the page&quot;</span>.<span class="ident">to_string</span>()),
+            <span class="ident">page_url_path</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;/path-to-page&quot;</span>.<span class="ident">to_string</span>())
         }]
     );
     <span class="macro">write_docs!</span>(<span class="ident">FeedbackCount</span>, <span class="ident">FeedbackCount</span> { <span class="ident">read</span>: <span class="number">1</span>, <span class="ident">unread</span>: <span class="number">2</span> });
@@ -1408,7 +1424,9 @@
                 <span class="ident">changed_text</span>: <span class="string">&quot;Hello, world!&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">status</span>: <span class="ident">ProposalStatus::Accepted</span>,
                 <span class="ident">accept_preview</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Hello, world!!&quot;</span>.<span class="ident">to_string</span>())
-            }]
+            }],
+            <span class="ident">page_title</span>: <span class="string">&quot;Page title&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">page_url_path</span>: <span class="string">&quot;/path/to/page&quot;</span>.<span class="ident">to_string</span>()
         }]
     );
     <span class="macro">write_docs!</span>(

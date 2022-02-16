@@ -132,6 +132,11 @@ test("test", async ({ headless, page }) => {
     headless,
     snapshotName: "feedback-empty",
     waitForThisToBeVisibleAndStable: `text=No feedback`,
+    beforeScreenshot: async () => {
+      page.evaluate(() => {
+        window.scrollTo({ top: 0, left: 0 })
+      })
+    },
     waitForNotificationsToClear: true,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })

@@ -8,15 +8,20 @@ import LockIcon from "../img/lock.svg"
 import { baseTheme, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
+// eslint-disable-next-line i18next/no-literal-string
 const SectionWrapper = styled.div`
   margin-top: 3rem;
-  background: #f0f0f0;
-  padding: 3rem 2rem;
+  ${respondToOrLarger.sm} {
+    margin-top: 6rem;
+    margin-bottom: 4rem;
+  }
+  background: ${baseTheme.colors.clear[100]};
+  padding: 4rem 3rem;
 
   p {
-    font-size: 1rem;
-    color: ${baseTheme.colors.grey[700]};
-    margin: 0;
+    font-size: 1.1rem;
+    color: ${baseTheme.colors.grey[500]};
+    margin: 0.5rem 0;
     padding: 0;
     display: flex;
   }
@@ -33,19 +38,24 @@ const SectionWrapper = styled.div`
 `
 
 const StyledArrow = styled.div`
+  color: white;
   position: absolute;
   top: 0;
   right: 0;
   width: auto;
   height: 100%;
   padding: 1rem 1rem;
-  background: #cacaca;
+  background: ${baseTheme.colors.green[600]};
   display: flex;
   justify-content: center;
   align-items: center;
 
+  .arrow {
+    fill: #fff;
+  }
+
   ${respondToOrLarger.sm} {
-    padding: 1rem 1.6rem;
+    padding: 1.6rem;
     width: auto;
   }
 
@@ -56,42 +66,36 @@ const StyledArrow = styled.div`
       width: 80%;
     }
   }
-
-  &:hover {
-    .arrow {
-      fill: #fe9677;
-    }
-  }
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const StyledLinkWrapper = styled.div`
   position: relative;
-  color: #c4c4c4;
+  color: black;
   text-decoration: none;
-  padding: 1.2rem 1.2rem;
+  padding: 1.6rem 2.4rem;
   margin: 1rem 0;
   display: flex;
   min-width: 100%;
-  background-color: ${baseTheme.colors.grey[700]};
-  transition: background-color 0.2s;
+  background-color: ${baseTheme.colors.green[100]};
+  font-weight: bold;
+  transition: filter 0.2s;
 
   ${respondToOrLarger.sm} {
-    padding: 1.4rem 1.4rem;
-    background-color: ${baseTheme.colors.grey[700]};
+    padding: 1.6rem;
   }
 
   &:hover {
     text-decoration: none;
-    color: white;
-    background-color: ${baseTheme.colors.grey[700]};
+    filter: brightness(92%) contrast(110%);
+    cursor: pointer;
   }
 
   span {
     font-size: ${typography.h6};
-    color: white !important;
     line-height: 1.3;
     width: 68%;
+    color: black;
 
     ${respondToOrLarger.sm} {
       width: 100%;
@@ -114,7 +118,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
       <Fragment>
         <h2
           className={css`
-            font-size: 1.25rem;
+            font-size: 1.6rem;
           `}
         >
           {title}
@@ -143,8 +147,8 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
                         id="svg-icon"
                         role="presentation"
                         alt=""
-                        width="38.7"
-                        height="38.7"
+                        width="25"
+                        height="25"
                         viewBox="0 0 39 39"
                       />
                     </StyledArrow>

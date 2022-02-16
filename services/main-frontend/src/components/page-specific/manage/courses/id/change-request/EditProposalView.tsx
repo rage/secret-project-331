@@ -54,7 +54,12 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
   const pendingBlock = (block: BlockProposal) => {
     return (
       <div>
-        <div>{t("block-id", { id: block.id })}</div>
+        <div>
+          <HideTextInSystemTests
+            text={t("block-id", { id: block.block_id })}
+            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
+          />
+        </div>
         <div>
           {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
         </div>
@@ -161,7 +166,12 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
     return (
       <>
         {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
-        <div>{t("block-id", { id: block.block_id })}</div>
+        <div>
+          <HideTextInSystemTests
+            text={t("block-id", { id: block.block_id })}
+            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
+          />
+        </div>
         <div>
           {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
         </div>

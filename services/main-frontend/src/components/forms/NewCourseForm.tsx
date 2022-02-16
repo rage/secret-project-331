@@ -53,13 +53,10 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
   const handleDuplicateMenu = (e: string, coursesData: Course[]) => {
     const findCourse = coursesData.find((course) => course.id === e)
     const courseName = findCourse?.name ? findCourse?.name : ""
-    const courseLanguage = findCourse?.language_code ? findCourse?.language_code : ""
     setCourseId(e)
-    setName(courseName)
-    setSlug("")
-    setTeacherInChargeName("")
-    setTeacherInChargeEmail("")
-    setLanguageCode(courseLanguage)
+    if (courseName !== "") {
+      setName(courseName)
+    }
   }
 
   const handleCreateNewLanguageVersion = async () => {

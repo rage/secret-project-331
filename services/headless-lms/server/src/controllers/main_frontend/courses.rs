@@ -305,6 +305,38 @@ pub async fn post_new_course_language_version(
 }
 
 /**
+POST `/api/v0/main-frontend/courses/:id/duplicate` - Post new course as a copy from existing one.
+
+# Example
+
+Request:
+```http
+POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/duplicate HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Johdatus kaikkeen",
+  "slug": "johdatus-kaikkeen",
+  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+  "language_code": "fi-FI"
+}
+```
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+pub async fn post_new_course_duplicate(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    payload: web::Json<NewCourse>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Course>> {
+    let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Duplicate, user.id, Res::Course(*course_id)).await?;
+    let copied_course = models::courses::copy_course(&mut conn, *course_id, &payload.0).await?;
+    Ok(web::Json(copied_course))
+}
+
+/**
 GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
 */
 #[generated_doc]
@@ -510,6 +542,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/language-versions",
             web::post().to(post_new_course_language_version),
+        )
+        .route(
+            "/{course_id}/duplicate",
+            web::post().to(post_new_course_duplicate),
         )
         .route("/{course_id}/upload", web::post().to(add_media_for_course))
         .route(

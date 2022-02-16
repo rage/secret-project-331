@@ -9,20 +9,13 @@ import CloseIcon from "../../img/close.svg"
 import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
+import { NotificationWrapper } from "./Base"
+
 interface ErrorNotificationProps {
   header?: string
   message?: string
   toastId?: string
 }
-
-const Wrapper = styled.div`
-  ${respondToOrLarger.xs} {
-    width: 400px;
-    min-height: 100px;
-  }
-  width: 150px;
-  background: ${baseTheme.colors.clear[200]};
-`
 
 const Content = styled.div`
   padding: 1rem 1rem;
@@ -97,7 +90,7 @@ const ErrorMessage = styled.div`
 const ErrorNotification = (props: ErrorNotificationProps) => {
   const { t } = useTranslation()
   return (
-    <Wrapper className="toast-notification">
+    <NotificationWrapper className="toast-notification">
       <Content>
         <IconWrapper>
           <FontAwesomeIcon
@@ -118,7 +111,7 @@ const ErrorNotification = (props: ErrorNotificationProps) => {
           </CloseIconWrapper>
         )}
       </Content>
-    </Wrapper>
+    </NotificationWrapper>
   )
 }
 

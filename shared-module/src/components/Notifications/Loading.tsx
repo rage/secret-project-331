@@ -1,3 +1,4 @@
+import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
@@ -5,17 +6,19 @@ import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 import Spinner from "../Spinner"
 
+import { NotificationWrapper } from "./Base"
+
 interface LoadingNotificationProps {
   message?: string
 }
 
-const Wrapper = styled.div`
-  ${respondToOrLarger.xs} {
-    width: 400px;
-    min-height: 100px;
-  }
-  width: 150px;
-  background: ${baseTheme.colors.clear[200]};
+const fadeIn = keyframes`
+0% {
+  opacity: 0;
+}
+100% {
+  opacity: 1;
+}
 `
 
 const Content = styled.div`
@@ -31,6 +34,14 @@ const Content = styled.div`
   }
   justify-content: center;
   height: 100%;
+  /** We will hide the loading state for a short while because flashing loading animations make the notification look weird **/
+  opacity: 0;
+  animation-name: ${fadeIn};
+  animation-duration: 600ms;
+  animation-timing-function: ease;
+  animation-iteration-count: 1;
+  animation-delay: 400ms;
+  animation-fill-mode: forwards;
 `
 
 const IconWrapper = styled.div`
@@ -65,7 +76,7 @@ const LoadingMessage = styled.div`
 const LoadingNotification = (props: LoadingNotificationProps) => {
   const { t } = useTranslation()
   return (
-    <Wrapper className="toast-notification">
+    <NotificationWrapper className="toast-notification">
       <Content>
         <IconWrapper>
           <Spinner variant={"medium"} />
@@ -74,7 +85,7 @@ const LoadingNotification = (props: LoadingNotificationProps) => {
           <LoadingMessage>{props.message ?? t("default-toast-loading-message")}</LoadingMessage>
         </TextWrapper>
       </Content>
-    </Wrapper>
+    </NotificationWrapper>
   )
 }
 

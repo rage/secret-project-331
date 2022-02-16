@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test"
-import { Page } from "playwright"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 import waitForFunction from "../../utils/waitForFunction"
@@ -149,9 +148,6 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "manage-initial",
     waitForThisToBeVisibleAndStable: "text=Accept",
-    beforeScreenshot: async () => {
-      await replaceIds(page)
-    },
   })
 
   await page.click(':nth-match(:text("Accept"), 1)')
@@ -166,7 +162,6 @@ test("test", async ({ page, headless }) => {
     snapshotName: "manage-before-send",
     waitForThisToBeVisibleAndStable: "text=Send",
     beforeScreenshot: async () => {
-      await replaceIds(page)
       await page.evaluate(() => window.scrollTo(0, 0))
     },
   })
@@ -180,9 +175,7 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "manage-after-send",
     waitForThisToBeVisibleAndStable: "text=Reject",
-    beforeScreenshot: async () => {
-      await replaceIds(page)
-    },
+    waitForNotificationsToClear: true,
   })
 
   await page.click('text="Old"')
@@ -192,9 +185,6 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "manage-old-after-send",
     waitForThisToBeVisibleAndStable: "text=Accepted",
-    beforeScreenshot: async () => {
-      await replaceIds(page)
-    },
   })
 
   // Go to http://project-331.local/
@@ -233,31 +223,3 @@ test("test", async ({ page, headless }) => {
     waitForThisToBeVisibleAndStable: "text=Like this!!!!!",
   })
 })
-
-async function replaceIds(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const divs = document.querySelectorAll("div")
-    for (const div of divs) {
-      if (div.children.length === 0 && div.textContent.includes("Page: ")) {
-        div.innerHTML = 'Page: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"'
-      }
-    }
-  })
-  await page.evaluate(() => {
-    const divs = document.querySelectorAll("div")
-    for (const div of divs) {
-      if (div.children.length === 0 && div.textContent.includes("Block id: ")) {
-        div.innerHTML = "Block id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-      }
-    }
-  })
-  await page.waitForSelector("text=Sent by")
-  await page.evaluate(() => {
-    const divs = document.querySelectorAll("div")
-    for (const div of divs) {
-      if (div.children.length === 0 && div.textContent.includes("Sent by")) {
-        div.innerHTML = "Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx at yyyy-mm-ddThh:mm:ss.xxxZ"
-      }
-    }
-  })
-}

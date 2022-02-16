@@ -26,6 +26,8 @@ pub struct PageProposal {
     pub pending: bool,
     pub created_at: DateTime<Utc>,
     pub block_proposals: Vec<BlockProposal>,
+    pub page_title: String,
+    pub page_url_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
@@ -111,7 +113,9 @@ SELECT proposed_page_edits.id AS "page_proposal_id!",
   proposed_page_edits.pending as "pending!",
   block_attribute,
   proposed_block_edits.status as "block_proposal_status: ProposalStatus",
-  proposed_page_edits.created_at as "created_at!"
+  proposed_page_edits.created_at as "created_at!",
+  pages.title as "page_title!",
+  pages.url_path as "page_url_path!"
 FROM (
     SELECT id,
       page_id,
@@ -127,6 +131,7 @@ FROM (
     LIMIT $3 OFFSET $4
   ) proposed_page_edits
   LEFT JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id
+  LEFT JOIN pages ON proposed_page_edits.page_id = pages.id
 WHERE proposed_block_edits.deleted_at IS NULL
 "#,
         course_id,
@@ -194,6 +199,8 @@ WHERE proposed_block_edits.deleted_at IS NULL
                     pending: page_proposal_pending,
                     created_at,
                     block_proposals: Vec::new(),
+                    page_title: r.page_title,
+                    page_url_path: r.page_url_path,
                 });
         page_proposal.block_proposals.push(BlockProposal {
             accept_preview: merge_edits::merge(&original_text, &changed_text, &content),

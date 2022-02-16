@@ -211,12 +211,14 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
 
         <CardContent>
           <TimeComponent
-            name={`${t("label-created")} `}
+            label={`${t("label-created")} `}
             date={exerciseService.created_at}
             right={false}
+            boldLabel
           />
           <TimeComponent
-            name={`${t("label-updated")} `}
+            label={`${t("label-updated")} `}
+            boldLabel
             date={exerciseService.updated_at}
             right={true}
           />

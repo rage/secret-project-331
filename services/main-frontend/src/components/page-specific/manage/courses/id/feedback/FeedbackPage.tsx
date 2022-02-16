@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React from "react"
 import { useQuery } from "react-query"
 
@@ -36,7 +37,12 @@ const FeedbackPage: React.FC<Props> = ({ courseId, page, limit, read, onChange }
   }
 
   return (
-    <ul>
+    <ul
+      className={css`
+        list-style: none;
+        padding: 0;
+      `}
+    >
       {getFeedbackList.data.map((f) => (
         <li key={f.id}>
           <FeedbackView

@@ -8,7 +8,7 @@ use crate::{
     exams,
     exercise_service_info::get_service_info_by_exercise_type,
     exercise_services::{get_exercise_service_by_exercise_type, get_internal_grade_url},
-    exercise_task_submissions::{ExerciseTaskSubmission, GradingRequest, GradingResult},
+    exercise_task_submissions::ExerciseTaskSubmission,
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     prelude::*,
@@ -35,6 +35,21 @@ pub struct ExerciseTaskGrading {
     pub feedback_json: Option<serde_json::Value>,
     pub feedback_text: Option<String>,
     pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, PartialEq, Eq, Clone)]
+pub struct ExerciseTaskGradingRequest<'a> {
+    pub exercise_spec: &'a Option<serde_json::Value>,
+    pub submission_data: &'a Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+pub struct ExerciseTaskGradingResult {
+    pub grading_progress: GradingProgress,
+    pub score_given: f32,
+    pub score_maximum: i32,
+    pub feedback_text: Option<String>,
+    pub feedback_json: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
@@ -297,12 +312,12 @@ pub fn send_grading_request(
     grade_url: Url,
     exercise_task: &ExerciseTask,
     submission: &ExerciseTaskSubmission,
-) -> impl Future<Output = ModelResult<GradingResult>> + 'static {
+) -> impl Future<Output = ModelResult<ExerciseTaskGradingResult>> + 'static {
     let client = reqwest::Client::new();
     let req = client
         .post(grade_url)
         .timeout(Duration::from_secs(120))
-        .json(&GradingRequest {
+        .json(&ExerciseTaskGradingRequest {
             exercise_spec: &exercise_task.private_spec,
             submission_data: &submission.data_json,
         });
@@ -312,7 +327,7 @@ pub fn send_grading_request(
         if !status.is_success() {
             return Err(ModelError::Generic("Grading failed".to_string()));
         }
-        let obj = res.json::<GradingResult>().await?;
+        let obj = res.json::<ExerciseTaskGradingResult>().await?;
         info!("Received a grading result: {:#?}", &obj);
         Ok(obj)
     }
@@ -321,7 +336,7 @@ pub fn send_grading_request(
 pub async fn update_grading(
     conn: &mut PgConnection,
     grading: &ExerciseTaskGrading,
-    grading_result: &GradingResult,
+    grading_result: &ExerciseTaskGradingResult,
     exercise: &Exercise,
 ) -> ModelResult<ExerciseTaskGrading> {
     let grading_completed_at = if grading_result.grading_progress.is_complete() {

@@ -19,12 +19,15 @@ use headless_lms_models::{
     email_templates::EmailTemplate,
     exams::{CourseExam, Exam, ExamEnrollment},
     exercise_services::ExerciseService,
-    exercise_slide_submissions::{ExerciseSlideSubmission, ExerciseSlideSubmissionResult},
+    exercise_slide_submissions::{
+        ExerciseSlideSubmission, ExerciseSlideSubmissionCount,
+        ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
+        StudentExerciseSlideSubmissionResult,
+    },
     exercise_slides::CourseMaterialExerciseSlide,
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
     exercise_task_submissions::{
-        ExerciseTaskSubmission, SubmissionCount, SubmissionCountByExercise,
-        SubmissionCountByWeekAndHour, SubmissionInfo, SubmissionResult,
+        ExerciseTaskSubmission, StudentExerciseTaskSubmissionResult, SubmissionInfo,
     },
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     exercises::{
@@ -266,12 +269,12 @@ fn main() {
         width: 123,
         data: serde_json::json! {{}},
     };
-    let submission_result = SubmissionResult {
+    let submission_result = StudentExerciseTaskSubmissionResult {
         submission: exercise_task_submission.clone(),
         grading: Some(grading.clone()),
         model_solution_spec: None,
     };
-    let exercise_slide_submission_result = ExerciseSlideSubmissionResult {
+    let exercise_slide_submission_result = StudentExerciseSlideSubmissionResult {
         exercise_task_submission_results: vec![submission_result.clone()],
         exercise_status: Some(ExerciseStatus {
             score_given: None,
@@ -509,11 +512,17 @@ fn main() {
         })
     );
     write_docs!(
-        ExerciseSlideSubmissionResult,
+        StudentExerciseSlideSubmissionResult,
         exercise_slide_submission_result
     );
-    write_docs!(SubmissionResult, submission_result.clone());
-    write_docs!(Vec<SubmissionResult>, vec![submission_result.clone()]);
+    write_docs!(
+        StudentExerciseTaskSubmissionResult,
+        submission_result.clone()
+    );
+    write_docs!(
+        Vec<StudentExerciseTaskSubmissionResult>,
+        vec![submission_result.clone()]
+    );
     write_docs!(Chapter, chapter.clone());
     write_docs!(
         Points,
@@ -549,23 +558,23 @@ fn main() {
     );
     write_docs!(Vec<Exercise>, vec![exercise.clone()]);
     write_docs!(
-        Vec<SubmissionCount>,
-        vec![SubmissionCount {
+        Vec<ExerciseSlideSubmissionCount>,
+        vec![ExerciseSlideSubmissionCount {
             count: Some(123),
             date: Some(naive_date)
         }]
     );
     write_docs!(
-        Vec<SubmissionCountByWeekAndHour>,
-        vec![SubmissionCountByWeekAndHour {
+        Vec<ExerciseSlideSubmissionCountByWeekAndHour>,
+        vec![ExerciseSlideSubmissionCountByWeekAndHour {
             count: Some(123),
             hour: Some(2),
             isodow: Some(2)
         }]
     );
     write_docs!(
-        Vec<SubmissionCountByExercise>,
-        vec![SubmissionCountByExercise {
+        Vec<ExerciseSlideSubmissionCountByExercise>,
+        vec![ExerciseSlideSubmissionCountByExercise {
             exercise_id: Some(id),
             exercise_name: Some("Best exercise".to_string()),
             count: Some(123),

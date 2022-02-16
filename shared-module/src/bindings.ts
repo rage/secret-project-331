@@ -349,32 +349,6 @@ export interface NewFeedback {
   page_id: string
 }
 
-export interface ExerciseTaskGrading {
-  id: string
-  created_at: Date
-  updated_at: Date
-  exercise_task_submission_id: string
-  course_id: string | null
-  exam_id: string | null
-  exercise_id: string
-  exercise_task_id: string
-  grading_priority: number
-  score_given: number | null
-  grading_progress: GradingProgress
-  user_points_update_strategy: UserPointsUpdateStrategy
-  unscaled_score_given: number | null
-  unscaled_score_maximum: number | null
-  grading_started_at: Date | null
-  grading_completed_at: Date | null
-  feedback_json: unknown | null
-  feedback_text: string | null
-  deleted_at: Date | null
-}
-
-export type UserPointsUpdateStrategy =
-  | "CanAddPointsButCannotRemovePoints"
-  | "CanAddPointsAndCanRemovePoints"
-
 export interface Organization {
   id: string
   slug: string
@@ -610,15 +584,66 @@ export interface ExerciseSlideSubmission {
   user_id: string
 }
 
-export interface ExerciseSlideSubmissionResult {
-  exercise_status: ExerciseStatus | null
-  exercise_task_submission_results: Array<SubmissionResult>
+export interface ExerciseSlideSubmissionCount {
+  date: Date | null
+  count: number | null
+}
+
+export interface ExerciseSlideSubmissionCountByExercise {
+  exercise_id: string | null
+  count: number | null
+  exercise_name: string | null
+}
+
+export interface ExerciseSlideSubmissionCountByWeekAndHour {
+  isodow: number | null
+  hour: number | null
+  count: number | null
 }
 
 export interface StudentExerciseSlideSubmission {
   exercise_slide_id: string
   exercise_task_submissions: Array<StudentExerciseTaskSubmission>
 }
+
+export interface StudentExerciseSlideSubmissionResult {
+  exercise_status: ExerciseStatus | null
+  exercise_task_submission_results: Array<StudentExerciseTaskSubmissionResult>
+}
+
+export interface ExerciseTaskGrading {
+  id: string
+  created_at: Date
+  updated_at: Date
+  exercise_task_submission_id: string
+  course_id: string | null
+  exam_id: string | null
+  exercise_id: string
+  exercise_task_id: string
+  grading_priority: number
+  score_given: number | null
+  grading_progress: GradingProgress
+  user_points_update_strategy: UserPointsUpdateStrategy
+  unscaled_score_given: number | null
+  unscaled_score_maximum: number | null
+  grading_started_at: Date | null
+  grading_completed_at: Date | null
+  feedback_json: unknown | null
+  feedback_text: string | null
+  deleted_at: Date | null
+}
+
+export interface ExerciseTaskGradingResult {
+  grading_progress: GradingProgress
+  score_given: number
+  score_maximum: number
+  feedback_text: string | null
+  feedback_json: unknown | null
+}
+
+export type UserPointsUpdateStrategy =
+  | "CanAddPointsButCannotRemovePoints"
+  | "CanAddPointsAndCanRemovePoints"
 
 export interface ExerciseTaskSubmission {
   id: string
@@ -638,21 +663,10 @@ export interface StudentExerciseTaskSubmission {
   data_json: unknown
 }
 
-export interface SubmissionCount {
-  date: Date | null
-  count: number | null
-}
-
-export interface SubmissionCountByWeekAndHour {
-  isodow: number | null
-  hour: number | null
-  count: number | null
-}
-
-export interface SubmissionCountByExercise {
-  exercise_id: string | null
-  count: number | null
-  exercise_name: string | null
+export interface StudentExerciseTaskSubmissionResult {
+  submission: ExerciseTaskSubmission
+  grading: ExerciseTaskGrading | null
+  model_solution_spec: unknown | null
 }
 
 export interface SubmissionInfo {
@@ -661,26 +675,6 @@ export interface SubmissionInfo {
   exercise_task: ExerciseTask
   grading: ExerciseTaskGrading | null
   iframe_path: string
-}
-
-export interface SubmissionResult {
-  submission: ExerciseTaskSubmission
-  grading: ExerciseTaskGrading | null
-  model_solution_spec: unknown | null
-}
-
-export interface NewSubmission {
-  exercise_task_id: string
-  course_instance_id: string | null
-  data_json: unknown | null
-}
-
-export interface GradingResult {
-  grading_progress: GradingProgress
-  score_given: number
-  score_maximum: number
-  feedback_text: string | null
-  feedback_json: unknown | null
 }
 
 export interface RoleUser {

@@ -727,8 +727,8 @@ mod tests {
     use super::*;
     use crate::{
         exercise_slide_submissions::{self, NewExerciseSlideSubmission},
-        exercise_task_gradings,
-        exercise_task_submissions::{self, GradingResult, SubmissionData},
+        exercise_task_gradings::{self, ExerciseTaskGradingResult},
+        exercise_task_submissions::{self, SubmissionData},
         exercises,
         test_helper::{insert_data, Conn},
     };
@@ -982,7 +982,7 @@ mod tests {
         exercise_task_gradings::update_grading(
             tx.as_mut(),
             &task_grading,
-            &GradingResult {
+            &ExerciseTaskGradingResult {
                 feedback_json: None,
                 feedback_text: None,
                 grading_progress: GradingProgress::FullyGraded,

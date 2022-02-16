@@ -1,10 +1,10 @@
+use chrono::NaiveDate;
 use std::collections::HashMap;
 
 use crate::{
     courses::Course,
     exercise_task_submissions::{
-        self, StudentExerciseTaskSubmission, SubmissionCount, SubmissionCountByExercise,
-        SubmissionCountByWeekAndHour, SubmissionResult,
+        self, StudentExerciseTaskSubmission, StudentExerciseTaskSubmissionResult,
     },
     exercise_tasks::{self, ExerciseTask},
     exercises::{Exercise, ExerciseStatus},
@@ -36,10 +36,24 @@ pub struct ExerciseSlideSubmission {
     pub user_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
-pub struct ExerciseSlideSubmissionResult {
-    pub exercise_status: Option<ExerciseStatus>,
-    pub exercise_task_submission_results: Vec<SubmissionResult>,
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct ExerciseSlideSubmissionCount {
+    pub date: Option<NaiveDate>,
+    pub count: Option<i32>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct ExerciseSlideSubmissionCountByExercise {
+    pub exercise_id: Option<Uuid>,
+    pub count: Option<i32>,
+    pub exercise_name: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct ExerciseSlideSubmissionCountByWeekAndHour {
+    pub isodow: Option<i32>,
+    pub hour: Option<i32>,
+    pub count: Option<i32>,
 }
 
 /// Contains data sent by the student when they make a submission for an exercise slide.
@@ -47,6 +61,24 @@ pub struct ExerciseSlideSubmissionResult {
 pub struct StudentExerciseSlideSubmission {
     exercise_slide_id: Uuid,
     exercise_task_submissions: Vec<StudentExerciseTaskSubmission>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+pub struct StudentExerciseSlideSubmissionResult {
+    pub exercise_status: Option<ExerciseStatus>,
+    pub exercise_task_submission_results: Vec<StudentExerciseTaskSubmissionResult>,
+}
+
+impl StudentExerciseSlideSubmissionResult {
+    pub fn clear_grading_information(&mut self) {
+        self.exercise_status = None;
+        self.exercise_task_submission_results
+            .iter_mut()
+            .for_each(|result| {
+                result.grading = None;
+                result.model_solution_spec = None;
+            });
+    }
 }
 
 pub async fn insert_exercise_slide_submission(
@@ -117,7 +149,7 @@ pub async fn create_exercise_slide_submission_for_exercise(
     exercise: &Exercise,
     user_exercise_state: &UserExerciseState,
     user_exercise_slide_submission: StudentExerciseSlideSubmission,
-) -> ModelResult<ExerciseSlideSubmissionResult> {
+) -> ModelResult<StudentExerciseSlideSubmissionResult> {
     let selected_exercise_slide_id =
         user_exercise_state
             .selected_exercise_slide_id
@@ -176,7 +208,7 @@ pub async fn create_exercise_slide_submission_for_exercise(
         activity_progress: user_exercise_state.activity_progress,
         grading_progress: user_exercise_state.grading_progress,
     });
-    Ok(ExerciseSlideSubmissionResult {
+    Ok(StudentExerciseSlideSubmissionResult {
         exercise_status,
         exercise_task_submission_results: results,
     })
@@ -269,9 +301,9 @@ WHERE exercise_id = $1
 pub async fn get_course_daily_slide_submission_counts(
     conn: &mut PgConnection,
     course: &Course,
-) -> ModelResult<Vec<SubmissionCount>> {
+) -> ModelResult<Vec<ExerciseSlideSubmissionCount>> {
     let res = sqlx::query_as!(
-        SubmissionCount,
+        ExerciseSlideSubmissionCount,
         r#"
 SELECT DATE(created_at) date, count(*)::integer
 FROM exercise_slide_submissions
@@ -289,9 +321,9 @@ ORDER BY date;
 pub async fn get_course_exercise_slide_submission_counts_by_weekday_and_hour(
     conn: &mut PgConnection,
     course: &Course,
-) -> ModelResult<Vec<SubmissionCountByWeekAndHour>> {
+) -> ModelResult<Vec<ExerciseSlideSubmissionCountByWeekAndHour>> {
     let res = sqlx::query_as!(
-        SubmissionCountByWeekAndHour,
+        ExerciseSlideSubmissionCountByWeekAndHour,
         r#"
 SELECT date_part('isodow', created_at)::integer isodow,
   date_part('hour', created_at)::integer "hour",
@@ -313,9 +345,9 @@ ORDER BY isodow,
 pub async fn get_course_exercise_slide_submission_counts_by_exercise(
     conn: &mut PgConnection,
     course: &Course,
-) -> ModelResult<Vec<SubmissionCountByExercise>> {
+) -> ModelResult<Vec<ExerciseSlideSubmissionCountByExercise>> {
     let res = sqlx::query_as!(
-        SubmissionCountByExercise,
+        ExerciseSlideSubmissionCountByExercise,
         r#"
 SELECT counts.*, exercises.name exercise_name
     FROM (

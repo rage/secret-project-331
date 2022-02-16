@@ -16,10 +16,9 @@ use headless_lms_models::{
     courses::NewCourse,
     exams,
     exams::NewExam,
-    exercise_services, exercise_slide_submissions, exercise_task_gradings,
-    exercise_task_submissions,
-    exercise_task_submissions::GradingResult,
-    exercises,
+    exercise_services, exercise_slide_submissions,
+    exercise_task_gradings::{self, ExerciseTaskGradingResult},
+    exercise_task_submissions, exercises,
     exercises::GradingProgress,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
@@ -2577,7 +2576,7 @@ async fn submit_and_grade(
     let task_submission = exercise_task_submissions::get_by_id(conn, task_submission_id).await?;
     let exercise = exercises::get_by_id(conn, exercise_id).await?;
     let grading = exercise_task_gradings::new_grading(conn, &exercise, &task_submission).await?;
-    let grading_result = GradingResult {
+    let grading_result = ExerciseTaskGradingResult {
         feedback_json: Some(serde_json::json!([{"SelectedOptioIsCorrect": true}])),
         feedback_text: Some("Good job!".to_string()),
         grading_progress: GradingProgress::FullyGraded,

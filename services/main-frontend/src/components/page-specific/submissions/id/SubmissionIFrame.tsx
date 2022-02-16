@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import {
   ExerciseTaskGrading,
   ExerciseTaskSubmission,
-  SubmissionResult,
+  StudentExerciseTaskSubmissionResult,
 } from "../../../../shared-module/bindings"
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
 
@@ -19,7 +19,7 @@ interface SubmissionIFrameProps {
 }
 
 interface SubmissionState {
-  submission_result: SubmissionResult
+  submission_result: StudentExerciseTaskSubmissionResult
   user_answer: unknown
   public_spec: unknown
 }

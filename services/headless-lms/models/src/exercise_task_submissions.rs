@@ -1,23 +1,13 @@
-use chrono::NaiveDate;
 use futures::Stream;
 use serde_json::Value;
 
 use crate::{
     exercise_slide_submissions,
-    exercise_task_gradings::{self, grade_submission, ExerciseTaskGrading},
-    exercise_tasks::{get_exercise_task_model_solution_spec_by_id, ExerciseTask},
-    exercises::{Exercise, GradingProgress},
+    exercise_task_gradings::{self, ExerciseTaskGrading},
+    exercise_tasks::{self, ExerciseTask},
+    exercises::Exercise,
     prelude::*,
 };
-
-// Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct NewSubmission {
-    pub exercise_task_id: Uuid,
-    /// Required when submitting non-exam exercises
-    pub course_instance_id: Option<Uuid>,
-    pub data_json: Option<serde_json::Value>,
-}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct ExerciseTaskSubmission {
@@ -31,48 +21,6 @@ pub struct ExerciseTaskSubmission {
     pub data_json: Option<serde_json::Value>,
     pub exercise_task_grading_id: Option<Uuid>,
     pub metadata: Option<serde_json::Value>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct SubmissionCount {
-    pub date: Option<NaiveDate>,
-    pub count: Option<i32>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct SubmissionCountByWeekAndHour {
-    pub isodow: Option<i32>,
-    pub hour: Option<i32>,
-    pub count: Option<i32>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
-pub struct SubmissionCountByExercise {
-    pub exercise_id: Option<Uuid>,
-    pub count: Option<i32>,
-    pub exercise_name: Option<String>,
-}
-
-#[derive(Debug, Serialize, PartialEq, Eq, Clone)]
-pub struct GradingRequest<'a> {
-    pub exercise_spec: &'a Option<serde_json::Value>,
-    pub submission_data: &'a Option<serde_json::Value>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
-pub struct GradingResult {
-    pub grading_progress: GradingProgress,
-    pub score_given: f32,
-    pub score_maximum: i32,
-    pub feedback_text: Option<String>,
-    pub feedback_json: Option<serde_json::Value>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
-pub struct SubmissionResult {
-    pub submission: ExerciseTaskSubmission,
-    pub grading: Option<ExerciseTaskGrading>,
-    pub model_solution_spec: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
@@ -101,6 +49,13 @@ pub struct SubmissionData {
 pub struct StudentExerciseTaskSubmission {
     pub exercise_task_id: Uuid,
     pub data_json: serde_json::Value,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+pub struct StudentExerciseTaskSubmissionResult {
+    pub submission: ExerciseTaskSubmission,
+    pub grading: Option<ExerciseTaskGrading>,
+    pub model_solution_spec: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
@@ -279,7 +234,7 @@ pub async fn create_exercise_task_submission_for_exercise(
     exercise_task: &ExerciseTask,
     exercise_slide_submission_id: Uuid,
     data_json: Value,
-) -> ModelResult<SubmissionResult> {
+) -> ModelResult<StudentExerciseTaskSubmissionResult> {
     let submission = sqlx::query_as!(
         ExerciseTaskSubmission,
         "
@@ -314,12 +269,22 @@ RETURNING *;
     .fetch_one(&mut *conn)
     .await?;
 
-    let grading = grade_submission(conn, &submission, exercise_task, exercise, &grading).await?;
+    let grading = exercise_task_gradings::grade_submission(
+        conn,
+        &submission,
+        exercise_task,
+        exercise,
+        &grading,
+    )
+    .await?;
 
-    let model_solution_spec =
-        get_exercise_task_model_solution_spec_by_id(conn, submission.exercise_task_id).await?;
+    let model_solution_spec = exercise_tasks::get_exercise_task_model_solution_spec_by_id(
+        conn,
+        submission.exercise_task_id,
+    )
+    .await?;
 
-    Ok(SubmissionResult {
+    Ok(StudentExerciseTaskSubmissionResult {
         submission: updated_submission,
         grading: Some(grading),
         model_solution_spec,

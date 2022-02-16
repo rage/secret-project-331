@@ -6,7 +6,6 @@ import {
   CoursePageWithUserData,
   ExamData,
   ExamEnrollment,
-  ExerciseSlideSubmissionResult,
   NewFeedback,
   NewProposedPageEdits,
   Page,
@@ -15,6 +14,7 @@ import {
   PageSearchResult,
   PageWithExercises,
   StudentExerciseSlideSubmission,
+  StudentExerciseSlideSubmissionResult,
   Term,
   TermUpdate,
   UserCourseInstanceChapterExerciseProgress,
@@ -29,11 +29,11 @@ import {
   isCourseMaterialExercise,
   isCoursePageWithUserData,
   isExamData,
-  isExerciseSlideSubmissionResult,
   isPage,
   isPageRoutingDataWithChapterStatus,
   isPageSearchResult,
   isPageWithExercises,
+  isStudentExerciseSlideSubmissionResult,
   isTerm,
   isUserCourseInstanceChapterExerciseProgress,
   isUserCourseInstanceChapterProgress,
@@ -200,12 +200,12 @@ export const fetchPageUrl = async (pageId: string): Promise<string> => {
 export const postSubmission = async (
   exerciseId: string,
   newSubmission: StudentExerciseSlideSubmission,
-): Promise<ExerciseSlideSubmissionResult> => {
+): Promise<StudentExerciseSlideSubmissionResult> => {
   const response = await courseMaterialClient.post(
     `/exercises/${exerciseId}/submissions`,
     newSubmission,
   )
-  return validateResponse(response, isExerciseSlideSubmissionResult)
+  return validateResponse(response, isStudentExerciseSlideSubmissionResult)
 }
 
 export const searchPagesWithPhrase = async (

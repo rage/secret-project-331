@@ -1,7 +1,9 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
 use models::{
-    exercise_slide_submissions::{ExerciseSlideSubmissionResult, StudentExerciseSlideSubmission},
+    exercise_slide_submissions::{
+        StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
+    },
     exercises::{CourseMaterialExercise, Exercise},
     user_exercise_states::CourseInstanceOrExamId,
 };
@@ -56,7 +58,7 @@ async fn post_submission(
     exercise_id: web::Path<Uuid>,
     payload: web::Json<StudentExerciseSlideSubmission>,
     user: AuthUser,
-) -> ControllerResult<web::Json<ExerciseSlideSubmissionResult>> {
+) -> ControllerResult<web::Json<StudentExerciseSlideSubmissionResult>> {
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
 
@@ -74,13 +76,18 @@ async fn post_submission(
     .await?
     .ok_or_else(|| ControllerError::Unauthorized("Missing exercise state.".to_string()))?;
 
-    let result = models::exercise_slide_submissions::create_exercise_slide_submission_for_exercise(
-        &mut conn,
-        &exercise,
-        &user_exercise_state,
-        payload.0,
-    )
-    .await?;
+    let mut result =
+        models::exercise_slide_submissions::create_exercise_slide_submission_for_exercise(
+            &mut conn,
+            &exercise,
+            &user_exercise_state,
+            payload.0,
+        )
+        .await?;
+    if exercise.exam_id.is_some() {
+        // If exam, we don't want to expose model any grading details.
+        result.clear_grading_information();
+    }
     Ok(web::Json(result))
 }
 

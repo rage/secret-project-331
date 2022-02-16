@@ -18,9 +18,8 @@ use headless_lms_models::{
     self as models,
     exercise_service_info::ExerciseServiceInfo,
     exercise_services::{get_internal_grade_url, ExerciseService},
-    exercise_task_gradings::ExerciseTaskGrading,
+    exercise_task_gradings::{ExerciseTaskGrading, ExerciseTaskGradingResult},
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
-    exercise_task_submissions::GradingResult,
     exercises::{Exercise, GradingProgress},
     ModelResult,
 };
@@ -293,7 +292,7 @@ struct GradingData {
     regrading_submission: ExerciseTaskRegradingSubmission,
     grading: ExerciseTaskGrading,
     exercise: Exercise,
-    exercise_service_result: ModelResult<GradingResult>,
+    exercise_service_result: ModelResult<ExerciseTaskGradingResult>,
 }
 
 #[cfg(test)]
@@ -313,7 +312,7 @@ mod test {
         let mut conn = test_helper::Conn::init().await;
         let mut tx = conn.begin().await;
 
-        let grading_result = GradingResult {
+        let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
             score_given: 0.0,
             score_maximum: 100,
@@ -434,7 +433,7 @@ mod test {
         let mut conn = test_helper::Conn::init().await;
         let mut tx = conn.begin().await;
 
-        let grading_result = GradingResult {
+        let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
             score_given: 0.0,
             score_maximum: 100,
@@ -550,7 +549,7 @@ mod test {
         let mut conn = test_helper::Conn::init().await;
         let mut tx = conn.begin().await;
 
-        let grading_result = GradingResult {
+        let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
             score_given: 0.0,
             score_maximum: 100,

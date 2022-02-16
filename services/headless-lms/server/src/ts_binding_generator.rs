@@ -91,9 +91,6 @@ fn ts_binding_generator() {
         feedback::FeedbackCount,
         feedback::NewFeedback,
 
-        exercise_task_gradings::ExerciseTaskGrading,
-        exercise_task_gradings::UserPointsUpdateStrategy,
-
         organizations::Organization,
 
         page_history::PageHistory,
@@ -129,18 +126,20 @@ fn ts_binding_generator() {
         proposed_page_edits::ProposalCount,
 
         exercise_slide_submissions::ExerciseSlideSubmission,
-        exercise_slide_submissions::ExerciseSlideSubmissionResult,
+        exercise_slide_submissions::ExerciseSlideSubmissionCount,
+        exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
+        exercise_slide_submissions::ExerciseSlideSubmissionCountByWeekAndHour,
         exercise_slide_submissions::StudentExerciseSlideSubmission,
+        exercise_slide_submissions::StudentExerciseSlideSubmissionResult,
+
+        exercise_task_gradings::ExerciseTaskGrading,
+        exercise_task_gradings::ExerciseTaskGradingResult,
+        exercise_task_gradings::UserPointsUpdateStrategy,
 
         exercise_task_submissions::ExerciseTaskSubmission,
         exercise_task_submissions::StudentExerciseTaskSubmission,
-        exercise_task_submissions::SubmissionCount,
-        exercise_task_submissions::SubmissionCountByWeekAndHour,
-        exercise_task_submissions::SubmissionCountByExercise,
+        exercise_task_submissions::StudentExerciseTaskSubmissionResult,
         exercise_task_submissions::SubmissionInfo,
-        exercise_task_submissions::SubmissionResult,
-        exercise_task_submissions::NewSubmission,
-        exercise_task_submissions::GradingResult,
 
         roles::RoleUser,
         roles::RoleDomain,

@@ -4,9 +4,9 @@ use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
-    exercise_slide_submissions,
-    exercise_task_submissions::{
-        SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour,
+    exercise_slide_submissions::{
+        self, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
+        ExerciseSlideSubmissionCountByWeekAndHour,
     },
     exercises::Exercise,
     feedback::{self, Feedback, FeedbackCount},
@@ -317,7 +317,7 @@ async fn get_daily_submission_counts(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<SubmissionCount>>> {
+) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmissionCount>>> {
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
@@ -336,7 +336,7 @@ async fn get_weekday_hour_submission_counts(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<SubmissionCountByWeekAndHour>>> {
+) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmissionCountByWeekAndHour>>> {
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
@@ -356,7 +356,7 @@ async fn get_submission_counts_by_exercise(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<SubmissionCountByExercise>>> {
+) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmissionCountByExercise>>> {
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;

@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import {
   CourseMaterialExerciseTask,
-  ExerciseSlideSubmissionResult,
+  StudentExerciseSlideSubmissionResult,
 } from "../shared-module/bindings"
 import { IframeState } from "../shared-module/iframe-protocol-types"
 
@@ -12,7 +12,7 @@ export interface ExerciseDownloadedAction {
 
 export interface SubmissionGradedAction {
   type: "submissionGraded"
-  payload: ExerciseSlideSubmissionResult
+  payload: StudentExerciseSlideSubmissionResult
 }
 
 export interface TryAgain {

@@ -261,9 +261,9 @@ mod test {
     use bytes::Bytes;
     use headless_lms_models::{
         exercise_slide_submissions::{self, NewExerciseSlideSubmission},
-        exercise_slides, exercise_task_gradings,
-        exercise_task_submissions::{self, GradingResult},
-        exercise_tasks,
+        exercise_slides,
+        exercise_task_gradings::{self, ExerciseTaskGradingResult},
+        exercise_task_submissions, exercise_tasks,
         exercises::{self, GradingProgress},
         users,
     };
@@ -400,7 +400,7 @@ mod test {
         let grading = exercise_task_gradings::new_grading(tx, &exercise, &submission)
             .await
             .unwrap();
-        let grading_result = GradingResult {
+        let grading_result = ExerciseTaskGradingResult {
             feedback_json: None,
             feedback_text: None,
             grading_progress: GradingProgress::FullyGraded,

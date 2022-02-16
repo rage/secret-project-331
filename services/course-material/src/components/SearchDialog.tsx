@@ -2,7 +2,7 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faSearch } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Dialog, Paper, TextField } from "@mui/material"
+import { Dialog, Paper } from "@mui/material"
 import Link from "next/link"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -33,9 +33,6 @@ const StTextField = styled.input`
   &:focus {
     outline: none;
   }
-`
-const StyledSearchResults = styled.div`
-  background: red;
 `
 
 const HeaderBar = styled.div`

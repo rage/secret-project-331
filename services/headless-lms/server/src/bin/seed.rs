@@ -1718,7 +1718,7 @@ async fn seed_sample_course(
             "awardPointsEvenIfWrong": false}),
     );
 
-    create_page(
+    let page_3 = create_page(
         conn,
         course.id,
         admin,
@@ -1976,7 +1976,9 @@ async fn seed_sample_course(
                 "blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas"
                     .to_string(),
             ),
+            order_number: Some(0),
         }],
+        page_id: page_3,
     };
     let feedback = feedback::insert(conn, Some(student), course.id, new_feedback).await?;
     feedback::mark_as_read(conn, feedback, true).await?;
@@ -1987,16 +1989,20 @@ async fn seed_sample_course(
             FeedbackBlock {
                 id: block_id_1,
                 text: Some("verything is a big topic.".to_string()),
+                order_number: Some(0),
             },
             FeedbackBlock {
                 id: block_id_4,
                 text: Some("So big, that we need many paragraphs.".to_string()),
+                order_number: Some(1),
             },
             FeedbackBlock {
                 id: block_id_5,
                 text: Some("Like th".to_string()),
+                order_number: Some(2),
             },
         ],
+        page_id: page_3,
     };
     feedback::insert(conn, Some(student), course.id, new_feedback).await?;
     feedback::insert(
@@ -2009,7 +2015,9 @@ async fn seed_sample_course(
             related_blocks: vec![FeedbackBlock {
                 id: block_id_1,
                 text: None,
+                order_number: Some(0),
             }],
+            page_id: page_3,
         },
     )
     .await?;
@@ -2021,6 +2029,7 @@ async fn seed_sample_course(
             feedback_given: "Anonymous unrelated feedback".to_string(),
             selected_text: None,
             related_blocks: vec![],
+            page_id: page_3,
         },
     )
     .await?;

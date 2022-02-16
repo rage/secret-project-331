@@ -1383,6 +1383,14 @@ async fn seed_sample_course(
         Uuid::new_v5(&course_id, b"c3f257c0-bdc2-4d81-99ff-a71c76fe670a");
     let exercise_4_slide_1_task_1_spec_3_id =
         Uuid::new_v5(&course_id, b"fca5a8ba-50e0-4375-8d4b-9d02762d908c");
+    let exercise_4_slide_1_task_2_id =
+        Uuid::new_v5(&course_id, b"59e3e118-ed98-45df-8b5b-2062f07e69b5");
+    let exercise_4_slide_1_task_2_spec_1_id =
+        Uuid::new_v5(&course_id, b"e4821fe5-3e10-4d13-a458-ca6cd101d8d3");
+    let exercise_4_slide_1_task_2_spec_2_id =
+        Uuid::new_v5(&course_id, b"c5ce9b85-9f11-444c-b96f-2a3f94215fb9");
+    let exercise_4_slide_1_task_2_spec_3_id =
+        Uuid::new_v5(&course_id, b"3119ae1c-b57f-4f51-b191-2860cbb1e5aa");
     let (exercise_block_2, exercise_2, slide_2, task_2) = example_exercise(
         exercise_2_id,
         exercise_2_slide_1_id,
@@ -1403,7 +1411,7 @@ async fn seed_sample_course(
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
     );
-    let (exercise_block_4, exercise_4, slide_4, task_4) = example_exercise(
+    let (exercise_block_4, exercise_4, slide_4, task_4_1) = example_exercise(
         exercise_4_id,
         exercise_4_slide_1_id,
         exercise_4_slide_1_task_1_id,
@@ -1413,6 +1421,15 @@ async fn seed_sample_course(
         exercise_4_slide_1_task_1_spec_2_id,
         exercise_4_slide_1_task_1_spec_3_id,
     );
+    let task_4_2 = example_exercise_task(
+        exercise_4_slide_1_task_2_id,
+        exercise_4_slide_1_id,
+        Uuid::new_v5(&course_id, b"9b5c2d79-fa3f-47c0-86d6-fe85e2b03b59"),
+        exercise_4_slide_1_task_2_spec_1_id,
+        exercise_4_slide_1_task_2_spec_2_id,
+        exercise_4_slide_1_task_2_spec_3_id,
+    );
+
     let page2_id = create_page(
         conn,
         course.id,
@@ -1424,7 +1441,7 @@ async fn seed_sample_course(
             chapter_id: Some(chapter_1.id),
             exercises: vec![exercise_2, exercise_3, exercise_4],
             exercise_slides: vec![slide_2, slide_3, slide_4],
-            exercise_tasks: vec![task_2, task_3, task_4],
+            exercise_tasks: vec![task_2, task_3, task_4_1, task_4_2],
             content: serde_json::json!([
                 paragraph(
                     "First chapters second page.",
@@ -2457,7 +2474,26 @@ fn example_exercise(
         exercise_id,
         order_number: 1,
     };
-    let exercise_task = CmsPageExerciseTask {
+    let exercise_task = example_exercise_task(
+        exercise_task_id,
+        exercise_slide_id,
+        paragraph_id,
+        spec_1,
+        spec_2,
+        spec_3,
+    );
+    (block, exercise, exercise_slide, exercise_task)
+}
+
+fn example_exercise_task(
+    exercise_task_id: Uuid,
+    exercise_slide_id: Uuid,
+    paragraph_id: Uuid,
+    spec_1: Uuid,
+    spec_2: Uuid,
+    spec_3: Uuid,
+) -> CmsPageExerciseTask {
+    CmsPageExerciseTask {
         id: exercise_task_id,
         exercise_slide_id,
         assignment: serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
@@ -2479,8 +2515,7 @@ fn example_exercise(
                 "id": spec_3,
             },
         ])),
-    };
-    (block, exercise, exercise_slide, exercise_task)
+    }
 }
 
 #[allow(clippy::too_many_arguments)]

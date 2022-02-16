@@ -176,7 +176,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                   variant="primary"
                   disabled={
                     postSubmissionMutation.isLoading ||
-                    answers.size === 0 ||
+                    answers.size < postThisStateToIFrame.length ||
                     Array.from(answers.values()).some((x) => !x.valid)
                   }
                   onClick={() => {

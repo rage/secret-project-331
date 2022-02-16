@@ -69,6 +69,6 @@ export function stripNonPrintableCharacters(string: string): string {
   return string.replace(/\0/g, "").replace(NON_PRINTING_CHAR_REGEX, "")
 }
 
-export function stringToRandomNumber(input: string): number {
+export function stringToRandomNumber(input: any): number {
   return [...input].reduce((a, b) => a * 13 + b.charCodeAt(0), 7)
 }

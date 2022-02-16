@@ -28,6 +28,11 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
   const currentExerciseTaskAssignment = exerciseTask.assignment as Block<unknown>[]
   const url = exerciseTask.exercise_iframe_url
 
+  const feedbackText =
+    postThisStateToIFrame.view_type === "view-submission"
+      ? postThisStateToIFrame.data.grading?.feedback_text ?? null
+      : null
+
   return (
     <div>
       {currentExerciseTaskAssignment && (
@@ -39,6 +44,7 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
           isExam={isExam}
         />
       )}
+      <div>{feedbackText}</div>
       {cannotAnswerButNoSubmission && <div>{t("no-submission-received-for-this-exercise")}</div>}
       {!cannotAnswerButNoSubmission &&
         (url ? (

@@ -28,7 +28,7 @@ CREATE TABLE exercise_slide_submissions(
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON exercise_slide_submissions FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-COMMENT ON TABLE exercise_slide_submissions IS 'Table that groups together all individual task submissions for an excercise.';
+COMMENT ON TABLE exercise_slide_submissions IS 'Table that groups together all individual task submissions for a single exercise slise submission.';
 COMMENT ON COLUMN exercise_slide_submissions.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN exercise_slide_submissions.created_at IS 'Timestamp when the record was created';
 COMMENT ON COLUMN exercise_slide_submissions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';

@@ -88,6 +88,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
 
   const courseInstanceId = pageContext?.instance?.id
 
+  const isExam = !!pageContext.exam
   const inEndedExam = pageContext?.exam?.ends_at ? pageContext?.exam?.ends_at < new Date() : false
   const noSubmission = getCourseMaterialExercise.data.exercise_status === null
 
@@ -143,17 +144,11 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
             </div>
           </div>
-          <div>
-            {postSubmissionMutation.data?.exercise_task_submission_results[0].grading
-              ?.feedback_text &&
-              postSubmissionMutation.data?.exercise_task_submission_results[0].grading
-                ?.feedback_text}
-          </div>
           {getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
             <ExerciseTask
               key={task.id}
               exerciseTask={task}
-              isExam={false}
+              isExam={isExam}
               setAnswer={(answer) =>
                 setAnswers((prev) => {
                   const answers = new Map(prev)

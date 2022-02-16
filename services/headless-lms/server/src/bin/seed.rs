@@ -34,7 +34,7 @@ use headless_lms_models::{
     proposed_page_edits::NewProposedPageEdits,
     roles::UserRole,
     roles::{self, RoleDomain},
-    user_exercise_states, users,
+    url_redirections, user_exercise_states, users,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::Value;
@@ -291,6 +291,17 @@ async fn main() -> Result<()> {
         &users,
     )
     .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("f9579c00-d0bb-402b-affd-7db330dcb11f")?,
+        "Redirections",
+        "redirections",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
     roles::insert(
         &mut conn,
         language_teacher,
@@ -358,6 +369,7 @@ async fn main() -> Result<()> {
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "description".to_string(),
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance) = courses::insert_course(
         &mut conn,
@@ -401,6 +413,7 @@ async fn main() -> Result<()> {
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "description".to_string(),
     };
     let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
         courses::insert_course(
@@ -1204,6 +1217,7 @@ async fn seed_sample_course(
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "description".to_string(),
     };
     let (course, _front_page, default_instance) = courses::insert_course(
         conn,
@@ -1400,7 +1414,7 @@ async fn seed_sample_course(
         exercise_4_slide_1_task_1_spec_2_id,
         exercise_4_slide_1_task_1_spec_3_id,
     );
-    create_page(
+    let page2_id = create_page(
         conn,
         course.id,
         admin,
@@ -1424,6 +1438,8 @@ async fn seed_sample_course(
         },
     )
     .await?;
+
+    url_redirections::insert(conn, page2_id, "/old-url", course.id).await?;
 
     let (
         quizzes_exercise_block_1,
@@ -1716,7 +1732,7 @@ async fn seed_sample_course(
             "awardPointsEvenIfWrong": false}),
     );
 
-    create_page(
+    let page_3 = create_page(
         conn,
         course.id,
         admin,
@@ -1985,7 +2001,9 @@ async fn seed_sample_course(
                 "blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas"
                     .to_string(),
             ),
+            order_number: Some(0),
         }],
+        page_id: page_3,
     };
     let feedback = feedback::insert(conn, Some(student), course.id, new_feedback).await?;
     feedback::mark_as_read(conn, feedback, true).await?;
@@ -1996,16 +2014,20 @@ async fn seed_sample_course(
             FeedbackBlock {
                 id: block_id_1,
                 text: Some("verything is a big topic.".to_string()),
+                order_number: Some(0),
             },
             FeedbackBlock {
                 id: block_id_4,
                 text: Some("So big, that we need many paragraphs.".to_string()),
+                order_number: Some(1),
             },
             FeedbackBlock {
                 id: block_id_5,
                 text: Some("Like th".to_string()),
+                order_number: Some(2),
             },
         ],
+        page_id: page_3,
     };
     feedback::insert(conn, Some(student), course.id, new_feedback).await?;
     feedback::insert(
@@ -2018,7 +2040,9 @@ async fn seed_sample_course(
             related_blocks: vec![FeedbackBlock {
                 id: block_id_1,
                 text: None,
+                order_number: Some(0),
             }],
+            page_id: page_3,
         },
     )
     .await?;
@@ -2030,6 +2054,7 @@ async fn seed_sample_course(
             feedback_given: "Anonymous unrelated feedback".to_string(),
             selected_text: None,
             related_blocks: vec![],
+            page_id: page_3,
         },
     )
     .await?;
@@ -2071,8 +2096,6 @@ async fn seed_sample_course(
     glossary::insert(conn, "SSD", "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",  course.id).await?;
     glossary::insert(conn, "KB", "Keyboard.", course.id).await?;
 
-    // exams
-
     Ok(course.id)
 }
 
@@ -2085,6 +2108,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "description".to_string(),
     };
     let (course, front_page, _default_instance) = courses::insert_course(
         conn,

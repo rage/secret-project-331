@@ -168,6 +168,7 @@ impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
         match err {
             ModelError::RecordNotFound(_) => Self::NotFound(err.to_string()),
+            ModelError::NotFound(_) => Self::NotFound(err.to_string()),
             ModelError::PreconditionFailed(msg) => Self::BadRequest(msg),
             ModelError::PreconditionFailedWithCMSAnchorBlockId { description, id } => {
                 Self::BadRequestWithData(description.to_string(), ErrorData::BlockId(id))

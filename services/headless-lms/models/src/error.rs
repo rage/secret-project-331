@@ -9,6 +9,8 @@ pub type ModelResult<T> = Result<T, ModelError>;
 pub enum ModelError {
     #[error(transparent)]
     RecordNotFound(sqlx::Error),
+    #[error("{0}")]
+    NotFound(String),
     #[error("{description}")]
     DatabaseConstraint {
         constraint: String,

@@ -123,6 +123,7 @@ const FeedbackHandler: React.FC<Props> = ({
           close={() => setFeedbackDialogOpen(false)}
           lastSelection={lastSelection}
           setLastSelection={setLastSelection}
+          pageId={pageId}
         />
       )}
       {editProposalDialogOpen && (

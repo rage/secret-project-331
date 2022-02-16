@@ -29,6 +29,7 @@ pub mod regrading_submissions;
 pub mod regradings;
 pub mod roles;
 pub mod submissions;
+pub mod url_redirections;
 pub mod user_course_settings;
 pub mod user_exercise_states;
 pub mod users;

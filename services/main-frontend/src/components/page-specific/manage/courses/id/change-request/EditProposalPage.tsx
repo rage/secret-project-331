@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
@@ -50,7 +51,12 @@ const EditProposalPage: React.FC<Props> = ({ courseId, page, limit, pending, onC
   }
 
   return (
-    <ul>
+    <ul
+      className={css`
+        list-style: none;
+        padding: 0;
+      `}
+    >
       {getEditProposalList.data.map((p) => (
         <li key={p.id}>
           <EditProposalView proposal={p} handleProposal={handleProposal} />

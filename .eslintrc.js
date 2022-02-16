@@ -180,6 +180,7 @@ module.exports = {
           "maxWidth",
           "transform",
           "viewBox",
+          "testPlaceholder",
         ],
         ignore: [DETECT_CSS_REGEX, DETECT_PX_REGEX],
         ignoreCallee: [

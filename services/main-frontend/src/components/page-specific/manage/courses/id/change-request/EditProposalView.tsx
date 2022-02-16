@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { FormControl, FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -10,6 +11,18 @@ import {
   PageProposal,
 } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
+import HideTextInSystemTests from "../../../../../../shared-module/components/HideTextInSystemTests"
+import TimeComponent from "../../../../../../shared-module/components/TimeComponent"
+import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import { primaryFont, typography } from "../../../../../../shared-module/styles"
+
+const ImportantText = styled.div`
+  white-space: pre-wrap;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  margin: 0;
+  font-family: ${primaryFont};
+`
 
 export interface Props {
   proposal: PageProposal
@@ -25,29 +38,33 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
   const [blockActions, setBlockActions] = useState<Map<string, BlockProposalAction>>(new Map())
   const [editingBlocks, setEditingBlocks] = useState<Set<string>>(new Set())
 
+  const sendMutation = useToastMutation(
+    () => {
+      const blockInfo: Array<BlockProposalInfo> = Array.from(blockActions).map(([id, action]) => {
+        return { id, action }
+      })
+      return handleProposal(proposal.page_id, proposal.id, blockInfo)
+    },
+    {
+      notify: true,
+      method: "POST",
+    },
+  )
+
   const pendingBlock = (block: BlockProposal) => {
     return (
-      <>
-        <div>{t("block-id", { id: block.id })}</div>
-        <div
-          className={css`
-            max-height: 100px;
-            overflow: scroll;
-          `}
-          role="tabpanel"
-          tabIndex={0}
-        >
-          {t("current-text", { "current-text": block.current_text })}
+      <div>
+        <div>
+          <HideTextInSystemTests
+            text={t("block-id", { id: block.block_id })}
+            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
+          />
         </div>
-        <div
-          className={css`
-            max-height: 100px;
-            overflow: scroll;
-          `}
-          role="tabpanel"
-          tabIndex={0}
-        >
-          {t("proposed-text", { "changed-text": block.changed_text })}
+        <div>
+          {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
+        </div>
+        <div>
+          {t("label-proposed-text")} <ImportantText>{block.changed_text}</ImportantText>
         </div>
         {editingBlocks.has(block.id) && (
           <>
@@ -73,13 +90,9 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
           </>
         )}
         {!editingBlocks.has(block.id) && (
-          <div
-            className={css`
-              max-height: 100px;
-              overflow: scroll;
-            `}
-          >
-            {t("result", { result: block.accept_preview })}
+          <div>
+            {t("label-result")}
+            <ImportantText>{block.accept_preview}</ImportantText>
           </div>
         )}
         {/* eslint-disable-next-line i18next/no-literal-string */}
@@ -145,7 +158,7 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
             />
           </RadioGroup>
         </FormControl>
-      </>
+      </div>
     )
   }
 
@@ -153,47 +166,97 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
     return (
       <>
         {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
-        <div>{t("block-id", { id: block.block_id })}</div>
-        <div>{t("current-text", { "current-text": block.current_text })}</div>
-        <div>{t("proposed-text", { "changed-text": block.changed_text })}</div>
+        <div>
+          <HideTextInSystemTests
+            text={t("block-id", { id: block.block_id })}
+            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
+          />
+        </div>
+        <div>
+          {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
+        </div>
+        <div>
+          {t("label-proposed-text")} <ImportantText>{block.changed_text}</ImportantText>
+        </div>
       </>
     )
   }
 
-  const onSend = async (): Promise<void> => {
-    const blockInfo: Array<BlockProposalInfo> = Array.from(blockActions).map(([id, action]) => {
-      return { id, action }
-    })
-    await handleProposal(proposal.page_id, proposal.id, blockInfo)
-  }
-
   return (
-    <>
-      <div>{t("title-page-id", { id: proposal.page_id })}</div>
-      <ul>
+    <div
+      className={css`
+        border: 1px solid #e5e5e5;
+        margin-bottom: 2rem;
+        margin-top: 2rem;
+        padding: 1rem;
+      `}
+    >
+      <h2
+        className={css`
+          font-size: ${typography.h6};
+          margin-bottom: 0.5rem;
+        `}
+      >
+        {t("title-change-request")}
+      </h2>
+      {proposal.page_id && (
+        <div>
+          {t("label-page")} {proposal.page_title} <small>({proposal.page_url_path})</small>
+        </div>
+      )}
+      <div>
+        <HideTextInSystemTests
+          text={t("sent-by", { user: proposal.user_id })}
+          testPlaceholder="Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        />
+      </div>
+      <div>
+        <TimeComponent boldLabel={false} label={t("label-created")} date={proposal.created_at} />
+      </div>
+      <ul
+        className={css`
+          list-style: none;
+          padding: 0;
+        `}
+      >
         {proposal.block_proposals.map((b) => {
-          return <li key={b.id}>{b.status === "Pending" ? pendingBlock(b) : acceptedBlock(b)}</li>
+          return (
+            <li
+              className={css`
+                padding: 1rem;
+              `}
+              key={b.id}
+            >
+              {b.status === "Pending" ? pendingBlock(b) : acceptedBlock(b)}
+            </li>
+          )
         })}
       </ul>
-      <div>
-        {t("sent-by-at", { user: proposal.user_id, time: proposal.created_at.toISOString() })}
-      </div>
-      {blockActions.size < proposal.block_proposals.length && (
-        <div>{t("message-you-have-not-selected-an-action-for-every-change-yet")}</div>
+
+      {proposal.pending && blockActions.size < proposal.block_proposals.length && (
+        <div
+          className={css`
+            margin-bottom: 1rem;
+          `}
+        >
+          {t("message-you-have-not-selected-an-action-for-every-change-yet")}
+        </div>
       )}
       {proposal.pending && (
         <>
           <Button
             variant={"primary"}
             size={"medium"}
-            onClick={onSend}
+            onClick={() => {
+              sendMutation.mutate()
+            }}
             disabled={blockActions.size < proposal.block_proposals.length}
           >
             {t("button-text-send")}
           </Button>
         </>
       )}
-    </>
+    </div>
   )
 }
 

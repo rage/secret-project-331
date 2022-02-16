@@ -157,6 +157,7 @@ export interface NewCourse {
   language_code: string
   teacher_in_charge_name: string
   teacher_in_charge_email: string
+  description: string
 }
 
 export interface CourseCount {
@@ -316,16 +317,20 @@ export interface Feedback {
   id: string
   user_id: string | null
   course_id: string
+  page_id: string | null
   feedback_given: string
   selected_text: string | null
   marked_as_read: boolean
   created_at: Date
   blocks: Array<FeedbackBlock>
+  page_title: string | null
+  page_url_path: string | null
 }
 
 export interface FeedbackBlock {
   id: string
   text: string | null
+  order_number: number | null
 }
 
 export interface FeedbackCount {
@@ -337,6 +342,7 @@ export interface NewFeedback {
   feedback_given: string
   selected_text: string | null
   related_blocks: Array<FeedbackBlock>
+  page_id: string
 }
 
 export interface Grading {
@@ -430,6 +436,7 @@ export interface CoursePageWithUserData {
   page: Page
   instance: CourseInstance | null
   settings: UserCourseSettings | null
+  was_redirected: boolean
 }
 
 export interface ExerciseWithExerciseTasks {
@@ -577,6 +584,8 @@ export interface PageProposal {
   pending: boolean
   created_at: Date
   block_proposals: Array<BlockProposal>
+  page_title: string
+  page_url_path: string
 }
 
 export interface ProposalCount {
@@ -682,6 +691,17 @@ export interface UserCourseInstanceProgress {
   score_maximum: number | null
   total_exercises: number | null
   completed_exercises: number | null
+}
+
+export interface ExerciseUserCounts {
+  exercise_name: string | null
+  exercise_order_number: number | null
+  page_order_number: number | null
+  chapter_number: number | null
+  exercise_id: string | null
+  n_users_attempted: number
+  n_users_with_some_points: number
+  n_users_with_max_points: number
 }
 
 export interface User {

@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import Link from "next/link"
 import { UrlObject } from "node:url"
 import React from "react"
@@ -22,9 +23,14 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ tabs }) => {
       {tabs.map((tab) => {
         console.log(tab.title, tab.isActive)
         return (
-          <Link key={tab.title} href={tab.url}>
-            {tab.title}
-          </Link>
+          <span
+            key={tab.title}
+            className={css`
+              padding-right: 1rem;
+            `}
+          >
+            <Link href={tab.url}>{tab.title}</Link>
+          </span>
         )
       })}
     </div>

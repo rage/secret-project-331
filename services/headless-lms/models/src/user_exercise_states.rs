@@ -677,7 +677,7 @@ mod tests {
     use crate::{
         exercises, gradings,
         submissions::{self, GradingResult, SubmissionData},
-        test_helper::{insert_data, Conn},
+        test_helper::*,
     };
 
     mod figure_out_new_score_given {
@@ -880,19 +880,16 @@ mod tests {
 
     #[tokio::test]
     async fn updates_exercise_states() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-
-        let data = insert_data(tx.as_mut(), "").await.unwrap();
+        insert_data!(tx, user, org, course, instance, chapter, page, exercise, slide, task);
 
         let submission = submissions::insert_with_id(
             tx.as_mut(),
             &SubmissionData {
-                exercise_id: data.exercise,
-                course_id: data.course,
-                exercise_task_id: data.task,
-                user_id: data.user,
-                course_instance_id: data.instance,
+                exercise_id: exercise,
+                course_id: course,
+                exercise_task_id: task,
+                user_id: user,
+                course_instance_id: instance.id,
                 data_json: serde_json::json! {"abcd"},
                 id: Uuid::new_v4(),
             },
@@ -905,9 +902,7 @@ mod tests {
         let grading = gradings::new_grading(tx.as_mut(), &submission)
             .await
             .unwrap();
-        let exercise = exercises::get_by_id(tx.as_mut(), data.exercise)
-            .await
-            .unwrap();
+        let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let grading = gradings::update_grading(
             tx.as_mut(),
             &grading,
@@ -933,9 +928,9 @@ mod tests {
             .unwrap();
         let state = get_or_create_user_exercise_state(
             tx.as_mut(),
-            data.user,
+            user,
             exercise.id,
-            Some(data.instance),
+            Some(instance.id),
             None,
         )
         .await

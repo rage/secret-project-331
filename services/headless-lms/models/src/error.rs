@@ -67,20 +67,15 @@ mod test {
     use uuid::Uuid;
 
     use super::*;
-    use crate::{
-        email_templates::EmailTemplateNew,
-        test_helper::{self, Conn, Data},
-    };
+    use crate::{email_templates::EmailTemplateNew, test_helper::*};
 
     #[tokio::test]
     async fn email_templates_check() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let Data { instance: ci, .. } = test_helper::insert_data(tx.as_mut(), "").await.unwrap();
+        insert_data!(tx, user, org, course, instance);
 
         let err = crate::email_templates::insert_email_template(
             tx.as_mut(),
-            ci,
+            instance.id,
             EmailTemplateNew {
                 name: "".to_string(),
             },

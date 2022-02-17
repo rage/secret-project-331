@@ -463,68 +463,27 @@ mod test {
         chapters,
         course_instance_enrollments::{self, NewCourseInstanceEnrollment},
         course_instances::{self, NewCourseInstance},
-        course_language_groups, courses, exercise_slides, exercise_tasks, organizations, pages,
-        test_helper::Conn,
+        courses::{self, NewCourse},
+        exercise_slides, exercise_tasks, organizations, pages,
+        test_helper::*,
         users,
     };
 
     #[tokio::test]
     async fn selects_course_material_exercise_for_enrolled_student() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-
-        let user_id = users::insert_with_id(
-            tx.as_mut(),
-            "test@example.com",
-            None,
-            None,
-            Uuid::parse_str("e656e0a1-3f55-4f52-b0ae-96855faee5e7").unwrap(),
-        )
-        .await
-        .unwrap();
-        let organization_id = organizations::insert(
-            tx.as_mut(),
-            "",
-            "",
-            "",
-            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
-        )
-        .await
-        .unwrap();
-        let course_language_group_id = course_language_groups::insert_with_id(
-            tx.as_mut(),
-            Uuid::parse_str("281384b3-bbc9-4da5-b93e-4c122784a724").unwrap(),
-        )
-        .await
-        .unwrap();
-        let course_id = courses::insert(
-            tx.as_mut(),
-            "",
+        insert_data!(
+            tx,
+            user_id,
             organization_id,
-            course_language_group_id,
-            "",
-            "en-US",
-            "",
-        )
-        .await
-        .unwrap();
-        let course_instance = course_instances::insert(
-            tx.as_mut(),
-            NewCourseInstance {
-                id: Uuid::new_v4(),
-                course_id,
-                name: None,
-                description: None,
-                variant_status: None,
-                teacher_in_charge_name: "teacher",
-                teacher_in_charge_email: "teacher@example.com",
-                support_email: None,
-                opening_time: None,
-                closing_time: None,
-            },
-        )
-        .await
-        .unwrap();
+            course_id,
+            course_instance,
+            chapter_id,
+            page_id,
+            exercise_id,
+            exercise_slide_id,
+            exercise_task_id
+        );
+
         course_instance_enrollments::insert_enrollment_and_set_as_current(
             tx.as_mut(),
             NewCourseInstanceEnrollment {
@@ -532,35 +491,6 @@ mod test {
                 course_instance_id: course_instance.id,
                 user_id,
             },
-        )
-        .await
-        .unwrap();
-        let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
-            .await
-            .unwrap();
-        let (page_id, _) = pages::insert(tx.as_mut(), course_id, "", "", 0, user_id)
-            .await
-            .unwrap();
-        let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, chapter_id, 0)
-            .await
-            .unwrap();
-        let exercise_slide_id = exercise_slides::insert(tx.as_mut(), exercise_id, 0)
-            .await
-            .unwrap();
-        let exercise_task_id = exercise_tasks::insert(
-            tx.as_mut(),
-            exercise_slide_id,
-            "",
-            vec![GutenbergBlock {
-                attributes: Map::new(),
-                client_id: Uuid::new_v4(),
-                inner_blocks: vec![],
-                is_valid: true,
-                name: "".to_string(),
-            }],
-            Value::Null,
-            Value::Null,
-            Value::Null,
         )
         .await
         .unwrap();

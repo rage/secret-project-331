@@ -1873,11 +1873,10 @@ mod test {
 
     #[tokio::test]
     async fn gets_organization_id() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let data = insert_data(tx.as_mut(), "").await.unwrap();
-        let course_page_org = get_organization_id(tx.as_mut(), data.page).await.unwrap();
-        assert_eq!(data.org, course_page_org);
+        insert_data!(tx, user, org, course, _instance, _chapter, page);
+
+        let course_page_org = get_organization_id(tx.as_mut(), page).await.unwrap();
+        assert_eq!(org, course_page_org);
 
         let exam = Uuid::new_v4();
         crate::exams::insert(
@@ -1889,7 +1888,7 @@ mod test {
                 starts_at: None,
                 ends_at: None,
                 time_minutes: 120,
-                organization_id: data.org,
+                organization_id: org,
             },
         )
         .await
@@ -1909,12 +1908,12 @@ mod test {
                 front_page_of_chapter_id: None,
                 content_search_language: None,
             },
-            data.user,
+            user,
         )
         .await
         .unwrap();
         let exam_page_org = get_organization_id(tx.as_mut(), page.id).await.unwrap();
-        assert_eq!(data.org, exam_page_org);
+        assert_eq!(org, exam_page_org);
     }
 
     #[tokio::test]

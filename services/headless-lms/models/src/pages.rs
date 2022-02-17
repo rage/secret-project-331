@@ -123,13 +123,13 @@ pub struct PageMetadata {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
 pub struct PageChapterAndCourseInformation {
-    chapter_name: Option<String>,
-    chapter_number: Option<i32>,
-    course_name: Option<String>,
-    course_slug: Option<String>,
-    chapter_front_page_id: Option<Uuid>,
-    chapter_front_page_url_path: Option<String>,
-    organization_slug: String,
+    pub chapter_name: Option<String>,
+    pub chapter_number: Option<i32>,
+    pub course_name: Option<String>,
+    pub course_slug: Option<String>,
+    pub chapter_front_page_id: Option<Uuid>,
+    pub chapter_front_page_url_path: Option<String>,
+    pub organization_slug: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]

@@ -14,7 +14,7 @@ interface WithSidebar {
 export type BreakFromCenteredProps = NoSidebar | WithSidebar
 
 const BreakFromCentered: React.FC<BreakFromCenteredProps> = (props) => {
-  // 100vw unfortunately take into account the scrollbar width, so wee need to calculate its width and substract it from the width of the page
+  // 100vw unfortunately does not take into account the scrollbar width, so we need to calculate its width and substract it from the width of the page
   let scrollbarWidth = 0
   if (typeof window !== "undefined") {
     scrollbarWidth = Math.abs(window.innerWidth - document.documentElement.clientWidth) / 2
@@ -30,7 +30,7 @@ const BreakFromCentered: React.FC<BreakFromCenteredProps> = (props) => {
             right: 50%;
             margin-left: calc(-50vw + ${props.sidebarWidth} / 2);
             margin-right: calc(-50vw + ${props.sidebarWidth} / 2);
-            width: calc(100vw - ${props.sidebarWidth} - ${scrollbarWidth});
+            width: calc(100vw - ${props.sidebarWidth} - ${scrollbarWidth}px);
           `}
         >
           {props.children}

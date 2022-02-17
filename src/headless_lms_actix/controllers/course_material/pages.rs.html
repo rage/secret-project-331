@@ -59,9 +59,28 @@
 <span id="58">58</span>
 <span id="59">59</span>
 <span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/pages`.</span>
 
-<span class="kw">use</span> <span class="ident">models::pages</span>::{<span class="ident">Page</span>, <span class="ident">PageRoutingDataWithChapterStatus</span>};
+<span class="kw">use</span> <span class="ident">models::pages</span>::{<span class="ident">Page</span>, <span class="ident">PageChapterAndCourseInformation</span>, <span class="ident">PageRoutingDataWithChapterStatus</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
@@ -98,6 +117,21 @@ GET /api/v0/course-material/pages/exam/{page_id}
 }
 
 <span class="doccomment">/**
+ GET /api/v0/course-material/pages/:page_id/chapter-and-course-information - gives the page&#39;s chapter and course information -- useful for the breadcrumbs
+*/</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapter_and_course_information</span>(
+    <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">PageChapterAndCourseInformation</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">models::pages::get_page_chapter_and_course_information</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
+}
+
+<span class="doccomment">/**
  GET /api/v0/course-material/pages/:page_id/url-path - returns the page&#39;s URL path.
  # Example
  ```json
@@ -117,7 +151,11 @@ GET /api/v0/course-material/pages/exam/{page_id}
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/exam/{page_id}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_by_exam_id</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{current_page_id}/next-page&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_next_page</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{current_page_id}/url-path&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_url_path</span>));
+        .<span class="ident">route</span>(<span class="string">&quot;/{current_page_id}/url-path&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_url_path</span>))
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{current_page_id}/chapter-and-course-information&quot;</span>,
+            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_chapter_and_course_information</span>),
+        );
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>

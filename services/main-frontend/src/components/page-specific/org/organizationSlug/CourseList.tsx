@@ -5,7 +5,7 @@ import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import { postNewCourse } from "../../../../services/backend/courses"
+import { postNewCourse, postNewCourseDuplicate } from "../../../../services/backend/courses"
 import {
   fetchOrganizationCourseCount,
   fetchOrganizationCourses,
@@ -69,6 +69,13 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
 
   const handleSubmitNewCourse = async (newCourse: NewCourse) => {
     await postNewCourse(newCourse)
+    await getOrgCourses.refetch()
+    await getOrgCourseCount.refetch()
+    setNewCourseFormOpen(!newCourseFormOpen)
+  }
+
+  const handleSubmitDuplicateCourse = async (oldCourseId: string, newCourse: NewCourse) => {
+    await postNewCourseDuplicate(oldCourseId, newCourse)
     await getOrgCourses.refetch()
     await getOrgCourseCount.refetch()
     setNewCourseFormOpen(!newCourseFormOpen)
@@ -147,9 +154,18 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
               margin: 1rem;
             `}
           >
+            <Button
+              size="medium"
+              variant="secondary"
+              onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
+            >
+              {t("button-text-close")}
+            </Button>
             <NewCourseForm
               organizationId={organizationId}
-              onSubmitForm={handleSubmitNewCourse}
+              courses={getOrgCourses.data}
+              onSubmitNewCourseForm={handleSubmitNewCourse}
+              onSubmitDuplicateCourseForm={handleSubmitDuplicateCourse}
               onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}
             />
           </div>

@@ -31,7 +31,7 @@ const NewCourseLanguageVersionDialog: React.FC<NewCourseLanguageVersionDialogPro
         <div>{t("create-new-language-version-of", { "course-name": courseName })}</div>
         <NewCourseForm
           organizationId={organizationId}
-          onSubmitForm={handleSubmit}
+          onSubmitNewCourseForm={handleSubmit}
           onClose={onClose}
         />
       </div>

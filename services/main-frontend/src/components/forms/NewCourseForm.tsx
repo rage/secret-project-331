@@ -3,21 +3,24 @@ import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { NewCourse } from "../../shared-module/bindings"
+import { Course, NewCourse } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
+import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import RadioButton from "../../shared-module/components/InputFields/RadioButton"
+import SelectMenu from "../../shared-module/components/InputFields/SelectField"
 import TextArea from "../../shared-module/components/InputFields/TextAreaField"
 import TextField from "../../shared-module/components/InputFields/TextField"
 import { normalizeIETFLanguageTag } from "../../shared-module/utils/strings"
 import { normalizePath } from "../../utils/normalizePath"
-
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
 
 interface NewCourseFormProps {
   organizationId: string
-  onSubmitForm: (newCourse: NewCourse) => Promise<void>
+  onSubmitNewCourseForm: (newCourse: NewCourse) => Promise<void>
+  onSubmitDuplicateCourseForm?: (oldCourseId: string, newCourse: NewCourse) => Promise<void>
+  courses?: Course[]
   onClose: () => void
 }
 
@@ -26,8 +29,15 @@ const FINNISH_LANGUAGE_CODE = "fi-FI"
 const SWEDISH_LANGUAGE_CODE = "sv-SE"
 const DEFAULT_LANGUAGE_CODE = AMERICAN_ENGLISH_LANGUAGE_CODE
 
-const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitForm, onClose }) => {
+const NewCourseForm: React.FC<NewCourseFormProps> = ({
+  organizationId,
+  onSubmitNewCourseForm,
+  onSubmitDuplicateCourseForm,
+  courses,
+  onClose,
+}) => {
   const { t } = useTranslation()
+  const [courseId, setCourseId] = useState("")
   const [name, setName] = useState("")
   const [slug, setSlug] = useState("")
   const [teacherInChargeName, setTeacherInChargeName] = useState("")
@@ -37,15 +47,60 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
   const [languageCodeValidationError, setLanguageCodeValidationError] = useState<string | null>(
     null,
   )
+
+  const [createDuplicate, setCreateDuplicate] = useState<boolean>(false)
   const [description, setDescription] = useState("")
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const handleDuplicateMenu = (e: string, coursesData: Course[]) => {
+    const findCourse = coursesData.find((course) => course.id === e)
+    const courseName = findCourse?.name ? findCourse?.name : ""
+    setCourseId(e)
+    if (courseName !== "") {
+      setName(courseName)
+    }
+  }
+
+  const handleCreateNewLanguageVersion = async () => {
+    if (!onSubmitDuplicateCourseForm) {
+      return null
+    }
+    try {
+      setSubmitDisabled(true)
+      const normalizedLanguageCode = normalizeIETFLanguageTag(languageCode)
+      const newCourse: NewCourse = {
+        name: name,
+        description: description,
+        slug: slug,
+        organization_id: organizationId,
+        language_code: normalizedLanguageCode,
+        teacher_in_charge_email: teacherInChargeEmail,
+        teacher_in_charge_name: teacherInChargeName,
+      }
+      if (courseId) {
+        await onSubmitDuplicateCourseForm(courseId, newCourse)
+        setLanguageCode(DEFAULT_LANGUAGE_CODE)
+        setSlug("")
+        setTeacherInChargeName("")
+        setTeacherInChargeEmail("")
+        setError(null)
+      }
+    } catch (e) {
+      if (!(e instanceof Error)) {
+        throw e
+      }
+      setError(e.toString())
+    } finally {
+      setSubmitDisabled(false)
+    }
+  }
 
   const createNewCourse = async () => {
     try {
       setSubmitDisabled(true)
       const normalizedLanguageCode = normalizeIETFLanguageTag(languageCode)
-      await onSubmitForm({
+      await onSubmitNewCourseForm({
         name,
         slug,
         organization_id: organizationId,
@@ -137,6 +192,33 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
             }}
           />
         </FieldContainer>
+        {courses && (
+          <FieldContainer>
+            <CheckBox
+              label={t("create-course-duplicate")}
+              onChange={() => {
+                setCreateDuplicate(!createDuplicate)
+                handleDuplicateMenu(courses[0].id, courses)
+              }}
+              checked={createDuplicate}
+            ></CheckBox>
+          </FieldContainer>
+        )}
+        {courses && createDuplicate && (
+          <FieldContainer>
+            <SelectMenu
+              id="duplicate-course-select-menu"
+              onBlur={() => {
+                // no-op
+              }}
+              defaultValue={courses[0].id}
+              onChange={(e) => handleDuplicateMenu(e, courses)}
+              options={courses.map((course) => {
+                return { label: course.name, value: course.id }
+              })}
+            ></SelectMenu>
+          </FieldContainer>
+        )}
         <div>{t("course-language")}</div>
         <FieldContainer aria-labelledby={t("course-version-selection")}>
           <RadioButton
@@ -203,7 +285,12 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
         )}
       </div>
       <div>
-        <Button size="medium" variant="primary" onClick={createNewCourse} disabled={submitDisabled}>
+        <Button
+          size="medium"
+          variant="primary"
+          onClick={createDuplicate ? handleCreateNewLanguageVersion : createNewCourse}
+          disabled={submitDisabled}
+        >
           {t("button-text-create")}
         </Button>
         <Button size="medium" variant="secondary" onClick={onClose}>

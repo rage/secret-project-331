@@ -58,6 +58,16 @@ export const postNewCourseTranslation = async (
   return validateResponse(response, isCourse)
 }
 
+export const postNewCourseDuplicate = async (
+  courseId: string,
+  data: NewCourse,
+): Promise<Course> => {
+  const response = await mainFrontendClient.post(`/courses/${courseId}/duplicate`, data, {
+    responseType: "json",
+  })
+  return validateResponse(response, isCourse)
+}
+
 export const updateCourse = async (courseId: string, data: CourseUpdate): Promise<Course> => {
   const response = await mainFrontendClient.put(`/courses/${courseId}`, data, {
     headers: { "Content-Type": "application/json" },

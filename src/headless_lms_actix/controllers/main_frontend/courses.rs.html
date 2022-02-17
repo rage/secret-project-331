@@ -561,6 +561,42 @@
 <span id="560">560</span>
 <span id="561">561</span>
 <span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils::strings::is_ietf_language_code_like</span>;
@@ -869,6 +905,38 @@ Content-Type: application/json
 }
 
 <span class="doccomment">/**
+POST `/api/v0/main-frontend/courses/:id/duplicate` - Post new course as a copy from existing one.
+
+# Example
+
+Request:
+```http
+POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/duplicate HTTP/1.1
+Content-Type: application/json
+
+{
+  &quot;name&quot;: &quot;Johdatus kaikkeen&quot;,
+  &quot;slug&quot;: &quot;johdatus-kaikkeen&quot;,
+  &quot;organization_id&quot;: &quot;1b89e57e-8b57-42f2-9fed-c7a6736e3eec&quot;,
+  &quot;language_code&quot;: &quot;fi-FI&quot;
+}
+```
+*/</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_new_course_duplicate</span>(
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewCourse</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Duplicate</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Course</span>(<span class="kw-2">*</span><span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">copied_course</span> <span class="op">=</span> <span class="ident">models::courses::copy_course</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>, <span class="kw-2">&amp;</span><span class="ident">payload</span>.<span class="number">0</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">copied_course</span>))
+}
+
+<span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
 */</span>
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
@@ -1093,6 +1161,10 @@ We add the routes by calling the route method instead of using the route annotat
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/language-versions&quot;</span>,
             <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_new_course_language_version</span>),
+        )
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{course_id}/duplicate&quot;</span>,
+            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_new_course_duplicate</span>),
         )
         .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/upload&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">add_media_for_course</span>))
         .<span class="ident">route</span>(

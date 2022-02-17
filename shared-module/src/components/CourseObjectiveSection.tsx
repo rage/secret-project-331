@@ -22,10 +22,14 @@ const TextBox = styled.div`
   justify-content: center;
 
   h2 {
-    font-weight: 400;
     z-index: 20;
-    margin-bottom: 1em;
     font-size: 3.5rem;
+    font-style: normal;
+    font-weight: 600;
+    text-align: center;
+    padding-bottom: 1em;
+    line-height: 1.1;
+    margin-bottom: 0.5em;
     text-transform: uppercase;
   }
 

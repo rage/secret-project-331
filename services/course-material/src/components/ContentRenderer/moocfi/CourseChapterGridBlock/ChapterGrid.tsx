@@ -43,7 +43,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
     <div
       className={withMultipleClassNames([
         css`
-          padding: 7.5em 1em;
+          padding: 4.5em 1em;
         `,
         CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING,
       ])}
@@ -51,9 +51,11 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
       <h1
         className={css`
           font-style: normal;
-          font-weight: 400;
+          font-weight: 600;
           text-align: center;
           padding-bottom: 1em;
+          line-height: 1.1;
+          margin-bottom: 3rem;
           text-transform: uppercase;
         `}
       >

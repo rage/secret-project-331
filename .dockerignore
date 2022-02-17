@@ -1,2 +1,3 @@
 # Ignore everything to mimize the size of the build context.
 *
+.*

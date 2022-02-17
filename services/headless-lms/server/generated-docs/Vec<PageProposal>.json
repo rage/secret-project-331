@@ -14,6 +14,8 @@
         "status": "Accepted",
         "accept_preview": "Hello, world!!"
       }
-    ]
+    ],
+    "page_title": "Page title",
+    "page_url_path": "/path/to/page"
   }
 ]

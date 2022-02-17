@@ -48,5 +48,6 @@
   "default-toast-success-message": "Operation successful!",
   "default-toast-loading-message": "Performing action...",
   "default-toast-delete-title": "Deleted",
-  "default-toast-delete-message": "Successfully deleted"
+  "default-toast-delete-message": "Successfully deleted",
+  "breadcrumb": "Breadcrumb"
 }

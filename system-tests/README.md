@@ -54,7 +54,7 @@ For all UI parts of the application it is important to take screenshots in the t
 - Compares the taken image to a previously taken image and fails the test if they don't match
 - Runs accessibility checks on the page being screenshotted
 
-If you have changed how the UI looks like, you can update the image snapshots with `npm run update-snapshots` and commit these to Git. If you accidentally overwrite some snapshots that you didn't intend to change in your branch, please revert the changes with the script `bin/git-restore-screenshots-from-most-recent-common-ancestor` from the repo root.
+If you have changed how the UI looks like, you can update the image snapshots with `npm run update-snapshots` and commit these to Git. If you accidentally overwrite some snapshots that you didn't intend to change in your branch, please revert the changes with the script `bin/git-restore-screenshots-from-origin-master` from the repo root.
 
 Example usage of `expectScreenshotsToMatchSnapshots`:
 

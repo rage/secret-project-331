@@ -31,6 +31,20 @@ export interface Chapter {
   copied_from: string | null
 }
 
+export interface DatabaseChapter {
+  id: string
+  created_at: Date
+  updated_at: Date
+  name: string
+  course_id: string
+  deleted_at: Date | null
+  chapter_image_path: string | null
+  chapter_number: number
+  front_page_id: string | null
+  opens_at: Date | null
+  copied_from: string | null
+}
+
 export type ChapterStatus = "open" | "closed"
 
 export interface ChapterUpdate {
@@ -521,6 +535,16 @@ export interface NewPage {
   chapter_id: string | null
   front_page_of_chapter_id: string | null
   content_search_language: string | null
+}
+
+export interface PageChapterAndCourseInformation {
+  chapter_name: string | null
+  chapter_number: number | null
+  course_name: string | null
+  course_slug: string | null
+  chapter_front_page_id: string | null
+  chapter_front_page_url_path: string | null
+  organization_slug: string
 }
 
 export interface PlaygroundExample {

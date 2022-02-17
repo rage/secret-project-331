@@ -2,6 +2,7 @@ import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useReducer } from "react"
 import { useQuery } from "react-query"
 
+import CourseMaterialPageBreadcrumbs from "../../../../components/CourseMaterialPageBreadcrumbs"
 import Layout from "../../../../components/Layout"
 import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
@@ -130,6 +131,7 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
           organizationSlug={query.organizationSlug}
           courseSlug={courseSlug}
         >
+          <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
           <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
         </Layout>
       </PageContext.Provider>

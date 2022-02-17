@@ -7,6 +7,7 @@ import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import PagesInChapter from "./PagesInChapter"
 
@@ -36,4 +37,4 @@ const PagesInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
   )
 }
 
-export default dontRenderUntilQueryParametersReady(PagesInChapterBlock)
+export default withErrorBoundary(dontRenderUntilQueryParametersReady(PagesInChapterBlock))

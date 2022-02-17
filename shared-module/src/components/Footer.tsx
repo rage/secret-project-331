@@ -30,6 +30,7 @@ const Wrapper = styled.div`
     margin-bottom: 1rem;
     opacity: 0.8;
     line-height: 1;
+    color: ${baseTheme.colors.grey[700]};
   }
 
   div:first-of-type {

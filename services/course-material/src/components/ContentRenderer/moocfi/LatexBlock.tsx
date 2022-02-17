@@ -2,6 +2,7 @@ import KaTex from "katex"
 
 import "katex/dist/katex.min.css"
 import { BlockRendererProps } from ".."
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 export interface TextAttributes {
   text: string
@@ -23,4 +24,4 @@ const LatexBlock: React.FC<BlockRendererProps<TextAttributes>> = ({ data }) => {
   return <div>{convert_to_latex()}</div>
 }
 
-export default LatexBlock
+export default withErrorBoundary(LatexBlock)

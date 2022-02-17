@@ -4,6 +4,7 @@ import PageContext from "../../../../contexts/PageContext"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import NextPage from "./NextPage"
 
@@ -28,4 +29,4 @@ const NavigationContainer: React.FC = () => {
   )
 }
 
-export default dontRenderUntilQueryParametersReady(NavigationContainer)
+export default withErrorBoundary(dontRenderUntilQueryParametersReady(NavigationContainer))

@@ -88,6 +88,7 @@
   "screen-reader-opens-in-new-tab": "(opens in a new tab)",
   "error-page-without-course": "Error: Page is not associated with any course",
   "course-title": "Course: {{title}}",
+  "course": "Course",
   "things-to-know-before-you-start": "Things to know before you start!",
   "max-score-n-marks": "Max score: <2>{{marks}} marks</2>",
   "started-at-time": "Started: {{time}}",
@@ -103,5 +104,6 @@
   "term": "Term",
   "definition": "Definition",
   "block-invalid-without-course": "This block cannot be used on a page not related to a course.",
-  "skip-to-content": "Skip to content"
+  "skip-to-content": "Skip to content",
+  "chapter-chapter-number-chapter-name": "Chapter {{chapterNumber}}: {{chapterName}}"
 }

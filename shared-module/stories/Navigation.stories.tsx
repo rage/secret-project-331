@@ -5,7 +5,7 @@ import React from "react"
 import Navigation from "../src/components/Navigation/index"
 
 export default {
-  title: "Components/Nav",
+  title: "Components/Navigation/Nav",
   component: Navigation,
 } as Meta
 

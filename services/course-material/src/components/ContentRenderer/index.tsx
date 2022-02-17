@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { Block } from "../../services/backend"
 import { NewProposedBlockEdit } from "../../shared-module/bindings"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { courseMaterialBlockClass } from "../../utils/constants"
 
 import DefaultBlock from "./DefaultBlock"
@@ -174,4 +175,4 @@ const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
   )
 }
 
-export default ContentRenderer
+export default withErrorBoundary(ContentRenderer)

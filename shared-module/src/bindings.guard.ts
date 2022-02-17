@@ -33,6 +33,7 @@ import {
   CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
+  DatabaseChapter,
   EditProposalInfo,
   EmailTemplate,
   EmailTemplateNew,
@@ -79,6 +80,7 @@ import {
   NewProposedPageEdits,
   Organization,
   Page,
+  PageChapterAndCourseInformation,
   PageHistory,
   PageProposal,
   PageRoutingDataWithChapterStatus,
@@ -141,6 +143,23 @@ export function isChapter(obj: any, _argumentName?: string): obj is Chapter {
     typeof obj.course_id === "string" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     (obj.chapter_image_url === null || typeof obj.chapter_image_url === "string") &&
+    typeof obj.chapter_number === "number" &&
+    (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
+    (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.copied_from === null || typeof obj.copied_from === "string")
+  )
+}
+
+export function isDatabaseChapter(obj: any, _argumentName?: string): obj is DatabaseChapter {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    typeof obj.name === "string" &&
+    typeof obj.course_id === "string" &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    (obj.chapter_image_path === null || typeof obj.chapter_image_path === "string") &&
     typeof obj.chapter_number === "number" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
@@ -856,6 +875,23 @@ export function isNewPage(obj: any, _argumentName?: string): obj is NewPage {
     (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
     (obj.front_page_of_chapter_id === null || typeof obj.front_page_of_chapter_id === "string") &&
     (obj.content_search_language === null || typeof obj.content_search_language === "string")
+  )
+}
+
+export function isPageChapterAndCourseInformation(
+  obj: any,
+  _argumentName?: string,
+): obj is PageChapterAndCourseInformation {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.chapter_name === null || typeof obj.chapter_name === "string") &&
+    (obj.chapter_number === null || typeof obj.chapter_number === "number") &&
+    (obj.course_name === null || typeof obj.course_name === "string") &&
+    (obj.course_slug === null || typeof obj.course_slug === "string") &&
+    (obj.chapter_front_page_id === null || typeof obj.chapter_front_page_id === "string") &&
+    (obj.chapter_front_page_url_path === null ||
+      typeof obj.chapter_front_page_url_path === "string") &&
+    typeof obj.organization_slug === "string"
   )
 }
 

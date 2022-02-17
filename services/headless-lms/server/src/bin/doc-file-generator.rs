@@ -39,8 +39,8 @@ use headless_lms_models::{
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
         CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, ContentManagementPage,
-        CoursePageWithUserData, Page, PageRoutingDataWithChapterStatus, PageSearchResult,
-        PageWithExercises,
+        CoursePageWithUserData, Page, PageChapterAndCourseInformation,
+        PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
@@ -739,7 +739,21 @@ fn main() {
                 definition: "Another definition".to_string()
             }
         ]
-    )
+    );
+    write_docs!(
+        PageChapterAndCourseInformation,
+        PageChapterAndCourseInformation {
+            chapter_name: Some("Chapter 1".to_string()),
+            chapter_number: Some(1),
+            course_name: Some("Introduction to everything".to_string()),
+            course_slug: Some("introduction-to-everything".to_string()),
+            chapter_front_page_id: Some(
+                Uuid::parse_str("307fa56f-9853-4f5c-afb9-a6736c232f32").unwrap()
+            ),
+            chapter_front_page_url_path: Some("/chapter-1".to_string()),
+            organization_slug: "uh-cs".to_string()
+        }
+    );
 }
 
 fn write_json<T: Serialize>(path: &str, value: T) {

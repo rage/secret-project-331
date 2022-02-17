@@ -1437,7 +1437,7 @@ async fn seed_sample_course(
         Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-2".to_string(),
-            title: "page 2".to_string(),
+            title: "Page 2".to_string(),
             chapter_id: Some(chapter_1.id),
             exercises: vec![exercise_2, exercise_3, exercise_4],
             exercise_slides: vec![slide_2, slide_3, slide_4],
@@ -1755,7 +1755,7 @@ async fn seed_sample_course(
         Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-3".to_string(),
-            title: "page 3".to_string(),
+            title: "Page 3".to_string(),
             chapter_id: Some(chapter_1.id),
             exercises: vec![quizzes_exercise_1],
             exercise_slides: vec![quizzes_exercise_slide_1],
@@ -1778,7 +1778,7 @@ async fn seed_sample_course(
         Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-4".to_string(),
-            title: "page 4".to_string(),
+            title: "Page 4".to_string(),
             chapter_id: Some(chapter_1.id),
             exercises: vec![quizzes_exercise_2],
             exercise_slides: vec![quizzes_exercise_slide_2],
@@ -1824,7 +1824,7 @@ async fn seed_sample_course(
         Some(chapter_1.id),
         CmsPageUpdate {
             url_path: "/chapter-1/page-6".to_string(),
-            title: "page 6".to_string(),
+            title: "Page 6".to_string(),
             chapter_id: Some(chapter_1.id),
             exercises: vec![quizzes_exercise_4],
             exercise_slides: vec![quizzes_exercise_slide_4],

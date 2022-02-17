@@ -9,6 +9,7 @@ import {
   NewFeedback,
   NewProposedPageEdits,
   Page,
+  PageChapterAndCourseInformation,
   PageRoutingDataWithChapterStatus,
   PageSearchRequest,
   PageSearchResult,
@@ -30,6 +31,7 @@ import {
   isCoursePageWithUserData,
   isExamData,
   isPage,
+  isPageChapterAndCourseInformation,
   isPageRoutingDataWithChapterStatus,
   isPageSearchResult,
   isPageWithExercises,
@@ -167,6 +169,15 @@ export const fetchNextPageRoutingData = async (
 ): Promise<PageRoutingDataWithChapterStatus | null> => {
   const response = await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)
   return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
+}
+
+export const fetchPageChapterAndCourse = async (
+  currentPageId: string,
+): Promise<PageChapterAndCourseInformation | null> => {
+  const response = await courseMaterialClient.get(
+    `/pages/${currentPageId}/chapter-and-course-information`,
+  )
+  return validateResponse(response, isUnion(isPageChapterAndCourseInformation, isNull))
 }
 
 export const fetchChaptersPagesExcludeFrontpage = async (

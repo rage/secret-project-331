@@ -39,6 +39,7 @@ fn ts_binding_generator() {
         glossary::TermUpdate,
 
         chapters::Chapter,
+        chapters::DatabaseChapter,
         chapters::ChapterStatus,
         chapters::ChapterUpdate,
         chapters::ChapterWithStatus,
@@ -110,6 +111,7 @@ fn ts_binding_generator() {
         pages::PageSearchResult,
         pages::PageWithExercises,
         pages::NewPage,
+        pages::PageChapterAndCourseInformation,
 
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,

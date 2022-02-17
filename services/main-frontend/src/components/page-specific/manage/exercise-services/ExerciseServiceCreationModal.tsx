@@ -9,8 +9,8 @@ import { validURL } from "../../../../shared-module/utils/validation"
 
 import ContentArea from "./ContentArea"
 interface ExerciseServiceCreationModelProps {
-  onChange: (key: string) => (event: React.ChangeEvent<HTMLInputElement>) => void
-  onChangeName: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onChange: (key: string) => (value: string) => void
+  onChangeName: (value: string) => void
   exercise_service: ExerciseServiceNewOrUpdate
   handleSubmit(): Promise<void>
   handleClose(): void

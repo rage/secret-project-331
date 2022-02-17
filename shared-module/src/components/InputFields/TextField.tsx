@@ -17,6 +17,7 @@ interface TextFieldExtraProps {
   onChange?: (value: string, name?: string) => void
   className?: string
   disabled?: boolean
+  id?: string
 }
 
 const ERRORCOLOR = "#F76D82"
@@ -72,6 +73,7 @@ const TextField = ({ onChange, className, ...rest }: TextFieldExtraProps) => {
       <label>
         <span className={cx(label)}>{rest.label}</span>
         <Input
+          id={rest.id}
           aria-describedby={`${rest.label}_error`}
           onChange={({ target: { value } }) => onChange && onChange(value)}
           {...rest}

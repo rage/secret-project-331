@@ -21,6 +21,10 @@ const config: PlaywrightTestConfig = {
     baseURL: "http://project-331.local",
     launchOptions: {},
     screenshot: "only-on-failure",
+    contextOptions: {
+      locale: "en-US",
+      timezoneId: "Europe/Helsinki",
+    },
   },
 }
 

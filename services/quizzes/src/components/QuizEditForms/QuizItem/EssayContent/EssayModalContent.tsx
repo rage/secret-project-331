@@ -1,10 +1,10 @@
 import styled from "@emotion/styled"
-import { TextField } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
+import TextField from "../../../../shared-module/components/InputFields/TextField"
 import {
   editedItemMaxWords,
   editedItemMinWords,
@@ -48,20 +48,16 @@ export const EssayModalContent: React.FC<ModalContentProps> = ({ item }) => {
       </ModalContent>
       <ModalContent>
         <MaxWords
-          fullWidth
           label={t("max-words")}
-          variant="outlined"
-          value={item.maxWords ?? ""}
+          value={String(item.maxWords) ?? ""}
           type="number"
-          onChange={(event) => dispatch(editedItemMaxWords(item.id, Number(event.target.value)))}
+          onChange={(value) => dispatch(editedItemMaxWords(item.id, Number(value)))}
         />
         <MinWords
-          fullWidth
           label={t("min-words")}
-          variant="outlined"
-          value={item.minValue ?? ""}
+          value={String(item.minValue) ?? ""}
           type="number"
-          onChange={(event) => dispatch(editedItemMinWords(item.id, Number(event.target.value)))}
+          onChange={(value) => dispatch(editedItemMinWords(item.id, Number(value)))}
         />
       </ModalContent>
     </>

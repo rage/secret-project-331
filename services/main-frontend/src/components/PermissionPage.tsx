@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import { Check, Clear, Create, ExpandMore } from "@mui/icons-material"
-import { TextField } from "@mui/material"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -11,6 +10,7 @@ import { RoleDomain, RoleQuery, RoleUser, UserRole } from "../shared-module/bind
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import SelectField from "../shared-module/components/InputFields/SelectField"
+import TextField from "../shared-module/components/InputFields/TextField"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 
@@ -359,14 +359,13 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
             padding-right: 16px;
           `}
         >
-          <label htmlFor="email">{t("label-email")}</label>
           <TextField
-            id="email"
+            id={t("label-email")}
+            label={t("label-email")}
             placeholder={t("field-enter-email")}
-            onChange={(ev) => setNewEmail(ev.target.value)}
+            onChange={(value) => setNewEmail(value)}
           />
         </div>
-
         <div
           className={css`
             display: flex;

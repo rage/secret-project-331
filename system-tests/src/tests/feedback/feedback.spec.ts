@@ -11,7 +11,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test", async ({ headless, page }) => {
+test("feedback test", async ({ headless, page }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
@@ -81,7 +81,7 @@ test("test", async ({ headless, page }) => {
   })
 
   // Click text=Submit
-  await page.click('text="Add comment"')
+  await page.click(`button:text("Add comment")`)
   await page.click(`button:text("Send")`)
   await page.waitForSelector("text=Feedback submitted successfully")
 

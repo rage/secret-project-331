@@ -40,10 +40,9 @@ test("latex-block renders", async ({ headless, page }) => {
   expectPath(page, "/manage/courses/[id]/pages")
   // Click text=Add new chapter
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
+
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "first page")
+  await page.fill("text=Name", "first page")
   // Click text=Create chapter
   await page.click(`button:text("Create")`)
   // Click a:has-text("first page")

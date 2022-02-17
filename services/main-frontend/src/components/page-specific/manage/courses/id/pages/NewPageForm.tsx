@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { TextField } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { postNewPage } from "../../../../../../services/backend/pages"
 import Button from "../../../../../../shared-module/components/Button"
+import TextField from "../../../../../../shared-module/components/InputFields/TextField"
 import { normalizePath } from "../../../../../../utils/normalizePath"
 
 const PathFieldWithPrefixElement = styled.div`
@@ -62,14 +62,11 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
         <FieldContainer>
           <TextField
             required
-            fullWidth
-            id="outlined-required"
             label={t("text-field-label-title")}
-            variant="outlined"
             value={title}
-            onChange={(e) => {
-              setTitle(e.target.value)
-              setPath(normalizePath(e.target.value))
+            onChange={(value) => {
+              setTitle(value)
+              setPath(normalizePath(value))
             }}
           />
         </FieldContainer>
@@ -85,13 +82,10 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
             </span>
             <TextField
               required
-              fullWidth
-              id="outlined-required"
               label={t("text-field-label-path")}
-              variant="outlined"
               value={path}
-              onChange={(e) => {
-                setPath(e.target.value)
+              onChange={(value) => {
+                setPath(value)
               }}
             />
           </PathFieldWithPrefixElement>

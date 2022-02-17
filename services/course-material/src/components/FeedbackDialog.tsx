@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
-import { TextField } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { postFeedback } from "../services/backend"
 import { FeedbackBlock } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
+import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { courseMaterialBlockClass } from "../utils/constants"
 
@@ -250,19 +250,12 @@ const FeedbackDialog: React.FC<Props> = ({
               </Button>
             </>
           )}
-          <TextField
-            className={css`
-              background: #f7f7f7;
-              border: 1px solid #c4c4c4;
-              box-sizing: border-box;
-              border-radius: 2px;
-            `}
-            placeholder={t("write-your-feedback-here")}
-            fullWidth
-            multiline
-            rows={3}
+          <TextAreaField
             value={comment}
-            onChange={(ev) => setComment(ev.target.value)}
+            label={t("add-comment")}
+            name=""
+            onChange={(value) => setComment(value)}
+            placeholder={t("write-your-feedback-here")}
           />
           {charactersLeft >= 0 && charactersLeft < 200 && (
             <div>{t("n-characters-left", { n: charactersLeft })}</div>

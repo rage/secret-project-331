@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { TextField } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { updateCourse } from "../../../../../../services/backend/courses"
 import Button from "../../../../../../shared-module/components/Button"
+import TextField from "../../../../../../shared-module/components/InputFields/TextField"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -43,13 +43,10 @@ const UpdateCourseForm: React.FC<UpdateCourseFormProps> = ({
         <FieldContainer>
           <TextField
             required
-            fullWidth
-            id="outlined-required"
             label={t("text-field-label-name")}
-            variant="outlined"
             value={name}
-            onChange={(e) => {
-              setName(e.target.value)
+            onChange={(value) => {
+              setName(value)
             }}
           />
         </FieldContainer>

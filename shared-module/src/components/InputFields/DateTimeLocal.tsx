@@ -7,8 +7,7 @@ interface TimePickerExtraProps {
   value?: string
   max?: string
   min?: string
-  readonly: boolean
-  /*   onBlur?: (name?:string) => void */
+  readOnly?: boolean
   onChange: (value: string, name?: string) => void
 }
 

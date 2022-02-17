@@ -11,6 +11,7 @@ import { courseMaterialBlockClass } from "../utils/constants"
 
 interface Props {
   courseId: string
+  pageId: string
   lastSelection: string
   setLastSelection: (s: string) => void
   close: () => unknown
@@ -22,7 +23,13 @@ interface Comment {
   relatedBlocks: Array<FeedbackBlock>
 }
 
-const FeedbackDialog: React.FC<Props> = ({ courseId, lastSelection, setLastSelection, close }) => {
+const FeedbackDialog: React.FC<Props> = ({
+  courseId,
+  pageId,
+  lastSelection,
+  setLastSelection,
+  close,
+}) => {
   const { t } = useTranslation()
   const [comments, setComments] = useState<Array<Comment>>([])
   const [comment, setComment] = useState("")
@@ -34,6 +41,7 @@ const FeedbackDialog: React.FC<Props> = ({ courseId, lastSelection, setLastSelec
           feedback_given: c.comment,
           selected_text: c.selectedText.length > 0 ? c.selectedText : null,
           related_blocks: c.relatedBlocks,
+          page_id: pageId,
         }
       })
       return postFeedback(courseId, feedback)
@@ -78,6 +86,7 @@ const FeedbackDialog: React.FC<Props> = ({ courseId, lastSelection, setLastSelec
         relatedBlocks.push({
           id: block.id,
           text,
+          order_number: relatedBlocks.length,
         })
       }
     }

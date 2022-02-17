@@ -34,8 +34,8 @@ use headless_lms_models::{
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
         CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, ContentManagementPage,
-        CoursePageWithUserData, Page, PageRoutingDataWithChapterStatus, PageSearchResult,
-        PageWithExercises,
+        CoursePageWithUserData, Page, PageChapterAndCourseInformation,
+        PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
@@ -385,7 +385,8 @@ fn main() {
         CoursePageWithUserData {
             page: page.clone(),
             instance: Some(course_instance.clone()),
-            settings: Some(user_course_settings.clone())
+            settings: Some(user_course_settings.clone()),
+            was_redirected: false
         }
     );
     write_docs!(CourseInstance, course_instance.clone());
@@ -590,7 +591,14 @@ fn main() {
             selected_text: None,
             marked_as_read: false,
             created_at: date_time,
-            blocks: vec![FeedbackBlock { id, text: None }]
+            blocks: vec![FeedbackBlock {
+                id,
+                text: None,
+                order_number: Some(0)
+            }],
+            page_id: Some(Uuid::parse_str("bba0eda6-882b-4a0f-ad91-b02de1de4770").unwrap()),
+            page_title: Some("The title of the page".to_string()),
+            page_url_path: Some("/path-to-page".to_string())
         }]
     );
     write_docs!(FeedbackCount, FeedbackCount { read: 1, unread: 2 });
@@ -659,7 +667,9 @@ fn main() {
                 changed_text: "Hello, world!".to_string(),
                 status: ProposalStatus::Accepted,
                 accept_preview: Some("Hello, world!!".to_string())
-            }]
+            }],
+            page_title: "Page title".to_string(),
+            page_url_path: "/path/to/page".to_string()
         }]
     );
     write_docs!(
@@ -730,7 +740,21 @@ fn main() {
                 definition: "Another definition".to_string()
             }
         ]
-    )
+    );
+    write_docs!(
+        PageChapterAndCourseInformation,
+        PageChapterAndCourseInformation {
+            chapter_name: Some("Chapter 1".to_string()),
+            chapter_number: Some(1),
+            course_name: Some("Introduction to everything".to_string()),
+            course_slug: Some("introduction-to-everything".to_string()),
+            chapter_front_page_id: Some(
+                Uuid::parse_str("307fa56f-9853-4f5c-afb9-a6736c232f32").unwrap()
+            ),
+            chapter_front_page_url_path: Some("/chapter-1".to_string()),
+            organization_slug: "uh-cs".to_string()
+        }
+    );
 }
 
 fn write_json<T: Serialize>(path: &str, value: T) {

@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test"
-import { Page } from "playwright"
 
 import { feedbackTooltipClass } from "../../shared-module/styles/constants"
 import expectPath from "../../utils/expect"
@@ -109,14 +108,12 @@ test("feedback test", async ({ headless, page }) => {
   await page.waitForURL((url) => url.searchParams.has("read"))
   expectPath(page, "/manage/courses/[id]/feedback?read=false")
 
-  await replaceIds(page)
-
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "feedback-unread",
-    waitForThisToBeVisibleAndStable: `text=Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`,
+    waitForThisToBeVisibleAndStable: `text=Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
@@ -135,6 +132,12 @@ test("feedback test", async ({ headless, page }) => {
     headless,
     snapshotName: "feedback-empty",
     waitForThisToBeVisibleAndStable: `text=No feedback`,
+    beforeScreenshot: async () => {
+      page.evaluate(() => {
+        window.scrollTo({ top: 0, left: 0 })
+      })
+    },
+    waitForNotificationsToClear: true,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
@@ -148,25 +151,3 @@ test("feedback test", async ({ headless, page }) => {
   // Click text=Unread
   await page.click("text=Unread")
 })
-
-async function replaceIds(page: Page): Promise<void> {
-  await page.waitForSelector("text=Sent by")
-  await page.evaluate(() => {
-    const divs = document.querySelectorAll("div")
-    for (const div of divs) {
-      if (div.children.length === 0 && div.textContent.includes("Sent by")) {
-        div.innerHTML = "Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx at yyyy-mm-ddThh:mm:ss.xxxZ"
-      }
-    }
-  })
-
-  await page.waitForSelector("text=Block id: ")
-  await page.evaluate(() => {
-    const divs = document.querySelectorAll("div")
-    for (const div of divs) {
-      if (div.children.length === 0 && div.textContent.includes("Block id: ")) {
-        div.innerHTML = "Block id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-      }
-    }
-  })
-}

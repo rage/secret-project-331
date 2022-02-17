@@ -1,11 +1,13 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { NewCourse } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
+import RadioButton from "../../shared-module/components/InputFields/RadioButton"
+import TextArea from "../../shared-module/components/InputFields/TextAreaField"
+import TextField from "../../shared-module/components/InputFields/TextField"
 import { normalizeIETFLanguageTag } from "../../shared-module/utils/strings"
 import { normalizePath } from "../../utils/normalizePath"
 
@@ -35,6 +37,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
   const [languageCodeValidationError, setLanguageCodeValidationError] = useState<string | null>(
     null,
   )
+  const [description, setDescription] = useState("")
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -49,6 +52,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
         language_code: normalizedLanguageCode,
         teacher_in_charge_name: teacherInChargeName,
         teacher_in_charge_email: teacherInChargeEmail,
+        description,
       })
       setName("")
       setSlug("")
@@ -85,104 +89,109 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ organizationId, onSubmitF
         <FieldContainer>
           <TextField
             required
-            fullWidth
-            id="outlined-required"
             label={t("text-field-label-name")}
-            variant="outlined"
             value={name}
-            onChange={(e) => {
-              setName(e.target.value)
-              setSlug(normalizePath(e.target.value))
+            onChange={(value) => {
+              setName(value)
+              setSlug(normalizePath(value))
             }}
           />
         </FieldContainer>
         <FieldContainer>
           <TextField
             required
-            fullWidth
-            id="outlined-required"
             label={t("text-field-label-or-header-slug-or-short-name")}
-            variant="outlined"
             value={slug}
-            onChange={(e) => {
-              setSlug(e.target.value)
+            onChange={(value) => {
+              setSlug(value)
             }}
           />
         </FieldContainer>
         <FieldContainer>
           <TextField
             required
-            fullWidth
-            id="teacher-in-charge-name"
             label={t("teacher-in-charge-name")}
-            variant="outlined"
             value={teacherInChargeName}
-            onChange={(e) => {
-              setTeacherInChargeName(e.target.value)
+            onChange={(value) => {
+              setTeacherInChargeName(value)
             }}
           />
         </FieldContainer>
         <FieldContainer>
           <TextField
             required
-            fullWidth
-            id="teacher-in-charge-email"
             label={t("teacher-in-charge-email")}
-            variant="outlined"
             value={teacherInChargeEmail}
-            onChange={(e) => {
-              setTeacherInChargeEmail(e.target.value)
+            onChange={(value) => {
+              setTeacherInChargeEmail(value)
+            }}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <TextArea
+            required
+            label={t("text-field-label-description")}
+            value={description}
+            onChange={(value) => {
+              setDescription(value)
             }}
           />
         </FieldContainer>
         <div>{t("course-language")}</div>
         <FieldContainer aria-labelledby={t("course-version-selection")}>
-          <RadioGroup
-            value={showCustomLanguageCode ? t("other-language") : languageCode}
-            onChange={(e) => handleLanguageSelectionChange(e.target.value)}
-          >
-            <FormControlLabel
-              control={<Radio />}
-              key={AMERICAN_ENGLISH_LANGUAGE_CODE}
-              label={t("english")}
-              value={AMERICAN_ENGLISH_LANGUAGE_CODE}
-            />
-            <FormControlLabel
-              control={<Radio />}
-              key={FINNISH_LANGUAGE_CODE}
-              label={t("finnish")}
-              value={FINNISH_LANGUAGE_CODE}
-            />
-            <FormControlLabel
-              control={<Radio />}
-              key={SWEDISH_LANGUAGE_CODE}
-              label={t("swedish")}
-              value={SWEDISH_LANGUAGE_CODE}
-            />
-            <FormControlLabel
-              control={<Radio />}
-              key="other"
-              label={t("other-language")}
-              // eslint-disable-next-line i18next/no-literal-string
-              value="other"
-            />
-          </RadioGroup>
+          <RadioButton
+            key={AMERICAN_ENGLISH_LANGUAGE_CODE}
+            label={t("english")}
+            value={AMERICAN_ENGLISH_LANGUAGE_CODE}
+            // eslint-disable-next-line i18next/no-literal-string
+            name="language-code"
+            onChange={(value) => handleLanguageSelectionChange(value)}
+          />
         </FieldContainer>
+        <FieldContainer>
+          <RadioButton
+            key={FINNISH_LANGUAGE_CODE}
+            label={t("finnish")}
+            value={FINNISH_LANGUAGE_CODE}
+            // eslint-disable-next-line i18next/no-literal-string
+            name="language-code"
+            onChange={(value) => handleLanguageSelectionChange(value)}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <RadioButton
+            key={SWEDISH_LANGUAGE_CODE}
+            label={t("swedish")}
+            value={SWEDISH_LANGUAGE_CODE}
+            // eslint-disable-next-line i18next/no-literal-string
+            name="language-code"
+            onChange={(value) => handleLanguageSelectionChange(value)}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <RadioButton
+            key="other"
+            label={t("other-language")}
+            // eslint-disable-next-line i18next/no-literal-string
+            value="other"
+            // eslint-disable-next-line i18next/no-literal-string
+            name="language-code"
+            onChange={(value) => handleLanguageSelectionChange(value)}
+          />
+        </FieldContainer>
+
         {showCustomLanguageCode && (
           <>
             <div>{languageCodeValidationError}</div>
             <FieldContainer>
               <TextField
                 required
-                fullWidth
-                id="outlined-required"
                 label={t("language-code")}
-                variant="outlined"
                 value={languageCode}
-                onChange={(e) => {
-                  setLanguageCode(e.target.value)
+                onChange={(value) => {
+                  setLanguageCode(value)
                   try {
-                    normalizeIETFLanguageTag(e.target.value)
+                    normalizeIETFLanguageTag(value)
                     setLanguageCodeValidationError(null)
                   } catch (e) {
                     setLanguageCodeValidationError(t("laguage-code-validation-error"))

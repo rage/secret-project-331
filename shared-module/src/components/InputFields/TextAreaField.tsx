@@ -3,7 +3,7 @@ import React from "react"
 
 interface TextAreaExtraProps {
   label: string
-  name: string
+  name?: string
   errorMessage?: string
   placeholder?: string
   required?: boolean

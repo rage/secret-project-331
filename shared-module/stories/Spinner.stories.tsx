@@ -16,4 +16,6 @@ type ComponentProps = React.ComponentProps<typeof Component>
 const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {...args} />
 
 export const Primary: Story<ComponentProps> = Template.bind({})
-Primary.args = {}
+Primary.args = {
+  variant: "medium",
+}

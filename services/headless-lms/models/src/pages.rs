@@ -13,7 +13,7 @@ use url::Url;
 use crate::{
     chapters::{self, ChapterStatus, DatabaseChapter},
     course_instances::{self, CourseInstance},
-    courses::Course,
+    courses::{get_nondeleted_course_id_by_slug, Course},
     exercise_service_info,
     exercise_services::{get_internal_public_spec_url, get_model_solution_url},
     exercise_slides::ExerciseSlide,
@@ -52,6 +52,8 @@ pub struct CoursePageWithUserData {
     pub page: Page,
     pub instance: Option<CourseInstance>,
     pub settings: Option<UserCourseSettings>,
+    /// If true, the frontend needs to update the url in the browser to match the path in the page object without reloading the page.
+    pub was_redirected: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -117,6 +119,17 @@ pub struct PageMetadata {
     chapter_number: Option<i32>,
     course_id: Option<Uuid>,
     exam_id: Option<Uuid>,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+pub struct PageChapterAndCourseInformation {
+    pub chapter_name: Option<String>,
+    pub chapter_number: Option<i32>,
+    pub course_name: Option<String>,
+    pub course_slug: Option<String>,
+    pub chapter_front_page_id: Option<Uuid>,
+    pub chapter_front_page_url_path: Option<String>,
+    pub organization_slug: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
@@ -324,9 +337,9 @@ WHERE id = $1;
 
 pub async fn get_page_by_path(
     conn: &mut PgConnection,
-    course_slug: &str,
+    course_id: Uuid,
     url_path: &str,
-) -> ModelResult<Page> {
+) -> ModelResult<Option<Page>> {
     let page = sqlx::query_as!(
         Page,
         "
@@ -343,16 +356,14 @@ SELECT pages.id,
   pages.order_number,
   pages.copied_from
 FROM pages
-  JOIN courses ON (pages.course_id = courses.id)
-WHERE courses.slug = $1
+WHERE pages.course_id = $1
   AND url_path = $2
-  AND courses.deleted_at IS NULL
   AND pages.deleted_at IS NULL;
         ",
-        course_slug,
+        course_id,
         url_path
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
     Ok(page)
 }
@@ -363,7 +374,68 @@ pub async fn get_page_with_user_data_by_path(
     course_slug: &str,
     url_path: &str,
 ) -> ModelResult<CoursePageWithUserData> {
-    let page = get_page_by_path(conn, course_slug, url_path).await?;
+    let course_id = get_nondeleted_course_id_by_slug(conn, course_slug).await?;
+    let page_option = get_page_by_path(conn, course_id, url_path).await?;
+
+    if let Some(page) = page_option {
+        return get_course_page_with_user_data_from_selected_page(conn, user_id, page, false).await;
+    } else {
+        let potential_redirect = try_to_find_redirected_page(conn, course_id, url_path).await?;
+        if let Some(redirected_page) = potential_redirect {
+            return get_course_page_with_user_data_from_selected_page(
+                conn,
+                user_id,
+                redirected_page,
+                true,
+            )
+            .await;
+        }
+    }
+
+    Err(ModelError::NotFound("Page not found".to_string()))
+}
+
+pub async fn try_to_find_redirected_page(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    url_path: &str,
+) -> ModelResult<Option<Page>> {
+    let page = sqlx::query_as!(
+        Page,
+        "
+SELECT pages.id,
+  pages.created_at,
+  pages.updated_at,
+  pages.course_id,
+  pages.exam_id,
+  pages.chapter_id,
+  pages.url_path,
+  pages.title,
+  pages.deleted_at,
+  pages.content,
+  pages.order_number,
+  pages.copied_from
+FROM url_redirections
+  JOIN pages on pages.id = url_redirections.destination_page_id
+WHERE url_redirections.course_id = $1
+  AND old_url_path = $2
+  AND url_redirections.deleted_at IS NULL
+  AND pages.deleted_at IS NULL;
+    ",
+        course_id,
+        url_path
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(page)
+}
+
+pub async fn get_course_page_with_user_data_from_selected_page(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    page: Page,
+    was_redirected: bool,
+) -> ModelResult<CoursePageWithUserData> {
     if let Some(chapter_id) = page.chapter_id {
         if !chapters::is_open(conn, chapter_id).await? {
             return Err(ModelError::PreconditionFailed(
@@ -384,6 +456,7 @@ pub async fn get_page_with_user_data_by_path(
                 page,
                 instance,
                 settings,
+                was_redirected,
             });
         }
     }
@@ -391,6 +464,7 @@ pub async fn get_page_with_user_data_by_path(
         page,
         instance: None,
         settings: None,
+        was_redirected,
     })
 }
 
@@ -1762,6 +1836,34 @@ WHERE pages.id = $1
     .fetch_one(&mut *conn)
     .await?;
     Ok(res.id)
+}
+
+pub async fn get_page_chapter_and_course_information(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<PageChapterAndCourseInformation> {
+    let res = sqlx::query_as!(
+        PageChapterAndCourseInformation,
+        r#"
+SELECT chapters.name as "chapter_name?",
+  chapters.chapter_number as "chapter_number?",
+  courses.name as "course_name?",
+  courses.slug as "course_slug?",
+  chapters.front_page_id as "chapter_front_page_id?",
+  p2.url_path as "chapter_front_page_url_path?",
+  organizations.slug as organization_slug
+FROM pages
+  LEFT JOIN chapters on pages.chapter_id = chapters.id
+  LEFT JOIN courses on pages.course_id = courses.id
+  LEFT JOIN pages p2 ON chapters.front_page_id = p2.id
+  LEFT JOIN organizations on courses.organization_id = organizations.id
+WHERE pages.id = $1
+"#,
+        page_id,
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    Ok(res)
 }
 
 #[cfg(test)]

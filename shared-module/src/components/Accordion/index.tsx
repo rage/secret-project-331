@@ -104,6 +104,10 @@ const Accordion: React.FC<AccordionProps> = (props) => {
   if (props.variant === "detail") {
     return <DetailAccordion {...props}></DetailAccordion>
   }
+
+  if (props.children) {
+    return <TextWrapper>{props.children}</TextWrapper>
+  }
   return (
     <div>
       <TextWrapper>

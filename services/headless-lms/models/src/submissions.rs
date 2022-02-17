@@ -10,6 +10,7 @@ use crate::{
     exercises::{Exercise, GradingProgress},
     gradings::{grade_submission, new_grading, Grading},
     prelude::*,
+    CourseOrExamId,
 };
 
 // Represents the subset of page fields that are required to create a new course.
@@ -212,14 +213,14 @@ WHERE id = $1
 pub async fn get_course_and_exam_id(
     conn: &mut PgConnection,
     id: Uuid,
-) -> ModelResult<(Option<Uuid>, Option<Uuid>)> {
+) -> ModelResult<CourseOrExamId> {
     let res = sqlx::query!(
         "SELECT course_id, exam_id FROM submissions WHERE id = $1",
         id
     )
     .fetch_one(conn)
     .await?;
-    Ok((res.course_id, res.exam_id))
+    CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
 pub async fn exercise_submission_count(

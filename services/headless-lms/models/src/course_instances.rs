@@ -456,6 +456,39 @@ WHERE id = $1
     Ok(())
 }
 
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+SELECT course_id
+FROM course_instances
+WHERE id = $1
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.course_id)
+}
+
+pub async fn is_open(conn: &mut PgConnection, id: Uuid) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+SELECT starts_at
+FROM course_instances
+WHERE id = $1
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    let is_open = if let Some(starts_at) = res.starts_at {
+        starts_at <= Utc::now()
+    } else {
+        false
+    };
+    Ok(is_open)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

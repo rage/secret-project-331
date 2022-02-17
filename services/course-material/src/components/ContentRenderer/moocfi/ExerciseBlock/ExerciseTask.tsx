@@ -35,6 +35,7 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
 
   return (
     <div>
+      <div>{feedbackText}</div>
       {currentExerciseTaskAssignment && (
         <ContentRenderer
           data={currentExerciseTaskAssignment}
@@ -44,7 +45,6 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
           isExam={isExam}
         />
       )}
-      <div>{feedbackText}</div>
       {cannotAnswerButNoSubmission && <div>{t("no-submission-received-for-this-exercise")}</div>}
       {!cannotAnswerButNoSubmission &&
         (url ? (

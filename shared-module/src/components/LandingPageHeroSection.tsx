@@ -25,7 +25,6 @@ const TextBox = styled.div`
   justify-content: center;
 
   h1 {
-    font-weight: 400;
     z-index: 20;
     margin-bottom: 0.8rem;
     margin-top: 1.5rem;

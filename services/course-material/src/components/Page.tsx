@@ -1,11 +1,10 @@
-import { css } from "@emotion/css"
 import React, { useContext, useState } from "react"
 
-import PageContext, { CoursePageDispatch } from "../contexts/PageContext"
+import PageContext from "../contexts/PageContext"
 import useSelectedBlockId from "../hooks/useSelectedBlockId"
 import { Block } from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
-import DebugModal from "../shared-module/components/DebugModal"
+import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
 import ContentRenderer from "./ContentRenderer"
@@ -23,7 +22,6 @@ const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
   // block id -> new block contents
   const [edits, setEdits] = useState<Map<string, NewProposedBlockEdit>>(new Map())
   const pageContext = useContext(PageContext)
-  const pageDispatch = useContext(CoursePageDispatch)
   const [editingMaterial, setEditingMaterial] = useState(false)
 
   const courseId = pageContext?.pageData?.course_id
@@ -40,21 +38,6 @@ const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
             organizationSlug={organizationSlug}
           />
         )}
-      <div
-        className={css`
-          text-align: right;
-        `}
-      >
-        <DebugModal
-          data={pageContext}
-          updateDataOnClose={(payload) => {
-            // NB! This is unsafe because payload has any type
-            // eslint-disable-next-line i18next/no-literal-string
-            pageDispatch({ type: "rawSetState", payload })
-          }}
-          readOnly={false}
-        />
-      </div>
       <SelectCourseInstanceModal onClose={onRefresh} />
       {courseId && pageId && (
         <FeedbackHandler
@@ -87,4 +70,4 @@ const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
   )
 }
 
-export default Page
+export default withErrorBoundary(Page)

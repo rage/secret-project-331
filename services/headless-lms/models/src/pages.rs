@@ -121,6 +121,17 @@ pub struct PageMetadata {
     exam_id: Option<Uuid>,
 }
 
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+pub struct PageChapterAndCourseInformation {
+    pub chapter_name: Option<String>,
+    pub chapter_number: Option<i32>,
+    pub course_name: Option<String>,
+    pub course_slug: Option<String>,
+    pub chapter_front_page_id: Option<Uuid>,
+    pub chapter_front_page_url_path: Option<String>,
+    pub organization_slug: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
 pub struct PageSearchResult {
     pub id: Uuid,
@@ -1825,6 +1836,34 @@ WHERE pages.id = $1
     .fetch_one(&mut *conn)
     .await?;
     Ok(res.id)
+}
+
+pub async fn get_page_chapter_and_course_information(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<PageChapterAndCourseInformation> {
+    let res = sqlx::query_as!(
+        PageChapterAndCourseInformation,
+        r#"
+SELECT chapters.name as "chapter_name?",
+  chapters.chapter_number as "chapter_number?",
+  courses.name as "course_name?",
+  courses.slug as "course_slug?",
+  chapters.front_page_id as "chapter_front_page_id?",
+  p2.url_path as "chapter_front_page_url_path?",
+  organizations.slug as organization_slug
+FROM pages
+  LEFT JOIN chapters on pages.chapter_id = chapters.id
+  LEFT JOIN courses on pages.course_id = courses.id
+  LEFT JOIN pages p2 ON chapters.front_page_id = p2.id
+  LEFT JOIN organizations on courses.organization_id = organizations.id
+WHERE pages.id = $1
+"#,
+        page_id,
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    Ok(res)
 }
 
 #[cfg(test)]

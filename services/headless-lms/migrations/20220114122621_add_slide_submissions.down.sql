@@ -24,7 +24,7 @@ SET course_id = ess.course_id,
   exercise_id = ess.exercise_id,
   user_id = ess.user_id
 FROM exercise_slide_submissions ess
-WHERE ets.exercise_slide_submission_id = ets.id;
+WHERE ets.exercise_slide_submission_id = ess.id;
 ALTER TABLE exercise_task_submissions
 ALTER COLUMN exercise_id
 SET NOT NULL,

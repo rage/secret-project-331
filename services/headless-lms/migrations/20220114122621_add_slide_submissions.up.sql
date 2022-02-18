@@ -23,8 +23,7 @@ CREATE TABLE exercise_slide_submissions(
   course_instance_id UUID REFERENCES course_instances,
   exam_id UUID REFERENCES exams,
   exercise_id UUID NOT NULL REFERENCES exercises,
-  user_id UUID NOT NULL REFERENCES users,
-  temp_task_submission_id UUID REFERENCES exercise_task_submissions
+  user_id UUID NOT NULL REFERENCES users
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON exercise_slide_submissions FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -45,39 +44,34 @@ ADD CONSTRAINT course_instance_or_exam_id_set CHECK (
     (course_instance_id IS NULL) <> (exam_id IS NULL)
   );
 ALTER TABLE exercise_task_submissions DROP CONSTRAINT course_instance_or_exam_id_set;
--- Assume only one task submissions per slide so far
+-- Create reference column and migrate data from task submissions to slide submissions.
+ALTER TABLE exercise_task_submissions
+ADD COLUMN exercise_slide_submission_id UUID DEFAULT uuid_generate_v4 () NOT NULL;
+COMMENT ON COLUMN exercise_task_submissions.exercise_slide_submission_id IS 'exercise_slide_submission that this task submission is a part of.';
 INSERT INTO exercise_slide_submissions (
+    id,
     deleted_at,
     exercise_slide_id,
     course_id,
     course_instance_id,
     exam_id,
     exercise_id,
-    user_id,
-    temp_task_submission_id
+    user_id
   )
-SELECT deleted_at,
+SELECT exercise_slide_submission_id,
+  deleted_at,
   exercise_slide_id,
   course_id,
   course_instance_id,
   exam_id,
   exercise_id,
-  user_id,
-  id
+  user_id
 FROM exercise_task_submissions;
--- Update exercise_task_submissions to refer to newly created slide_submissions
 ALTER TABLE exercise_task_submissions
-ADD COLUMN exercise_slide_submission_id UUID REFERENCES exercise_slide_submissions;
-COMMENT ON COLUMN exercise_task_submissions.exercise_slide_submission_id IS 'exercise_slide_submission that this task submission is a part of.';
-UPDATE exercise_task_submissions ets
-SET exercise_slide_submission_id = ess.id
-FROM exercise_slide_submissions ess
-WHERE ess.temp_task_submission_id = ets.id;
+ALTER COLUMN exercise_slide_submission_id DROP DEFAULT;
 ALTER TABLE exercise_task_submissions
-ALTER COLUMN exercise_slide_submission_id
-SET NOT NULL;
+ADD CONSTRAINT exercise_task_submissions_exercise_slide_submission_id_fkey FOREIGN KEY (exercise_slide_submission_id) REFERENCES exercise_slide_submissions (id);
 -- Remove migrated fields
-ALTER TABLE exercise_slide_submissions DROP COLUMN temp_task_submission_id;
 ALTER TABLE exercise_task_submissions DROP COLUMN course_id,
   DROP COLUMN course_instance_id,
   DROP COLUMN exam_id,

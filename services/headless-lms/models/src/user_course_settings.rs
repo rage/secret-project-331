@@ -105,7 +105,7 @@ mod test {
 
     #[tokio::test]
     async fn upserts_user_course_settings() {
-        insert_data!(tx, user, org, course, instance);
+        insert_data!(:tx, :user, :org, :course, :instance);
 
         let enrollment = course_instance_enrollments::insert_enrollment_if_it_doesnt_exist(
             tx.as_mut(),

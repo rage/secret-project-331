@@ -846,7 +846,7 @@ mod test {
 
     #[tokio::test]
     async fn validates_language_code_when_adding_a_course() {
-        insert_data!(tx, user, org);
+        insert_data!(:tx, :user, :org);
 
         // Valid language code allows course creation.
         let mut new_course = NewCourse {

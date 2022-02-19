@@ -1873,7 +1873,7 @@ mod test {
 
     #[tokio::test]
     async fn gets_organization_id() {
-        insert_data!(tx, user, org, course, _instance, _chapter, page);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, chapter: _chapter, :page);
 
         let course_page_org = get_organization_id(tx.as_mut(), page).await.unwrap();
         assert_eq!(org, course_page_org);

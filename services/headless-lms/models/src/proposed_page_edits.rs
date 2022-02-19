@@ -432,7 +432,7 @@ mod test {
 
     #[tokio::test]
     async fn typo_fix() {
-        insert_data!(tx, user, org, course, _instance, chapter, page);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :chapter, :page);
         let block_id = init_content(
             tx.as_mut(),
             chapter,
@@ -481,7 +481,7 @@ mod test {
 
     #[tokio::test]
     async fn rejection() {
-        insert_data!(tx, user, org, course, _instance, chapter, page);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :chapter, :page);
         let block_id = init_content(
             tx.as_mut(),
             chapter,

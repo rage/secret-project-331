@@ -273,7 +273,7 @@ mod test {
 
     #[tokio::test]
     async fn exports() {
-        insert_data!(tx, user, org, course, instance, chapter, page, exercise, slide, task);
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
 
         let u2 = users::insert(tx.as_mut(), "second@example.org", None, None)
             .await

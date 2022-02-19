@@ -472,16 +472,16 @@ mod test {
     #[tokio::test]
     async fn selects_course_material_exercise_for_enrolled_student() {
         insert_data!(
-            tx,
-            user_id,
-            organization_id,
-            course_id,
-            course_instance,
-            chapter_id,
-            page_id,
-            exercise_id,
-            exercise_slide_id,
-            exercise_task_id
+            :tx,
+            user: user_id,
+            org: organization_id,
+            course: course_id,
+            instance: course_instance,
+            chapter: chapter_id,
+            page: page_id,
+            exercise: exercise_id,
+            slide: exercise_slide_id,
+            task: exercise_task_id
         );
 
         course_instance_enrollments::insert_enrollment_and_set_as_current(

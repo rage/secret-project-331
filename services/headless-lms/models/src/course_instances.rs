@@ -489,7 +489,7 @@ mod test {
 
     #[tokio::test]
     async fn allows_only_one_instance_per_course_without_name() {
-        insert_data!(tx, user, org, course_id);
+        insert_data!(:tx, :user, :org, course: course_id);
 
         let mut tx1 = tx.begin().await;
         // courses always have a default instance with no name, so this should fail

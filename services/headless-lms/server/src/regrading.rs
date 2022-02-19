@@ -274,7 +274,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_submission() {
-        insert_data!(tx, user, org, course, instance, chapter, page, exercise, slide);
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
 
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
@@ -370,7 +370,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_complete() {
-        insert_data!(tx, user, org, course, instance, chapter, page, exercise, slide);
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
 
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
@@ -463,7 +463,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_partial() {
-        insert_data!(tx, user, org, course, instance, chapter, page, exercise, slide_1);
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, slide: slide_1);
 
         let grading_result = GradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
@@ -610,7 +610,7 @@ mod test {
 
     #[tokio::test]
     async fn fail_on_missing_service() {
-        insert_data!(tx, user, org, course, instance, chapter, page, exercise, slide, task);
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
 
         let submission = models::submissions::insert(
             tx.as_mut(),

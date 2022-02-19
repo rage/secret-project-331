@@ -880,7 +880,7 @@ mod tests {
 
     #[tokio::test]
     async fn updates_exercise_states() {
-        insert_data!(tx, user, org, course, instance, chapter, page, exercise, slide, task);
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
 
         let submission = submissions::insert_with_id(
             tx.as_mut(),

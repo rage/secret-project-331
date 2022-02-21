@@ -270,13 +270,23 @@ mod test {
     use serde_json::Value;
 
     use super::*;
-    use crate::test_helper::{self, Data};
+    use crate::test_helper::*;
 
     #[tokio::test]
     async fn regrades_submission() {
-        let mut conn = test_helper::Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
 
+        let task = models::exercise_tasks::insert(
+            tx.as_mut(),
+            slide,
+            "test-exercise",
+            vec![],
+            Value::Null,
+            Value::Null,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         let grading_result = GradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
             score_given: 0.0,
@@ -288,23 +298,13 @@ mod test {
             .with_body(serde_json::to_string(&grading_result).unwrap())
             .create();
 
-        let Data {
-            user,
-            course,
-            instance,
-            exercise,
-            task,
-            ..
-        } = test_helper::insert_data(tx.as_mut(), "test-exercise")
-            .await
-            .unwrap();
         let submission = models::submissions::insert(
             tx.as_mut(),
             exercise,
             course,
             task,
             user,
-            instance,
+            instance.id,
             Value::Null,
         )
         .await
@@ -370,9 +370,19 @@ mod test {
 
     #[tokio::test]
     async fn regrades_complete() {
-        let mut conn = test_helper::Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
 
+        let task = models::exercise_tasks::insert(
+            tx.as_mut(),
+            slide,
+            "test-exercise-1",
+            vec![],
+            Value::Null,
+            Value::Null,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         let grading_result = GradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
             score_given: 0.0,
@@ -384,23 +394,13 @@ mod test {
             .with_body(serde_json::to_string(&grading_result).unwrap())
             .create();
 
-        let Data {
-            user,
-            course,
-            instance,
-            exercise,
-            task,
-            ..
-        } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
-            .await
-            .unwrap();
         let submission = models::submissions::insert(
             tx.as_mut(),
             exercise,
             course,
             task,
             user,
-            instance,
+            instance.id,
             Value::Null,
         )
         .await
@@ -463,8 +463,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_partial() {
-        let mut conn = test_helper::Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, slide: slide_1);
 
         let grading_result = GradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
@@ -477,16 +476,18 @@ mod test {
             .with_body(serde_json::to_string(&grading_result).unwrap())
             .create();
 
-        let Data {
-            user,
-            course,
-            instance,
-            exercise,
-            task: task_1,
-            ..
-        } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
-            .await
-            .unwrap();
+        let task_1 = models::exercise_tasks::insert(
+            tx.as_mut(),
+            slide_1,
+            "test-exercise-1",
+            vec![],
+            Value::Null,
+            Value::Null,
+            Value::Null,
+        )
+        .await
+        .unwrap();
+
         let slide_2 = models::exercise_slides::insert(tx.as_mut(), exercise, 1)
             .await
             .unwrap();
@@ -507,7 +508,7 @@ mod test {
             course,
             task_1,
             user,
-            instance,
+            instance.id,
             Value::Null,
         )
         .await
@@ -518,7 +519,7 @@ mod test {
             course,
             task_2,
             user,
-            instance,
+            instance.id,
             Value::Null,
         )
         .await
@@ -609,26 +610,15 @@ mod test {
 
     #[tokio::test]
     async fn fail_on_missing_service() {
-        let mut conn = test_helper::Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
 
-        let Data {
-            user,
-            course,
-            instance,
-            exercise,
-            task,
-            ..
-        } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
-            .await
-            .unwrap();
         let submission = models::submissions::insert(
             tx.as_mut(),
             exercise,
             course,
             task,
             user,
-            instance,
+            instance.id,
             Value::Null,
         )
         .await

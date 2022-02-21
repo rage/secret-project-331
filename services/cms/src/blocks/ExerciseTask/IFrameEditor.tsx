@@ -15,12 +15,14 @@ const VIEW_TYPE = "exercise-editor"
 const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."
 
 interface ExerciseTaskIFrameEditorProps {
+  exerciseTaskId: string
   onPrivateSpecChange(newSpec: unknown): void
   privateSpec: unknown
   url: string | null | undefined
 }
 
 const ExerciseTaskIFrameEditor: React.FC<ExerciseTaskIFrameEditorProps> = ({
+  exerciseTaskId,
   onPrivateSpecChange,
   privateSpec,
   url,
@@ -30,7 +32,11 @@ const ExerciseTaskIFrameEditor: React.FC<ExerciseTaskIFrameEditorProps> = ({
   const largeScreen = useMedia(respondToOrLarger.xl)
 
   const postThisStateToIFrame: IframeState = useMemoOne(() => {
-    return { view_type: VIEW_TYPE, data: { private_spec: privateSpec } }
+    return {
+      view_type: VIEW_TYPE,
+      exercise_task_id: exerciseTaskId,
+      data: { private_spec: privateSpec },
+    }
   }, [privateSpec])
 
   if (!url || url.trim() === "") {

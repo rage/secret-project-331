@@ -13,7 +13,6 @@ pub mod exercises;
 pub mod glossary;
 pub mod pages;
 pub mod proposed_edits;
-pub mod submissions;
 
 use actix_web::web::{self, ServiceConfig};
 
@@ -23,7 +22,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/exercises").configure(exercises::_add_routes))
         .service(web::scope("/pages").configure(pages::_add_routes))
         .service(web::scope("/chapters").configure(chapters::_add_routes))
-        .service(web::scope("/submissions").configure(submissions::_add_routes))
         .service(web::scope("/course-instances").configure(course_instances::_add_routes))
         .service(web::scope("/proposed-edits").configure(proposed_edits::_add_routes))
         .service(web::scope("/exams").configure(exams::_add_routes))

@@ -5,10 +5,10 @@ import {
   CourseStructure,
   CourseUpdate,
   Exercise,
+  ExerciseSlideSubmissionCount,
+  ExerciseSlideSubmissionCountByWeekAndHour,
   ExerciseUserCounts,
   NewCourse,
-  SubmissionCount,
-  SubmissionCountByWeekAndHour,
   Term,
   TermUpdate,
 } from "../../shared-module/bindings"
@@ -17,8 +17,8 @@ import {
   isCourseInstance,
   isCourseStructure,
   isExercise,
+  isExerciseSlideSubmissionCountByWeekAndHour,
   isExerciseUserCounts,
-  isSubmissionCountByWeekAndHour,
   isTerm,
 } from "../../shared-module/bindings.guard"
 import { isArray, isString, validateResponse } from "../../shared-module/utils/fetching"
@@ -77,7 +77,7 @@ export const updateCourse = async (courseId: string, data: CourseUpdate): Promis
 
 export const fetchCourseDailySubmissionCounts = async (
   courseId: string,
-): Promise<Array<SubmissionCount>> => {
+): Promise<Array<ExerciseSlideSubmissionCount>> => {
   const response = await mainFrontendClient.get(`/courses/${courseId}/daily-submission-counts`, {
     responseType: "json",
   })
@@ -114,14 +114,14 @@ export const fetchCourseStructure = async (courseId: string): Promise<CourseStru
 
 export const fetchCourseWeekdayHourSubmissionCounts = async (
   courseId: string,
-): Promise<Array<SubmissionCountByWeekAndHour>> => {
+): Promise<Array<ExerciseSlideSubmissionCountByWeekAndHour>> => {
   const response = await mainFrontendClient.get(
     `/courses/${courseId}/weekday-hour-submission-counts`,
     {
       responseType: "json",
     },
   )
-  return validateResponse(response, isArray(isSubmissionCountByWeekAndHour))
+  return validateResponse(response, isArray(isExerciseSlideSubmissionCountByWeekAndHour))
 }
 
 export const fetchCourseInstances = async (courseId: string): Promise<Array<CourseInstance>> => {

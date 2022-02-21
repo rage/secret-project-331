@@ -2,7 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
 import { Quiz, QuizAnswer, QuizItem, QuizItemAnswer } from "../../../types/types"
-import { GradingResult } from "../../shared-module/bindings"
+import { ExerciseTaskGradingResult } from "../../shared-module/bindings"
 
 interface QuizzesGradingRequest {
   exercise_spec: Quiz
@@ -34,7 +34,7 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
   return handlePost(req, res)
 }
 
-const handlePost = (req: NextApiRequest, res: NextApiResponse<GradingResult>) => {
+const handlePost = (req: NextApiRequest, res: NextApiResponse<ExerciseTaskGradingResult>) => {
   const gradingRedquest: QuizzesGradingRequest = req.body
   const { exercise_spec, submission_data } = gradingRedquest
 

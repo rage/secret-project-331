@@ -55,6 +55,25 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
 
   await frame.selectOption(
     `select:right-of(:text("Choose the right answer from given options."))`,
+    { label: "The Wright answer" },
+  )
+
+  await page.click("text=Submit")
+
+  await expectScreenshotsToMatchSnapshots({
+    page,
+    headless,
+    snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer",
+    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
+    toMatchSnapshotOptions: { threshold: 0.4 },
+  })
+
+  await page.click("text=Try again")
+
+  await frame.waitForSelector("text=Choose the right answer from given options.")
+
+  await frame.selectOption(
+    `select:right-of(:text("Choose the right answer from given options."))`,
     { label: "The right answer" },
   )
 
@@ -82,7 +101,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer",
+    snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer-after-correct",
     waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })

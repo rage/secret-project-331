@@ -1,5 +1,5 @@
 type SubmissionResult = {
-  submission: Submission
-  grading: Grading | null
+  submission: ExerciseTaskSubmission
+  grading: ExerciseTaskGrading | null
   model_solution_spec: unknown | null
 }

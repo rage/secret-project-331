@@ -1144,6 +1144,12 @@ pub async fn insert_page(
         .and_then(|c| c.content_search_language)
         .or(new_page.content_search_language)
         .unwrap_or_else(|| "simple".to_string());
+
+    let course_material_content = serde_json::to_value(vec![GutenbergBlock::hero_section(
+        new_page.title.trim(),
+        "Insert chapter subheading...",
+    )])?;
+
     let page = sqlx::query_as!(
         Page,
         r#"
@@ -1173,7 +1179,7 @@ RETURNING id,
           "#,
         new_page.course_id,
         new_page.exam_id,
-        new_page.content,
+        course_material_content,
         new_page.url_path.trim(),
         new_page.title.trim(),
         next_order_number,

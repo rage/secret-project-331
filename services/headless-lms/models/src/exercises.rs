@@ -464,18 +464,10 @@ RETURNING id;
 
 #[cfg(test)]
 mod test {
-    use headless_lms_utils::document_schema_processor::GutenbergBlock;
-    use serde_json::{Map, Value};
-
     use super::*;
     use crate::{
-        chapters,
         course_instance_enrollments::{self, NewCourseInstanceEnrollment},
-        course_instances::{self, NewCourseInstance},
-        courses::{self, NewCourse},
-        exercise_slides, exercise_tasks, organizations, pages,
         test_helper::*,
-        users,
     };
 
     #[tokio::test]

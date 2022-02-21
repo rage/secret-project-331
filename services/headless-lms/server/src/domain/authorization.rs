@@ -117,19 +117,17 @@ pub async fn authorize(
     resource: Resource,
 ) -> ControllerResult<()> {
     let user_roles = if let Some(user_id) = user_id {
-        Some(
-            models::roles::get_roles(conn, user_id)
-                .await
-                .map_err(|original_err| {
-                    ControllerError::InternalServerError(original_err.to_string())
-                })?,
-        )
+        models::roles::get_roles(conn, user_id)
+            .await
+            .map_err(|original_err| {
+                ControllerError::InternalServerError(original_err.to_string())
+            })?
     } else {
-        None
+        Vec::new()
     };
 
     // check global role
-    for role in user_roles.iter().flatten() {
+    for role in &user_roles {
         if role.is_global() && has_permission(role.role, action) {
             return Ok(());
         }
@@ -137,7 +135,7 @@ pub async fn authorize(
 
     // for this resource, the domain of the role does not matter (e.g. organization role, course role, etc.)
     if resource == Resource::AnyCourse {
-        for role in user_roles.iter().flatten() {
+        for role in &user_roles {
             if has_permission(role.role, action) {
                 return Ok(());
             }
@@ -145,7 +143,6 @@ pub async fn authorize(
     }
 
     // for some resources, we need to get more information from the database
-    let user_roles = user_roles.as_deref();
     match resource {
         Resource::Chapter(id) => {
             // if trying to View a chapter that is not open, check for permission to Teach
@@ -157,39 +154,39 @@ pub async fn authorize(
                 };
             // there are no chapter roles so we check the course instead
             let course_id = models::chapters::get_course_id(conn, id).await?;
-            check_course_permission(conn, user_roles, action, course_id).await
+            check_course_permission(conn, &user_roles, action, course_id).await
         }
-        Resource::Course(id) => check_course_permission(conn, user_roles, action, id).await,
+        Resource::Course(id) => check_course_permission(conn, &user_roles, action, id).await,
         Resource::CourseInstance(id) => {
-            check_course_instance_permission(conn, user_roles, action, id).await
+            check_course_instance_permission(conn, &user_roles, action, id).await
         }
         Resource::ExerciseTask(id) => {
             // an exercise task can be part of a course or an exam
             let course_or_exam_id = models::exercise_tasks::get_course_or_exam_id(conn, id).await?;
-            check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
+            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
         }
         Resource::Exercise(id) => {
             // an exercise can be part of a course or an exam
             let course_or_exam_id = models::exercises::get_course_or_exam_id(conn, id).await?;
-            check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
+            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
         }
         Resource::Grading(id) => {
             // a grading can be part of a course or an exam
             let course_or_exam_id = models::gradings::get_course_or_exam_id(conn, id).await?;
-            check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
+            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
         }
-        Resource::Organization(id) => check_organization_permission(user_roles, action, id).await,
+        Resource::Organization(id) => check_organization_permission(&user_roles, action, id).await,
         Resource::Page(id) => {
             // a page can be part of a course or an exam
             let course_or_exam_id = models::pages::get_course_and_exam_id(conn, id).await?;
-            check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
+            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
         }
         Resource::Submission(id) => {
             // a submission can be part of a course or an exam
             let course_or_exam_id = models::submissions::get_course_and_exam_id(conn, id).await?;
-            check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
+            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
         }
-        Resource::Exam(exam_id) => check_exam_permission(conn, user_roles, action, exam_id).await,
+        Resource::Exam(exam_id) => check_exam_permission(conn, &user_roles, action, exam_id).await,
         Resource::Role
         | Resource::User
         | Resource::AnyCourse
@@ -203,21 +200,13 @@ pub async fn authorize(
 }
 
 async fn check_organization_permission(
-    roles: Option<&[Role]>,
+    roles: &[Role],
     action: Action,
     organization_id: Uuid,
 ) -> ControllerResult<()> {
-    // since all other resources lead here, we only check the anonymous case here
-    // this also prevents issues like accidentally allowing an anonymous user to view an open chapter of a draft course
-    let roles = if let Some(roles) = roles {
-        roles
-    } else {
-        // anonymous users can only View
-        if let Action::View = action {
-            return Ok(());
-        } else {
-            return Err(ControllerError::Unauthorized("Unauthorized".to_string()));
-        }
+    if action == Action::View {
+        // anyone can view an organization regardless of roles
+        return Ok(());
     };
 
     // check organization role
@@ -232,7 +221,7 @@ async fn check_organization_permission(
 /// Also checks organization role which is valid for courses.
 async fn check_course_permission(
     conn: &mut PgConnection,
-    roles: Option<&[Role]>,
+    roles: &[Role],
     action: Action,
     course_id: Uuid,
 ) -> ControllerResult<()> {
@@ -244,7 +233,7 @@ async fn check_course_permission(
     */
 
     // check course role
-    for role in roles.into_iter().flatten() {
+    for role in roles {
         if role.is_role_for_course(course_id) && has_permission(role.role, action) {
             return Ok(());
         }
@@ -256,19 +245,19 @@ async fn check_course_permission(
 /// Also checks organization and course roles which are valid for course instances.
 async fn check_course_instance_permission(
     conn: &mut PgConnection,
-    roles: Option<&[Role]>,
+    roles: &[Role],
     mut action: Action,
     course_instance_id: Uuid,
 ) -> ControllerResult<()> {
     // if trying to View a course instance that is not open, we check for permission to Teach
-    if matches!(action, Action::View)
+    if action == Action::View
         && !models::course_instances::is_open(conn, course_instance_id).await?
     {
         action = Action::Teach;
     }
 
     // check course instance role
-    for role in roles.into_iter().flatten() {
+    for role in roles {
         if role.is_role_for_course_instance(course_instance_id) && has_permission(role.role, action)
         {
             return Ok(());
@@ -281,12 +270,12 @@ async fn check_course_instance_permission(
 /// Also checks organization role which is valid for exams.
 async fn check_exam_permission(
     conn: &mut PgConnection,
-    roles: Option<&[Role]>,
+    roles: &[Role],
     action: Action,
     exam_id: Uuid,
 ) -> ControllerResult<()> {
     // check exam role
-    for role in roles.into_iter().flatten() {
+    for role in roles {
         if role.is_role_for_exam(exam_id) && has_permission(role.role, action) {
             return Ok(());
         }
@@ -297,7 +286,7 @@ async fn check_exam_permission(
 
 async fn check_course_or_exam_permission(
     conn: &mut PgConnection,
-    roles: Option<&[Role]>,
+    roles: &[Role],
     action: Action,
     course_or_exam_id: CourseOrExamId,
 ) -> ControllerResult<()> {
@@ -382,14 +371,7 @@ mod test {
 
     #[tokio::test]
     async fn course_role_chapter_resource() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let Data {
-            user,
-            chapter,
-            course,
-            ..
-        } = insert_data(tx.as_mut(), "").await.unwrap();
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :chapter);
 
         authorize(
             tx.as_mut(),
@@ -421,9 +403,7 @@ mod test {
 
     #[tokio::test]
     async fn anonymous_user_can_view_open_course() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let Data { course, .. } = insert_data(tx.as_mut(), "").await.unwrap();
+        insert_data!(:tx, :user, :org, :course);
 
         authorize(tx.as_mut(), Action::View, None, Resource::Course(course))
             .await

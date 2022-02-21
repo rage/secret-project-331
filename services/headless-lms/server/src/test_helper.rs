@@ -1,16 +1,7 @@
-use std::env;
-
-use anyhow::Result;
-use headless_lms_models::{
-    self as models, course_instances::NewCourseInstance, course_language_groups,
-};
-use rand::Rng;
-use serde_json::Value;
-use sqlx::{Connection, PgConnection, Postgres, Transaction};
-use tokio::sync::Mutex;
-use uuid::Uuid;
-
 use crate::setup_tracing;
+use sqlx::{Connection, PgConnection, Postgres, Transaction};
+use std::env;
+use tokio::sync::Mutex;
 
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
@@ -35,6 +26,7 @@ async fn get_or_init_db() -> String {
 
 /// Wrapper to ensure the test database isn't used without a transaction
 pub struct Conn(PgConnection);
+
 impl Conn {
     /// Initializes the test database and returns a connection wrapper
     pub async fn init() -> Conn {
@@ -76,90 +68,192 @@ impl<'a> AsMut<Transaction<'a, Postgres>> for Tx<'a> {
     }
 }
 
-pub struct Data {
-    pub user: Uuid,
-    pub org: Uuid,
-    pub course: Uuid,
-    pub course_language_group: Uuid,
-    pub instance: Uuid,
-    pub chapter: Uuid,
-    pub page: Uuid,
-    pub page_history: Uuid,
-    pub exercise: Uuid,
-    pub exercise_slide: Uuid,
-    pub task: Uuid,
-}
+#[macro_export]
+/// Helper macro that can be used to conveniently insert data that has some prerequisites.
+/// The macro accepts variable arguments in the following order:
+///
+/// tx, user, org, course, instance, page, chapter, exercise, slide, task
+///
+/// Arguments can be given in either of two forms:
+///
+/// 1. user: my_user_variable
+/// 2. :user, which is shorthand for user: user
+///
+/// One of the commas can be replaced with a ;, arguments before that already exist and are used to insert the rest.
+/// For example,
+/// insert_data!(tx, user: u; :org, :course);
+/// would use existing variables tx and u to insert and declare variables for an organization and course named org and course.
+macro_rules! insert_data {
+    // these rules transform individual arguments like "user" into "user: user"
+    // arg before ; has no name
+    ($($name:ident: $var:ident, )* :$ident:ident, $($tt:tt)*) => {
+        insert_data!($($name: $var, )* $ident: $ident, $($tt)*);
+    };
+    // no ;, last arg has no name
+    ($($name:ident: $var:ident, )* :$ident:ident) => {
+        insert_data!($($name: $var, )* $ident: $ident);
+    };
+    // arg after ; has no name
+    ($($name1:ident: $var1:ident),+; $($name2:ident: $var2:ident, )* :$ident:ident, $($tt:tt)*) => {
+        insert_data!($($name1: $var1),*; $($name2: $var2, )* $ident: $ident, $($tt)*);
+    };
+    // ;, last arg has no name
+    ($($name1:ident: $var1:ident),+; $($name2:ident: $var2:ident, )* :$ident:ident) => {
+        insert_data!($($name1: $var1),*; $($name2: $var2, )* $ident: $ident);
+    };
+    // no ;, all args have names
+    ($($name1:ident: $var1:ident),+) => {
+        insert_data!(@inner $($name1: $var1),*);
+    };
+    // ;, all args have names
+    ($($name1:ident: $var1:ident),+; $($name2:ident: $var2:ident),+) => {
+        insert_data!(@inner $($name1: $var1),*; $($name2: $var2),*);
+    };
 
-pub async fn insert_data(conn: &mut PgConnection, exercise_type: &str) -> Result<Data> {
-    let random_string: String = rand::thread_rng()
-        .sample_iter(&rand::distributions::Alphanumeric)
-        .take(32)
-        .map(char::from)
-        .collect();
-    let user = models::users::insert_with_id(
-        &mut *conn,
-        "test@example.com",
-        None,
-        None,
-        Uuid::parse_str("21a2b6b5-0e66-4708-8a0b-d818576ab950")?,
-    )
-    .await?;
-    let org = models::organizations::insert(
-        &mut *conn,
-        "",
-        &random_string,
-        "",
-        Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669")?,
-    )
-    .await?;
-    let clg_id = course_language_groups::insert_with_id(
-        &mut *conn,
-        Uuid::parse_str("281384b3-bbc9-4da5-b93e-4c122784a724").unwrap(),
-    )
-    .await?;
-    let course =
-        models::courses::insert(&mut *conn, "", org, clg_id, &random_string, "en-US", "").await?;
-    let instance = models::course_instances::insert(
-        &mut *conn,
-        NewCourseInstance {
-            id: Uuid::new_v4(),
-            course_id: course,
-            name: None,
-            description: None,
-            variant_status: None,
-            teacher_in_charge_name: "teacher",
-            teacher_in_charge_email: "teacher@example.com",
-            support_email: None,
-            opening_time: None,
-            closing_time: None,
-        },
-    )
-    .await?;
-    let chapter = models::chapters::insert(&mut *conn, "", course, 1).await?;
-    let (page, page_history) = models::pages::insert(&mut *conn, course, "", "", 0, user).await?;
-    let exercise = models::exercises::insert(conn, course, "", page, chapter, 0).await?;
-    let exercise_slide = models::exercise_slides::insert(&mut *conn, exercise, 0).await?;
-    let exercise_task = models::exercise_tasks::insert(
-        conn,
-        exercise_slide,
-        exercise_type,
-        vec![],
-        Value::Null,
-        Value::Null,
-        Value::Null,
-    )
-    .await?;
-    Ok(Data {
-        chapter,
-        course,
-        course_language_group: clg_id,
-        exercise,
-        exercise_slide,
-        instance: instance.id,
-        org,
-        page,
-        page_history,
-        task: exercise_task,
-        user,
-    })
+    // these rules declare variables according to the args
+    (@inner tx: $tx:ident) => {
+        let mut conn = Conn::init().await;
+        let mut $tx = conn.begin().await;
+    };
+    (@inner tx: $tx:ident; user: $user:ident) => {
+        let rs = ::rand::Rng::sample_iter(::rand::thread_rng(), &::rand::distributions::Alphanumeric)
+            .take(8)
+            .map(char::from)
+            .collect::<String>();
+        let $user =
+            headless_lms_models::users::insert($tx.as_mut(), &format!("{rs}@example.com"), None, None)
+                .await
+                .unwrap();
+    };
+    (@inner tx: $tx:ident, user: $user:ident; org: $org:ident) => {
+        let rs = rand::Rng::sample_iter(rand::thread_rng(), &::rand::distributions::Alphanumeric)
+            .take(8)
+            .map(char::from)
+            .collect::<String>();
+        let $org =
+            headless_lms_models::organizations::insert($tx.as_mut(), "", &rs, "", ::uuid::Uuid::new_v4())
+                .await
+                .unwrap();
+    };
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident; course: $course: ident) => {
+        let rs = ::rand::Rng::sample_iter(::rand::thread_rng(), &::rand::distributions::Alphanumeric)
+            .take(8)
+            .map(char::from)
+            .collect::<String>();
+        let $course = headless_lms_models::courses::insert_course(
+            $tx.as_mut(),
+            ::uuid::Uuid::new_v4(),
+            ::uuid::Uuid::new_v4(),
+            headless_lms_models::courses::NewCourse {
+                name: rs.clone(),
+                slug: rs.clone(),
+                organization_id: $org,
+                language_code: "en-US".to_string(),
+                teacher_in_charge_name: rs.clone(),
+                teacher_in_charge_email: format!("{rs}@example.com"),
+                description: "description".to_string()
+            },
+            $user
+        )
+        .await
+        .unwrap().0.id;
+    };
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident; instance: $instance:ident) => {
+        let $instance = headless_lms_models::course_instances::insert(
+            $tx.as_mut(),
+            headless_lms_models::course_instances::NewCourseInstance {
+                id: ::uuid::Uuid::new_v4(),
+                course_id: $course,
+                name: Some("instance"),
+                description: Some("instance"),
+                teacher_in_charge_name: "teacher",
+                teacher_in_charge_email: "teacher@example.com",
+                support_email: None,
+                opening_time: None,
+                closing_time: None,
+                variant_status: None,
+            },
+        )
+        .await
+        .unwrap();
+    };
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident; chapter: $chapter:ident) => {
+        let $chapter = headless_lms_models::chapters::insert_chapter(
+            $tx.as_mut(),
+            headless_lms_models::chapters::NewChapter {
+                name: "chapter".to_string(),
+                course_id: $course,
+                chapter_number: 1,
+                front_front_page_id: None,
+            },
+            $user
+        )
+        .await
+        .unwrap().0.id;
+    };
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident; page: $page:ident) => {
+        let $page = headless_lms_models::pages::insert_page(
+            $tx.as_mut(),
+            headless_lms_models::pages::NewPage {
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+                content: ::serde_json::json!{[]},
+                url_path: "/page".to_string(),
+                title: "t".to_string(),
+                course_id: Some($course),
+                exam_id: None,
+                chapter_id: Some($chapter),
+                front_page_of_chapter_id: Some($chapter),
+                content_search_language: None,
+            },
+            $user
+        )
+        .await
+        .unwrap().id;
+    };
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident, page: $page:ident; exercise: $exercise:ident) => {
+        let $exercise =
+        headless_lms_models::exercises::insert($tx.as_mut(), $course, "", $page, $chapter, 0)
+            .await
+            .unwrap();
+    };
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident; slide: $exercise_slide:ident) => {
+        let $exercise_slide =
+               headless_lms_models::exercise_slides::insert($tx.as_mut(), $exercise, 0)
+                   .await
+                   .unwrap();
+    };
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident, slide: $exercise_slide:ident; task: $exercise_task:ident) => {
+        let $exercise_task = headless_lms_models::exercise_tasks::insert(
+            $tx.as_mut(),
+            $exercise_slide,
+            "exercise_type",
+            vec![],
+            ::serde_json::Value::Null,
+            ::serde_json::Value::Null,
+            ::serde_json::Value::Null,
+        )
+        .await
+        .unwrap();
+    };
+
+
+    // no ;
+    (@inner tx: $tx:ident $(, $prev_name:ident: $prev_var:ident)+) => {
+        insert_data!(@inner tx: $tx);
+        insert_data!(@inner tx: $tx; $($prev_name: $prev_var),*);
+    };
+    // ;
+    (@inner $($prev_name:ident: $prev_var:ident),*; $next_name:ident: $next_var:ident, $($tt:tt)*) => {
+        insert_data!(@inner $($prev_name: $prev_var),*; $next_name: $next_var);
+        insert_data!(@inner $($prev_name: $prev_var, )* $next_name: $next_var; $($tt)*);
+    };
+}
+pub use crate::insert_data;
+
+// checks that correct usage of the macro compiles
+async fn _test() {
+    insert_data!(:tx, user:u, org:o, course: c, instance: _instance, chapter: c, :page, exercise: e, :slide, task: task);
+    println!("{task}")
 }

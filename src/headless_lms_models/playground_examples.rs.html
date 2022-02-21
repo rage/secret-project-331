@@ -233,6 +233,15 @@
 <span id="232">232</span>
 <span id="233">233</span>
 <span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">TS</span>)]</span>
@@ -368,6 +377,9 @@ RETURNING *;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
 
+        <span class="kw">let</span> <span class="ident">fetched_data</span> <span class="op">=</span> <span class="ident">get_all_playground_examples</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">previous_length</span> <span class="op">=</span> <span class="ident">fetched_data</span>.<span class="ident">len</span>();
+
         <span class="kw">let</span> <span class="ident">inserted_data</span> <span class="op">=</span> <span class="ident">insert_playground_example</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">PlaygroundExampleData</span> {
@@ -387,13 +399,16 @@ RETURNING *;
 
         <span class="kw">let</span> <span class="ident">fetched_data</span> <span class="op">=</span> <span class="ident">get_all_playground_examples</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">fetched_data</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fetched_data</span>.<span class="ident">len</span>(), <span class="ident">previous_length</span> <span class="op">+</span> <span class="number">1</span>);
     }
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_and_delete_playground_example</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
+
+        <span class="kw">let</span> <span class="ident">fetched_data</span> <span class="op">=</span> <span class="ident">get_all_playground_examples</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">previous_length</span> <span class="op">=</span> <span class="ident">fetched_data</span>.<span class="ident">len</span>();
 
         <span class="kw">let</span> <span class="ident">inserted_data</span> <span class="op">=</span> <span class="ident">insert_playground_example</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
@@ -420,13 +435,16 @@ RETURNING *;
 
         <span class="kw">let</span> <span class="ident">fetched_data</span> <span class="op">=</span> <span class="ident">get_all_playground_examples</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">fetched_data</span>.<span class="ident">len</span>(), <span class="number">0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fetched_data</span>.<span class="ident">len</span>(), <span class="ident">previous_length</span>);
     }
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_and_update_playground_example</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
+
+        <span class="kw">let</span> <span class="ident">fetched_data</span> <span class="op">=</span> <span class="ident">get_all_playground_examples</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">previous_length</span> <span class="op">=</span> <span class="ident">fetched_data</span>.<span class="ident">len</span>();
 
         <span class="kw">let</span> <span class="ident">inserted_data</span> <span class="op">=</span> <span class="ident">insert_playground_example</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
@@ -464,7 +482,7 @@ RETURNING *;
 
         <span class="kw">let</span> <span class="ident">fetched_data</span> <span class="op">=</span> <span class="ident">get_all_playground_examples</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">fetched_data</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">fetched_data</span>.<span class="ident">len</span>(), <span class="ident">previous_length</span> <span class="op">+</span> <span class="number">1</span>);
     }
 }
 </code></pre></div>

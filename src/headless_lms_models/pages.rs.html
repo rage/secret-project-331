@@ -1982,7 +1982,6 @@
 <span id="1981">1981</span>
 <span id="1982">1982</span>
 <span id="1983">1983</span>
-<span id="1984">1984</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -3858,11 +3857,10 @@ WHERE pages.id = $1
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">gets_organization_id</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">insert_data</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_page_org</span> <span class="op">=</span> <span class="ident">get_organization_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">data</span>.<span class="ident">page</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">data</span>.<span class="ident">org</span>, <span class="ident">course_page_org</span>);
+        <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, <span class="ident">instance</span>: <span class="ident">_instance</span>, <span class="ident">chapter</span>: <span class="ident">_chapter</span>, :<span class="ident">page</span>);
+
+        <span class="kw">let</span> <span class="ident">course_page_org</span> <span class="op">=</span> <span class="ident">get_organization_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">page</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">org</span>, <span class="ident">course_page_org</span>);
 
         <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>();
         <span class="ident"><span class="kw">crate</span>::exams::insert</span>(
@@ -3874,7 +3872,7 @@ WHERE pages.id = $1
                 <span class="ident">starts_at</span>: <span class="prelude-val">None</span>,
                 <span class="ident">ends_at</span>: <span class="prelude-val">None</span>,
                 <span class="ident">time_minutes</span>: <span class="number">120</span>,
-                <span class="ident">organization_id</span>: <span class="ident">data</span>.<span class="ident">org</span>,
+                <span class="ident">organization_id</span>: <span class="ident">org</span>,
             },
         )
         .<span class="kw">await</span>
@@ -3894,12 +3892,12 @@ WHERE pages.id = $1
                 <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
                 <span class="ident">content_search_language</span>: <span class="prelude-val">None</span>,
             },
-            <span class="ident">data</span>.<span class="ident">user</span>,
+            <span class="ident">user</span>,
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">exam_page_org</span> <span class="op">=</span> <span class="ident">get_organization_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">page</span>.<span class="ident">id</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">data</span>.<span class="ident">org</span>, <span class="ident">exam_page_org</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">org</span>, <span class="ident">exam_page_org</span>);
     }
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>

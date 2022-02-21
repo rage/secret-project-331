@@ -515,53 +515,6 @@
 <span id="514">514</span>
 <span id="515">515</span>
 <span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">chapters</span>, <span class="ident">chapters::DatabaseChapter</span>, <span class="ident">exercises</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">users::User</span>};
@@ -1020,109 +973,62 @@ WHERE id = $1
     <span class="prelude-val">Ok</span>(())
 }
 
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;SELECT course_id from course_instances where id = $1&quot;</span>,
+        <span class="ident">course_instance_id</span>
+    )
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>
+    .<span class="ident">course_id</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">course_id</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">is_open</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+SELECT starts_at
+FROM course_instances
+WHERE id = $1
+&quot;</span>,
+        <span class="ident">id</span>
+    )
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">is_open</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">starts_at</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span> <span class="op">&gt;</span> <span class="ident">Utc::now</span>()).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>);
+    <span class="prelude-val">Ok</span>(<span class="ident">is_open</span>)
+}
+
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">course_language_groups</span>, <span class="ident">courses</span>, <span class="ident">organizations</span>, <span class="ident">test_helper::Conn</span>, <span class="ident">users</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_helper</span>::<span class="kw-2">*</span>;
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">allows_only_one_instance_per_course_without_name</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
+        <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, <span class="ident">course</span>: <span class="ident">course_id</span>);
 
-        <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="ident">organizations::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="string">&quot;&quot;</span>,
-            <span class="string">&quot;&quot;</span>,
-            <span class="string">&quot;&quot;</span>,
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8c34e601-b5db-4b33-a588-57cb6a5b1669&quot;</span>).<span class="ident">unwrap</span>(),
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_language_group_id</span> <span class="op">=</span> <span class="ident">course_language_groups::insert_with_id</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;281384b3-bbc9-4da5-b93e-4c122784a724&quot;</span>).<span class="ident">unwrap</span>(),
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_1_id</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="string">&quot;&quot;</span>,
-            <span class="ident">organization_id</span>,
-            <span class="ident">course_language_group_id</span>,
-            <span class="string">&quot;course-1&quot;</span>,
-            <span class="string">&quot;en-US&quot;</span>,
-            <span class="string">&quot;&quot;</span>,
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_2_id</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="string">&quot;&quot;</span>,
-            <span class="ident">organization_id</span>,
-            <span class="ident">course_language_group_id</span>,
-            <span class="string">&quot;course-2&quot;</span>,
-            <span class="string">&quot;en-US&quot;</span>,
-            <span class="string">&quot;&quot;</span>,
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="ident">users::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;user-2347803@example.com&quot;</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx1</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
+        <span class="comment">// courses always have a default instance with no name, so this should fail</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instance</span> <span class="op">=</span> <span class="ident">NewCourseInstance</span> {
+            <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
+            <span class="ident">course_id</span>,
+            <span class="ident">name</span>: <span class="prelude-val">None</span>,
+            <span class="ident">description</span>: <span class="prelude-val">None</span>,
+            <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;teacher&quot;</span>,
+            <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;teacher@example.com&quot;</span>,
+            <span class="ident">support_email</span>: <span class="prelude-val">None</span>,
+            <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
+            <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
+            <span class="ident">variant_status</span>: <span class="prelude-val">None</span>,
+        };
+        <span class="ident">insert</span>(<span class="ident">tx1</span>.<span class="ident">as_mut</span>(), <span class="ident">instance</span>.<span class="ident">clone</span>()).<span class="kw">await</span>.<span class="ident">unwrap_err</span>();
+        <span class="ident">tx1</span>.<span class="ident">rollback</span>().<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">_course_1_instance_1</span> <span class="op">=</span> <span class="ident">insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">NewCourseInstance</span> {
-                <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
-                <span class="ident">course_id</span>: <span class="ident">course_1_id</span>,
-                <span class="ident">name</span>: <span class="prelude-val">None</span>,
-                <span class="ident">description</span>: <span class="prelude-val">None</span>,
-                <span class="ident">variant_status</span>: <span class="prelude-val">None</span>,
-                <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;teacher&quot;</span>,
-                <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;teacher@example.com&quot;</span>,
-                <span class="ident">support_email</span>: <span class="prelude-val">None</span>,
-                <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
-                <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
-            },
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_2_instance_1</span> <span class="op">=</span> <span class="ident">insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">NewCourseInstance</span> {
-                <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
-                <span class="ident">course_id</span>: <span class="ident">course_2_id</span>,
-                <span class="ident">name</span>: <span class="prelude-val">None</span>,
-                <span class="ident">description</span>: <span class="prelude-val">None</span>,
-                <span class="ident">variant_status</span>: <span class="prelude-val">None</span>,
-                <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;teacher&quot;</span>,
-                <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;teacher@example.com&quot;</span>,
-                <span class="ident">support_email</span>: <span class="prelude-val">None</span>,
-                <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
-                <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
-            },
-        )
-        .<span class="kw">await</span>;
-        <span class="macro">assert!</span>(<span class="ident">course_2_instance_1</span>.<span class="ident">is_ok</span>());
-
-        <span class="kw">let</span> <span class="ident">course_1_instance_2</span> <span class="op">=</span> <span class="ident">insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">NewCourseInstance</span> {
-                <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
-                <span class="ident">course_id</span>: <span class="ident">course_1_id</span>,
-                <span class="ident">name</span>: <span class="prelude-val">None</span>,
-                <span class="ident">description</span>: <span class="prelude-val">None</span>,
-                <span class="ident">variant_status</span>: <span class="prelude-val">None</span>,
-                <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;teacher&quot;</span>,
-                <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;teacher@example.com&quot;</span>,
-                <span class="ident">support_email</span>: <span class="prelude-val">None</span>,
-                <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
-                <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
-            },
-        )
-        .<span class="kw">await</span>;
-        <span class="macro">assert!</span>(<span class="ident">course_1_instance_2</span>.<span class="ident">is_err</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx2</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
+        <span class="comment">// after we give it a name, it should be ok</span>
+        <span class="ident">instance</span>.<span class="ident">name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;name&quot;</span>);
+        <span class="ident">insert</span>(<span class="ident">tx2</span>.<span class="ident">as_mut</span>(), <span class="ident">instance</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
     }
 }
 </code></pre></div>

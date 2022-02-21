@@ -137,7 +137,7 @@
 <span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{<span class="ident">file_store::FileStore</span>, <span class="ident">ApplicationConfiguration</span>};
 <span class="kw">use</span> <span class="ident">tracing_error::ErrorLayer</span>;
 <span class="kw">use</span> <span class="ident">tracing_log::LogTracer</span>;
-<span class="kw">use</span> <span class="ident">tracing_subscriber</span>::{<span class="ident">prelude::__tracing_subscriber_SubscriberExt</span>, <span class="ident">EnvFilter</span>};
+<span class="kw">use</span> <span class="ident">tracing_subscriber</span>::{<span class="ident">layer::SubscriberExt</span>, <span class="ident">EnvFilter</span>};
 
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OAuthClient</span> <span class="op">=</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">BasicClient</span><span class="op">&gt;</span>;
 

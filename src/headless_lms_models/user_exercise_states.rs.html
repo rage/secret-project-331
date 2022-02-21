@@ -939,11 +939,6 @@
 <span id="938">938</span>
 <span id="939">939</span>
 <span id="940">940</span>
-<span id="941">941</span>
-<span id="942">942</span>
-<span id="943">943</span>
-<span id="944">944</span>
-<span id="945">945</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">futures::Stream</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals</span>;
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -1623,7 +1618,7 @@ SELECT exercises.name as exercise_name,
     <span class="kw">use</span> <span class="kw">crate</span>::{
         <span class="ident">exercises</span>, <span class="ident">gradings</span>,
         <span class="ident">submissions</span>::{<span class="self">self</span>, <span class="ident">GradingResult</span>, <span class="ident">SubmissionData</span>},
-        <span class="ident">test_helper</span>::{<span class="ident">insert_data</span>, <span class="ident">Conn</span>},
+        <span class="ident">test_helper</span>::<span class="kw-2">*</span>,
     };
 
     <span class="kw">mod</span> <span class="ident">figure_out_new_score_given</span> {
@@ -1826,19 +1821,16 @@ SELECT exercises.name as exercise_name,
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">updates_exercise_states</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
-
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">insert_data</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>, :<span class="ident">slide</span>, :<span class="ident">task</span>);
 
         <span class="kw">let</span> <span class="ident">submission</span> <span class="op">=</span> <span class="ident">submissions::insert_with_id</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="kw-2">&amp;</span><span class="ident">SubmissionData</span> {
-                <span class="ident">exercise_id</span>: <span class="ident">data</span>.<span class="ident">exercise</span>,
-                <span class="ident">course_id</span>: <span class="ident">data</span>.<span class="ident">course</span>,
-                <span class="ident">exercise_task_id</span>: <span class="ident">data</span>.<span class="ident">task</span>,
-                <span class="ident">user_id</span>: <span class="ident">data</span>.<span class="ident">user</span>,
-                <span class="ident">course_instance_id</span>: <span class="ident">data</span>.<span class="ident">instance</span>,
+                <span class="ident">exercise_id</span>: <span class="ident">exercise</span>,
+                <span class="ident">course_id</span>: <span class="ident">course</span>,
+                <span class="ident">exercise_task_id</span>: <span class="ident">task</span>,
+                <span class="ident">user_id</span>: <span class="ident">user</span>,
+                <span class="ident">course_instance_id</span>: <span class="ident">instance</span>.<span class="ident">id</span>,
                 <span class="ident">data_json</span>: <span class="macro">serde_json::json!</span> {<span class="string">&quot;abcd&quot;</span>},
                 <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
             },
@@ -1851,9 +1843,7 @@ SELECT exercises.name as exercise_name,
         <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">gradings::new_grading</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="kw-2">&amp;</span><span class="ident">submission</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">data</span>.<span class="ident">exercise</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">gradings::update_grading</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="kw-2">&amp;</span><span class="ident">grading</span>,
@@ -1879,9 +1869,9 @@ SELECT exercises.name as exercise_name,
             .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">get_or_create_user_exercise_state</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">data</span>.<span class="ident">user</span>,
+            <span class="ident">user</span>,
             <span class="ident">exercise</span>.<span class="ident">id</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">data</span>.<span class="ident">instance</span>),
+            <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
             <span class="prelude-val">None</span>,
         )
         .<span class="kw">await</span>

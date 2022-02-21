@@ -329,11 +329,21 @@
 <span id="328">328</span>
 <span id="329">329</span>
 <span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde_json::Value</span>;
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils::document_schema_processor::GutenbergBlock</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exams</span>, <span class="ident">exercise_slides</span>, <span class="ident">exercise_tasks</span>, <span class="ident">exercises</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">user_exercise_states</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">exams</span>, <span class="ident">exercise_slides</span>, <span class="ident">exercise_tasks</span>, <span class="ident">exercises</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">user_exercise_states</span>,
+    <span class="ident">CourseOrExamId</span>,
+};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseMaterialExerciseTask</span> {
@@ -395,10 +405,15 @@ RETURNING id
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_or_exam_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseOrExamId</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
-SELECT course_id as &quot;course_id!&quot;
+SELECT
+    course_id,
+    exam_id
 FROM exercises
 WHERE id = (
     SELECT s.exercise_id
@@ -413,9 +428,8 @@ WHERE id = (
         <span class="ident">id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">course_id</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">course_id</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">CourseOrExamId::from</span>(<span class="ident">res</span>.<span class="ident">course_id</span>, <span class="ident">res</span>.<span class="ident">exam_id</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_random_exercise_task</span>(

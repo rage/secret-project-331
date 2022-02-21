@@ -53,10 +53,17 @@
 <span id="52">52</span>
 <span id="53">53</span>
 <span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/exercises`.</span>
 
 <span class="kw">use</span> <span class="ident">futures::future</span>;
-<span class="kw">use</span> <span class="ident">models::submissions::Submission</span>;
+<span class="kw">use</span> <span class="ident">models</span>::{<span class="ident">submissions::Submission</span>, <span class="ident">CourseOrExamId</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
@@ -78,10 +85,17 @@ GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exer
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ExerciseSubmissions</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">match</span> <span class="ident">models::exercises::get_course_or_exam_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
+        <span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>) =&gt; {
+            <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Course</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
+        }
+        <span class="ident">CourseOrExamId::Exam</span>(<span class="ident">id</span>) =&gt; {
+            <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Exam</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
+        }
+    }
+
     <span class="kw">let</span> <span class="ident">submission_count</span> <span class="op">=</span> <span class="ident">models::submissions::exercise_submission_count</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">models::exercises::get_course_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Course</span>(<span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">submissions</span> <span class="op">=</span>
         <span class="ident">models::submissions::exercise_submissions</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>, <span class="kw-2">*</span><span class="ident">pagination</span>);
     <span class="kw">let</span> (<span class="ident">submission_count</span>, <span class="ident">submissions</span>) <span class="op">=</span> <span class="ident">future::try_join</span>(<span class="ident">submission_count</span>, <span class="ident">submissions</span>).<span class="kw">await</span><span class="question-mark">?</span>;

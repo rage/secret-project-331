@@ -536,6 +536,7 @@
 <span id="535">535</span>
 <span id="536">536</span>
 <span id="537">537</span>
+<span id="538">538</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">course_instances</span>,
     <span class="ident">exercise_service_info</span>::{
@@ -549,6 +550,7 @@
     <span class="ident">submissions::Submission</span>,
     <span class="ident">user_course_settings</span>,
     <span class="ident">user_exercise_states::get_user_exercise_state_if_exits</span>,
+    <span class="ident">CourseOrExamId</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">TS</span>)]</span>
@@ -785,15 +787,23 @@ WHERE exam_id = $1
     <span class="prelude-val">Ok</span>(<span class="ident">exercises</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;SELECT course_id AS &quot;course_id!&quot; FROM exercises WHERE id = $1 AND course_id IS NOT NULL&quot;#</span>,
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_or_exam_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseOrExamId</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+SELECT course_id,
+  exam_id
+FROM exercises
+WHERE id = $1
+  AND course_id IS NOT NULL
+&quot;</span>,
         <span class="ident">id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">course_id</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">course_id</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">CourseOrExamId::from</span>(<span class="ident">res</span>.<span class="ident">course_id</span>, <span class="ident">res</span>.<span class="ident">exam_id</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_material_exercise</span>(
@@ -993,18 +1003,10 @@ RETURNING id;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">headless_lms_utils::document_schema_processor::GutenbergBlock</span>;
-    <span class="kw">use</span> <span class="ident">serde_json</span>::{<span class="ident">Map</span>, <span class="ident">Value</span>};
-
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">chapters</span>,
         <span class="ident">course_instance_enrollments</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstanceEnrollment</span>},
-        <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstance</span>},
-        <span class="ident">courses</span>::{<span class="self">self</span>, <span class="ident">NewCourse</span>},
-        <span class="ident">exercise_slides</span>, <span class="ident">exercise_tasks</span>, <span class="ident">organizations</span>, <span class="ident">pages</span>,
         <span class="ident">test_helper</span>::<span class="kw-2">*</span>,
-        <span class="ident">users</span>,
     };
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>

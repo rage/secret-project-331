@@ -472,6 +472,7 @@
 <span id="471">471</span>
 <span id="472">472</span>
 <span id="473">473</span>
+<span id="474">474</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono::NaiveDate</span>;
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -484,6 +485,7 @@
     <span class="ident">exercises</span>::{<span class="ident">Exercise</span>, <span class="ident">GradingProgress</span>},
     <span class="ident">gradings</span>::{<span class="ident">grade_submission</span>, <span class="ident">new_grading</span>, <span class="ident">Grading</span>},
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+    <span class="ident">CourseOrExamId</span>,
 };
 
 <span class="comment">// Represents the subset of page fields that are required to create a new course.</span>
@@ -686,14 +688,14 @@ WHERE id = $1
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_and_exam_id</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseOrExamId</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;SELECT course_id, exam_id FROM submissions WHERE id = $1&quot;</span>,
         <span class="ident">id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>((<span class="ident">res</span>.<span class="ident">course_id</span>, <span class="ident">res</span>.<span class="ident">exam_id</span>))
+    <span class="ident">CourseOrExamId::from</span>(<span class="ident">res</span>.<span class="ident">course_id</span>, <span class="ident">res</span>.<span class="ident">exam_id</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">exercise_submission_count</span>(

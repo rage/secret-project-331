@@ -272,7 +272,7 @@ Content-Type: application/json
     <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::Edit</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
         <span class="ident">Res::Course</span>(<span class="ident">payload</span>.<span class="ident">course_id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -300,7 +300,7 @@ DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a course part.
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">Uuid::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">chapter_id</span>)<span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Course</span>(<span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Course</span>(<span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">deleted_chapter</span> <span class="op">=</span> <span class="ident">models::chapters::delete_chapter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">Chapter::from_database_chapter</span>(
         <span class="kw-2">&amp;</span><span class="ident">deleted_chapter</span>,
@@ -340,7 +340,7 @@ Content-Type: application/json
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">chapter_id</span> <span class="op">=</span> <span class="ident">Uuid::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">chapter_id</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">models::chapters::get_course_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Course</span>(<span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Course</span>(<span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course_update</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
     <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="ident">models::chapters::update_chapter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">chapter_id</span>, <span class="ident">course_update</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -378,7 +378,7 @@ BINARY_DATA
     <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::Edit</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
         <span class="ident">Res::Course</span>(<span class="ident">chapter</span>.<span class="ident">course_id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -436,7 +436,7 @@ DELETE /api/v0/main-frontend/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image
     <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::Edit</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
         <span class="ident">Res::Course</span>(<span class="ident">chapter</span>.<span class="ident">course_id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

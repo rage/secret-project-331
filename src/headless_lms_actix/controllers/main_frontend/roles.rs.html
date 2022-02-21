@@ -138,6 +138,10 @@
 <span id="137">137</span>
 <span id="138">138</span>
 <span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">roles</span>::{<span class="self">self</span>, <span class="ident">RoleDomain</span>, <span class="ident">RoleUser</span>, <span class="ident">UserRole</span>},
     <span class="ident">users</span>,
@@ -158,15 +162,19 @@
     <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">domain</span> {
-        <span class="ident">RoleDomain::Global</span> =&gt; <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user_id</span>, <span class="ident">Res::GlobalPermissions</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+        <span class="ident">RoleDomain::Global</span> =&gt; {
+            <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::GlobalPermissions</span>).<span class="kw">await</span><span class="question-mark">?</span>
+        }
         <span class="ident">RoleDomain::Organization</span>(<span class="ident">id</span>) =&gt; {
-            <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user_id</span>, <span class="ident">Res::Organization</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
+            <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Organization</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
         }
-        <span class="ident">RoleDomain::Course</span>(<span class="ident">id</span>) =&gt; <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user_id</span>, <span class="ident">Res::Course</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>,
+        <span class="ident">RoleDomain::Course</span>(<span class="ident">id</span>) =&gt; {
+            <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Course</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
+        }
         <span class="ident">RoleDomain::CourseInstance</span>(<span class="ident">id</span>) =&gt; {
-            <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user_id</span>, <span class="ident">Res::CourseInstance</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
+            <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::CourseInstance</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
         }
-        <span class="ident">RoleDomain::Exam</span>(<span class="ident">id</span>) =&gt; <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user_id</span>, <span class="ident">Res::Exam</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>,
+        <span class="ident">RoleDomain::Exam</span>(<span class="ident">id</span>) =&gt; <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Exam</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>,
     }
     <span class="prelude-val">Ok</span>(())
 }

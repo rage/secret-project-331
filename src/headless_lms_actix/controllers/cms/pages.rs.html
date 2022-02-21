@@ -89,11 +89,13 @@
 <span id="88">88</span>
 <span id="89">89</span>
 <span id="90">90</span>
+<span id="91">91</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/pages`.</span>
 
 <span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">page_history::HistoryChangeReason</span>,
     <span class="ident">pages</span>::{<span class="ident">CmsPageUpdate</span>, <span class="ident">ContentManagementPage</span>},
+    <span class="ident">CourseOrExamId</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
@@ -113,7 +115,7 @@ Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ContentManagementPage</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Page</span>(<span class="kw-2">*</span><span class="ident">page_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Page</span>(<span class="kw-2">*</span><span class="ident">page_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">cms_page</span> <span class="op">=</span> <span class="ident">models::pages::get_page_with_exercises</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">cms_page</span>))
@@ -151,10 +153,10 @@ Content-Type: application/json
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ContentManagementPage</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">Res::Page</span>(<span class="kw-2">*</span><span class="ident">page_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Page</span>(<span class="kw-2">*</span><span class="ident">page_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">page_update</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
-    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">models::pages::get_course_and_exam_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span> <span class="ident">models::pages::get_course_and_exam_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">saved</span> <span class="op">=</span> <span class="ident">models::pages::update_page</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="kw-2">*</span><span class="ident">page_id</span>,
@@ -162,7 +164,7 @@ Content-Type: application/json
         <span class="ident">user</span>.<span class="ident">id</span>,
         <span class="bool-val">false</span>,
         <span class="ident">HistoryChangeReason::PageSaved</span>,
-        <span class="ident">exam_id</span>.<span class="ident">is_some</span>(),
+        <span class="macro">matches!</span>(<span class="ident">course_or_exam_id</span>, <span class="ident">CourseOrExamId::Exam</span>(<span class="kw">_</span>)),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">saved</span>))

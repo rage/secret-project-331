@@ -68,7 +68,7 @@ GET `/api/v0/main-frontend/submissions/{submission_id}/info&quot;` - Returns dat
     <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::View</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
         <span class="ident">Res::Submission</span>(<span class="kw-2">*</span><span class="ident">submission_id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

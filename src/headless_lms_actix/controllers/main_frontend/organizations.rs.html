@@ -388,7 +388,7 @@ BINARY_DATA
     <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::Edit</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
         <span class="ident">Res::Organization</span>(<span class="ident">organization</span>.<span class="ident">id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -446,7 +446,7 @@ DELETE /api/v0/main-frontend/organizations/d332f3d9-39a5-4a18-80f4-251727693c37/
     <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::Edit</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
         <span class="ident">Res::Organization</span>(<span class="ident">organization</span>.<span class="ident">id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

@@ -30,7 +30,7 @@ const TextBox = styled.div`
     margin-top: 1.5rem;
     font-size: clamp(4rem, 6vw, 80px);
     font-weight: bold;
-    max-width: 1000px;
+    max-width: 65rem;
     line-height: 1.1;
     text-transform: uppercase;
   }

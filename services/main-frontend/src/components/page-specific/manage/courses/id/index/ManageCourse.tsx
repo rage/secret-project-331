@@ -93,52 +93,12 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
           />
         </div>
       </Dialog>
-      {/* <br />
-      <Link href={{ pathname: "/manage/courses/[id]/stats", query: { id: course.id } }}>
-        {t("stats")}
-      </Link>
-      <br />
-      <Link href={{ pathname: "/manage/courses/[id]/pages", query: { id: course.id } }}>
-        {t("link-pages")}
-      </Link>
-      <br />
-      <Link href={{ pathname: "/manage/courses/[id]/glossary", query: { id: course.id } }}>
-        {t("manage-glossary")}
-      </Link>
-      <br />
-      <Link
-        href={{
-          pathname: "/manage/courses/[id]/feedback",
-          query: { id: course.id },
-        }}
-      >
-        {t("link-feedback")}
-      </Link>
-      <br />
-      <Link
-        href={{
-          pathname: "/manage/courses/[id]/change-requests",
-          query: { id: course.id },
-        }}
-      >
-        {t("link-change-requests")}
-      </Link>
-      <br />
-      <Link
-        href={{
-          pathname: "/manage/courses/[id]/permissions",
-          query: { id: course.id },
-        }}
-      >
-        {t("link-manage-permissions")}
-      </Link> */}
 
       <h2>{t("title-all-course-language-versions")}</h2>
       <CourseLanguageVersionsList courseId={course.id} />
       <Button size="medium" variant="primary" onClick={() => setShowNewLanguageVersionForm(true)}>
         {t("button-text-new")}
       </Button>
-      <h2>{t("title-all-course-instances")}</h2>
       <CourseCourseInstances courseId={course.id} />
       <h2>{t("title-all-exercises")}</h2>
       <ExerciseList courseId={course.id} />

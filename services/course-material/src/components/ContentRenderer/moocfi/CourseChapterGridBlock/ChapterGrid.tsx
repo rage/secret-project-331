@@ -11,11 +11,24 @@ import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { cardMaxWidth } from "../../../../shared-module/styles/constants"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import { stringToRandomNumber } from "../../../../shared-module/utils/strings"
 import { withMultipleClassNames } from "../../../../shared-module/utils/styles"
 
 import ChapterGridCard from "./ChapterGridCard"
 
-const YELLOW = "yellow"
+const COLORS_ARRAY = [
+  "#215887",
+  "#1F6964",
+  "#822630",
+  "#A84835",
+  "#6245A9",
+  "#313947",
+  "#51309F",
+  "#065853",
+  "#1A2333",
+  "#065853",
+  "#08457A",
+]
 
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   const { t } = useTranslation()
@@ -30,7 +43,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
     <div
       className={withMultipleClassNames([
         css`
-          padding: 7.5em 1em;
+          padding: 4.5em 1em;
         `,
         CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING,
       ])}
@@ -38,9 +51,13 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
       <h1
         className={css`
           font-style: normal;
-          font-weight: 400;
+          font-weight: 600;
           text-align: center;
           padding-bottom: 1em;
+          line-height: 1.1;
+          font-size: clamp(2.5rem, 3vw, 3.5rem);
+          margin-bottom: 3rem;
+          text-transform: uppercase;
         `}
       >
         {t("course-overview")}
@@ -78,6 +95,8 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
           {getChaptersInCourse.data
             .sort((a, b) => a.chapter_number - b.chapter_number)
             .map((chapter) => {
+              const randomNumber = stringToRandomNumber(chapter.id) % COLORS_ARRAY.length
+              const randomizedColor = COLORS_ARRAY[randomNumber]
               return (
                 <div
                   className={css`
@@ -93,7 +112,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                   key={chapter.id}
                 >
                   <ChapterGridCard
-                    bg={YELLOW}
+                    bg={randomizedColor}
                     now={now}
                     chapter={chapter}
                     courseSlug={courseSlug}

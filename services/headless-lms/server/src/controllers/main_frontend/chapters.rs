@@ -36,7 +36,7 @@ async fn post_new_chapter(
     authorize(
         &mut conn,
         Act::Edit,
-        user.id,
+        Some(user.id),
         Res::Course(payload.course_id),
     )
     .await?;
@@ -64,7 +64,7 @@ async fn delete_chapter(
 ) -> ControllerResult<web::Json<Chapter>> {
     let mut conn = pool.acquire().await?;
     let course_id = Uuid::from_str(&chapter_id)?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
     let deleted_chapter = models::chapters::delete_chapter(&mut conn, course_id).await?;
     Ok(web::Json(Chapter::from_database_chapter(
         &deleted_chapter,
@@ -104,7 +104,7 @@ async fn update_chapter(
     let mut conn = pool.acquire().await?;
     let chapter_id = Uuid::from_str(&chapter_id)?;
     let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
     let course_update = payload.0;
     let chapter = models::chapters::update_chapter(&mut conn, chapter_id, course_update).await?;
 
@@ -142,7 +142,7 @@ async fn set_chapter_image(
     authorize(
         &mut conn,
         Act::Edit,
-        user.id,
+        Some(user.id),
         Res::Course(chapter.course_id),
     )
     .await?;
@@ -200,7 +200,7 @@ async fn remove_chapter_image(
     authorize(
         &mut conn,
         Act::Edit,
-        user.id,
+        Some(user.id),
         Res::Course(chapter.course_id),
     )
     .await?;

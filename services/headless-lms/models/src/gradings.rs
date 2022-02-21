@@ -13,6 +13,7 @@ use crate::{
     prelude::*,
     submissions::{GradingRequest, GradingResult, Submission},
     user_exercise_states::update_user_exercise_state,
+    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
@@ -106,12 +107,22 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Option<Uuid>> {
-    let course_id = sqlx::query!(r#"SELECT course_id from gradings where id = $1"#, id)
-        .fetch_one(conn)
-        .await?
-        .course_id;
-    Ok(course_id)
+pub async fn get_course_or_exam_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<CourseOrExamId> {
+    let res = sqlx::query!(
+        "
+SELECT course_id,
+  exam_id
+from gradings
+where id = $1
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
 pub async fn new_grading(conn: &mut PgConnection, submission: &Submission) -> ModelResult<Grading> {

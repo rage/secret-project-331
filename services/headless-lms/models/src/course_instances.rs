@@ -456,108 +456,61 @@ WHERE id = $1
     Ok(())
 }
 
+pub async fn get_course_id(conn: &mut PgConnection, course_instance_id: Uuid) -> ModelResult<Uuid> {
+    let course_id = sqlx::query!(
+        "SELECT course_id from course_instances where id = $1",
+        course_instance_id
+    )
+    .fetch_one(conn)
+    .await?
+    .course_id;
+    Ok(course_id)
+}
+
+pub async fn is_open(conn: &mut PgConnection, id: Uuid) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+SELECT starts_at
+FROM course_instances
+WHERE id = $1
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    let is_open = res.starts_at.map(|t| t > Utc::now()).unwrap_or(false);
+    Ok(is_open)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{course_language_groups, courses, organizations, test_helper::Conn, users};
+    use crate::test_helper::*;
 
     #[tokio::test]
     async fn allows_only_one_instance_per_course_without_name() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx, :user, :org, course: course_id);
 
-        let organization_id = organizations::insert(
-            tx.as_mut(),
-            "",
-            "",
-            "",
-            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
-        )
-        .await
-        .unwrap();
-        let course_language_group_id = course_language_groups::insert_with_id(
-            tx.as_mut(),
-            Uuid::parse_str("281384b3-bbc9-4da5-b93e-4c122784a724").unwrap(),
-        )
-        .await
-        .unwrap();
-        let course_1_id = courses::insert(
-            tx.as_mut(),
-            "",
-            organization_id,
-            course_language_group_id,
-            "course-1",
-            "en-US",
-            "",
-        )
-        .await
-        .unwrap();
-        let course_2_id = courses::insert(
-            tx.as_mut(),
-            "",
-            organization_id,
-            course_language_group_id,
-            "course-2",
-            "en-US",
-            "",
-        )
-        .await
-        .unwrap();
-        users::insert(tx.as_mut(), "user-2347803@example.com", None, None)
-            .await
-            .unwrap();
+        let mut tx1 = tx.begin().await;
+        // courses always have a default instance with no name, so this should fail
+        let mut instance = NewCourseInstance {
+            id: Uuid::new_v4(),
+            course_id,
+            name: None,
+            description: None,
+            teacher_in_charge_name: "teacher",
+            teacher_in_charge_email: "teacher@example.com",
+            support_email: None,
+            opening_time: None,
+            closing_time: None,
+            variant_status: None,
+        };
+        insert(tx1.as_mut(), instance.clone()).await.unwrap_err();
+        tx1.rollback().await;
 
-        let _course_1_instance_1 = insert(
-            tx.as_mut(),
-            NewCourseInstance {
-                id: Uuid::new_v4(),
-                course_id: course_1_id,
-                name: None,
-                description: None,
-                variant_status: None,
-                teacher_in_charge_name: "teacher",
-                teacher_in_charge_email: "teacher@example.com",
-                support_email: None,
-                opening_time: None,
-                closing_time: None,
-            },
-        )
-        .await
-        .unwrap();
-        let course_2_instance_1 = insert(
-            tx.as_mut(),
-            NewCourseInstance {
-                id: Uuid::new_v4(),
-                course_id: course_2_id,
-                name: None,
-                description: None,
-                variant_status: None,
-                teacher_in_charge_name: "teacher",
-                teacher_in_charge_email: "teacher@example.com",
-                support_email: None,
-                opening_time: None,
-                closing_time: None,
-            },
-        )
-        .await;
-        assert!(course_2_instance_1.is_ok());
-
-        let course_1_instance_2 = insert(
-            tx.as_mut(),
-            NewCourseInstance {
-                id: Uuid::new_v4(),
-                course_id: course_1_id,
-                name: None,
-                description: None,
-                variant_status: None,
-                teacher_in_charge_name: "teacher",
-                teacher_in_charge_email: "teacher@example.com",
-                support_email: None,
-                opening_time: None,
-                closing_time: None,
-            },
-        )
-        .await;
-        assert!(course_1_instance_2.is_err());
+        let mut tx2 = tx.begin().await;
+        // after we give it a name, it should be ok
+        instance.name = Some("name");
+        insert(tx2.as_mut(), instance).await.unwrap();
     }
 }

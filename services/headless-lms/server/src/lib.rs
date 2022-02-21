@@ -27,7 +27,7 @@ use oauth2::basic::BasicClient;
 use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
-use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, EnvFilter};
+use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
 pub type OAuthClient = Arc<BasicClient>;
 

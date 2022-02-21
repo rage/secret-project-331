@@ -133,6 +133,9 @@ mod test {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
 
+        let fetched_data = get_all_playground_examples(tx.as_mut()).await.unwrap();
+        let previous_length = fetched_data.len();
+
         let inserted_data = insert_playground_example(
             tx.as_mut(),
             PlaygroundExampleData {
@@ -152,13 +155,16 @@ mod test {
 
         let fetched_data = get_all_playground_examples(tx.as_mut()).await.unwrap();
 
-        assert_eq!(fetched_data.len(), 1);
+        assert_eq!(fetched_data.len(), previous_length + 1);
     }
 
     #[tokio::test]
     async fn insert_and_delete_playground_example() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
+
+        let fetched_data = get_all_playground_examples(tx.as_mut()).await.unwrap();
+        let previous_length = fetched_data.len();
 
         let inserted_data = insert_playground_example(
             tx.as_mut(),
@@ -185,13 +191,16 @@ mod test {
 
         let fetched_data = get_all_playground_examples(tx.as_mut()).await.unwrap();
 
-        assert_eq!(fetched_data.len(), 0);
+        assert_eq!(fetched_data.len(), previous_length);
     }
 
     #[tokio::test]
     async fn insert_and_update_playground_example() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
+
+        let fetched_data = get_all_playground_examples(tx.as_mut()).await.unwrap();
+        let previous_length = fetched_data.len();
 
         let inserted_data = insert_playground_example(
             tx.as_mut(),
@@ -229,6 +238,6 @@ mod test {
 
         let fetched_data = get_all_playground_examples(tx.as_mut()).await.unwrap();
 
-        assert_eq!(fetched_data.len(), 1);
+        assert_eq!(fetched_data.len(), previous_length + 1);
     }
 }

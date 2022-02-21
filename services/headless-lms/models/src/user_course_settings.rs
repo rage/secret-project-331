@@ -99,26 +99,19 @@ mod test {
     use super::*;
     use crate::{
         course_instance_enrollments::{self, NewCourseInstanceEnrollment},
-        course_instances::{self, NewCourseInstance, VariantStatus},
-        test_helper::{insert_data, Conn, Data},
+        course_instances::{self, NewCourseInstance},
+        test_helper::*,
     };
 
     #[tokio::test]
     async fn upserts_user_course_settings() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let Data {
-            course,
-            instance,
-            user,
-            ..
-        } = insert_data(tx.as_mut(), "example-exercise").await.unwrap();
+        insert_data!(:tx, :user, :org, :course, :instance);
 
         let enrollment = course_instance_enrollments::insert_enrollment_if_it_doesnt_exist(
             tx.as_mut(),
             NewCourseInstanceEnrollment {
                 course_id: course,
-                course_instance_id: instance,
+                course_instance_id: instance.id,
                 user_id: user,
             },
         )
@@ -140,7 +133,7 @@ mod test {
                 course_id: course,
                 name: Some("instance-2"),
                 description: None,
-                variant_status: Some(VariantStatus::Draft),
+                variant_status: None,
                 teacher_in_charge_name: "teacher",
                 teacher_in_charge_email: "teacher@example.com",
                 support_email: None,

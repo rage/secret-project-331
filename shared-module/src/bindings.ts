@@ -113,7 +113,6 @@ export interface CourseInstance {
   ends_at: Date | null
   name: string | null
   description: string | null
-  variant_status: VariantStatus
   teacher_in_charge_name: string
   teacher_in_charge_email: string
   support_email: string | null
@@ -137,8 +136,6 @@ export interface Points {
   user_chapter_points: Record<string, PointMap>
 }
 
-export type VariantStatus = "Draft" | "Upcoming" | "Active" | "Ended"
-
 export interface Course {
   id: string
   slug: string
@@ -152,6 +149,7 @@ export interface Course {
   copied_from: string | null
   content_search_language: string | null
   course_language_group_id: string
+  is_draft: boolean
 }
 
 export interface CourseStructure {
@@ -162,6 +160,7 @@ export interface CourseStructure {
 
 export interface CourseUpdate {
   name: string
+  is_draft: boolean
 }
 
 export interface NewCourse {
@@ -172,6 +171,7 @@ export interface NewCourse {
   teacher_in_charge_name: string
   teacher_in_charge_email: string
   description: string
+  is_draft: boolean
 }
 
 export interface CourseCount {
@@ -632,7 +632,7 @@ export type RoleDomain =
   | { tag: "CourseInstance"; id: string }
   | { tag: "Exam"; id: string }
 
-export type UserRole = "Admin" | "Assistant" | "Teacher" | "Reviewer"
+export type UserRole = "Reviewer" | "Assistant" | "Teacher" | "Admin"
 
 export interface Submission {
   id: string
@@ -737,6 +737,11 @@ export interface User {
   deleted_at: Date | null
   upstream_id: number | null
   email: string
+}
+
+export interface ChaptersWithStatus {
+  is_previewable: boolean
+  chapters: Array<ChapterWithStatus>
 }
 
 export interface RoleQuery {

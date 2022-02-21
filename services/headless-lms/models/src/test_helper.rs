@@ -167,7 +167,8 @@ macro_rules! insert_data {
                 language_code: "en-US".to_string(),
                 teacher_in_charge_name: rs.clone(),
                 teacher_in_charge_email: format!("{rs}@example.com"),
-                description: "description".to_string()
+                description: "description".to_string(),
+                is_draft: false,
             },
             $user
         )
@@ -187,7 +188,6 @@ macro_rules! insert_data {
                 support_email: None,
                 opening_time: None,
                 closing_time: None,
-                variant_status: None,
             },
         )
         .await

@@ -1,5 +1,5 @@
 import {
-  ChapterWithStatus,
+  ChaptersWithStatus,
   Course,
   CourseInstance,
   CourseMaterialExercise,
@@ -25,7 +25,7 @@ import {
   UserCourseSettings,
 } from "../shared-module/bindings"
 import {
-  isChapterWithStatus,
+  isChaptersWithStatus,
   isCourse,
   isCourseInstance,
   isCourseMaterialExercise,
@@ -191,11 +191,9 @@ export const fetchChaptersPagesExcludeFrontpage = async (
   return validateResponse(response, isArray(isPage))
 }
 
-export const fetchChaptersInTheCourse = async (
-  courseId: string,
-): Promise<Array<ChapterWithStatus>> => {
+export const fetchChaptersInTheCourse = async (courseId: string): Promise<ChaptersWithStatus> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}/chapters`)
-  return validateResponse(response, isArray(isChapterWithStatus))
+  return validateResponse(response, isChaptersWithStatus)
 }
 
 export const fetchUserCourseSettings = async (

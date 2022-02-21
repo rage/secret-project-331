@@ -11,7 +11,7 @@ use itertools::Itertools;
 use url::Url;
 
 use crate::{
-    chapters::{self, ChapterStatus, DatabaseChapter},
+    chapters::{ChapterStatus, DatabaseChapter},
     course_instances::{self, CourseInstance},
     courses::{get_nondeleted_course_id_by_slug, Course},
     exercise_service_info,
@@ -336,7 +336,7 @@ WHERE id = $1;
     Ok(pages)
 }
 
-pub async fn get_page_by_path(
+async fn get_page_by_path(
     conn: &mut PgConnection,
     course_id: Uuid,
     url_path: &str,
@@ -438,7 +438,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     was_redirected: bool,
 ) -> ModelResult<CoursePageWithUserData> {
     if let Some(chapter_id) = page.chapter_id {
-        if !chapters::is_open(conn, chapter_id).await? {
+        if !crate::chapters::is_open(conn, chapter_id).await? {
             return Err(ModelError::PreconditionFailed(
                 "Chapter is not open yet".to_string(),
             ));

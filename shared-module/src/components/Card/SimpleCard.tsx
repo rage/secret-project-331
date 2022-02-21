@@ -46,9 +46,8 @@ const CardContentWrapper = styled.div`
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, date, time }) => {
+const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, time }) => {
   const { t } = useTranslation()
-  // If URL defined, the chapter is open
 
   const fetchOpensText = () => {
     if (date && time) {
@@ -115,25 +114,26 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, url, open, date
       `}
     >
       <CardContentWrapper>
-        {!open && !url ? (
+        {open ? (
           <div
             className={css`
               flex: 0 1 auto;
-              text-align: center;
-              background: #cac9c9;
-              padding: 2rem;
+              padding: 2rem 2.5rem 0 2.5rem;
             `}
           >
-            {fetchOpensText()}
+            <CardSVG />
           </div>
         ) : (
           <div
             className={css`
               flex: 0 1 auto;
+              text-align: center;
+              background: #cac9c9;
               padding: 3rem 2.5rem 0 2.5rem;
             `}
           >
             <StCardSvg />
+            {fetchOpensText()}
           </div>
         )}
         <div

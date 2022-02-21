@@ -8,11 +8,16 @@ use serde_json::Value;
 
 use crate::{
     chapters::{course_chapters, Chapter},
-    course_instances::{self, CourseInstance, NewCourseInstance, VariantStatus},
+    course_instances::{self, CourseInstance, NewCourseInstance},
     course_language_groups,
     pages::{course_pages, NewPage, Page},
     prelude::*,
 };
+
+pub struct CourseInfo {
+    pub id: Uuid,
+    pub is_draft: bool,
+}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct CourseCount {
@@ -33,6 +38,7 @@ pub struct Course {
     pub copied_from: Option<Uuid>,
     pub content_search_language: Option<String>,
     pub course_language_group_id: Uuid,
+    pub is_draft: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -57,7 +63,8 @@ SELECT id,
   language_code,
   copied_from,
   course_language_group_id,
-  description
+  description,
+  is_draft
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -85,7 +92,8 @@ SELECT id,
   language_code,
   copied_from,
   course_language_group_id,
-  description
+  description,
+  is_draft
 FROM courses
 WHERE course_language_group_id = $1;
         ",
@@ -116,7 +124,8 @@ SELECT
     c.language_code,
     c.copied_from,
     c.course_language_group_id,
-    c.description
+    c.description,
+    c.is_draft
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -201,9 +210,10 @@ INSERT INTO courses (
     content_search_language,
     language_code,
     copied_from,
-    course_language_group_id
+    course_language_group_id,
+    is_draft
   )
-VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7)
+VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8)
 RETURNING id,
   name,
   created_at,
@@ -215,7 +225,8 @@ RETURNING id,
   language_code,
   copied_from,
   course_language_group_id,
-  description;
+  description,
+  is_draft;
     ",
         new_course.name,
         new_course.organization_id,
@@ -224,6 +235,7 @@ RETURNING id,
         new_course.language_code,
         parent_course.id,
         course_language_group_id,
+        new_course.is_draft
     )
     .fetch_one(&mut tx)
     .await?;
@@ -448,7 +460,6 @@ WHERE exercise_slide_id IN (
             course_id: copied_course.id,
             name: None,
             description: None,
-            variant_status: Some(VariantStatus::Draft),
             support_email: None,
             teacher_in_charge_name: &new_course.teacher_in_charge_name,
             teacher_in_charge_email: &new_course.teacher_in_charge_email,
@@ -477,7 +488,8 @@ SELECT id,
   language_code,
   copied_from,
   course_language_group_id,
-  description
+  description,
+  is_draft
 FROM courses
 WHERE id = $1;
     "#,
@@ -549,7 +561,8 @@ SELECT id,
   language_code,
   copied_from,
   course_language_group_id,
-  description
+  description,
+  is_draft
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL
@@ -582,7 +595,8 @@ SELECT id,
   language_code,
   copied_from,
   course_language_group_id,
-  description
+  description,
+  is_draft
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL;
@@ -625,6 +639,7 @@ pub struct NewCourse {
     pub teacher_in_charge_name: String,
     pub teacher_in_charge_email: String,
     pub description: String,
+    pub is_draft: bool,
 }
 
 pub async fn insert_course(
@@ -640,8 +655,8 @@ pub async fn insert_course(
     let course = sqlx::query_as!(
         Course,
         r#"
-INSERT INTO courses(id, name, slug, organization_id, language_code, course_language_group_id)
-VALUES($1, $2, $3, $4, $5, $6)
+INSERT INTO courses(id, name, slug, organization_id, language_code, course_language_group_id, is_draft)
+VALUES($1, $2, $3, $4, $5, $6, $7)
 RETURNING id,
   name,
   created_at,
@@ -653,14 +668,16 @@ RETURNING id,
   language_code,
   copied_from,
   course_language_group_id,
-  description;
+  description,
+  is_draft;
             "#,
         id,
         new_course.name,
         new_course.slug,
         new_course.organization_id,
         new_course.language_code,
-        course_language_group_id
+        course_language_group_id,
+        new_course.is_draft
     )
     .fetch_one(&mut tx)
     .await?;
@@ -695,7 +712,6 @@ RETURNING id,
             course_id: course.id,
             name: None,
             description: None,
-            variant_status: Some(VariantStatus::Draft),
             support_email: None,
             teacher_in_charge_name: &new_course.teacher_in_charge_name,
             teacher_in_charge_email: &new_course.teacher_in_charge_email,
@@ -713,6 +729,7 @@ RETURNING id,
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct CourseUpdate {
     name: String,
+    is_draft: bool,
 }
 
 pub async fn update_course(
@@ -724,8 +741,9 @@ pub async fn update_course(
         Course,
         r#"
 UPDATE courses
-SET name = $1
-WHERE id = $2
+SET name = $1,
+  is_draft = $2
+WHERE id = $3
 RETURNING id,
   name,
   created_at,
@@ -737,9 +755,11 @@ RETURNING id,
   language_code,
   copied_from,
   course_language_group_id,
-  description
+  description,
+  is_draft
     "#,
         course_update.name,
+        course_update.is_draft,
         course_id
     )
     .fetch_one(conn)
@@ -765,7 +785,8 @@ RETURNING id,
   language_code,
   copied_from,
   course_language_group_id,
-  description
+  description,
+  is_draft
     "#,
         course_id
     )
@@ -790,7 +811,8 @@ SELECT id,
   language_code,
   copied_from,
   course_language_group_id,
-  description
+  description,
+  is_draft
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -827,6 +849,20 @@ pub async fn get_cfgname_by_tag(
     Ok(res)
 }
 
+pub async fn is_draft(conn: &mut PgConnection, id: Uuid) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+SELECT is_draft
+FROM courses
+WHERE id = $1
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.is_draft)
+}
+
 #[cfg(test)]
 mod test {
     use std::str::FromStr;
@@ -857,6 +893,7 @@ mod test {
             teacher_in_charge_name: "teacher".to_string(),
             teacher_in_charge_email: "teacher@example.com".to_string(),
             description: "description".to_string(),
+            is_draft: false,
         };
         let mut tx2 = tx.begin().await;
         courses::insert_course(
@@ -943,6 +980,7 @@ mod test {
                 teacher_in_charge_name: "admin".to_string(),
                 teacher_in_charge_email: "admin@example.org".to_string(),
                 description: "description".to_string(),
+                is_draft: false,
             },
             user_id,
         )
@@ -1018,6 +1056,7 @@ mod test {
                 teacher_in_charge_name: "admin".to_string(),
                 teacher_in_charge_email: "admin@example.org".to_string(),
                 description: "description".to_string(),
+                is_draft: false,
             },
         )
         .await

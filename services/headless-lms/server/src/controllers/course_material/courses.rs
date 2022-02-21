@@ -1,6 +1,7 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
 
 use chrono::Utc;
+use futures::{future::OptionFuture, FutureExt};
 use models::{
     chapters::{ChapterStatus, ChapterWithStatus},
     course_instances::CourseInstance,
@@ -56,11 +57,21 @@ async fn get_course_page_by_path(
 
     let page_with_user_data = models::pages::get_page_with_user_data_by_path(
         &mut conn,
-        user.map(|u| u.id),
+        user.as_ref().map(|u| u.id),
         &course_slug,
         &path,
     )
     .await?;
+
+    if let Some(chapter_id) = page_with_user_data.page.chapter_id {
+        authorize(
+            &mut conn,
+            Act::Teach,
+            user.map(|u| u.id),
+            Res::Chapter(chapter_id),
+        )
+        .await?;
+    }
 
     Ok(web::Json(page_with_user_data))
 }
@@ -115,6 +126,12 @@ async fn get_course_pages(
     Ok(web::Json(pages))
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct ChaptersWithStatus {
+    pub is_previewable: bool,
+    pub chapters: Vec<ChapterWithStatus>,
+}
+
 /**
 GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
 */
@@ -122,9 +139,16 @@ GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of ch
 #[instrument(skip(pool))]
 async fn get_chapters(
     course_id: web::Path<Uuid>,
+    user: Option<AuthUser>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Vec<ChapterWithStatus>>> {
+) -> ControllerResult<web::Json<ChaptersWithStatus>> {
     let mut conn = pool.acquire().await?;
+
+    let is_previewable = OptionFuture::from(user.map(|u| {
+        authorize(&mut conn, Act::Teach, Some(u.id), Res::Course(*course_id)).map(|r| r.ok())
+    }))
+    .await
+    .is_some();
     let chapters = models::chapters::course_chapters(&mut conn, *course_id).await?;
     let chapters = chapters
         .into_iter()
@@ -149,7 +173,10 @@ async fn get_chapters(
             }
         })
         .collect();
-    Ok(web::Json(chapters))
+    Ok(web::Json(ChaptersWithStatus {
+        is_previewable,
+        chapters,
+    }))
 }
 
 /**

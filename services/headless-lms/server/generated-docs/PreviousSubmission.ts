@@ -1,1 +1,1 @@
-type PreviousSubmission = { submission: Submission; grading: Grading | null }
+type PreviousSubmission = { submission: ExerciseTaskSubmission; grading: Grading | null }

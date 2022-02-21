@@ -28,6 +28,7 @@ import {
   CourseInstanceForm,
   CourseMaterialExercise,
   CourseMaterialExerciseServiceInfo,
+  CourseMaterialExerciseSlide,
   CourseMaterialExerciseTask,
   CoursePageWithUserData,
   CourseStructure,
@@ -49,9 +50,16 @@ import {
   ExerciseServiceInfoApi,
   ExerciseServiceNewOrUpdate,
   ExerciseSlide,
+  ExerciseSlideSubmission,
+  ExerciseSlideSubmissionCount,
+  ExerciseSlideSubmissionCountByExercise,
+  ExerciseSlideSubmissionCountByWeekAndHour,
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
+  ExerciseTaskGrading,
+  ExerciseTaskGradingResult,
+  ExerciseTaskSubmission,
   ExerciseUserCounts,
   ExerciseWithExerciseTasks,
   Feedback,
@@ -59,9 +67,7 @@ import {
   FeedbackCount,
   GetEditProposalsQuery,
   GetFeedbackQuery,
-  Grading,
   GradingProgress,
-  GradingResult,
   HistoryChangeReason,
   HistoryRestoreData,
   Login,
@@ -72,7 +78,6 @@ import {
   NewPage,
   NewProposedBlockEdit,
   NewProposedPageEdits,
-  NewSubmission,
   Organization,
   Page,
   PageChapterAndCourseInformation,
@@ -87,19 +92,17 @@ import {
   PlaygroundExampleData,
   PointMap,
   Points,
-  PreviousSubmission,
   ProposalCount,
   ProposalStatus,
   RoleDomain,
   RoleInfo,
   RoleQuery,
   RoleUser,
-  Submission,
-  SubmissionCount,
-  SubmissionCountByExercise,
-  SubmissionCountByWeekAndHour,
+  StudentExerciseSlideSubmission,
+  StudentExerciseSlideSubmissionResult,
+  StudentExerciseTaskSubmission,
+  StudentExerciseTaskSubmissionResult,
   SubmissionInfo,
-  SubmissionResult,
   Term,
   TermUpdate,
   UploadResult,
@@ -488,6 +491,18 @@ export function isExerciseServiceNewOrUpdate(
   )
 }
 
+export function isCourseMaterialExerciseSlide(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialExerciseSlide {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    Array.isArray(obj.exercise_tasks) &&
+    obj.exercise_tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean)
+  )
+}
+
 export function isExerciseSlide(obj: any, _argumentName?: string): obj is ExerciseSlide {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -508,7 +523,11 @@ export function isCourseMaterialExerciseTask(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.exercise_slide_id === "string" &&
-    typeof obj.exercise_type === "string"
+    (obj.exercise_iframe_url === null || typeof obj.exercise_iframe_url === "string") &&
+    (obj.previous_submission === null ||
+      (isExerciseTaskSubmission(obj.previous_submission) as boolean)) &&
+    (obj.previous_submission_grading === null ||
+      (isExerciseTaskGrading(obj.previous_submission_grading) as boolean))
   )
 }
 
@@ -543,12 +562,8 @@ export function isCourseMaterialExercise(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isExercise(obj.exercise) as boolean) &&
-    (isCourseMaterialExerciseTask(obj.current_exercise_task) as boolean) &&
-    (obj.current_exercise_task_service_info === null ||
-      (isCourseMaterialExerciseServiceInfo(obj.current_exercise_task_service_info) as boolean)) &&
-    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
-    (obj.previous_submission === null || (isSubmission(obj.previous_submission) as boolean)) &&
-    (obj.grading === null || (isGrading(obj.grading) as boolean))
+    (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
+    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean))
   )
 }
 
@@ -634,37 +649,6 @@ export function isNewFeedback(obj: any, _argumentName?: string): obj is NewFeedb
     obj.related_blocks.every((e: any) => isFeedbackBlock(e) as boolean) &&
     typeof obj.page_id === "string"
   )
-}
-
-export function isGrading(obj: any, _argumentName?: string): obj is Grading {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    typeof obj.submission_id === "string" &&
-    (obj.course_id === null || typeof obj.course_id === "string") &&
-    (obj.exam_id === null || typeof obj.exam_id === "string") &&
-    typeof obj.exercise_id === "string" &&
-    typeof obj.exercise_task_id === "string" &&
-    typeof obj.grading_priority === "number" &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
-    (isGradingProgress(obj.grading_progress) as boolean) &&
-    (isUserPointsUpdateStrategy(obj.user_points_update_strategy) as boolean) &&
-    (obj.unscaled_score_given === null || typeof obj.unscaled_score_given === "number") &&
-    (obj.unscaled_score_maximum === null || typeof obj.unscaled_score_maximum === "number") &&
-    (obj.grading_started_at === null || obj.grading_started_at instanceof Date) &&
-    (obj.grading_completed_at === null || obj.grading_completed_at instanceof Date) &&
-    (obj.feedback_text === null || typeof obj.feedback_text === "string") &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date)
-  )
-}
-
-export function isUserPointsUpdateStrategy(
-  obj: any,
-  _argumentName?: string,
-): obj is UserPointsUpdateStrategy {
-  return obj === "CanAddPointsButCannotRemovePoints" || obj === "CanAddPointsAndCanRemovePoints"
 }
 
 export function isOrganization(obj: any, _argumentName?: string): obj is Organization {
@@ -1031,6 +1015,182 @@ export function isProposalCount(obj: any, _argumentName?: string): obj is Propos
   )
 }
 
+export function isExerciseSlideSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseSlideSubmission {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.exercise_slide_id === "string" &&
+    (obj.course_id === null || typeof obj.course_id === "string") &&
+    (obj.course_instance_id === null || typeof obj.course_instance_id === "string") &&
+    (obj.exam_id === null || typeof obj.exam_id === "string") &&
+    typeof obj.exercise_id === "string" &&
+    typeof obj.user_id === "string"
+  )
+}
+
+export function isExerciseSlideSubmissionCount(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseSlideSubmissionCount {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.date === null || obj.date instanceof Date) &&
+    (obj.count === null || typeof obj.count === "number")
+  )
+}
+
+export function isExerciseSlideSubmissionCountByExercise(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseSlideSubmissionCountByExercise {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.exercise_id === null || typeof obj.exercise_id === "string") &&
+    (obj.count === null || typeof obj.count === "number") &&
+    (obj.exercise_name === null || typeof obj.exercise_name === "string")
+  )
+}
+
+export function isExerciseSlideSubmissionCountByWeekAndHour(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseSlideSubmissionCountByWeekAndHour {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.isodow === null || typeof obj.isodow === "number") &&
+    (obj.hour === null || typeof obj.hour === "number") &&
+    (obj.count === null || typeof obj.count === "number")
+  )
+}
+
+export function isStudentExerciseSlideSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is StudentExerciseSlideSubmission {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_slide_id === "string" &&
+    Array.isArray(obj.exercise_task_submissions) &&
+    obj.exercise_task_submissions.every((e: any) => isStudentExerciseTaskSubmission(e) as boolean)
+  )
+}
+
+export function isStudentExerciseSlideSubmissionResult(
+  obj: any,
+  _argumentName?: string,
+): obj is StudentExerciseSlideSubmissionResult {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
+    Array.isArray(obj.exercise_task_submission_results) &&
+    obj.exercise_task_submission_results.every(
+      (e: any) => isStudentExerciseTaskSubmissionResult(e) as boolean,
+    )
+  )
+}
+
+export function isExerciseTaskGrading(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseTaskGrading {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    typeof obj.exercise_task_submission_id === "string" &&
+    (obj.course_id === null || typeof obj.course_id === "string") &&
+    (obj.exam_id === null || typeof obj.exam_id === "string") &&
+    typeof obj.exercise_id === "string" &&
+    typeof obj.exercise_task_id === "string" &&
+    typeof obj.grading_priority === "number" &&
+    (obj.score_given === null || typeof obj.score_given === "number") &&
+    (isGradingProgress(obj.grading_progress) as boolean) &&
+    (isUserPointsUpdateStrategy(obj.user_points_update_strategy) as boolean) &&
+    (obj.unscaled_score_given === null || typeof obj.unscaled_score_given === "number") &&
+    (obj.unscaled_score_maximum === null || typeof obj.unscaled_score_maximum === "number") &&
+    (obj.grading_started_at === null || obj.grading_started_at instanceof Date) &&
+    (obj.grading_completed_at === null || obj.grading_completed_at instanceof Date) &&
+    (obj.feedback_text === null || typeof obj.feedback_text === "string") &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date)
+  )
+}
+
+export function isExerciseTaskGradingResult(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseTaskGradingResult {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isGradingProgress(obj.grading_progress) as boolean) &&
+    typeof obj.score_given === "number" &&
+    typeof obj.score_maximum === "number" &&
+    (obj.feedback_text === null || typeof obj.feedback_text === "string")
+  )
+}
+
+export function isUserPointsUpdateStrategy(
+  obj: any,
+  _argumentName?: string,
+): obj is UserPointsUpdateStrategy {
+  return obj === "CanAddPointsButCannotRemovePoints" || obj === "CanAddPointsAndCanRemovePoints"
+}
+
+export function isExerciseTaskSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseTaskSubmission {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.exercise_slide_submission_id === "string" &&
+    typeof obj.exercise_task_id === "string" &&
+    typeof obj.exercise_slide_id === "string" &&
+    (obj.exercise_task_grading_id === null || typeof obj.exercise_task_grading_id === "string")
+  )
+}
+
+export function isStudentExerciseTaskSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is StudentExerciseTaskSubmission {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_task_id === "string"
+  )
+}
+
+export function isStudentExerciseTaskSubmissionResult(
+  obj: any,
+  _argumentName?: string,
+): obj is StudentExerciseTaskSubmissionResult {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isExerciseTaskSubmission(obj.submission) as boolean) &&
+    (obj.grading === null || (isExerciseTaskGrading(obj.grading) as boolean))
+  )
+}
+
+export function isSubmissionInfo(obj: any, _argumentName?: string): obj is SubmissionInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isExerciseTaskSubmission(obj.submission) as boolean) &&
+    (isExercise(obj.exercise) as boolean) &&
+    (isExerciseTask(obj.exercise_task) as boolean) &&
+    (obj.grading === null || (isExerciseTaskGrading(obj.grading) as boolean)) &&
+    typeof obj.iframe_path === "string"
+  )
+}
+
 export function isRoleUser(obj: any, _argumentName?: string): obj is RoleUser {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1063,92 +1223,6 @@ export function isRoleDomain(obj: any, _argumentName?: string): obj is RoleDomai
 
 export function isUserRole(obj: any, _argumentName?: string): obj is UserRole {
   return obj === "Admin" || obj === "Assistant" || obj === "Teacher" || obj === "Reviewer"
-}
-
-export function isSubmission(obj: any, _argumentName?: string): obj is Submission {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.exercise_id === "string" &&
-    (obj.course_id === null || typeof obj.course_id === "string") &&
-    (obj.course_instance_id === null || typeof obj.course_instance_id === "string") &&
-    (obj.exam_id === null || typeof obj.exam_id === "string") &&
-    typeof obj.exercise_task_id === "string" &&
-    (obj.grading_id === null || typeof obj.grading_id === "string") &&
-    typeof obj.user_id === "string"
-  )
-}
-
-export function isSubmissionCount(obj: any, _argumentName?: string): obj is SubmissionCount {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.date === null || obj.date instanceof Date) &&
-    (obj.count === null || typeof obj.count === "number")
-  )
-}
-
-export function isSubmissionCountByWeekAndHour(
-  obj: any,
-  _argumentName?: string,
-): obj is SubmissionCountByWeekAndHour {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.isodow === null || typeof obj.isodow === "number") &&
-    (obj.hour === null || typeof obj.hour === "number") &&
-    (obj.count === null || typeof obj.count === "number")
-  )
-}
-
-export function isSubmissionCountByExercise(
-  obj: any,
-  _argumentName?: string,
-): obj is SubmissionCountByExercise {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.exercise_id === null || typeof obj.exercise_id === "string") &&
-    (obj.count === null || typeof obj.count === "number") &&
-    (obj.exercise_name === null || typeof obj.exercise_name === "string")
-  )
-}
-
-export function isSubmissionInfo(obj: any, _argumentName?: string): obj is SubmissionInfo {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isSubmission(obj.submission) as boolean) &&
-    (isExercise(obj.exercise) as boolean) &&
-    (isExerciseTask(obj.exercise_task) as boolean) &&
-    (obj.grading === null || (isGrading(obj.grading) as boolean)) &&
-    typeof obj.iframe_path === "string"
-  )
-}
-
-export function isSubmissionResult(obj: any, _argumentName?: string): obj is SubmissionResult {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isSubmission(obj.submission) as boolean) &&
-    (obj.grading === null || (isGrading(obj.grading) as boolean))
-  )
-}
-
-export function isNewSubmission(obj: any, _argumentName?: string): obj is NewSubmission {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_task_id === "string" &&
-    (obj.course_instance_id === null || typeof obj.course_instance_id === "string")
-  )
-}
-
-export function isGradingResult(obj: any, _argumentName?: string): obj is GradingResult {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isGradingProgress(obj.grading_progress) as boolean) &&
-    typeof obj.score_given === "number" &&
-    typeof obj.score_maximum === "number" &&
-    (obj.feedback_text === null || typeof obj.feedback_text === "string")
-  )
 }
 
 export function isUserCourseSettings(obj: any, _argumentName?: string): obj is UserCourseSettings {
@@ -1236,14 +1310,6 @@ export function isRoleInfo(obj: any, _argumentName?: string): obj is RoleInfo {
   )
 }
 
-export function isPreviousSubmission(obj: any, _argumentName?: string): obj is PreviousSubmission {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isSubmission(obj.submission) as boolean) &&
-    (obj.grading === null || (isGrading(obj.grading) as boolean))
-  )
-}
-
 export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1302,7 +1368,7 @@ export function isExerciseSubmissions(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     Array.isArray(obj.data) &&
-    obj.data.every((e: any) => isSubmission(e) as boolean) &&
+    obj.data.every((e: any) => isExerciseSlideSubmission(e) as boolean) &&
     typeof obj.total_pages === "number"
   )
 }

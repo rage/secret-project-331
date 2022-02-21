@@ -2,7 +2,7 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faSearch } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Dialog, Paper, TextField } from "@mui/material"
+import { Dialog, Paper } from "@mui/material"
 import Link from "next/link"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -19,6 +19,21 @@ export interface SearchDialogProps {
   courseSlug: string
   organizationSlug: string
 }
+
+const StTextField = styled.input`
+  display: flex;
+  background: #ffffff;
+  width: 100%;
+  padding: 0 20px;
+  height: 70px;
+  box-shadow: 0px 8px 40px rgb(0 0 0 / 6%);
+  border-radius: 3px;
+  border: 0 !important;
+  outline: 0 !important;
+  &:focus {
+    outline: none;
+  }
+`
 
 const HeaderBar = styled.div`
   display: flex;
@@ -110,7 +125,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
       />
       {/* eslint-disable-next-line i18next/no-literal-string */}
       <Dialog
-        maxWidth="xl"
+        fullWidth={true}
         open={open}
         onClose={closeModal}
         aria-labelledby="search-for-pages-button"
@@ -118,7 +133,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
         <Paper
           className={css`
             overflow: hidden;
-            width: 500px;
+            width: 100%;
             min-height: 700px;
           `}
         >
@@ -139,13 +154,13 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
               padding: 0 1rem;
             `}
           >
-            <TextField
+            <StTextField
               value={query}
               onChange={(e) => {
                 setError(null)
                 setQuery(e.target.value)
               }}
-              fullWidth
+              /* fullWidth */
               placeholder={t("search-field-placeholder")}
             />
             <div
@@ -154,58 +169,62 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
               `}
             >
               {error && <div>{error}</div>}
-              {combinedResults?.map((result) => {
-                if (!result.title_headline) {
-                  return null
-                }
-                return (
-                  <Link
-                    href={`/${organizationSlug}/courses/${result.url_path}`}
-                    key={result.id}
-                    passHref
-                  >
-                    <a
-                      href="replace"
-                      className={css`
-                        text-decoration: none;
-                        color: unset;
-                        display: block;
-                        margin-bottom: 1rem;
-
-                        padding: 1rem;
-
-                        :hover {
-                          background: #f3f3f3;
-                        }
-                      `}
-                      key={result.id}
-                    >
-                      <h2
-                        className={css`
-                          font-size: 1.5rem;
-                          b {
-                            text-decoration: underline;
-                          }
-                        `}
-                        dangerouslySetInnerHTML={{
-                          __html: sanitizeCourseMaterialHtml(result.title_headline),
-                        }}
-                      />
-
-                      {result.content_headline && (
-                        <p
+              {
+                <div>
+                  {combinedResults?.map((result) => {
+                    if (!result.title_headline) {
+                      return null
+                    }
+                    return (
+                      <Link
+                        href={`/${organizationSlug}/courses/${result.url_path}`}
+                        key={result.id}
+                        passHref
+                      >
+                        <a
+                          href="replace"
                           className={css`
-                            color: #5a5757;
+                            text-decoration: none;
+                            color: unset;
+                            display: block;
+                            background: #f5f6f7;
+                            margin-bottom: 0.5rem;
+                            padding: 1rem;
+
+                            :hover {
+                              background: #ebedee;
+                            }
                           `}
-                          dangerouslySetInnerHTML={{
-                            __html: sanitizeCourseMaterialHtml(result.content_headline),
-                          }}
-                        />
-                      )}
-                    </a>
-                  </Link>
-                )
-              })}
+                          key={result.id}
+                        >
+                          <h2
+                            className={css`
+                              font-size: 1.5rem;
+                              b {
+                                text-decoration: underline;
+                              }
+                            `}
+                            dangerouslySetInnerHTML={{
+                              __html: sanitizeCourseMaterialHtml(result.title_headline),
+                            }}
+                          />
+
+                          {result.content_headline && (
+                            <p
+                              className={css`
+                                color: #5a5757;
+                              `}
+                              dangerouslySetInnerHTML={{
+                                __html: sanitizeCourseMaterialHtml(result.content_headline),
+                              }}
+                            />
+                          )}
+                        </a>
+                      </Link>
+                    )
+                  })}
+                </div>
+              }
             </div>
           </div>
         </Paper>

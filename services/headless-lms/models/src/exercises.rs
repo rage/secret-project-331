@@ -1,16 +1,11 @@
 use crate::{
     course_instances,
-    exercise_service_info::{
-        get_course_material_service_info_by_exercise_type, CourseMaterialExerciseServiceInfo,
-    },
-    exercise_tasks::{
-        self, get_existing_user_exercise_task_for_course_instance, CourseMaterialExerciseTask,
-    },
-    gradings::Grading,
+    exercise_slides::{self, CourseMaterialExerciseSlide},
+    exercise_tasks,
     prelude::*,
-    submissions::Submission,
     user_course_settings,
-    user_exercise_states::get_user_exercise_state_if_exits,
+    user_exercise_states::{self, CourseInstanceOrExamId},
+    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
@@ -33,16 +28,9 @@ pub struct Exercise {
 #[derive(Debug, Serialize, Deserialize, TS)]
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
-    pub current_exercise_task: CourseMaterialExerciseTask,
-    /**
-    If none, the task is not completable at the moment because the service needs to
-    be configured to the system.
-    */
-    pub current_exercise_task_service_info: Option<CourseMaterialExerciseServiceInfo>,
+    pub current_exercise_slide: CourseMaterialExerciseSlide,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
-    pub previous_submission: Option<Submission>,
-    pub grading: Option<Grading>,
 }
 
 /**
@@ -92,7 +80,7 @@ impl GradingProgress {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
 pub struct ExerciseStatus {
     // None when grading has not completed yet. Max score can be found from the associated exercise.
     pub score_given: Option<f32>,
@@ -247,15 +235,23 @@ WHERE exam_id = $1
     Ok(exercises)
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
-    let course_id = sqlx::query!(
-        r#"SELECT course_id AS "course_id!" FROM exercises WHERE id = $1 AND course_id IS NOT NULL"#,
+pub async fn get_course_or_exam_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<CourseOrExamId> {
+    let res = sqlx::query!(
+        "
+SELECT course_id,
+  exam_id
+FROM exercises
+WHERE id = $1
+  AND course_id IS NOT NULL
+",
         id
     )
     .fetch_one(conn)
-    .await?
-    .course_id;
-    Ok(course_id)
+    .await?;
+    CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
 pub async fn get_course_material_exercise(
@@ -264,87 +260,60 @@ pub async fn get_course_material_exercise(
     exercise_id: Uuid,
 ) -> ModelResult<CourseMaterialExercise> {
     let exercise = get_by_id(conn, exercise_id).await?;
-    let (selected_exercise_task, instance_or_exam_id) =
-        get_or_select_exercise_task(&mut *conn, user_id, &exercise).await?;
-    info!("{:#?}", selected_exercise_task);
-
-    let current_exercise_task_service_info = get_course_material_service_info_by_exercise_type(
-        conn,
-        &selected_exercise_task.exercise_type,
-    )
-    .await?;
+    let (current_exercise_slide, instance_or_exam_id) =
+        get_or_select_exercise_slide(&mut *conn, user_id, &exercise).await?;
+    info!("current exercise slide: {:#?}", current_exercise_slide);
 
     let user_exercise_state = match (user_id, instance_or_exam_id) {
-        (Some(user_id), Some(InstanceOrExamId::Instance(instance_id))) => {
-            get_user_exercise_state_if_exits(conn, user_id, exercise.id, Some(instance_id), None)
-                .await?
-        }
-        (Some(user_id), Some(InstanceOrExamId::Exam(exam_id))) => {
-            get_user_exercise_state_if_exits(conn, user_id, exercise.id, None, Some(exam_id))
-                .await?
+        (Some(user_id), Some(course_instance_or_exam_id)) => {
+            user_exercise_states::get_user_exercise_state_if_exists(
+                conn,
+                user_id,
+                exercise.id,
+                course_instance_or_exam_id,
+            )
+            .await?
         }
         _ => None,
     };
 
-    let mut score_given = None;
-    let mut activity_progress = ActivityProgress::Initialized;
-    let mut grading_progress = GradingProgress::NotReady;
-    if let Some(user_exercise_state) = user_exercise_state {
-        score_given = user_exercise_state.score_given;
-        activity_progress = user_exercise_state.activity_progress;
-        grading_progress = user_exercise_state.grading_progress;
-    }
-
-    let previous_submission = if let Some(user_id) = user_id {
-        crate::submissions::get_latest_user_exercise_submission(conn, user_id, exercise_id).await?
-    } else {
-        None
-    };
-    let grading = if let Some(grading_id) = previous_submission.as_ref().and_then(|s| s.grading_id)
-    {
-        if let Some(user_id) = user_id {
-            crate::gradings::get_for_student(conn, grading_id, user_id).await?
-        } else {
-            None
-        }
-    } else {
-        None
-    };
-    let exercise_status = if grading.is_some() {
-        Some(ExerciseStatus {
-            score_given,
-            activity_progress,
-            grading_progress,
-        })
-    } else {
-        None
-    };
+    let exercise_status = user_exercise_state.map(|user_exercise_state| ExerciseStatus {
+        score_given: user_exercise_state.score_given,
+        activity_progress: user_exercise_state.activity_progress,
+        grading_progress: user_exercise_state.grading_progress,
+    });
 
     Ok(CourseMaterialExercise {
         exercise,
-        current_exercise_task: selected_exercise_task,
+        current_exercise_slide,
         exercise_status,
-        current_exercise_task_service_info,
-        previous_submission,
-        grading,
     })
 }
 
-enum InstanceOrExamId {
-    Instance(Uuid),
-    Exam(Uuid),
-}
-
-async fn get_or_select_exercise_task(
+async fn get_or_select_exercise_slide(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
     exercise: &Exercise,
-) -> ModelResult<(CourseMaterialExerciseTask, Option<InstanceOrExamId>)> {
+) -> ModelResult<(CourseMaterialExerciseSlide, Option<CourseInstanceOrExamId>)> {
     match (user_id, exercise.course_id, exercise.exam_id) {
         (None, ..) => {
-            // No signed in user. Show random exercise.
-            let random_task = exercise_tasks::get_random_exercise_task(conn, exercise.id).await?;
-            Ok((random_task, None))
+            // No signed in user. Show random exercise without model solution.
+            let random_slide =
+                exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise.id).await?;
+            let random_slide_tasks = exercise_tasks::get_course_material_exercise_tasks(
+                conn,
+                &random_slide.id,
+                None,
+                false,
+            )
+            .await?;
+            Ok((
+                CourseMaterialExerciseSlide {
+                    id: random_slide.id,
+                    exercise_tasks: random_slide_tasks,
+                },
+                None,
+            ))
         }
         (Some(user_id), Some(course_id), None) => {
             // signed in, course exercise
@@ -355,8 +324,8 @@ async fn get_or_select_exercise_task(
             match user_course_settings {
                 Some(settings) if settings.current_course_id == course_id => {
                     // User is enrolled on an instance of the given course.
-                    let task =
-                        exercise_tasks::get_or_select_user_exercise_task_for_course_instance_or_exam(
+                    let tasks =
+                        exercise_tasks::get_or_select_user_exercise_tasks_for_course_instance_or_exam(
                             conn,
                             user_id,
                             exercise.id,
@@ -365,41 +334,82 @@ async fn get_or_select_exercise_task(
                         )
                         .await?;
                     Ok((
-                        task,
-                        Some(InstanceOrExamId::Instance(
+                        tasks,
+                        Some(CourseInstanceOrExamId::Instance(
                             settings.current_course_instance_id,
                         )),
                     ))
                 }
                 Some(_) => {
                     // User is enrolled on a different language version of the course. Show exercise
-                    // task based on their latest enrollment or a random one.
+                    // slide based on their latest enrollment or a random one.
                     let latest_instance =
                         course_instances::course_instance_by_users_latest_enrollment(
                             conn, user_id, course_id,
                         )
                         .await?;
                     if let Some(instance) = latest_instance {
-                        let exercise_task = get_existing_user_exercise_task_for_course_instance(
-                            conn,
-                            user_id,
-                            exercise.id,
-                            instance.id,
-                        )
-                        .await?;
-                        if let Some(exercise_task) = exercise_task {
-                            Ok((exercise_task, Some(InstanceOrExamId::Instance(instance.id))))
+                        let exercise_tasks =
+                            exercise_tasks::get_existing_users_exercise_slide_for_course_instance(
+                                conn,
+                                user_id,
+                                exercise.id,
+                                instance.id,
+                            )
+                            .await?;
+                        if let Some(exercise_tasks) = exercise_tasks {
+                            Ok((
+                                exercise_tasks,
+                                Some(CourseInstanceOrExamId::Instance(instance.id)),
+                            ))
                         } else {
                             // no exercise task has been chosen for the user
-                            let random_task =
-                                exercise_tasks::get_random_exercise_task(conn, exercise.id).await?;
-                            Ok((random_task, None))
+                            let random_slide =
+                                exercise_slides::get_random_exercise_slide_for_exercise(
+                                    conn,
+                                    exercise.id,
+                                )
+                                .await?;
+                            let random_tasks = exercise_tasks::get_course_material_exercise_tasks(
+                                conn,
+                                &random_slide.id,
+                                Some(&user_id),
+                                false,
+                            )
+                            .await?;
+
+                            Ok((
+                                CourseMaterialExerciseSlide {
+                                    id: random_slide.id,
+                                    exercise_tasks: random_tasks,
+                                },
+                                None,
+                            ))
                         }
                     } else {
-                        // user is not enrolled on any instance related to the course
-                        let random_task =
-                            exercise_tasks::get_random_exercise_task(conn, exercise.id).await?;
-                        Ok((random_task, None))
+                        // user has enrolled on a different course language version and haven't enrolled
+                        // on this one. The idea is that they can look around the material but not submit
+                        // without changing the language version, so show a random exercise.
+                        let random_slide = exercise_slides::get_random_exercise_slide_for_exercise(
+                            conn,
+                            exercise.id,
+                        )
+                        .await?;
+                        let random_tasks = exercise_tasks::get_course_material_exercise_tasks(
+                            conn,
+                            &random_slide.id,
+                            Some(&user_id),
+                            false,
+                        )
+                        .await?;
+
+                        Ok((
+                            CourseMaterialExerciseSlide {
+                                id: random_slide.id,
+                                exercise_tasks: random_tasks,
+                            },
+                            None,
+                        ))
                     }
                 }
                 None => {
@@ -414,8 +424,8 @@ async fn get_or_select_exercise_task(
         (Some(user_id), _, Some(exam_id)) => {
             info!("selecting exam task");
             // signed in, exam exercise
-            let task =
-                exercise_tasks::get_or_select_user_exercise_task_for_course_instance_or_exam(
+            let tasks =
+                exercise_tasks::get_or_select_user_exercise_tasks_for_course_instance_or_exam(
                     conn,
                     user_id,
                     exercise.id,
@@ -423,8 +433,8 @@ async fn get_or_select_exercise_task(
                     Some(exam_id),
                 )
                 .await?;
-            info!("selecting exam task {:#?}", task);
-            Ok((task, Some(InstanceOrExamId::Exam(exam_id))))
+            info!("selecting exam task {:#?}", tasks);
+            Ok((tasks, Some(CourseInstanceOrExamId::Exam(exam_id))))
         }
         (Some(_), ..) => Err(ModelError::Generic(
             "The selected exercise is not attached to any course or exam".to_string(),
@@ -455,72 +465,50 @@ RETURNING id;
 
 #[cfg(test)]
 mod test {
-    use headless_lms_utils::document_schema_processor::GutenbergBlock;
-    use serde_json::{Map, Value};
-
     use super::*;
     use crate::{
-        chapters,
         course_instance_enrollments::{self, NewCourseInstanceEnrollment},
-        course_instances::{self, NewCourseInstance},
-        course_language_groups, courses, exercise_slides, exercise_tasks, organizations, pages,
+        exercise_service_info::{self, PathInfo},
+        exercise_services::{self, ExerciseServiceNewOrUpdate},
         test_helper::Conn,
-        users,
+        test_helper::*,
+        user_exercise_states,
     };
 
     #[tokio::test]
     async fn selects_course_material_exercise_for_enrolled_student() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-
-        let user_id = users::insert_with_id(
+        insert_data!(
+            :tx,
+            user: user_id,
+            org: organization_id,
+            course: course_id,
+            instance: course_instance,
+            chapter: chapter_id,
+            page: page_id,
+            exercise: exercise_id,
+            slide: exercise_slide_id,
+            task: exercise_task_id
+        );
+        let exercise_service = exercise_services::insert_exercise_service(
             tx.as_mut(),
-            "test@example.com",
-            None,
-            None,
-            Uuid::parse_str("e656e0a1-3f55-4f52-b0ae-96855faee5e7").unwrap(),
+            &ExerciseServiceNewOrUpdate {
+                name: "text-exercise".to_string(),
+                slug: TEST_HELPER_EXERCISE_SERVICE_NAME.to_string(),
+                public_url: "".to_string(),
+                internal_url: None,
+                max_reprocessing_submissions_at_once: 1,
+            },
         )
         .await
         .unwrap();
-        let organization_id = organizations::insert(
+        let _exercise_service_info = exercise_service_info::insert(
             tx.as_mut(),
-            "",
-            "",
-            "",
-            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
-        )
-        .await
-        .unwrap();
-        let course_language_group_id = course_language_groups::insert_with_id(
-            tx.as_mut(),
-            Uuid::parse_str("281384b3-bbc9-4da5-b93e-4c122784a724").unwrap(),
-        )
-        .await
-        .unwrap();
-        let course_id = courses::insert(
-            tx.as_mut(),
-            "",
-            organization_id,
-            course_language_group_id,
-            "",
-            "en-US",
-            "",
-        )
-        .await
-        .unwrap();
-        let course_instance = course_instances::insert(
-            tx.as_mut(),
-            NewCourseInstance {
-                id: Uuid::new_v4(),
-                course_id,
-                name: None,
-                description: None,
-                variant_status: None,
-                teacher_in_charge_name: "teacher",
-                teacher_in_charge_email: "teacher@example.com",
-                support_email: None,
-                opening_time: None,
-                closing_time: None,
+            &PathInfo {
+                exercise_service_id: exercise_service.id,
+                exercise_type_specific_user_interface_iframe: "".to_string(),
+                grade_endpoint_path: "".to_string(),
+                public_spec_endpoint_path: "".to_string(),
+                model_solution_path: "test-only-empty-path".to_string(),
             },
         )
         .await
@@ -535,73 +523,45 @@ mod test {
         )
         .await
         .unwrap();
-        let chapter_id = chapters::insert(tx.as_mut(), "", course_id, 0)
-            .await
-            .unwrap();
-        let (page_id, _) = pages::insert(tx.as_mut(), course_id, "", "", 0, user_id)
-            .await
-            .unwrap();
-        let exercise_id = super::insert(tx.as_mut(), course_id, "", page_id, chapter_id, 0)
-            .await
-            .unwrap();
-        let exercise_slide_id = exercise_slides::insert(tx.as_mut(), exercise_id, 0)
-            .await
-            .unwrap();
-        let exercise_task_id = exercise_tasks::insert(
-            tx.as_mut(),
-            exercise_slide_id,
-            "",
-            vec![GutenbergBlock {
-                attributes: Map::new(),
-                client_id: Uuid::new_v4(),
-                inner_blocks: vec![],
-                is_valid: true,
-                name: "".to_string(),
-            }],
-            Value::Null,
-            Value::Null,
-            Value::Null,
-        )
-        .await
-        .unwrap();
 
-        let res = sqlx::query!(
-            "
-SELECT selected_exercise_slide_id AS id
-FROM user_exercise_states
-WHERE user_id = $1
-  AND exercise_id = $2
-  AND course_instance_id = $3
-            ",
+        let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
+            tx.as_mut(),
             user_id,
             exercise_id,
-            course_instance.id
+            CourseInstanceOrExamId::Instance(course_instance.id),
         )
-        .fetch_optional(tx.as_mut())
         .await
         .unwrap();
-        assert!(res.is_none());
+        assert!(user_exercise_state.is_none());
 
         let exercise = get_course_material_exercise(tx.as_mut(), Some(user_id), exercise_id)
             .await
             .unwrap();
-        assert_eq!(exercise.current_exercise_task.id, exercise_task_id);
+        assert_eq!(
+            exercise
+                .current_exercise_slide
+                .exercise_tasks
+                .iter()
+                .next()
+                .unwrap()
+                .id,
+            exercise_task_id
+        );
 
-        let res = sqlx::query!(
-            "
-SELECT selected_exercise_slide_id AS id
-FROM user_exercise_states
-WHERE user_id = $1
-  AND exercise_id = $2
-  AND course_instance_id = $3
-",
+        let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
+            tx.as_mut(),
             user_id,
             exercise_id,
-            course_instance.id
+            CourseInstanceOrExamId::Instance(course_instance.id),
         )
-        .fetch_one(tx.as_mut())
         .await
         .unwrap();
-        assert_eq!(res.id.unwrap(), exercise_slide_id);
+        assert_eq!(
+            user_exercise_state
+                .unwrap()
+                .selected_exercise_slide_id
+                .unwrap(),
+            exercise_slide_id
+        );
     }
 }

@@ -15,7 +15,7 @@ async fn delete_exercise_service(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::ExerciseService).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::ExerciseService).await?;
 
     let deleted =
         models::exercise_services::delete_exercise_service(&mut conn, *exercise_service_id).await?;
@@ -33,7 +33,7 @@ async fn add_exercise_service(
     payload: web::Json<ExerciseServiceNewOrUpdate>,
 ) -> ControllerResult<web::Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::ExerciseService).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::ExerciseService).await?;
 
     let exercise_service = payload.0;
     let created =
@@ -83,7 +83,7 @@ async fn update_exercise_service(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::ExerciseService).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::ExerciseService).await?;
 
     let updated_exercise_service = payload.0;
     let updated_service = models::exercise_services::update_exercise_service(

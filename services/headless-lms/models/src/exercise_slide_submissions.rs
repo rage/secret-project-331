@@ -10,6 +10,7 @@ use crate::{
     exercises::{Exercise, ExerciseStatus},
     prelude::*,
     user_exercise_states::{self, UserExerciseState},
+    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -281,6 +282,25 @@ LIMIT 1
     Ok(res)
 }
 
+pub async fn get_course_and_exam_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<CourseOrExamId> {
+    let res = sqlx::query!(
+        "
+SELECT course_id,
+  exam_id
+FROM exercise_slide_submissions
+WHERE id = $1
+  AND deleted_at IS NULL
+        ",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    CourseOrExamId::from(res.course_id, res.exam_id)
+}
+
 pub async fn exercise_slide_submission_count(
     conn: &mut PgConnection,
     exercise_id: Uuid,
@@ -296,6 +316,30 @@ WHERE exercise_id = $1
     .fetch_one(conn)
     .await?;
     Ok(count.count.unwrap_or(0).try_into()?)
+}
+
+pub async fn exercise_slide_submissions(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    pagination: Pagination,
+) -> ModelResult<Vec<ExerciseSlideSubmission>> {
+    let submissions = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+SELECT *
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+  AND deleted_at IS NULL
+LIMIT $2
+OFFSET $3;
+        "#,
+        exercise_id,
+        pagination.limit(),
+        pagination.offset(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
 }
 
 pub async fn get_course_daily_slide_submission_counts(

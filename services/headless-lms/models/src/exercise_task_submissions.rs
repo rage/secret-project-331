@@ -7,6 +7,7 @@ use crate::{
     exercise_tasks::{self, ExerciseTask},
     exercises::Exercise,
     prelude::*,
+    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -210,7 +211,7 @@ WHERE exercise_slide_submission_id = $1
 pub async fn get_course_and_exam_id(
     conn: &mut PgConnection,
     id: Uuid,
-) -> ModelResult<(Option<Uuid>, Option<Uuid>)> {
+) -> ModelResult<CourseOrExamId> {
     let res = sqlx::query!(
         "
 SELECT ess.course_id,
@@ -225,7 +226,7 @@ WHERE ets.id = $1
     )
     .fetch_one(conn)
     .await?;
-    Ok((res.course_id, res.exam_id))
+    CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
 pub async fn create_exercise_task_submission_for_exercise(

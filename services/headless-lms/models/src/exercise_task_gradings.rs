@@ -12,6 +12,7 @@ use crate::{
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     prelude::*,
+    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
@@ -213,6 +214,24 @@ where id = $1
     .await?
     .course_id;
     Ok(course_id)
+}
+
+pub async fn get_course_or_exam_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<CourseOrExamId> {
+    let res = sqlx::query!(
+        "
+SELECT course_id,
+  exam_id
+from exercise_task_gradings
+where id = $1
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
 pub async fn new_grading(

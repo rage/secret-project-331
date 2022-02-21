@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 
 use futures::future;
-use models::exercise_slide_submissions::{self, ExerciseSlideSubmission};
+use models::{exercise_slide_submissions::ExerciseSlideSubmission, CourseOrExamId};
 
 use crate::controllers::prelude::*;
 
@@ -23,12 +23,21 @@ async fn get_exercise_submissions(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ExerciseSubmissions>> {
     let mut conn = pool.acquire().await?;
-    let submission_count =
-        exercise_slide_submissions::exercise_slide_submission_count(&mut conn, *exercise_id);
+    match models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await? {
+        CourseOrExamId::Course(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(id)).await?
+        }
+        CourseOrExamId::Exam(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(id)).await?
+        }
+    }
+
+    let submission_count = models::exercise_slide_submissions::exercise_slide_submission_count(
+        &mut conn,
+        *exercise_id,
+    );
     let mut conn = pool.acquire().await?;
-    let course_id = models::exercises::get_course_id(&mut conn, *exercise_id).await?;
-    authorize(&mut conn, Act::View, user.id, Res::Course(course_id)).await?;
-    let submissions = models::exercise_slide_submissions::get_by_exercise_id(
+    let submissions = models::exercise_slide_submissions::exercise_slide_submissions(
         &mut conn,
         *exercise_id,
         *pagination,

@@ -290,3 +290,18 @@ WHERE exam_id = $1
     .await?;
     Ok(res)
 }
+
+pub async fn get_organization_id(conn: &mut PgConnection, exam_id: Uuid) -> ModelResult<Uuid> {
+    let organization_id = sqlx::query!(
+        "
+SELECT organization_id
+FROM exams
+WHERE id = $1
+",
+        exam_id
+    )
+    .fetch_one(conn)
+    .await?
+    .organization_id;
+    Ok(organization_id)
+}

@@ -40,7 +40,29 @@ mod prelude;
 #[cfg(test)]
 pub mod test_helper;
 
+use uuid::Uuid;
+
 pub use self::error::{ModelError, ModelResult};
 
 #[macro_use]
 extern crate tracing;
+
+pub enum CourseOrExamId {
+    Course(Uuid),
+    Exam(Uuid),
+}
+
+impl CourseOrExamId {
+    pub fn from(course_id: Option<Uuid>, exam_id: Option<Uuid>) -> ModelResult<Self> {
+        match (course_id, exam_id) {
+            (Some(course_id), None) => Ok(Self::Course(course_id)),
+            (None, Some(exam_id)) => Ok(Self::Exam(exam_id)),
+            (Some(_), Some(_)) => Err(ModelError::Generic(
+                "Database row had both a course id and an exam id".to_string(),
+            )),
+            (None, None) => Err(ModelError::Generic(
+                "Database row did not have a course id or an exam id".to_string(),
+            )),
+        }
+    }
+}

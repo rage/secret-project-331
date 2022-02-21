@@ -13,6 +13,7 @@ use crate::{
     exercises,
     prelude::*,
     user_exercise_states::{self, CourseInstanceOrExamId},
+    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, TS)]
@@ -97,10 +98,15 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
-    let course_id = sqlx::query!(
+pub async fn get_course_or_exam_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<CourseOrExamId> {
+    let res = sqlx::query!(
         r#"
-SELECT course_id as "course_id!"
+SELECT
+    course_id,
+    exam_id
 FROM exercises
 WHERE id = (
     SELECT s.exercise_id
@@ -115,9 +121,8 @@ WHERE id = (
         id
     )
     .fetch_one(conn)
-    .await?
-    .course_id;
-    Ok(course_id)
+    .await?;
+    CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
 pub async fn get_exercise_task_by_id(

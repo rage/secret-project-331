@@ -1,3 +1,5 @@
+use chrono::Duration;
+
 use crate::{courses::Course, prelude::*};
 
 #[derive(Debug, Serialize, TS)]
@@ -240,6 +242,24 @@ VALUES ($1, $2)
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Checks whether a submission can be made for the given exam.
+pub async fn verify_exam_submission_can_be_made(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<bool> {
+    let exam = get(conn, exam_id).await?;
+    let enrollment = get_enrollment(conn, exam_id, user_id)
+        .await?
+        .ok_or_else(|| {
+            ModelError::PreconditionFailed("User has no enrollment for the exam".to_string())
+        })?;
+    let student_has_time =
+        Utc::now() <= enrollment.started_at + Duration::minutes(exam.time_minutes.into());
+    let exam_is_ongoing = exam.ends_at.map(|ea| Utc::now() < ea).unwrap_or_default();
+    Ok(student_has_time || exam_is_ongoing)
 }
 
 #[derive(Debug, Serialize, TS)]

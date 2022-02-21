@@ -84,6 +84,8 @@ impl<'a> AsMut<Transaction<'a, Postgres>> for Tx<'a> {
     }
 }
 
+pub const TEST_HELPER_EXERCISE_SERVICE_NAME: &str = "exercise_type";
+
 #[macro_export]
 /// Helper macro that can be used to conveniently insert data that has some prerequisites.
 /// The macro accepts variable arguments in the following order:
@@ -244,7 +246,7 @@ macro_rules! insert_data {
         let $exercise_task = $crate::exercise_tasks::insert(
             $tx.as_mut(),
             $exercise_slide,
-            "exercise_type",
+            TEST_HELPER_EXERCISE_SERVICE_NAME,
             vec![],
             ::serde_json::Value::Null,
             ::serde_json::Value::Null,

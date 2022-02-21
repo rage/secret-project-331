@@ -53,6 +53,23 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
 
   await frame.waitForSelector("text=Pick all the programming languages from below")
 
+  await frame.click(`button:text("AC")`)
+  await frame.click(`button:text("Jupiter")`)
+
+  await page.click("text=Submit")
+
+  await expectScreenshotsToMatchSnapshots({
+    page,
+    headless,
+    snapshotName: "clickable-multiple-choice-incorrect-answer",
+    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
+    toMatchSnapshotOptions: { threshold: 0.4 },
+  })
+
+  await page.click("text=Try again")
+
+  await frame.waitForSelector("text=Pick all the programming languages from below")
+
   await frame.click(`button:text("Java")`)
   await frame.click(`button:text("Erlang")`)
   await frame.click(`button:text("Rust")`)
@@ -71,15 +88,15 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
 
   await frame.waitForSelector("text=Pick all the programming languages from below")
 
-  await frame.click(`button:text("AC")`)
   await frame.click(`button:text("Jupiter")`)
+  await frame.click(`button:text("Rust")`)
 
   await page.click("text=Submit")
 
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    snapshotName: "clickable-multiple-choice-incorrect-answer",
+    snapshotName: "clickable-multiple-choice-incorrect-answer-after-correct",
     waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })

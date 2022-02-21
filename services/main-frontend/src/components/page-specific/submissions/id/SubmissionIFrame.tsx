@@ -2,20 +2,24 @@ import { Alert } from "@mui/lab"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { Grading, Submission, SubmissionResult } from "../../../../shared-module/bindings"
+import {
+  ExerciseTaskGrading,
+  ExerciseTaskSubmission,
+  StudentExerciseTaskSubmissionResult,
+} from "../../../../shared-module/bindings"
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
 
 const VIEW_SUBMISSION = "view-submission"
 interface SubmissionIFrameProps {
   url: string
   public_spec: unknown
-  submission: Submission
+  submission: ExerciseTaskSubmission
   model_solution_spec: unknown
-  grading: Grading | null
+  grading: ExerciseTaskGrading | null
 }
 
 interface SubmissionState {
-  submission_result: SubmissionResult
+  submission_result: StudentExerciseTaskSubmissionResult
   user_answer: unknown
   public_spec: unknown
 }
@@ -52,6 +56,7 @@ const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
       }}
       postThisStateToIFrame={{
         view_type: VIEW_SUBMISSION,
+        exercise_task_id: submission.exercise_task_id,
         data: {
           public_spec: state.public_spec,
           user_answer: state.user_answer,

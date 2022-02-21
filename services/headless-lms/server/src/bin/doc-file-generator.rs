@@ -7,7 +7,6 @@ use headless_lms_actix::controllers::{
     course_material::{
         courses::ChaptersWithStatus,
         exams::{ExamData, ExamEnrollmentData},
-        submissions::PreviousSubmission,
     },
     main_frontend::exercises::ExerciseSubmissions,
     UploadResult,
@@ -22,15 +21,23 @@ use headless_lms_models::{
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
     exams::{CourseExam, Exam, ExamEnrollment},
-    exercise_service_info::CourseMaterialExerciseServiceInfo,
     exercise_services::ExerciseService,
+    exercise_slide_submissions::{
+        ExerciseSlideSubmission, ExerciseSlideSubmissionCount,
+        ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
+        StudentExerciseSlideSubmissionResult,
+    },
+    exercise_slides::CourseMaterialExerciseSlide,
+    exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
+    exercise_task_submissions::{
+        ExerciseTaskSubmission, StudentExerciseTaskSubmissionResult, SubmissionInfo,
+    },
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     exercises::{
         ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
     },
     feedback::{Feedback, FeedbackBlock, FeedbackCount},
     glossary::Term,
-    gradings::{Grading, UserPointsUpdateStrategy},
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
@@ -41,10 +48,6 @@ use headless_lms_models::{
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
     proposed_page_edits::{PageProposal, ProposalCount},
-    submissions::{
-        Submission, SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour,
-        SubmissionInfo, SubmissionResult,
-    },
     user_course_settings::UserCourseSettings,
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
     users::User,
@@ -75,6 +78,23 @@ macro_rules! write_docs {
 }
 
 fn main() {
+    // clean up existing files
+    let generated_doc_path = concat!(env!("CARGO_MANIFEST_DIR"), "/generated-docs");
+    std::fs::remove_dir_all(generated_doc_path).unwrap();
+    std::fs::create_dir(generated_doc_path).unwrap();
+
+    // write .eslintrc
+    std::fs::write(
+        format!("{generated_doc_path}/.eslintrc"),
+        r#"{
+  "rules": {
+    "@typescript-eslint/no-unused-vars": 0
+  }
+}
+"#,
+    )
+    .unwrap();
+
     // reusable variables
     let id = Uuid::parse_str("307fa56f-9853-4f5c-afb9-a6736c232f32").unwrap();
     let date_time = Utc.timestamp(1640988000, 0);
@@ -153,26 +173,35 @@ fn main() {
         order_number: 123,
         copied_from: None,
     };
-    let submission = Submission {
+    let exercise_slide_submission = ExerciseSlideSubmission {
         id,
         created_at,
         updated_at,
         deleted_at,
-        exercise_id: id,
         course_id: Some(id),
         course_instance_id: Some(id),
         exam_id: None,
-        exercise_task_id: id,
-        data_json: Some(serde_json::json! {{"choice": "a"}}),
-        grading_id: Some(id),
-        metadata: None,
+        exercise_id: id,
         user_id: id,
+        exercise_slide_id: id,
     };
-    let grading = Grading {
+    let exercise_task_submission = ExerciseTaskSubmission {
         id,
         created_at,
         updated_at,
-        submission_id: id,
+        deleted_at,
+        exercise_slide_submission_id: id,
+        exercise_task_id: id,
+        data_json: Some(serde_json::json! {{"choice": "a"}}),
+        exercise_task_grading_id: Some(id),
+        metadata: None,
+        exercise_slide_id: id,
+    };
+    let grading = ExerciseTaskGrading {
+        id,
+        created_at,
+        updated_at,
+        exercise_task_submission_id: id,
         course_id: Some(id),
         exam_id: None,
         exercise_id: id,
@@ -200,10 +229,6 @@ fn main() {
         exercise_completions_threshold: Some(123),
         points_threshold: Some(123),
         course_instance_id: id,
-    };
-    let previous_submission = PreviousSubmission {
-        submission: submission.clone(),
-        grading: Some(grading.clone()),
     };
     let course = Course {
         id,
@@ -263,6 +288,19 @@ fn main() {
         url: "http://example.com".to_string(),
         width: 123,
         data: serde_json::json! {{}},
+    };
+    let submission_result = StudentExerciseTaskSubmissionResult {
+        submission: exercise_task_submission.clone(),
+        grading: Some(grading.clone()),
+        model_solution_spec: None,
+    };
+    let exercise_slide_submission_result = StudentExerciseSlideSubmissionResult {
+        exercise_task_submission_results: vec![submission_result.clone()],
+        exercise_status: Some(ExerciseStatus {
+            score_given: None,
+            activity_progress: ActivityProgress::InProgress,
+            grading_progress: GradingProgress::NotReady,
+        }),
     };
     let organization = Organization {
         id,
@@ -442,47 +480,28 @@ fn main() {
         CourseMaterialExercise,
         CourseMaterialExercise {
             exercise: exercise.clone(),
-            current_exercise_task: CourseMaterialExerciseTask {
+            current_exercise_slide: CourseMaterialExerciseSlide {
                 id,
-                exercise_slide_id: id,
-                exercise_type: "quiz".to_string(),
-                assignment: serde_json::json! {{
-                  "name": "core/paragraph",
-                  "isValid": true,
-                  "clientId": "187a0aea-c088-4354-a1ea-f0cab082c065",
-                  "attributes": {
-                    "content": "Answer this question.",
-                    "dropCap": false
-                  },
-                  "innerBlocks": []
-                }},
-                public_spec: Some(serde_json::json! {[
-                  {
-                    "id": "7ab2591c-b0f3-4543-9548-a113849b0f94",
-                    "name": "a"
-                  },
-                  {
-                    "id": "a833d1df-f27b-4fbf-b516-883a62c09d88",
-                    "name": "b"
-                  },
-                  {
-                    "id": "03d4b3d4-88af-4125-88b7-4ee052fd876f",
-                    "name": "c"
-                  }
-                ]}),
-                model_solution_spec: None
+                exercise_tasks: vec![CourseMaterialExerciseTask {
+                    id,
+                    exercise_slide_id: id,
+                    exercise_iframe_url: Some(
+                        "http://project-331.local/example-exercise/exercise".to_string()
+                    ),
+                    assignment: serde_json::json! {{"name":"core/paragraph","isValid":true,"clientId":"187a0aea-c088-4354-a1ea-f0cab082c065","attributes":{"content":"Answer this question.","dropCap":false},"innerBlocks":[]}},
+                    public_spec: Some(
+                        serde_json::json! {[{"id":"7ab2591c-b0f3-4543-9548-a113849b0f94","name":"a"},{"id":"a833d1df-f27b-4fbf-b516-883a62c09d88","name":"b"},{"id":"03d4b3d4-88af-4125-88b7-4ee052fd876f","name":"c"}]}
+                    ),
+                    model_solution_spec: None,
+                    previous_submission: Some(exercise_task_submission.clone()),
+                    previous_submission_grading: Some(grading.clone()),
+                }],
             },
-            current_exercise_task_service_info: Some(CourseMaterialExerciseServiceInfo {
-                exercise_iframe_url: "http://project-331.local/example-exercise/exercise"
-                    .to_string()
-            }),
             exercise_status: Some(ExerciseStatus {
                 score_given: None,
                 activity_progress: ActivityProgress::InProgress,
                 grading_progress: GradingProgress::NotReady
-            }),
-            previous_submission: Some(submission.clone()),
-            grading: Some(grading.clone())
+            })
         }
     );
     write_docs!(
@@ -498,17 +517,16 @@ fn main() {
         })
     );
     write_docs!(
-        SubmissionResult,
-        SubmissionResult {
-            submission: submission.clone(),
-            grading: Some(grading.clone()),
-            model_solution_spec: None
-        }
+        StudentExerciseSlideSubmissionResult,
+        exercise_slide_submission_result
     );
-    write_docs!(PreviousSubmission, previous_submission.clone());
     write_docs!(
-        Option<PreviousSubmission>,
-        Some(previous_submission.clone())
+        StudentExerciseTaskSubmissionResult,
+        submission_result.clone()
+    );
+    write_docs!(
+        Vec<StudentExerciseTaskSubmissionResult>,
+        vec![submission_result.clone()]
     );
     write_docs!(Chapter, chapter.clone());
     write_docs!(
@@ -545,23 +563,23 @@ fn main() {
     );
     write_docs!(Vec<Exercise>, vec![exercise.clone()]);
     write_docs!(
-        Vec<SubmissionCount>,
-        vec![SubmissionCount {
+        Vec<ExerciseSlideSubmissionCount>,
+        vec![ExerciseSlideSubmissionCount {
             count: Some(123),
             date: Some(naive_date)
         }]
     );
     write_docs!(
-        Vec<SubmissionCountByWeekAndHour>,
-        vec![SubmissionCountByWeekAndHour {
+        Vec<ExerciseSlideSubmissionCountByWeekAndHour>,
+        vec![ExerciseSlideSubmissionCountByWeekAndHour {
             count: Some(123),
             hour: Some(2),
             isodow: Some(2)
         }]
     );
     write_docs!(
-        Vec<SubmissionCountByExercise>,
-        vec![SubmissionCountByExercise {
+        Vec<ExerciseSlideSubmissionCountByExercise>,
+        vec![ExerciseSlideSubmissionCountByExercise {
             exercise_id: Some(id),
             exercise_name: Some("Best exercise".to_string()),
             count: Some(123),
@@ -606,7 +624,7 @@ fn main() {
     write_docs!(
         ExerciseSubmissions,
         ExerciseSubmissions {
-            data: vec![submission.clone()],
+            data: vec![exercise_slide_submission.clone()],
             total_pages: 1
         }
     );
@@ -668,7 +686,7 @@ fn main() {
     write_docs!(
         SubmissionInfo,
         SubmissionInfo {
-            submission: submission.clone(),
+            submission: exercise_task_submission.clone(),
             exercise: exercise.clone(),
             grading: Some(grading.clone()),
             iframe_path: "path".to_string(),

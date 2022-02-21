@@ -8,6 +8,7 @@ import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
 import { fetchExerciseById, postSubmission } from "../../../../services/backend"
+import { StudentExerciseSlideSubmission } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../../../shared-module/components/Centering/Centered"
@@ -16,6 +17,7 @@ import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
+import { IframeState } from "../../../../shared-module/iframe-protocol-types"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
@@ -47,34 +49,30 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       }
       dispatch({
         type: "exerciseDownloaded",
-        payload: data,
+        payload: data.current_exercise_slide.exercise_tasks,
       })
     },
   })
 
   const postSubmissionMutation = useToastMutation(
-    postSubmission,
+    (submission: StudentExerciseSlideSubmission) => postSubmission(id, submission),
     {
       notify: false,
     },
     {
       retry: 3,
       onSuccess: (data) => {
-        if (data.grading) {
-          setPoints(data.grading.score_given)
+        if (data.exercise_status) {
+          setPoints(data.exercise_status.score_given)
         }
         dispatch({
           type: "submissionGraded",
-          payload: {
-            submissionResult: data,
-            publicSpec: getCourseMaterialExercise.data?.current_exercise_task.public_spec,
-          },
+          payload: data,
         })
       },
     },
   )
-  const [answer, setAnswer] = useState<unknown>(null)
-  const [answerValid, setAnswerValid] = useState(false)
+  const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
 
   if (!showExercise) {
@@ -90,8 +88,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
 
   const courseInstanceId = pageContext?.instance?.id
 
+  const isExam = !!pageContext.exam
   const inEndedExam = pageContext?.exam?.ends_at ? pageContext?.exam?.ends_at < new Date() : false
-  const noSubmission = getCourseMaterialExercise.data.previous_submission === null
+  const noSubmission = getCourseMaterialExercise.data.exercise_status === null
+
   const cannotAnswerButNoSubmission = inEndedExam && noSubmission
 
   return (
@@ -144,17 +144,24 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
             </div>
           </div>
-          <div>
-            {postSubmissionMutation.data?.grading?.feedback_text &&
-              postSubmissionMutation.data?.grading?.feedback_text}
-          </div>
-          <ExerciseTask
-            exercise={getCourseMaterialExercise.data}
-            postThisStateToIFrame={postThisStateToIFrame}
-            setAnswer={setAnswer}
-            setAnswerValid={setAnswerValid}
-            cannotAnswerButNoSubmission={cannotAnswerButNoSubmission}
-          />
+          {getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
+            <ExerciseTask
+              key={task.id}
+              exerciseTask={task}
+              isExam={isExam}
+              setAnswer={(answer) =>
+                setAnswers((prev) => {
+                  const answers = new Map(prev)
+                  answers.set(task.id, answer)
+                  return answers
+                })
+              }
+              postThisStateToIFrame={
+                postThisStateToIFrame?.find((x) => x.exercise_task_id === task.id) as IframeState
+              }
+              cannotAnswerButNoSubmission={cannotAnswerButNoSubmission}
+            />
+          ))}
           <div
             className={css`
               button {
@@ -163,37 +170,46 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             `}
           >
             {!cannotAnswerButNoSubmission &&
-              postThisStateToIFrame?.view_type !== "view-submission" && (
+              postThisStateToIFrame?.every((x) => x.view_type !== "view-submission") && (
                 <Button
                   size="medium"
                   variant="primary"
-                  disabled={postSubmissionMutation.isLoading || !answerValid}
+                  disabled={
+                    postSubmissionMutation.isLoading ||
+                    answers.size < postThisStateToIFrame.length ||
+                    Array.from(answers.values()).some((x) => !x.valid)
+                  }
                   onClick={() => {
                     if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
                       return
                     }
                     postSubmissionMutation.mutate({
-                      course_instance_id: courseInstanceId || null,
-                      exercise_task_id: getCourseMaterialExercise.data.current_exercise_task.id,
-
-                      data_json: answer,
+                      exercise_slide_id: getCourseMaterialExercise.data.current_exercise_slide.id,
+                      exercise_task_submissions:
+                        getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map(
+                          (task) => ({
+                            exercise_task_id: task.id,
+                            data_json: answers.get(task.id)?.data,
+                          }),
+                        ),
                     })
                   }}
                 >
                   {t("submit-button")}
                 </Button>
               )}
-            {postThisStateToIFrame?.view_type === "view-submission" && (
+            {/* These are now arrays so should be refactored */}
+            {postThisStateToIFrame?.every((x) => x.view_type === "view-submission") && (
               <Button
                 variant="primary"
                 size="medium"
                 onClick={() => {
                   dispatch({
                     type: "tryAgain",
-                    payload: getCourseMaterialExercise.data,
+                    payload: getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks,
                   })
                   postSubmissionMutation.reset()
-                  setAnswerValid(false)
+                  setAnswers(new Map())
                 }}
                 disabled={getCourseMaterialExercise.isRefetching}
               >

@@ -259,6 +259,11 @@ export interface ExerciseServiceNewOrUpdate {
   max_reprocessing_submissions_at_once: number
 }
 
+export interface CourseMaterialExerciseSlide {
+  id: string
+  exercise_tasks: Array<CourseMaterialExerciseTask>
+}
+
 export interface ExerciseSlide {
   id: string
   created_at: Date
@@ -271,10 +276,12 @@ export interface ExerciseSlide {
 export interface CourseMaterialExerciseTask {
   id: string
   exercise_slide_id: string
-  exercise_type: string
+  exercise_iframe_url: string | null
   assignment: unknown
   public_spec: unknown | null
   model_solution_spec: unknown | null
+  previous_submission: ExerciseTaskSubmission | null
+  previous_submission_grading: ExerciseTaskGrading | null
 }
 
 export interface ExerciseTask {
@@ -296,11 +303,8 @@ export type ActivityProgress = "Initialized" | "Started" | "InProgress" | "Submi
 
 export interface CourseMaterialExercise {
   exercise: Exercise
-  current_exercise_task: CourseMaterialExerciseTask
-  current_exercise_task_service_info: CourseMaterialExerciseServiceInfo | null
+  current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
-  previous_submission: Submission | null
-  grading: Grading | null
 }
 
 export interface Exercise {
@@ -358,32 +362,6 @@ export interface NewFeedback {
   related_blocks: Array<FeedbackBlock>
   page_id: string
 }
-
-export interface Grading {
-  id: string
-  created_at: Date
-  updated_at: Date
-  submission_id: string
-  course_id: string | null
-  exam_id: string | null
-  exercise_id: string
-  exercise_task_id: string
-  grading_priority: number
-  score_given: number | null
-  grading_progress: GradingProgress
-  user_points_update_strategy: UserPointsUpdateStrategy
-  unscaled_score_given: number | null
-  unscaled_score_maximum: number | null
-  grading_started_at: Date | null
-  grading_completed_at: Date | null
-  feedback_json: unknown | null
-  feedback_text: string | null
-  deleted_at: Date | null
-}
-
-export type UserPointsUpdateStrategy =
-  | "CanAddPointsButCannotRemovePoints"
-  | "CanAddPointsAndCanRemovePoints"
 
 export interface Organization {
   id: string
@@ -617,6 +595,112 @@ export interface ProposalCount {
   handled: number
 }
 
+export interface ExerciseSlideSubmission {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  exercise_slide_id: string
+  course_id: string | null
+  course_instance_id: string | null
+  exam_id: string | null
+  exercise_id: string
+  user_id: string
+}
+
+export interface ExerciseSlideSubmissionCount {
+  date: Date | null
+  count: number | null
+}
+
+export interface ExerciseSlideSubmissionCountByExercise {
+  exercise_id: string | null
+  count: number | null
+  exercise_name: string | null
+}
+
+export interface ExerciseSlideSubmissionCountByWeekAndHour {
+  isodow: number | null
+  hour: number | null
+  count: number | null
+}
+
+export interface StudentExerciseSlideSubmission {
+  exercise_slide_id: string
+  exercise_task_submissions: Array<StudentExerciseTaskSubmission>
+}
+
+export interface StudentExerciseSlideSubmissionResult {
+  exercise_status: ExerciseStatus | null
+  exercise_task_submission_results: Array<StudentExerciseTaskSubmissionResult>
+}
+
+export interface ExerciseTaskGrading {
+  id: string
+  created_at: Date
+  updated_at: Date
+  exercise_task_submission_id: string
+  course_id: string | null
+  exam_id: string | null
+  exercise_id: string
+  exercise_task_id: string
+  grading_priority: number
+  score_given: number | null
+  grading_progress: GradingProgress
+  user_points_update_strategy: UserPointsUpdateStrategy
+  unscaled_score_given: number | null
+  unscaled_score_maximum: number | null
+  grading_started_at: Date | null
+  grading_completed_at: Date | null
+  feedback_json: unknown | null
+  feedback_text: string | null
+  deleted_at: Date | null
+}
+
+export interface ExerciseTaskGradingResult {
+  grading_progress: GradingProgress
+  score_given: number
+  score_maximum: number
+  feedback_text: string | null
+  feedback_json: unknown | null
+}
+
+export type UserPointsUpdateStrategy =
+  | "CanAddPointsButCannotRemovePoints"
+  | "CanAddPointsAndCanRemovePoints"
+
+export interface ExerciseTaskSubmission {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  exercise_slide_submission_id: string
+  exercise_task_id: string
+  exercise_slide_id: string
+  data_json: unknown | null
+  exercise_task_grading_id: string | null
+  metadata: unknown | null
+}
+
+export interface StudentExerciseTaskSubmission {
+  exercise_task_id: string
+  data_json: unknown
+}
+
+export interface StudentExerciseTaskSubmissionResult {
+  submission: ExerciseTaskSubmission
+  grading: ExerciseTaskGrading | null
+  model_solution_spec: unknown | null
+}
+
+export interface SubmissionInfo {
+  submission: ExerciseTaskSubmission
+  exercise: Exercise
+  exercise_task: ExerciseTask
+  grading: ExerciseTaskGrading | null
+  iframe_path: string
+}
+
 export interface RoleUser {
   id: string
   first_name: string | null
@@ -633,67 +717,6 @@ export type RoleDomain =
   | { tag: "Exam"; id: string }
 
 export type UserRole = "Reviewer" | "Assistant" | "Teacher" | "Admin"
-
-export interface Submission {
-  id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
-  exercise_id: string
-  course_id: string | null
-  course_instance_id: string | null
-  exam_id: string | null
-  exercise_task_id: string
-  data_json: unknown | null
-  grading_id: string | null
-  metadata: unknown | null
-  user_id: string
-}
-
-export interface SubmissionCount {
-  date: Date | null
-  count: number | null
-}
-
-export interface SubmissionCountByWeekAndHour {
-  isodow: number | null
-  hour: number | null
-  count: number | null
-}
-
-export interface SubmissionCountByExercise {
-  exercise_id: string | null
-  count: number | null
-  exercise_name: string | null
-}
-
-export interface SubmissionInfo {
-  submission: Submission
-  exercise: Exercise
-  exercise_task: ExerciseTask
-  grading: Grading | null
-  iframe_path: string
-}
-
-export interface SubmissionResult {
-  submission: Submission
-  grading: Grading | null
-  model_solution_spec: unknown | null
-}
-
-export interface NewSubmission {
-  exercise_task_id: string
-  course_instance_id: string | null
-  data_json: unknown | null
-}
-
-export interface GradingResult {
-  grading_progress: GradingProgress
-  score_given: number
-  score_maximum: number
-  feedback_text: string | null
-  feedback_json: unknown | null
-}
 
 export interface UserCourseSettings {
   user_id: string
@@ -758,11 +781,6 @@ export interface RoleInfo {
   domain: RoleDomain
 }
 
-export interface PreviousSubmission {
-  submission: Submission
-  grading: Grading | null
-}
-
 export interface ExamData {
   id: string
   name: string
@@ -793,7 +811,7 @@ export interface UploadResult {
 }
 
 export interface ExerciseSubmissions {
-  data: Array<Submission>
+  data: Array<ExerciseSlideSubmission>
   total_pages: number
 }
 

@@ -96,12 +96,13 @@ pub enum Resource {
     Course(Uuid),
     CourseInstance(Uuid),
     Exam(Uuid),
-    ExerciseTask(Uuid),
     Exercise(Uuid),
-    Grading(Uuid),
+    ExerciseSlideSubmission(Uuid),
+    ExerciseTask(Uuid),
+    ExerciseTaskGrading(Uuid),
+    ExerciseTaskSubmission(Uuid),
     Organization(Uuid),
     Page(Uuid),
-    Submission(Uuid),
     AnyCourse,
     Role,
     User,
@@ -160,30 +161,38 @@ pub async fn authorize(
         Resource::CourseInstance(id) => {
             check_course_instance_permission(conn, &user_roles, action, id).await
         }
-        Resource::ExerciseTask(id) => {
-            // an exercise task can be part of a course or an exam
-            let course_or_exam_id = models::exercise_tasks::get_course_or_exam_id(conn, id).await?;
-            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
-        }
         Resource::Exercise(id) => {
             // an exercise can be part of a course or an exam
             let course_or_exam_id = models::exercises::get_course_or_exam_id(conn, id).await?;
             check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
         }
-        Resource::Grading(id) => {
+        Resource::ExerciseSlideSubmission(id) => {
+            //an exercise slide submissions can be part of a course or an exam
+            let course_or_exam_id =
+                models::exercise_slide_submissions::get_course_and_exam_id(conn, id).await?;
+            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
+        }
+        Resource::ExerciseTask(id) => {
+            // an exercise task can be part of a course or an exam
+            let course_or_exam_id = models::exercise_tasks::get_course_or_exam_id(conn, id).await?;
+            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
+        }
+        Resource::ExerciseTaskSubmission(id) => {
+            // an exercise task submission can be part of a course or an exam
+            let course_or_exam_id =
+                models::exercise_task_submissions::get_course_and_exam_id(conn, id).await?;
+            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
+        }
+        Resource::ExerciseTaskGrading(id) => {
             // a grading can be part of a course or an exam
-            let course_or_exam_id = models::gradings::get_course_or_exam_id(conn, id).await?;
+            let course_or_exam_id =
+                models::exercise_task_gradings::get_course_or_exam_id(conn, id).await?;
             check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
         }
         Resource::Organization(id) => check_organization_permission(&user_roles, action, id).await,
         Resource::Page(id) => {
             // a page can be part of a course or an exam
             let course_or_exam_id = models::pages::get_course_and_exam_id(conn, id).await?;
-            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
-        }
-        Resource::Submission(id) => {
-            // a submission can be part of a course or an exam
-            let course_or_exam_id = models::submissions::get_course_and_exam_id(conn, id).await?;
             check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
         }
         Resource::Exam(exam_id) => check_exam_permission(conn, &user_roles, action, exam_id).await,

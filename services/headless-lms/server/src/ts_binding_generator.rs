@@ -1,9 +1,6 @@
 use crate::controllers::{
     auth::Login,
-    course_material::{
-        exams::{ExamData, ExamEnrollmentData},
-        submissions::PreviousSubmission,
-    },
+    course_material::exams::{ExamData, ExamEnrollmentData},
     main_frontend::{
         courses::GetFeedbackQuery,
         exams::ExamCourseInfo,
@@ -78,6 +75,7 @@ fn ts_binding_generator() {
         exercise_services::ExerciseService,
         exercise_services::ExerciseServiceNewOrUpdate,
 
+        exercise_slides::CourseMaterialExerciseSlide,
         exercise_slides::ExerciseSlide,
 
         exercise_tasks::CourseMaterialExerciseTask,
@@ -93,9 +91,6 @@ fn ts_binding_generator() {
         feedback::FeedbackBlock,
         feedback::FeedbackCount,
         feedback::NewFeedback,
-
-        gradings::Grading,
-        gradings::UserPointsUpdateStrategy,
 
         organizations::Organization,
 
@@ -132,18 +127,25 @@ fn ts_binding_generator() {
         proposed_page_edits::PageProposal,
         proposed_page_edits::ProposalCount,
 
+        exercise_slide_submissions::ExerciseSlideSubmission,
+        exercise_slide_submissions::ExerciseSlideSubmissionCount,
+        exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
+        exercise_slide_submissions::ExerciseSlideSubmissionCountByWeekAndHour,
+        exercise_slide_submissions::StudentExerciseSlideSubmission,
+        exercise_slide_submissions::StudentExerciseSlideSubmissionResult,
+
+        exercise_task_gradings::ExerciseTaskGrading,
+        exercise_task_gradings::ExerciseTaskGradingResult,
+        exercise_task_gradings::UserPointsUpdateStrategy,
+
+        exercise_task_submissions::ExerciseTaskSubmission,
+        exercise_task_submissions::StudentExerciseTaskSubmission,
+        exercise_task_submissions::StudentExerciseTaskSubmissionResult,
+        exercise_task_submissions::SubmissionInfo,
+
         roles::RoleUser,
         roles::RoleDomain,
         roles::UserRole,
-
-        submissions::Submission,
-        submissions::SubmissionCount,
-        submissions::SubmissionCountByWeekAndHour,
-        submissions::SubmissionCountByExercise,
-        submissions::SubmissionInfo,
-        submissions::SubmissionResult,
-        submissions::NewSubmission,
-        submissions::GradingResult,
 
         user_course_settings::UserCourseSettings,
 
@@ -155,7 +157,6 @@ fn ts_binding_generator() {
 
         RoleQuery,
         RoleInfo,
-        PreviousSubmission,
         ExamData,
         ExamEnrollmentData,
         ExamCourseInfo,

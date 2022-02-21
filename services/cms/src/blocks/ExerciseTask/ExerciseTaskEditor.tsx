@@ -153,6 +153,7 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
             />
           ) : (
             <ExerciseTaskIFrameEditor
+              exerciseTaskId={attributes.id}
               onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
               privateSpec={privateSpecOnFirstRender}
               url={`${url}?width=${narrowContainerWidthPx}`}

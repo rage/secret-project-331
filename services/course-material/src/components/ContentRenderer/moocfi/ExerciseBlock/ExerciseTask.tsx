@@ -1,38 +1,41 @@
-import React, { Dispatch, SetStateAction } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "../.."
 import { Block } from "../../../../services/backend"
-import { CourseMaterialExercise } from "../../../../shared-module/bindings"
+import { CourseMaterialExerciseTask } from "../../../../shared-module/bindings"
 import { IframeState } from "../../../../shared-module/iframe-protocol-types"
 import { narrowContainerWidthPx } from "../../../../shared-module/styles/constants"
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
 
-interface Props {
-  exercise: CourseMaterialExercise
-  postThisStateToIFrame: IframeState | null
-  setAnswer: Dispatch<unknown>
-  setAnswerValid: Dispatch<SetStateAction<boolean>>
+interface ExerciseTaskProps {
   cannotAnswerButNoSubmission: boolean
+  exerciseTask: CourseMaterialExerciseTask
+  isExam: boolean
+  postThisStateToIFrame: IframeState
+  setAnswer: (answer: { valid: boolean; data: unknown }) => void
 }
 
-const ExerciseTask: React.FC<Props> = ({
-  exercise,
+const ExerciseTask: React.FC<ExerciseTaskProps> = ({
+  cannotAnswerButNoSubmission,
+  exerciseTask,
+  isExam,
   postThisStateToIFrame,
   setAnswer,
-  setAnswerValid,
-  cannotAnswerButNoSubmission,
 }) => {
   const { t } = useTranslation()
+  const currentExerciseTaskAssignment = exerciseTask.assignment as Block<unknown>[]
+  const url = exerciseTask.exercise_iframe_url
 
-  const url = exercise.current_exercise_task_service_info?.exercise_iframe_url
-  const currentExerciseTaskAssignment = exercise.current_exercise_task
-    .assignment as unknown as Block<unknown>[]
-  const isExam = exercise.exercise.exam_id !== null
+  const feedbackText =
+    postThisStateToIFrame.view_type === "view-submission"
+      ? postThisStateToIFrame.data.grading?.feedback_text ?? null
+      : null
 
   return (
     <div>
+      <div>{feedbackText}</div>
       {currentExerciseTaskAssignment && (
         <ContentRenderer
           data={currentExerciseTaskAssignment}
@@ -49,7 +52,6 @@ const ExerciseTask: React.FC<Props> = ({
             postThisStateToIFrame={postThisStateToIFrame}
             url={`${url}?width=${narrowContainerWidthPx}`}
             setAnswer={setAnswer}
-            setAnswerValid={setAnswerValid}
           />
         ) : (
           t("dont-know-how-to-render-this-assignment")

@@ -1,4 +1,4 @@
-import { Grading, Submission } from "./bindings"
+import { ExerciseTaskGrading, ExerciseTaskSubmission } from "./bindings"
 
 /**
  * from: IFrame
@@ -40,15 +40,17 @@ export type SetStateMessage = { message: "set-state" } & IframeState
 export type IframeState =
   | {
       view_type: "exercise"
+      exercise_task_id: string
       data: {
         public_spec: unknown
-        previous_submission: Submission | null
+        previous_submission: ExerciseTaskSubmission | null
       }
     }
   | {
       view_type: "view-submission"
+      exercise_task_id: string
       data: {
-        grading: Grading | null
+        grading: ExerciseTaskGrading | null
         user_answer: unknown
         public_spec: unknown
         model_solution_spec: unknown
@@ -56,5 +58,6 @@ export type IframeState =
     }
   | {
       view_type: "exercise-editor"
+      exercise_task_id: string
       data: { private_spec: unknown }
     }

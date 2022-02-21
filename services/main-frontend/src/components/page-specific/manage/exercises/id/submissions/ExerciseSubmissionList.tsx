@@ -2,10 +2,10 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { Submission } from "../../../../../../shared-module/bindings"
+import { ExerciseSlideSubmission } from "../../../../../../shared-module/bindings"
 
 interface Props {
-  exerciseSubmissions: Submission[]
+  exerciseSubmissions: ExerciseSlideSubmission[]
 }
 
 const ExerciseSubmissionList: React.FC<Props> = ({ exerciseSubmissions }) => {
@@ -22,7 +22,7 @@ const ExerciseSubmissionList: React.FC<Props> = ({ exerciseSubmissions }) => {
             <th>{t("label-submission-time")}</th>
             <th>{t("label-student")}</th>
             <th>{t("label-course-instance")}</th>
-            <th>{t("label-exercise-task")}</th>
+            <th>{t("label-exam")}</th>
           </tr>
         </thead>
         <tbody>
@@ -41,7 +41,7 @@ const ExerciseSubmissionList: React.FC<Props> = ({ exerciseSubmissions }) => {
               <td>{x.created_at.toISOString()}</td>
               <td>{x.user_id}</td>
               <td>{x.course_instance_id}</td>
-              <td>{x.exercise_task_id}</td>
+              <td>{x.exam_id}</td>
             </tr>
           ))}
         </tbody>

@@ -6,14 +6,14 @@ import { v4 } from "uuid"
 
 import { ModelSolutionQuiz, PublicQuiz, Quiz, QuizAnswer } from "../../types/types"
 import { Renderer } from "../components/Renderer"
-import { SubmissionResult } from "../shared-module/bindings"
+import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 
 import { ItemAnswerFeedback } from "./api/grade"
 
 export interface SubmissionData {
-  submission_result: SubmissionResult
+  submission_result: StudentExerciseTaskSubmissionResult
   user_answer: QuizAnswer
   public_spec: unknown
 }

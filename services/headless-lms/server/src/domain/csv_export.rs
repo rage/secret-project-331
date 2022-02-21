@@ -11,7 +11,7 @@ use bytes::Bytes;
 use csv::Writer;
 use futures::stream::FuturesUnordered;
 use headless_lms_models::{
-    chapters, course_instances, exercises, submissions, user_exercise_states,
+    chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
 };
 use sqlx::PgConnection;
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
@@ -212,7 +212,7 @@ where
         "data_json".to_string(),
     ]);
 
-    let mut stream = submissions::stream_exam_submissions(conn, exam_id);
+    let mut stream = exercise_task_submissions::stream_exam_submissions(conn, exam_id);
 
     let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
     while let Some(next) = stream.try_next().await? {
@@ -260,10 +260,11 @@ mod test {
 
     use bytes::Bytes;
     use headless_lms_models::{
-        exercise_slides, exercise_tasks,
+        exercise_slide_submissions::{self, NewExerciseSlideSubmission},
+        exercise_slides,
+        exercise_task_gradings::{self, ExerciseTaskGradingResult},
+        exercise_task_submissions, exercise_tasks,
         exercises::{self, GradingProgress},
-        gradings,
-        submissions::{self, GradingResult},
         users,
     };
     use serde_json::Value;
@@ -312,6 +313,7 @@ mod test {
         submit_and_grade(
             tx.as_mut(),
             exercise,
+            slide,
             course,
             task,
             user,
@@ -319,9 +321,9 @@ mod test {
             12.34,
         )
         .await;
-        submit_and_grade(tx.as_mut(), e2, course, et2, user, instance.id, 23.45).await;
-        submit_and_grade(tx.as_mut(), e2, course, et2, u2, instance.id, 34.56).await;
-        submit_and_grade(tx.as_mut(), e3, course, et3, u2, instance.id, 45.67).await;
+        submit_and_grade(tx.as_mut(), e2, s2, course, et2, user, instance.id, 23.45).await;
+        submit_and_grade(tx.as_mut(), e2, s2, course, et2, u2, instance.id, 34.56).await;
+        submit_and_grade(tx.as_mut(), e3, s3, course, et3, u2, instance.id, 45.67).await;
 
         let buf = vec![];
         let buf = export_course_instance_points(tx.as_mut(), instance.id, buf)
@@ -352,18 +354,42 @@ mod test {
     async fn submit_and_grade(
         tx: &mut PgConnection,
         ex: Uuid,
+        ex_slide: Uuid,
         c: Uuid,
         et: Uuid,
         u: Uuid,
         ci: Uuid,
         score_given: f32,
     ) {
-        let s = submissions::insert(tx, ex, c, et, u, ci, Value::Null)
+        let exercise = exercises::get_by_id(tx, ex).await.unwrap();
+        let exercise_slide_submission =
+            exercise_slide_submissions::insert_exercise_slide_submission(
+                tx,
+                NewExerciseSlideSubmission {
+                    course_id: Some(c),
+                    course_instance_id: Some(ci),
+                    exam_id: None,
+                    exercise_id: ex,
+                    user_id: u,
+                    exercise_slide_id: ex_slide,
+                },
+            )
             .await
             .unwrap();
-        let submission = submissions::get_by_id(tx, s).await.unwrap();
-        let grading = gradings::new_grading(tx, &submission).await.unwrap();
-        let grading_result = GradingResult {
+        let s = exercise_task_submissions::insert(
+            tx,
+            exercise_slide_submission.id,
+            ex_slide,
+            et,
+            Value::Null,
+        )
+        .await
+        .unwrap();
+        let submission = exercise_task_submissions::get_by_id(tx, s).await.unwrap();
+        let grading = exercise_task_gradings::new_grading(tx, &exercise, &submission)
+            .await
+            .unwrap();
+        let grading_result = ExerciseTaskGradingResult {
             feedback_json: None,
             feedback_text: None,
             grading_progress: GradingProgress::FullyGraded,
@@ -371,15 +397,19 @@ mod test {
             score_maximum: 100,
         };
         let exercise = exercises::get_by_id(tx, ex).await.unwrap();
-        let grading = gradings::update_grading(tx, &grading, &grading_result, &exercise)
+        let grading =
+            exercise_task_gradings::update_grading(tx, &grading, &grading_result, &exercise)
+                .await
+                .unwrap();
+        exercise_task_submissions::set_grading_id(tx, grading.id, submission.id)
             .await
             .unwrap();
-        submissions::set_grading_id(tx, grading.id, submission.id)
-            .await
-            .unwrap();
-        user_exercise_states::update_user_exercise_state(tx, &grading, &submission)
-            .await
-            .unwrap();
+        user_exercise_states::update_user_exercise_state_after_submission(
+            tx,
+            &exercise_slide_submission,
+        )
+        .await
+        .unwrap();
     }
 
     struct WriteAdapter {

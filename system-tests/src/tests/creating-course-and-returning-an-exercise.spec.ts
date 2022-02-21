@@ -49,7 +49,7 @@ test("test", async ({ page }) => {
   ])
 
   // Click button:has-text("Add new chapter")
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.locator(`button:has-text("New")`).last().click()
 
   // Fill input[type="text"]
   await page.fill("text=Name", "The Levels of testing")
@@ -64,7 +64,7 @@ test("test", async ({ page }) => {
   await page.click('button:has-text("Create")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.locator(`button:has-text("New")`).last().click()
 
   // Fill input[type="text"]
   await page.fill("text=Name", "Unit testing")

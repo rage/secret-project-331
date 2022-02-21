@@ -411,6 +411,15 @@
 <span id="410">410</span>
 <span id="411">411</span>
 <span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">actix_http::Payload</span>;
 <span class="kw">use</span> <span class="ident">actix_session</span>::{<span class="ident">Session</span>, <span class="ident">UserSession</span>};
 <span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">FromRequest</span>, <span class="ident">HttpRequest</span>};
@@ -509,12 +518,13 @@
     <span class="ident">Course</span>(<span class="ident">Uuid</span>),
     <span class="ident">CourseInstance</span>(<span class="ident">Uuid</span>),
     <span class="ident">Exam</span>(<span class="ident">Uuid</span>),
-    <span class="ident">ExerciseTask</span>(<span class="ident">Uuid</span>),
     <span class="ident">Exercise</span>(<span class="ident">Uuid</span>),
-    <span class="ident">Grading</span>(<span class="ident">Uuid</span>),
+    <span class="ident">ExerciseSlideSubmission</span>(<span class="ident">Uuid</span>),
+    <span class="ident">ExerciseTask</span>(<span class="ident">Uuid</span>),
+    <span class="ident">ExerciseTaskGrading</span>(<span class="ident">Uuid</span>),
+    <span class="ident">ExerciseTaskSubmission</span>(<span class="ident">Uuid</span>),
     <span class="ident">Organization</span>(<span class="ident">Uuid</span>),
     <span class="ident">Page</span>(<span class="ident">Uuid</span>),
-    <span class="ident">Submission</span>(<span class="ident">Uuid</span>),
     <span class="ident">AnyCourse</span>,
     <span class="ident">Role</span>,
     <span class="ident">User</span>,
@@ -573,30 +583,38 @@
         <span class="ident">Resource::CourseInstance</span>(<span class="ident">id</span>) =&gt; {
             <span class="ident">check_course_instance_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">id</span>).<span class="kw">await</span>
         }
-        <span class="ident">Resource::ExerciseTask</span>(<span class="ident">id</span>) =&gt; {
-            <span class="comment">// an exercise task can be part of a course or an exam</span>
-            <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::get_course_or_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
-        }
         <span class="ident">Resource::Exercise</span>(<span class="ident">id</span>) =&gt; {
             <span class="comment">// an exercise can be part of a course or an exam</span>
             <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span> <span class="ident">models::exercises::get_course_or_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
         }
-        <span class="ident">Resource::Grading</span>(<span class="ident">id</span>) =&gt; {
+        <span class="ident">Resource::ExerciseSlideSubmission</span>(<span class="ident">id</span>) =&gt; {
+            <span class="comment">//an exercise slide submissions can be part of a course or an exam</span>
+            <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span>
+                <span class="ident">models::exercise_slide_submissions::get_course_and_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
+        }
+        <span class="ident">Resource::ExerciseTask</span>(<span class="ident">id</span>) =&gt; {
+            <span class="comment">// an exercise task can be part of a course or an exam</span>
+            <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::get_course_or_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
+        }
+        <span class="ident">Resource::ExerciseTaskSubmission</span>(<span class="ident">id</span>) =&gt; {
+            <span class="comment">// an exercise task submission can be part of a course or an exam</span>
+            <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span>
+                <span class="ident">models::exercise_task_submissions::get_course_and_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
+        }
+        <span class="ident">Resource::ExerciseTaskGrading</span>(<span class="ident">id</span>) =&gt; {
             <span class="comment">// a grading can be part of a course or an exam</span>
-            <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span> <span class="ident">models::gradings::get_course_or_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span>
+                <span class="ident">models::exercise_task_gradings::get_course_or_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
         }
         <span class="ident">Resource::Organization</span>(<span class="ident">id</span>) =&gt; <span class="ident">check_organization_permission</span>(<span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">id</span>).<span class="kw">await</span>,
         <span class="ident">Resource::Page</span>(<span class="ident">id</span>) =&gt; {
             <span class="comment">// a page can be part of a course or an exam</span>
             <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span> <span class="ident">models::pages::get_course_and_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
-        }
-        <span class="ident">Resource::Submission</span>(<span class="ident">id</span>) =&gt; {
-            <span class="comment">// a submission can be part of a course or an exam</span>
-            <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span> <span class="ident">models::submissions::get_course_and_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
         }
         <span class="ident">Resource::Exam</span>(<span class="ident">exam_id</span>) =&gt; <span class="ident">check_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">exam_id</span>).<span class="kw">await</span>,

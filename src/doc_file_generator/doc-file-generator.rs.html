@@ -768,17 +768,13 @@
 <span id="767">767</span>
 <span id="768">768</span>
 <span id="769">769</span>
-<span id="770">770</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">NaiveDate</span>, <span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::controllers</span>::{
-    <span class="ident">course_material</span>::{
-        <span class="ident">exams</span>::{<span class="ident">ExamData</span>, <span class="ident">ExamEnrollmentData</span>},
-        <span class="ident">submissions::PreviousSubmission</span>,
-    },
+    <span class="ident">course_material::exams</span>::{<span class="ident">ExamData</span>, <span class="ident">ExamEnrollmentData</span>},
     <span class="ident">main_frontend::exercises::ExerciseSubmissions</span>,
     <span class="ident">UploadResult</span>,
 };
@@ -792,15 +788,23 @@
     <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseCount</span>, <span class="ident">CourseStructure</span>},
     <span class="ident">email_templates::EmailTemplate</span>,
     <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">Exam</span>, <span class="ident">ExamEnrollment</span>},
-    <span class="ident">exercise_service_info::CourseMaterialExerciseServiceInfo</span>,
     <span class="ident">exercise_services::ExerciseService</span>,
+    <span class="ident">exercise_slide_submissions</span>::{
+        <span class="ident">ExerciseSlideSubmission</span>, <span class="ident">ExerciseSlideSubmissionCount</span>,
+        <span class="ident">ExerciseSlideSubmissionCountByExercise</span>, <span class="ident">ExerciseSlideSubmissionCountByWeekAndHour</span>,
+        <span class="ident">StudentExerciseSlideSubmissionResult</span>,
+    },
+    <span class="ident">exercise_slides::CourseMaterialExerciseSlide</span>,
+    <span class="ident">exercise_task_gradings</span>::{<span class="ident">ExerciseTaskGrading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
+    <span class="ident">exercise_task_submissions</span>::{
+        <span class="ident">ExerciseTaskSubmission</span>, <span class="ident">StudentExerciseTaskSubmissionResult</span>, <span class="ident">SubmissionInfo</span>,
+    },
     <span class="ident">exercise_tasks</span>::{<span class="ident">CourseMaterialExerciseTask</span>, <span class="ident">ExerciseTask</span>},
     <span class="ident">exercises</span>::{
         <span class="ident">ActivityProgress</span>, <span class="ident">CourseMaterialExercise</span>, <span class="ident">Exercise</span>, <span class="ident">ExerciseStatus</span>, <span class="ident">GradingProgress</span>,
     },
     <span class="ident">feedback</span>::{<span class="ident">Feedback</span>, <span class="ident">FeedbackBlock</span>, <span class="ident">FeedbackCount</span>},
     <span class="ident">glossary::Term</span>,
-    <span class="ident">gradings</span>::{<span class="ident">Grading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
     <span class="ident">organizations::Organization</span>,
     <span class="ident">page_history</span>::{<span class="ident">HistoryChangeReason</span>, <span class="ident">PageHistory</span>},
     <span class="ident">pages</span>::{
@@ -811,10 +815,6 @@
     <span class="ident">playground_examples::PlaygroundExample</span>,
     <span class="ident">proposed_block_edits</span>::{<span class="ident">BlockProposal</span>, <span class="ident">ProposalStatus</span>},
     <span class="ident">proposed_page_edits</span>::{<span class="ident">PageProposal</span>, <span class="ident">ProposalCount</span>},
-    <span class="ident">submissions</span>::{
-        <span class="ident">Submission</span>, <span class="ident">SubmissionCount</span>, <span class="ident">SubmissionCountByExercise</span>, <span class="ident">SubmissionCountByWeekAndHour</span>,
-        <span class="ident">SubmissionInfo</span>, <span class="ident">SubmissionResult</span>,
-    },
     <span class="ident">user_course_settings::UserCourseSettings</span>,
     <span class="ident">user_exercise_states</span>::{<span class="ident">UserCourseInstanceChapterExerciseProgress</span>, <span class="ident">UserCourseInstanceProgress</span>},
     <span class="ident">users::User</span>,
@@ -924,26 +924,35 @@
         <span class="ident">order_number</span>: <span class="number">123</span>,
         <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
     };
-    <span class="kw">let</span> <span class="ident">submission</span> <span class="op">=</span> <span class="ident">Submission</span> {
+    <span class="kw">let</span> <span class="ident">exercise_slide_submission</span> <span class="op">=</span> <span class="ident">ExerciseSlideSubmission</span> {
         <span class="ident">id</span>,
         <span class="ident">created_at</span>,
         <span class="ident">updated_at</span>,
         <span class="ident">deleted_at</span>,
-        <span class="ident">exercise_id</span>: <span class="ident">id</span>,
         <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
         <span class="ident">course_instance_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
         <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">exercise_task_id</span>: <span class="ident">id</span>,
-        <span class="ident">data_json</span>: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span> {{<span class="string">&quot;choice&quot;</span>: <span class="string">&quot;a&quot;</span>}}),
-        <span class="ident">grading_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
-        <span class="ident">metadata</span>: <span class="prelude-val">None</span>,
+        <span class="ident">exercise_id</span>: <span class="ident">id</span>,
         <span class="ident">user_id</span>: <span class="ident">id</span>,
+        <span class="ident">exercise_slide_id</span>: <span class="ident">id</span>,
     };
-    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">Grading</span> {
+    <span class="kw">let</span> <span class="ident">exercise_task_submission</span> <span class="op">=</span> <span class="ident">ExerciseTaskSubmission</span> {
         <span class="ident">id</span>,
         <span class="ident">created_at</span>,
         <span class="ident">updated_at</span>,
-        <span class="ident">submission_id</span>: <span class="ident">id</span>,
+        <span class="ident">deleted_at</span>,
+        <span class="ident">exercise_slide_submission_id</span>: <span class="ident">id</span>,
+        <span class="ident">exercise_task_id</span>: <span class="ident">id</span>,
+        <span class="ident">data_json</span>: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span> {{<span class="string">&quot;choice&quot;</span>: <span class="string">&quot;a&quot;</span>}}),
+        <span class="ident">exercise_task_grading_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
+        <span class="ident">metadata</span>: <span class="prelude-val">None</span>,
+        <span class="ident">exercise_slide_id</span>: <span class="ident">id</span>,
+    };
+    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">ExerciseTaskGrading</span> {
+        <span class="ident">id</span>,
+        <span class="ident">created_at</span>,
+        <span class="ident">updated_at</span>,
+        <span class="ident">exercise_task_submission_id</span>: <span class="ident">id</span>,
         <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
         <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">exercise_id</span>: <span class="ident">id</span>,
@@ -971,10 +980,6 @@
         <span class="ident">exercise_completions_threshold</span>: <span class="prelude-val">Some</span>(<span class="number">123</span>),
         <span class="ident">points_threshold</span>: <span class="prelude-val">Some</span>(<span class="number">123</span>),
         <span class="ident">course_instance_id</span>: <span class="ident">id</span>,
-    };
-    <span class="kw">let</span> <span class="ident">previous_submission</span> <span class="op">=</span> <span class="ident">PreviousSubmission</span> {
-        <span class="ident">submission</span>: <span class="ident">submission</span>.<span class="ident">clone</span>(),
-        <span class="ident">grading</span>: <span class="prelude-val">Some</span>(<span class="ident">grading</span>.<span class="ident">clone</span>()),
     };
     <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">Course</span> {
         <span class="ident">id</span>,
@@ -1033,6 +1038,19 @@
         <span class="ident">url</span>: <span class="string">&quot;http://example.com&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">width</span>: <span class="number">123</span>,
         <span class="ident">data</span>: <span class="macro">serde_json::json!</span> {{}},
+    };
+    <span class="kw">let</span> <span class="ident">submission_result</span> <span class="op">=</span> <span class="ident">StudentExerciseTaskSubmissionResult</span> {
+        <span class="ident">submission</span>: <span class="ident">exercise_task_submission</span>.<span class="ident">clone</span>(),
+        <span class="ident">grading</span>: <span class="prelude-val">Some</span>(<span class="ident">grading</span>.<span class="ident">clone</span>()),
+        <span class="ident">model_solution_spec</span>: <span class="prelude-val">None</span>,
+    };
+    <span class="kw">let</span> <span class="ident">exercise_slide_submission_result</span> <span class="op">=</span> <span class="ident">StudentExerciseSlideSubmissionResult</span> {
+        <span class="ident">exercise_task_submission_results</span>: <span class="macro">vec!</span>[<span class="ident">submission_result</span>.<span class="ident">clone</span>()],
+        <span class="ident">exercise_status</span>: <span class="prelude-val">Some</span>(<span class="ident">ExerciseStatus</span> {
+            <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
+            <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress::InProgress</span>,
+            <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::NotReady</span>,
+        }),
     };
     <span class="kw">let</span> <span class="ident">organization</span> <span class="op">=</span> <span class="ident">Organization</span> {
         <span class="ident">id</span>,
@@ -1227,47 +1245,28 @@
         <span class="ident">CourseMaterialExercise</span>,
         <span class="ident">CourseMaterialExercise</span> {
             <span class="ident">exercise</span>: <span class="ident">exercise</span>.<span class="ident">clone</span>(),
-            <span class="ident">current_exercise_task</span>: <span class="ident">CourseMaterialExerciseTask</span> {
+            <span class="ident">current_exercise_slide</span>: <span class="ident">CourseMaterialExerciseSlide</span> {
                 <span class="ident">id</span>,
-                <span class="ident">exercise_slide_id</span>: <span class="ident">id</span>,
-                <span class="ident">exercise_type</span>: <span class="string">&quot;quiz&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">assignment</span>: <span class="macro">serde_json::json!</span> {{
-                  <span class="string">&quot;name&quot;</span>: <span class="string">&quot;core/paragraph&quot;</span>,
-                  <span class="string">&quot;isValid&quot;</span>: <span class="bool-val">true</span>,
-                  <span class="string">&quot;clientId&quot;</span>: <span class="string">&quot;187a0aea-c088-4354-a1ea-f0cab082c065&quot;</span>,
-                  <span class="string">&quot;attributes&quot;</span>: {
-                    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Answer this question.&quot;</span>,
-                    <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
-                  },
-                  <span class="string">&quot;innerBlocks&quot;</span>: []
-                }},
-                <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span> {[
-                  {
-                    <span class="string">&quot;id&quot;</span>: <span class="string">&quot;7ab2591c-b0f3-4543-9548-a113849b0f94&quot;</span>,
-                    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;a&quot;</span>
-                  },
-                  {
-                    <span class="string">&quot;id&quot;</span>: <span class="string">&quot;a833d1df-f27b-4fbf-b516-883a62c09d88&quot;</span>,
-                    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;b&quot;</span>
-                  },
-                  {
-                    <span class="string">&quot;id&quot;</span>: <span class="string">&quot;03d4b3d4-88af-4125-88b7-4ee052fd876f&quot;</span>,
-                    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;c&quot;</span>
-                  }
-                ]}),
-                <span class="ident">model_solution_spec</span>: <span class="prelude-val">None</span>
+                <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[<span class="ident">CourseMaterialExerciseTask</span> {
+                    <span class="ident">id</span>,
+                    <span class="ident">exercise_slide_id</span>: <span class="ident">id</span>,
+                    <span class="ident">exercise_iframe_url</span>: <span class="prelude-val">Some</span>(
+                        <span class="string">&quot;http://project-331.local/example-exercise/exercise&quot;</span>.<span class="ident">to_string</span>()
+                    ),
+                    <span class="ident">assignment</span>: <span class="macro">serde_json::json!</span> {{<span class="string">&quot;name&quot;</span>:<span class="string">&quot;core/paragraph&quot;</span>,<span class="string">&quot;isValid&quot;</span>:<span class="bool-val">true</span>,<span class="string">&quot;clientId&quot;</span>:<span class="string">&quot;187a0aea-c088-4354-a1ea-f0cab082c065&quot;</span>,<span class="string">&quot;attributes&quot;</span>:{<span class="string">&quot;content&quot;</span>:<span class="string">&quot;Answer this question.&quot;</span>,<span class="string">&quot;dropCap&quot;</span>:<span class="bool-val">false</span>},<span class="string">&quot;innerBlocks&quot;</span>:[]}},
+                    <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(
+                        <span class="macro">serde_json::json!</span> {[{<span class="string">&quot;id&quot;</span>:<span class="string">&quot;7ab2591c-b0f3-4543-9548-a113849b0f94&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;a&quot;</span>},{<span class="string">&quot;id&quot;</span>:<span class="string">&quot;a833d1df-f27b-4fbf-b516-883a62c09d88&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;b&quot;</span>},{<span class="string">&quot;id&quot;</span>:<span class="string">&quot;03d4b3d4-88af-4125-88b7-4ee052fd876f&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;c&quot;</span>}]}
+                    ),
+                    <span class="ident">model_solution_spec</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">previous_submission</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise_task_submission</span>.<span class="ident">clone</span>()),
+                    <span class="ident">previous_submission_grading</span>: <span class="prelude-val">Some</span>(<span class="ident">grading</span>.<span class="ident">clone</span>()),
+                }],
             },
-            <span class="ident">current_exercise_task_service_info</span>: <span class="prelude-val">Some</span>(<span class="ident">CourseMaterialExerciseServiceInfo</span> {
-                <span class="ident">exercise_iframe_url</span>: <span class="string">&quot;http://project-331.local/example-exercise/exercise&quot;</span>
-                    .<span class="ident">to_string</span>()
-            }),
             <span class="ident">exercise_status</span>: <span class="prelude-val">Some</span>(<span class="ident">ExerciseStatus</span> {
                 <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
                 <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress::InProgress</span>,
                 <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::NotReady</span>
-            }),
-            <span class="ident">previous_submission</span>: <span class="prelude-val">Some</span>(<span class="ident">submission</span>.<span class="ident">clone</span>()),
-            <span class="ident">grading</span>: <span class="prelude-val">Some</span>(<span class="ident">grading</span>.<span class="ident">clone</span>())
+            })
         }
     );
     <span class="macro">write_docs!</span>(
@@ -1283,17 +1282,16 @@
         })
     );
     <span class="macro">write_docs!</span>(
-        <span class="ident">SubmissionResult</span>,
-        <span class="ident">SubmissionResult</span> {
-            <span class="ident">submission</span>: <span class="ident">submission</span>.<span class="ident">clone</span>(),
-            <span class="ident">grading</span>: <span class="prelude-val">Some</span>(<span class="ident">grading</span>.<span class="ident">clone</span>()),
-            <span class="ident">model_solution_spec</span>: <span class="prelude-val">None</span>
-        }
+        <span class="ident">StudentExerciseSlideSubmissionResult</span>,
+        <span class="ident">exercise_slide_submission_result</span>
     );
-    <span class="macro">write_docs!</span>(<span class="ident">PreviousSubmission</span>, <span class="ident">previous_submission</span>.<span class="ident">clone</span>());
     <span class="macro">write_docs!</span>(
-        <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PreviousSubmission</span><span class="op">&gt;</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">previous_submission</span>.<span class="ident">clone</span>())
+        <span class="ident">StudentExerciseTaskSubmissionResult</span>,
+        <span class="ident">submission_result</span>.<span class="ident">clone</span>()
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">StudentExerciseTaskSubmissionResult</span><span class="op">&gt;</span>,
+        <span class="macro">vec!</span>[<span class="ident">submission_result</span>.<span class="ident">clone</span>()]
     );
     <span class="macro">write_docs!</span>(<span class="ident">Chapter</span>, <span class="ident">chapter</span>.<span class="ident">clone</span>());
     <span class="macro">write_docs!</span>(
@@ -1330,23 +1328,23 @@
     );
     <span class="macro">write_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span>, <span class="macro">vec!</span>[<span class="ident">exercise</span>.<span class="ident">clone</span>()]);
     <span class="macro">write_docs!</span>(
-        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SubmissionCount</span><span class="op">&gt;</span>,
-        <span class="macro">vec!</span>[<span class="ident">SubmissionCount</span> {
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmissionCount</span><span class="op">&gt;</span>,
+        <span class="macro">vec!</span>[<span class="ident">ExerciseSlideSubmissionCount</span> {
             <span class="ident">count</span>: <span class="prelude-val">Some</span>(<span class="number">123</span>),
             <span class="ident">date</span>: <span class="prelude-val">Some</span>(<span class="ident">naive_date</span>)
         }]
     );
     <span class="macro">write_docs!</span>(
-        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SubmissionCountByWeekAndHour</span><span class="op">&gt;</span>,
-        <span class="macro">vec!</span>[<span class="ident">SubmissionCountByWeekAndHour</span> {
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmissionCountByWeekAndHour</span><span class="op">&gt;</span>,
+        <span class="macro">vec!</span>[<span class="ident">ExerciseSlideSubmissionCountByWeekAndHour</span> {
             <span class="ident">count</span>: <span class="prelude-val">Some</span>(<span class="number">123</span>),
             <span class="ident">hour</span>: <span class="prelude-val">Some</span>(<span class="number">2</span>),
             <span class="ident">isodow</span>: <span class="prelude-val">Some</span>(<span class="number">2</span>)
         }]
     );
     <span class="macro">write_docs!</span>(
-        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SubmissionCountByExercise</span><span class="op">&gt;</span>,
-        <span class="macro">vec!</span>[<span class="ident">SubmissionCountByExercise</span> {
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmissionCountByExercise</span><span class="op">&gt;</span>,
+        <span class="macro">vec!</span>[<span class="ident">ExerciseSlideSubmissionCountByExercise</span> {
             <span class="ident">exercise_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
             <span class="ident">exercise_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>()),
             <span class="ident">count</span>: <span class="prelude-val">Some</span>(<span class="number">123</span>),
@@ -1391,7 +1389,7 @@
     <span class="macro">write_docs!</span>(
         <span class="ident">ExerciseSubmissions</span>,
         <span class="ident">ExerciseSubmissions</span> {
-            <span class="ident">data</span>: <span class="macro">vec!</span>[<span class="ident">submission</span>.<span class="ident">clone</span>()],
+            <span class="ident">data</span>: <span class="macro">vec!</span>[<span class="ident">exercise_slide_submission</span>.<span class="ident">clone</span>()],
             <span class="ident">total_pages</span>: <span class="number">1</span>
         }
     );
@@ -1453,7 +1451,7 @@
     <span class="macro">write_docs!</span>(
         <span class="ident">SubmissionInfo</span>,
         <span class="ident">SubmissionInfo</span> {
-            <span class="ident">submission</span>: <span class="ident">submission</span>.<span class="ident">clone</span>(),
+            <span class="ident">submission</span>: <span class="ident">exercise_task_submission</span>.<span class="ident">clone</span>(),
             <span class="ident">exercise</span>: <span class="ident">exercise</span>.<span class="ident">clone</span>(),
             <span class="ident">grading</span>: <span class="prelude-val">Some</span>(<span class="ident">grading</span>.<span class="ident">clone</span>()),
             <span class="ident">iframe_path</span>: <span class="string">&quot;path&quot;</span>.<span class="ident">to_string</span>(),

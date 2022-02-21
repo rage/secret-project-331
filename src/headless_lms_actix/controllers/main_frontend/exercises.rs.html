@@ -60,16 +60,22 @@
 <span id="59">59</span>
 <span id="60">60</span>
 <span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/exercises`.</span>
 
 <span class="kw">use</span> <span class="ident">futures::future</span>;
-<span class="kw">use</span> <span class="ident">models</span>::{<span class="ident">submissions::Submission</span>, <span class="ident">CourseOrExamId</span>};
+<span class="kw">use</span> <span class="ident">models</span>::{<span class="ident">exercise_slide_submissions::ExerciseSlideSubmission</span>, <span class="ident">CourseOrExamId</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseSubmissions</span> {
-    <span class="kw">pub</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Submission</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmission</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">total_pages</span>: <span class="ident">u32</span>,
 }
 
@@ -94,10 +100,16 @@ GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exer
         }
     }
 
-    <span class="kw">let</span> <span class="ident">submission_count</span> <span class="op">=</span> <span class="ident">models::submissions::exercise_submission_count</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>);
+    <span class="kw">let</span> <span class="ident">submission_count</span> <span class="op">=</span> <span class="ident">models::exercise_slide_submissions::exercise_slide_submission_count</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="kw-2">*</span><span class="ident">exercise_id</span>,
+    );
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">submissions</span> <span class="op">=</span>
-        <span class="ident">models::submissions::exercise_submissions</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>, <span class="kw-2">*</span><span class="ident">pagination</span>);
+    <span class="kw">let</span> <span class="ident">submissions</span> <span class="op">=</span> <span class="ident">models::exercise_slide_submissions::exercise_slide_submissions</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="kw-2">*</span><span class="ident">exercise_id</span>,
+        <span class="kw-2">*</span><span class="ident">pagination</span>,
+    );
     <span class="kw">let</span> (<span class="ident">submission_count</span>, <span class="ident">submissions</span>) <span class="op">=</span> <span class="ident">future::try_join</span>(<span class="ident">submission_count</span>, <span class="ident">submissions</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">total_pages</span> <span class="op">=</span> <span class="ident">pagination</span>.<span class="ident">total_pages</span>(<span class="ident">submission_count</span>);

@@ -401,6 +401,36 @@
 <span id="400">400</span>
 <span id="401">401</span>
 <span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">array::IntoIter</span>,
     <span class="ident">collections::HashMap</span>,
@@ -414,7 +444,7 @@
 <span class="kw">use</span> <span class="ident">csv::Writer</span>;
 <span class="kw">use</span> <span class="ident">futures::stream::FuturesUnordered</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
-    <span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">exercises</span>, <span class="ident">submissions</span>, <span class="ident">user_exercise_states</span>,
+    <span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">exercise_task_submissions</span>, <span class="ident">exercises</span>, <span class="ident">user_exercise_states</span>,
 };
 <span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
 <span class="kw">use</span> <span class="ident">tokio</span>::{<span class="ident">sync::mpsc::UnboundedSender</span>, <span class="ident">task::JoinHandle</span>};
@@ -615,7 +645,7 @@
         <span class="string">&quot;data_json&quot;</span>.<span class="ident">to_string</span>(),
     ]);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">submissions::stream_exam_submissions</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">exercise_task_submissions::stream_exam_submissions</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>);
 
     <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">CsvWriter::new_with_initialized_headers</span>(<span class="ident">writer</span>, <span class="ident">headers</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">next</span>) <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">try_next</span>().<span class="kw">await</span><span class="question-mark">?</span> {
@@ -663,10 +693,11 @@
 
     <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
     <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
-        <span class="ident">exercise_slides</span>, <span class="ident">exercise_tasks</span>,
+        <span class="ident">exercise_slide_submissions</span>::{<span class="self">self</span>, <span class="ident">NewExerciseSlideSubmission</span>},
+        <span class="ident">exercise_slides</span>,
+        <span class="ident">exercise_task_gradings</span>::{<span class="self">self</span>, <span class="ident">ExerciseTaskGradingResult</span>},
+        <span class="ident">exercise_task_submissions</span>, <span class="ident">exercise_tasks</span>,
         <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">GradingProgress</span>},
-        <span class="ident">gradings</span>,
-        <span class="ident">submissions</span>::{<span class="self">self</span>, <span class="ident">GradingResult</span>},
         <span class="ident">users</span>,
     };
     <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -715,6 +746,7 @@
         <span class="ident">submit_and_grade</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">exercise</span>,
+            <span class="ident">slide</span>,
             <span class="ident">course</span>,
             <span class="ident">task</span>,
             <span class="ident">user</span>,
@@ -722,9 +754,9 @@
             <span class="number">12.34</span>,
         )
         .<span class="kw">await</span>;
-        <span class="ident">submit_and_grade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e2</span>, <span class="ident">course</span>, <span class="ident">et2</span>, <span class="ident">user</span>, <span class="ident">instance</span>.<span class="ident">id</span>, <span class="number">23.45</span>).<span class="kw">await</span>;
-        <span class="ident">submit_and_grade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e2</span>, <span class="ident">course</span>, <span class="ident">et2</span>, <span class="ident">u2</span>, <span class="ident">instance</span>.<span class="ident">id</span>, <span class="number">34.56</span>).<span class="kw">await</span>;
-        <span class="ident">submit_and_grade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e3</span>, <span class="ident">course</span>, <span class="ident">et3</span>, <span class="ident">u2</span>, <span class="ident">instance</span>.<span class="ident">id</span>, <span class="number">45.67</span>).<span class="kw">await</span>;
+        <span class="ident">submit_and_grade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e2</span>, <span class="ident">s2</span>, <span class="ident">course</span>, <span class="ident">et2</span>, <span class="ident">user</span>, <span class="ident">instance</span>.<span class="ident">id</span>, <span class="number">23.45</span>).<span class="kw">await</span>;
+        <span class="ident">submit_and_grade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e2</span>, <span class="ident">s2</span>, <span class="ident">course</span>, <span class="ident">et2</span>, <span class="ident">u2</span>, <span class="ident">instance</span>.<span class="ident">id</span>, <span class="number">34.56</span>).<span class="kw">await</span>;
+        <span class="ident">submit_and_grade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e3</span>, <span class="ident">s3</span>, <span class="ident">course</span>, <span class="ident">et3</span>, <span class="ident">u2</span>, <span class="ident">instance</span>.<span class="ident">id</span>, <span class="number">45.67</span>).<span class="kw">await</span>;
 
         <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">export_course_instance_points</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">instance</span>.<span class="ident">id</span>, <span class="ident">buf</span>)
@@ -755,18 +787,42 @@
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">submit_and_grade</span>(
         <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
         <span class="ident">ex</span>: <span class="ident">Uuid</span>,
+        <span class="ident">ex_slide</span>: <span class="ident">Uuid</span>,
         <span class="ident">c</span>: <span class="ident">Uuid</span>,
         <span class="ident">et</span>: <span class="ident">Uuid</span>,
         <span class="ident">u</span>: <span class="ident">Uuid</span>,
         <span class="ident">ci</span>: <span class="ident">Uuid</span>,
         <span class="ident">score_given</span>: <span class="ident">f32</span>,
     ) {
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">submissions::insert</span>(<span class="ident">tx</span>, <span class="ident">ex</span>, <span class="ident">c</span>, <span class="ident">et</span>, <span class="ident">u</span>, <span class="ident">ci</span>, <span class="ident">Value::Null</span>)
+        <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>, <span class="ident">ex</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">exercise_slide_submission</span> <span class="op">=</span>
+            <span class="ident">exercise_slide_submissions::insert_exercise_slide_submission</span>(
+                <span class="ident">tx</span>,
+                <span class="ident">NewExerciseSlideSubmission</span> {
+                    <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">c</span>),
+                    <span class="ident">course_instance_id</span>: <span class="prelude-val">Some</span>(<span class="ident">ci</span>),
+                    <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">exercise_id</span>: <span class="ident">ex</span>,
+                    <span class="ident">user_id</span>: <span class="ident">u</span>,
+                    <span class="ident">exercise_slide_id</span>: <span class="ident">ex_slide</span>,
+                },
+            )
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">submission</span> <span class="op">=</span> <span class="ident">submissions::get_by_id</span>(<span class="ident">tx</span>, <span class="ident">s</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">gradings::new_grading</span>(<span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">grading_result</span> <span class="op">=</span> <span class="ident">GradingResult</span> {
+        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">exercise_task_submissions::insert</span>(
+            <span class="ident">tx</span>,
+            <span class="ident">exercise_slide_submission</span>.<span class="ident">id</span>,
+            <span class="ident">ex_slide</span>,
+            <span class="ident">et</span>,
+            <span class="ident">Value::Null</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">submission</span> <span class="op">=</span> <span class="ident">exercise_task_submissions::get_by_id</span>(<span class="ident">tx</span>, <span class="ident">s</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">exercise_task_gradings::new_grading</span>(<span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">grading_result</span> <span class="op">=</span> <span class="ident">ExerciseTaskGradingResult</span> {
             <span class="ident">feedback_json</span>: <span class="prelude-val">None</span>,
             <span class="ident">feedback_text</span>: <span class="prelude-val">None</span>,
             <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
@@ -774,15 +830,19 @@
             <span class="ident">score_maximum</span>: <span class="number">100</span>,
         };
         <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>, <span class="ident">ex</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">gradings::update_grading</span>(<span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">grading_result</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>)
+        <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span>
+            <span class="ident">exercise_task_gradings::update_grading</span>(<span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">grading_result</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>)
+                .<span class="kw">await</span>
+                .<span class="ident">unwrap</span>();
+        <span class="ident">exercise_task_submissions::set_grading_id</span>(<span class="ident">tx</span>, <span class="ident">grading</span>.<span class="ident">id</span>, <span class="ident">submission</span>.<span class="ident">id</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="ident">submissions::set_grading_id</span>(<span class="ident">tx</span>, <span class="ident">grading</span>.<span class="ident">id</span>, <span class="ident">submission</span>.<span class="ident">id</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="ident">user_exercise_states::update_user_exercise_state</span>(<span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="ident">user_exercise_states::update_user_exercise_state_after_submission</span>(
+            <span class="ident">tx</span>,
+            <span class="kw-2">&amp;</span><span class="ident">exercise_slide_submission</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
     }
 
     <span class="kw">struct</span> <span class="ident">WriteAdapter</span> {

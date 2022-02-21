@@ -21,17 +21,6 @@ async fn get_submission_info(
     )
     .await?;
 
-    // let (course_id, exam_id) =
-    //     models::exercise_task_submissions::get_course_and_exam_id(&mut conn, *submission_id)
-    //         .await?;
-    // if let Some(course_id) = course_id {
-    //     authorize(&mut conn, Act::View, user.id, Res::Course(course_id)).await?;
-    // } else if let Some(exam_id) = exam_id {
-    //     authorize(&mut conn, Act::View, user.id, Res::Exam(exam_id)).await?;
-    // } else {
-    //     return Err(anyhow::anyhow!("Submission not associated with course or exam").into());
-    // }
-
     let slide_submission = models::exercise_slide_submissions::get_by_id(&mut conn, *submission_id)
         .await?
         .ok_or_else(|| anyhow::anyhow!("Missing submission".to_string()))?;

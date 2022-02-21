@@ -253,7 +253,7 @@ pub async fn get_course_material_exercise(
     let exercise = get_by_id(conn, exercise_id).await?;
     let (current_exercise_slide, instance_or_exam_id) =
         get_or_select_exercise_slide(&mut *conn, user_id, &exercise).await?;
-    info!("{:#?}", current_exercise_slide);
+    info!("current exercise slide: {:#?}", current_exercise_slide);
 
     let user_exercise_state = match (user_id, instance_or_exam_id) {
         (Some(user_id), Some(course_instance_or_exam_id)) => {
@@ -378,7 +378,9 @@ async fn get_or_select_exercise_slide(
                             ))
                         }
                     } else {
-                        // user is not enrolled on any instance related to the course
+                        // user has enrolled on a different course language version and haven't enrolled
+                        // on this one. The idea is that they can look around the material but not submit
+                        // without changing the language version, so show a random exercise.
                         let random_slide = exercise_slides::get_random_exercise_slide_for_exercise(
                             conn,
                             exercise.id,

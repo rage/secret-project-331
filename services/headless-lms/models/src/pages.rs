@@ -22,6 +22,7 @@ use crate::{
     page_history::{self, HistoryChangeReason, PageHistoryContent},
     prelude::*,
     user_course_settings::{self, UserCourseSettings},
+    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -240,7 +241,7 @@ pub async fn set_chapter(
 pub async fn get_course_and_exam_id(
     conn: &mut PgConnection,
     id: Uuid,
-) -> ModelResult<(Option<Uuid>, Option<Uuid>)> {
+) -> ModelResult<CourseOrExamId> {
     let res = sqlx::query!(
         "
 SELECT course_id, exam_id
@@ -252,7 +253,7 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    Ok((res.course_id, res.exam_id))
+    CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
 pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Page>> {

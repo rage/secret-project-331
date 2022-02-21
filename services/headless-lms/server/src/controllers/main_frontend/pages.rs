@@ -47,7 +47,7 @@ async fn post_new_page(
     let course_id = new_page.course_id.ok_or_else(|| {
         ControllerError::BadRequest("Cannot create a new page without a course id".to_string())
     })?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
     let page = models::pages::insert_page(&mut conn, new_page, user.id).await?;
     Ok(web::Json(page))
 }
@@ -68,7 +68,7 @@ async fn delete_page(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Page(*page_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let deleted_page = models::pages::delete_page_and_exercises(&mut conn, *page_id).await?;
     Ok(web::Json(deleted_page))
@@ -86,7 +86,7 @@ async fn history(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<PageHistory>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, user.id, Res::Page(*page_id)).await?;
+    authorize(&mut conn, Act::View, Some(user.id), Res::Page(*page_id)).await?;
 
     let res = models::page_history::history(&mut conn, *page_id, *pagination).await?;
     Ok(web::Json(res))
@@ -103,7 +103,7 @@ async fn history_count(
     user: AuthUser,
 ) -> ControllerResult<web::Json<i64>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, user.id, Res::Page(*page_id)).await?;
+    authorize(&mut conn, Act::View, Some(user.id), Res::Page(*page_id)).await?;
 
     let res = models::page_history::history_count(&mut conn, *page_id).await?;
     Ok(web::Json(res))
@@ -121,7 +121,7 @@ async fn restore(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Page(*page_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let res = models::pages::restore(&mut conn, *page_id, restore_data.history_id, user.id).await?;
     Ok(web::Json(res))

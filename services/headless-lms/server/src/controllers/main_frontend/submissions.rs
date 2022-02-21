@@ -16,7 +16,7 @@ async fn get_submission_info(
     authorize(
         &mut conn,
         Act::View,
-        user.id,
+        Some(user.id),
         Res::Submission(*submission_id),
     )
     .await?;

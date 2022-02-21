@@ -19,7 +19,7 @@ pub async fn get_exam(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Exam>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, user.id, Res::Exam(*exam_id)).await?;
+    authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
 
     let exam = exams::get(&mut conn, *exam_id).await?;
     Ok(web::Json(exam))
@@ -42,7 +42,7 @@ pub async fn set_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Exam(*exam_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
 
     exams::set_course(&mut conn, *exam_id, exam.course_id).await?;
     Ok(web::Json(()))
@@ -60,7 +60,7 @@ pub async fn unset_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Exam(*exam_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
 
     exams::unset_course(&mut conn, *exam_id, exam.course_id).await?;
     Ok(web::Json(()))
@@ -77,7 +77,7 @@ pub async fn export_points(
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let exam_id = exam_id.into_inner();
-    authorize(&mut conn, Act::Teach, user.id, Res::Exam(exam_id)).await?;
+    authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(exam_id)).await?;
 
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
 
@@ -118,7 +118,7 @@ pub async fn export_submissions(
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let exam_id = exam_id.into_inner();
-    authorize(&mut conn, Act::Teach, user.id, Res::Exam(exam_id)).await?;
+    authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(exam_id)).await?;
 
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
 

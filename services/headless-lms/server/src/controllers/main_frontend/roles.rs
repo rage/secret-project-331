@@ -18,15 +18,19 @@ async fn authorize_role_management(
     user_id: Uuid,
 ) -> ControllerResult<()> {
     match domain {
-        RoleDomain::Global => authorize(conn, Act::Edit, user_id, Res::GlobalPermissions).await?,
+        RoleDomain::Global => {
+            authorize(conn, Act::Edit, Some(user_id), Res::GlobalPermissions).await?
+        }
         RoleDomain::Organization(id) => {
-            authorize(conn, Act::Edit, user_id, Res::Organization(id)).await?
+            authorize(conn, Act::Edit, Some(user_id), Res::Organization(id)).await?
         }
-        RoleDomain::Course(id) => authorize(conn, Act::Edit, user_id, Res::Course(id)).await?,
+        RoleDomain::Course(id) => {
+            authorize(conn, Act::Edit, Some(user_id), Res::Course(id)).await?
+        }
         RoleDomain::CourseInstance(id) => {
-            authorize(conn, Act::Edit, user_id, Res::CourseInstance(id)).await?
+            authorize(conn, Act::Edit, Some(user_id), Res::CourseInstance(id)).await?
         }
-        RoleDomain::Exam(id) => authorize(conn, Act::Edit, user_id, Res::Exam(id)).await?,
+        RoleDomain::Exam(id) => authorize(conn, Act::Edit, Some(user_id), Res::Exam(id)).await?,
     }
     Ok(())
 }

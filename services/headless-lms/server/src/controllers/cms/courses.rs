@@ -30,7 +30,7 @@ async fn add_media(
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
 
-    authorize(&mut conn, Act::Edit, user.id, Res::Course(course.id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course.id)).await?;
 
     let media_path = upload_media(
         request.headers(),

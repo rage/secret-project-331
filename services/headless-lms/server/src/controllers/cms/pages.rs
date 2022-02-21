@@ -3,6 +3,7 @@
 use models::{
     page_history::HistoryChangeReason,
     pages::{CmsPageUpdate, ContentManagementPage},
+    CourseOrExamId,
 };
 
 use crate::controllers::prelude::*;
@@ -22,7 +23,7 @@ async fn get_page(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Page(*page_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let cms_page = models::pages::get_page_with_exercises(&mut conn, *page_id).await?;
     Ok(web::Json(cms_page))
@@ -60,10 +61,10 @@ async fn update_page(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Page(*page_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let page_update = payload.0;
-    let (_, exam_id) = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
+    let course_or_exam_id = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
     let saved = models::pages::update_page(
         &mut conn,
         *page_id,
@@ -71,7 +72,7 @@ async fn update_page(
         user.id,
         false,
         HistoryChangeReason::PageSaved,
-        exam_id.is_some(),
+        matches!(course_or_exam_id, CourseOrExamId::Exam(_)),
     )
     .await?;
     Ok(web::Json(saved))

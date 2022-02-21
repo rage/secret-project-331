@@ -31,7 +31,7 @@ async fn add_media(
     authorize(
         &mut conn,
         Act::Edit,
-        user.id,
+        Some(user.id),
         Res::Organization(*organization_id),
     )
     .await?;

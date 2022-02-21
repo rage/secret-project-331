@@ -72,7 +72,7 @@ impl<'a> AsMut<Transaction<'a, Postgres>> for Tx<'a> {
 /// Helper macro that can be used to conveniently insert data that has some prerequisites.
 /// The macro accepts variable arguments in the following order:
 ///
-/// tx, user, org, course, instance, page, chapter, exercise, slide, task
+/// tx, user, org, course, instance, chapter, page, exercise, slide, task
 ///
 /// Arguments can be given in either of two forms:
 ///

@@ -27,7 +27,7 @@ async fn insert_playground_example(
 ) -> ControllerResult<web::Json<PlaygroundExample>> {
     let mut conn = pool.acquire().await?;
     let new_example = payload.0;
-    authorize(&mut conn, Act::Edit, user.id, Res::PlaygroundExample).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::PlaygroundExample).await?;
     let res =
         models::playground_examples::insert_playground_example(&mut conn, new_example).await?;
     Ok(web::Json(res))
@@ -45,7 +45,7 @@ async fn update_playground_example(
 ) -> ControllerResult<web::Json<PlaygroundExample>> {
     let mut conn = pool.acquire().await?;
     let example = payload.0;
-    authorize(&mut conn, Act::Edit, user.id, Res::PlaygroundExample).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::PlaygroundExample).await?;
     let res = models::playground_examples::update_playground_example(&mut conn, example).await?;
     Ok(web::Json(res))
 }
@@ -62,7 +62,7 @@ async fn delete_playground_example(
 ) -> ControllerResult<web::Json<PlaygroundExample>> {
     let mut conn = pool.acquire().await?;
     let example_id = *playground_example_id;
-    authorize(&mut conn, Act::Edit, user.id, Res::PlaygroundExample).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::PlaygroundExample).await?;
     let res = models::playground_examples::delete_playground_example(&mut conn, example_id).await?;
     Ok(web::Json(res))
 }

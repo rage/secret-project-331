@@ -120,7 +120,7 @@ async fn set_organization_image(
     authorize(
         &mut conn,
         Act::Edit,
-        user.id,
+        Some(user.id),
         Res::Organization(organization.id),
     )
     .await?;
@@ -178,7 +178,7 @@ async fn remove_organization_image(
     authorize(
         &mut conn,
         Act::Edit,
-        user.id,
+        Some(user.id),
         Res::Organization(organization.id),
     )
     .await?;

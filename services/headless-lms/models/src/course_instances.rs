@@ -456,15 +456,18 @@ WHERE id = $1
     Ok(())
 }
 
-pub async fn get_course_id(conn: &mut PgConnection, course_instance_id: Uuid) -> ModelResult<Uuid> {
-    let course_id = sqlx::query!(
-        "SELECT course_id from course_instances where id = $1",
-        course_instance_id
+pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+SELECT course_id
+FROM course_instances
+WHERE id = $1
+",
+        id
     )
     .fetch_one(conn)
-    .await?
-    .course_id;
-    Ok(course_id)
+    .await?;
+    Ok(res.course_id)
 }
 
 pub async fn is_open(conn: &mut PgConnection, id: Uuid) -> ModelResult<bool> {
@@ -478,7 +481,11 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    let is_open = res.starts_at.map(|t| t > Utc::now()).unwrap_or(false);
+    let is_open = if let Some(starts_at) = res.starts_at {
+        starts_at <= Utc::now()
+    } else {
+        false
+    };
     Ok(is_open)
 }
 

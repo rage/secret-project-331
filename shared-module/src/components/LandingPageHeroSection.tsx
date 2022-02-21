@@ -25,13 +25,14 @@ const TextBox = styled.div`
   justify-content: center;
 
   h1 {
-    font-weight: 400;
     z-index: 20;
     margin-bottom: 0.8rem;
     margin-top: 1.5rem;
     font-size: clamp(4rem, 6vw, 80px);
-    max-width: 1000px;
-    line-height: 1.2;
+    font-weight: bold;
+    max-width: 80rem;
+    line-height: 1.1;
+    text-transform: uppercase;
   }
 
   span {
@@ -48,6 +49,7 @@ const TextBox = styled.div`
     opacity: 0.7;
   }
   button {
+    margin-top: 2rem;
     text-align: center;
   }
 `

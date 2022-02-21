@@ -270,23 +270,12 @@ mod test {
     use serde_json::Value;
 
     use super::*;
-    use crate::test_helper::{insert_data, Conn, Data};
+    use crate::test_helper::*;
 
     #[tokio::test]
     async fn exports() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
 
-        let Data {
-            user,
-            course,
-            instance,
-            exercise,
-            exercise_slide,
-            task,
-            page,
-            ..
-        } = insert_data(tx.as_mut(), "").await.unwrap();
         let u2 = users::insert(tx.as_mut(), "second@example.org", None, None)
             .await
             .unwrap();
@@ -324,20 +313,20 @@ mod test {
         submit_and_grade(
             tx.as_mut(),
             exercise,
-            exercise_slide,
+            slide,
             course,
             task,
             user,
-            instance,
+            instance.id,
             12.34,
         )
         .await;
-        submit_and_grade(tx.as_mut(), e2, s2, course, et2, user, instance, 23.45).await;
-        submit_and_grade(tx.as_mut(), e2, s2, course, et2, u2, instance, 34.56).await;
-        submit_and_grade(tx.as_mut(), e3, s3, course, et3, u2, instance, 45.67).await;
+        submit_and_grade(tx.as_mut(), e2, s2, course, et2, user, instance.id, 23.45).await;
+        submit_and_grade(tx.as_mut(), e2, s2, course, et2, u2, instance.id, 34.56).await;
+        submit_and_grade(tx.as_mut(), e3, s3, course, et3, u2, instance.id, 45.67).await;
 
         let buf = vec![];
-        let buf = export_course_instance_points(tx.as_mut(), instance, buf)
+        let buf = export_course_instance_points(tx.as_mut(), instance.id, buf)
             .await
             .unwrap();
         let buf = Cursor::new(buf);

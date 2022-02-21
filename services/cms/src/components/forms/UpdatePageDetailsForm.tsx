@@ -1,8 +1,9 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { TextField } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
+
+import TextField from "../../shared-module/components/InputFields/TextField"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -25,13 +26,10 @@ const UpdatePageDetailsForm: React.FC<UpdatePageDetailsFormProps> = ({ title, se
         <FieldContainer>
           <TextField
             required
-            id="outlined-required"
             label={t("label-title")}
-            variant="outlined"
             value={title}
-            fullWidth
-            onChange={(e) => {
-              setTitle(e.target.value)
+            onChange={(value) => {
+              setTitle(value)
             }}
           />
         </FieldContainer>

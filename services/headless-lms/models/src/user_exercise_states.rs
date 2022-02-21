@@ -730,7 +730,7 @@ mod tests {
         exercise_task_gradings::{self, ExerciseTaskGradingResult},
         exercise_task_submissions::{self, SubmissionData},
         exercises,
-        test_helper::{insert_data, Conn},
+        test_helper::*,
     };
 
     mod figure_out_new_score_given {
@@ -934,21 +934,18 @@ mod tests {
 
     #[tokio::test]
     async fn updates_exercise_states() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-
-        let data = insert_data(tx.as_mut(), "").await.unwrap();
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
         let slide_submission =
             exercise_slide_submissions::insert_exercise_slide_submission_with_id(
                 tx.as_mut(),
                 Uuid::new_v4(),
                 &NewExerciseSlideSubmission {
-                    course_id: Some(data.course),
-                    course_instance_id: Some(data.instance),
+                    course_id: Some(course),
+                    course_instance_id: Some(instance.id),
                     exam_id: None,
-                    exercise_id: data.exercise,
-                    user_id: data.user,
-                    exercise_slide_id: data.exercise_slide,
+                    exercise_id: exercise,
+                    user_id: user,
+                    exercise_slide_id: slide,
                 },
             )
             .await
@@ -956,12 +953,12 @@ mod tests {
         let task_submission_id = exercise_task_submissions::insert_with_id(
             tx.as_mut(),
             &SubmissionData {
-                exercise_id: data.exercise,
-                course_id: data.course,
-                exercise_task_id: data.task,
-                user_id: data.user,
-                course_instance_id: data.instance,
-                exercise_slide_id: data.exercise_slide,
+                exercise_id: exercise,
+                course_id: course,
+                exercise_task_id: task,
+                user_id: user,
+                course_instance_id: instance.id,
+                exercise_slide_id: slide,
                 data_json: serde_json::json! {"abcd"},
                 id: Uuid::new_v4(),
                 exercise_slide_submission_id: slide_submission.id,
@@ -972,9 +969,7 @@ mod tests {
         let task_submission = exercise_task_submissions::get_by_id(tx.as_mut(), task_submission_id)
             .await
             .unwrap();
-        let exercise = exercises::get_by_id(tx.as_mut(), data.exercise)
-            .await
-            .unwrap();
+        let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task_grading =
             exercise_task_gradings::new_grading(tx.as_mut(), &exercise, &task_submission)
                 .await
@@ -1001,9 +996,9 @@ mod tests {
             .unwrap();
         let state = get_or_create_user_exercise_state(
             tx.as_mut(),
-            data.user,
+            user,
             exercise.id,
-            Some(data.instance),
+            Some(instance.id),
             None,
         )
         .await

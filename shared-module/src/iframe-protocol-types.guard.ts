@@ -45,8 +45,8 @@ export function isReadyMessage(obj: any, _argumentName?: string): obj is ReadyMe
 export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetStateMessage {
   return (
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.message === "set-state") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.message === "set-state" &&
+      ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise" &&
       typeof obj.exercise_task_id === "string" &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
@@ -65,8 +65,8 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
           (obj.data.previous_submission.exercise_task_grading_id === null ||
             typeof obj.data.previous_submission.exercise_task_grading_id === "string")))) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.message === "set-state") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.message === "set-state" &&
+      ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "view-submission" &&
       typeof obj.exercise_task_id === "string" &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
@@ -104,8 +104,8 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
           (obj.data.grading.deleted_at === null ||
             obj.data.grading.deleted_at instanceof Date)))) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.message === "set-state") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.message === "set-state" &&
+      ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise-editor" &&
       typeof obj.exercise_task_id === "string" &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function"))

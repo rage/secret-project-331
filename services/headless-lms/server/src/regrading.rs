@@ -300,18 +300,28 @@ mod test {
     use mockito::Matcher;
     use models::{
         exercise_services, exercise_slide_submissions::NewExerciseSlideSubmission,
-        exercises::GradingProgress,
+        exercise_task_gradings::ExerciseTaskGradingResult, exercises::GradingProgress,
     };
     use serde_json::Value;
 
     use super::*;
-    use crate::test_helper::{self, Data};
+    use crate::test_helper::*;
 
     #[tokio::test]
     async fn regrades_submission() {
-        let mut conn = test_helper::Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
 
+        let task = models::exercise_tasks::insert(
+            tx.as_mut(),
+            slide,
+            "test-exercise",
+            vec![],
+            Value::Null,
+            Value::Null,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
             score_given: 0.0,
@@ -323,27 +333,16 @@ mod test {
             .with_body(serde_json::to_string(&grading_result).unwrap())
             .create();
 
-        let Data {
-            user,
-            course,
-            instance,
-            exercise,
-            exercise_slide,
-            task,
-            ..
-        } = test_helper::insert_data(tx.as_mut(), "test-exercise")
-            .await
-            .unwrap();
         let slide_submission =
             models::exercise_slide_submissions::insert_exercise_slide_submission(
                 tx.as_mut(),
                 NewExerciseSlideSubmission {
                     course_id: Some(course),
-                    course_instance_id: Some(instance),
+                    course_instance_id: Some(instance.id),
                     exam_id: None,
                     exercise_id: exercise,
                     user_id: user,
-                    exercise_slide_id: exercise_slide,
+                    exercise_slide_id: slide,
                 },
             )
             .await
@@ -351,7 +350,7 @@ mod test {
         let task_submission = models::exercise_task_submissions::insert(
             tx.as_mut(),
             slide_submission.id,
-            exercise_slide,
+            slide,
             task,
             Value::Null,
         )
@@ -430,9 +429,19 @@ mod test {
 
     #[tokio::test]
     async fn regrades_complete() {
-        let mut conn = test_helper::Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
 
+        let task = models::exercise_tasks::insert(
+            tx.as_mut(),
+            slide,
+            "test-exercise-1",
+            vec![],
+            Value::Null,
+            Value::Null,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
             score_given: 0.0,
@@ -444,24 +453,13 @@ mod test {
             .with_body(serde_json::to_string(&grading_result).unwrap())
             .create();
 
-        let Data {
-            user,
-            course,
-            instance,
-            exercise,
-            exercise_slide,
-            task,
-            ..
-        } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
-            .await
-            .unwrap();
         let slide_submission =
             models::exercise_slide_submissions::insert_exercise_slide_submission(
                 tx.as_mut(),
                 NewExerciseSlideSubmission {
-                    exercise_slide_id: exercise_slide,
+                    exercise_slide_id: slide,
                     course_id: Some(course),
-                    course_instance_id: Some(instance),
+                    course_instance_id: Some(instance.id),
                     exam_id: None,
                     exercise_id: exercise,
                     user_id: user,
@@ -472,7 +470,7 @@ mod test {
         let task_submission = models::exercise_task_submissions::insert(
             tx.as_mut(),
             slide_submission.id,
-            exercise_slide,
+            slide,
             task,
             Value::Null,
         )
@@ -546,8 +544,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_partial() {
-        let mut conn = test_helper::Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, slide: slide_1);
 
         let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
@@ -560,17 +557,17 @@ mod test {
             .with_body(serde_json::to_string(&grading_result).unwrap())
             .create();
 
-        let Data {
-            user,
-            course,
-            instance,
-            exercise,
-            exercise_slide,
-            task: task_1,
-            ..
-        } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
-            .await
-            .unwrap();
+        let task_1 = models::exercise_tasks::insert(
+            tx.as_mut(),
+            slide_1,
+            "test-exercise-1",
+            vec![],
+            Value::Null,
+            Value::Null,
+            Value::Null,
+        )
+        .await
+        .unwrap();
         let slide_2 = models::exercise_slides::insert(tx.as_mut(), exercise, 1)
             .await
             .unwrap();
@@ -589,9 +586,9 @@ mod test {
             models::exercise_slide_submissions::insert_exercise_slide_submission(
                 tx.as_mut(),
                 NewExerciseSlideSubmission {
-                    exercise_slide_id: exercise_slide,
+                    exercise_slide_id: slide_1,
                     course_id: Some(course),
-                    course_instance_id: Some(instance),
+                    course_instance_id: Some(instance.id),
                     exam_id: None,
                     exercise_id: exercise,
                     user_id: user,
@@ -602,7 +599,7 @@ mod test {
         let task_submission_1 = models::exercise_task_submissions::insert(
             tx.as_mut(),
             slide_submission_1.id,
-            exercise_slide,
+            slide_1,
             task_1,
             Value::Null,
         )
@@ -614,7 +611,7 @@ mod test {
                 NewExerciseSlideSubmission {
                     exercise_slide_id: slide_2,
                     course_id: Some(course),
-                    course_instance_id: Some(instance),
+                    course_instance_id: Some(instance.id),
                     exam_id: None,
                     exercise_id: exercise,
                     user_id: user,
@@ -731,27 +728,15 @@ mod test {
 
     #[tokio::test]
     async fn fail_on_missing_service() {
-        let mut conn = test_helper::Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
 
-        let Data {
-            user,
-            course,
-            instance,
-            exercise,
-            exercise_slide,
-            task,
-            ..
-        } = test_helper::insert_data(tx.as_mut(), "test-exercise-1")
-            .await
-            .unwrap();
         let slide_submission =
             models::exercise_slide_submissions::insert_exercise_slide_submission(
                 tx.as_mut(),
                 NewExerciseSlideSubmission {
-                    exercise_slide_id: exercise_slide,
+                    exercise_slide_id: slide,
                     course_id: Some(course),
-                    course_instance_id: Some(instance),
+                    course_instance_id: Some(instance.id),
                     exam_id: None,
                     exercise_id: exercise,
                     user_id: user,
@@ -762,7 +747,7 @@ mod test {
         let task_submission = models::exercise_task_submissions::insert(
             tx.as_mut(),
             slide_submission.id,
-            exercise_slide,
+            slide,
             task,
             Value::Null,
         )

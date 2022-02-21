@@ -286,7 +286,7 @@ export function isCourseInstanceForm(obj: any, _argumentName?: string): obj is C
 export function isPointMap(obj: any, _argumentName?: string): obj is PointMap {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    Object.entries(obj).every(
+    Object.entries<any>(obj).every(
       ([key, value]) => typeof value === "number" && typeof key === "string",
     )
   )
@@ -301,7 +301,7 @@ export function isPoints(obj: any, _argumentName?: string): obj is Points {
     obj.users.every((e: any) => isUser(e) as boolean) &&
     ((obj.user_chapter_points !== null && typeof obj.user_chapter_points === "object") ||
       typeof obj.user_chapter_points === "function") &&
-    Object.entries(obj.user_chapter_points).every(
+    Object.entries<any>(obj.user_chapter_points).every(
       ([key, value]) => (isPointMap(value) as boolean) && typeof key === "string",
     )
   )

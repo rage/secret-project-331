@@ -51,20 +51,14 @@ test("test", async ({ page }) => {
   // Click button:has-text("Add new chapter")
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
-
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "The Levels of testing")
-
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
+  await page.fill("text=Name", "The Levels of testing")
 
   // Press ArrowRight
-  await page.press('input[type="text"]', "ArrowRight")
+  await page.press("text=Chapter number", "ArrowRight")
 
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "The Levels of Testing")
+  await page.fill("text=Name", "The Levels of Testing")
 
   // Click button:has-text("Create chapter")
   await page.click('button:has-text("Create")')
@@ -72,14 +66,8 @@ test("test", async ({ page }) => {
   // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
-
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
-
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "Unit testing")
+  await page.fill("text=Name", "Unit testing")
 
   // Click button:has-text("Create")
   await page.click('button:has-text("Create")')
@@ -87,11 +75,8 @@ test("test", async ({ page }) => {
   // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
-
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "Integration Testing")
+  await page.fill("text=Title", "Integration Testing")
 
   // Click button:has-text("Create")
   await page.click('button:has-text("Create")')
@@ -99,11 +84,8 @@ test("test", async ({ page }) => {
   // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
-
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "System Testing")
+  await page.fill("text=Title", "System Testing")
 
   // Click button:has-text("Create")
   await page.click('button:has-text("Create")')
@@ -111,11 +93,8 @@ test("test", async ({ page }) => {
   // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
-
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "Acceptance Testing")
+  await page.fill("text=Title", "Acceptance Testing")
 
   // Click button:has-text("Create")
   await page.click('button:has-text("Create")')

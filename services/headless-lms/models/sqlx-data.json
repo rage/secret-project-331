@@ -3783,35 +3783,6 @@
       ]
     }
   },
-  "56155ecd6a761f46cad91d593ec80171a4571b584176ca0d093c82f81c4c436d": {
-    "query": "\nINSERT INTO courses (name, organization_id, slug, language_code, course_language_group_id, description, content_search_language)\nVALUES ($1, $2, $3, $4, $5, $6, $7::regconfig)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Varchar",
-          "Uuid",
-          "Varchar",
-          "Varchar",
-          "Uuid",
-          "Text",
-          {
-            "Custom": {
-              "name": "regconfig",
-              "kind": "Simple"
-            }
-          }
-        ]
-      },
-      "nullable": [false]
-    }
-  },
   "5629bbd8991b5b3e8ac7f918491b67f7e37148c345c47984d86cadef99171257": {
     "query": "\nUPDATE courses\nSET name = $1\nWHERE id = $2\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description\n    ",
     "describe": {
@@ -4736,6 +4707,22 @@
       ],
       "parameters": {
         "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
+  "707714ece30ee9aa049ae2bef2589bd5be6d18c92ad3a13d5690e9c796db6b05": {
+    "query": "SELECT course_id from course_instances where id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
       },
       "nullable": [false]
     }
@@ -9963,6 +9950,22 @@
         "Left": ["Uuid", "Varchar", "Text", "Timestamptz", "Timestamptz", "Int4"]
       },
       "nullable": []
+    }
+  },
+  "f4975555bb0c4f1063c0f8f89e371c9b94a48a69c5e1ec92473db99adfce7601": {
+    "query": "\nSELECT starts_at\nFROM course_instances\nWHERE id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "starts_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [true]
     }
   },
   "f4c732597c3cdf6484a20f41348183e56353ecdafbd4da0b6544f356e50e2424": {

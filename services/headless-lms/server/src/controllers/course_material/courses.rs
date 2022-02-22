@@ -63,15 +63,13 @@ async fn get_course_page_by_path(
     )
     .await?;
 
-    if let Some(chapter_id) = page_with_user_data.page.chapter_id {
-        authorize(
-            &mut conn,
-            Act::Teach,
-            user.map(|u| u.id),
-            Res::Chapter(chapter_id),
-        )
-        .await?;
-    }
+    authorize(
+        &mut conn,
+        Act::View,
+        user.map(|u| u.id),
+        Res::Page(page_with_user_data.page.id),
+    )
+    .await?;
 
     Ok(web::Json(page_with_user_data))
 }

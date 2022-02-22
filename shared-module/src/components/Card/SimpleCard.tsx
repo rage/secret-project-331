@@ -4,36 +4,49 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CardSVG from "../../img/cardNext.svg"
-import { baseTheme, headingFont, typography } from "../../styles"
+import { headingFont, typography } from "../../styles"
 import { cardHeight, cardMaxWidth } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 
 import { CardExtraProps } from "."
 
+export interface BackgroundProps {
+  bg: string | undefined
+}
+
+export const BackgroundStyles = ({ bg }: BackgroundProps) => {
+  const CARD_BACKGROUND_STYLES = `
+    background: ${bg ? bg : "#fff"};
+  `
+  return CARD_BACKGROUND_STYLES
+}
 const StCardSvg = styled(CardSVG)`
   width: 40px;
   opacity: 0.8;
+  color: #fff;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const CardContentWrapper = styled.div`
   display: flex;
   height: 100%;
   text-align: left;
   flex-direction: column;
   word-break: break-all;
+  ${BackgroundStyles}
 
   h2 {
     font-size: ${typography.h3};
     font-weight: 700;
     z-index: 20;
     line-height: 1em;
-    color: rgba(40, 40, 40, 0.8);
+    color: #fff;
   }
 
   span {
-    color: ${baseTheme.colors.grey[700]};
+    color: #f5f6f7;
     font-size: 1.2em;
-    opacity: 0.8;
+    /* opacity: 0.8; */
     z-index: 20;
     font-weight: 500;
     width: 50%;
@@ -46,7 +59,7 @@ const CardContentWrapper = styled.div`
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, time }) => {
+const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, time, bg }) => {
   const { t } = useTranslation()
 
   const fetchOpensText = () => {
@@ -113,7 +126,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, tim
         }
       `}
     >
-      <CardContentWrapper>
+      <CardContentWrapper bg={bg}>
         {open ? (
           <div
             className={css`
@@ -121,7 +134,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, tim
               padding: 2rem 2.5rem 0 2.5rem;
             `}
           >
-            <CardSVG />
+            <StCardSvg />
           </div>
         ) : (
           <div
@@ -129,10 +142,9 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, tim
               flex: 0 1 auto;
               text-align: center;
               background: #cac9c9;
-              padding: 3rem 2.5rem 0 2.5rem;
+              padding: 2rem;
             `}
           >
-            <StCardSvg />
             {fetchOpensText()}
           </div>
         )}

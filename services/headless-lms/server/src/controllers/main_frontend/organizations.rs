@@ -38,13 +38,30 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a
 async fn get_organization_courses(
     organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
     pagination: web::Query<Pagination>,
 ) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-    let courses =
-        models::courses::organization_courses_paginated(&mut conn, &organization_id, &pagination)
-            .await?;
-    Ok(web::Json(courses))
+    let courses = models::courses::organization_courses(&mut conn, *organization_id).await?;
+    let mut viewable_courses = vec![];
+    for course in courses {
+        // only add draft courses that the user is allowed to view
+        // todo: think of a more efficient method
+        if !course.is_draft
+            || authorize(
+                &mut conn,
+                Act::View,
+                user.as_ref().map(|u| u.id),
+                Res::Course(course.id),
+            )
+            .await
+            .is_ok()
+        {
+            viewable_courses.push(course);
+        }
+    }
+    pagination.paginate(&mut viewable_courses);
+    Ok(web::Json(viewable_courses))
 }
 
 #[generated_doc]

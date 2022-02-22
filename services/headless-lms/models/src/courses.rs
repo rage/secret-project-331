@@ -544,8 +544,8 @@ pub async fn get_course_structure(
 
 pub async fn organization_courses_paginated(
     conn: &mut PgConnection,
-    organization_id: &Uuid,
-    pagination: &Pagination,
+    organization_id: Uuid,
+    pagination: Pagination,
 ) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,

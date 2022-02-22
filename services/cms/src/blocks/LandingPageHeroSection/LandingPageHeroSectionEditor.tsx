@@ -5,6 +5,8 @@ import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
 
 import Button from "../../shared-module/components/Button"
+import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
+import { baseTheme } from "../../shared-module/styles"
 import BlockWrapper from "../BlockWrapper"
 
 import { LandingPageHeroSectionAttributes } from "."
@@ -25,28 +27,40 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
   const { title } = attributes
   return (
     <BlockWrapper id={clientId}>
-      <RichText
-        className="has-text-align-center wp-block-heading"
-        tagName="h1"
-        value={title}
-        onChange={(value: string) => setAttributes({ title: value })}
-        placeholder={"Welcome message for course..."}
-      />
-      <InnerBlocks
-        template={LANDING_PAGE_HERO_SECTION_TEMPLATE}
-        allowedBlocks={ALLOWED_NESTED_BLOCKS}
-      />
-      <div
-        className={css`
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        `}
-      >
-        <Button variant="primary" size="large">
-          Start
-        </Button>
-      </div>
+      <BreakFromCentered sidebar sidebarPosition="right" sidebarWidth="280px">
+        <div
+          className={css`
+            background: ${baseTheme.colors.blue[100]};
+            width: 100%;
+            border-radius: 1px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            padding: 7.5em 1em;
+          `}
+        >
+          <RichText
+            className="has-text-align-center wp-block-heading"
+            tagName="h1"
+            value={title}
+            onChange={(value: string) => setAttributes({ title: value })}
+            placeholder={"Welcome message for course..."}
+          />
+          <InnerBlocks
+            template={LANDING_PAGE_HERO_SECTION_TEMPLATE}
+            allowedBlocks={ALLOWED_NESTED_BLOCKS}
+          />
+          <div
+            className={css`
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            `}
+          >
+            <Button variant="primary" size="large">
+              Start
+            </Button>
+          </div>
+        </div>
+      </BreakFromCentered>
     </BlockWrapper>
   )
 }

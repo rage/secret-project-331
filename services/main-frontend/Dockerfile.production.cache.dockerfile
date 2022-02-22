@@ -1,4 +1,4 @@
-# This image is used in skaffold.production.yml to cache the build
+# This image is used in skaffold.production.yaml to cache the build
 FROM node:16-bullseye-slim as builder
 
 RUN apt-get update \

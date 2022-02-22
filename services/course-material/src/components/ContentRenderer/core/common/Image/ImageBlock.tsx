@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
+import Zoom from "react-medium-image-zoom"
 
 import { BlockRendererProps } from "../../.."
 import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
@@ -34,56 +35,65 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
       : rel
 
   return (
-    <div>
-      <figure
-        className={css`
-          ${align === "center" && `text-align: center; display: table; margin: 0 auto;`}
-          ${align !== "center" &&
-          `float: ${align};
-          margin-top: 0.5rem;
-          margin-bottom: 0.5rem;
-          ${align === "right" ? "margin-left: 1rem;" : "margin-right: 1rem;"}
-          `}
-        `}
-        {...(anchor && { id: anchor })}
-      >
-        <div
+    <div
+      className={css`
+        margin: 0 auto;
+        width: fit-content;
+      `}
+    >
+      <Zoom>
+        <figure
           className={css`
-            ${align && "display: inline-block;"}
+            ${align === "center" && `text-align: center; display: table; margin: 0 auto;`}
+            ${align !== "center" &&
+            `float: ${align};
+          margin-top: 3rem;
+          margin-bottom: 3rem;
+          ${align === "right" && "margin-left: 1rem;"}
+          ${align === "left" && "margin-right: 1rem;"}
           `}
+          `}
+          {...(anchor && { id: anchor })}
         >
-          <a
-            href={href}
-            target={linkTarget}
-            rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
-            className={linkClass}
-          >
-            <img
-              title={title}
-              height={height}
-              width={width}
-              className={css`
-                max-width: 100%;
-                ${className === "is-style-rounded" && "border-radius: 9999px"}
-              `}
-              src={url}
-              alt={alt}
-            />
-            {linkTarget && linkTarget.includes("_blank") && (
-              <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
-            )}
-          </a>
-          <figcaption
+          <div
             className={css`
-              text-align: center;
-              font-size: 0.8125rem;
-              margin-top: 0.40625rem;
-              margin-bottom: 0.8125rem;
+              ${align && "display: inline-block;"}
             `}
-            dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(caption ?? "") }}
-          />
-        </div>
-      </figure>
+          >
+            <a
+              href={href}
+              target={linkTarget}
+              rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
+              className={linkClass}
+            >
+              <img
+                title={title}
+                height={height}
+                width={width}
+                className={css`
+                  max-width: 100%;
+                  margin: 1rem 0;
+                  ${className === "is-style-rounded" && "border-radius: 9999px"}
+                `}
+                src={url}
+                alt={alt}
+              />
+              {linkTarget && linkTarget.includes("_blank") && (
+                <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
+              )}
+            </a>
+            <figcaption
+              className={css`
+                text-align: center;
+                font-size: 0.8125rem;
+                margin-top: 0.40625rem;
+                margin-bottom: 0.8125rem;
+              `}
+              dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(caption ?? "") }}
+            />
+          </div>
+        </figure>
+      </Zoom>
     </div>
   )
 }

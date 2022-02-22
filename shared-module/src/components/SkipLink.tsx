@@ -12,6 +12,7 @@ const SkipLink = styled.a`
   position: absolute;
   transform: translateY(-100%);
   text-decoration: none;
+  z-index: 100000;
 
   &:focus {
     transform: translateY(0%);

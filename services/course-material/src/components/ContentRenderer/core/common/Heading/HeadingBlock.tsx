@@ -29,6 +29,8 @@ const HeadingBlock: React.FC<BlockRendererProps<HeadingAttributes>> = ({ data })
       __html: sanitizeCourseMaterialHtml(content),
     },
     className: css`
+      line-height: ${level === 1 ? 1.1 : 1.2};
+      margin-bottom: 1rem;
       ${textAlign && `text-align: ${textAlign};`}
       ${textColor && `color: ${colorMapper(textColor, "#000000")};`}
       ${backgroundColor && `background-color: ${colorMapper(backgroundColor)};`}

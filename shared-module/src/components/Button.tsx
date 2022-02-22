@@ -2,6 +2,7 @@ import styled from "@emotion/styled"
 import React from "react"
 
 import { fontWeights, headingFont, theme } from "../styles"
+import { defaultFontSizePx } from "../styles/constants"
 import { respondToOrLarger } from "../styles/respond"
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -18,6 +19,7 @@ export const BASE_BUTTON_STYLES = `
   padding: ${theme.buttonSizes["large"].padding};
   font-family: ${headingFont};
   font-weight: ${fontWeights.normal};
+  font-size: ${defaultFontSizePx}px;
   line-height: normal;
   vertical-align: baseline;
   cursor: pointer;
@@ -53,6 +55,7 @@ export const BASE_BUTTON_STYLES = `
     color: ${theme.primary.disabledText};
     background-color: ${theme.primary.disabledBg};
     border-color: ${theme.primary.disabledBorder};
+    cursor: not-allowed;
   }
 
   &:focus {

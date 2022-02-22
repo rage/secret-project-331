@@ -102,6 +102,10 @@ test("create quizzes test", async ({ page }) => {
   // Click text=Add slide
   await page.click("text=Add slide")
 
+  // The block needs to be focused for the button to work
+  await page.waitForTimeout(100)
+  await page.click("text=Slide 1")
+
   // Click text=Add task
   await page.click("text=Add task")
 

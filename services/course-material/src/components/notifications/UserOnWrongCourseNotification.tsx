@@ -6,6 +6,7 @@ import { useQuery } from "react-query"
 
 import { fetchCourseById } from "../../services/backend"
 import Banner from "../../shared-module/components/Banner/Banner"
+import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
 
@@ -32,27 +33,29 @@ const UserOnWrongCourseNotification: React.FC<UserOnWrongCourseNotificationProps
   }
 
   return (
-    <Banner variant="readOnly">
-      <Link passHref href={`/${organizationSlug}/courses/${getCourseById.data.slug}`}>
-        <a
-          className={css`
-            color: #000;
-            text-decoration: none;
-            &:hover {
-              color: #333;
-            }
-          `}
-          hrefLang={getCourseById.data.language_code}
-          href="replace"
-        >
-          <Trans t={t} i18nKey="message-already-on-different-language-version">
-            Looks like you&apos;re already on a different language version of this course. Before
-            answering any exercises, please return to <b>{{ name: getCourseById.data.name }}</b>
-            or change your active language in the settings.
-          </Trans>
-        </a>
-      </Link>
-    </Banner>
+    <BreakFromCentered sidebar={false}>
+      <Banner variant="readOnly">
+        <Link passHref href={`/${organizationSlug}/courses/${getCourseById.data.slug}`}>
+          <a
+            className={css`
+              color: #000;
+              text-decoration: none;
+              &:hover {
+                color: #333;
+              }
+            `}
+            hrefLang={getCourseById.data.language_code}
+            href="replace"
+          >
+            <Trans t={t} i18nKey="message-already-on-different-language-version">
+              Looks like you&apos;re already on a different language version of this course. Before
+              answering any exercises, please return to <b>{{ name: getCourseById.data.name }}</b>
+              or change your active language in the settings.
+            </Trans>
+          </a>
+        </Link>
+      </Banner>
+    </BreakFromCentered>
   )
 }
 

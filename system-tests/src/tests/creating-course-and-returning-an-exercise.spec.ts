@@ -49,7 +49,7 @@ test("test", async ({ page }) => {
   ])
 
   // Click button:has-text("Add new chapter")
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.locator(`button:has-text("New")`).last().click()
 
   // Fill input[type="text"]
   await page.fill("text=Name", "The Levels of testing")
@@ -64,7 +64,7 @@ test("test", async ({ page }) => {
   await page.click('button:has-text("Create")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.locator(`button:has-text("New")`).last().click()
 
   // Fill input[type="text"]
   await page.fill("text=Name", "Unit testing")
@@ -120,6 +120,10 @@ test("test", async ({ page }) => {
 
   // Click text=Add slide
   await page.click("text=Add slide")
+
+  // The block needs to be focused for the button to work
+  await page.waitForTimeout(100)
+  await page.click("text=Slide 1")
 
   // Click text=Add task
   await page.click("text=Add task")

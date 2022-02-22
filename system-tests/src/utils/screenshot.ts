@@ -26,7 +26,7 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   page?: Page
   frame?: Frame
   pageScreenshotOptions?: PageScreenshotOptions
-  axeSkip?: boolean
+  axeSkip?: boolean | string[]
   skipMobile?: boolean
 }
 

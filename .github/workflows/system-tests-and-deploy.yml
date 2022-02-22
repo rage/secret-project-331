@@ -70,8 +70,8 @@ jobs:
 
       - name: Build and deploy
         run: |
-          skaffold build --filename ./skaffold.production.yml
-          skaffold run --port-forward --force --filename ./skaffold.production.yml --tail &
+          skaffold build --filename ./skaffold.production.yaml
+          skaffold run --port-forward --force --filename ./skaffold.production.yaml --tail &
           sleep 10
           kubectl get pods -o name --selector='waitToBeReady!=false' | xargs kubectl wait --timeout=600s --for=condition=ready
           echo "All pods ready"
@@ -121,7 +121,7 @@ jobs:
         if: ${{ github.ref == 'refs/heads/master' }}
 
       - name: Push images if master
-        run: skaffold build -p push-images --filename ./skaffold.production.yml --file-output=skaffold-build-output.json
+        run: skaffold build -p push-images --filename ./skaffold.production.yaml --file-output=skaffold-build-output.json
         if: ${{ github.ref == 'refs/heads/master' }}
 
       - name: Store skaffold output json if master
@@ -173,4 +173,4 @@ jobs:
           echo "::add-mask::$IPS"
 
       - name: Deploy with Skaffold
-        run: skaffold deploy --force --filename ./skaffold.production.yml -p production --build-artifacts=./skaffold-build-output/skaffold-build-output.json --namespace courses-moocfi
+        run: skaffold deploy --force --filename ./skaffold.production.yaml -p production --build-artifacts=./skaffold-build-output/skaffold-build-output.json --namespace courses-moocfi

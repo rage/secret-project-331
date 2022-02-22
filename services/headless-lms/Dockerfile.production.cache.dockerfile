@@ -1,4 +1,4 @@
-# Built from DockerfileBase.dockerfile. This image is used in skaffold.production.yml to cache the build
+# Built from DockerfileBase.dockerfile. This image is used in skaffold.production.yaml to cache the build
 FROM eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest as chef
 RUN chown -R user /app
 USER user

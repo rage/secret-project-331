@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseVariantIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 import waitForFunction from "../../../utils/waitForFunction"
 
@@ -23,16 +24,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
     page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`),
   ])
 
-  await page.waitForTimeout(100)
-
-  const courseVariantSelector = await page.$$("text=Select course version to continue.")
-
-  if (courseVariantSelector.length > 0) {
-    await page.click('label:has-text("default")')
-
-    // Click button:has-text("Continue")
-    await page.click('button:has-text("Continue")')
-  }
+  await selectCourseVariantIfPrompted(page)
 
   await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
   expect(page.url()).toBe(

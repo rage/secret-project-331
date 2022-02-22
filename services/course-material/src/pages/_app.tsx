@@ -13,6 +13,7 @@ import initI18n from "../shared-module/utils/initI18n"
 
 import "@fortawesome/fontawesome-svg-core/styles.css"
 config.autoAddCss = false
+import "react-medium-image-zoom/dist/styles.css"
 
 // eslint-disable-next-line i18next/no-literal-string
 const i18n = initI18n("course-material")

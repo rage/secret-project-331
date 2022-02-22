@@ -42,35 +42,6 @@ pub struct CourseStructure {
     pub chapters: Vec<Chapter>,
 }
 
-pub async fn insert(
-    conn: &mut PgConnection,
-    name: &str,
-    organization_id: Uuid,
-    course_language_group_id: Uuid,
-    slug: &str,
-    language_code: &str,
-    description: &str,
-) -> ModelResult<Uuid> {
-    let content_search_language = get_cfgname_by_tag(conn, language_code.to_string()).await?;
-    let res = sqlx::query!(
-        "
-INSERT INTO courses (name, organization_id, slug, language_code, course_language_group_id, description, content_search_language)
-VALUES ($1, $2, $3, $4, $5, $6, $7::regconfig)
-RETURNING id
-",
-        name,
-        organization_id,
-        slug,
-        language_code,
-        course_language_group_id,
-        description,
-        content_search_language as _,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.id)
-}
-
 pub async fn all_courses(conn: &mut PgConnection) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
@@ -517,6 +488,20 @@ WHERE id = $1;
     Ok(course)
 }
 
+pub async fn get_nondeleted_course_id_by_slug(
+    conn: &mut PgConnection,
+    slug: &str,
+) -> ModelResult<Uuid> {
+    let id = sqlx::query!(
+        "SELECT id FROM courses WHERE slug = $1 AND deleted_at IS NULL",
+        slug
+    )
+    .fetch_one(conn)
+    .await?
+    .id;
+    Ok(id)
+}
+
 pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let organization_id = sqlx::query!("SELECT organization_id FROM courses WHERE id = $1", id)
         .fetch_one(conn)
@@ -639,6 +624,7 @@ pub struct NewCourse {
     pub language_code: String,
     pub teacher_in_charge_name: String,
     pub teacher_in_charge_email: String,
+    pub description: String,
 }
 
 pub async fn insert_course(
@@ -854,70 +840,59 @@ mod test {
         exercise_tasks::{self, ExerciseTask},
         exercises::{self, Exercise},
         organizations, pages,
-        test_helper::Conn,
+        test_helper::*,
         users,
     };
 
     #[tokio::test]
     async fn validates_language_code_when_adding_a_course() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-        let organization_id = organizations::insert(
-            tx.as_mut(),
-            "",
-            "",
-            "",
-            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
-        )
-        .await
-        .unwrap();
-        let course_language_group_id = course_language_groups::insert_with_id(
-            tx.as_mut(),
-            Uuid::parse_str("281384b3-bbc9-4da5-b93e-4c122784a724").unwrap(),
-        )
-        .await
-        .unwrap();
+        insert_data!(:tx, :user, :org);
 
         // Valid language code allows course creation.
+        let mut new_course = NewCourse {
+            name: "".to_string(),
+            slug: "".to_string(),
+            organization_id: org,
+            language_code: "en-US".to_string(),
+            teacher_in_charge_name: "teacher".to_string(),
+            teacher_in_charge_email: "teacher@example.com".to_string(),
+            description: "description".to_string(),
+        };
         let mut tx2 = tx.begin().await;
-        let course_id = courses::insert(
+        courses::insert_course(
             tx2.as_mut(),
-            "",
-            organization_id,
-            course_language_group_id,
-            "course",
-            "en-US",
-            "",
+            Uuid::new_v4(),
+            Uuid::new_v4(),
+            new_course.clone(),
+            user,
         )
-        .await;
-        assert!(course_id.is_ok());
+        .await
+        .unwrap();
         tx2.rollback().await;
 
         // Empty language code is not allowed.
+        new_course.language_code = "".to_string();
         let mut tx2 = tx.begin().await;
-        let course_id = courses::insert(
+        courses::insert_course(
             tx2.as_mut(),
-            "",
-            organization_id,
-            course_language_group_id,
-            "course",
-            "",
-            "",
+            Uuid::new_v4(),
+            Uuid::new_v4(),
+            new_course.clone(),
+            user,
         )
-        .await;
-        assert!(course_id.is_err());
+        .await
+        .unwrap_err();
         tx2.rollback().await;
 
         // Wrong case language code is not allowed.
+        new_course.language_code = "en-us".to_string();
         let mut tx2 = tx.begin().await;
-        let course_id = courses::insert(
+        let course_id = courses::insert_course(
             tx2.as_mut(),
-            "",
-            organization_id,
-            course_language_group_id,
-            "course",
-            "en-us",
-            "",
+            Uuid::new_v4(),
+            Uuid::new_v4(),
+            new_course.clone(),
+            user,
         )
         .await;
         assert!(course_id.is_err());
@@ -925,14 +900,13 @@ mod test {
 
         // Underscore in locale is not allowed.
         let mut tx2 = tx.begin().await;
-        let course_id = courses::insert(
+        new_course.language_code = "en_US".to_string();
+        let course_id = courses::insert_course(
             tx2.as_mut(),
-            "",
-            organization_id,
-            course_language_group_id,
-            "course",
-            "en_US",
-            "",
+            Uuid::new_v4(),
+            Uuid::new_v4(),
+            new_course.clone(),
+            user,
         )
         .await;
         assert!(course_id.is_err());
@@ -949,12 +923,12 @@ mod test {
             tx.as_mut(),
             "",
             "",
-            "",
+            "description",
             Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
         )
         .await
         .unwrap();
-        let user_id = users::insert(tx.as_mut(), "user@example.com", None, None)
+        let user_id = users::insert(tx.as_mut(), "copies_course_user@example.com", None, None)
             .await
             .unwrap();
         let (course, _page, _instance) = courses::insert_course(
@@ -968,6 +942,7 @@ mod test {
                 slug: "course".to_string(),
                 teacher_in_charge_name: "admin".to_string(),
                 teacher_in_charge_email: "admin@example.org".to_string(),
+                description: "description".to_string(),
             },
             user_id,
         )
@@ -1042,6 +1017,7 @@ mod test {
                 slug: "kurssi".to_string(),
                 teacher_in_charge_name: "admin".to_string(),
                 teacher_in_charge_email: "admin@example.org".to_string(),
+                description: "description".to_string(),
             },
         )
         .await

@@ -50,7 +50,7 @@ const navbarItems = css`
   padding: 0em 4em;
   background: ${baseTheme.colors.clear[100]};
   border-bottom: 2px solid #333;
-  z-index: 10000;
+  z-index: 100;
 
   h1 {
     margin-bottom: 0;
@@ -109,7 +109,7 @@ const navMenu = css`
   margin-top: 0;
   transition: all 0.5s ease;
   padding-left: 0;
-  z-index: 99;
+  z-index: 9;
   overflow-y: hidden;
 
   justify-content: end;
@@ -186,7 +186,7 @@ const navLinks = css`
 `
 const menuIcon = css`
   font-size: 1.8rem;
-  z-index: 999;
+  z-index: 99;
   cursor: pointer;
   height: auto;
 

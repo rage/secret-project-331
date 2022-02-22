@@ -1,4 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
+import { css } from "@emotion/css"
 import DOMPurify from "dompurify"
 import dynamic from "next/dynamic"
 import React from "react"
@@ -6,6 +7,8 @@ import { useTranslation } from "react-i18next"
 
 import { Block } from "../../services/backend"
 import { NewProposedBlockEdit } from "../../shared-module/bindings"
+import { linkWithExtraIconClass } from "../../shared-module/styles/constants"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { courseMaterialBlockClass } from "../../utils/constants"
 
 import DefaultBlock from "./DefaultBlock"
@@ -142,11 +145,12 @@ const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
       node.removeAttribute(TEMPORARY_ATTRIBUTE)
       if (node.getAttribute("target") === "_blank") {
         node.setAttribute("rel", "noopener")
+        // Class allows styling from GlobalStyles
+        node.classList.add(linkWithExtraIconClass)
         // Ensure accessibility in an ugly way for target _blank
-        const elements = ` <span class="screen-reader-only">${t(
+        const elements = `<span class="screen-reader-only"> ${t(
           "screen-reader-opens-in-new-tab",
-        )}</span><svg width="16px" height="16px" viewBox="0 0 24 24"><g stroke-width="2.1" stroke="#666" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 13.5 17 19.5 5 19.5 5 7.5 11 7.5"></polyline><path d="M14,4.5 L20,4.5 L20,10.5 M20,4.5 L11,13.5"></path></g></svg>
-        `
+        )}</span><svg aria-hidden="true" width="16px" height="16px" viewBox="0 0 24 24"><g stroke-width="2.1" stroke="#666" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 13.5 17 19.5 5 19.5 5 7.5 11 7.5"></polyline><path d="M14,4.5 L20,4.5 L20,10.5 M20,4.5 L11,13.5"></path></g></svg>`
         const text = node.innerHTML
         node.innerHTML = text + elements
       }
@@ -154,7 +158,11 @@ const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
   })
 
   return (
-    <>
+    <div
+      className={css`
+        font-size: 20px;
+      `}
+    >
       {props.data.map((block) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
         return (
@@ -170,8 +178,8 @@ const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
           </div>
         )
       })}
-    </>
+    </div>
   )
 }
 
-export default ContentRenderer
+export default withErrorBoundary(ContentRenderer)

@@ -26,6 +26,8 @@ pub struct PageProposal {
     pub pending: bool,
     pub created_at: DateTime<Utc>,
     pub block_proposals: Vec<BlockProposal>,
+    pub page_title: String,
+    pub page_url_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
@@ -111,7 +113,9 @@ SELECT proposed_page_edits.id AS "page_proposal_id!",
   proposed_page_edits.pending as "pending!",
   block_attribute,
   proposed_block_edits.status as "block_proposal_status: ProposalStatus",
-  proposed_page_edits.created_at as "created_at!"
+  proposed_page_edits.created_at as "created_at!",
+  pages.title as "page_title!",
+  pages.url_path as "page_url_path!"
 FROM (
     SELECT id,
       page_id,
@@ -127,6 +131,7 @@ FROM (
     LIMIT $3 OFFSET $4
   ) proposed_page_edits
   LEFT JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id
+  LEFT JOIN pages ON proposed_page_edits.page_id = pages.id
 WHERE proposed_block_edits.deleted_at IS NULL
 "#,
         course_id,
@@ -194,6 +199,8 @@ WHERE proposed_block_edits.deleted_at IS NULL
                     pending: page_proposal_pending,
                     created_at,
                     block_proposals: Vec::new(),
+                    page_title: r.page_title,
+                    page_url_path: r.page_url_path,
                 });
         page_proposal.block_proposals.push(BlockProposal {
             accept_preview: merge_edits::merge(&original_text, &changed_text, &content),
@@ -373,14 +380,16 @@ mod test {
     use headless_lms_utils::document_schema_processor::{attributes, GutenbergBlock};
 
     use super::*;
-    use crate::{
-        proposed_block_edits::*,
-        test_helper::{insert_data, Conn, Data},
-    };
+    use crate::{proposed_block_edits::*, test_helper::*};
 
-    async fn init_content(conn: &mut PgConnection, content: &str) -> (Data, Uuid) {
+    async fn init_content(
+        conn: &mut PgConnection,
+        chapter: Uuid,
+        page: Uuid,
+        user: Uuid,
+        content: &str,
+    ) -> Uuid {
         let client_id = Uuid::new_v4();
-        let data = insert_data(conn, "").await.unwrap();
         let new_content: Vec<GutenbergBlock> = vec![GutenbergBlock {
             client_id,
             name: "core/paragraph".to_string(),
@@ -394,23 +403,23 @@ mod test {
             content: serde_json::to_value(&new_content).unwrap(),
             url_path: "".to_string(),
             title: "".to_string(),
-            chapter_id: Some(data.chapter),
+            chapter_id: Some(chapter),
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
         };
         crate::pages::update_page(
             conn,
-            data.page,
+            page,
             page_update,
-            data.user,
+            user,
             true,
             HistoryChangeReason::PageSaved,
             false,
         )
         .await
         .unwrap();
-        (data, client_id)
+        client_id
     }
 
     async fn assert_content(conn: &mut PgConnection, page_id: Uuid, expected: &str) {
@@ -423,12 +432,18 @@ mod test {
 
     #[tokio::test]
     async fn typo_fix() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :chapter, :page);
+        let block_id = init_content(
+            tx.as_mut(),
+            chapter,
+            page,
+            user,
+            "Content with a tpo in it.",
+        )
+        .await;
 
-        let (data, block_id) = init_content(tx.as_mut(), "Content with a tpo in it.").await;
         let new = NewProposedPageEdits {
-            page_id: data.page,
+            page_id: page,
             block_edits: vec![NewProposedBlockEdit {
                 block_id,
                 block_attribute: "content".to_string(),
@@ -436,44 +451,47 @@ mod test {
                 changed_text: "Content with a typo in it.".to_string(),
             }],
         };
-        insert(tx.as_mut(), data.course, None, &new).await.unwrap();
-        let mut ps =
-            get_proposals_for_course(tx.as_mut(), data.course, true, Pagination::default())
-                .await
-                .unwrap();
+        insert(tx.as_mut(), course, None, &new).await.unwrap();
+        let mut ps = get_proposals_for_course(tx.as_mut(), course, true, Pagination::default())
+            .await
+            .unwrap();
         let mut p = ps.pop().unwrap();
         let b = p.block_proposals.pop().unwrap();
         assert_eq!(b.accept_preview.unwrap(), "Content with a typo in it.");
         process_proposal(
             tx.as_mut(),
-            data.page,
+            page,
             p.id,
             vec![BlockProposalInfo {
                 id: b.id,
                 action: BlockProposalAction::Accept("Content with a typo in it.".to_string()),
             }],
-            data.user,
+            user,
         )
         .await
         .unwrap();
 
-        let mut ps =
-            get_proposals_for_course(tx.as_mut(), data.course, false, Pagination::default())
-                .await
-                .unwrap();
+        let mut ps = get_proposals_for_course(tx.as_mut(), course, false, Pagination::default())
+            .await
+            .unwrap();
         let _ = ps.pop().unwrap();
 
-        assert_content(tx.as_mut(), data.page, "Content with a typo in it.").await;
+        assert_content(tx.as_mut(), page, "Content with a typo in it.").await;
     }
 
     #[tokio::test]
     async fn rejection() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
-
-        let (data, block_id) = init_content(tx.as_mut(), "Content with a tpo in it.").await;
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :chapter, :page);
+        let block_id = init_content(
+            tx.as_mut(),
+            chapter,
+            page,
+            user,
+            "Content with a tpo in it.",
+        )
+        .await;
         let new = NewProposedPageEdits {
-            page_id: data.page,
+            page_id: page,
             block_edits: vec![NewProposedBlockEdit {
                 block_id,
                 block_attribute: "content".to_string(),
@@ -481,12 +499,11 @@ mod test {
                 changed_text: "Content with a typo in it.".to_string(),
             }],
         };
-        insert(tx.as_mut(), data.course, None, &new).await.unwrap();
+        insert(tx.as_mut(), course, None, &new).await.unwrap();
 
-        let mut ps =
-            get_proposals_for_course(tx.as_mut(), data.course, true, Pagination::default())
-                .await
-                .unwrap();
+        let mut ps = get_proposals_for_course(tx.as_mut(), course, true, Pagination::default())
+            .await
+            .unwrap();
         let mut p = ps.pop().unwrap();
         let b = p.block_proposals.pop().unwrap();
         assert_eq!(b.accept_preview.unwrap(), "Content with a typo in it.");
@@ -494,23 +511,22 @@ mod test {
 
         process_proposal(
             tx.as_mut(),
-            data.page,
+            page,
             p.id,
             vec![BlockProposalInfo {
                 id: b.id,
                 action: BlockProposalAction::Reject,
             }],
-            data.user,
+            user,
         )
         .await
         .unwrap();
 
-        let mut ps =
-            get_proposals_for_course(tx.as_mut(), data.course, false, Pagination::default())
-                .await
-                .unwrap();
+        let mut ps = get_proposals_for_course(tx.as_mut(), course, false, Pagination::default())
+            .await
+            .unwrap();
         let _ = ps.pop().unwrap();
 
-        assert_content(tx.as_mut(), data.page, "Content with a tpo in it.").await;
+        assert_content(tx.as_mut(), page, "Content with a tpo in it.").await;
     }
 }

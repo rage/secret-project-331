@@ -57,18 +57,18 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
     setEditing(!editing)
   }
 
-  const onChange = (key: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = (key: string) => (value: string) => {
     setService({
       ...service,
-      [key]: event.target.type === "number" ? parseInt(event.target.value) : event.target.value,
+      [key]: value,
     })
   }
 
-  const onChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeName = (value: string) => {
     setService({
       ...service,
-      name: event.target.value,
-      slug: convertToSlug(event.target.value),
+      name: value,
+      slug: convertToSlug(value),
     })
   }
 
@@ -211,12 +211,14 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
 
         <CardContent>
           <TimeComponent
-            name={`${t("label-created")} `}
+            label={`${t("label-created")} `}
             date={exerciseService.created_at}
             right={false}
+            boldLabel
           />
           <TimeComponent
-            name={`${t("label-updated")} `}
+            label={`${t("label-updated")} `}
+            boldLabel
             date={exerciseService.updated_at}
             right={true}
           />

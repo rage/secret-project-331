@@ -1,4 +1,4 @@
-# This image is used in skaffold.production.yml to create a slim image that is used in production
+# This image is used in skaffold.production.yaml to create a slim image that is used in production
 ARG BUILD_CACHE
 
 FROM $BUILD_CACHE as builder

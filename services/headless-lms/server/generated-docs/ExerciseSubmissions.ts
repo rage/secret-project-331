@@ -1,1 +1,1 @@
-type ExerciseSubmissions = { data: Array<Submission>; total_pages: number }
+type ExerciseSubmissions = { data: Array<ExerciseSlideSubmission>; total_pages: number }

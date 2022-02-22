@@ -1,6 +1,8 @@
+import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useReducer } from "react"
 import { useQuery } from "react-query"
 
+import CourseMaterialPageBreadcrumbs from "../../../../components/CourseMaterialPageBreadcrumbs"
 import Layout from "../../../../components/Layout"
 import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
@@ -10,6 +12,7 @@ import { fetchCoursePageByPath } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import basePath from "../../../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -23,6 +26,7 @@ interface PagePageProps {
 }
 
 const PagePage: React.FC<PagePageProps> = ({ query }) => {
+  const router = useRouter()
   const courseSlug = query.courseSlug
   const path = `/${useQueryParameter("path")}`
 
@@ -58,6 +62,29 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
     getCoursePageByPath.isLoading,
     getCoursePageByPath.isSuccess,
   ])
+
+  // handle if the page was redirected to a different path
+  useEffect(() => {
+    if (!getCoursePageByPath.data) {
+      return
+    }
+    if (getCoursePageByPath.data.was_redirected) {
+      // want to keep the same page, since the page content is already correct, just
+      // want to fix the url without creating a history entry
+      const currentPathName = document.location.pathname
+      const courseSlugEndLocation = currentPathName.indexOf(courseSlug) + courseSlug.length
+      const beginningOfNewPath = currentPathName.substring(0, courseSlugEndLocation)
+      const newPath = `${beginningOfNewPath}${getCoursePageByPath.data.page.url_path}`
+
+      // Nextjs router adds the base path to the start of the url, so we need to remove it first
+      const nextJsAdjustedPath = newPath.substring(basePath().length)
+      // eslint-disable-next-line i18next/no-literal-string
+      console.info(`Redirecting to ${newPath} (${nextJsAdjustedPath})`)
+      router.replace(nextJsAdjustedPath, undefined, {
+        shallow: true,
+      })
+    }
+  }, [courseSlug, getCoursePageByPath.data, router])
 
   useEffect(() => {
     if (typeof window != "undefined" && window.location.hash) {
@@ -104,6 +131,7 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
           organizationSlug={query.organizationSlug}
           courseSlug={courseSlug}
         >
+          <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
           <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
         </Layout>
       </PageContext.Provider>

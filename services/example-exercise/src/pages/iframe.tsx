@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import ReactDOM from "react-dom"
 
 import { Renderer } from "../components/Renderer"
-import { Grading } from "../shared-module/bindings"
+import { ExerciseTaskGrading } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { Alternative, Answer, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
@@ -12,7 +12,7 @@ import { Alternative, Answer, ModelSolutionApi, PublicAlternative } from "../uti
 import { ExerciseFeedback } from "./api/grade"
 
 export interface SubmissionData {
-  grading: Grading
+  grading: ExerciseTaskGrading
   user_answer: Answer
   public_spec: PublicAlternative[]
 }
@@ -33,7 +33,7 @@ export type State =
       selectedOptionId: string
       feedback_json: ExerciseFeedback | null
       model_solution_spec: ModelSolutionApi | null
-      grading: Grading | null
+      grading: ExerciseTaskGrading | null
     }
   | {
       view_type: "exercise-editor"

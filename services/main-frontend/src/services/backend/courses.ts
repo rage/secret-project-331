@@ -5,9 +5,10 @@ import {
   CourseStructure,
   CourseUpdate,
   Exercise,
+  ExerciseSlideSubmissionCount,
+  ExerciseSlideSubmissionCountByWeekAndHour,
+  ExerciseUserCounts,
   NewCourse,
-  SubmissionCountByExercise,
-  SubmissionCountByWeekAndHour,
   Term,
   TermUpdate,
 } from "../../shared-module/bindings"
@@ -16,8 +17,8 @@ import {
   isCourseInstance,
   isCourseStructure,
   isExercise,
-  isSubmissionCountByExercise,
-  isSubmissionCountByWeekAndHour,
+  isExerciseSlideSubmissionCountByWeekAndHour,
+  isExerciseUserCounts,
   isTerm,
 } from "../../shared-module/bindings.guard"
 import { isArray, isString, validateResponse } from "../../shared-module/utils/fetching"
@@ -57,6 +58,16 @@ export const postNewCourseTranslation = async (
   return validateResponse(response, isCourse)
 }
 
+export const postNewCourseDuplicate = async (
+  courseId: string,
+  data: NewCourse,
+): Promise<Course> => {
+  const response = await mainFrontendClient.post(`/courses/${courseId}/duplicate`, data, {
+    responseType: "json",
+  })
+  return validateResponse(response, isCourse)
+}
+
 export const updateCourse = async (courseId: string, data: CourseUpdate): Promise<Course> => {
   const response = await mainFrontendClient.put(`/courses/${courseId}`, data, {
     headers: { "Content-Type": "application/json" },
@@ -66,11 +77,25 @@ export const updateCourse = async (courseId: string, data: CourseUpdate): Promis
 
 export const fetchCourseDailySubmissionCounts = async (
   courseId: string,
-): Promise<Array<SubmissionCountByExercise>> => {
+): Promise<Array<ExerciseSlideSubmissionCount>> => {
   const response = await mainFrontendClient.get(`/courses/${courseId}/daily-submission-counts`, {
     responseType: "json",
   })
-  return validateResponse(response, isArray(isSubmissionCountByExercise))
+  // return validateResponse(response, isArray(isSubmissionCount))
+  // TODO: validating does not work because the date does not contain a time
+  return response.data
+}
+
+export const fetchCourseUsersCountByExercise = async (
+  courseId: string,
+): Promise<Array<ExerciseUserCounts>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/course-users-counts-by-exercise`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isExerciseUserCounts))
 }
 
 export const fetchCourseExercises = async (courseId: string): Promise<Array<Exercise>> => {
@@ -89,14 +114,14 @@ export const fetchCourseStructure = async (courseId: string): Promise<CourseStru
 
 export const fetchCourseWeekdayHourSubmissionCounts = async (
   courseId: string,
-): Promise<Array<SubmissionCountByWeekAndHour>> => {
+): Promise<Array<ExerciseSlideSubmissionCountByWeekAndHour>> => {
   const response = await mainFrontendClient.get(
     `/courses/${courseId}/weekday-hour-submission-counts`,
     {
       responseType: "json",
     },
   )
-  return validateResponse(response, isArray(isSubmissionCountByWeekAndHour))
+  return validateResponse(response, isArray(isExerciseSlideSubmissionCountByWeekAndHour))
 }
 
 export const fetchCourseInstances = async (courseId: string): Promise<Array<CourseInstance>> => {

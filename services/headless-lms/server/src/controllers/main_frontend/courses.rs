@@ -4,10 +4,14 @@ use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
+    exercise_slide_submissions::{
+        self, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
+        ExerciseSlideSubmissionCountByWeekAndHour,
+    },
     exercises::Exercise,
     feedback::{self, Feedback, FeedbackCount},
     glossary::{Term, TermUpdate},
-    submissions::{SubmissionCount, SubmissionCountByExercise, SubmissionCountByWeekAndHour},
+    user_exercise_states::ExerciseUserCounts,
 };
 
 use crate::controllers::prelude::*;
@@ -23,7 +27,7 @@ async fn get_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Course(*course_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     Ok(web::Json(course))
 }
@@ -61,7 +65,7 @@ async fn post_new_course(
     authorize(
         &mut conn,
         Act::Teach,
-        user.id,
+        Some(user.id),
         Res::Organization(new_course.organization_id),
     )
     .await?;
@@ -100,7 +104,7 @@ async fn update_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Course(*course_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let course_update = payload.0;
     let course = models::courses::update_course(&mut conn, *course_id, course_update).await?;
     Ok(web::Json(course))
@@ -117,7 +121,7 @@ async fn delete_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Course(*course_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let course = models::courses::delete_course(&mut conn, *course_id).await?;
     Ok(web::Json(course))
 }
@@ -178,7 +182,7 @@ async fn get_course_structure(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<CourseStructure>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
+    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
     let course_structure = models::courses::get_course_structure(
         &mut conn,
         *course_id,
@@ -216,7 +220,7 @@ async fn add_media_for_course(
 ) -> ControllerResult<web::Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Course(*course_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let media_path = upload_media(
         request.headers(),
         payload,
@@ -240,7 +244,7 @@ async fn get_all_exercises(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Exercise>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Course(*course_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let exercises = models::exercises::get_exercises_by_course_id(&mut conn, *course_id).await?;
     Ok(web::Json(exercises))
 }
@@ -296,11 +300,55 @@ pub async fn post_new_course_language_version(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Duplicate, user.id, Res::Course(*course_id)).await?;
+    authorize(
+        &mut conn,
+        Act::Duplicate,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
     let copied_course = models::courses::copy_course_as_language_version_of_course(
         &mut conn, *course_id, &payload.0,
     )
     .await?;
+    Ok(web::Json(copied_course))
+}
+
+/**
+POST `/api/v0/main-frontend/courses/:id/duplicate` - Post new course as a copy from existing one.
+
+# Example
+
+Request:
+```http
+POST /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/duplicate HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Johdatus kaikkeen",
+  "slug": "johdatus-kaikkeen",
+  "organization_id": "1b89e57e-8b57-42f2-9fed-c7a6736e3eec",
+  "language_code": "fi-FI"
+}
+```
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+pub async fn post_new_course_duplicate(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    payload: web::Json<NewCourse>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Course>> {
+    let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Act::Duplicate,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let copied_course = models::courses::copy_course(&mut conn, *course_id, &payload.0).await?;
     Ok(web::Json(copied_course))
 }
 
@@ -313,11 +361,13 @@ async fn get_daily_submission_counts(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<SubmissionCount>>> {
+) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmissionCount>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
+    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let res = models::submissions::get_course_daily_submission_counts(&mut conn, &course).await?;
+    let res =
+        exercise_slide_submissions::get_course_daily_slide_submission_counts(&mut conn, &course)
+            .await?;
     Ok(web::Json(res))
 }
 
@@ -330,13 +380,14 @@ async fn get_weekday_hour_submission_counts(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<SubmissionCountByWeekAndHour>>> {
+) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmissionCountByWeekAndHour>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
+    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let res =
-        models::submissions::get_course_submission_counts_by_weekday_and_hour(&mut conn, &course)
-            .await?;
+    let res = exercise_slide_submissions::get_course_exercise_slide_submission_counts_by_weekday_and_hour(
+        &mut conn, &course,
+    )
+    .await?;
     Ok(web::Json(res))
 }
 
@@ -349,12 +400,14 @@ async fn get_submission_counts_by_exercise(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<SubmissionCountByExercise>>> {
+) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmissionCountByExercise>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
+    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let res =
-        models::submissions::get_course_submission_counts_by_exercise(&mut conn, &course).await?;
+    let res = exercise_slide_submissions::get_course_exercise_slide_submission_counts_by_exercise(
+        &mut conn, &course,
+    )
+    .await?;
     Ok(web::Json(res))
 }
 
@@ -369,7 +422,7 @@ async fn get_course_instances(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
+    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
     let course_instances =
         models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
     Ok(web::Json(course_instances))
@@ -411,7 +464,7 @@ pub async fn get_feedback_count(
     user: AuthUser,
 ) -> ControllerResult<web::Json<FeedbackCount>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, user.id, Res::Course(*course_id)).await?;
+    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
 
     let feedback_count = feedback::get_feedback_count_for_course(&mut conn, *course_id).await?;
     Ok(web::Json(feedback_count))
@@ -429,7 +482,7 @@ async fn new_course_instance(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Course(*course_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let form = form.into_inner();
     let new = NewCourseInstance {
         id: Uuid::new_v4(),
@@ -483,6 +536,25 @@ async fn new_glossary_term(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/:id/course-users-counts-by-exercise` - Returns the amount of users for each exercise.
+*/
+#[instrument(skip(pool))]
+pub async fn get_course_users_counts_by_exercise(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<ExerciseUserCounts>>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let res =
+        models::user_exercise_states::get_course_users_counts_by_exercise(&mut conn, course_id)
+            .await?;
+    Ok(web::Json(res))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -511,6 +583,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/language-versions",
             web::post().to(post_new_course_language_version),
         )
+        .route(
+            "/{course_id}/duplicate",
+            web::post().to(post_new_course_duplicate),
+        )
         .route("/{course_id}/upload", web::post().to(add_media_for_course))
         .route(
             "/{course_id}/weekday-hour-submission-counts",
@@ -534,5 +610,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::post().to(new_course_instance),
         )
         .route("/{course_id}/glossary", web::get().to(glossary))
-        .route("/{course_id}/glossary", web::post().to(new_glossary_term));
+        .route("/{course_id}/glossary", web::post().to(new_glossary_term))
+        .route(
+            "/{course_id}/course-users-counts-by-exercise",
+            web::get().to(get_course_users_counts_by_exercise),
+        );
 }

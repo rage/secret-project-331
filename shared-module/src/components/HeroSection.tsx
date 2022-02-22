@@ -1,15 +1,17 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import { typography } from "../styles"
+import { baseTheme, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
+// eslint-disable-next-line i18next/no-literal-string
 const HeroWrapper = styled.div`
-  background: #cacaca;
+  background: ${baseTheme.colors.green[200]};
   width: 100%;
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   padding: 7.5em 1em;
+  margin-bottom: 3rem;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -28,6 +30,7 @@ const TextBox = styled.div`
     margin-bottom: 0.5rem;
     margin-top: 1.5rem;
     line-height: 1;
+    text-transform: uppercase;
   }
 
   span {

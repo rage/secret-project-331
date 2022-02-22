@@ -1,6 +1,4 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
-import Link from "next/link"
 import React, { Fragment } from "react"
 
 import ArrowSVGIcon from "../img/arrow.svg"
@@ -8,96 +6,7 @@ import LockIcon from "../img/lock.svg"
 import { baseTheme, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
-const SectionWrapper = styled.div`
-  margin-top: 3rem;
-  background: #f0f0f0;
-  padding: 3rem 2rem;
-
-  p {
-    font-size: 1rem;
-    color: ${baseTheme.colors.grey[700]};
-    margin: 0;
-    padding: 0;
-    display: flex;
-  }
-
-  p:nth-child(1) {
-    font-size: 2rem;
-    font-weight: 500;
-  }
-
-  h2 {
-    line-height: 1.4;
-    margin-bottom: 0.5rem;
-  }
-`
-
-const StyledArrow = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: auto;
-  height: 100%;
-  padding: 1rem 1rem;
-  background: #cacaca;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  ${respondToOrLarger.sm} {
-    padding: 1rem 1.6rem;
-    width: auto;
-  }
-
-  svg {
-    width: 60%;
-
-    ${respondToOrLarger.sm} {
-      width: 80%;
-    }
-  }
-
-  &:hover {
-    .arrow {
-      fill: #fe9677;
-    }
-  }
-`
-
-// eslint-disable-next-line i18next/no-literal-string
-const StyledLinkWrapper = styled.div`
-  position: relative;
-  color: #c4c4c4;
-  text-decoration: none;
-  padding: 1.2rem 1.2rem;
-  margin: 1rem 0;
-  display: flex;
-  min-width: 100%;
-  background-color: ${baseTheme.colors.grey[700]};
-  transition: background-color 0.2s;
-
-  ${respondToOrLarger.sm} {
-    padding: 1.4rem 1.4rem;
-    background-color: ${baseTheme.colors.grey[700]};
-  }
-
-  &:hover {
-    text-decoration: none;
-    color: white;
-    background-color: ${baseTheme.colors.grey[700]};
-  }
-
-  span {
-    font-size: ${typography.h6};
-    color: white !important;
-    line-height: 1.3;
-    width: 68%;
-
-    ${respondToOrLarger.sm} {
-      width: 100%;
-    }
-  }
-`
+import LinkOrNoLink from "./LinkOrNoLink"
 
 export interface NextSectionLinkExtraProps {
   title: string
@@ -110,70 +19,129 @@ export type NextSectionLinkProps = React.HTMLAttributes<HTMLDivElement> & NextSe
 
 const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, nextTitle, url }) => {
   return (
-    <SectionWrapper>
+    <div
+      className={css`
+        margin-top: 3rem;
+        ${respondToOrLarger.sm} {
+          margin-top: 6rem;
+          margin-bottom: 4rem;
+        }
+        background: ${baseTheme.colors.clear[100]};
+        padding: 4rem 3rem;
+      `}
+    >
       <Fragment>
         <h2
           className={css`
-            font-size: 1.25rem;
+            font-size: 1.6rem;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
           `}
         >
           {title}
         </h2>
-        <p>{subtitle}</p>
-        <div
+        <p
           className={css`
+            font-size: 1.1rem;
+            color: ${baseTheme.colors.grey[500]};
+            margin: 0.5rem 0;
+            padding: 0;
             display: flex;
-            align-items: center;
-            margin-top: 0.5rem;
           `}
         >
-          <StyledLinkWrapper>
-            {url ? (
-              <>
-                <Link href={url} passHref>
-                  <a
-                    href="replace"
-                    className={css`
-                      text-decoration: none;
-                    `}
-                  >
-                    <span>{nextTitle}</span>
-                    <StyledArrow>
-                      <ArrowSVGIcon
-                        id="svg-icon"
-                        role="presentation"
-                        alt=""
-                        width="38.7"
-                        height="38.7"
-                        viewBox="0 0 39 39"
-                      />
-                    </StyledArrow>
-                  </a>
-                </Link>
-              </>
-            ) : (
-              <div
-                className={css`
-                  cursor: not-allowed;
-                `}
-              >
-                <span>{nextTitle}</span>
-                <StyledArrow>
-                  <LockIcon
-                    id="svg-icon"
-                    role="presentation"
-                    alt=""
-                    width="24"
-                    height="36"
-                    viewBox="0 0 24 36"
-                  />
-                </StyledArrow>
-              </div>
-            )}
-          </StyledLinkWrapper>
-        </div>
+          {subtitle}
+        </p>
+        <LinkOrNoLink url={url}>
+          <div
+            className={css`
+              margin-top: 1.5rem;
+              display: flex;
+              flex-direction: row;
+              width: 100%;
+              transition: filter 0.2s;
+
+              ${!url && `cursor: not-allowed;`}
+
+              &:hover {
+                text-decoration: none;
+                filter: brightness(92%) contrast(110%);
+                cursor: pointer;
+              }
+            `}
+          >
+            <div
+              className={css`
+                background-color: ${baseTheme.colors.green[100]};
+
+                flex: 1;
+                font-size: ${typography.h6};
+                font-weight: bold;
+                line-height: 1.3;
+                width: 68%;
+                color: black;
+                padding: 1.6rem;
+
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+
+                ${respondToOrLarger.sm} {
+                  width: 100%;
+                }
+              `}
+            >
+              {nextTitle}
+            </div>
+            <div
+              className={css`
+                color: white;
+                padding: 1rem 1rem;
+                background: ${baseTheme.colors.green[600]};
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                .arrow {
+                  fill: #fff;
+                }
+
+                ${respondToOrLarger.sm} {
+                  padding: 1.6rem;
+                  width: auto;
+                }
+
+                svg {
+                  width: 60%;
+                  ${respondToOrLarger.sm} {
+                    width: 80%;
+                  }
+                }
+              `}
+            >
+              {url ? (
+                <ArrowSVGIcon
+                  id="svg-icon"
+                  role="presentation"
+                  alt=""
+                  width="25"
+                  height="25"
+                  viewBox="0 0 39 39"
+                />
+              ) : (
+                <LockIcon
+                  id="svg-icon"
+                  role="presentation"
+                  alt=""
+                  width="24"
+                  height="36"
+                  viewBox="0 0 24 36"
+                />
+              )}
+            </div>
+          </div>
+        </LinkOrNoLink>
       </Fragment>
-    </SectionWrapper>
+    </div>
   )
 }
 

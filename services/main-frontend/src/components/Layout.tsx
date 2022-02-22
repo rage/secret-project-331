@@ -3,10 +3,12 @@ import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
+import SkipLink from "../shared-module/components/SkipLink"
 
 type LayoutProps = {
   children: ReactNode
@@ -35,6 +37,8 @@ const Layout: React.FC<LayoutProps> = ({
   const returnPath = `/login?return_to=${encodeURIComponent(
     process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
   )}`
+  const { t } = useTranslation()
+
   return (
     <>
       <Head>
@@ -51,6 +55,8 @@ const Layout: React.FC<LayoutProps> = ({
           min-height: 100vh;
         `}
       >
+        {/* Skip to content*/}
+        <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
         <div>
           <Navbar
             faqUrl={faqUrl}
@@ -64,6 +70,7 @@ const Layout: React.FC<LayoutProps> = ({
           className={css`
             flex: 1;
           `}
+          id="maincontent"
         >
           <Centered variant="default">{children}</Centered>
         </main>

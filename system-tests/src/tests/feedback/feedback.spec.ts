@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test"
-import { Page } from "playwright"
 
 import { feedbackTooltipClass } from "../../shared-module/styles/constants"
+import { selectCourseVariantIfPrompted } from "../../utils/courseMaterialActions"
 import expectPath from "../../utils/expect"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
@@ -12,7 +12,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test", async ({ headless, page }) => {
+test("feedback test", async ({ headless, page }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
@@ -25,10 +25,7 @@ test("test", async ({ headless, page }) => {
 
   await Promise.all([page.waitForNavigation(), page.click("text=Introduction to feedback")])
 
-  await page.click('label:has-text("default")')
-
-  // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseVariantIfPrompted(page)
 
   await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
   expect(page.url()).toBe(
@@ -82,7 +79,7 @@ test("test", async ({ headless, page }) => {
   })
 
   // Click text=Submit
-  await page.click('text="Add comment"')
+  await page.click(`button:text("Add comment")`)
   await page.click(`button:text("Send")`)
   await page.waitForSelector("text=Feedback submitted successfully")
 
@@ -109,14 +106,12 @@ test("test", async ({ headless, page }) => {
   await page.waitForURL((url) => url.searchParams.has("read"))
   expectPath(page, "/manage/courses/[id]/feedback?read=false")
 
-  await replaceIds(page)
-
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "feedback-unread",
-    waitForThisToBeVisibleAndStable: `text=Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`,
+    waitForThisToBeVisibleAndStable: `text=Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
@@ -135,6 +130,12 @@ test("test", async ({ headless, page }) => {
     headless,
     snapshotName: "feedback-empty",
     waitForThisToBeVisibleAndStable: `text=No feedback`,
+    beforeScreenshot: async () => {
+      page.evaluate(() => {
+        window.scrollTo({ top: 0, left: 0 })
+      })
+    },
+    waitForNotificationsToClear: true,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
@@ -148,25 +149,3 @@ test("test", async ({ headless, page }) => {
   // Click text=Unread
   await page.click("text=Unread")
 })
-
-async function replaceIds(page: Page): Promise<void> {
-  await page.waitForSelector("text=Sent by")
-  await page.evaluate(() => {
-    const divs = document.querySelectorAll("div")
-    for (const div of divs) {
-      if (div.children.length === 0 && div.textContent.includes("Sent by")) {
-        div.innerHTML = "Sent by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx at yyyy-mm-ddThh:mm:ss.xxxZ"
-      }
-    }
-  })
-
-  await page.waitForSelector("text=Block id: ")
-  await page.evaluate(() => {
-    const divs = document.querySelectorAll("div")
-    for (const div of divs) {
-      if (div.children.length === 0 && div.textContent.includes("Block id: ")) {
-        div.innerHTML = "Block id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-      }
-    }
-  })
-}

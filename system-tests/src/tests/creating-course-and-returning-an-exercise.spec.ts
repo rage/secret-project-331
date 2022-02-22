@@ -22,13 +22,15 @@ test("test", async ({ page }) => {
   await page.click(`button:text("Create")`)
 
   // Click input[type="text"]
-  await page.click('input[type="text"]')
+  await page.click('input[type="radio"]')
 
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "Introduction to System Level Testing")
+  await page.fill("text=Name", "Introduction to System Level Testing")
 
-  await page.fill('input[id="teacher-in-charge-name"]', "teacher")
-  await page.fill('input[id="teacher-in-charge-email"]', "teacher@example.com")
+  await page.fill("text=Teacher in charge name", "teacher")
+  await page.fill("text=Teacher in charge email", "teacher@example.com")
+
+  await page.fill('textarea:below(:text("Description"))', "Course description")
 
   // Click text=Create course
   await page.click(`button:text("Create"):below(:text("Course language"))`)
@@ -47,37 +49,25 @@ test("test", async ({ page }) => {
   ])
 
   // Click button:has-text("Add new chapter")
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
-
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
+  await page.locator(`button:has-text("New")`).last().click()
 
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "The Levels of testing")
-
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
+  await page.fill("text=Name", "The Levels of testing")
 
   // Press ArrowRight
-  await page.press('input[type="text"]', "ArrowRight")
+  await page.press("text=Chapter number", "ArrowRight")
 
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "The Levels of Testing")
+  await page.fill("text=Name", "The Levels of Testing")
 
   // Click button:has-text("Create chapter")
   await page.click('button:has-text("Create")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
-
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
-
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
+  await page.locator(`button:has-text("New")`).last().click()
 
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "Unit testing")
+  await page.fill("text=Name", "Unit testing")
 
   // Click button:has-text("Create")
   await page.click('button:has-text("Create")')
@@ -85,11 +75,8 @@ test("test", async ({ page }) => {
   // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
-
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "Integration Testing")
+  await page.fill("text=Title", "Integration Testing")
 
   // Click button:has-text("Create")
   await page.click('button:has-text("Create")')
@@ -97,11 +84,8 @@ test("test", async ({ page }) => {
   // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
-
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "System Testing")
+  await page.fill("text=Title", "System Testing")
 
   // Click button:has-text("Create")
   await page.click('button:has-text("Create")')
@@ -109,11 +93,8 @@ test("test", async ({ page }) => {
   // Click :nth-match(button:has-text("New page"), 2)
   await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
 
-  // Click input[type="text"]
-  await page.click('input[type="text"]')
-
   // Fill input[type="text"]
-  await page.fill('input[type="text"]', "Acceptance Testing")
+  await page.fill("text=Title", "Acceptance Testing")
 
   // Click button:has-text("Create")
   await page.click('button:has-text("Create")')
@@ -139,6 +120,10 @@ test("test", async ({ page }) => {
 
   // Click text=Add slide
   await page.click("text=Add slide")
+
+  // The block needs to be focused for the button to work
+  await page.waitForTimeout(100)
+  await page.click("text=Slide 1")
 
   // Click text=Add task
   await page.click("text=Add task")

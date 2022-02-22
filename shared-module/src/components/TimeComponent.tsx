@@ -5,15 +5,17 @@ import React, { useLayoutEffect, useRef, useState } from "react"
 
 import { dateToString } from "../utils/time"
 
+import HideTextInSystemTests from "./HideTextInSystemTests"
 import SpeechBalloon from "./SpeechBalloon"
 
 interface TimeComponentProps {
-  name: string
+  label?: string
   date: Date
-  right: boolean
+  right?: boolean
+  boldLabel?: boolean
 }
 
-const TimeComponent: React.FC<TimeComponentProps> = ({ name, date, right }) => {
+const TimeComponent: React.FC<TimeComponentProps> = ({ label, date, right, boldLabel }) => {
   const [visible, setVisible] = useState(false)
 
   const speechBubbleRef = useRef<HTMLDivElement>(null)
@@ -68,14 +70,32 @@ const TimeComponent: React.FC<TimeComponentProps> = ({ name, date, right }) => {
       >
         <p> {dateToString(date, true)} </p>
       </SpeechBalloon>
-      <strong>{name}</strong>
-      <span className="time-component-date">{dateToString(date, false)}</span>
+      {label && (
+        <span
+          className={css`
+            ${boldLabel && "font-weight: bold;"}
+            margin-right: 0.2rem;
+          `}
+        >
+          {label}
+        </span>
+      )}
+      <span className="time-component-date">
+        <HideTextInSystemTests
+          text={dateToString(date, false)}
+          testPlaceholder="1970-01-01 00:00"
+        />
+      </span>
       <IconButton
         onMouseEnter={() => setVisible(true)}
         onMouseLeave={() => setVisible(false)}
         size="small"
         aria-label={dateToString(date, true)}
         ref={pivotPointRef}
+        className={css`
+          position: relative;
+          top: -1px;
+        `}
       >
         <InfoIcon
           className={css`

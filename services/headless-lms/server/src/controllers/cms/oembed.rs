@@ -50,7 +50,7 @@ async fn get_oembed_data_from_provider(
     user: AuthUser,
 ) -> ControllerResult<web::Json<serde_json::Value>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Teach, user.id, Res::AnyCourse).await?;
+    authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
     let endpoint = url_to_oembed_endpoint(query_params.url.to_string())?;
     let client = reqwest::Client::builder()
         .user_agent(APP_USER_AGENT)

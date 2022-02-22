@@ -1,5 +1,10 @@
 import { ElementHandle, expect, Frame, Page, PageScreenshotOptions } from "@playwright/test"
 
+import {
+  HIDE_TEXT_IN_SYSTEM_TESTS_EVENT,
+  SHOW_TEXT_IN_SYSTEM_TESTS_EVENT,
+} from "../shared-module/utils/constants"
+
 import accessibilityCheck from "./accessibilityCheck"
 
 const viewPorts = {
@@ -21,7 +26,7 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   page?: Page
   frame?: Frame
   pageScreenshotOptions?: PageScreenshotOptions
-  axeSkip?: boolean
+  axeSkip?: boolean | string[]
   skipMobile?: boolean
 }
 
@@ -146,11 +151,14 @@ async function snapshotWithViewPort({
   }
 `,
   })
+  await pageObjectToUse.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
   await pageObjectToUse.setViewportSize(viewPorts[viewPortName])
   await waitToBeStable({ waitForThisToBeStable })
   if (beforeScreenshot) {
     await pageObjectToUse.waitForTimeout(100)
     await beforeScreenshot()
+    // Dispatch again in case the thing being hidden had not rendered yet when we previously dispatched this
+    await pageObjectToUse.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
     await pageObjectToUse.waitForTimeout(100)
     await waitToBeStable({ waitForThisToBeStable })
   }
@@ -181,6 +189,7 @@ async function snapshotWithViewPort({
       console.error("Could not remove the style that hides the typing caret.")
     }
   })
+  await pageObjectToUse.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
 }
 
 interface WaitToBeVisibleProps {
@@ -213,6 +222,7 @@ export async function waitToBeVisible({
   waitForThisToBeVisibleAndStable,
   container: page,
 }: WaitToBeVisibleProps): Promise<ElementHandle | ElementHandle[]> {
+  await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
   let elementHandle: ElementHandle | ElementHandle[] = null
   if (typeof waitForThisToBeVisibleAndStable == "string") {
     elementHandle = await page.waitForSelector(waitForThisToBeVisibleAndStable)

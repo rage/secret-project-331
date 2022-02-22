@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@mui/material"
-import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import {
@@ -89,7 +88,7 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
           <div>{t("create-new-language-version-of", { "course-name": course.name })}</div>
           <NewCourseForm
             organizationId={course.organization_id}
-            onSubmitForm={handleCreateNewLanguageVersion}
+            onSubmitNewCourseForm={handleCreateNewLanguageVersion}
             onClose={() => setShowNewLanguageVersionForm(false)}
           />
         </div>

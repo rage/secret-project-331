@@ -61,7 +61,8 @@ const cssReset = css`
   button,
   textarea,
   select {
-    font: inherit !important;
+    font: inherit;
+    font-family: inherit !important;
   }
 
   /* Remove all animations and transitions for people that prefer not to see them */

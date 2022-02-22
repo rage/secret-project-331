@@ -1,16 +1,17 @@
 import { css } from "@emotion/css"
-import { TextField } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { postFeedback } from "../services/backend"
 import { FeedbackBlock } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
+import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { courseMaterialBlockClass } from "../utils/constants"
 
 interface Props {
   courseId: string
+  pageId: string
   lastSelection: string
   setLastSelection: (s: string) => void
   close: () => unknown
@@ -22,7 +23,13 @@ interface Comment {
   relatedBlocks: Array<FeedbackBlock>
 }
 
-const FeedbackDialog: React.FC<Props> = ({ courseId, lastSelection, setLastSelection, close }) => {
+const FeedbackDialog: React.FC<Props> = ({
+  courseId,
+  pageId,
+  lastSelection,
+  setLastSelection,
+  close,
+}) => {
   const { t } = useTranslation()
   const [comments, setComments] = useState<Array<Comment>>([])
   const [comment, setComment] = useState("")
@@ -34,6 +41,7 @@ const FeedbackDialog: React.FC<Props> = ({ courseId, lastSelection, setLastSelec
           feedback_given: c.comment,
           selected_text: c.selectedText.length > 0 ? c.selectedText : null,
           related_blocks: c.relatedBlocks,
+          page_id: pageId,
         }
       })
       return postFeedback(courseId, feedback)
@@ -78,6 +86,7 @@ const FeedbackDialog: React.FC<Props> = ({ courseId, lastSelection, setLastSelec
         relatedBlocks.push({
           id: block.id,
           text,
+          order_number: relatedBlocks.length,
         })
       }
     }
@@ -241,19 +250,12 @@ const FeedbackDialog: React.FC<Props> = ({ courseId, lastSelection, setLastSelec
               </Button>
             </>
           )}
-          <TextField
-            className={css`
-              background: #f7f7f7;
-              border: 1px solid #c4c4c4;
-              box-sizing: border-box;
-              border-radius: 2px;
-            `}
-            placeholder={t("write-your-feedback-here")}
-            fullWidth
-            multiline
-            rows={3}
+          <TextAreaField
             value={comment}
-            onChange={(ev) => setComment(ev.target.value)}
+            label={t("add-comment")}
+            name=""
+            onChange={(value) => setComment(value)}
+            placeholder={t("write-your-feedback-here")}
           />
           {charactersLeft >= 0 && charactersLeft < 200 && (
             <div>{t("n-characters-left", { n: charactersLeft })}</div>

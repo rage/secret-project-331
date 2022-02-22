@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseVariantIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 import waitForFunction from "../../../utils/waitForFunction"
 
@@ -23,16 +24,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
     page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`),
   ])
 
-  await page.waitForTimeout(100)
-
-  const courseVariantSelector = await page.$$("text=Select course version to continue.")
-
-  if (courseVariantSelector.length > 0) {
-    await page.click('label:has-text("default")')
-
-    // Click button:has-text("Continue")
-    await page.click('button:has-text("Continue")')
-  }
+  await selectCourseVariantIfPrompted(page)
 
   await Promise.all([page.waitForNavigation(), await page.click("text=The Basics")])
   expect(page.url()).toBe(
@@ -50,6 +42,25 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
       return f.url().startsWith("http://project-331.local/quizzes/iframe")
     }),
   )
+
+  await frame.waitForSelector("text=Choose the right answer from given options.")
+
+  await frame.selectOption(
+    `select:right-of(:text("Choose the right answer from given options."))`,
+    { label: "The Wright answer" },
+  )
+
+  await page.click("text=Submit")
+
+  await expectScreenshotsToMatchSnapshots({
+    page,
+    headless,
+    snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer",
+    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
+    toMatchSnapshotOptions: { threshold: 0.4 },
+  })
+
+  await page.click("text=Try again")
 
   await frame.waitForSelector("text=Choose the right answer from given options.")
 
@@ -82,7 +93,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer",
+    snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer-after-correct",
     waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })

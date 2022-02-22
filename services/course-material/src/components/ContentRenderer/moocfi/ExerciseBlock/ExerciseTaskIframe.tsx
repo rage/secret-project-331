@@ -1,5 +1,5 @@
 import { Alert } from "@mui/lab"
-import React, { Dispatch } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
@@ -8,15 +8,13 @@ import { IframeState } from "../../../../shared-module/iframe-protocol-types"
 interface ExerciseTaskIframeProps {
   url: string
   postThisStateToIFrame: IframeState | null
-  setAnswer: Dispatch<unknown>
-  setAnswerValid: Dispatch<boolean>
+  setAnswer: (answer: { valid: boolean; data: unknown }) => void
 }
 
 const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({
   url,
   postThisStateToIFrame,
   setAnswer,
-  setAnswerValid,
 }) => {
   const { t } = useTranslation()
   if (!url || url.trim() === "") {
@@ -29,8 +27,8 @@ const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({
       postThisStateToIFrame={postThisStateToIFrame}
       onMessageFromIframe={(messageContainer, _responsePort) => {
         console.log(messageContainer)
-        setAnswer(messageContainer.data)
-        setAnswerValid(messageContainer.valid)
+        const { data, valid } = messageContainer
+        setAnswer({ data, valid })
       }}
     />
   )

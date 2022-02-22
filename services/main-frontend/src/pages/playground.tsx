@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import TextField from "@mui/material/TextField"
 import React, { ChangeEvent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
@@ -14,11 +13,14 @@ import {
 import { PlaygroundExample } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
+import TextField from "../shared-module/components/InputFields/TextField"
 import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
 import Spinner from "../shared-module/components/Spinner"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { monospaceFont } from "../shared-module/styles"
 import { narrowContainerWidthPx } from "../shared-module/styles/constants"
+
+const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 
 const Home: React.FC = () => {
   const { t } = useTranslation()
@@ -108,16 +110,16 @@ const Home: React.FC = () => {
     }
   }, [exampleUrl, exampleWidth])
 
-  const handleUrlChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    setExampleUrl(e.target.value)
+  const handleUrlChange = (value: string) => {
+    setExampleUrl(value)
   }
 
-  const handleWidthChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    setExampleWidth(Number(e.target.value))
+  const handleWidthChange = (value: string) => {
+    setExampleWidth(Number(value))
   }
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    setExampleName(e.target.value)
+  const handleNameChange = (value: string) => {
+    setExampleName(value)
   }
 
   const handleDataChange = (e: string) => {
@@ -203,21 +205,19 @@ const Home: React.FC = () => {
         )}
         <TextField
           value={exampleUrl || ""}
-          fullWidth
           placeholder={invalidUrl ? t("invalid-url") : t("label-url")}
           label={t("label-url")}
-          onChange={handleUrlChange}
+          onChange={(value) => handleUrlChange(value)}
           error={invalidUrl}
           className={css`
             margin-bottom: 1rem !important;
           `}
         />
         <TextField
-          value={exampleWidth || ""}
+          value={String(exampleWidth) || ""}
           placeholder={t("label-width")}
           label={t("label-width")}
-          fullWidth
-          onChange={handleWidthChange}
+          onChange={(value) => handleWidthChange(value)}
           className={css`
             margin-bottom: 1rem !important;
           `}
@@ -226,8 +226,7 @@ const Home: React.FC = () => {
           value={exampleName}
           placeholder={t("label-example-name")}
           label={t("label-example-name")}
-          fullWidth
-          onChange={handleNameChange}
+          onChange={(value) => handleNameChange(value)}
           className={css`
             margin-bottom: 1rem !important;
           `}
@@ -296,6 +295,7 @@ const Home: React.FC = () => {
             postThisStateToIFrame={{
               // eslint-disable-next-line i18next/no-literal-string
               view_type: "exercise",
+              exercise_task_id: EXAMPLE_UUID,
               data: {
                 public_spec: JSON.parse(exampleData),
                 previous_submission: null,

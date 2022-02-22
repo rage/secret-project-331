@@ -8,6 +8,7 @@ import DebugModal from "../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import UHNoBG from "../../../../shared-module/img/uh_without_background.svg"
+import { typography } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import { organizationCoursesPageHref } from "../../../../shared-module/utils/cross-routing"
 
@@ -27,7 +28,7 @@ const OrganizationsList: React.FC = () => {
         className={css`
           text-align: center;
           font-weight: 600;
-          font-size: 4em;
+          font-size: ${typography.h2};
           margin: 2em 0em 1em 0em;
           color: #333;
         `}
@@ -62,12 +63,13 @@ const OrganizationsList: React.FC = () => {
                   align-items: center;
                   background-color: #f5f6f7;
                   margin-bottom: 1em;
-                  height: 15rem;
+
                   &:hover {
                     cursor: pointer;
                     background-color: #ebedee;
                   }
                   ${respondToOrLarger.lg} {
+                    height: 15rem;
                     flex-direction: row;
                     max-height: 20rem;
                   }
@@ -117,7 +119,7 @@ const OrganizationsList: React.FC = () => {
                     className={css`
                       color: #333;
                       font-weight: 600;
-                      font-size: 1.8em;
+                      font-size: clamp(1.4rem, 3vw, 1.8rem);
                       text-transform: uppercase;
                     `}
                   >
@@ -125,7 +127,7 @@ const OrganizationsList: React.FC = () => {
                   </h2>
                   <span
                     className={css`
-                      font-size: 20px;
+                      font-size: clamp(16px, 2vw, 20px);
                       color: #333;
                       opacity: 0.8;
                     `}

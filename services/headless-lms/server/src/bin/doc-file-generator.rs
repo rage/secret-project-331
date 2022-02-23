@@ -1,6 +1,6 @@
 #![allow(clippy::redundant_clone)]
 
-use std::collections::HashMap;
+use std::{collections::HashMap, fs};
 
 use chrono::{NaiveDate, TimeZone, Utc};
 use headless_lms_actix::controllers::{
@@ -292,6 +292,18 @@ fn main() {
         description: None,
         organization_image_url: None,
     };
+
+    // clear previous results
+    fs::read_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/generated-docs/"))
+        .unwrap()
+        .filter_map(|file| {
+            file.ok().filter(|f| {
+                f.file_name()
+                    .to_str()
+                    .map_or(false, |n| n.ends_with(".json") || n.ends_with(".ts"))
+            })
+        })
+        .for_each(|f| fs::remove_file(f.path()).unwrap());
 
     // write docs
     write_docs!(UploadResult, UploadResult {

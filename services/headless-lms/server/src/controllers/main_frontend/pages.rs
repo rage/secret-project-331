@@ -48,7 +48,7 @@ async fn post_new_page(
         ControllerError::BadRequest("Cannot create a new page without a course id".to_string())
     })?;
     authorize(&mut conn, Act::Edit, user.id, Res::Course(course_id)).await?;
-    let page = models::pages::insert_page(&mut conn, new_page, user.id).await?;
+    let page = models::pages::insert_new_content_page(&mut conn, new_page, user.id).await?;
     Ok(web::Json(page))
 }
 

@@ -1120,6 +1120,37 @@ async fn fetch_derived_spec(
     Ok(result_spec)
 }
 
+pub async fn insert_new_content_page(
+    conn: &mut PgConnection,
+    new_page: NewPage,
+    user: Uuid,
+) -> ModelResult<Page> {
+    let mut tx = conn.begin().await?;
+
+    let course_material_content = serde_json::to_value(vec![GutenbergBlock::hero_section(
+        new_page.title.trim(),
+        "",
+    )])?;
+
+    let content_page = NewPage {
+        chapter_id: new_page.chapter_id,
+        content: course_material_content,
+        course_id: new_page.course_id,
+        exam_id: None,
+        front_page_of_chapter_id: new_page.chapter_id,
+        title: new_page.title,
+        url_path: new_page.url_path,
+        exercises: vec![],
+        exercise_slides: vec![],
+        exercise_tasks: vec![],
+        content_search_language: None,
+    };
+    let page = crate::pages::insert_page(&mut tx, content_page, user).await?;
+
+    tx.commit().await?;
+    Ok(page)
+}
+
 pub async fn insert_page(
     conn: &mut PgConnection,
     new_page: NewPage,
@@ -1144,11 +1175,6 @@ pub async fn insert_page(
         .and_then(|c| c.content_search_language)
         .or(new_page.content_search_language)
         .unwrap_or_else(|| "simple".to_string());
-
-    let course_material_content = serde_json::to_value(vec![GutenbergBlock::hero_section(
-        new_page.title.trim(),
-        "Insert chapter subheading...",
-    )])?;
 
     let page = sqlx::query_as!(
         Page,
@@ -1179,7 +1205,7 @@ RETURNING id,
           "#,
         new_page.course_id,
         new_page.exam_id,
-        course_material_content,
+        new_page.content,
         new_page.url_path.trim(),
         new_page.title.trim(),
         next_order_number,

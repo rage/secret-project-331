@@ -28,7 +28,7 @@ async fn add_media(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, user.id, Res::Exam(*exam_id)).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
 
     let media_path = upload_media(
         request.headers(),

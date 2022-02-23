@@ -8,19 +8,19 @@ use crate::{
     exams,
     exercise_service_info::get_service_info_by_exercise_type,
     exercise_services::{get_exercise_service_by_exercise_type, get_internal_grade_url},
+    exercise_task_submissions::ExerciseTaskSubmission,
     exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     prelude::*,
-    submissions::{GradingRequest, GradingResult, Submission},
-    user_exercise_states::update_user_exercise_state,
+    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
-pub struct Grading {
+pub struct ExerciseTaskGrading {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub submission_id: Uuid,
+    pub exercise_task_submission_id: Uuid,
     pub course_id: Option<Uuid>,
     pub exam_id: Option<Uuid>,
     pub exercise_id: Uuid,
@@ -36,6 +36,21 @@ pub struct Grading {
     pub feedback_json: Option<serde_json::Value>,
     pub feedback_text: Option<String>,
     pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, PartialEq, Eq, Clone)]
+pub struct ExerciseTaskGradingRequest<'a> {
+    pub exercise_spec: &'a Option<serde_json::Value>,
+    pub submission_data: &'a Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+pub struct ExerciseTaskGradingResult {
+    pub grading_progress: GradingProgress,
+    pub score_given: f32,
+    pub score_maximum: i32,
+    pub feedback_text: Option<String>,
+    pub feedback_json: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
@@ -54,8 +69,8 @@ pub async fn insert(
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO gradings (
-    submission_id,
+INSERT INTO exercise_task_gradings (
+    exercise_task_submission_id,
     course_id,
     exercise_id,
     exercise_task_id
@@ -73,14 +88,14 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Grading> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExerciseTaskGrading> {
     let res = sqlx::query_as!(
-        Grading,
+        ExerciseTaskGrading,
         r#"
 SELECT id,
   created_at,
   updated_at,
-  submission_id,
+  exercise_task_submission_id,
   course_id,
   exam_id,
   exercise_id,
@@ -96,7 +111,7 @@ SELECT id,
   feedback_json,
   feedback_text,
   deleted_at
-FROM gradings
+FROM exercise_task_gradings
 WHERE id = $1
 "#,
         id
@@ -106,25 +121,134 @@ WHERE id = $1
     Ok(res)
 }
 
+pub async fn get_by_exercise_task_submission_id(
+    conn: &mut PgConnection,
+    exercise_task_submission_id: &Uuid,
+) -> ModelResult<Option<ExerciseTaskGrading>> {
+    let res = sqlx::query_as!(
+        ExerciseTaskGrading,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  exercise_task_submission_id,
+  course_id,
+  exam_id,
+  exercise_id,
+  exercise_task_id,
+  grading_priority,
+  score_given,
+  grading_progress as "grading_progress: _",
+  user_points_update_strategy as "user_points_update_strategy: _",
+  unscaled_score_maximum,
+  unscaled_score_given,
+  grading_started_at,
+  grading_completed_at,
+  feedback_json,
+  feedback_text,
+  deleted_at
+FROM exercise_task_gradings
+WHERE exercise_task_submission_id = $1
+  AND deleted_at IS NULL
+        "#,
+        exercise_task_submission_id,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_total_score_given_for_exercise_slide_submission(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: &Uuid,
+) -> ModelResult<Option<f32>> {
+    let res = sqlx::query!(
+        "
+SELECT SUM(COALESCE(etg.score_given, 0))::real
+FROM exercise_task_gradings etg
+  JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id
+WHERE ets.exercise_slide_submission_id = $1
+  AND etg.deleted_at IS NULL
+  AND ets.deleted_at IS NULL
+        ",
+        exercise_slide_submission_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.sum)
+}
+
+/// For now gets this information from some task submission in a slide submission.
+pub async fn get_point_update_strategy_from_gradings(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: &Uuid,
+) -> ModelResult<(GradingProgress, UserPointsUpdateStrategy)> {
+    let res = sqlx::query!(
+        r#"
+SELECT etg.grading_progress as "grading_progress: GradingProgress",
+  etg.user_points_update_strategy as "user_points_update_strategy: UserPointsUpdateStrategy"
+FROM exercise_task_gradings etg
+  JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id
+WHERE ets.exercise_slide_submission_id = $1
+  AND etg.deleted_at IS NULL
+  AND ets.deleted_at IS NULL
+LIMIT 1
+    "#,
+        exercise_slide_submission_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok((res.grading_progress, res.user_points_update_strategy))
+}
+
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Option<Uuid>> {
-    let course_id = sqlx::query!(r#"SELECT course_id from gradings where id = $1"#, id)
-        .fetch_one(conn)
-        .await?
-        .course_id;
+    let course_id = sqlx::query!(
+        "
+SELECT course_id
+from exercise_task_gradings
+where id = $1
+        ",
+        id
+    )
+    .fetch_one(conn)
+    .await?
+    .course_id;
     Ok(course_id)
 }
 
-pub async fn new_grading(conn: &mut PgConnection, submission: &Submission) -> ModelResult<Grading> {
-    let update_strategy = if submission.exam_id.is_some() {
+pub async fn get_course_or_exam_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<CourseOrExamId> {
+    let res = sqlx::query!(
+        "
+SELECT course_id,
+  exam_id
+from exercise_task_gradings
+where id = $1
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    CourseOrExamId::from(res.course_id, res.exam_id)
+}
+
+pub async fn new_grading(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    submission: &ExerciseTaskSubmission,
+) -> ModelResult<ExerciseTaskGrading> {
+    let update_strategy = if exercise.exam_id.is_some() {
         UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
     } else {
         UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
     };
     let grading = sqlx::query_as!(
-        Grading,
+        ExerciseTaskGrading,
         r#"
-INSERT INTO gradings(
-    submission_id,
+INSERT INTO exercise_task_gradings(
+    exercise_task_submission_id,
     course_id,
     exam_id,
     exercise_id,
@@ -136,7 +260,7 @@ VALUES($1, $2, $3, $4, $5, $6, now())
 RETURNING id,
   created_at,
   updated_at,
-  submission_id,
+  exercise_task_submission_id,
   course_id,
   exam_id,
   exercise_id,
@@ -154,9 +278,9 @@ RETURNING id,
   deleted_at
 "#,
         submission.id,
-        submission.course_id,
-        submission.exam_id,
-        submission.exercise_id,
+        exercise.course_id,
+        exercise.exam_id,
+        exercise.id,
         submission.exercise_task_id,
         update_strategy as UserPointsUpdateStrategy
     )
@@ -172,7 +296,7 @@ pub async fn set_grading_progress(
 ) -> ModelResult<()> {
     sqlx::query!(
         "
-UPDATE gradings
+UPDATE exercise_task_gradings
 SET grading_progress = $1
 WHERE id = $2
 ",
@@ -186,11 +310,11 @@ WHERE id = $2
 
 pub async fn grade_submission(
     conn: &mut PgConnection,
-    submission: &Submission,
+    submission: &ExerciseTaskSubmission,
     exercise_task: &ExerciseTask,
     exercise: &Exercise,
-    grading: &Grading,
-) -> ModelResult<Grading> {
+    grading: &ExerciseTaskGrading,
+) -> ModelResult<ExerciseTaskGrading> {
     let exercise_service_info =
         get_service_info_by_exercise_type(conn, &exercise_task.exercise_type).await?;
     let exercise_service =
@@ -198,7 +322,6 @@ pub async fn grade_submission(
     let grade_url = get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
     let obj = send_grading_request(grade_url, exercise_task, submission).await?;
     let updated_grading = update_grading(conn, grading, &obj, exercise).await?;
-    update_user_exercise_state(conn, &updated_grading, submission).await?;
     Ok(updated_grading)
 }
 
@@ -207,13 +330,13 @@ pub async fn grade_submission(
 pub fn send_grading_request(
     grade_url: Url,
     exercise_task: &ExerciseTask,
-    submission: &Submission,
-) -> impl Future<Output = ModelResult<GradingResult>> + 'static {
+    submission: &ExerciseTaskSubmission,
+) -> impl Future<Output = ModelResult<ExerciseTaskGradingResult>> + 'static {
     let client = reqwest::Client::new();
     let req = client
         .post(grade_url)
         .timeout(Duration::from_secs(120))
-        .json(&GradingRequest {
+        .json(&ExerciseTaskGradingRequest {
             exercise_spec: &exercise_task.private_spec,
             submission_data: &submission.data_json,
         });
@@ -223,7 +346,7 @@ pub fn send_grading_request(
         if !status.is_success() {
             return Err(ModelError::Generic("Grading failed".to_string()));
         }
-        let obj = res.json::<GradingResult>().await?;
+        let obj = res.json::<ExerciseTaskGradingResult>().await?;
         info!("Received a grading result: {:#?}", &obj);
         Ok(obj)
     }
@@ -231,10 +354,10 @@ pub fn send_grading_request(
 
 pub async fn update_grading(
     conn: &mut PgConnection,
-    grading: &Grading,
-    grading_result: &GradingResult,
+    grading: &ExerciseTaskGrading,
+    grading_result: &ExerciseTaskGradingResult,
     exercise: &Exercise,
-) -> ModelResult<Grading> {
+) -> ModelResult<ExerciseTaskGrading> {
     let grading_completed_at = if grading_result.grading_progress.is_complete() {
         Some(Utc::now())
     } else {
@@ -250,9 +373,9 @@ pub async fn update_grading(
     // Scores are rounded to two decimals
     let score_given_rounded = f32_to_two_decimals(score_given_with_all_decimals);
     let grading = sqlx::query_as!(
-        Grading,
+        ExerciseTaskGrading,
         r#"
-UPDATE gradings
+UPDATE exercise_task_gradings
 SET grading_progress = $2,
   unscaled_score_given = $3,
   unscaled_score_maximum = $4,
@@ -264,7 +387,7 @@ WHERE id = $1
 RETURNING id,
   created_at,
   updated_at,
-  submission_id,
+  exercise_task_submission_id,
   course_id,
   exam_id,
   exercise_id,
@@ -302,7 +425,7 @@ pub async fn get_for_student(
     conn: &mut PgConnection,
     grading_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<Option<Grading>> {
+) -> ModelResult<Option<ExerciseTaskGrading>> {
     let grading = get_by_id(conn, grading_id).await?;
     if let Some(exam_id) = grading.exam_id {
         let exam = exams::get(conn, exam_id).await?;

@@ -14,7 +14,7 @@ metadata:
       proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
       grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
     nginx.ingress.kubernetes.io/server-snippet: |
-      location /oembed/1.0/proxy {
+      location ^~ /oembed/1.0/proxy {
          return 301 /api/v0/cms/oembed/preview?$args;
        }
     nginx.ingress.kubernetes.io/use-regex: "true"

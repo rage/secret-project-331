@@ -6,15 +6,24 @@ import { useTranslation } from "react-i18next"
 import SettingIcon from "../../../../imgs/setting.svg"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import { fontWeights, headingFont, primaryFont } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
 import Language, { DEFAULT_FLAG_CLIP_PATH } from "./Language"
 
 const CourseGrid = styled.div`
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 20px;
   padding-bottom: 10px;
+
+  ${respondToOrLarger.md} {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  ${respondToOrLarger.xxl} {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 `
 
 const CourseCard = styled.a`

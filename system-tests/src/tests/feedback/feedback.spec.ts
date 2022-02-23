@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { feedbackTooltipClass } from "../../shared-module/styles/constants"
+import { selectCourseVariantIfPrompted } from "../../utils/courseMaterialActions"
 import expectPath from "../../utils/expect"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
@@ -24,10 +25,7 @@ test("feedback test", async ({ headless, page }) => {
 
   await Promise.all([page.waitForNavigation(), page.click("text=Introduction to feedback")])
 
-  await page.click('label:has-text("default")')
-
-  // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseVariantIfPrompted(page)
 
   await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
   expect(page.url()).toBe(

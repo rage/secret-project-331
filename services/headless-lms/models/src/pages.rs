@@ -1138,7 +1138,7 @@ pub async fn insert_new_content_page(
         content: course_material_content,
         course_id: new_page.course_id,
         exam_id: None,
-        front_page_of_chapter_id: new_page.chapter_id,
+        front_page_of_chapter_id: None,
         title: new_page.title,
         url_path: new_page.url_path,
         exercises: vec![],

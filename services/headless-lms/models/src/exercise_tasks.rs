@@ -103,7 +103,7 @@ pub async fn get_course_or_exam_id(
     id: Uuid,
 ) -> ModelResult<CourseOrExamId> {
     let res = sqlx::query!(
-        r#"
+        "
 SELECT
     course_id,
     exam_id
@@ -116,8 +116,7 @@ WHERE id = (
       AND t.id = $1
       AND t.deleted_at IS NULL
   )
-  AND course_id IS NOT NULL
-"#,
+",
         id
     )
     .fetch_one(conn)

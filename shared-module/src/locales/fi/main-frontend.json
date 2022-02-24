@@ -235,5 +235,6 @@
   "weekday-sunday": "Sunnuntai",
   "weekday-thursday": "Torstai",
   "weekday-tuesday": "Tiistai",
-  "weekday-wednesday": "Keskiviikko"
+  "weekday-wednesday": "Keskiviikko",
+  "draft": "Luonnos"
 }

@@ -12,8 +12,17 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pag
 async fn get_chapters_pages(
     chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Act::View,
+        auth.map(|u| u.id),
+        Res::Chapter(*chapter_id),
+    )
+    .await?;
+
     let chapter_pages: Vec<Page> = models::pages::chapter_pages(&mut conn, *chapter_id).await?;
     Ok(web::Json(chapter_pages))
 }
@@ -26,8 +35,17 @@ GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of
 async fn get_chapters_exercises(
     chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<PageWithExercises>>> {
     let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Act::View,
+        auth.map(|u| u.id),
+        Res::Chapter(*chapter_id),
+    )
+    .await?;
+
     let chapter_pages_with_exercises =
         models::pages::get_chapters_pages_with_exercises(&mut conn, *chapter_id).await?;
     Ok(web::Json(chapter_pages_with_exercises))
@@ -41,8 +59,17 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` -
 async fn get_chapters_pages_without_main_frontpage(
     chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Act::View,
+        auth.map(|u| u.id),
+        Res::Chapter(*chapter_id),
+    )
+    .await?;
+
     let chapter_pages =
         models::pages::get_chapters_pages_exclude_main_frontpage(&mut conn, *chapter_id).await?;
     Ok(web::Json(chapter_pages))

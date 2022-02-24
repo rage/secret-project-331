@@ -8,7 +8,6 @@ type Vec<CourseInstance> = Array<{
   ends_at: Date | null
   name: string | null
   description: string | null
-  variant_status: VariantStatus
   teacher_in_charge_name: string
   teacher_in_charge_email: string
   support_email: string | null

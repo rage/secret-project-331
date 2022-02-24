@@ -4,7 +4,10 @@ use std::{collections::HashMap, fs};
 
 use chrono::{NaiveDate, TimeZone, Utc};
 use headless_lms_actix::controllers::{
-    course_material::exams::{ExamData, ExamEnrollmentData},
+    course_material::{
+        courses::ChaptersWithStatus,
+        exams::{ExamData, ExamEnrollmentData},
+    },
     main_frontend::exercises::ExerciseSubmissions,
     UploadResult,
 };
@@ -14,7 +17,7 @@ use headless_lms_models::{
         UserCourseInstanceChapterProgress,
     },
     course_instance_enrollments::CourseInstanceEnrollment,
-    course_instances::{ChapterScore, CourseInstance, Points, VariantStatus},
+    course_instances::{ChapterScore, CourseInstance, Points},
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
     exams::{CourseExam, Exam, ExamEnrollment},
@@ -125,7 +128,6 @@ fn main() {
         ends_at: None,
         name: Some("Instance".to_string()),
         description: Some("Description".to_string()),
-        variant_status: VariantStatus::Active,
         teacher_in_charge_name: "Example Teacher".to_string(),
         teacher_in_charge_email: "example@email.com".to_string(),
         support_email: Some("example@email.com".to_string()),
@@ -224,6 +226,7 @@ fn main() {
         content_search_language: Some("simple".to_string()),
         course_language_group_id: id,
         description: Some("Example".to_string()),
+        is_draft: true,
     };
     let chapter = Chapter {
         id,
@@ -423,21 +426,6 @@ fn main() {
     write_docs!(CourseInstance, course_instance.clone());
     write_docs!(Vec<CourseInstance>, vec![course_instance.clone()]);
     write_docs!(Option<CourseInstance>, Some(course_instance.clone()));
-    write_docs!(
-        Vec<ChapterWithStatus>,
-        vec![ChapterWithStatus {
-            id,
-            created_at,
-            updated_at,
-            name: "The Basics".to_string(),
-            course_id: id,
-            deleted_at,
-            chapter_number: 1,
-            front_page_id: None,
-            opens_at: None,
-            status: ChapterStatus::Open
-        }]
-    );
     write_docs!(
         Option<UserCourseSettings>,
         Some(user_course_settings.clone())
@@ -764,6 +752,24 @@ fn main() {
             ),
             chapter_front_page_url_path: Some("/chapter-1".to_string()),
             organization_slug: "uh-cs".to_string()
+        }
+    );
+    write_docs!(
+        ChaptersWithStatus,
+        ChaptersWithStatus {
+            is_previewable: false,
+            chapters: vec![ChapterWithStatus {
+                id,
+                created_at,
+                updated_at,
+                name: "The Basics".to_string(),
+                course_id: id,
+                deleted_at,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                status: ChapterStatus::Open
+            }]
         }
     );
 }

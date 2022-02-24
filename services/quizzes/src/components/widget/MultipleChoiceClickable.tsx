@@ -4,6 +4,7 @@ import React from "react"
 
 import { QuizItemAnswer } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import { quizTheme } from "../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
 
@@ -28,6 +29,9 @@ export const MultipleChoiceClickable: React.FunctionComponent<QuizItemComponentP
 
     setQuizItemAnswerState(newItemAnswer)
   }
+
+  const selectedBackgroundColor = quizTheme.selectedItemBackground
+  const selectedForegroundColor = quizTheme.selectedItemColor
 
   return (
     <div
@@ -59,8 +63,11 @@ export const MultipleChoiceClickable: React.FunctionComponent<QuizItemComponentP
             onClick={handleOptionSelect}
             className={css`
               display: flex;
+              flex-grow: 1;
               margin: 0.5rem;
-              ${quizItemAnswerState?.optionAnswers?.includes(o.id) && "border: 2px solid #4caf50;"}
+              border: none;
+              ${quizItemAnswerState?.optionAnswers?.includes(o.id) &&
+              `background-color: ${selectedBackgroundColor}; color: ${selectedForegroundColor}`}
             `}
           >
             {o.title || o.body}

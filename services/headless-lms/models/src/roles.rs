@@ -3,10 +3,10 @@ use crate::prelude::*;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, TS)]
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
-    Admin,
+    Reviewer,
     Assistant,
     Teacher,
-    Reviewer,
+    Admin,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]

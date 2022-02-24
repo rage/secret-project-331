@@ -38,12 +38,19 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a
 async fn get_organization_courses(
     organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
     pagination: web::Query<Pagination>,
 ) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-    let courses =
-        models::courses::organization_courses_paginated(&mut conn, &organization_id, &pagination)
-            .await?;
+
+    let user = user.map(|u| u.id);
+    let courses = models::courses::organization_courses_visible_to_user_paginated(
+        &mut conn,
+        *organization_id,
+        user,
+        *pagination,
+    )
+    .await?;
     Ok(web::Json(courses))
 }
 

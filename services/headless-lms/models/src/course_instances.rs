@@ -2,21 +2,6 @@ use std::collections::HashMap;
 
 use crate::{chapters, chapters::DatabaseChapter, exercises, prelude::*, users::User};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, TS)]
-#[sqlx(type_name = "variant_status", rename_all = "snake_case")]
-pub enum VariantStatus {
-    Draft,
-    Upcoming,
-    Active,
-    Ended,
-}
-
-impl Default for VariantStatus {
-    fn default() -> Self {
-        Self::Draft
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct CourseInstance {
     pub id: Uuid,
@@ -28,7 +13,6 @@ pub struct CourseInstance {
     pub ends_at: Option<DateTime<Utc>>,
     pub name: Option<String>,
     pub description: Option<String>,
-    pub variant_status: VariantStatus,
     pub teacher_in_charge_name: String,
     pub teacher_in_charge_email: String,
     pub support_email: Option<String>,
@@ -51,7 +35,6 @@ pub struct NewCourseInstance<'a> {
     pub course_id: Uuid,
     pub name: Option<&'a str>,
     pub description: Option<&'a str>,
-    pub variant_status: Option<VariantStatus>,
     pub teacher_in_charge_name: &'a str,
     pub teacher_in_charge_email: &'a str,
     pub support_email: Option<&'a str>,
@@ -71,12 +54,11 @@ INSERT INTO course_instances (
     course_id,
     name,
     description,
-    variant_status,
     teacher_in_charge_name,
     teacher_in_charge_email,
     support_email
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id,
   created_at,
   updated_at,
@@ -86,7 +68,6 @@ RETURNING id,
   ends_at,
   name,
   description,
-  variant_status AS "variant_status: VariantStatus",
   teacher_in_charge_name,
   teacher_in_charge_email,
   support_email
@@ -95,7 +76,6 @@ RETURNING id,
         new_course_instance.course_id,
         new_course_instance.name,
         new_course_instance.description,
-        new_course_instance.variant_status.unwrap_or_default() as VariantStatus,
         new_course_instance.teacher_in_charge_name,
         new_course_instance.teacher_in_charge_email,
         new_course_instance.support_email,
@@ -121,7 +101,6 @@ SELECT id,
   ends_at,
   name,
   description,
-  variant_status AS "variant_status: VariantStatus",
   teacher_in_charge_name,
   teacher_in_charge_email,
   support_email
@@ -171,7 +150,6 @@ SELECT i.id,
   i.ends_at,
   i.name,
   i.description,
-  i.variant_status AS "variant_status: VariantStatus",
   i.teacher_in_charge_name,
   i.teacher_in_charge_email,
   i.support_email
@@ -206,7 +184,6 @@ SELECT i.id,
   i.ends_at,
   i.name,
   i.description,
-  i.variant_status AS "variant_status: VariantStatus",
   i.teacher_in_charge_name,
   i.teacher_in_charge_email,
   i.support_email
@@ -239,7 +216,6 @@ SELECT id,
   ends_at,
   name,
   description,
-  variant_status as "variant_status: VariantStatus",
   teacher_in_charge_name,
   teacher_in_charge_email,
   support_email
@@ -268,7 +244,6 @@ SELECT id,
   ends_at,
   name,
   description,
-  variant_status as "variant_status: VariantStatus",
   teacher_in_charge_name,
   teacher_in_charge_email,
   support_email
@@ -281,25 +256,6 @@ WHERE course_id = $1
     .fetch_all(conn)
     .await?;
     Ok(course_instances)
-}
-
-pub async fn update_course_instance_variant_status(
-    conn: &mut PgConnection,
-    course_instance_id: Uuid,
-    variant_status: VariantStatus,
-) -> ModelResult<()> {
-    sqlx::query!(
-        r#"
-UPDATE course_instances
-SET variant_status = $1
-WHERE id = $2;
-"#,
-        variant_status as _,
-        course_instance_id
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
 }
 
 #[derive(Debug, Serialize, TS)]
@@ -510,7 +466,6 @@ mod test {
             support_email: None,
             opening_time: None,
             closing_time: None,
-            variant_status: None,
         };
         insert(tx1.as_mut(), instance.clone()).await.unwrap_err();
         tx1.rollback().await;

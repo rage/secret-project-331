@@ -189,5 +189,6 @@
   "save-edited-role": "Tallenna muutettu rooli",
   "cancel-editing-role": "Peru roolin muuttaminen",
   "global-permissions": "Globaalit oikeudet",
-  "skip-to-content": "Siirry sisältöön"
+  "skip-to-content": "Siirry sisältöön",
+  "draft": "Luonnos"
 }

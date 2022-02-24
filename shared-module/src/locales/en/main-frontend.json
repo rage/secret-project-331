@@ -7,6 +7,7 @@
   "american-english": "English",
   "available-in-languages": "Available in {{num}} languages",
   "block-contents": "Block contents: {{text}}",
+  "blocks": "Blocks:",
   "block-id": "Block id: {{id}}",
   "button-compare": "Compare",
   "button-mark-as-read": "Mark as read",

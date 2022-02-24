@@ -78,23 +78,6 @@ macro_rules! write_docs {
 }
 
 fn main() {
-    // clean up existing files
-    let generated_doc_path = concat!(env!("CARGO_MANIFEST_DIR"), "/generated-docs");
-    std::fs::remove_dir_all(generated_doc_path).unwrap();
-    std::fs::create_dir(generated_doc_path).unwrap();
-
-    // write .eslintrc
-    std::fs::write(
-        format!("{generated_doc_path}/.eslintrc"),
-        r#"{
-  "rules": {
-    "@typescript-eslint/no-unused-vars": 0
-  }
-}
-"#,
-    )
-    .unwrap();
-
     // reusable variables
     let id = Uuid::parse_str("307fa56f-9853-4f5c-afb9-a6736c232f32").unwrap();
     let date_time = Utc.timestamp(1640988000, 0);

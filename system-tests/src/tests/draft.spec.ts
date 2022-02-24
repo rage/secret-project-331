@@ -36,7 +36,7 @@ test.describe("user", () => {
     await expect(page.locator("text=Introduction to Drafts")).not.toBeVisible()
   })
   test("cannot directly navigate to the draft course page", async ({ page }) => {
-    await page.goto("http://project-331.local/manage/courses/265c83b6-7faf-40bf-90e9-40a4c28f826c")
+    await page.goto("http://project-331.local/org/uh-mathstat/courses/introduction-to-drafts")
     await expect(page.locator("text=Forbidden")).toBeVisible()
     await expect(page.locator("text=Introduction to Drafts")).not.toBeVisible()
   })

@@ -440,6 +440,25 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    let draft_course = NewCourse {
+        name: "Introduction to Drafts".to_string(),
+        slug: "introduction-to-drafts".to_string(),
+        organization_id: uh_mathstat,
+        language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "description".to_string(),
+        is_draft: true,
+    };
+    courses::insert_course(
+        &mut conn,
+        Uuid::parse_str("963a9caf-1e2d-4560-8c88-9c6d20794da3")?,
+        Uuid::parse_str("5cb4b4d6-4599-4f81-ab7e-79b415f8f584")?,
+        draft_course,
+        admin,
+    )
+    .await?;
+
     // roles
     info!("roles");
     roles::insert(&mut conn, admin, UserRole::Admin, RoleDomain::Global).await?;

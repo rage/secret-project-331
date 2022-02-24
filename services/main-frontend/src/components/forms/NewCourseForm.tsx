@@ -110,7 +110,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
         teacher_in_charge_name: teacherInChargeName,
         teacher_in_charge_email: teacherInChargeEmail,
         description,
-        is_draft: false,
+        is_draft: isDraft,
       })
       setName("")
       setSlug("")

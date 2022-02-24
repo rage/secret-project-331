@@ -130,7 +130,8 @@ const CourseComponent: React.FC<CourseCardProps> = ({
 
       <CourseContent>
         <CourseHeading>
-          {isDraft && `(${t("draft")}) `} {title}{" "}
+          {title}
+          {isDraft && ` (${t("draft")})`}
         </CourseHeading>
         <CourseDescription>{description}</CourseDescription>
       </CourseContent>

@@ -542,66 +542,50 @@ pub async fn get_course_structure(
     })
 }
 
-pub async fn organization_courses_paginated(
+pub async fn organization_courses_visible_to_user_paginated(
     conn: &mut PgConnection,
     organization_id: Uuid,
+    user: Option<Uuid>,
     pagination: Pagination,
 ) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft
+SELECT courses.id,
+  courses.name,
+  courses.created_at,
+  courses.updated_at,
+  courses.organization_id,
+  courses.deleted_at,
+  courses.slug,
+  courses.content_search_language::text,
+  courses.language_code,
+  courses.copied_from,
+  courses.course_language_group_id,
+  courses.description,
+  courses.is_draft
 FROM courses
-WHERE organization_id = $1
-  AND deleted_at IS NULL
-  LIMIT $2 OFFSET $3;
-        "#,
+WHERE courses.organization_id = $1
+  AND (
+    courses.is_draft IS FALSE
+    OR EXISTS (
+      SELECT id
+      FROM roles
+      WHERE user_id = $2
+        AND (
+          course_id = courses.id
+          OR roles.organization_id = courses.organization_id
+          OR roles.is_global IS TRUE
+        )
+    )
+  )
+  AND courses.deleted_at IS NULL
+LIMIT $3 OFFSET $4;
+"#,
         organization_id,
+        user,
         pagination.limit(),
         pagination.offset()
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(courses)
-}
-
-pub async fn organization_courses(
-    conn: &mut PgConnection,
-    organization_id: Uuid,
-) -> ModelResult<Vec<Course>> {
-    let courses = sqlx::query_as!(
-        Course,
-        r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft
-FROM courses
-WHERE organization_id = $1
-  AND deleted_at IS NULL;
-        "#,
-        organization_id,
     )
     .fetch_all(conn)
     .await?;

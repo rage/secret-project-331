@@ -104,8 +104,9 @@ test("test", async ({ page }) => {
   expect(page.url().startsWith("http://project-331.local/cms/pages/")).toBe(true)
 
   // Click text=Type / to choose a block
-  await page.click("text=Type / to choose a block")
-
+  await page.click('[aria-label="Add block"]')
+  await page.keyboard.type("/paragraph")
+  await page.click('button[role="option"]:has-text("Paragraph")')
   await page.keyboard.type("In system level testing, we test the system as a whole")
   await page.keyboard.press("Enter")
   await page.keyboard.type("/exercise")
@@ -235,6 +236,7 @@ test("test", async ({ page }) => {
       return f.url().startsWith("http://project-331.local/example-exercise/iframe")
     }),
   )
+  await (await frame2.frameElement()).scrollIntoViewIfNeeded()
 
   // Click text=Automatically testing the whole system
   await frame2.click("text=Automatically testing the whole system")

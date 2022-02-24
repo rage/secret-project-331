@@ -35,6 +35,11 @@ test.describe("user", () => {
     await expect(page.locator("text=Introduction to Statistics")).toBeVisible()
     await expect(page.locator("text=Introduction to Drafts")).not.toBeVisible()
   })
+  test("cannot directly navigate to the draft course page", async ({ page }) => {
+    await page.goto("http://project-331.local/manage/courses/265c83b6-7faf-40bf-90e9-40a4c28f826c")
+    await expect(page.locator("text=Forbidden")).toBeVisible()
+    await expect(page.locator("text=Introduction to Drafts")).not.toBeVisible()
+  })
 })
 
 test.describe("admin", () => {
@@ -68,15 +73,15 @@ test.describe("admin", () => {
     // Click text=Create
     await page.click("text=Create")
     // Fill input
-    await page.fill("input", "Advanced drafts")
+    await page.fill("input[label=Name]", "Advanced drafts")
     // Fill .css-1cftqx7 div div:nth-child(3) div label .css-1m9fudm
-    await page.fill(".css-1cftqx7 div div:nth-child(3) div label .css-1m9fudm", "admin")
+    await page.fill('input[label="Teacher in charge name"]', "admin")
     // Fill div div:nth-child(4) div label .css-1m9fudm
-    await page.fill("div div:nth-child(4) div label .css-1m9fudm", "admin@example.com")
+    await page.fill('input[label="Teacher in charge email"]', "admin@example.com")
     // Check input[type="checkbox"]
-    await page.check('input[type="checkbox"]')
+    await page.check("input[label=Draft]")
     // Click input[name="language-code"]
-    await page.click('input[name="language-code"]')
+    await page.check("input[label=English]")
     // Click div[role="dialog"] >> text=Create
     await page.click('div[role="dialog"] >> text=Create')
     // Click [aria-label="Manage\ course\ \'Advanced\ drafts\'"] svg
@@ -89,7 +94,7 @@ test.describe("admin", () => {
       page,
       headless,
       snapshotName: "draft-course",
-      waitForThisToBeVisibleAndStable: "text=(Draft) Advanced drafts",
+      waitForThisToBeVisibleAndStable: "text=Advanced drafts (Draft)",
     })
 
     // Click text=Edit

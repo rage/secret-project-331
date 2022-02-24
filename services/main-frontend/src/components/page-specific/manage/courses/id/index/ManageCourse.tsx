@@ -53,8 +53,8 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
   return (
     <>
       <h1>
-        {course.is_draft && `(${t("draft")}) `}
         {course.name}
+        {course.is_draft && ` (${t("draft")})`}
       </h1>
       <Button
         variant="secondary"

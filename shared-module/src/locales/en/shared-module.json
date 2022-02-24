@@ -6,6 +6,7 @@
   "answer": "Answer",
   "aria-label-option-index": "Option {{index}}",
   "body": "Body",
+  "breadcrumb": "Breadcrumb"
   "choose-quiz-item-option-direction-help-text": "Choose the direction the quiz item options will be used to lay out in the widget",
   "column": "Column",
   "correct-answer": "Correct answer",

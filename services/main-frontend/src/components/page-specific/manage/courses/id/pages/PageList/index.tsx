@@ -1,3 +1,4 @@
+import { horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faTrash } from "@fortawesome/free-solid-svg-icons"
@@ -6,11 +7,14 @@ import { Dialog } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { deletePage } from "../../../../../../services/backend/pages"
-import { Chapter, Page } from "../../../../../../shared-module/bindings"
-import Button from "../../../../../../shared-module/components/Button"
+import { deletePage } from "../../../../../../../services/backend/pages"
+import { Chapter, Page } from "../../../../../../../shared-module/bindings"
+import Button from "../../../../../../../shared-module/components/Button"
+import { baseTheme, typography } from "../../../../../../../shared-module/styles"
+import NewPageForm from "../NewPageForm"
 
-import NewPageForm from "./NewPageForm"
+import Droppable from "./Droppable"
+import PageListItem from "./PageListItem"
 
 const DeleteButton = styled.button`
   border: 0;
@@ -43,32 +47,38 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
       refetch()
     }
   }
+
+  const items = data.filter((page) => !page.deleted_at)
   return (
     <div
       className={css`
-        margin-bottom: 1rem;
+        margin: 2rem 0;
+        border: 2px solid ${baseTheme.colors.clear[500]};
+        border-radius: 12px;
+        background-color: white;
+        padding: 2rem 3rem;
       `}
     >
+      <h3
+        className={css`
+          font-size: ${typography.h5};
+          text-transform: uppercase;
+        `}
+      >
+        Pages in this chapter
+      </h3>
       <ul
         className={css`
           list-style: none;
           padding-left: 0;
         `}
       >
-        {data
-          .filter((page) => !page.deleted_at)
-          .map((page: Page) => (
-            <li key={page.id}>
-              <a href={`/cms/pages/${page.id}`}>{page.title}</a>({page.url_path}){" "}
-              <a href={`/manage/pages/${page.id}/history`}>{t("link-history")}</a>
-              <DeleteButton
-                aria-label={t("button-text-delete")}
-                onClick={() => handleDeleteTopLevelPage(page.id, page.title)}
-              >
-                <FontAwesomeIcon icon={faTrash} size="lg" />
-              </DeleteButton>
-            </li>
+        <SortableContext items={items} strategy={horizontalListSortingStrategy}>
+          {items.map((page: Page) => (
+            <PageListItem page={page} key={page.id} />
           ))}
+          <Droppable />
+        </SortableContext>
       </ul>
       <Button size="medium" variant="primary" onClick={() => setShowNewPageForm(!showNewPageForm)}>
         {t("button-text-new")}

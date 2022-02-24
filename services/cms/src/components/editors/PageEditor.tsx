@@ -92,17 +92,6 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
       <div className="editor__component">
         <div>
           {saveMutation.isError && <ErrorBanner variant={"text"} error={saveMutation.error} />}
-          <LoadingButton
-            // eslint-disable-next-line i18next/no-literal-string
-            loadingPosition="start"
-            startIcon={<SaveIcon />}
-            loading={saveMutation.isLoading}
-            onClick={handleOnSave}
-          >
-            {/* TODO: This doesn't work? */}
-            {currentContentStateSaved ? t("saved") : t("save")}
-          </LoadingButton>
-
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />
         </div>
       </div>
@@ -119,6 +108,27 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
           allowedBlockVariations={allowedBlockVariants}
           mediaUpload={mediaUpload}
         />
+      </div>
+      <div
+        className={`editor__component
+          ${css`
+            position: sticky;
+            bottom: 4rem;
+            display: flex;
+            justify-content: flex-end;
+          `}`}
+      >
+        <LoadingButton
+          // eslint-disable-next-line i18next/no-literal-string
+          loadingPosition="start"
+          startIcon={<SaveIcon />}
+          loading={saveMutation.isLoading}
+          onClick={handleOnSave}
+          variant="contained"
+        >
+          {/* TODO: This doesn't work? */}
+          {currentContentStateSaved ? t("saved") : t("save")}
+        </LoadingButton>
       </div>
       <div className="editor__component">
         <div

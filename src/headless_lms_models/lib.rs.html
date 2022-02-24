@@ -67,6 +67,7 @@
 <span id="66">66</span>
 <span id="67">67</span>
 <span id="68">68</span>
+<span id="69">69</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Functions and structs for interacting with the database.
 
@@ -116,6 +117,7 @@ Each submodule corresponds to a database table.
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">tracing</span>;
 
+<span class="doccomment">/// Many database tables are related to either a course or an exam</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CourseOrExamId</span> {
     <span class="ident">Course</span>(<span class="ident">Uuid</span>),
     <span class="ident">Exam</span>(<span class="ident">Uuid</span>),

@@ -8,7 +8,7 @@ Content-Type: application/json
 {
   &quot;name&quot;: &quot;Introduction to Introduction&quot;
 }
-</code></pre></div><h3 id="response-typescript-definition" class="section-header"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Course = { id: string, slug: string, created_at: Date, updated_at: Date, name: string, description: string | null, organization_id: string, deleted_at: Date | null, language_code: string, copied_from: string | null, content_search_language: string | null, course_language_group_id: string, }</code></pre></div><h3 id="example-response" class="section-header"><a href="#example-response">Example response</a></h3><div class="example-wrap"><pre class="language-json"><code>{
+</code></pre></div><h3 id="response-typescript-definition" class="section-header"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Course = { id: string, slug: string, created_at: Date, updated_at: Date, name: string, description: string | null, organization_id: string, deleted_at: Date | null, language_code: string, copied_from: string | null, content_search_language: string | null, course_language_group_id: string, is_draft: boolean, }</code></pre></div><h3 id="example-response" class="section-header"><a href="#example-response">Example response</a></h3><div class="example-wrap"><pre class="language-json"><code>{
     &quot;id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
     &quot;slug&quot;: &quot;introduction-to-cs&quot;,
     &quot;created_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
@@ -20,6 +20,7 @@ Content-Type: application/json
     &quot;language_code&quot;: &quot;en-US&quot;,
     &quot;copied_from&quot;: null,
     &quot;content_search_language&quot;: &quot;simple&quot;,
-    &quot;course_language_group_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;
+    &quot;course_language_group_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+    &quot;is_draft&quot;: true
 }</code></pre></div></div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
 </body></html>

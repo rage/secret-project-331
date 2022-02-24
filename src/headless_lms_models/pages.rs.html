@@ -2028,7 +2028,7 @@
 <span class="kw">use</span> <span class="ident">url::Url</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">ChapterStatus</span>, <span class="ident">DatabaseChapter</span>},
+    <span class="ident">chapters</span>::{<span class="ident">ChapterStatus</span>, <span class="ident">DatabaseChapter</span>},
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>},
     <span class="ident">courses</span>::{<span class="ident">get_nondeleted_course_id_by_slug</span>, <span class="ident">Course</span>},
     <span class="ident">exercise_service_info</span>,
@@ -2353,7 +2353,7 @@ WHERE id = $1;
     <span class="prelude-val">Ok</span>(<span class="ident">pages</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_by_path</span>(
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_by_path</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">url_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
@@ -2455,7 +2455,7 @@ WHERE url_redirections.course_id = $1
     <span class="ident">was_redirected</span>: <span class="ident">bool</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CoursePageWithUserData</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chapter_id</span>) <span class="op">=</span> <span class="ident">page</span>.<span class="ident">chapter_id</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">chapters::is_open</span>(<span class="ident">conn</span>, <span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident"><span class="kw">crate</span>::chapters::is_open</span>(<span class="ident">conn</span>, <span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::PreconditionFailed</span>(
                 <span class="string">&quot;Chapter is not open yet&quot;</span>.<span class="ident">to_string</span>(),
             ));

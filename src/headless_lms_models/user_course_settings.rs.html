@@ -163,7 +163,6 @@
 <span id="162">162</span>
 <span id="163">163</span>
 <span id="164">164</span>
-<span id="165">165</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">course_instance_enrollments::CourseInstanceEnrollment</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
@@ -299,7 +298,6 @@ WHERE c.id = $1
                 <span class="ident">course_id</span>: <span class="ident">course</span>,
                 <span class="ident">name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;instance-2&quot;</span>),
                 <span class="ident">description</span>: <span class="prelude-val">None</span>,
-                <span class="ident">variant_status</span>: <span class="prelude-val">None</span>,
                 <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;teacher&quot;</span>,
                 <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;teacher@example.com&quot;</span>,
                 <span class="ident">support_email</span>: <span class="prelude-val">None</span>,

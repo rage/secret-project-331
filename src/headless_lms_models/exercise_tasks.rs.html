@@ -399,7 +399,6 @@
 <span id="398">398</span>
 <span id="399">399</span>
 <span id="400">400</span>
-<span id="401">401</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::TryStreamExt</span>;
@@ -505,7 +504,7 @@ RETURNING id
     <span class="ident">id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseOrExamId</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-        <span class="string">r#&quot;
+        <span class="string">&quot;
 SELECT
     course_id,
     exam_id
@@ -518,8 +517,7 @@ WHERE id = (
       AND t.id = $1
       AND t.deleted_at IS NULL
   )
-  AND course_id IS NOT NULL
-&quot;#</span>,
+&quot;</span>,
         <span class="ident">id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)

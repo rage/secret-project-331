@@ -272,7 +272,6 @@ sourcesIndex["unicode_width"] = {"name":"","files":["lib.rs","tables.rs"]};
 sourcesIndex["unicode_xid"] = {"name":"","files":["lib.rs","tables.rs"]};
 sourcesIndex["universal_hash"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["untrusted"] = {"name":"","files":["untrusted.rs"]};
-sourcesIndex["update_course_variant_statuses"] = {"name":"","files":["update-course-variant-statuses.rs"]};
 sourcesIndex["url"] = {"name":"","files":["host.rs","lib.rs","origin.rs","parser.rs","path_segments.rs","quirks.rs","slicing.rs"]};
 sourcesIndex["uuid"] = {"name":"","dirs":[{"name":"adapter","files":["compact.rs","mod.rs"]},{"name":"builder","files":["error.rs","mod.rs"]},{"name":"parser","files":["error.rs","mod.rs"]}],"files":["error.rs","lib.rs","prelude.rs","serde_support.rs","v4.rs","v5.rs"]};
 sourcesIndex["walkdir"] = {"name":"","files":["dent.rs","error.rs","lib.rs","util.rs"]};

@@ -312,7 +312,7 @@ async fn main() -> Result<()> {
     info!("inserting sample exams");
     create_exam(
         &mut conn,
-        "Ongoing ends soon",
+        "Ongoing ends soon".to_string(),
         Some(Utc::now()),
         Some(Utc::now() + Duration::minutes(1)),
         120,
@@ -324,7 +324,7 @@ async fn main() -> Result<()> {
     .await?;
     create_exam(
         &mut conn,
-        "Ongoing short timer",
+        "Ongoing short timer".to_string(),
         Some(Utc::now()),
         Some(Utc::now() + Duration::minutes(120)),
         1,
@@ -336,7 +336,7 @@ async fn main() -> Result<()> {
     .await?;
     create_exam(
         &mut conn,
-        "Starting soon",
+        "Starting soon".to_string(),
         Some(Utc::now() + Duration::minutes(5)),
         Some(Utc::now() + Duration::days(30)),
         1,
@@ -348,7 +348,7 @@ async fn main() -> Result<()> {
     .await?;
     create_exam(
         &mut conn,
-        "Over",
+        "Over".to_string(),
         Some(Utc::now() - Duration::days(7)),
         Some(Utc::now() - Duration::minutes(30)),
         1,
@@ -2628,7 +2628,7 @@ async fn submit_and_grade(
 
 async fn create_exam(
     conn: &mut PgConnection,
-    name: &str,
+    name: String,
     starts_at: Option<DateTime<Utc>>,
     ends_at: Option<DateTime<Utc>>,
     time_minutes: i32,
@@ -2642,7 +2642,7 @@ async fn create_exam(
         NewExam {
             id: exam_id,
             name,
-            instructions: "Do your best!",
+            instructions: "Do your best!".to_string(),
             starts_at,
             ends_at,
             time_minutes,

@@ -1884,8 +1884,8 @@ mod test {
             tx.as_mut(),
             NewExam {
                 id: exam,
-                name: "name",
-                instructions: "instr",
+                name: "name".to_string(),
+                instructions: "instr".to_string(),
                 starts_at: None,
                 ends_at: None,
                 time_minutes: 120,

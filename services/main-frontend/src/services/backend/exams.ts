@@ -1,5 +1,13 @@
-import { CourseExam, Exam, ExamCourseInfo } from "../../shared-module/bindings"
+import { CourseExam, Exam, ExamCourseInfo, NewExam } from "../../shared-module/bindings"
 import { mainFrontendClient } from "../mainFrontendClient"
+
+export const createExam = async (organizationId: string, data: NewExam) => {
+  return (await mainFrontendClient.post(`/organizations/${organizationId}/exams`, data)).data
+}
+
+export const createExamDuplicate = async (examId: string, data: NewExam) => {
+  return (await mainFrontendClient.post(`/exams/${examId}/duplicate`, data)).data
+}
 
 export const fetchExam = async (id: string): Promise<Exam> => {
   const response = await mainFrontendClient.get(`/exams/${id}`, { responseType: "json" })

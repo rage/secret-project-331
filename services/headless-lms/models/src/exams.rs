@@ -77,18 +77,18 @@ pub struct CourseExam {
     pub name: String,
 }
 
-#[derive(Debug)]
-pub struct NewExam<'a> {
+#[derive(Debug, Serialize, TS)]
+pub struct NewExam {
     pub id: Uuid,
-    pub name: &'a str,
-    pub instructions: &'a str,
+    pub name: String,
+    pub instructions: String,
     pub starts_at: Option<DateTime<Utc>>,
     pub ends_at: Option<DateTime<Utc>>,
     pub time_minutes: i32,
     pub organization_id: Uuid,
 }
 
-pub async fn insert(conn: &mut PgConnection, exam: NewExam<'_>) -> ModelResult<()> {
+pub async fn insert(conn: &mut PgConnection, exam: NewExam) -> ModelResult<()> {
     sqlx::query!(
         "
 INSERT INTO exams (

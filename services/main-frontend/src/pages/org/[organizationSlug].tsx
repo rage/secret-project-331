@@ -5,6 +5,7 @@ import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import CourseList from "../../components/page-specific/org/organizationSlug/CourseList"
+import ExamList from "../../components/page-specific/org/organizationSlug/ExamList"
 import { fetchOrganizationExams } from "../../services/backend/exams"
 import { fetchOrganizationBySlug } from "../../services/backend/organizations"
 import DebugModal from "../../shared-module/components/DebugModal"
@@ -82,21 +83,14 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
               organizationSlug={query.organizationSlug}
               perPage={15}
             />
+            <h2>{t("exam-list")}</h2>
+            <ExamList
+              organizationId={getOrganizationBySlug.data.id}
+              organizationSlug={query.organizationSlug}
+            />
           </>
         )}
-        <h2>{t("exam-list")}</h2>
-        {(exams.isLoading || exams.isIdle) && <Spinner variant={"medium"} />}
-        {exams.isError && <ErrorBanner variant={"readOnly"} error={exams.error} />}
-        {exams.isSuccess &&
-          exams.data.map((e) => (
-            <div key={e.id}>
-              <a href={`/org/${query.organizationSlug}/exams/${e.id}`}>{e.name}</a> ({e.course_name}
-              ){" "}
-              <a href={`/manage/exams/${e.id}`} aria-label={`${t("link-manage")} ${e.name}`}>
-                {t("link-manage")}
-              </a>
-            </div>
-          ))}
+
         <DebugModal data={getOrganizationBySlug.data} />
       </div>
     </Layout>

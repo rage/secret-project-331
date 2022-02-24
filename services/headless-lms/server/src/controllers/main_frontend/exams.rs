@@ -31,6 +31,23 @@ pub struct ExamCourseInfo {
 }
 
 /**
+POST `/api/v0/main-frontend/exams`
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+pub async fn create_exam(
+    pool: web::Data<PgPool>,
+    exam: web::Json<exams::NewExam>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(exam.id)).await?;
+
+    let exam = exams::insert(&mut conn, exam.0).await?;
+    Ok(web::Json(exam))
+}
+
+/**
 POST `/api/v0/main-frontend/exams/:id/set`
 */
 #[generated_doc]

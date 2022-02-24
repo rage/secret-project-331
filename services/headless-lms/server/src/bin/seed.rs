@@ -11,7 +11,7 @@ use headless_lms_models::{
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances,
-    course_instances::{NewCourseInstance, VariantStatus},
+    course_instances::NewCourseInstance,
     courses,
     courses::NewCourse,
     exams,
@@ -369,6 +369,7 @@ async fn main() -> Result<()> {
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
+        is_draft: false,
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance) = courses::insert_course(
         &mut conn,
@@ -385,7 +386,6 @@ async fn main() -> Result<()> {
             course_id: cs_course.id,
             name: Some("non-default instance"),
             description: Some("this is another non-default instance"),
-            variant_status: Some(VariantStatus::Upcoming),
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",
@@ -413,6 +413,7 @@ async fn main() -> Result<()> {
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
+        is_draft: false,
     };
     let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
         courses::insert_course(
@@ -430,13 +431,31 @@ async fn main() -> Result<()> {
             course_id: statistics_course.id,
             name: Some("non-default instance"),
             description: Some("this appears to be a non-default instance"),
-            variant_status: Some(VariantStatus::Active),
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",
             opening_time: None,
             closing_time: None,
         },
+    )
+    .await?;
+
+    let draft_course = NewCourse {
+        name: "Introduction to Drafts".to_string(),
+        slug: "introduction-to-drafts".to_string(),
+        organization_id: uh_mathstat,
+        language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "description".to_string(),
+        is_draft: true,
+    };
+    courses::insert_course(
+        &mut conn,
+        Uuid::parse_str("963a9caf-1e2d-4560-8c88-9c6d20794da3")?,
+        Uuid::parse_str("5cb4b4d6-4599-4f81-ab7e-79b415f8f584")?,
+        draft_course,
+        admin,
     )
     .await?;
 
@@ -1217,6 +1236,7 @@ async fn seed_sample_course(
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
+        is_draft: false,
     };
     let (course, _front_page, default_instance) = courses::insert_course(
         conn,
@@ -1233,7 +1253,6 @@ async fn seed_sample_course(
             course_id: course.id,
             name: Some("non-default instance"),
             description: Some("this is a non-default instance"),
-            variant_status: None,
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",
@@ -2125,6 +2144,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
+        is_draft: false,
     };
     let (course, front_page, _default_instance) = courses::insert_course(
         conn,

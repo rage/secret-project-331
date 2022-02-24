@@ -489,7 +489,6 @@ async fn new_course_instance(
         course_id: *course_id,
         name: form.name.as_deref(),
         description: form.description.as_deref(),
-        variant_status: None,
         support_email: form.support_email.as_deref(),
         teacher_in_charge_name: &form.teacher_in_charge_name,
         teacher_in_charge_email: &form.teacher_in_charge_email,

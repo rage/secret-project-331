@@ -231,15 +231,13 @@ async fn check_organization_permission(
 async fn check_course_permission(
     conn: &mut PgConnection,
     roles: &[Role],
-    action: Action,
+    mut action: Action,
     course_id: Uuid,
 ) -> ControllerResult<()> {
-    /* todo
     // if trying to View a draft course, check for permission to Teach instead
-    if matches!(action, Action::View) && dbg!(models::courses::is_draft(conn, course_id).await?) {
+    if action == Action::View && models::courses::is_draft(conn, course_id).await? {
         action = Action::Teach;
     }
-    */
 
     // check course role
     for role in roles {

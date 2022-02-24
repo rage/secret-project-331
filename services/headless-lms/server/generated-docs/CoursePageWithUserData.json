@@ -42,7 +42,6 @@
     "ends_at": null,
     "name": "Instance",
     "description": "Description",
-    "variant_status": "Active",
     "teacher_in_charge_name": "Example Teacher",
     "teacher_in_charge_email": "example@email.com",
     "support_email": "example@email.com"

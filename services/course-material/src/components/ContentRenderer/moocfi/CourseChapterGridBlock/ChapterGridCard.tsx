@@ -15,6 +15,7 @@ interface ChapterProps {
   courseSlug: string
   bg: string
   organizationSlug: string
+  previewable: boolean
 }
 
 const NUMERIC = "numeric"
@@ -27,6 +28,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({
   courseSlug,
   bg,
   organizationSlug,
+  previewable,
 }) => {
   const { i18n } = useTranslation()
   const getChapterPageUrl = useQuery(`chapter-grid-chapter-${chapter.id}`, () => {
@@ -45,85 +47,52 @@ const ChapterGridCard: React.FC<ChapterProps> = ({
     return <Spinner variant={"small"} />
   }
 
-  if (chapter.status === OPEN) {
-    return (
-      <Card
-        variant="simple"
-        title={chapter.name}
-        chapterNumber={chapter.chapter_number}
-        key={chapter.id}
-        url={coursePageRoute(organizationSlug, courseSlug, getChapterPageUrl.data)}
-        bg={bg}
-      />
-    )
-  } else {
-    if (chapter.opens_at) {
-      const diffSeconds = differenceInSeconds(chapter.opens_at, now)
-      if (diffSeconds <= 0) {
-        chapter.status = OPEN
-        // Insert confetti drop here.
-        return (
-          <Card
-            variant="simple"
-            title={chapter.name}
-            chapterNumber={chapter.chapter_number}
-            key={chapter.id}
-            open={true}
-            bg={bg}
-          />
-        )
-      } else if (diffSeconds < 60 * 10) {
-        const minutes = Math.floor(diffSeconds / 60)
-        const seconds = diffSeconds % 60
-        const formatted = formatDuration({
-          minutes,
-          seconds,
-        })
-        return (
-          <Card
-            variant="simple"
-            title={chapter.name}
-            chapterNumber={chapter.chapter_number}
-            key={chapter.id}
-            time={formatted}
-            bg={bg}
-          />
-        )
-      } else {
-        const date = chapter.opens_at.toLocaleString(i18n.language, {
-          year: NUMERIC,
-          month: LONG,
-          day: NUMERIC,
-        })
-        const time = chapter.opens_at.toLocaleString(i18n.language, {
-          hour: NUMERIC,
-          minute: NUMERIC,
-        })
-        return (
-          <Card
-            variant="simple"
-            title={chapter.name}
-            chapterNumber={chapter.chapter_number}
-            key={chapter.id}
-            date={date}
-            time={time}
-            bg={bg}
-          />
-        )
-      }
+  let date = undefined
+  let time = undefined
+  if (chapter.status !== OPEN && chapter.opens_at) {
+    const diffSeconds = differenceInSeconds(chapter.opens_at, now)
+    if (diffSeconds <= 0) {
+      chapter.status = OPEN
+      // Insert confetti drop here.
+    } else if (diffSeconds < 60 * 10) {
+      // opens in 10 minutes
+      const minutes = Math.floor(diffSeconds / 60)
+      const seconds = diffSeconds % 60
+      time = formatDuration({
+        minutes,
+        seconds,
+      })
     } else {
-      return (
-        <Card
-          variant="simple"
-          title={chapter.name}
-          chapterNumber={chapter.chapter_number}
-          key={chapter.id}
-          open={false}
-          bg={bg}
-        />
-      )
+      // opens in over 10 minutes
+      date = chapter.opens_at.toLocaleString(i18n.language, {
+        year: NUMERIC,
+        month: LONG,
+        day: NUMERIC,
+      })
+      time = chapter.opens_at.toLocaleString(i18n.language, {
+        hour: NUMERIC,
+        minute: NUMERIC,
+      })
     }
   }
+  const open = chapter.status === OPEN
+  const url =
+    open || previewable
+      ? coursePageRoute(organizationSlug, courseSlug, getChapterPageUrl.data)
+      : undefined
+  return (
+    <Card
+      variant="simple"
+      title={chapter.name}
+      chapterNumber={chapter.chapter_number}
+      key={chapter.id}
+      open={open}
+      date={date}
+      time={time}
+      url={url}
+      bg={bg}
+    />
+  )
 }
 
 export default ChapterGridCard

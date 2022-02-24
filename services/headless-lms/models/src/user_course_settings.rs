@@ -133,7 +133,6 @@ mod test {
                 course_id: course,
                 name: Some("instance-2"),
                 description: None,
-                variant_status: None,
                 teacher_in_charge_name: "teacher",
                 teacher_in_charge_email: "teacher@example.com",
                 support_email: None,

@@ -53,6 +53,14 @@ impl Pagination {
             total_count / self.limit + 1
         }
     }
+
+    /// Helper to paginate an existing Vec efficiently.
+    pub fn paginate<T>(&self, v: &mut Vec<T>) {
+        let limit = self.limit as usize;
+        let start = limit * (self.page as usize - 1);
+        v.truncate(start + limit);
+        v.drain(..start);
+    }
 }
 
 impl Default for Pagination {
@@ -168,5 +176,34 @@ impl StrOrInt<'_> {
             Self::Str(s) => s.parse(),
             Self::Int(i) => Ok(i),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn paginates() {
+        let mut v = vec![1, 2, 3, 4, 5, 6, 7, 8];
+        let pagination = Pagination::new(2, 3);
+        pagination.paginate(&mut v);
+        assert_eq!(v, &[4, 5, 6]);
+    }
+
+    #[test]
+    fn paginates_non_existent_page() {
+        let mut v = vec![1, 2, 3, 4, 5, 6, 7, 8];
+        let pagination = Pagination::new(3, 4);
+        pagination.paginate(&mut v);
+        assert_eq!(v, &[] as &[i32]);
+    }
+
+    #[test]
+    fn paginates_incomplete_page() {
+        let mut v = vec![1, 2, 3, 4, 5, 6, 7, 8];
+        let pagination = Pagination::new(2, 5);
+        pagination.paginate(&mut v);
+        assert_eq!(v, &[6, 7, 8]);
     }
 }

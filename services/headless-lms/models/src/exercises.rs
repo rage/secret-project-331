@@ -245,7 +245,6 @@ SELECT course_id,
   exam_id
 FROM exercises
 WHERE id = $1
-  AND course_id IS NOT NULL
 ",
         id
     )

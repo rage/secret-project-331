@@ -8,4 +8,4 @@ pub use sqlx::{Connection, FromRow, PgConnection, Type};
 pub use ts_rs::TS;
 pub use uuid::Uuid;
 
-pub use crate::{ModelError, ModelResult};
+pub use crate::{CourseOrExamId, ModelError, ModelResult};

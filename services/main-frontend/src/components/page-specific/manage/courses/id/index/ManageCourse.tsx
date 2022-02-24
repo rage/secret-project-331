@@ -52,7 +52,10 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
 
   return (
     <>
-      <h1>{course.name}</h1>
+      <h1>
+        {course.name}
+        {course.is_draft && ` (${t("draft")})`}
+      </h1>
       <Button
         variant="secondary"
         size="medium"
@@ -75,6 +78,7 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
           <UpdateCourseForm
             courseId={course.id}
             courseName={course.name}
+            isDraft={course.is_draft}
             onSubmitForm={handleOnUpdateCourse}
           />
         </div>

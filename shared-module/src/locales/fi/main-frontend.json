@@ -7,6 +7,7 @@
   "american-english": "Englanti",
   "available-in-languages": "Saatavilla {{num}} kielellä",
   "block-contents": "Lohkon sisällöt: {{text}}",
+  "blocks": "Lohkot:",
   "block-id": "Lohkon tunniste: {{id}}",
   "button-compare": "Vertaa",
   "button-mark-as-read": "Merkitse luetuksi",

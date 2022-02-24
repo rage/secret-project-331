@@ -7,8 +7,8 @@
   "american-english": "Englanti",
   "available-in-languages": "Saatavilla {{num}} kielellä",
   "block-contents": "Lohkon sisällöt: {{text}}",
-  "blocks": "Lohkot:",
   "block-id": "Lohkon tunniste: {{id}}",
+  "blocks": "Lohkot:",
   "button-compare": "Vertaa",
   "button-mark-as-read": "Merkitse luetuksi",
   "button-mark-as-unread": "Merkitse lukemattomaksi",
@@ -45,6 +45,7 @@
   "data-to-post-to-iframe": "Data, joka lähtee IFrameen",
   "default-course-instance-name": "Oletus",
   "delete-confirmation": "Oletko varma että haluat poistaa \"{{name}}\"?",
+  "draft": "Luonnos",
   "edit": "Muokkaa",
   "edit-and-accept": "Muokkaa ja hyväksy",
   "edit-role": "Muuta roolia",
@@ -236,6 +237,5 @@
   "weekday-sunday": "Sunnuntai",
   "weekday-thursday": "Torstai",
   "weekday-tuesday": "Tiistai",
-  "weekday-wednesday": "Keskiviikko",
-  "draft": "Luonnos"
+  "weekday-wednesday": "Keskiviikko"
 }

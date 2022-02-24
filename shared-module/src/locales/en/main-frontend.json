@@ -7,8 +7,8 @@
   "american-english": "English",
   "available-in-languages": "Available in {{num}} languages",
   "block-contents": "Block contents: {{text}}",
-  "blocks": "Blocks:",
   "block-id": "Block id: {{id}}",
+  "blocks": "Blocks:",
   "button-compare": "Compare",
   "button-mark-as-read": "Mark as read",
   "button-mark-as-unread": "Mark as unread",
@@ -45,6 +45,7 @@
   "data-to-post-to-iframe": "Data to post to the IFrame",
   "default-course-instance-name": "Default",
   "delete-confirmation": "Are you sure you want to delete \"{{name}}\"?",
+  "draft": "Draft",
   "edit": "Edit",
   "edit-and-accept": "Edit and accept",
   "edit-role": "Edit role",
@@ -238,6 +239,5 @@
   "weekday-sunday": "Sunday",
   "weekday-thursday": "Thursday",
   "weekday-tuesday": "Tuesday",
-  "weekday-wednesday": "Wednesday",
-  "draft": "Draft"
+  "weekday-wednesday": "Wednesday"
 }

@@ -1983,6 +1983,38 @@
 <span id="1982">1982</span>
 <span id="1983">1983</span>
 <span id="1984">1984</span>
+<span id="1985">1985</span>
+<span id="1986">1986</span>
+<span id="1987">1987</span>
+<span id="1988">1988</span>
+<span id="1989">1989</span>
+<span id="1990">1990</span>
+<span id="1991">1991</span>
+<span id="1992">1992</span>
+<span id="1993">1993</span>
+<span id="1994">1994</span>
+<span id="1995">1995</span>
+<span id="1996">1996</span>
+<span id="1997">1997</span>
+<span id="1998">1998</span>
+<span id="1999">1999</span>
+<span id="2000">2000</span>
+<span id="2001">2001</span>
+<span id="2002">2002</span>
+<span id="2003">2003</span>
+<span id="2004">2004</span>
+<span id="2005">2005</span>
+<span id="2006">2006</span>
+<span id="2007">2007</span>
+<span id="2008">2008</span>
+<span id="2009">2009</span>
+<span id="2010">2010</span>
+<span id="2011">2011</span>
+<span id="2012">2012</span>
+<span id="2013">2013</span>
+<span id="2014">2014</span>
+<span id="2015">2015</span>
+<span id="2016">2016</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -3106,6 +3138,37 @@ WHERE id = $2;
     <span class="prelude-val">Ok</span>(<span class="ident">result_spec</span>)
 }
 
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_new_content_page</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">new_page</span>: <span class="ident">NewPage</span>,
+    <span class="ident">user</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">course_material_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="macro">vec!</span>[<span class="ident">GutenbergBlock::hero_section</span>(
+        <span class="ident">new_page</span>.<span class="ident">title</span>.<span class="ident">trim</span>(),
+        <span class="string">&quot;&quot;</span>,
+    )])<span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">content_page</span> <span class="op">=</span> <span class="ident">NewPage</span> {
+        <span class="ident">chapter_id</span>: <span class="ident">new_page</span>.<span class="ident">chapter_id</span>,
+        <span class="ident">content</span>: <span class="ident">course_material_content</span>,
+        <span class="ident">course_id</span>: <span class="ident">new_page</span>.<span class="ident">course_id</span>,
+        <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
+        <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
+        <span class="ident">title</span>: <span class="ident">new_page</span>.<span class="ident">title</span>,
+        <span class="ident">url_path</span>: <span class="ident">new_page</span>.<span class="ident">url_path</span>,
+        <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+        <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+        <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+        <span class="ident">content_search_language</span>: <span class="prelude-val">None</span>,
+    };
+    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::pages::insert_page</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">content_page</span>, <span class="ident">user</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">page</span>)
+}
+
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_page</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">new_page</span>: <span class="ident">NewPage</span>,
@@ -3130,6 +3193,7 @@ WHERE id = $2;
         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">content_search_language</span>)
         .<span class="ident">or</span>(<span class="ident">new_page</span>.<span class="ident">content_search_language</span>)
         .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;simple&quot;</span>.<span class="ident">to_string</span>());
+
     <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Page</span>,
         <span class="string">r#&quot;

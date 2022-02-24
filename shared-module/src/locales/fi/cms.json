@@ -1,7 +1,7 @@
 {
   "add-slide": "Lisää dia",
   "add-task": "Lisää tehtävä",
-  "chapter-progress-placeholder": "Luvun edistyminen lohk",
+  "chapter-progress-placeholder": "Luvun edistyminen lohko",
   "chapter-progress-placeholder-explanation": "Tätä lohkoa käytetään luvun edistymisen näyttämiseen. Jos haluat näyttää koko kurssin edistymisen, sinun tulee käyttää Course Progress -lohkoa.",
   "course-progress-placeholder": "Kurssin edistyminen lohko",
   "course-progress-placeholder-explanation": "Tämä lohko sijoitetaan kurssimateriaaliin, johon haluat näyttää kurssin edistymisen.",
@@ -31,6 +31,9 @@
   "button-text-select-media": "Valitse media (ei käytössä)",
   "serialize-to-html": "Näytä HTML-muodossa",
   "slide-title": "Dia {{ number }}",
+  "error": "Virhe",
+  "loading": "Lataa...",
+  "title-assignment": "Tehtävänanto",
   "glossary-placeholder": "Sanasto lohko",
   "glossary-placeholder-explanation": "Tämä lohko sisältää kurssin sanaston.",
   "skip-to-content": "Siirry sisältöön"

@@ -21,10 +21,9 @@ import ExamComponent from "./ExamCard"
 
 interface Props {
   organizationId: string
-  organizationSlug: string
 }
 
-const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
+const ExamList: React.FC<Props> = ({ organizationId }) => {
   const { t } = useTranslation()
 
   const getOrgExams = useQuery(
@@ -48,8 +47,8 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
     setNewExamFormOpen(!newExamFormOpen)
   }
 
-  const handleSubmitDuplicateExam = async (oldExamId: string, newExam: NewExam): Promise<void> => {
-    await createExamDuplicate(oldExamId, newExam)
+  const handleSubmitDuplicateExam = async (oldExamId: string): Promise<void> => {
+    await createExamDuplicate(oldExamId)
     await getOrgExams.refetch()
     setNewExamFormOpen(!newExamFormOpen)
   }

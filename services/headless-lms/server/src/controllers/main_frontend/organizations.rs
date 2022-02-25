@@ -237,9 +237,14 @@ POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new
 async fn create_course_exam(
     pool: web::Data<PgPool>,
     payload: web::Json<NewExam>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    models::exams::insert(&mut conn, payload.0).await?;
+    let new_exam = payload.0;
+
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(new_exam.id)).await?;
+
+    models::exams::insert(&mut conn, new_exam).await?;
     Ok(web::Json(()))
 }
 
@@ -277,5 +282,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{organization_id}/image",
             web::delete().to(remove_organization_image),
         )
-        .route("/{organization_id}/exams", web::get().to(get_course_exams));
+        .route("/{organization_id}/exams", web::get().to(get_course_exams))
+        .route(
+            "/{organization_id}/exams",
+            web::post().to(create_course_exam),
+        );
 }

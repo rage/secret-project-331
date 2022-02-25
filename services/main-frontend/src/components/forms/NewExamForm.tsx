@@ -159,7 +159,6 @@ const NewCourseForm: React.FC<NewExamFormProps> = ({
         <FieldContainer>
           <TimePicker
             label={t("text-field-label-starts-at")}
-            value={startsAt?.toString()}
             onChange={(value) => {
               setStartsAt(new Date(value))
             }}
@@ -168,7 +167,6 @@ const NewCourseForm: React.FC<NewExamFormProps> = ({
         <FieldContainer>
           <TimePicker
             label={t("text-field-label-ends-at")}
-            value={endsAt?.toString()}
             onChange={(value) => {
               setEndsAt(new Date(value))
             }}

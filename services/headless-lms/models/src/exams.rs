@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use chrono::Duration;
+use serde_json::Value;
 
 use crate::{courses::Course, prelude::*};
 
@@ -77,7 +80,7 @@ pub struct CourseExam {
     pub name: String,
 }
 
-#[derive(Debug, Serialize, TS)]
+#[derive(Debug, Serialize, Deserialize, TS)]
 pub struct NewExam {
     pub id: Uuid,
     pub name: String,
@@ -304,4 +307,222 @@ WHERE id = $1
     .await?
     .organization_id;
     Ok(organization_id)
+}
+
+pub async fn copy_exam(conn: &mut PgConnection, exam_id: Uuid) -> ModelResult<Exam> {
+    let exam = get(conn, exam_id).await?;
+    copy_exam_internals(conn, exam).await
+}
+
+pub async fn copy_exam_internals(conn: &mut PgConnection, parent_exam: Exam) -> ModelResult<Exam> {
+    let mut tx = conn.begin().await?;
+
+    let res = sqlx::query!(
+        "SELECT language, organization_id FROM exams WHERE id = $1",
+        parent_exam.id
+    )
+    .fetch_one(&mut tx)
+    .await?;
+
+    // create new exam
+    let new_copied_exam = sqlx::query!(
+        "
+INSERT INTO exams(
+    name,
+    organization_id,
+    instructions,
+    starts_at,
+    ends_at,
+    language,
+    time_minutes
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING *;
+    ",
+        parent_exam.name,
+        res.organization_id,
+        parent_exam.instructions,
+        parent_exam.starts_at,
+        parent_exam.ends_at,
+        res.language,
+        parent_exam.time_minutes
+    )
+    .fetch_one(&mut tx)
+    .await?;
+
+    // copy exam pages
+
+    let contents_iter = sqlx::query!(
+        "
+INSERT INTO pages (
+    id,
+    course_id,
+    content,
+    url_path,
+    title,
+    chapter_id,
+    order_number,
+    copied_from,
+    content_search_language
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  content,
+  url_path,
+  title,
+  uuid_generate_v5($1, chapter_id::text),
+  order_number,
+  id,
+  content_search_language
+FROM pages
+WHERE (course_id = $2)
+RETURNING id,
+  content;
+    ",
+        new_copied_exam.id,
+        parent_exam.id
+    )
+    .fetch_all(&mut tx)
+    .await?
+    .into_iter()
+    .map(|record| (record.id, record.content));
+
+    // copy exercises
+
+    let old_to_new_exercise_ids = sqlx::query!(
+        "
+INSERT INTO exercises (
+    id,
+    course_id,
+    name,
+    deadline,
+    page_id,
+    score_maximum,
+    order_number,
+    chapter_id,
+    copied_from
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  name,
+  deadline,
+  uuid_generate_v5($1, page_id::text),
+  score_maximum,
+  order_number,
+  chapter_id,
+  id
+FROM exercises
+WHERE course_id = $2
+RETURNING id,
+  copied_from;
+    ",
+        new_copied_exam.id,
+        parent_exam.id
+    )
+    .fetch_all(&mut tx)
+    .await?
+    .into_iter()
+    .map(|record| {
+        Ok((
+            record
+                .copied_from
+                .ok_or_else(|| {
+                    ModelError::Generic("Query failed to return valid data.".to_string())
+                })?
+                .to_string(),
+            record.id.to_string(),
+        ))
+    })
+    .collect::<ModelResult<HashMap<String, String>>>()?;
+
+    // replace exercise ids
+    for (page_id, content) in contents_iter {
+        if let Value::Array(mut blocks) = content {
+            for block in blocks.iter_mut() {
+                if block["name"] != Value::String("moocfi/exercise".to_string()) {
+                    continue;
+                }
+                if let Value::String(old_id) = &block["attributes"]["id"] {
+                    let new_id = old_to_new_exercise_ids
+                        .get(old_id)
+                        .ok_or_else(|| {
+                            ModelError::Generic("Invalid exercise id in content.".to_string())
+                        })?
+                        .to_string();
+                    block["attributes"]["id"] = Value::String(new_id);
+                }
+            }
+            sqlx::query!(
+                "
+UPDATE pages
+SET content = $1
+WHERE id = $2;
+                ",
+                Value::Array(blocks),
+                page_id,
+            )
+            .execute(&mut tx)
+            .await?;
+        }
+    }
+
+    // copy exercise slides
+
+    sqlx::query!(
+        "
+INSERT INTO exercise_slides (
+    id, exercise_id, order_number
+)
+SELECT uuid_generate_v5($1, id::text),
+    uuid_generate_v5($1, exercise_id::text),
+    order_number
+FROM exercise_slides
+WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2);
+        ",
+        new_copied_exam.id,
+        parent_exam.id
+    )
+    .execute(&mut tx)
+    .await?;
+
+    // copy exercise tasks
+    sqlx::query!(
+        "
+INSERT INTO exercise_tasks (
+    id,
+    exercise_slide_id,
+    exercise_type,
+    assignment,
+    private_spec,
+    spec_file_id,
+    public_spec,
+    model_solution_spec,
+    copied_from
+  )
+SELECT uuid_generate_v5($1, id::text),
+  uuid_generate_v5($1, exercise_slide_id::text),
+  exercise_type,
+  assignment,
+  private_spec,
+  spec_file_id,
+  public_spec,
+  model_solution_spec,
+  id
+FROM exercise_tasks
+WHERE exercise_slide_id IN (
+    SELECT s.id
+    FROM exercise_slides s
+      JOIN exercises e ON (e.id = s.exercise_id)
+    WHERE e.course_id = $2
+  );
+    ",
+        new_copied_exam.id,
+        parent_exam.id,
+    )
+    .execute(&mut tx)
+    .await?;
+
+    tx.commit().await?;
+
+    get(conn, new_copied_exam.id).await
 }

@@ -169,6 +169,31 @@ pub async fn export_submissions(
 }
 
 /**
+ * POST `/api/v0/cms/exams/:exam_id/duplicate` - duplicates existing exam.
+ */
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn duplicate_exam(
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Act::Duplicate,
+        Some(user.id),
+        Res::Exam(*exam_id),
+    )
+    .await?;
+
+    models::exams::copy_exam(&mut conn, *exam_id).await?;
+
+    Ok(web::Json(()))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -183,5 +208,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{id}/export-submissions",
             web::get().to(export_submissions),
-        );
+        )
+        .route("/{id}/duplicate", web::post().to(duplicate_exam));
 }

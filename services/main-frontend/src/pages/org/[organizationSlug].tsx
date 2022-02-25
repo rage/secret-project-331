@@ -6,7 +6,6 @@ import { useQuery } from "react-query"
 import Layout from "../../components/Layout"
 import CourseList from "../../components/page-specific/org/organizationSlug/CourseList"
 import ExamList from "../../components/page-specific/org/organizationSlug/ExamList"
-import { fetchOrganizationExams } from "../../services/backend/exams"
 import { fetchOrganizationBySlug } from "../../services/backend/organizations"
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
@@ -24,19 +23,6 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   const { t } = useTranslation()
   const getOrganizationBySlug = useQuery(`organization-${query.organizationSlug}`, () =>
     fetchOrganizationBySlug(query.organizationSlug),
-  )
-
-  const exams = useQuery(
-    [`organization-${query.organizationSlug}-exams`, getOrganizationBySlug.data],
-    () => {
-      if (getOrganizationBySlug.data) {
-        return fetchOrganizationExams(getOrganizationBySlug.data.id)
-      } else {
-        // This should never happen, used for typescript because enabled boolean doesn't do type checking
-        return Promise.reject(new Error("Organization ID undefined"))
-      }
-    },
-    { enabled: !!getOrganizationBySlug.data },
   )
 
   return (
@@ -84,10 +70,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
               perPage={15}
             />
             <h2>{t("exam-list")}</h2>
-            <ExamList
-              organizationId={getOrganizationBySlug.data.id}
-              organizationSlug={query.organizationSlug}
-            />
+            <ExamList organizationId={getOrganizationBySlug.data.id} />
           </>
         )}
 

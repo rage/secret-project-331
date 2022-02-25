@@ -51,6 +51,7 @@ const supportedBlocks = (chapter_id: string | null, exam_id: string | null): str
 const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
   const { t } = useTranslation()
   const [title, setTitle] = useState(data.title)
+  const savedTitle = data.title
   const savedContent = modifyBlocks(
     data.content as BlockInstance[],
     supportedBlocks(data.chapter_id, data.exam_id),
@@ -59,7 +60,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
     editorContentReducer,
     modifyBlocks(savedContent, supportedBlocks(data.chapter_id, data.exam_id)) as BlockInstance[],
   )
-  const currentContentStateSaved = isEqual(savedContent, content)
+  const currentContentStateSaved = isEqual(savedContent, content) && savedTitle === title
   const [currentlySaving, setCurrentlySaving] = useState(false)
   const handleOnSave = async () => {
     setCurrentlySaving(true)
@@ -114,12 +115,13 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
         />
       </div>
       <div
-        className={`editor__component
+        className={`
           ${css`
             position: sticky;
             bottom: 4rem;
             display: flex;
             justify-content: center;
+            pointer-events: none;
           `}`}
       >
         <Button
@@ -128,6 +130,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
           className={css`
             margin-right: 1rem;
             border: 1px black solid;
+            pointer-events: auto;
           `}
           onClick={handleOnSave}
           disabled={currentContentStateSaved || currentlySaving}
@@ -140,6 +143,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
           className={css`
             margin-left: 1rem;
             border: 1px black solid;
+            pointer-events: auto;
           `}
           onClick={() => contentDispatch({ type: "setContent", payload: savedContent })}
           disabled={currentContentStateSaved || currentlySaving}

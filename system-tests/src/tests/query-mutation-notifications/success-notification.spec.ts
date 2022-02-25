@@ -14,6 +14,7 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(/*{ url: 'http://project-331.local/cms/pages/e89e3590-3280-4536-a980-5e0c4d039f86' }*/),
     page.click('a:has-text("In the second chapter...")'),
   ])
+  await page.fill('input[label="Title"]', "New title")
   // Click text=Save
   await page.click("text=Save")
   await expectScreenshotsToMatchSnapshots({

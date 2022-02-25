@@ -5576,6 +5576,27 @@
       "nullable": [false]
     }
   },
+  "85f8f83bbe777e6bbd61d9ec1f1168ad0ebf79a1ae134634e25041678f084dde": {
+    "query": "\n    UPDATE exams\n    SET instructions = COALESCE($1, instructions)\n    WHERE id = $2\n    RETURNING id,\n        instructions\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "instructions",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Jsonb", "Uuid"]
+      },
+      "nullable": [false, false]
+    }
+  },
   "862f07aafadb5dd995ce1d74b63b30d83e2c109fb286641795a61726c009ff04": {
     "query": "\nINSERT INTO exercise_tasks (\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    public_spec,\n    model_solution_spec\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING id\n",
     "describe": {
@@ -5857,22 +5878,6 @@
       ],
       "parameters": {
         "Left": []
-      },
-      "nullable": [false]
-    }
-  },
-  "91e7318853a673457a003160ae3dbd189b2c476e1662752bb95e7e0340990d41": {
-    "query": "\n    UPDATE exams\n    SET instructions = COALESCE($1, instructions)\n    WHERE id = $2\n    RETURNING instructions\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "instructions",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Jsonb", "Uuid"]
       },
       "nullable": [false]
     }
@@ -6291,22 +6296,6 @@
         "Left": ["Text"]
       },
       "nullable": [false, false, false, true, false, false, false, true, false]
-    }
-  },
-  "9ee244a1637587b20950b5802b8a40e0da5e543076a011401e0d8156b83a9f29": {
-    "query": "\nSELECT instructions\nFROM exams\nWHERE id = $1;\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "instructions",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false]
     }
   },
   "9f31d0d3d1943980f58b78597e60339681c9f451b85a34d67c8bc64ba71c790d": {
@@ -6961,6 +6950,27 @@
         "Left": ["Varchar", "Int4", "Uuid"]
       },
       "nullable": [false, false, false, false, false, false, true, true, true, true, true]
+    }
+  },
+  "b3594457d4aea521525b2348f2f95336c0bfa761cf13b7878ca3a9691ded8ce9": {
+    "query": "\nSELECT id, instructions\nFROM exams\nWHERE id = $1;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "instructions",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false]
     }
   },
   "b39dda257f5f1f2db1905fdb6616a93c5d587d89c51ca1c1ca67152d7677de65": {

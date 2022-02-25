@@ -438,7 +438,10 @@ export function isExamEnrollment(obj: any, _argumentName?: string): obj is ExamE
 }
 
 export function isExamInstructions(obj: any, _argumentName?: string): obj is ExamInstructions {
-  return (obj !== null && typeof obj === "object") || typeof obj === "function"
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string"
+  )
 }
 
 export function isExamInstructionsUpdate(

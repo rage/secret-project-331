@@ -92,6 +92,7 @@ pub struct NewExam<'a> {
 
 #[derive(Debug, Serialize, TS)]
 pub struct ExamInstructions {
+    pub id: Uuid,
     pub instructions: serde_json::Value,
 }
 
@@ -322,7 +323,7 @@ pub async fn get_exam_instructions_data(
     let exam_instructions_data = sqlx::query_as!(
         ExamInstructions,
         "
-SELECT instructions
+SELECT id, instructions
 FROM exams
 WHERE id = $1;
 ",
@@ -346,7 +347,8 @@ pub async fn update_exam_instructions(
     UPDATE exams
     SET instructions = COALESCE($1, instructions)
     WHERE id = $2
-    RETURNING instructions
+    RETURNING id,
+        instructions
     ",
         serde_json::to_value(parsed_content)?,
         exam_id

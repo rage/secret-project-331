@@ -6,6 +6,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { allowedExamInstructionsCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
+import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { ExamInstructions, ExamInstructionsUpdate } from "../../shared-module/bindings"
 import Spinner from "../../shared-module/components/Spinner"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
@@ -73,8 +74,7 @@ const ExamsInstructionsEditor: React.FC<ExamsInstructionsEditorProps> = ({ data,
         content={content}
         onContentChange={setContent}
         allowedBlocks={allowedExamInstructionsCoreBlocks}
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        mediaUpload={() => {}}
+        mediaUpload={mediaUploadBuilder({ examId: data.id })}
       />
     </>
   )

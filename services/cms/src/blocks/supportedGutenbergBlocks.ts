@@ -51,6 +51,7 @@ export const allowedEmailCoreBlocks: string[] = [
 
 export const allowedExamInstructionsCoreBlocks: string[] = [
   "core/paragraph",
+  "core/image",
   "core/heading",
   "core/list",
   "core/table",

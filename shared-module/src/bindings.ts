@@ -228,6 +228,7 @@ export interface ExamEnrollment {
 }
 
 export interface ExamInstructions {
+  id: string
   instructions: unknown
 }
 

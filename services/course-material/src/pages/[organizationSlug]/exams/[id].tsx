@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useReducer } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
+import ContentRenderer from "../../../components/ContentRenderer"
 import Layout from "../../../components/Layout"
 import Page from "../../../components/Page"
 import ExamStartBanner from "../../../components/exams/ExamStartBanner"
@@ -12,7 +13,8 @@ import ExamTimeOverModal from "../../../components/modals/ExamTimeOverModal"
 import PageContext, { CoursePageDispatch, defaultPageState } from "../../../contexts/PageContext"
 import useTime from "../../../hooks/useTime"
 import pageStateReducer from "../../../reducers/pageStateReducer"
-import { enrollInExam, fetchExam } from "../../../services/backend"
+import { Block, enrollInExam, fetchExam } from "../../../services/backend"
+import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
@@ -74,79 +76,73 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
   }
 
   const examInfo = (
-    <div
-      className={css`
-        background: #f6f6f6;
-
-        padding: 20px;
-        margin-bottom: 49px;
-
-        ${respondToOrLarger.sm} {
-          padding-top: 81px;
-          padding-left: 128px;
-          padding-right: 128px;
-          padding-bottom: 83px;
-        }
-      `}
-    >
+    <BreakFromCentered sidebar={false}>
       <div
         className={css`
-          font-family: Josefin Sans, sans-serif;
-          font-size: 30px;
-          font-style: normal;
-          font-weight: 600;
-          line-height: 30px;
-          letter-spacing: 0em;
-          text-align: left;
-          color: #333333;
+          background: #f6f6f6;
 
-          text-transform: uppercase;
+          padding: 20px;
+          margin-bottom: 49px;
+
+          ${respondToOrLarger.sm} {
+            padding-top: 81px;
+            padding-left: 128px;
+            padding-right: 128px;
+            padding-bottom: 83px;
+          }
         `}
       >
-        {exam.data.name}
-      </div>
-      <div
-        className={css`
-          font-family: Lato, sans-serif;
-          font-size: 20px;
-          font-style: normal;
-          font-weight: 500;
-          line-height: 26px;
-          letter-spacing: 0em;
-          text-align: left;
-          color: #353535;
-        `}
-      >
-        {(exam.data.enrollment_data.tag === "NotEnrolled" ||
-          exam.data.enrollment_data.tag === "NotYetStarted") && (
-          <>
-            <div>
-              {exam.data.starts_at
-                ? t("exam-can-be-started-after", {
-                    "starts-at": exam.data.starts_at.toLocaleString(),
-                  })
-                : t("exam-no-start-time")}
-            </div>
-            <div>
-              {exam.data.ends_at
-                ? t("exam-submissions-not-accepted-after", {
-                    "ends-at": exam.data.ends_at.toLocaleString(),
-                  })
-                : t("exam-no-end-time")}
-            </div>
-            <div> {t("exam-time-to-complete", { "time-minutes": exam.data.time_minutes })}</div>
-          </>
-        )}
-        {t("instructions")}:{" "}
-        <span
+        <div
           className={css`
-            opacity: 60%;
+            font-family: Josefin Sans, sans-serif;
+            font-size: 30px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 30px;
+            letter-spacing: 0em;
+            text-align: left;
+            color: #333333;
+
+            text-transform: uppercase;
           `}
         >
-          <div>{exam.data.instructions}</div>
-        </span>
+          {exam.data.name}
+        </div>
+        <div
+          className={css`
+            font-family: Lato, sans-serif;
+            font-size: 20px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 26px;
+            letter-spacing: 0em;
+            text-align: left;
+            color: #353535;
+          `}
+        >
+          {(exam.data.enrollment_data.tag === "NotEnrolled" ||
+            exam.data.enrollment_data.tag === "NotYetStarted") && (
+            <>
+              <div>
+                {exam.data.starts_at
+                  ? t("exam-can-be-started-after", {
+                      "starts-at": exam.data.starts_at.toLocaleString(),
+                    })
+                  : t("exam-no-start-time")}
+              </div>
+              <div>
+                {exam.data.ends_at
+                  ? t("exam-submissions-not-accepted-after", {
+                      "ends-at": exam.data.ends_at.toLocaleString(),
+                    })
+                  : t("exam-no-end-time")}
+              </div>
+              <div> {t("exam-time-to-complete", { "time-minutes": exam.data.time_minutes })}</div>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </BreakFromCentered>
   )
 
   if (
@@ -166,7 +162,21 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
               examHasStarted={exam.data.starts_at ? isPast(exam.data.starts_at) : false}
               examHasEnded={exam.data.ends_at ? isPast(exam.data.ends_at) : false}
               timeMinutes={exam.data.time_minutes}
-            />
+            >
+              <div
+                className={css`
+                  opacity: 80%;
+                `}
+              >
+                <ContentRenderer
+                  data={(exam.data.instructions as Array<Block<unknown>>) ?? []}
+                  editing={false}
+                  selectedBlockId={null}
+                  setEdits={(map) => map}
+                  isExam={false}
+                />
+              </div>
+            </ExamStartBanner>
           </div>
         </Layout>
       </>

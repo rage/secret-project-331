@@ -1,5 +1,7 @@
 //! Controllers for requests starting with `/api/v0/cms/organizations`.
 
+use models::exams::{ExamInstructions, ExamInstructionsUpdate};
+
 use crate::controllers::prelude::*;
 
 /**
@@ -42,6 +44,39 @@ async fn add_media(
     Ok(web::Json(UploadResult { url: download_url }))
 }
 
+#[instrument(skip(pool))]
+async fn get_exam_instructions(
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<ExamInstructions>> {
+    let mut conn = pool.acquire().await?;
+
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+
+    let exam_instructions_data =
+        models::exams::get_exam_instructions_data(&mut conn, *exam_id).await?;
+
+    Ok(web::Json(exam_instructions_data))
+}
+
+#[instrument(skip(pool, payload))]
+async fn update_exam_instructions(
+    payload: web::Json<ExamInstructionsUpdate>,
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<ExamInstructions>> {
+    let mut conn = pool.acquire().await?;
+
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+    let instructions_update = payload.0;
+    let saved_instructions =
+        models::exams::update_exam_instructions(&mut conn, *exam_id, instructions_update).await?;
+
+    Ok(web::Json(saved_instructions))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -50,5 +85,7 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{exam_id}/upload", web::post().to(add_media));
+    cfg.route("/{exam_id}/upload", web::post().to(add_media))
+        .route("/{exam_id}/edit", web::get().to(get_exam_instructions))
+        .route("/{exam_id}/edit", web::put().to(update_exam_instructions));
 }

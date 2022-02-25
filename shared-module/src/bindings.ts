@@ -213,7 +213,7 @@ export interface CourseExam {
 export interface Exam {
   id: string
   name: string
-  instructions: string
+  instructions: unknown
   page_id: string
   courses: Array<Course>
   starts_at: Date | null
@@ -225,6 +225,14 @@ export interface ExamEnrollment {
   user_id: string
   exam_id: string
   started_at: Date
+}
+
+export interface ExamInstructions {
+  instructions: unknown
+}
+
+export interface ExamInstructionsUpdate {
+  instructions: unknown
 }
 
 export interface CourseMaterialExerciseServiceInfo {
@@ -784,7 +792,7 @@ export interface RoleInfo {
 export interface ExamData {
   id: string
   name: string
-  instructions: string
+  instructions: unknown
   starts_at: Date
   ends_at: Date
   time_minutes: number

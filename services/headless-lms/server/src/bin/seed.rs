@@ -2662,7 +2662,7 @@ async fn create_exam(
         NewExam {
             id: exam_id,
             name,
-            instructions: "Do your best!",
+            instructions: serde_json::json!([]),
             starts_at,
             ends_at,
             time_minutes,

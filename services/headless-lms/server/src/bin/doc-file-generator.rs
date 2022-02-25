@@ -464,7 +464,7 @@ fn main() {
         ExamData {
             id,
             name: "Course exam".to_string(),
-            instructions: "Do your best!".to_string(),
+            instructions: serde_json::json!([]),
             starts_at: date_time,
             ends_at: date_time,
             time_minutes: 120,
@@ -606,7 +606,7 @@ fn main() {
         Exam {
             id,
             name: "Course exam".to_string(),
-            instructions: "Do your best!".to_string(),
+            instructions: serde_json::json!([]),
             page_id: id,
             courses: vec![course.clone()],
             starts_at: Some(date_time),

@@ -59,7 +59,7 @@ pub async fn enroll(
 pub struct ExamData {
     pub id: Uuid,
     pub name: String,
-    pub instructions: String,
+    pub instructions: serde_json::Value,
     pub starts_at: DateTime<Utc>,
     pub ends_at: DateTime<Utc>,
     pub time_minutes: i32,

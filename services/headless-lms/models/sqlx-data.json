@@ -211,7 +211,7 @@
         {
           "ordinal": 2,
           "name": "instructions",
-          "type_info": "Text"
+          "type_info": "Jsonb"
         },
         {
           "ordinal": 3,
@@ -5861,6 +5861,22 @@
       "nullable": [false]
     }
   },
+  "91e7318853a673457a003160ae3dbd189b2c476e1662752bb95e7e0340990d41": {
+    "query": "\n    UPDATE exams\n    SET instructions = COALESCE($1, instructions)\n    WHERE id = $2\n    RETURNING instructions\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "instructions",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Jsonb", "Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
   "93a182f7fc32e82990af03dbda3d31cd678d99869b3bd5d4b75831d5cc96e0f7": {
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n        ",
     "describe": {
@@ -6277,6 +6293,22 @@
       "nullable": [false, false, false, true, false, false, false, true, false]
     }
   },
+  "9ee244a1637587b20950b5802b8a40e0da5e543076a011401e0d8156b83a9f29": {
+    "query": "\nSELECT instructions\nFROM exams\nWHERE id = $1;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "instructions",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
   "9f31d0d3d1943980f58b78597e60339681c9f451b85a34d67c8bc64ba71c790d": {
     "query": "\nSELECT exams.id,\n  courses.id as course_id,\n  courses.name as course_name,\n  exams.name\nFROM exams\n  JOIN course_exams ON course_id = $1\n  JOIN courses ON courses.id = $1\n  AND exams.deleted_at IS NULL\n  AND courses.deleted_at IS NULL\n",
     "describe": {
@@ -6506,7 +6538,7 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Text", "Timestamptz", "Timestamptz", "Int4", "Uuid"]
+        "Left": ["Uuid", "Varchar", "Jsonb", "Timestamptz", "Timestamptz", "Int4", "Uuid"]
       },
       "nullable": []
     }
@@ -8124,6 +8156,16 @@
         false,
         false
       ]
+    }
+  },
+  "c5c02778029045a48b32567f114b8fbd441b01ac1e0908eca4e02a067327036e": {
+    "query": "\nUPDATE exams\nSET name = COALESCE($2, name),\n  starts_at = $3,\n  ends_at = $4,\n  time_minutes = $5\nWHERE id = $1\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Timestamptz", "Timestamptz", "Int4"]
+      },
+      "nullable": []
     }
   },
   "c6d5ffed3573883c9e69529464b8f96325fbbf5c4ea893ae9e7352d3ce48a70d": {
@@ -9900,16 +9942,6 @@
         ]
       },
       "nullable": [false]
-    }
-  },
-  "f41650c8d1aa4526a7b1ea598d5b8d7d39df3f833dd9205bf67c116e6e8191ac": {
-    "query": "\nUPDATE exams\nSET name = COALESCE($2, name),\ninstructions = COALESCE($3, instructions),\n  starts_at = $4,\n  ends_at = $5,\n  time_minutes = $6\nWHERE id = $1\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Text", "Timestamptz", "Timestamptz", "Int4"]
-      },
-      "nullable": []
     }
   },
   "f4975555bb0c4f1063c0f8f89e371c9b94a48a69c5e1ec92473db99adfce7601": {

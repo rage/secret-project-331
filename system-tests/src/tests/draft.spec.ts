@@ -71,7 +71,7 @@ test.describe("admin", () => {
       page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
     ])
     // Click text=Create
-    await page.click("text=Create")
+    await page.click(`button:text("Create")`)
     // Fill input
     await page.fill("input[label=Name]", "Advanced drafts")
     // Fill .css-1cftqx7 div div:nth-child(3) div label .css-1m9fudm

@@ -20,7 +20,7 @@ use headless_lms_models::{
     course_instances::{ChapterScore, CourseInstance, Points},
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
-    exams::{CourseExam, Exam, ExamEnrollment},
+    exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions},
     exercise_services::ExerciseService,
     exercise_slide_submissions::{
         ExerciseSlideSubmission, ExerciseSlideSubmissionCount,
@@ -770,6 +770,13 @@ fn main() {
                 opens_at: None,
                 status: ChapterStatus::Open
             }]
+        }
+    );
+    write_docs!(
+        ExamInstructions,
+        ExamInstructions {
+            id,
+            instructions: page.content.clone()
         }
     );
 }

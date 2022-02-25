@@ -33,5 +33,6 @@
   "slide-title": "Dia {{ number }}",
   "glossary-placeholder": "Sanasto lohko",
   "glossary-placeholder-explanation": "Tämä lohko sisältää kurssin sanaston.",
-  "skip-to-content": "Siirry sisältöön"
+  "skip-to-content": "Siirry sisältöön",
+  "reset": "Palauta"
 }

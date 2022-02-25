@@ -36,5 +36,6 @@
   "title-assignment": "Assignment",
   "glossary-placeholder": "Glossary Placeholder",
   "glossary-placeholder-explanation": "This block will contain the glossary of the course.",
-  "skip-to-content": "Skip to content"
+  "skip-to-content": "Skip to content",
+  "reset": "Reset"
 }

@@ -74,15 +74,6 @@ export const fetchOrganizationActiveCourses = async (
   return validateResponse(response, isArray(isCourse))
 }
 
-export const fetchOrganizationCoursesBySlug = async (
-  organizationSlug: string,
-): Promise<Array<Course>> => {
-  const res = await mainFrontendClient.get(`/org/${organizationSlug}/courses`, {
-    responseType: "json",
-  })
-  return res.data
-}
-
 export const setOrganizationImage = async (
   organizationId: string,
   file: File,

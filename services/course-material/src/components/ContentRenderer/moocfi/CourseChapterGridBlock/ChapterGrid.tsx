@@ -92,7 +92,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
             }
           `}
         >
-          {getChaptersInCourse.data
+          {getChaptersInCourse.data.chapters
             .sort((a, b) => a.chapter_number - b.chapter_number)
             .map((chapter) => {
               const randomNumber = stringToRandomNumber(chapter.id) % COLORS_ARRAY.length
@@ -117,6 +117,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                     chapter={chapter}
                     courseSlug={courseSlug}
                     organizationSlug={organizationSlug}
+                    previewable={getChaptersInCourse.data.is_previewable}
                   />
                 </div>
               )

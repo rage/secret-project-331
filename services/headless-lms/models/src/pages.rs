@@ -11,7 +11,7 @@ use itertools::Itertools;
 use url::Url;
 
 use crate::{
-    chapters::{self, ChapterStatus, DatabaseChapter},
+    chapters::{ChapterStatus, DatabaseChapter},
     course_instances::{self, CourseInstance},
     courses::{get_nondeleted_course_id_by_slug, Course},
     exercise_service_info,
@@ -336,7 +336,7 @@ WHERE id = $1;
     Ok(pages)
 }
 
-pub async fn get_page_by_path(
+async fn get_page_by_path(
     conn: &mut PgConnection,
     course_id: Uuid,
     url_path: &str,
@@ -438,7 +438,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     was_redirected: bool,
 ) -> ModelResult<CoursePageWithUserData> {
     if let Some(chapter_id) = page.chapter_id {
-        if !chapters::is_open(conn, chapter_id).await? {
+        if !crate::chapters::is_open(conn, chapter_id).await? {
             return Err(ModelError::PreconditionFailed(
                 "Chapter is not open yet".to_string(),
             ));
@@ -1121,6 +1121,37 @@ async fn fetch_derived_spec(
     Ok(result_spec)
 }
 
+pub async fn insert_new_content_page(
+    conn: &mut PgConnection,
+    new_page: NewPage,
+    user: Uuid,
+) -> ModelResult<Page> {
+    let mut tx = conn.begin().await?;
+
+    let course_material_content = serde_json::to_value(vec![GutenbergBlock::hero_section(
+        new_page.title.trim(),
+        "",
+    )])?;
+
+    let content_page = NewPage {
+        chapter_id: new_page.chapter_id,
+        content: course_material_content,
+        course_id: new_page.course_id,
+        exam_id: None,
+        front_page_of_chapter_id: None,
+        title: new_page.title,
+        url_path: new_page.url_path,
+        exercises: vec![],
+        exercise_slides: vec![],
+        exercise_tasks: vec![],
+        content_search_language: None,
+    };
+    let page = crate::pages::insert_page(&mut tx, content_page, user).await?;
+
+    tx.commit().await?;
+    Ok(page)
+}
+
 pub async fn insert_page(
     conn: &mut PgConnection,
     new_page: NewPage,
@@ -1145,6 +1176,7 @@ pub async fn insert_page(
         .and_then(|c| c.content_search_language)
         .or(new_page.content_search_language)
         .unwrap_or_else(|| "simple".to_string());
+
     let page = sqlx::query_as!(
         Page,
         r#"

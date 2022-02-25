@@ -47,6 +47,7 @@ pub use self::error::{ModelError, ModelResult};
 #[macro_use]
 extern crate tracing;
 
+/// Many database tables are related to either a course or an exam
 pub enum CourseOrExamId {
     Course(Uuid),
     Exam(Uuid),

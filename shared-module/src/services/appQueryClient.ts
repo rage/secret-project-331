@@ -16,7 +16,7 @@ export const queryClient = new QueryClient({
       retry: (failureCount, error) => {
         // Don't want to retry any client errors (4XX) -- it just gives the impression of slowness.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const statusCode: number | undefined = (error as any)?.response?.status
+        const statusCode: number | undefined = (error as any)?.status
         if (statusCode && Math.floor(statusCode / 100) === 4) {
           return false
         }

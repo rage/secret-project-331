@@ -20,6 +20,7 @@ export interface CardExtraProps {
   url?: string
   bg?: string
   open?: boolean
+  allowedToPreview?: boolean
   date?: string
   time?: string
   description?: string

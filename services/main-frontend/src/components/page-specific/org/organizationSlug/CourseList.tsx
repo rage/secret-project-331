@@ -111,6 +111,7 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
     <CourseComponent
       key={course.id}
       title={course.name}
+      isDraft={course.is_draft}
       description={course.description ?? t("no-description-available")}
       languageCode={course.language_code}
       // eslint-disable-next-line i18next/no-literal-string

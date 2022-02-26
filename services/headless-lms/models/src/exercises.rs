@@ -53,6 +53,12 @@ pub enum ActivityProgress {
     Completed,
 }
 
+impl Default for ActivityProgress {
+    fn default() -> Self {
+        ActivityProgress::Initialized
+    }
+}
+
 /**
 
 Tells what's the status of the grading progress for a user and exercise.

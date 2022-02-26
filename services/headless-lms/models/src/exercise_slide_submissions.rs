@@ -10,7 +10,7 @@ use crate::{
     exercises::{Exercise, ExerciseStatus},
     prelude::*,
     user_exercise_states::{self, UserExerciseState},
-    CourseOrExamId,
+    user_exercise_task_states, CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -194,6 +194,14 @@ pub async fn create_exercise_slide_submission_for_exercise(
             task_submission.data_json,
         )
         .await?;
+        if let Some(grading) = submission.grading.as_ref() {
+            user_exercise_task_states::upsert_score_with_grading(
+                &mut tx,
+                user_exercise_state.id,
+                grading,
+            )
+            .await?;
+        }
         results.push(submission)
     }
 

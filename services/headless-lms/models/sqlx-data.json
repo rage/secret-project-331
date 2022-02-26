@@ -5664,6 +5664,16 @@
       "nullable": [false, null, null, null, false]
     }
   },
+  "88142ab29aa342799fe2b17ccd1f1e9073c269403ca15fc1821b01a4176a8f6c": {
+    "query": "\nINSERT INTO user_exercise_task_states (\n    exercise_task_id,\n    user_exercise_state_id\n  )\nVALUES ($1, $2)\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "882525a929728d222af1a0946c0c6d0291a891d67d8fc81e2c8400cf400baeef": {
     "query": "\nINSERT INTO course_exams (course_id, exam_id)\nVALUES ($1, $2)\n",
     "describe": {
@@ -9478,6 +9488,16 @@
       "nullable": [false]
     }
   },
+  "e78c2a166bd3d3510d8630744683ac4cd01b29c52695e2b31252cd5fe900dd93": {
+    "query": "\nUPDATE user_exercise_task_states\nSET deleted_at = now()\nWHERE exercise_task_id = $1\n  AND user_exercise_state_id = $2\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "e966783963c11d6fa57df792d1bfff0dccf163f9cf5f474c1f3c724972229d4e": {
     "query": "\nSELECT *\nfrom chapters\nwhere id = $1;",
     "describe": {
@@ -9873,6 +9893,71 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, true, false, true, true, true, false]
+    }
+  },
+  "f3aacd6bd9a77fc0468e020f4dfbdbbea974fbe10c9ae3cddeeea1ca0878fb4f": {
+    "query": "\nSELECT exercise_task_id,\n  user_exercise_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\"\nFROM user_exercise_task_states\nWHERE exercise_task_id = $1\n  AND user_exercise_state_id = $2\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "exercise_task_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_exercise_state_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 6,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 7,
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [false, false, false, false, true, true, false, false]
     }
   },
   "f4027fdbb6bf446e8c75423168c3c97e5509c4e44d2246e9894494a96e8f752d": {

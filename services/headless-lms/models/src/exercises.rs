@@ -23,6 +23,8 @@ pub struct Exercise {
     pub score_maximum: i32,
     pub order_number: i32,
     pub copied_from: Option<Uuid>,
+    pub max_attempts_per_slide: Option<i32>,
+    pub limit_number_of_attempts: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, TS)]

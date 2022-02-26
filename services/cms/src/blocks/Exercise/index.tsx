@@ -9,6 +9,9 @@ import ExerciseSave from "./ExerciseSave"
 export interface ExerciseAttributes {
   id: string
   name: string
+  score_maximum: number
+  max_attempts_per_slide?: number
+  limit_number_of_attempts: boolean
 }
 
 const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
@@ -25,6 +28,18 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
     name: {
       type: "string",
       default: "",
+    },
+    score_maximum: {
+      type: "number",
+      default: 1,
+    },
+    max_attempts_per_slide: {
+      type: "number",
+      default: undefined,
+    },
+    limit_number_of_attempts: {
+      type: "boolean",
+      default: false,
     },
   },
   edit: enforceExerciseIdDefined(ExerciseEditor),

@@ -1,7 +1,7 @@
 {
   "add-slide": "Lisää dia",
   "add-task": "Lisää tehtävä",
-  "chapter-progress-placeholder": "Luvun edistyminen lohk",
+  "chapter-progress-placeholder": "Luvun edistyminen lohko",
   "chapter-progress-placeholder-explanation": "Tätä lohkoa käytetään luvun edistymisen näyttämiseen. Jos haluat näyttää koko kurssin edistymisen, sinun tulee käyttää Course Progress -lohkoa.",
   "course-progress-placeholder": "Kurssin edistyminen lohko",
   "course-progress-placeholder-explanation": "Tämä lohko sijoitetaan kurssimateriaaliin, johon haluat näyttää kurssin edistymisen.",
@@ -14,6 +14,9 @@
   "exercises-in-chapter-placeholder-explanation": "Tämä lohko sijoitetaan jokaisen luvun etusivulle, esim. /luku-1/ luvun eri harjoitusten luetteloimiseen ja navigointiin.",
   "exercise-title": "Tehtävä",
   "exercise-name": "Tehtävän nimi",
+  "exercise-max-points": "Maksimipisteet",
+  "limit-number-of-attempts": "Rajoita yrityksien lukumäärää",
+  "attempts-per-slide": "Maksimimäärä yrityksiä per dia",
   "please-select-exercise-type": "Ole hyvä ja valitse harjoitustyyppi:",
   "error-cannot-render-exercise-task-missing-url": "Harjoitustehtävää ei voi renderöidä, URL-osoite puuttuu.",
   "error-spec-not-parseable": "Mallivastausta ei voida parsia",

@@ -13,7 +13,7 @@ import { gutenbergControlsHidden } from "../../styles/EditorStyles"
 const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-task"]
 
 const ExerciseSlideEditorCard = styled.div`
-  padding: 2rem 0;
+  padding: 2rem 2rem;
   margin-bottom: 2rem;
 `
 

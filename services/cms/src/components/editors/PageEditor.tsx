@@ -51,6 +51,7 @@ const supportedBlocks = (chapter_id: string | null, exam_id: string | null): str
 const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
   const { t } = useTranslation()
   const [title, setTitle] = useState(data.title)
+  console.log({ data })
   const [content, contentDispatch] = useReducer(
     editorContentReducer,
     modifyBlocks(
@@ -63,16 +64,26 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
 
   const handleOnSave = async () => {
     saveMutation.mutate(
-      normalizeDocument(
-        data.id,
-        removeUnsupportedBlockType(content),
+      normalizeDocument({
+        chapterId: data.chapter_id,
+        content: removeUnsupportedBlockType(content),
         title,
-        data.url_path,
-        data.chapter_id,
-      ),
+        urlPath: data.url_path,
+      }),
       {
         onSuccess: (data) => {
-          contentDispatch({ type: "setContent", payload: denormalizeDocument(data) })
+          contentDispatch({
+            type: "setContent",
+            payload: denormalizeDocument({
+              content: data.page.content,
+              exercises: data.exercises,
+              exercise_slides: data.exercise_slides,
+              exercise_tasks: data.exercise_tasks,
+              url_path: data.page.url_path,
+              title: data.page.title,
+              chapter_id: data.page.chapter_id,
+            }).content,
+          })
         },
       },
     )

@@ -2,6 +2,7 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { baseTheme } from "../../styles"
 import { primaryFont } from "../../styles/typography"
 
 interface TextFieldExtraProps {
@@ -25,8 +26,10 @@ const DEFAULTCOLOR = "#dedede"
 
 interface InputExtraProps {
   error?: boolean
+  disabled?: boolean
 }
 
+// eslint-disable-next-line i18next/no-literal-string
 const Input = styled.input<InputExtraProps>`
   background: #fcfcfc;
   border-width: 1.6px;
@@ -40,18 +43,12 @@ const Input = styled.input<InputExtraProps>`
   width: 100%;
   display: block;
 
+  ${({ disabled }) => disabled && `cursor: not-allowed;`}
+
   &:focus,
   &:active {
     border-color: #55b3f5;
   }
-`
-const label = css`
-  color: #333;
-  font-family: ${primaryFont};
-  font-weight: 500;
-  font-size: 14px;
-  display: inline-block;
-  margin-bottom: 2px;
 `
 
 const error = css`
@@ -67,13 +64,36 @@ const ERROR = "Error"
 
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldExtraProps
 
-const TextField = ({ onChange, className, ...rest }: TextFieldExtraProps) => {
+const TextField = ({ onChange, className, disabled, ...rest }: TextFieldExtraProps) => {
   return (
-    <div className={className}>
+    <div
+      className={cx(
+        className,
+        css`
+          ${disabled &&
+          `cursor: not-allowed;
+          filter: opacity(0.5);`}
+        `,
+      )}
+    >
       <label>
-        <span className={cx(label)}>{rest.label}</span>
+        <span
+          className={css`
+            color: #333;
+            font-family: ${primaryFont};
+            font-weight: 500;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 2px;
+            ${disabled && `color: ${baseTheme.colors.grey[400]};`}
+            ${disabled && `cursor: not-allowed;`}
+          `}
+        >
+          {rest.label}
+        </span>
         <Input
           id={rest.id}
+          disabled={disabled}
           aria-describedby={`${rest.label}_error`}
           onChange={({ target: { value } }) => onChange && onChange(value)}
           {...rest}

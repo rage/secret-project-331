@@ -31,7 +31,18 @@ const Pages = ({ query }: PagesProps) => {
   const queryClient = useQueryClient()
   const getPage = useQuery(`page-${id}`, () => fetchPageWithId(id), {
     select: (data) => {
-      const page: Page = { ...data.page, content: denormalizeDocument(data) }
+      const page: Page = {
+        ...data.page,
+        content: denormalizeDocument({
+          content: data.page.content,
+          exercises: data.exercises,
+          exercise_slides: data.exercise_slides,
+          exercise_tasks: data.exercise_tasks,
+          url_path: data.page.url_path,
+          title: data.page.title,
+          chapter_id: data.page.chapter_id,
+        }).content,
+      }
       return page
     },
   })

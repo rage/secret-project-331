@@ -5,6 +5,7 @@ export const modifyBlocks = (
   blocks: BlockInstance[],
   supportedBlocks: string[],
 ): BlockInstance[] => {
+  console.log({ blocks })
   const modifiedBlocks = blocks.map((block) => {
     if (supportedBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined) {
       return {

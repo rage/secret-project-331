@@ -153,7 +153,7 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
       <>
         <Layout organizationSlug={query.organizationSlug}>
           {examInfo}
-          <div>
+          <div id="exam-instructions">
             <ExamStartBanner
               onStart={async () => {
                 await enrollInExam(examId)

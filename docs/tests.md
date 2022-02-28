@@ -1,5 +1,19 @@
 # Tests
 
+## Filling form fields, checkboxes and radio buttons
+
+A good way to fill a text field with the label "Name" is
+
+```js
+await page.fill('input[label="First name"]', "User")
+```
+
+Checking a checkbox or radio button with the label "Draft" can be done in a similar manner
+
+```js
+await page.check("input[label=Draft]")
+```
+
 ## Skipping accessibility in tests / Guide to axeSkip
 
 Skipping accessibility violations is done by axeSkip, below we have some instructions.

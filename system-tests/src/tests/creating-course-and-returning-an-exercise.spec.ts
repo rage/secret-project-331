@@ -49,7 +49,7 @@ test("test", async ({ page }) => {
   ])
 
   // Click button:has-text("Add new chapter")
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.locator(`button:has-text("New")`).last().click()
 
   // Fill input[type="text"]
   await page.fill("text=Name", "The Levels of testing")
@@ -64,7 +64,7 @@ test("test", async ({ page }) => {
   await page.click('button:has-text("Create")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.locator(`button:has-text("New")`).last().click()
 
   // Fill input[type="text"]
   await page.fill("text=Name", "Unit testing")
@@ -104,8 +104,9 @@ test("test", async ({ page }) => {
   expect(page.url().startsWith("http://project-331.local/cms/pages/")).toBe(true)
 
   // Click text=Type / to choose a block
-  await page.click("text=Type / to choose a block")
-
+  await page.click('[aria-label="Add block"]')
+  await page.keyboard.type("/paragraph")
+  await page.click('button[role="option"]:has-text("Paragraph")')
   await page.keyboard.type("In system level testing, we test the system as a whole")
   await page.keyboard.press("Enter")
   await page.keyboard.type("/exercise")
@@ -120,6 +121,10 @@ test("test", async ({ page }) => {
 
   // Click text=Add slide
   await page.click("text=Add slide")
+
+  // The block needs to be focused for the button to work
+  await page.waitForTimeout(100)
+  await page.click("text=Slide 1")
 
   // Click text=Add task
   await page.click("text=Add task")
@@ -231,6 +236,7 @@ test("test", async ({ page }) => {
       return f.url().startsWith("http://project-331.local/example-exercise/iframe")
     }),
   )
+  await (await frame2.frameElement()).scrollIntoViewIfNeeded()
 
   // Click text=Automatically testing the whole system
   await frame2.click("text=Automatically testing the whole system")

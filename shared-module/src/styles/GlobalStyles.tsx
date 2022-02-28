@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { css, injectGlobal } from "@emotion/css"
 
-import { defaultFontSizePx } from "./constants"
+import { defaultFontSizePx, linkWithExtraIconClass } from "./constants"
 import cssReset from "./cssReset"
 
 import { headingFont, monospaceFont, primaryFont, typography } from "."
@@ -56,6 +56,17 @@ const globalCss = css`
     clip: rect(0 0 0 0);
     overflow: hidden;
     white-space: nowrap;
+  }
+  .${linkWithExtraIconClass} {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0.1rem;
+
+    svg {
+      margin-left: 0.1rem;
+      position: relative;
+      top: 1px;
+    }
   }
 `
 

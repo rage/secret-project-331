@@ -9,23 +9,27 @@ import MarkdownText from "../MarkdownText"
 
 import { QuizItemSubmissionComponentProps } from "."
 
+// eslint-disable-next-line i18next/no-literal-string
 const correctAnswer = css`
   display: flex;
   align-items: center;
   margin-top: 1rem;
   margin-bottom: 1rem;
   padding: 1rem;
-  background-color: ${quizTheme.gradingCorrectItemBackground};
+  background-color: ${quizTheme.successItemBackgroundColor};
+  color: ${quizTheme.successItemForegroundColor};
   border-radius: 5px;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const incorrectAnswer = css`
   display: flex;
   align-items: center;
   margin-top: 1rem;
   margin-bottom: 1rem;
   padding: 1rem;
-  background-color: ${quizTheme.gradingWrongItemBackground};
+  background-color: ${quizTheme.errorItemBackgroundColor};
+  color: ${quizTheme.errorItemForegroundColor};
   border-radius: 5px;
 `
 

@@ -6,3 +6,5 @@ export const normalContainerWidthRem = 75
 export const cardMaxWidth = 31.25
 export const cardHeight = 28.86
 export const feedbackTooltipClass = "feedback-tooltip"
+// Used to style the opens in new tab icon in links
+export const linkWithExtraIconClass = "link-with-extra-icon"

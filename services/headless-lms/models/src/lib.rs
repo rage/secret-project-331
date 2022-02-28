@@ -47,6 +47,7 @@ pub use self::error::{ModelError, ModelResult};
 #[macro_use]
 extern crate tracing;
 
+/// Many database tables are related to either a course or an exam
 pub enum CourseOrExamId {
     Course(Uuid),
     Exam(Uuid),
@@ -63,6 +64,13 @@ impl CourseOrExamId {
             (None, None) => Err(ModelError::Generic(
                 "Database row did not have a course id or an exam id".to_string(),
             )),
+        }
+    }
+    pub fn exam_id(&self) -> Option<&Uuid> {
+        if let CourseOrExamId::Exam(id) = self {
+            Some(id)
+        } else {
+            None
         }
     }
 }

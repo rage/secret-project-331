@@ -1,6 +1,9 @@
 use crate::controllers::{
     auth::Login,
-    course_material::exams::{ExamData, ExamEnrollmentData},
+    course_material::{
+        courses::ChaptersWithStatus,
+        exams::{ExamData, ExamEnrollmentData},
+    },
     main_frontend::{
         courses::GetFeedbackQuery,
         exams::ExamCourseInfo,
@@ -53,7 +56,6 @@ fn ts_binding_generator() {
         course_instances::CourseInstanceForm,
         course_instances::PointMap,
         course_instances::Points,
-        course_instances::VariantStatus,
 
         courses::Course,
         courses::CourseStructure,
@@ -68,6 +70,8 @@ fn ts_binding_generator() {
         exams::CourseExam,
         exams::Exam,
         exams::ExamEnrollment,
+        exams::ExamInstructions,
+        exams::ExamInstructionsUpdate,
 
         exercise_service_info::CourseMaterialExerciseServiceInfo,
         exercise_service_info::ExerciseServiceInfoApi,
@@ -155,6 +159,7 @@ fn ts_binding_generator() {
 
         users::User,
 
+        ChaptersWithStatus,
         RoleQuery,
         RoleInfo,
         ExamData,

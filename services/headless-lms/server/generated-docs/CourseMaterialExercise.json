@@ -90,5 +90,9 @@
     "score_given": null,
     "activity_progress": "InProgress",
     "grading_progress": "NotReady"
+  },
+  "exercise_slide_submission_counts": {
+    "7dea54af-3d38-4f7c-8969-ecb17b55ec02": 4,
+    "2794a98e-d594-40cf-949e-7cc011755a58": 2
   }
 }

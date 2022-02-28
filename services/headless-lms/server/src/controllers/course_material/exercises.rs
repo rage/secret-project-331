@@ -2,7 +2,8 @@
 
 use models::{
     exercise_slide_submissions::{
-        StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
+        get_exercise_slide_submission_counts_for_exercise_user, StudentExerciseSlideSubmission,
+        StudentExerciseSlideSubmissionResult,
     },
     exercises::{CourseMaterialExercise, Exercise},
     user_exercise_states::CourseInstanceOrExamId,
@@ -97,7 +98,26 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise: &Exercise,
+    slide_id: Uuid,
 ) -> ControllerResult<CourseInstanceOrExamId> {
+    if exercise.limit_number_of_attempts {
+        if let Some(max_attempts_per_slide) = exercise.max_attempts_per_slide {
+            // check if the user has attempts remaining
+            let slide_id_to_submissions_count =
+                get_exercise_slide_submission_counts_for_exercise_user(
+                    conn,
+                    exercise.id,
+                    course_instance_id_or_exam_id,
+                    user_id,
+                )
+                .await?;
+
+            let count = slide_id_to_submissions_count.get(&slide_id).unwrap_or(0);
+            if count >= max_attempts_per_slide {
+                return Err(ControllerError::BadRequest("You've ran out of tries."));
+            }
+        }
+    }
     if let Some(course_id) = exercise.course_id {
         // If submitting for a course, there should be existing course settings that dictate which
         // instance the user is on.

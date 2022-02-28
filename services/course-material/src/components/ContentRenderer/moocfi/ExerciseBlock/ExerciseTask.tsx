@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -13,7 +14,7 @@ interface ExerciseTaskProps {
   cannotAnswerButNoSubmission: boolean
   exerciseTask: CourseMaterialExerciseTask
   isExam: boolean
-  postThisStateToIFrame: IframeState
+  postThisStateToIFrame: IframeState | undefined
   setAnswer: (answer: { valid: boolean; data: unknown }) => void
 }
 
@@ -28,6 +29,10 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
   const currentExerciseTaskAssignment = exerciseTask.assignment as Block<unknown>[]
   const url = exerciseTask.exercise_iframe_url
 
+  if (!postThisStateToIFrame) {
+    return null
+  }
+
   const feedbackText =
     postThisStateToIFrame.view_type === "view-submission"
       ? postThisStateToIFrame.data.grading?.feedback_text ?? null
@@ -35,7 +40,6 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
 
   return (
     <div>
-      <div>{feedbackText}</div>
       {currentExerciseTaskAssignment && (
         <ContentRenderer
           data={currentExerciseTaskAssignment}
@@ -56,6 +60,13 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
         ) : (
           t("dont-know-how-to-render-this-assignment")
         ))}
+      <div
+        className={css`
+          margin: 1rem 0;
+        `}
+      >
+        {feedbackText}
+      </div>
     </div>
   )
 }

@@ -9,7 +9,7 @@ use crate::{
     exercise_tasks::{self, ExerciseTask},
     exercises::{Exercise, ExerciseStatus},
     prelude::*,
-    user_exercise_states::{self, UserExerciseState},
+    user_exercise_states::{self, CourseInstanceOrExamId, UserExerciseState},
     CourseOrExamId,
 };
 
@@ -406,5 +406,39 @@ SELECT counts.*, exercises.name exercise_name
     )
     .fetch_all(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn get_exercise_slide_submission_counts_for_exercise_user(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    course_instance_id_or_exam_id: CourseInstanceOrExamId,
+    user_id: Uuid,
+) -> ModelResult<HashMap<Uuid, i64>> {
+    let ci_id_or_e_id = match course_instance_id_or_exam_id {
+        CourseInstanceOrExamId::Instance(id) => id,
+        CourseInstanceOrExamId::Exam(id) => id,
+    };
+    let res = sqlx::query!(
+        r#"
+SELECT exercise_slide_id,
+  COUNT(*) as count
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+  AND (course_instance_id = $2 OR exam_id = $2)
+  AND user_id = $3
+  AND deleted_at IS NULL
+GROUP BY exercise_slide_id;
+    "#,
+        exercise_id,
+        ci_id_or_e_id,
+        user_id
+    )
+    .fetch_all(conn)
+    .await?
+    .iter()
+    .map(|row| (row.exercise_slide_id, row.count.unwrap_or(0)))
+    .collect::<HashMap<Uuid, i64>>();
+
     Ok(res)
 }

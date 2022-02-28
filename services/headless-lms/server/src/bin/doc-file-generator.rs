@@ -501,7 +501,17 @@ fn main() {
                 score_given: None,
                 activity_progress: ActivityProgress::InProgress,
                 grading_progress: GradingProgress::NotReady
-            })
+            }),
+            exercise_slide_submission_counts: HashMap::from([
+                (
+                    Uuid::parse_str("2794a98e-d594-40cf-949e-7cc011755a58").unwrap(),
+                    2 as i64
+                ),
+                (
+                    Uuid::parse_str("7dea54af-3d38-4f7c-8969-ecb17b55ec02").unwrap(),
+                    4 as i64
+                )
+            ])
         }
     );
     write_docs!(

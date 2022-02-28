@@ -4976,6 +4976,27 @@
       "nullable": [false]
     }
   },
+  "70153b30b4c994da2fcc85853bc4a56e406477b77390a85d8d2c4436a038e67a": {
+    "query": "\nSELECT exercise_slide_id,\n  COUNT(*) as count\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND (course_instance_id = $2 OR exam_id = $2)\n  AND user_id = $3\n  AND deleted_at IS NULL\nGROUP BY exercise_slide_id;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "exercise_slide_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "count",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [false, null]
+    }
+  },
   "7074164915eca8a60f6f1d36ba2dfaf2df3b8b430c01f15a37b4a8ec4fd62470": {
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  teacher_in_charge_name,\n  teacher_in_charge_email,\n  support_email\nFROM course_instances\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n        ",
     "describe": {

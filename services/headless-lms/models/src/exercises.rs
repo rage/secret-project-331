@@ -1,5 +1,6 @@
 use crate::{
     course_instances,
+    exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
     prelude::*,
@@ -7,6 +8,7 @@ use crate::{
     user_exercise_states::{self, CourseInstanceOrExamId},
     CourseOrExamId,
 };
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct Exercise {
@@ -33,6 +35,8 @@ pub struct CourseMaterialExercise {
     pub current_exercise_slide: CourseMaterialExerciseSlide,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
+    #[ts(type = "Record<string, number>")]
+    pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
 }
 
 /**
@@ -284,10 +288,31 @@ pub async fn get_course_material_exercise(
         grading_progress: user_exercise_state.grading_progress,
     });
 
+    let exercise_slide_submission_counts = if let Some(user_id) = user_id {
+        if let Some(cioreid) = instance_or_exam_id {
+            let course_instance_id_or_exam_id = match cioreid {
+                CourseInstanceOrExamId::Instance(id) => id,
+                CourseInstanceOrExamId::Exam(id) => id,
+            };
+            get_exercise_slide_submission_counts_for_exercise_user(
+                conn,
+                exercise_id,
+                course_instance_id_or_exam_id,
+                user_id,
+            )
+            .await?
+        } else {
+            HashMap::new()
+        }
+    } else {
+        HashMap::new()
+    };
+
     Ok(CourseMaterialExercise {
         exercise,
         current_exercise_slide,
         exercise_status,
+        exercise_slide_submission_counts,
     })
 }
 

@@ -561,7 +561,8 @@ export function isCourseMaterialExercise(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isExercise(obj.exercise) as boolean) &&
     (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
-    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean))
+    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
+    (isPointMap(obj.exercise_slide_submission_counts) as boolean)
   )
 }
 

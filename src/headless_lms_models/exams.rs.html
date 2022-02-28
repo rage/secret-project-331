@@ -308,15 +308,68 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono::Duration</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">courses::Course</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
+<span class="kw">use</span> <span class="ident">headless_lms_utils::document_schema_processor::GutenbergBlock</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Exam</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="ident">serde_json::Value</span>,
     <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">courses</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">starts_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -392,11 +445,22 @@ WHERE course_exams.exam_id = $1
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewExam</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
-    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
+    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="ident">serde_json::Value</span>,
     <span class="kw">pub</span> <span class="ident">starts_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">ends_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">time_minutes</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">TS</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExamInstructions</span> {
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="ident">serde_json::Value</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">TS</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExamInstructionsUpdate</span> {
+    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="ident">serde_json::Value</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">exam</span>: <span class="ident">NewExam</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
@@ -430,7 +494,6 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-    <span class="ident">instructions</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
     <span class="ident">starts_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">ends_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">time_minutes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
@@ -444,15 +507,13 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)
         <span class="string">&quot;
 UPDATE exams
 SET name = COALESCE($2, name),
-instructions = COALESCE($3, instructions),
-  starts_at = $4,
-  ends_at = $5,
-  time_minutes = $6
+  starts_at = $3,
+  ends_at = $4,
+  time_minutes = $5
 WHERE id = $1
 &quot;</span>,
         <span class="ident">id</span>,
         <span class="ident">name</span>,
-        <span class="ident">instructions</span>,
         <span class="ident">starts_at</span>,
         <span class="ident">ends_at</span>,
         <span class="ident">time_minutes</span>,
@@ -569,7 +630,7 @@ VALUES ($1, $2)
     <span class="kw">let</span> <span class="ident">student_has_time</span> <span class="op">=</span>
         <span class="ident">Utc::now</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">enrollment</span>.<span class="ident">started_at</span> <span class="op">+</span> <span class="ident">Duration::minutes</span>(<span class="ident">exam</span>.<span class="ident">time_minutes</span>.<span class="ident">into</span>());
     <span class="kw">let</span> <span class="ident">exam_is_ongoing</span> <span class="op">=</span> <span class="ident">exam</span>.<span class="ident">ends_at</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ea</span><span class="op">|</span> <span class="ident">Utc::now</span>() <span class="op">&lt;</span> <span class="ident">ea</span>).<span class="ident">unwrap_or_default</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">student_has_time</span> <span class="op">|</span><span class="op">|</span> <span class="ident">exam_is_ongoing</span>)
+    <span class="prelude-val">Ok</span>(<span class="ident">student_has_time</span> <span class="op">&amp;&amp;</span> <span class="ident">exam_is_ongoing</span>)
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">TS</span>)]</span>
@@ -615,6 +676,49 @@ WHERE id = $1
     .<span class="kw">await</span><span class="question-mark">?</span>
     .<span class="ident">organization_id</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">organization_id</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exam_instructions_data</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExamInstructions</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">exam_instructions_data</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">ExamInstructions</span>,
+        <span class="string">&quot;
+SELECT id, instructions
+FROM exams
+WHERE id = $1;
+&quot;</span>,
+        <span class="ident">exam_id</span>
+    )
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">exam_instructions_data</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_exam_instructions</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">instructions_update</span>: <span class="ident">ExamInstructionsUpdate</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExamInstructions</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">parsed_content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span> <span class="op">=</span>
+        <span class="ident">serde_json::from_value</span>(<span class="ident">instructions_update</span>.<span class="ident">instructions</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">updated_data</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">ExamInstructions</span>,
+        <span class="string">&quot;
+    UPDATE exams
+    SET instructions = COALESCE($1, instructions)
+    WHERE id = $2
+    RETURNING id,
+        instructions
+    &quot;</span>,
+        <span class="ident">serde_json::to_value</span>(<span class="ident">parsed_content</span>)<span class="question-mark">?</span>,
+        <span class="ident">exam_id</span>
+    )
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">updated_data</span>)
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>

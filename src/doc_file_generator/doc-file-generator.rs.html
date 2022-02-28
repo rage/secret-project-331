@@ -787,6 +787,13 @@
 <span id="785">785</span>
 <span id="786">786</span>
 <span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -809,7 +816,7 @@
     <span class="ident">course_instances</span>::{<span class="ident">ChapterScore</span>, <span class="ident">CourseInstance</span>, <span class="ident">Points</span>},
     <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseCount</span>, <span class="ident">CourseStructure</span>},
     <span class="ident">email_templates::EmailTemplate</span>,
-    <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">Exam</span>, <span class="ident">ExamEnrollment</span>},
+    <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">Exam</span>, <span class="ident">ExamEnrollment</span>, <span class="ident">ExamInstructions</span>},
     <span class="ident">exercise_services::ExerciseService</span>,
     <span class="ident">exercise_slide_submissions</span>::{
         <span class="ident">ExerciseSlideSubmission</span>, <span class="ident">ExerciseSlideSubmissionCount</span>,
@@ -1253,7 +1260,7 @@
         <span class="ident">ExamData</span> {
             <span class="ident">id</span>,
             <span class="ident">name</span>: <span class="string">&quot;Course exam&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">instructions</span>: <span class="string">&quot;Do your best!&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">instructions</span>: <span class="macro">serde_json::json!</span>([]),
             <span class="ident">starts_at</span>: <span class="ident">date_time</span>,
             <span class="ident">ends_at</span>: <span class="ident">date_time</span>,
             <span class="ident">time_minutes</span>: <span class="number">120</span>,
@@ -1395,7 +1402,7 @@
         <span class="ident">Exam</span> {
             <span class="ident">id</span>,
             <span class="ident">name</span>: <span class="string">&quot;Course exam&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">instructions</span>: <span class="string">&quot;Do your best!&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">instructions</span>: <span class="macro">serde_json::json!</span>([]),
             <span class="ident">page_id</span>: <span class="ident">id</span>,
             <span class="ident">courses</span>: <span class="macro">vec!</span>[<span class="ident">course</span>.<span class="ident">clone</span>()],
             <span class="ident">starts_at</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>),
@@ -1559,6 +1566,13 @@
                 <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
                 <span class="ident">status</span>: <span class="ident">ChapterStatus::Open</span>
             }]
+        }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">ExamInstructions</span>,
+        <span class="ident">ExamInstructions</span> {
+            <span class="ident">id</span>,
+            <span class="ident">instructions</span>: <span class="ident">page</span>.<span class="ident">content</span>.<span class="ident">clone</span>()
         }
     );
 }

@@ -243,7 +243,7 @@ POST /api/v0/course-material/exams/:id/enroll
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExamData</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="ident">serde_json::Value</span>,
     <span class="kw">pub</span> <span class="ident">starts_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">ends_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">time_minutes</span>: <span class="ident">i32</span>,

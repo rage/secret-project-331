@@ -3935,7 +3935,7 @@ WHERE pages.id = $1
             <span class="ident">NewExam</span> {
                 <span class="ident">id</span>: <span class="ident">exam</span>,
                 <span class="ident">name</span>: <span class="string">&quot;name&quot;</span>,
-                <span class="ident">instructions</span>: <span class="string">&quot;instr&quot;</span>,
+                <span class="ident">instructions</span>: <span class="macro">serde_json::json!</span>([]),
                 <span class="ident">starts_at</span>: <span class="prelude-val">None</span>,
                 <span class="ident">ends_at</span>: <span class="prelude-val">None</span>,
                 <span class="ident">time_minutes</span>: <span class="number">120</span>,

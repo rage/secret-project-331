@@ -2715,6 +2715,12 @@
 <span id="2713">2713</span>
 <span id="2714">2714</span>
 <span id="2715">2715</span>
+<span id="2716">2716</span>
+<span id="2717">2717</span>
+<span id="2718">2718</span>
+<span id="2719">2719</span>
+<span id="2720">2720</span>
+<span id="2721">2721</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -5379,7 +5385,13 @@
         <span class="ident">NewExam</span> {
             <span class="ident">id</span>: <span class="ident">exam_id</span>,
             <span class="ident">name</span>,
-            <span class="ident">instructions</span>: <span class="string">&quot;Do your best!&quot;</span>,
+            <span class="ident">instructions</span>: <span class="macro">serde_json::json!</span>([<span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
+                <span class="string">&quot;core/paragraph&quot;</span>,
+                <span class="macro">attributes!</span>{
+                  <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum felis nisi, vitae commodo mi venenatis in. Mauris hendrerit lacinia augue ut hendrerit. Vestibulum non tellus mattis, convallis magna vel, semper mauris. Maecenas porta, arcu eget porttitor sagittis, nulla magna auctor dolor, sed tempus sem lacus eu tortor. Ut id diam quam. Etiam quis sagittis justo. Quisque sagittis dolor vitae felis facilisis, ut suscipit ipsum malesuada. Nulla tempor ultricies erat ut venenatis. Ut pulvinar lectus non mollis efficitur.&quot;</span>,
+                  <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
+                },
+            )]),
             <span class="ident">starts_at</span>,
             <span class="ident">ends_at</span>,
             <span class="ident">time_minutes</span>,

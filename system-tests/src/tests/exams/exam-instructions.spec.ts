@@ -24,7 +24,18 @@ test("test", async ({ page, headless }) => {
     page.waitForNavigation(/*{ url: 'http://project-331.local/cms/exams/6959e7af-6b78-4d37-b381-eef5b7aaad6c/edit' }*/),
     page.click("text=Edit exam instructions"),
   ])
-  await page.type(`text=Type / to choose a block`, "/")
+  await page.click(
+    "text=Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum feli",
+  )
+  // Click [aria-label="Options"]
+  await page.click('[aria-label="Options"]')
+  // Click text=Remove ParagraphShift+Alt+Z
+  await page.click("text=Remove ParagraphShift+Alt+Z")
+
+  await page.type(
+    `[aria-label="Empty block; start writing or type forward slash to choose a block"]`,
+    "/",
+  )
   await page.click("text=Heading")
   await page.type(`[aria-label="Block\\:\\ Heading"]`, "Lorem Ipsum Exam")
   // Press Enter

@@ -2662,7 +2662,13 @@ async fn create_exam(
         NewExam {
             id: exam_id,
             name,
-            instructions: serde_json::json!([]),
+            instructions: serde_json::json!([GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                attributes!{
+                  "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum felis nisi, vitae commodo mi venenatis in. Mauris hendrerit lacinia augue ut hendrerit. Vestibulum non tellus mattis, convallis magna vel, semper mauris. Maecenas porta, arcu eget porttitor sagittis, nulla magna auctor dolor, sed tempus sem lacus eu tortor. Ut id diam quam. Etiam quis sagittis justo. Quisque sagittis dolor vitae felis facilisis, ut suscipit ipsum malesuada. Nulla tempor ultricies erat ut venenatis. Ut pulvinar lectus non mollis efficitur.",
+                  "dropCap": false
+                },
+            )]),
             starts_at,
             ends_at,
             time_minutes,

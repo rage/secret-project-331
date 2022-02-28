@@ -345,7 +345,7 @@ pub async fn update_exam_instructions(
         ExamInstructions,
         "
     UPDATE exams
-    SET instructions = COALESCE($1, instructions)
+    SET instructions = $1
     WHERE id = $2
     RETURNING id,
         instructions

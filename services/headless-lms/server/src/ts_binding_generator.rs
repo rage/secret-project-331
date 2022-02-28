@@ -70,6 +70,8 @@ fn ts_binding_generator() {
         exams::CourseExam,
         exams::Exam,
         exams::ExamEnrollment,
+        exams::ExamInstructions,
+        exams::ExamInstructionsUpdate,
 
         exercise_service_info::CourseMaterialExerciseServiceInfo,
         exercise_service_info::ExerciseServiceInfoApi,

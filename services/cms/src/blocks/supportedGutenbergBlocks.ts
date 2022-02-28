@@ -48,3 +48,11 @@ export const allowedEmailCoreBlocks: string[] = [
   "core/list",
   "core/table",
 ]
+
+export const allowedExamInstructionsCoreBlocks: string[] = [
+  "core/paragraph",
+  "core/image",
+  "core/heading",
+  "core/list",
+  "core/table",
+]

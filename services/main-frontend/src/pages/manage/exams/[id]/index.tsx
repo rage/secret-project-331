@@ -86,6 +86,11 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                 </a>
               </li>
               <li>
+                <a href={`/cms/exams/${getExam.data.id}/edit`}>
+                  {t("link-edit-exam-instructions")}
+                </a>
+              </li>
+              <li>
                 <a href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-points`}>
                   {t("link-export-points")}
                 </a>

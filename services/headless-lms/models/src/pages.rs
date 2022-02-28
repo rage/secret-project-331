@@ -1917,7 +1917,7 @@ mod test {
             NewExam {
                 id: exam,
                 name: "name",
-                instructions: "instr",
+                instructions: serde_json::json!([]),
                 starts_at: None,
                 ends_at: None,
                 time_minutes: 120,

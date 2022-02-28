@@ -17,6 +17,7 @@ const ExamStartBanner: React.FC<ExamInstructionsProps> = ({
   examHasStarted,
   examHasEnded,
   timeMinutes,
+  children,
 }) => {
   const [disabled, setDisabled] = useState(false)
   const { t } = useTranslation()
@@ -64,8 +65,7 @@ const ExamStartBanner: React.FC<ExamInstructionsProps> = ({
             margin-bottom: 2rem;
           `}
         >
-          {/* Probably needs better content. */}
-          {t("template-exercise-instructions")}
+          {children}
         </p>
         <div
           className={css`

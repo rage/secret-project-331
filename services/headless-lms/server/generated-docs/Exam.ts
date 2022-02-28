@@ -1,7 +1,7 @@
 type Exam = {
   id: string
   name: string
-  instructions: string
+  instructions: unknown
   page_id: string
   courses: Array<Course>
   starts_at: Date | null

@@ -66,4 +66,11 @@ impl CourseOrExamId {
             )),
         }
     }
+    pub fn exam_id(&self) -> Option<&Uuid> {
+        if let CourseOrExamId::Exam(id) = self {
+            Some(id)
+        } else {
+            None
+        }
+    }
 }

@@ -20,7 +20,7 @@ use headless_lms_models::{
     course_instances::{ChapterScore, CourseInstance, Points},
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
-    exams::{CourseExam, Exam, ExamEnrollment},
+    exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions},
     exercise_services::ExerciseService,
     exercise_slide_submissions::{
         ExerciseSlideSubmission, ExerciseSlideSubmissionCount,
@@ -464,7 +464,7 @@ fn main() {
         ExamData {
             id,
             name: "Course exam".to_string(),
-            instructions: "Do your best!".to_string(),
+            instructions: serde_json::json!([]),
             starts_at: date_time,
             ends_at: date_time,
             time_minutes: 120,
@@ -606,7 +606,7 @@ fn main() {
         Exam {
             id,
             name: "Course exam".to_string(),
-            instructions: "Do your best!".to_string(),
+            instructions: serde_json::json!([]),
             page_id: id,
             courses: vec![course.clone()],
             starts_at: Some(date_time),
@@ -770,6 +770,13 @@ fn main() {
                 opens_at: None,
                 status: ChapterStatus::Open
             }]
+        }
+    );
+    write_docs!(
+        ExamInstructions,
+        ExamInstructions {
+            id,
+            instructions: page.content.clone()
         }
     );
 }

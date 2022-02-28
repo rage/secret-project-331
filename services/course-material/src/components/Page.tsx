@@ -38,7 +38,7 @@ const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
             organizationSlug={organizationSlug}
           />
         )}
-      <SelectCourseInstanceModal onClose={onRefresh} />
+      {courseId && <SelectCourseInstanceModal onClose={onRefresh} />}
       {courseId && pageId && (
         <FeedbackHandler
           courseId={courseId}

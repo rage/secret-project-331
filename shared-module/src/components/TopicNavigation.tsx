@@ -88,7 +88,7 @@ const TopicNavigation = () => {
 
   const topicsInPage: Topic[] = []
   if (headers) {
-    Object.values(headers).map((item, index, array) => {
+    Object.values(headers).map((item) => {
       topicsInPage.push({
         id: item.id,
         offsetTop: item.offsetTop,
@@ -99,73 +99,42 @@ const TopicNavigation = () => {
   }
 
   const eventHandler = useCallback(() => {
-    reset()
-  }, [reset])
-
-  console.log("***links", links)
-
-  useEffect(() => {
     const fromTop = window.scrollY
     const windowHeight = window.innerHeight
-    window.addEventListener("scroll", () => {
-      if (links) {
-        links.forEach((link, index, array) => {
-          const hash = link.hash
-          const section = document.querySelector<HTMLElement>(hash)
-          const nextItem = array[index + 1]
-          const currIndex = topicsInPage.findIndex((obj) => obj.id === section?.id)
+    if (links) {
+      links.forEach((link, index, array) => {
+        const hash = link.hash
+        const section = document.querySelector<HTMLElement>(hash)
+        const nextItem = array[index + 1]
+        const currIndex = topicsInPage.findIndex((obj) => obj.id === section?.id)
 
-          if (section) {
-            if (
-              section.offsetTop < windowHeight * (1 - 0.2) &&
-              nextItem.offsetTop >
-                windowHeight * 0.1 /* && section?.offsetTop + section.offsetTop > fromTop */
-            ) {
-              link.classList.add("current")
-              topicsInPage[currIndex].isActive = true
-              console.log("****x")
-            } else {
-              link.classList.remove("current")
-              topicsInPage[currIndex].isActive = false
-              console.log("****y")
-            }
+        if (section) {
+          if (
+            section.offsetTop < windowHeight * (1 - 0.2) &&
+            nextItem.offsetTop >
+              windowHeight * 0.1 /* && section?.offsetTop + section.offsetTop > fromTop */
+          ) {
+            link.classList.add("current")
+            topicsInPage[currIndex].isActive = true
+            console.log("****x")
+          } else {
+            link.classList.remove("current")
+            topicsInPage[currIndex].isActive = false
+            console.log("****y")
           }
-        })
-      }
-    })
-    return () => {
-      window.removeEventListener("scroll", () => {
-        if (links) {
-          links.forEach((link, index, array) => {
-            const hash = link.hash
-            const section = document.querySelector<HTMLElement>(hash)
-            const nextItem = array[index + 1]
-            const currIndex = topicsInPage.findIndex((obj) => obj.id === section?.id)
-
-            if (section) {
-              if (
-                section.offsetTop < windowHeight * (1 - 0.2) &&
-                nextItem.offsetTop >
-                  windowHeight * 0.1 /* && section?.offsetTop + section.offsetTop > fromTop */
-              ) {
-                link.classList.add("current")
-                topicsInPage[currIndex].isActive = true
-                console.log("****x")
-              } else {
-                link.classList.remove("current")
-                topicsInPage[currIndex].isActive = false
-                console.log("****y")
-              }
-            }
-          })
         }
       })
     }
   }, [links, topicsInPage])
 
-  /* const check = topics.find(({ isActive }) => isActive) */
+  console.log("***links", links)
 
-  /* useEffect(() => {}, []) */
+  useEffect(() => {
+    window.addEventListener("scroll", eventHandler)
+    return () => {
+      window.removeEventListener("scroll", eventHandler)
+    }
+  }, [eventHandler])
 
   console.log("***topics", topic)
 
@@ -185,7 +154,7 @@ const TopicNavigation = () => {
         <h3>{`TOPIC`}</h3>
         <StyledTopics role="navigation">
           {topicsInPage &&
-            topicsInPage.map((item, index, array) => {
+            topicsInPage.map((item) => {
               return (
                 <StTopic
                   /* onClick={handleClick} */

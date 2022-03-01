@@ -7,6 +7,7 @@ import { quizTheme } from "../../styles/QuizStyles"
 
 import { QuizItemSubmissionComponentProps } from "."
 
+// eslint-disable-next-line i18next/no-literal-string
 const correctAnswer = css`
   display: flex;
   flex: 2;
@@ -14,9 +15,11 @@ const correctAnswer = css`
   align-items: center;
   margin: 0.5rem;
   border-radius: 3px;
+  color: ${quizTheme.errorItemForegroundColor};
   background: ${quizTheme.gradingCorrectItemBackground};
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const incorrectAnswer = css`
   display: flex;
   flex: 2;
@@ -24,6 +27,7 @@ const incorrectAnswer = css`
   align-items: center;
   margin: 0.5rem;
   border-radius: 3px;
+  color: ${quizTheme.gradingCorrectItemColor};
   background: ${quizTheme.gradingWrongItemBackground};
 `
 

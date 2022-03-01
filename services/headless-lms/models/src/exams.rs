@@ -1,12 +1,13 @@
 use chrono::Duration;
 
 use crate::{courses::Course, prelude::*};
+use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 #[derive(Debug, Serialize, TS)]
 pub struct Exam {
     pub id: Uuid,
     pub name: String,
-    pub instructions: String,
+    pub instructions: serde_json::Value,
     pub page_id: Uuid,
     pub courses: Vec<Course>,
     pub starts_at: Option<DateTime<Utc>>,
@@ -47,7 +48,8 @@ SELECT id,
   language_code,
   copied_from,
   content_search_language::text,
-  course_language_group_id
+  course_language_group_id,
+  is_draft
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1
@@ -81,11 +83,22 @@ pub struct CourseExam {
 pub struct NewExam<'a> {
     pub id: Uuid,
     pub name: &'a str,
-    pub instructions: &'a str,
+    pub instructions: serde_json::Value,
     pub starts_at: Option<DateTime<Utc>>,
     pub ends_at: Option<DateTime<Utc>>,
     pub time_minutes: i32,
     pub organization_id: Uuid,
+}
+
+#[derive(Debug, Serialize, TS)]
+pub struct ExamInstructions {
+    pub id: Uuid,
+    pub instructions: serde_json::Value,
+}
+
+#[derive(Debug, Serialize, Deserialize, TS)]
+pub struct ExamInstructionsUpdate {
+    pub instructions: serde_json::Value,
 }
 
 pub async fn insert(conn: &mut PgConnection, exam: NewExam<'_>) -> ModelResult<()> {
@@ -119,7 +132,6 @@ pub async fn edit(
     conn: &mut PgConnection,
     id: Uuid,
     name: Option<&str>,
-    instructions: Option<&str>,
     starts_at: Option<DateTime<Utc>>,
     ends_at: Option<DateTime<Utc>>,
     time_minutes: Option<i32>,
@@ -133,15 +145,13 @@ pub async fn edit(
         "
 UPDATE exams
 SET name = COALESCE($2, name),
-instructions = COALESCE($3, instructions),
-  starts_at = $4,
-  ends_at = $5,
-  time_minutes = $6
+  starts_at = $3,
+  ends_at = $4,
+  time_minutes = $5
 WHERE id = $1
 ",
         id,
         name,
-        instructions,
         starts_at,
         ends_at,
         time_minutes,
@@ -258,7 +268,7 @@ pub async fn verify_exam_submission_can_be_made(
     let student_has_time =
         Utc::now() <= enrollment.started_at + Duration::minutes(exam.time_minutes.into());
     let exam_is_ongoing = exam.ends_at.map(|ea| Utc::now() < ea).unwrap_or_default();
-    Ok(student_has_time || exam_is_ongoing)
+    Ok(student_has_time && exam_is_ongoing)
 }
 
 #[derive(Debug, Serialize, TS)]
@@ -304,4 +314,47 @@ WHERE id = $1
     .await?
     .organization_id;
     Ok(organization_id)
+}
+
+pub async fn get_exam_instructions_data(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+) -> ModelResult<ExamInstructions> {
+    let exam_instructions_data = sqlx::query_as!(
+        ExamInstructions,
+        "
+SELECT id, instructions
+FROM exams
+WHERE id = $1;
+",
+        exam_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(exam_instructions_data)
+}
+
+pub async fn update_exam_instructions(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    instructions_update: ExamInstructionsUpdate,
+) -> ModelResult<ExamInstructions> {
+    let parsed_content: Vec<GutenbergBlock> =
+        serde_json::from_value(instructions_update.instructions)?;
+    let updated_data = sqlx::query_as!(
+        ExamInstructions,
+        "
+    UPDATE exams
+    SET instructions = $1
+    WHERE id = $2
+    RETURNING id,
+        instructions
+    ",
+        serde_json::to_value(parsed_content)?,
+        exam_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(updated_data)
 }

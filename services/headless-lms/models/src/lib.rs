@@ -32,6 +32,7 @@ pub mod regradings;
 pub mod roles;
 pub mod url_redirections;
 pub mod user_course_settings;
+pub mod user_exercise_slide_states;
 pub mod user_exercise_states;
 pub mod user_exercise_task_states;
 pub mod users;

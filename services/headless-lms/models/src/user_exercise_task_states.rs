@@ -7,7 +7,7 @@ use crate::{
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]
 pub struct UserExerciseTaskState {
     pub exercise_task_id: Uuid,
-    pub user_exercise_state_id: Uuid,
+    pub user_exercise_slide_state_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -19,18 +19,18 @@ pub struct UserExerciseTaskState {
 pub async fn insert(
     conn: &mut PgConnection,
     exercise_task_id: Uuid,
-    user_exercise_state_id: Uuid,
+    user_exercise_slide_state_id: Uuid,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
 INSERT INTO user_exercise_task_states (
     exercise_task_id,
-    user_exercise_state_id
+    user_exercise_slide_state_id
   )
 VALUES ($1, $2)
         ",
         exercise_task_id,
-        user_exercise_state_id,
+        user_exercise_slide_state_id,
     )
     .execute(conn)
     .await?;
@@ -39,11 +39,11 @@ VALUES ($1, $2)
 
 pub async fn upsert_score_with_grading(
     conn: &mut PgConnection,
-    user_exercise_state_id: Uuid,
+    user_exercise_slide_state_id: Uuid,
     exercise_task_grading: &ExerciseTaskGrading,
 ) -> ModelResult<UserExerciseTaskState> {
     let exercise_task_id = exercise_task_grading.exercise_task_id;
-    let user_exercise_task_state = get(conn, exercise_task_id, user_exercise_state_id)
+    let user_exercise_task_state = get(conn, exercise_task_id, user_exercise_slide_state_id)
         .await
         .optional()?;
     let user_exercise_task_state_ref = user_exercise_task_state.as_ref();
@@ -68,19 +68,19 @@ pub async fn upsert_score_with_grading(
         r#"
 INSERT INTO user_exercise_task_states (
     exercise_task_id,
-    user_exercise_state_id,
+    user_exercise_slide_state_id,
     score_given,
     grading_progress,
     activity_progress
   )
-VALUES ($1, $2, $3, $4, $5) ON CONFLICT (exercise_task_id, user_exercise_state_id) DO
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (exercise_task_id, user_exercise_slide_state_id) DO
 UPDATE
 SET deleted_at = NULL,
   score_given = $3,
   grading_progress = $4,
   activity_progress = $5
 RETURNING exercise_task_id,
-  user_exercise_state_id,
+  user_exercise_slide_state_id,
   created_at,
   updated_at,
   deleted_at,
@@ -89,7 +89,7 @@ RETURNING exercise_task_id,
   activity_progress as "activity_progress: _"
     "#,
         exercise_task_id,
-        user_exercise_state_id,
+        user_exercise_slide_state_id,
         new_score_given,
         new_grading_progress as GradingProgress,
         new_activity_progress as ActivityProgress,
@@ -108,7 +108,7 @@ pub async fn get(
         UserExerciseTaskState,
         r#"
 SELECT exercise_task_id,
-  user_exercise_state_id,
+  user_exercise_slide_state_id,
   created_at,
   updated_at,
   deleted_at,
@@ -117,7 +117,7 @@ SELECT exercise_task_id,
   activity_progress as "activity_progress: _"
 FROM user_exercise_task_states
 WHERE exercise_task_id = $1
-  AND user_exercise_state_id = $2
+  AND user_exercise_slide_state_id = $2
   AND deleted_at IS NULL
         "#,
         exercise_task_id,
@@ -131,17 +131,17 @@ WHERE exercise_task_id = $1
 pub async fn delete(
     conn: &mut PgConnection,
     exercise_task_id: Uuid,
-    user_exercise_state_id: Uuid,
+    user_exercise_slide_state_id: Uuid,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
 UPDATE user_exercise_task_states
 SET deleted_at = now()
 WHERE exercise_task_id = $1
-  AND user_exercise_state_id = $2
+  AND user_exercise_slide_state_id = $2
     ",
         exercise_task_id,
-        user_exercise_state_id,
+        user_exercise_slide_state_id,
     )
     .execute(conn)
     .await?;

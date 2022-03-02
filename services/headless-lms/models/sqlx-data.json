@@ -211,7 +211,7 @@
         {
           "ordinal": 2,
           "name": "instructions",
-          "type_info": "Text"
+          "type_info": "Jsonb"
         },
         {
           "ordinal": 3,
@@ -294,6 +294,27 @@
         "Left": ["Varchar", "Varchar", "Varchar", "Varchar", "Int4"]
       },
       "nullable": [false, false, false, true, false, false, false, true, false]
+    }
+  },
+  "08936e20016cc8fb2f6825a9b53d124e7939a892578a057732dd554544aa90f6": {
+    "query": "\n    UPDATE exams\n    SET instructions = $1\n    WHERE id = $2\n    RETURNING id,\n        instructions\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "instructions",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Jsonb", "Uuid"]
+      },
+      "nullable": [false, false]
     }
   },
   "0a3ec731af676e23b67bd6eb547415800aa436639f2dfde55ad17b3ed904a27b": {
@@ -6506,7 +6527,7 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Text", "Timestamptz", "Timestamptz", "Int4", "Uuid"]
+        "Left": ["Uuid", "Varchar", "Jsonb", "Timestamptz", "Timestamptz", "Int4", "Uuid"]
       },
       "nullable": []
     }
@@ -6929,6 +6950,27 @@
         "Left": ["Varchar", "Int4", "Uuid"]
       },
       "nullable": [false, false, false, false, false, false, true, true, true, true, true]
+    }
+  },
+  "b3594457d4aea521525b2348f2f95336c0bfa761cf13b7878ca3a9691ded8ce9": {
+    "query": "\nSELECT id, instructions\nFROM exams\nWHERE id = $1;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "instructions",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false]
     }
   },
   "b39dda257f5f1f2db1905fdb6616a93c5d587d89c51ca1c1ca67152d7677de65": {
@@ -8124,6 +8166,16 @@
         false,
         false
       ]
+    }
+  },
+  "c5c02778029045a48b32567f114b8fbd441b01ac1e0908eca4e02a067327036e": {
+    "query": "\nUPDATE exams\nSET name = COALESCE($2, name),\n  starts_at = $3,\n  ends_at = $4,\n  time_minutes = $5\nWHERE id = $1\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Timestamptz", "Timestamptz", "Int4"]
+      },
+      "nullable": []
     }
   },
   "c6d5ffed3573883c9e69529464b8f96325fbbf5c4ea893ae9e7352d3ce48a70d": {
@@ -9900,16 +9952,6 @@
         ]
       },
       "nullable": [false]
-    }
-  },
-  "f41650c8d1aa4526a7b1ea598d5b8d7d39df3f833dd9205bf67c116e6e8191ac": {
-    "query": "\nUPDATE exams\nSET name = COALESCE($2, name),\ninstructions = COALESCE($3, instructions),\n  starts_at = $4,\n  ends_at = $5,\n  time_minutes = $6\nWHERE id = $1\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Text", "Timestamptz", "Timestamptz", "Int4"]
-      },
-      "nullable": []
     }
   },
   "f4975555bb0c4f1063c0f8f89e371c9b94a48a69c5e1ec92473db99adfce7601": {

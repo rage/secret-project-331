@@ -13,6 +13,7 @@ import { EditorContentDispatch, editorContentReducer } from "../../contexts/Edit
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
+import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
@@ -92,8 +93,41 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
     throw "The backend should ensure that a page is associated with either a course or an exam"
   }
 
+  const saveAndReset = (
+    <>
+      <Button
+        variant="primary"
+        size="medium"
+        className={css`
+          margin-right: 1rem;
+          border: 1px black solid;
+          pointer-events: auto;
+        `}
+        onClick={handleOnSave}
+        disabled={currentContentStateSaved || currentlySaving}
+      >
+        {t("save")}
+      </Button>
+      <Button
+        variant="secondary"
+        size="medium"
+        className={css`
+          margin-left: 1rem;
+          border: 1px black solid;
+          pointer-events: auto;
+        `}
+        onClick={() => contentDispatch({ type: "setContent", payload: savedContent })}
+        disabled={currentContentStateSaved || currentlySaving}
+      >
+        {t("reset")}
+      </Button>
+    </>
+  )
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>
+      <BreakFromCentered sidebar={false}>
+        <div className="editor__top-button-wrapper">{saveAndReset}</div>
+      </BreakFromCentered>
       <div className="editor__component">
         <div>
           {saveMutation.isError && <ErrorBanner variant={"text"} error={saveMutation.error} />}
@@ -112,44 +146,8 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
           allowedBlocks={supportedCoreBlocks}
           allowedBlockVariations={allowedBlockVariants}
           mediaUpload={mediaUpload}
+          inspectorButtons={saveAndReset}
         />
-      </div>
-      <div
-        className={`
-          ${css`
-            position: sticky;
-            bottom: 4rem;
-            display: flex;
-            justify-content: center;
-            pointer-events: none;
-          `}`}
-      >
-        <Button
-          variant="primary"
-          size="medium"
-          className={css`
-            margin-right: 1rem;
-            border: 1px black solid;
-            pointer-events: auto;
-          `}
-          onClick={handleOnSave}
-          disabled={currentContentStateSaved || currentlySaving}
-        >
-          {t("save")}
-        </Button>
-        <Button
-          variant="secondary"
-          size="medium"
-          className={css`
-            margin-left: 1rem;
-            border: 1px black solid;
-            pointer-events: auto;
-          `}
-          onClick={() => contentDispatch({ type: "setContent", payload: savedContent })}
-          disabled={currentContentStateSaved || currentlySaving}
-        >
-          {t("reset")}
-        </Button>
       </div>
       <div className="editor__component">
         <div

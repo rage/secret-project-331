@@ -16,7 +16,7 @@ test("test", async ({ page, headless }) => {
   ])
   await page.fill('input[label="Title"]', "New title")
   // Click text=Save
-  await page.click("text=Save")
+  await page.click("text=Save >> visible=true")
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,

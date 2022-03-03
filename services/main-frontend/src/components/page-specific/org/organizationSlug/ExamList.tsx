@@ -4,16 +4,13 @@ import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import {
-  createExam,
-  createExamDuplicate,
-  fetchOrganizationExams,
-} from "../../../../services/backend/exams"
+import { createExam, fetchOrganizationExams } from "../../../../services/backend/exams"
 import { NewExam } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
+import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import NewExamForm from "../../../forms/NewExamForm"
 
 import { CourseGrid } from "./CourseCard"
@@ -37,21 +34,16 @@ const ExamList: React.FC<Props> = ({ organizationId }) => {
     },
     { enabled: !!organizationId },
   )
+
+  const examMutation = useToastMutation(
+    (exam: NewExam) => createExam(organizationId, exam),
+    { notify: true, successMessage: t("exam-created-succesfully"), method: "POST" },
+    { onSuccess: () => getOrgExams.refetch() },
+  )
+
   const loginStateContext = useContext(LoginStateContext)
 
   const [newExamFormOpen, setNewExamFormOpen] = useState(false)
-
-  const handleSubmitNewExam = async (organization: string, exam: NewExam): Promise<void> => {
-    await createExam(organization, exam)
-    await getOrgExams.refetch()
-    setNewExamFormOpen(!newExamFormOpen)
-  }
-
-  const handleSubmitDuplicateExam = async (oldExamId: string): Promise<void> => {
-    await createExamDuplicate(oldExamId)
-    await getOrgExams.refetch()
-    setNewExamFormOpen(!newExamFormOpen)
-  }
 
   if (getOrgExams.isError) {
     return <ErrorBanner variant={"readOnly"} error={getOrgExams.error} />
@@ -85,11 +77,10 @@ const ExamList: React.FC<Props> = ({ organizationId }) => {
               {t("button-text-close")}
             </Button>
             <NewExamForm
-              organizationId={organizationId}
-              exams={getOrgExams.data}
-              onSubmitNewExamForm={handleSubmitNewExam}
-              onSubmitDuplicateExamForm={handleSubmitDuplicateExam}
-              onClose={() => setNewExamFormOpen(!newExamFormOpen)}
+              initialData={null}
+              organization={organizationId}
+              onCancel={() => setNewExamFormOpen(!newExamFormOpen)}
+              onSubmit={(data) => examMutation.mutate(data)}
             />
           </div>
         </Dialog>

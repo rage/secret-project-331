@@ -220,7 +220,7 @@ test("create quizzes test", async ({ page }) => {
   await closeModal(page, frame3)
 
   // Click text=Save
-  await page.click("text=Save")
+  await page.click("text=Save >> visible=true")
 })
 
 async function closeModal(page: Page, frame: Frame) {

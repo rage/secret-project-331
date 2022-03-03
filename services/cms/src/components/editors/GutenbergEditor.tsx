@@ -51,6 +51,7 @@ interface GutenbergEditorProps {
   allowedBlockVariations?: Record<string, string[]>
   customBlocks?: Array<Parameters<typeof registerBlockType>>
   mediaUpload: (props: MediaUploadProps) => void
+  inspectorButtons?: JSX.Element
 }
 
 const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
@@ -60,6 +61,7 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   allowedBlocks,
   customBlocks,
   mediaUpload,
+  inspectorButtons,
 }: GutenbergEditorProps) => {
   const [editorSettings, setEditorSettings] = useState<
     Partial<
@@ -141,7 +143,33 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
             onChange={handleChanges}
           >
             <div className="editor__sidebar">
-              <BlockInspector />
+              <div
+                className={css`
+                  display: flex;
+                  flex-direction: column;
+                  height: 100%;
+                `}
+              >
+                <div
+                  className={css`
+                    display: flex;
+                    flex-grow: 1;
+                    overflow-y: auto;
+                  `}
+                >
+                  <BlockInspector />
+                </div>
+                {inspectorButtons && (
+                  <div
+                    className={css`
+                      padding: 1rem;
+                      background: #f5f6f7;
+                    `}
+                  >
+                    {inspectorButtons}
+                  </div>
+                )}
+              </div>
             </div>
             <div className="editor__content">
               <BlockTools>

@@ -363,6 +363,16 @@ export interface NewFeedback {
   page_id: string
 }
 
+export interface StudentExerciseSlideSubmission {
+  exercise_slide_id: string
+  exercise_task_submissions: Array<StudentExerciseTaskSubmission>
+}
+
+export interface StudentExerciseSlideSubmissionResult {
+  exercise_status: ExerciseStatus | null
+  exercise_task_submission_results: Array<StudentExerciseTaskSubmissionResult>
+}
+
 export interface Organization {
   id: string
   slug: string
@@ -626,16 +636,6 @@ export interface ExerciseSlideSubmissionCountByWeekAndHour {
   count: number | null
 }
 
-export interface StudentExerciseSlideSubmission {
-  exercise_slide_id: string
-  exercise_task_submissions: Array<StudentExerciseTaskSubmission>
-}
-
-export interface StudentExerciseSlideSubmissionResult {
-  exercise_status: ExerciseStatus | null
-  exercise_task_submission_results: Array<StudentExerciseTaskSubmissionResult>
-}
-
 export interface ExerciseTaskGrading {
   id: string
   created_at: Date
@@ -648,7 +648,6 @@ export interface ExerciseTaskGrading {
   grading_priority: number
   score_given: number | null
   grading_progress: GradingProgress
-  user_points_update_strategy: UserPointsUpdateStrategy
   unscaled_score_given: number | null
   unscaled_score_maximum: number | null
   grading_started_at: Date | null

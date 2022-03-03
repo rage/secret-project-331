@@ -25,7 +25,6 @@ use headless_lms_models::{
     exercise_slide_submissions::{
         ExerciseSlideSubmission, ExerciseSlideSubmissionCount,
         ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
-        StudentExerciseSlideSubmissionResult,
     },
     exercise_slides::CourseMaterialExerciseSlide,
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
@@ -38,6 +37,7 @@ use headless_lms_models::{
     },
     feedback::{Feedback, FeedbackBlock, FeedbackCount},
     glossary::Term,
+    library::grading::StudentExerciseSlideSubmissionResult,
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
     pages::{

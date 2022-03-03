@@ -22,6 +22,7 @@ pub mod exercise_tasks;
 pub mod exercises;
 pub mod feedback;
 pub mod glossary;
+pub mod library;
 pub mod organizations;
 pub mod page_history;
 pub mod pages;

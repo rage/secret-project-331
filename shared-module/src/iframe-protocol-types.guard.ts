@@ -89,8 +89,6 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
             obj.data.grading.grading_progress === "PendingManual" ||
             obj.data.grading.grading_progress === "Failed" ||
             obj.data.grading.grading_progress === "NotReady") &&
-          (obj.data.grading.user_points_update_strategy === "CanAddPointsButCannotRemovePoints" ||
-            obj.data.grading.user_points_update_strategy === "CanAddPointsAndCanRemovePoints") &&
           (obj.data.grading.unscaled_score_given === null ||
             typeof obj.data.grading.unscaled_score_given === "number") &&
           (obj.data.grading.unscaled_score_maximum === null ||
@@ -155,8 +153,6 @@ export function isIframeState(obj: any, _argumentName?: string): obj is IframeSt
             obj.data.grading.grading_progress === "PendingManual" ||
             obj.data.grading.grading_progress === "Failed" ||
             obj.data.grading.grading_progress === "NotReady") &&
-          (obj.data.grading.user_points_update_strategy === "CanAddPointsButCannotRemovePoints" ||
-            obj.data.grading.user_points_update_strategy === "CanAddPointsAndCanRemovePoints") &&
           (obj.data.grading.unscaled_score_given === null ||
             typeof obj.data.grading.unscaled_score_given === "number") &&
           (obj.data.grading.unscaled_score_maximum === null ||

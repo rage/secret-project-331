@@ -1,17 +1,23 @@
+import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
+import { theme } from "../shared-module/styles"
 
-import { TabProps } from "./Tab"
+import { TabLinkProps } from "./LinkTab"
 
-interface Tabs {
+interface TabLinkNavigationProps {
   orientation?: "horizontal" | "vertical"
-  disableRouting?: boolean
+  enableRouting?: boolean
 }
 
-const Tabs: React.FC<Tabs> = ({ children, orientation = "horizontal", disableRouting = false }) => {
+const TabLinkNavigation: React.FC<TabLinkNavigationProps> = ({
+  children,
+  orientation = "horizontal",
+  enableRouting = false,
+}) => {
   const tabsRef = useRef<HTMLDivElement>(null)
   const path = `${useQueryParameter("path")}`
   const { t } = useTranslation()
@@ -19,17 +25,17 @@ const Tabs: React.FC<Tabs> = ({ children, orientation = "horizontal", disableRou
 
   useEffect(() => {
     const childElementUrlProps = React.Children.map(children, (child) => {
-      if (React.isValidElement<TabProps>(child)) {
+      if (React.isValidElement<TabLinkProps>(child)) {
         if (typeof child.props.url === "string") {
           return child.props.url
         }
       }
     })
-    // Ensure we redirect to the first tab URL if on root or unknown path
+    // Ensure we redirect to the first tab URL if on root or unknown path and routing enabled
     if (
       childElementUrlProps &&
       childElementUrlProps.length !== 0 &&
-      !disableRouting &&
+      enableRouting &&
       !childElementUrlProps.includes(path)
     ) {
       const urlObject = {
@@ -101,9 +107,19 @@ const Tabs: React.FC<Tabs> = ({ children, orientation = "horizontal", disableRou
       role="tablist"
       aria-label={t("tab-aria-label-default")}
       onKeyDown={tabListOnKeyDown}
+      className={css`
+        display: flex;
+        flex-wrap: wrap;
+        background: ${theme.secondary.bg};
+        padding: 0.5rem;
+        border-radius: 10px;
+        gap: 10px;
+        flex-direction: ${orientation === "horizontal" ? "row" : "column"};
+        margin: 2rem 0;
+      `}
     >
       {React.Children.map(children, (child, i) => {
-        if (React.isValidElement<TabProps>(child)) {
+        if (React.isValidElement<TabLinkProps>(child)) {
           // Ensure that one of the elements has tabindex set, if path is empty string,
           return React.cloneElement(child, {
             ...child.props,
@@ -117,4 +133,4 @@ const Tabs: React.FC<Tabs> = ({ children, orientation = "horizontal", disableRou
   )
 }
 
-export default Tabs
+export default TabLinkNavigation

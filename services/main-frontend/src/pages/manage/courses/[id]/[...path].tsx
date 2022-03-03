@@ -2,8 +2,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../../../../components/Layout"
-import Tab from "../../../../components/Tab"
-import Tabs from "../../../../components/Tabs"
+import TabLink from "../../../../components/LinkTab"
+import TabLinkNavigation from "../../../../components/LinkTabNavigation"
 import CourseChangeRequests from "../../../../components/page-specific/manage/courses/id/change-request/CourseChangeRequests"
 import CourseCourseInstances from "../../../../components/page-specific/manage/courses/id/course-instances/CourseCourseInstances"
 import CourseExercises from "../../../../components/page-specific/manage/courses/id/exercises/CourseExercises"
@@ -23,7 +23,6 @@ import {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-
 export interface CourseManagementPagesProps {
   courseId: string
 }
@@ -54,50 +53,51 @@ const CourseManagementPage: React.FC<CourseManagementPageProps> = ({ query }) =>
   const { t } = useTranslation()
 
   // See if path exists, if not, default to first
+  // Or should we implement 404 Not Found?
   const PageToRender = CourseManagementPageTabs[path] ?? CourseManagementPageTabs["overview"]
 
   return (
     <Layout navVariant="complex">
-      <Tabs>
-        <Tab url={"overview"} isActive={path === "overview"}>
+      <TabLinkNavigation>
+        <TabLink url={"overview"} isActive={path === "overview"}>
           {t("link-overview")}
-        </Tab>
-        <Tab url={"pages"} isActive={path === "pages"}>
+        </TabLink>
+        <TabLink url={"pages"} isActive={path === "pages"}>
           {t("link-pages")}
-        </Tab>
-        <Tab
+        </TabLink>
+        <TabLink
           url={"feedback"}
           isActive={path === "feedback"}
           countHook={createUnreadFeedbackCountHook(courseId)}
         >
           {t("link-feedback")}
-        </Tab>
-        <Tab
+        </TabLink>
+        <TabLink
           url={"change-requests"}
           isActive={path === "change-requests"}
           countHook={createPendingChangeRequestCountHook(courseId)}
         >
           {t("link-change-requests")}
-        </Tab>
-        <Tab url={"exercises"} isActive={path === "exercises"}>
+        </TabLink>
+        <TabLink url={"exercises"} isActive={path === "exercises"}>
           {t("link-exercises")}
-        </Tab>
-        <Tab url={"course-instances"} isActive={path === "course-instances"}>
+        </TabLink>
+        <TabLink url={"course-instances"} isActive={path === "course-instances"}>
           {t("link-course-instances")}
-        </Tab>
-        <Tab url={"language-versions"} isActive={path === "language-versions"}>
+        </TabLink>
+        <TabLink url={"language-versions"} isActive={path === "language-versions"}>
           {t("link-language-versions")}
-        </Tab>
-        <Tab url={"permissions"} isActive={path === "permissions"}>
+        </TabLink>
+        <TabLink url={"permissions"} isActive={path === "permissions"}>
           {t("link-permissions")}
-        </Tab>
-        <Tab url={"glossary"} isActive={path === "glossary"}>
+        </TabLink>
+        <TabLink url={"glossary"} isActive={path === "glossary"}>
           {t("link-glossary")}
-        </Tab>
-        <Tab url={"stats"} isActive={path === "stats"}>
+        </TabLink>
+        <TabLink url={"stats"} isActive={path === "stats"}>
           {t("link-stats")}
-        </Tab>
-      </Tabs>
+        </TabLink>
+      </TabLinkNavigation>
       <PageToRender courseId={courseId} />
     </Layout>
   )

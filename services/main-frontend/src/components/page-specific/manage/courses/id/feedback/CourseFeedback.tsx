@@ -2,9 +2,10 @@ import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import createUnreadFeedbackCountHook from "../../../../../../hooks/count/useUnreadFeedbackCount"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import Tab from "../../../../../Tab"
-import Tabs from "../../../../../Tabs"
+import TabLink from "../../../../../LinkTab"
+import TabLinkNavigation from "../../../../../LinkTabNavigation"
 
 import FeedbackList from "./FeedbackList"
 
@@ -22,20 +23,21 @@ const CourseFeedback: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   return (
     <div>
       <h3>{t("title-feedback")}</h3>
-      <Tabs disableRouting>
-        <Tab
+      <TabLinkNavigation>
+        <TabLink
           isActive={!read}
           url={{ pathname: router.pathname, query: { ...router.query, read: false } }}
+          countHook={createUnreadFeedbackCountHook(courseId)}
         >
           {t("unread")}
-        </Tab>
-        <Tab
+        </TabLink>
+        <TabLink
           isActive={read}
           url={{ pathname: router.pathname, query: { ...router.query, read: true } }}
         >
           {t("read")}
-        </Tab>
-      </Tabs>
+        </TabLink>
+      </TabLinkNavigation>
       <FeedbackList courseId={courseId} read={read} perPage={4} />
     </div>
   )

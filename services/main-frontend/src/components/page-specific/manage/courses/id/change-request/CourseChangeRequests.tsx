@@ -2,9 +2,10 @@ import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import createPendingChangeRequestCountHook from "../../../../../../hooks/count/usePendingChangeRequestCount"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import Tab from "../../../../../Tab"
-import Tabs from "../../../../../Tabs"
+import TabLink from "../../../../../LinkTab"
+import TabLinkNavigation from "../../../../../LinkTabNavigation"
 
 import EditProposalList from "./EditProposalList"
 
@@ -23,20 +24,21 @@ const ChangeRequestsPage: React.FC<CourseManagementPagesProps> = ({ courseId }) 
     <div>
       <h3>{t("title-change-requests")}</h3>
       {/* eslint-disable-next-line i18next/no-literal-string */}
-      <Tabs disableRouting>
-        <Tab
+      <TabLinkNavigation>
+        <TabLink
           url={{ pathname: router.pathname, query: { ...router.query, pending: true } }}
           isActive={pending}
+          countHook={createPendingChangeRequestCountHook(courseId)}
         >
           {t("pending")}
-        </Tab>
-        <Tab
+        </TabLink>
+        <TabLink
           url={{ pathname: router.pathname, query: { ...router.query, pending: false } }}
           isActive={!pending}
         >
           {t("old")}
-        </Tab>
-      </Tabs>
+        </TabLink>
+      </TabLinkNavigation>
       {/* TODO: Dropdown for perPage? */}
       <EditProposalList courseId={courseId} pending={pending} perPage={4} />
     </div>

@@ -460,6 +460,9 @@
 <span id="458">458</span>
 <span id="459">459</span>
 <span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
@@ -496,6 +499,7 @@
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;core/heading&quot;</span>)]</span>
     <span class="ident">Heading</span> {
         <span class="ident">content</span>: <span class="ident">String</span>,
+        <span class="ident">anchor</span>: <span class="ident">String</span>,
         <span class="ident">level</span>: <span class="ident">i64</span>,
         <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
         <span class="ident">rest</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
@@ -639,6 +643,7 @@
             <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
             <span class="ident">attributes</span>: <span class="ident">BlockAttributes::Heading</span> {
                 <span class="ident">content</span>: <span class="ident">String::from</span>(<span class="string">&quot;Email heading&quot;</span>),
+                <span class="ident">anchor</span>: <span class="ident">String::from</span>(<span class="string">&quot;email-heading&quot;</span>),
                 <span class="ident">level</span>: <span class="number">2</span>,
                 <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
             },
@@ -798,6 +803,7 @@
             <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
             <span class="ident">attributes</span>: <span class="ident">BlockAttributes::Heading</span> {
                 <span class="ident">content</span>: <span class="ident">String::from</span>(<span class="string">&quot;Email heading&quot;</span>),
+                <span class="ident">anchor</span>: <span class="ident">String::from</span>(<span class="string">&quot;email-heading&quot;</span>),
                 <span class="ident">level</span>: <span class="number">2</span>,
                 <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
             },

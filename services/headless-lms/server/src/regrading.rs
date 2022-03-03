@@ -299,8 +299,10 @@ struct GradingData {
 mod test {
     use mockito::Matcher;
     use models::{
-        exercise_services, exercise_slide_submissions::NewExerciseSlideSubmission,
-        exercise_task_gradings::ExerciseTaskGradingResult, exercises::GradingProgress,
+        exercise_services,
+        exercise_slide_submissions::NewExerciseSlideSubmission,
+        exercise_task_gradings::{ExerciseTaskGradingResult, UserPointsUpdateStrategy},
+        exercises::GradingProgress,
     };
     use serde_json::Value;
 
@@ -343,6 +345,8 @@ mod test {
                     exercise_id: exercise,
                     user_id: user,
                     exercise_slide_id: slide,
+                    user_points_update_strategy:
+                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
                 },
             )
             .await
@@ -365,7 +369,12 @@ mod test {
         )
         .await
         .unwrap();
-        let regrading = models::regradings::insert(tx.as_mut()).await.unwrap();
+        let regrading = models::regradings::insert(
+            tx.as_mut(),
+            UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
+        )
+        .await
+        .unwrap();
         let regrading_submission_id = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
             regrading,
@@ -463,6 +472,8 @@ mod test {
                     exam_id: None,
                     exercise_id: exercise,
                     user_id: user,
+                    user_points_update_strategy:
+                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
                 },
             )
             .await
@@ -485,7 +496,12 @@ mod test {
         )
         .await
         .unwrap();
-        let regrading = models::regradings::insert(tx.as_mut()).await.unwrap();
+        let regrading = models::regradings::insert(
+            tx.as_mut(),
+            UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
+        )
+        .await
+        .unwrap();
         let _regrading_submission_id = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
             regrading,
@@ -592,6 +608,8 @@ mod test {
                     exam_id: None,
                     exercise_id: exercise,
                     user_id: user,
+                    user_points_update_strategy:
+                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
                 },
             )
             .await
@@ -615,6 +633,8 @@ mod test {
                     exam_id: None,
                     exercise_id: exercise,
                     user_id: user,
+                    user_points_update_strategy:
+                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
                 },
             )
             .await
@@ -637,7 +657,12 @@ mod test {
         )
         .await
         .unwrap();
-        let regrading = models::regradings::insert(tx.as_mut()).await.unwrap();
+        let regrading = models::regradings::insert(
+            tx.as_mut(),
+            UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
+        )
+        .await
+        .unwrap();
         let _regrading_submission_1 = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
             regrading,
@@ -740,6 +765,8 @@ mod test {
                     exam_id: None,
                     exercise_id: exercise,
                     user_id: user,
+                    user_points_update_strategy:
+                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
                 },
             )
             .await
@@ -762,7 +789,12 @@ mod test {
         )
         .await
         .unwrap();
-        let regrading = models::regradings::insert(tx.as_mut()).await.unwrap();
+        let regrading = models::regradings::insert(
+            tx.as_mut(),
+            UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
+        )
+        .await
+        .unwrap();
         let _regrading_submission = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
             regrading,

@@ -167,6 +167,7 @@ fn main() {
         exercise_id: id,
         user_id: id,
         exercise_slide_id: id,
+        user_points_update_strategy: UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
     };
     let exercise_task_submission = ExerciseTaskSubmission {
         id,
@@ -192,7 +193,6 @@ fn main() {
         grading_priority: 1,
         score_given: Some(80.0),
         grading_progress: GradingProgress::FullyGraded,
-        user_points_update_strategy: UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
         unscaled_score_given: Some(80.0),
         unscaled_score_maximum: Some(100),
         grading_started_at: Some(date_time),

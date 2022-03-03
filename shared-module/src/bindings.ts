@@ -606,6 +606,7 @@ export interface ExerciseSlideSubmission {
   exam_id: string | null
   exercise_id: string
   user_id: string
+  user_points_update_strategy: UserPointsUpdateStrategy
 }
 
 export interface ExerciseSlideSubmissionCount {

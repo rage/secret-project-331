@@ -436,20 +436,19 @@ pub async fn update_user_exercise_state_after_submission(
         &exercise_slide_submission.id,
     )
     .await?;
-    let (grading_progress, points_update_strategy) =
-        exercise_task_gradings::get_point_update_strategy_from_gradings(
-            conn,
-            &exercise_slide_submission.id,
-        )
-        .await?;
+    let grading_progress = exercise_task_gradings::get_point_update_strategy_from_gradings(
+        conn,
+        &exercise_slide_submission.id,
+    )
+    .await?;
     info!(
         "Using user points updating strategy {:?}",
-        points_update_strategy
+        exercise_slide_submission.user_points_update_strategy,
     );
     let new_score_given = user_exercise_task_states::figure_out_new_score_given(
         current_state.score_given,
         score_given,
-        points_update_strategy,
+        exercise_slide_submission.user_points_update_strategy,
     );
 
     let new_grading_progress = user_exercise_task_states::figure_out_new_grading_progress(
@@ -645,7 +644,7 @@ mod tests {
     use super::*;
     use crate::{
         exercise_slide_submissions::{self, NewExerciseSlideSubmission},
-        exercise_task_gradings::{self, ExerciseTaskGradingResult},
+        exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
         exercise_task_submissions::{self, SubmissionData},
         exercises,
         test_helper::*,
@@ -665,6 +664,8 @@ mod tests {
                     exercise_id: exercise,
                     user_id: user,
                     exercise_slide_id: slide,
+                    user_points_update_strategy:
+                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
                 },
             )
             .await

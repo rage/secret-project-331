@@ -3,6 +3,7 @@ use std::collections::HashMap;
 
 use crate::{
     courses::Course,
+    exercise_task_gradings::UserPointsUpdateStrategy,
     exercise_task_submissions::{
         self, StudentExerciseTaskSubmission, StudentExerciseTaskSubmissionResult,
     },
@@ -13,7 +14,7 @@ use crate::{
     CourseOrExamId,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct NewExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub course_id: Option<Uuid>,
@@ -21,6 +22,7 @@ pub struct NewExerciseSlideSubmission {
     pub exam_id: Option<Uuid>,
     pub exercise_id: Uuid,
     pub user_id: Uuid,
+    pub user_points_update_strategy: UserPointsUpdateStrategy,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -35,6 +37,7 @@ pub struct ExerciseSlideSubmission {
     pub exam_id: Option<Uuid>,
     pub exercise_id: Uuid,
     pub user_id: Uuid,
+    pub user_points_update_strategy: UserPointsUpdateStrategy,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
@@ -88,24 +91,36 @@ pub async fn insert_exercise_slide_submission(
 ) -> ModelResult<ExerciseSlideSubmission> {
     let res = sqlx::query_as!(
         ExerciseSlideSubmission,
-        "
+        r#"
 INSERT INTO exercise_slide_submissions (
     exercise_slide_id,
     course_id,
     course_instance_id,
     exam_id,
     exercise_id,
-    user_id
+    user_id,
+    user_points_update_strategy
   )
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING *
-        ",
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _"
+        "#,
         exercise_slide_submission.exercise_slide_id,
         exercise_slide_submission.course_id,
         exercise_slide_submission.course_instance_id,
         exercise_slide_submission.exam_id,
         exercise_slide_submission.exercise_id,
         exercise_slide_submission.user_id,
+        exercise_slide_submission.user_points_update_strategy as UserPointsUpdateStrategy,
     )
     .fetch_one(conn)
     .await?;
@@ -119,7 +134,7 @@ pub async fn insert_exercise_slide_submission_with_id(
 ) -> ModelResult<ExerciseSlideSubmission> {
     let res = sqlx::query_as!(
         ExerciseSlideSubmission,
-        "
+        r#"
 INSERT INTO exercise_slide_submissions (
     id,
     exercise_slide_id,
@@ -130,8 +145,18 @@ INSERT INTO exercise_slide_submissions (
     user_id
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING *
-        ",
+RETURNING id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _"
+        "#,
         id,
         exercise_slide_submission.exercise_slide_id,
         exercise_slide_submission.course_id,
@@ -168,6 +193,11 @@ pub async fn create_exercise_slide_submission_for_exercise(
     let mut results = Vec::with_capacity(user_exercise_task_submissions.len());
 
     // Exercise is only needed for course id here.
+    let user_points_update_strategy = if exercise.exam_id.is_some() {
+        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
+    } else {
+        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
+    };
     let new_exercise_slide_submission = NewExerciseSlideSubmission {
         exercise_slide_id: selected_exercise_slide_id,
         course_id: exercise.course_id,
@@ -175,6 +205,7 @@ pub async fn create_exercise_slide_submission_for_exercise(
         exam_id: user_exercise_state.exam_id,
         exercise_id: user_exercise_state.exercise_id,
         user_id: user_exercise_state.user_id,
+        user_points_update_strategy,
     };
     let exercise_slide_submission =
         insert_exercise_slide_submission(&mut tx, new_exercise_slide_submission).await?;
@@ -229,12 +260,22 @@ pub async fn get_by_id(
 ) -> ModelResult<Option<ExerciseSlideSubmission>> {
     let exercise_slide_submission = sqlx::query_as!(
         ExerciseSlideSubmission,
-        "
-SELECT *
+        r#"
+SELECT id,
+created_at,
+updated_at,
+deleted_at,
+exercise_slide_id,
+course_id,
+course_instance_id,
+exam_id,
+exercise_id,
+user_id,
+user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE id = $1
   AND deleted_at IS NULL;
-        ",
+        "#,
         id
     )
     .fetch_optional(conn)
@@ -250,12 +291,21 @@ pub async fn get_by_exercise_id(
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT *
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
-LIMIT $2
-OFFSET $3;
+LIMIT $2 OFFSET $3;
         "#,
         exercise_id,
         pagination.limit(),
@@ -273,15 +323,25 @@ pub async fn get_users_latest_exercise_slide_submission(
 ) -> ModelResult<Option<ExerciseSlideSubmission>> {
     let res = sqlx::query_as!(
         ExerciseSlideSubmission,
-        "
-SELECT *
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE exercise_slide_id = $1
   AND user_id = $2
   AND deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT 1
-    ",
+        "#,
         exercise_slide_id,
         user_id
     )
@@ -334,12 +394,21 @@ pub async fn exercise_slide_submissions(
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT *
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
-LIMIT $2
-OFFSET $3;
+LIMIT $2 OFFSET $3
         "#,
         exercise_id,
         pagination.limit(),

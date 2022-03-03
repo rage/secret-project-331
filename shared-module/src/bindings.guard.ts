@@ -1028,7 +1028,8 @@ export function isExerciseSlideSubmission(
     (obj.course_instance_id === null || typeof obj.course_instance_id === "string") &&
     (obj.exam_id === null || typeof obj.exam_id === "string") &&
     typeof obj.exercise_id === "string" &&
-    typeof obj.user_id === "string"
+    typeof obj.user_id === "string" &&
+    (isUserPointsUpdateStrategy(obj.user_points_update_strategy) as boolean)
   )
 }
 

@@ -44,3 +44,16 @@ COMMENT ON COLUMN user_exercise_task_states.deleted_at IS 'Timestamp when the re
 COMMENT ON COLUMN user_exercise_task_states.score_given IS 'TODO';
 COMMENT ON COLUMN user_exercise_task_states.grading_progress IS 'TODO';
 COMMENT ON COLUMN user_exercise_task_states.activity_progress IS 'TODO';
+-- Move update strategy from task gradings to submissions and regradings
+ALTER TABLE exercise_slide_submissions
+ADD COLUMN user_points_update_strategy user_points_update_strategy NOT NULL DEFAULT 'can-add-points-but-cannot-remove-points';
+UPDATE exercise_slide_submissions
+SET user_points_update_strategy = 'can-add-points-and-can-remove-points'
+WHERE exam_id IS NULL;
+ALTER TABLE exercise_slide_submissions
+ALTER COLUMN user_points_update_strategy DROP DEFAULT;
+ALTER TABLE regradings
+ADD COLUMN user_points_update_strategy user_points_update_strategy NOT NULL DEFAULT 'can-add-points-but-cannot-remove-points';
+ALTER TABLE regradings
+ALTER COLUMN user_points_update_strategy DROP DEFAULT;
+ALTER TABLE exercise_task_gradings DROP COLUMN user_points_update_strategy;

@@ -17,7 +17,7 @@ use headless_lms_models::{
     exams,
     exams::NewExam,
     exercise_services, exercise_slide_submissions,
-    exercise_task_gradings::{self, ExerciseTaskGradingResult},
+    exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
     exercise_task_submissions, exercises,
     exercises::GradingProgress,
     feedback,
@@ -2608,6 +2608,7 @@ async fn submit_and_grade(
             exam_id: None,
             exercise_id,
             user_id,
+            user_points_update_strategy: UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
         },
     )
     .await

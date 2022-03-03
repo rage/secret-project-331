@@ -41,6 +41,7 @@ pub async fn upsert_score_with_grading(
     conn: &mut PgConnection,
     user_exercise_slide_state_id: Uuid,
     exercise_task_grading: &ExerciseTaskGrading,
+    user_points_update_strategy: UserPointsUpdateStrategy,
 ) -> ModelResult<UserExerciseTaskState> {
     let exercise_task_id = exercise_task_grading.exercise_task_id;
     let user_exercise_task_state = get(conn, exercise_task_id, user_exercise_slide_state_id)
@@ -51,7 +52,7 @@ pub async fn upsert_score_with_grading(
     let new_score_given = figure_out_new_score_given(
         user_exercise_task_state_ref.and_then(|x| x.score_given),
         exercise_task_grading.score_given,
-        exercise_task_grading.user_points_update_strategy,
+        user_points_update_strategy,
     );
     let new_grading_progress = figure_out_new_grading_progress(
         user_exercise_task_state_ref.map(|x| x.grading_progress),

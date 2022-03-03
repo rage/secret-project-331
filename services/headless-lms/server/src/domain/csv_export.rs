@@ -262,7 +262,7 @@ mod test {
     use headless_lms_models::{
         exercise_slide_submissions::{self, NewExerciseSlideSubmission},
         exercise_slides,
-        exercise_task_gradings::{self, ExerciseTaskGradingResult},
+        exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
         exercise_task_submissions, exercise_tasks,
         exercises::{self, GradingProgress},
         users,
@@ -372,6 +372,8 @@ mod test {
                     exercise_id: ex,
                     user_id: u,
                     exercise_slide_id: ex_slide,
+                    user_points_update_strategy:
+                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
                 },
             )
             .await

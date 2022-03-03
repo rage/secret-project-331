@@ -28,7 +28,6 @@ pub struct ExerciseTaskGrading {
     pub grading_priority: i32,
     pub score_given: Option<f32>,
     pub grading_progress: GradingProgress,
-    pub user_points_update_strategy: UserPointsUpdateStrategy,
     pub unscaled_score_given: Option<f32>,
     pub unscaled_score_maximum: Option<i32>,
     pub grading_started_at: Option<DateTime<Utc>>,
@@ -103,7 +102,6 @@ SELECT id,
   grading_priority,
   score_given,
   grading_progress as "grading_progress: _",
-  user_points_update_strategy as "user_points_update_strategy: _",
   unscaled_score_maximum,
   unscaled_score_given,
   grading_started_at,
@@ -139,7 +137,6 @@ SELECT id,
   grading_priority,
   score_given,
   grading_progress as "grading_progress: _",
-  user_points_update_strategy as "user_points_update_strategy: _",
   unscaled_score_maximum,
   unscaled_score_given,
   grading_started_at,
@@ -182,11 +179,10 @@ WHERE ets.exercise_slide_submission_id = $1
 pub async fn get_point_update_strategy_from_gradings(
     conn: &mut PgConnection,
     exercise_slide_submission_id: &Uuid,
-) -> ModelResult<(GradingProgress, UserPointsUpdateStrategy)> {
+) -> ModelResult<GradingProgress> {
     let res = sqlx::query!(
         r#"
-SELECT etg.grading_progress as "grading_progress: GradingProgress",
-  etg.user_points_update_strategy as "user_points_update_strategy: UserPointsUpdateStrategy"
+SELECT etg.grading_progress as "grading_progress: GradingProgress"
 FROM exercise_task_gradings etg
   JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id
 WHERE ets.exercise_slide_submission_id = $1
@@ -198,7 +194,7 @@ LIMIT 1
     )
     .fetch_one(conn)
     .await?;
-    Ok((res.grading_progress, res.user_points_update_strategy))
+    Ok(res.grading_progress)
 }
 
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Option<Uuid>> {
@@ -239,11 +235,6 @@ pub async fn new_grading(
     exercise: &Exercise,
     submission: &ExerciseTaskSubmission,
 ) -> ModelResult<ExerciseTaskGrading> {
-    let update_strategy = if exercise.exam_id.is_some() {
-        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
-    } else {
-        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
-    };
     let grading = sqlx::query_as!(
         ExerciseTaskGrading,
         r#"
@@ -253,10 +244,9 @@ INSERT INTO exercise_task_gradings(
     exam_id,
     exercise_id,
     exercise_task_id,
-    user_points_update_strategy,
     grading_started_at
   )
-VALUES($1, $2, $3, $4, $5, $6, now())
+VALUES($1, $2, $3, $4, $5, now())
 RETURNING id,
   created_at,
   updated_at,
@@ -268,7 +258,6 @@ RETURNING id,
   grading_priority,
   score_given,
   grading_progress as "grading_progress: _",
-  user_points_update_strategy as "user_points_update_strategy: _",
   unscaled_score_given,
   unscaled_score_maximum,
   grading_started_at,
@@ -282,7 +271,6 @@ RETURNING id,
         exercise.exam_id,
         exercise.id,
         submission.exercise_task_id,
-        update_strategy as UserPointsUpdateStrategy
     )
     .fetch_one(conn)
     .await?;
@@ -395,7 +383,6 @@ RETURNING id,
   grading_priority,
   score_given,
   grading_progress as "grading_progress: _",
-  user_points_update_strategy as "user_points_update_strategy: _",
   unscaled_score_given,
   unscaled_score_maximum,
   grading_started_at,

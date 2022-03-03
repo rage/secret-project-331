@@ -135,7 +135,7 @@ test("feedback test", async ({ headless, page }) => {
         window.scrollTo({ top: 0, left: 0 })
       })
     },
-    waitForNotificationsToClear: true,
+    clearNotifications: true,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 

@@ -74,7 +74,7 @@ test("test", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "sorted-by-email",
-    waitForNotificationsToClear: true,
+    clearNotifications: true,
   })
 
   // Click [aria-label="Sort by role"]

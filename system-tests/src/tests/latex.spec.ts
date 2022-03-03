@@ -124,7 +124,7 @@ test("latex-block renders", async ({ headless, page }) => {
   )
 
   // Click button:has-text("Save")
-  await page.click('button:has-text("Save")')
+  await page.click('button:has-text("Save") >> visible=true')
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),

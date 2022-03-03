@@ -117,7 +117,8 @@ impl GutenbergBlock {
                                 attributes! {
                                     "textAlign": "center",
                                     "level": 3,
-                                    "content": "Objective #1"
+                                    "content": "Objective #1",
+                                    "anchor": "objective-1",
                                 },
                             ),
                             GutenbergBlock::block_with_name_and_attributes(
@@ -139,7 +140,8 @@ impl GutenbergBlock {
                                 attributes! {
                                     "textAlign": "center",
                                     "level": 3,
-                                    "content": "Objective #2"
+                                    "content": "Objective #2",
+                                    "anchor": "objective-2",
                                 },
                             ),
                             GutenbergBlock::block_with_name_and_attributes(
@@ -161,7 +163,8 @@ impl GutenbergBlock {
                                 attributes! {
                                     "textAlign": "center",
                                     "level": 3,
-                                    "content": "Objective #3"
+                                    "content": "Objective #3",
+                                    "anchor": "objective-3",
                                 },
                             ),
                             GutenbergBlock::block_with_name_and_attributes(

@@ -83,7 +83,7 @@ test("test", async ({ page, headless }) => {
   await page.fill('textarea[name="New definition"]', "efgh")
 
   // Click text=Save
-  await page.click("text=Save")
+  await page.click("text=Save >> visible=true")
 
   await expectScreenshotsToMatchSnapshots({
     page,

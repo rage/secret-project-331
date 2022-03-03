@@ -34,6 +34,7 @@ pub enum BlockAttributes {
     #[serde(rename = "core/heading")]
     Heading {
         content: String,
+        anchor: String,
         level: i64,
         #[serde(flatten)]
         rest: HashMap<String, serde_json::Value>,
@@ -177,6 +178,7 @@ mod email_processor_tests {
             is_valid: true,
             attributes: BlockAttributes::Heading {
                 content: String::from("Email heading"),
+                anchor: String::from("email-heading"),
                 level: 2,
                 rest: HashMap::new(),
             },
@@ -336,6 +338,7 @@ mod email_processor_tests {
             is_valid: true,
             attributes: BlockAttributes::Heading {
                 content: String::from("Email heading"),
+                anchor: String::from("email-heading"),
                 level: 2,
                 rest: HashMap::new(),
             },

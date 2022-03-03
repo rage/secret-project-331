@@ -186,7 +186,7 @@ test("test", async ({ page }) => {
   await frame.check(':nth-match(input[type="checkbox"], 2)')
 
   // Click button:has-text("Save")
-  await page.click('button:has-text("Save")')
+  await page.click('button:has-text("Save") >> visible=true')
   await page.waitForSelector(`text="Operation successful!"`)
 
   // Check that the assignment still displays after saving

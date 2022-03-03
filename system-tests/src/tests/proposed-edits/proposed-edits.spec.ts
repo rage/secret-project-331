@@ -175,7 +175,7 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "manage-after-send",
     waitForThisToBeVisibleAndStable: "text=Reject",
-    waitForNotificationsToClear: true,
+    clearNotifications: true,
   })
 
   await page.click('text="Old"')

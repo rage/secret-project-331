@@ -94,7 +94,12 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
   }
 
   const saveAndReset = (
-    <>
+    <div
+      className={css`
+        display: flex;
+        justify-content: center;
+      `}
+    >
       <Button
         variant="primary"
         size="medium"
@@ -121,7 +126,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
       >
         {t("reset")}
       </Button>
-    </>
+    </div>
   )
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>

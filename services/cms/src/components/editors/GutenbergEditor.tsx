@@ -162,8 +162,6 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
                 {inspectorButtons && (
                   <div
                     className={css`
-                      display: flex;
-                      justify-content: center;
                       padding: 1rem;
                       background: #f5f6f7;
                     `}

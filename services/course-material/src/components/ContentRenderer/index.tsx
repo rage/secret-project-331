@@ -31,6 +31,8 @@ import ColumnBlock from "./core/layout/ColumnBlock"
 import ColumnsBlock from "./core/layout/ColumnsBlock"
 import SeparatorBlock from "./core/layout/Separator"
 import SpacerBlock from "./core/layout/SpacerBlock"
+import AsideBlock from "./moocfi/AsideBlock"
+import BlockquoteBlock from "./moocfi/BlockquoteBlock"
 import ChapterProgressBlock from "./moocfi/ChapterProgressBlock"
 import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
 import CourseObjectiveSectionBlock from "./moocfi/CourseObjectiveSectionBlock"
@@ -101,6 +103,8 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/pages-in-chapter": PagesInChapterBlock,
   "moocfi/course-chapter-grid": CourseChapterGridBlock,
   "moocfi/latex": LatexBlock,
+  "moocfi/blockquote": BlockquoteBlock,
+  "moocfi/aside": AsideBlock,
   "moocfi/hero-section": HeroSectionBlock,
   "moocfi/landing-page-hero-section": LandingPageHeroSectionBlock,
   "moocfi/course-progress": CourseProgressBlock,

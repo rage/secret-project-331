@@ -11,7 +11,7 @@ export interface AsideComponentProps {
 
 const AsideConfiguration: BlockConfiguration<AsideComponentProps> = {
   title: "Aside",
-  description: "A hero section for chapter front page with a heading and subheading.",
+  description: "Aside with body text and possible heading",
   category: "design",
   attributes: {
     title: {

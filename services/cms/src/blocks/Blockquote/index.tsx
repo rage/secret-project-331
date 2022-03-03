@@ -11,7 +11,7 @@ export interface BlockquoteComponentProps {
 
 const BlockquoteConfiguration: BlockConfiguration<BlockquoteComponentProps> = {
   title: "Blockquote",
-  description: "A hero section for chapter front page with a heading and subheading.",
+  description: "A blockquote with body text and cite",
   category: "design",
   attributes: {
     bodyText: {

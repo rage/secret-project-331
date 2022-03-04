@@ -54,6 +54,15 @@ const OrganizationsList: React.FC = () => {
                 padding: 0em 1em;
                 text-decoration: none;
                 color: #656565;
+
+                &:focus-visible > div {
+                  outline: 4px solid gray;
+                  outline-offset: 2px;
+                }
+
+                &:focus {
+                  outline: none;
+                }
               `}
             >
               <div

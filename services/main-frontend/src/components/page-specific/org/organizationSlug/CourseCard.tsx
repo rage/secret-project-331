@@ -37,6 +37,10 @@ const CourseCard = styled.a`
   border-radius: 3px;
   text-decoration: none;
   border: 1px solid #bec3c7;
+  :focus-visible {
+    outline: 4px solid gray;
+    outline-offset: 4px;
+  }
 
   :hover {
     cursor: pointer;
@@ -132,7 +136,17 @@ const CourseComponent: React.FC<CourseCardProps> = ({
   return (
     <CourseCard href={navigateToCourseHref} aria-label={t("course-navigation", { title })}>
       {loginStateContext.signedIn && (
-        <a aria-label={t("manage-course", { title })} href={manageHref}>
+        <a
+          className={css`
+            :focus-visible > * {
+              outline: 4px solid gray;
+              outline-offset: 4px;
+            }
+            outline: none;
+          `}
+          aria-label={t("manage-course", { title })}
+          href={manageHref}
+        >
           <StyledSettingIcon />
         </a>
       )}

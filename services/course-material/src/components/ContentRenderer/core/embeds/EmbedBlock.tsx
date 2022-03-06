@@ -6,10 +6,11 @@ import { BlockRendererProps } from "../.."
 import { EmbedAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
 import aspectRatioFromClassName from "../../../../utils/aspectRatioFromClassName"
+import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 const YoutubeEmbeddedBlock: React.FC<EmbedAttributes> = (props) => {
   const { t } = useTranslation()
-  const { url } = props
+  const { url, caption } = props
   let video = url?.split("v=")[1]
   if (url) {
     try {
@@ -30,7 +31,7 @@ const YoutubeEmbeddedBlock: React.FC<EmbedAttributes> = (props) => {
         className={css`
           width: 100%;
           max-width: 1000px;
-          margin: 0 auto;
+          margin: 4rem auto;
         `}
       >
         <iframe
@@ -38,7 +39,6 @@ const YoutubeEmbeddedBlock: React.FC<EmbedAttributes> = (props) => {
             display: block;
             width: 100%;
             aspect-ratio: ${aspectRatioFromClassName(props.className)};
-            margin: 4rem 0;
           `}
           src={`https://www.youtube-nocookie.com/embed/${video}`}
           title={t("title-youtube-video-player")}
@@ -46,6 +46,15 @@ const YoutubeEmbeddedBlock: React.FC<EmbedAttributes> = (props) => {
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         ></iframe>
+        <figcaption
+          className={css`
+            text-align: center;
+            font-size: 0.8125rem;
+            margin-top: 0.60625rem;
+            margin-bottom: 0.8125rem;
+          `}
+          dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(caption ?? "") }}
+        />
       </div>
     </BreakFromCentered>
   )

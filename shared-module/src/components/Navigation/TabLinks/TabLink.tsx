@@ -7,6 +7,7 @@ import { UseQueryResult } from "react-query"
 
 import useQueryParameter from "../../../hooks/useQueryParameter"
 import { baseTheme, theme } from "../../../styles"
+import { respondToOrLarger } from "../../../styles/respond"
 import Spinner from "../../Spinner"
 
 export interface TabLinkProps {
@@ -49,25 +50,20 @@ const TabLink: React.FC<TabLinkProps> = ({ children, url, isActive, countHook })
           text-decoration: none;
           background: ${isActive ? theme.secondary.activeBg : "inherit"};
           border-radius: 1rem;
-          padding: 0.75rem 0;
+          padding: 0.75rem 0.35rem;
+          ${respondToOrLarger.sm} {
+            padding: 0.75rem 0;
+          }
           :focus {
             background: ${theme.secondary.focusBg};
           }
           :hover {
             background: ${theme.secondary.hoverBg};
             color: ${theme.secondary.hoverText};
-            text-decoration: underline;
           }
         `}
       >
-        <span
-          className={css`
-            text-decoration: ${isActive ? "underline" : "none"};
-          `}
-        >
-          {children}
-        </span>{" "}
-        {count?.isLoading && <Spinner variant="small" />}
+        <span>{children}</span> {count?.isLoading && <Spinner variant="small" />}
         {count?.isSuccess && count.data !== 0 && (
           <span
             className={css`

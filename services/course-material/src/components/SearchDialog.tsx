@@ -12,6 +12,7 @@ import { searchPagesWithPhrase, searchPagesWithWords } from "../services/backend
 import { PageSearchResult } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import DebugModal from "../shared-module/components/DebugModal"
+import { baseTheme } from "../shared-module/styles"
 import { sanitizeCourseMaterialHtml } from "../utils/sanitizeCourseMaterialHtml"
 
 export interface SearchDialogProps {
@@ -50,7 +51,7 @@ const StyledIcon = css`
     cursor: pointer;
   }
   &:focus-visible {
-    outline: 4px solid gray;
+    outline: 2px solid ${baseTheme.colors.green[500]};
     outline-offset: 2px;
   }
 `

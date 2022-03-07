@@ -31,8 +31,8 @@ const NavbarItems = css`
   }
 
   &:focus-visible {
-    outline: 4px solid gray;
-    outline-offset: 4px;
+    outline: 2px solid ${baseTheme.colors.green[500]};
+    outline-offset: 2px;
   }
 `
 // eslint-disable-next-line i18next/no-literal-string
@@ -43,8 +43,8 @@ const NavbarLogo = css`
   cursor: pointer;
 
   & > a:focus-visible {
-    outline: 4px solid gray;
-    outline-offset: 4px;
+    outline: 2px solid ${baseTheme.colors.green[500]};
+    outline-offset: 2px;
   }
 `
 
@@ -56,7 +56,9 @@ const NavMenu = css`
   align-items: center;
   width: 100vw;
   justify-content: flex-end;
-  gap: 1.5rem;
+  & > * {
+    margin-left: 20px;
+  }
 `
 // eslint-disable-next-line i18next/no-literal-string
 const NavLink = css`
@@ -71,8 +73,8 @@ const NavLink = css`
 
   outline: none;
   &:focus-visible {
-    outline: 4px solid gray;
-    outline-offset: 4px;
+    outline: 2px solid ${baseTheme.colors.green[500]};
+    outline-offset: 2px;
   }
 
   /*
@@ -105,8 +107,8 @@ const NavLink = css`
 const MenuIcon = css`
   display: flex;
   &:focus-visible {
-    outline: 4px solid gray;
-    outline-offset: 4px;
+    outline: 2px solid ${baseTheme.colors.green[500]};
+    outline-offset: 2px;
   }
 `
 // eslint-disable-next-line i18next/no-literal-string
@@ -216,7 +218,15 @@ const Navigation: React.FC<NavigationProps> = ({ faqUrl, returnToPath, children 
           <Hamburger />
         </div>
 
-        <li className="container">
+        <li
+          className={cx(
+            "container",
+            css`
+              ${!clicked && `display: none;`}
+              margin: 0px;
+            `,
+          )}
+        >
           <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
             <LoginControls returnToPath={returnToPath} />
           </ul>

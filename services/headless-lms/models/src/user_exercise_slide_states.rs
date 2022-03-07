@@ -1,7 +1,4 @@
-use crate::{
-    exercises::{ActivityProgress, GradingProgress},
-    prelude::*,
-};
+use crate::prelude::*;
 
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]
 pub struct UserExerciseSlideState {
@@ -12,8 +9,6 @@ pub struct UserExerciseSlideState {
     pub exercise_slide_id: Uuid,
     pub user_exercise_state_id: Uuid,
     pub score_given: Option<f32>,
-    pub grading_progress: GradingProgress,
-    pub activity_progress: ActivityProgress,
 }
 
 pub async fn insert(
@@ -41,20 +36,12 @@ RETURNING id
 pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<UserExerciseSlideState> {
     let res = sqlx::query_as!(
         UserExerciseSlideState,
-        r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  user_exercise_state_id,
-  score_given,
-  grading_progress as "grading_progress: _",
-  activity_progress as "activity_progress: _"
+        "
+SELECT *
 FROM user_exercise_slide_states
 WHERE id = $1
   AND deleted_at IS NULL
-        "#,
+        ",
         id
     )
     .fetch_one(conn)

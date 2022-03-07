@@ -12,8 +12,6 @@ pub struct UserExerciseTaskState {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub score_given: Option<f32>,
-    pub grading_progress: GradingProgress,
-    pub activity_progress: ActivityProgress,
 }
 
 pub async fn insert(
@@ -54,15 +52,6 @@ pub async fn upsert_score_with_grading(
         exercise_task_grading.score_given,
         user_points_update_strategy,
     );
-    let new_grading_progress = figure_out_new_grading_progress(
-        user_exercise_task_state_ref.map(|x| x.grading_progress),
-        exercise_task_grading.grading_progress,
-    );
-    let new_activity_progress = figure_out_new_activity_progress(
-        user_exercise_task_state_ref
-            .map(|x| x.activity_progress)
-            .unwrap_or_default(),
-    );
 
     let res = sqlx::query_as!(
         UserExerciseTaskState,
@@ -70,30 +59,17 @@ pub async fn upsert_score_with_grading(
 INSERT INTO user_exercise_task_states (
     exercise_task_id,
     user_exercise_slide_state_id,
-    score_given,
-    grading_progress,
-    activity_progress
+    score_given
   )
-VALUES ($1, $2, $3, $4, $5) ON CONFLICT (exercise_task_id, user_exercise_slide_state_id) DO
+VALUES ($1, $2, $3) ON CONFLICT (exercise_task_id, user_exercise_slide_state_id) DO
 UPDATE
 SET deleted_at = NULL,
-  score_given = $3,
-  grading_progress = $4,
-  activity_progress = $5
-RETURNING exercise_task_id,
-  user_exercise_slide_state_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress as "grading_progress: _",
-  activity_progress as "activity_progress: _"
+  score_given = $3
+RETURNING *
     "#,
         exercise_task_id,
         user_exercise_slide_state_id,
         new_score_given,
-        new_grading_progress as GradingProgress,
-        new_activity_progress as ActivityProgress,
     )
     .fetch_one(conn)
     .await?;
@@ -108,14 +84,7 @@ pub async fn get(
     let res = sqlx::query_as!(
         UserExerciseTaskState,
         r#"
-SELECT exercise_task_id,
-  user_exercise_slide_state_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress as "grading_progress: _",
-  activity_progress as "activity_progress: _"
+SELECT *
 FROM user_exercise_task_states
 WHERE exercise_task_id = $1
   AND user_exercise_slide_state_id = $2

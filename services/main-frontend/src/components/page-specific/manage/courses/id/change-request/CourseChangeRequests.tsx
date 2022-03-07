@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next"
 
 import createPendingChangeRequestCountHook from "../../../../../../hooks/count/usePendingChangeRequestCount"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import TabLink from "../../../../../LinkTab"
-import TabLinkNavigation from "../../../../../LinkTabNavigation"
+import TabLink from "../../../../../TabLink"
+import TabLinkNavigation from "../../../../../TabLinkNavigation"
 
 import EditProposalList from "./EditProposalList"
 

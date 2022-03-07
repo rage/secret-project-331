@@ -2,8 +2,9 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../../../../components/Layout"
-import TabLink from "../../../../components/LinkTab"
-import TabLinkNavigation from "../../../../components/LinkTabNavigation"
+import TabLink from "../../../../components/TabLink"
+import TabLinkNavigation from "../../../../components/TabLinkNavigation"
+import TabLinkPanel from "../../../../components/TabLinkPanel"
 import CourseChangeRequests from "../../../../components/page-specific/manage/courses/id/change-request/CourseChangeRequests"
 import CourseCourseInstances from "../../../../components/page-specific/manage/courses/id/course-instances/CourseCourseInstances"
 import CourseExercises from "../../../../components/page-specific/manage/courses/id/exercises/CourseExercises"
@@ -53,7 +54,7 @@ const CourseManagementPage: React.FC<CourseManagementPageProps> = ({ query }) =>
   const { t } = useTranslation()
 
   // See if path exists, if not, default to first
-  // Or should we implement 404 Not Found?
+  // Or should we implement 404 Not Found page and router push there or return that page?
   const PageToRender = CourseManagementPageTabs[path] ?? CourseManagementPageTabs["overview"]
 
   return (
@@ -98,7 +99,9 @@ const CourseManagementPage: React.FC<CourseManagementPageProps> = ({ query }) =>
           {t("link-stats")}
         </TabLink>
       </TabLinkNavigation>
-      <PageToRender courseId={courseId} />
+      <TabLinkPanel>
+        <PageToRender courseId={courseId} />
+      </TabLinkPanel>
     </Layout>
   )
 }

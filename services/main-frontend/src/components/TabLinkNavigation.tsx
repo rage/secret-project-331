@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import { theme } from "../shared-module/styles"
 
-import { TabLinkProps } from "./LinkTab"
+import { TabLinkProps } from "./TabLink"
 
 interface TabLinkNavigationProps {
   orientation?: "horizontal" | "vertical"

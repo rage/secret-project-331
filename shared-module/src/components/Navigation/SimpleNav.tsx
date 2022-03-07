@@ -29,6 +29,11 @@ const NavbarItems = css`
     width: 165px;
     text-align: left !important;
   }
+
+  &:focus-visible {
+    outline: 4px solid gray;
+    outline-offset: 4px;
+  }
 `
 // eslint-disable-next-line i18next/no-literal-string
 const NavbarLogo = css`
@@ -36,17 +41,22 @@ const NavbarLogo = css`
   display: flex;
   justify-self: start;
   cursor: pointer;
+
+  & > a:focus-visible {
+    outline: 4px solid gray;
+    outline-offset: 4px;
+  }
 `
 
 const NavMenu = css`
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  grid-gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
   list-style: none;
   text-align: center;
   align-items: center;
   width: 100vw;
-  justify-content: end;
+  justify-content: flex-end;
+  gap: 1.5rem;
 `
 // eslint-disable-next-line i18next/no-literal-string
 const NavLink = css`
@@ -57,7 +67,13 @@ const NavLink = css`
   position: relative;
   font-size: 1.2rem;
   line-height: 1.5rem;
-  margin: 0.5rem 1.5rem;
+  /* margin: 0.5rem 1.5rem; */
+
+  outline: none;
+  &:focus-visible {
+    outline: 4px solid gray;
+    outline-offset: 4px;
+  }
 
   /*
 
@@ -88,6 +104,10 @@ const NavLink = css`
 `
 const MenuIcon = css`
   display: flex;
+  &:focus-visible {
+    outline: 4px solid gray;
+    outline-offset: 4px;
+  }
 `
 // eslint-disable-next-line i18next/no-literal-string
 const ToolTip = css`
@@ -139,11 +159,13 @@ const ToolTip = css`
       margin: 0;
       padding: 0;
       font-size: 16px;
+      background: inherit;
+      color: ${baseTheme.colors.green[500]};
     }
 
     Button:hover {
-      color: ${baseTheme.colors.grey[700]};
-      background-color: none;
+      background: inherit;
+      color: ${baseTheme.colors.green[700]};
     }
   }
 `
@@ -172,29 +194,32 @@ const Navigation: React.FC<NavigationProps> = ({ faqUrl, returnToPath, children 
           ></FontAwesomeIcon>
         </a>
       </div>
-      <ul className={clicked ? cx(NavMenu) : cx(NavMenu)}>
-        <li className="container">
-          {faqUrl && (
+      <ul className={cx(NavMenu)}>
+        {faqUrl && (
+          <li>
             <a className={cx(NavLink)} href={`${faqUrl}`} aria-label={t("faq")} role="button">
               {t("faq")}
             </a>
-          )}
-          {children}
+          </li>
+        )}
+
+        {children}
+
+        <div
+          className={cx(MenuIcon)}
+          onClick={onClickHandler}
+          onKeyDown={(e) => runCallbackIfEnterPressed(e, onClickHandler)}
+          role="button"
+          aria-label={t("open-menu")}
+          tabIndex={0}
+        >
+          <Hamburger />
+        </div>
+
+        <li className="container">
           <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
             <LoginControls returnToPath={returnToPath} />
           </ul>
-        </li>
-        <li>
-          <div
-            className={cx(MenuIcon)}
-            onClick={onClickHandler}
-            onKeyDown={(e) => runCallbackIfEnterPressed(e, onClickHandler)}
-            role="button"
-            aria-label={t("open-menu")}
-            tabIndex={0}
-          >
-            <Hamburger />
-          </div>
         </li>
       </ul>
     </nav>

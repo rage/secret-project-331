@@ -49,6 +49,10 @@ const StyledIcon = css`
   :hover {
     cursor: pointer;
   }
+  &:focus-visible {
+    outline: 4px solid gray;
+    outline-offset: 2px;
+  }
 `
 
 const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug }) => {
@@ -114,14 +118,22 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
     setOpen(true)
   }
 
+  const openModalOnEnter = (event: React.KeyboardEvent<SVGSVGElement>) => {
+    if (event.key == "Enter") {
+      setOpen(true)
+    }
+  }
+
   return (
     <>
       <FontAwesomeIcon
+        tabIndex={0}
         id="search-for-pages-button"
         className={cx(StyledIcon)}
         icon={faSearch}
         aria-label={t("button-label-search-for-pages")}
         onClick={openModal}
+        onKeyPress={openModalOnEnter}
       />
       {/* eslint-disable-next-line i18next/no-literal-string */}
       <Dialog

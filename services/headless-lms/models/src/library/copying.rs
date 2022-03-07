@@ -11,6 +11,7 @@ use crate::course_language_groups;
 use crate::courses::get_course;
 use crate::courses::Course;
 use crate::courses::NewCourse;
+use crate::exams;
 use crate::exams::Exam;
 use crate::prelude::*;
 
@@ -138,7 +139,9 @@ WHERE id = $2;
     Ok(copied_course)
 }
 
-pub async fn copy_exam(conn: &mut PgConnection, parent_exam: &Exam) -> ModelResult<Exam> {
+pub async fn copy_exam(conn: &mut PgConnection, parent_exam_id: &Uuid) -> ModelResult<Exam> {
+    let parent_exam = exams::get(conn, *parent_exam_id).await?;
+
     let mut tx = conn.begin().await?;
 
     let res = sqlx::query!(

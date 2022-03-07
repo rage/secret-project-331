@@ -188,7 +188,7 @@ async fn duplicate_exam(
     )
     .await?;
 
-    models::exams::copy_exam(&mut conn, *exam_id).await?;
+    models::library::copying::copy_exam(&mut conn, &exam_id).await?;
 
     Ok(web::Json(()))
 }

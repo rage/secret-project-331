@@ -420,11 +420,11 @@ const Template: Story<ComponentProps> = (args: ComponentProps) => (
 
       h2 {
         text-transform: uppercase;
+        scroll-margin-top: 60px;
       }
 
       p {
         font-size: 20px;
-        margin-bottom: 60px;
       }
     `}
   >

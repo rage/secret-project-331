@@ -14,8 +14,7 @@ const StlyedWrapper = styled.div`
   padding: 2rem;
 
   h3 {
-    margin-bottom: 2rem;
-    scroll-margin-top: 40px;
+    margin-bottom: 1rem;
   }
 `
 const StyledTopics = styled.div`

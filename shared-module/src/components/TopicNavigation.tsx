@@ -70,7 +70,7 @@ export interface Topic {
 }
 
 const TopicNavigation = () => {
-  const [isActive, setIsActive] = useState<string>("1")
+  const [isActive, setIsActive] = useState<string>("id-1")
 
   const { headings } = useHeadingData()
 
@@ -83,7 +83,6 @@ const TopicNavigation = () => {
           if (pageYOffset >= offsetTop && pageYOffset <= offsetBottom) {
             setIsActive(id)
           }
-          console.log(id, pageYOffset, offsetTop, offsetBottom)
         })
       }
     }
@@ -93,6 +92,8 @@ const TopicNavigation = () => {
       window.removeEventListener("scroll", eventHandler)
     }
   }, [headings])
+
+  console.log("****hading", headings)
 
   // eslint-disable-next-line i18next/no-literal-string
   return (

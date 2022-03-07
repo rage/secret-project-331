@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import { RichText } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
@@ -50,6 +49,7 @@ const AsideEditor: React.FC<BlockEditProps<AsideComponentProps>> = ({
         <Header>
           <RichText
             className="has-text-align-center wp-block-heading"
+            // eslint-disable-next-line i18next/no-literal-string
             tagName="h2"
             value={title}
             onChange={(value: string) => setAttributes({ title: value })}
@@ -59,9 +59,11 @@ const AsideEditor: React.FC<BlockEditProps<AsideComponentProps>> = ({
         <Body>
           <RichText
             className="has-text-align-center wp-block-heading"
+            // eslint-disable-next-line i18next/no-literal-string
             tagName="p"
             value={bodyText}
             onChange={(value: string) => setAttributes({ bodyText: value })}
+            // eslint-disable-next-line i18next/no-literal-string
             placeholder={"Aside body"}
           />
         </Body>

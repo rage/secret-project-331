@@ -29,7 +29,6 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => 
     margin-bottom: 1.75em;
     text-align: center;
   `
-
   if (className && className.includes("is-style-large")) {
     return (
       <div className={justify}>

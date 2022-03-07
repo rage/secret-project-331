@@ -33,7 +33,6 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
         ? rel.split(" ").join(" ").concat(" noopener")
         : "noopener"
       : rel
-  console.log(align)
   return (
     <div
       className={css`

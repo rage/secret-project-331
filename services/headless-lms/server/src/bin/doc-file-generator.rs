@@ -28,16 +28,14 @@ use headless_lms_models::{
     },
     exercise_slides::CourseMaterialExerciseSlide,
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
-    exercise_task_submissions::{
-        ExerciseTaskSubmission, StudentExerciseTaskSubmissionResult, SubmissionInfo,
-    },
+    exercise_task_submissions::{ExerciseTaskSubmission, SubmissionInfo},
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     exercises::{
         ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
     },
     feedback::{Feedback, FeedbackBlock, FeedbackCount},
     glossary::Term,
-    library::grading::StudentExerciseSlideSubmissionResult,
+    library::grading::{StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult},
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
     pages::{

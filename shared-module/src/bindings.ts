@@ -373,6 +373,17 @@ export interface StudentExerciseSlideSubmissionResult {
   exercise_task_submission_results: Array<StudentExerciseTaskSubmissionResult>
 }
 
+export interface StudentExerciseTaskSubmission {
+  exercise_task_id: string
+  data_json: unknown
+}
+
+export interface StudentExerciseTaskSubmissionResult {
+  submission: ExerciseTaskSubmission
+  grading: ExerciseTaskGrading | null
+  model_solution_spec: unknown | null
+}
+
 export interface Organization {
   id: string
   slug: string
@@ -680,17 +691,6 @@ export interface ExerciseTaskSubmission {
   data_json: unknown | null
   exercise_task_grading_id: string | null
   metadata: unknown | null
-}
-
-export interface StudentExerciseTaskSubmission {
-  exercise_task_id: string
-  data_json: unknown
-}
-
-export interface StudentExerciseTaskSubmissionResult {
-  submission: ExerciseTaskSubmission
-  grading: ExerciseTaskGrading | null
-  model_solution_spec: unknown | null
 }
 
 export interface SubmissionInfo {

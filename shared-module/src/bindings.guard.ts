@@ -675,6 +675,27 @@ export function isStudentExerciseSlideSubmissionResult(
   )
 }
 
+export function isStudentExerciseTaskSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is StudentExerciseTaskSubmission {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_task_id === "string"
+  )
+}
+
+export function isStudentExerciseTaskSubmissionResult(
+  obj: any,
+  _argumentName?: string,
+): obj is StudentExerciseTaskSubmissionResult {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isExerciseTaskSubmission(obj.submission) as boolean) &&
+    (obj.grading === null || (isExerciseTaskGrading(obj.grading) as boolean))
+  )
+}
+
 export function isOrganization(obj: any, _argumentName?: string): obj is Organization {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1154,27 +1175,6 @@ export function isExerciseTaskSubmission(
     typeof obj.exercise_task_id === "string" &&
     typeof obj.exercise_slide_id === "string" &&
     (obj.exercise_task_grading_id === null || typeof obj.exercise_task_grading_id === "string")
-  )
-}
-
-export function isStudentExerciseTaskSubmission(
-  obj: any,
-  _argumentName?: string,
-): obj is StudentExerciseTaskSubmission {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_task_id === "string"
-  )
-}
-
-export function isStudentExerciseTaskSubmissionResult(
-  obj: any,
-  _argumentName?: string,
-): obj is StudentExerciseTaskSubmissionResult {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isExerciseTaskSubmission(obj.submission) as boolean) &&
-    (obj.grading === null || (isExerciseTaskGrading(obj.grading) as boolean))
   )
 }
 

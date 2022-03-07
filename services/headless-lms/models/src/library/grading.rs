@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
+use serde_json::Value;
+
 use crate::{
     exercise_slide_submissions::{self, NewExerciseSlideSubmission},
-    exercise_task_gradings::UserPointsUpdateStrategy,
-    exercise_task_submissions::{
-        self, StudentExerciseTaskSubmission, StudentExerciseTaskSubmissionResult,
-    },
+    exercise_task_gradings::{self, ExerciseTaskGrading, UserPointsUpdateStrategy},
+    exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, ExerciseTask},
     exercises::{Exercise, ExerciseStatus},
     prelude::*,
@@ -35,6 +35,19 @@ impl StudentExerciseSlideSubmissionResult {
                 result.model_solution_spec = None;
             });
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+pub struct StudentExerciseTaskSubmission {
+    pub exercise_task_id: Uuid,
+    pub data_json: serde_json::Value,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+pub struct StudentExerciseTaskSubmissionResult {
+    pub submission: ExerciseTaskSubmission,
+    pub grading: Option<ExerciseTaskGrading>,
+    pub model_solution_spec: Option<serde_json::Value>,
 }
 
 pub async fn grade_user_submission(
@@ -87,7 +100,7 @@ pub async fn grade_user_submission(
                     "Attempting to submit exercise for illegal exercise_task_id.".to_string(),
                 )
             })?;
-        let submission = exercise_task_submissions::create_exercise_task_submission_for_exercise(
+        let submission = grade_user_submission_task(
             &mut tx,
             exercise,
             exercise_task,
@@ -121,5 +134,46 @@ pub async fn grade_user_submission(
     Ok(StudentExerciseSlideSubmissionResult {
         exercise_status,
         exercise_task_submission_results: results,
+    })
+}
+
+async fn grade_user_submission_task(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    exercise_task: &ExerciseTask,
+    exercise_slide_submission_id: Uuid,
+    data_json: Value,
+) -> ModelResult<StudentExerciseTaskSubmissionResult> {
+    let submission_id = exercise_task_submissions::insert(
+        conn,
+        exercise_slide_submission_id,
+        exercise_task.exercise_slide_id,
+        exercise_task.id,
+        data_json,
+    )
+    .await?;
+    let submission = exercise_task_submissions::get_by_id(conn, submission_id).await?;
+    let grading = exercise_task_gradings::new_grading(conn, exercise, &submission).await?;
+    let updated_submission =
+        exercise_task_submissions::set_grading_id(conn, grading.id, submission_id).await?;
+    let grading = exercise_task_gradings::grade_submission(
+        conn,
+        &submission,
+        exercise_task,
+        exercise,
+        &grading,
+    )
+    .await?;
+
+    let model_solution_spec = exercise_tasks::get_exercise_task_model_solution_spec_by_id(
+        conn,
+        submission.exercise_task_id,
+    )
+    .await?;
+
+    Ok(StudentExerciseTaskSubmissionResult {
+        submission: updated_submission,
+        grading: Some(grading),
+        model_solution_spec,
     })
 }

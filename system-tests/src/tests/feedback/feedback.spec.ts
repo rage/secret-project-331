@@ -103,8 +103,8 @@ test("feedback test", async ({ headless, page }) => {
   // Click text=Manage feedback
 
   await Promise.all([page.waitForNavigation(), page.click("text=Feedback")])
-  await page.waitForURL((url) => url.searchParams.has("read"))
-  expectPath(page, "/manage/courses/[id]/feedback?read=false")
+  // await page.waitForURL((url) => url.searchParams.has("read"))
+  expectPath(page, "/manage/courses/[id]/feedback")
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({

@@ -2,7 +2,6 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../../../../components/Layout"
-import TabNavigation from "../../../../components/TabNavigation"
 import CourseChangeRequests from "../../../../components/page-specific/manage/courses/id/change-request/CourseChangeRequests"
 import CourseCourseInstances from "../../../../components/page-specific/manage/courses/id/course-instances/CourseCourseInstances"
 import CourseExercises from "../../../../components/page-specific/manage/courses/id/exercises/CourseExercises"
@@ -13,6 +12,11 @@ import CourseLanguageVersionsPage from "../../../../components/page-specific/man
 import CoursePages from "../../../../components/page-specific/manage/courses/id/pages/CoursePages"
 import CoursePermissions from "../../../../components/page-specific/manage/courses/id/permissions/CoursePermissions"
 import CourseStatsPage from "../../../../components/page-specific/manage/courses/id/stats/CourseStatsPage"
+import createPendingChangeRequestCountHook from "../../../../hooks/count/usePendingChangeRequestCount"
+import createUnreadFeedbackCountHook from "../../../../hooks/count/useUnreadFeedbackCount"
+import TabLink from "../../../../shared-module/components/Navigation/TabLinks/TabLink"
+import TabLinkNavigation from "../../../../shared-module/components/Navigation/TabLinks/TabLinkNavigation"
+import TabLinkPanel from "../../../../shared-module/components/Navigation/TabLinks/TabLinkPanel"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import {
@@ -20,7 +24,6 @@ import {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-
 export interface CourseManagementPagesProps {
   courseId: string
 }
@@ -30,7 +33,9 @@ interface CourseManagementPageProps {
   query: SimplifiedUrlQuery<string>
 }
 
-const CourseManagementPageTabs: { [key: string]: React.FC<CourseManagementPagesProps> } = {
+const CourseManagementPageTabs: {
+  [key: string]: React.FC<CourseManagementPagesProps>
+} = {
   overview: CourseOverview,
   pages: CoursePages,
   feedback: CourseFeedback,
@@ -45,29 +50,58 @@ const CourseManagementPageTabs: { [key: string]: React.FC<CourseManagementPagesP
 
 const CourseManagementPage: React.FC<CourseManagementPageProps> = ({ query }) => {
   const courseId = query.id
-  // Matches key/url in CourseManagementPageTabs
   const path = `${useQueryParameter("path")}`
   const { t } = useTranslation()
 
-  const PATHNAME = `/manage/courses/${courseId}`
-
-  const PageToRender = CourseManagementPageTabs[path]
-    ? CourseManagementPageTabs[path]
-    : CourseManagementPageTabs["overview"]
+  // See if path exists, if not, default to first
+  // Or should we implement 404 Not Found page and router push there or return that page?
+  const PageToRender = CourseManagementPageTabs[path] ?? CourseManagementPageTabs["overview"]
 
   return (
     <Layout navVariant="complex">
-      <TabNavigation
-        tabs={Object.keys(CourseManagementPageTabs).map((url) => {
-          return {
-            // @ts-ignore: This should be taken into account, that useTranslation hook can be used in this way?
-            title: t(`link-${url}`),
-            url: { pathname: `${PATHNAME}/${url}` },
-            isActive: path === url,
-          }
-        })}
-      />
-      <PageToRender courseId={courseId} />
+      <TabLinkNavigation>
+        <TabLink url={"overview"} isActive={path === "overview"}>
+          {t("link-overview")}
+        </TabLink>
+        <TabLink url={"pages"} isActive={path === "pages"}>
+          {t("link-pages")}
+        </TabLink>
+        <TabLink
+          url={"feedback"}
+          isActive={path === "feedback"}
+          countHook={createUnreadFeedbackCountHook(courseId)}
+        >
+          {t("link-feedback")}
+        </TabLink>
+        <TabLink
+          url={"change-requests"}
+          isActive={path === "change-requests"}
+          countHook={createPendingChangeRequestCountHook(courseId)}
+        >
+          {t("link-change-requests")}
+        </TabLink>
+        <TabLink url={"exercises"} isActive={path === "exercises"}>
+          {t("link-exercises")}
+        </TabLink>
+        <TabLink url={"course-instances"} isActive={path === "course-instances"}>
+          {t("link-course-instances")}
+        </TabLink>
+        <TabLink url={"language-versions"} isActive={path === "language-versions"}>
+          {t("link-language-versions")}
+        </TabLink>
+        <TabLink url={"permissions"} isActive={path === "permissions"}>
+          {t("link-permissions")}
+        </TabLink>
+        <TabLink url={"glossary"} isActive={path === "glossary"}>
+          {t("link-glossary")}
+        </TabLink>
+        <TabLink url={"stats"} isActive={path === "stats"}>
+          {t("link-stats")}
+        </TabLink>
+      </TabLinkNavigation>
+      <TabLinkPanel>
+        <PageToRender courseId={courseId} />
+      </TabLinkPanel>
     </Layout>
   )
 }

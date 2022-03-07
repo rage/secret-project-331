@@ -1,28 +1,27 @@
 /* eslint-disable i18next/no-literal-string */
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { UIEventHandler, useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 
-import ArrowSVGIcon from "../img/blackArrow.svg"
+import useHeadingData from "../hooks/useHeadingData"
 
 const StlyedWrapper = styled.div`
   display: block;
   position: sticky;
-  top: 2rem;
-  background: #f8f8f8;
-  max-width: 700px;
-  height: 950px;
+  top: 24px;
+  max-width: 500px;
+  max-height: calc(100vh - 40px);
+  overflow: auto;
   padding: 2rem;
 
   h3 {
-    text-align: center;
     margin-bottom: 2rem;
+    scroll-margin-top: 40px;
   }
 `
 const StyledTopics = styled.div`
-  div:first-child {
-    border-top: 2px solid #333;
-  }
+  box-sizing: border-box;
+  border-left: 2px solid #cfd0d3;
 `
 const StTopic = styled.div`
   display: flex;
@@ -31,14 +30,22 @@ const StTopic = styled.div`
   color: #333;
   justify-content: space-between;
 
-  border-bottom: 2px solid #333;
-  padding: 1.5rem 1rem;
+  z-index: 999;
+  padding: 0.8rem 1rem 0.8rem 1.5rem;
   width: 100%;
+  margin: 0;
   font-size: 20px;
   cursor: pointer;
 
   li {
-    max-width: 90%;
+    max-width: 100%;
+    color: #333;
+
+    a {
+      text-decoration: none;
+      color: #1a2333;
+      text-transform: lowercase;
+    }
   }
 `
 const Wrapper = styled.div`
@@ -61,42 +68,20 @@ export interface Topic {
   offsetHeight: number
   text: string
 }
-export interface Identifier {
-  id: string
-}
 
 const TopicNavigation = () => {
-  const [isActive, setIsActive] = useState<Identifier>({ id: "" })
+  const [isActive, setIsActive] = useState<string>("1")
 
-  const headers = document.querySelectorAll<HTMLElement>(`[id^="id"]`)
-  const links = document.querySelectorAll<HTMLAnchorElement>("ul li")
-
-  const topicsInPage: Topic[] = []
-
-  if (headers) {
-    Object.values(headers).map((item) => {
-      if (item) {
-        const head: any = item.firstElementChild
-
-        topicsInPage.push({
-          id: item.id,
-          offsetTop: item.offsetTop,
-          offsetHeight: item.offsetHeight,
-          text: head?.innerText,
-        })
-      }
-    })
-  }
+  const { headings } = useHeadingData()
 
   useEffect(() => {
     const eventHandler = () => {
       const pageYOffset = window.pageYOffset
-      const bottomMargin = 0.5
-      if (topicsInPage) {
-        topicsInPage.forEach(({ id, offsetHeight, offsetTop }) => {
+      if (headings) {
+        headings.forEach(({ id, offsetHeight, offsetTop }) => {
           const offsetBottom = offsetHeight + offsetTop + 60
           if (pageYOffset >= offsetTop && pageYOffset <= offsetBottom) {
-            setIsActive({ id })
+            setIsActive(id)
           }
           console.log(id, pageYOffset, offsetTop, offsetBottom)
         })
@@ -107,17 +92,7 @@ const TopicNavigation = () => {
     return () => {
       window.removeEventListener("scroll", eventHandler)
     }
-  }, [isActive, links, topicsInPage])
-
-  const handleClick: UIEventHandler<HTMLDivElement> = (el) => {
-    const element = el.currentTarget
-    const exactEl = topicsInPage?.find((map) => map.text === element.innerText)
-    if (exactEl) {
-      setIsActive({ id: exactEl.id })
-      const elem = document.getElementById(`${exactEl.id}`)
-      elem && elem.scrollIntoView(/* { behavior: "smooth" } */) //smooth
-    }
-  }
+  }, [headings])
 
   // eslint-disable-next-line i18next/no-literal-string
   return (
@@ -125,26 +100,36 @@ const TopicNavigation = () => {
       <StlyedWrapper>
         <h3>{`TOPIC`}</h3>
         <StyledTopics role="navigation">
-          {topicsInPage &&
-            topicsInPage.map(({ id, text }) => {
+          {headings &&
+            headings.map(({ id, title }) => {
               return (
                 <StTopic
-                  onClick={handleClick}
                   key={id}
                   className={css`
-                    ${id === isActive.id && "background: #DAE6E5;"}
+                    ${isActive === id && "background: #DAE6E5; border-left: 3px solid #065853;"}
                   `}
                 >
-                  <li>{text}</li>
-                  <ArrowSVGIcon role="presentation" alt="" width="15" />
+                  <li>
+                    <a
+                      href={`#${id}`}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        document.querySelector(`#${id}`)?.scrollIntoView({
+                          behavior: "smooth",
+                        })
+                      }}
+                    >
+                      {title}
+                    </a>
+                  </li>
                 </StTopic>
               )
             })}
         </StyledTopics>
       </StlyedWrapper>
       <div>
-        <div id="id-1">
-          <h2>What is the full meaning of MOOC</h2>
+        <div>
+          <h2 id="id-1">What is the full meaning of MOOC</h2>
           <p>
             Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
             invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero. Lorem
@@ -185,8 +170,8 @@ const TopicNavigation = () => {
             sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut
           </p>
         </div>
-        <div id="id-2">
-          <h2>What are Higher Order Components?</h2>
+        <div>
+          <h2 id="id-2">What are Higher Order Components?</h2>
           <p>
             Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
             invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero. Lorem
@@ -210,22 +195,27 @@ const TopicNavigation = () => {
             sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
             voluptua. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
             eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At
-            vero. Lorem ipsum dolor sit amet. Lorem ipsum Lorem ipsum dolor sit amet, consetetur
-            sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna
-            aliquyam erat, sed diam voluptua. At vero. Lorem ipsum dolor sit amet. Lorem ipsum dolor
-            sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore
-            et dolore magna aliquyam erat, sed diam voluptua. Consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
-            voluptua. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-            eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
+            vero. Lorem ipsum dolor sit amet.
+          </p>
+
+          <h3 id="id-21">What are Higher Order Components?</h3>
+          <p>
+            Lorem ipsum Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
+            eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At
+            vero. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing
+            elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
+            sed diam voluptua. Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
+            ut labore et dolore magna aliquyam erat, sed diam voluptua. Lorem ipsum dolor sit amet,
             consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore
-            magna aliquyam erat, sed diam voluptua. Lorem ipsum dolor sit amet, consetetur
-            sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna
-            aliquyam erat, sed diam voluptua. At vero. Lorem ipsum dolor sit amet. Lorem ipsum
+            magna aliquyam erat, sed diam voluptua. consetetur sadipscing elitr, sed diam nonumy
+            eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. Lorem
+            ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
+            invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero. Lorem
+            ipsum dolor sit amet. Lorem ipsum
           </p>
         </div>
-        <div id="id-3">
-          <h2>What is the capital of Finland?</h2>
+        <div>
+          <h2 id="id-3">What is the capital of Finland?</h2>
           <p>
             Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
             invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero. Lorem
@@ -254,8 +244,8 @@ const TopicNavigation = () => {
             consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut
           </p>
         </div>
-        <div id="id-4">
-          <h2>What is the capital of France?</h2>
+        <div>
+          <h2 id="id-4">What is the capital of France?</h2>
           <p>
             Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
             invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero. Lorem
@@ -280,24 +270,29 @@ const TopicNavigation = () => {
             sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
             voluptua. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
             eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At
+            vero. Lorem ipsum dolor sit amet.
+          </p>
+
+          <h3 id="id-41">What are Higher Order Components?</h3>
+          <p>
+            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
+            invidunt ut Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
+            eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At
             vero. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing
-            elitr, sed diam nonumy eirmod tempor invidunt ut Lorem ipsum dolor sit amet, consetetur
-            sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna
-            aliquyam erat, sed diam voluptua. At vero. Lorem ipsum dolor sit amet. Lorem ipsum dolor
-            sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore
-            et dolore magna aliquyam erat, sed diam voluptua. Consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
-            voluptua. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-            eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
+            elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
+            sed diam voluptua. Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
+            ut labore et dolore magna aliquyam erat, sed diam voluptua. Lorem ipsum dolor sit amet,
             consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore
-            magna aliquyam erat, sed diam voluptua. Lorem ipsum dolor sit amet, consetetur
-            sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna
-            aliquyam erat, sed diam voluptua. At vero. Lorem ipsum dolor sit amet. Lorem ipsum dolor
-            sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut
+            magna aliquyam erat, sed diam voluptua. consetetur sadipscing elitr, sed diam nonumy
+            eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. Lorem
+            ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
+            invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero. Lorem
+            ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
+            nonumy eirmod tempor invidunt ut
           </p>
         </div>
-        <div id="id-5">
-          <h2>What is the capital of Sweden?</h2>
+        <div>
+          <h2 id="id-5">What is the capital of Sweden?</h2>
           <p>
             Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
             invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero. Lorem
@@ -332,8 +327,8 @@ const TopicNavigation = () => {
             sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore
           </p>
         </div>
-        <div id="id-6">
-          <h2>
+        <div>
+          <h2 id="id-6">
             Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
             invidunt ut labore et dolore magna
           </h2>
@@ -374,8 +369,8 @@ const TopicNavigation = () => {
             aliquyam erat, sed diam voluptua. At vero. Lorem ipsum dolor sit amet. Lorem ipsum
           </p>
         </div>
-        <div id="id-7">
-          <h2>Consetetur sadipscing elitr, sed diam nonumy eirmod tempor</h2>
+        <div>
+          <h2 id="id-7">Consetetur sadipscing elitr, sed diam nonumy eirmod tempor</h2>
           <p>
             Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
             invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero. Lorem
@@ -413,8 +408,8 @@ const TopicNavigation = () => {
             aliquyam erat, sed diam voluptua. At vero. Lorem ipsum dolor sit amet. Lorem ipsum
           </p>
         </div>
-        <div id="id-8">
-          <h2>What is the capital of Estonia?</h2>
+        <div>
+          <h2 id="id-8">What is the capital of Estonia?</h2>
           <p>
             Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
             invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero. Lorem
@@ -452,8 +447,8 @@ const TopicNavigation = () => {
             aliquyam erat, sed diam voluptua. At vero. Lorem ipsum dolor sit amet. Lorem ipsum
           </p>
         </div>
-        <div id="id-9">
-          <h2>Who is the best programmer in the world</h2>
+        <div>
+          <h2 id="id-9">Who is the best programmer in the world</h2>
           <p>
             Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
             invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero. Lorem

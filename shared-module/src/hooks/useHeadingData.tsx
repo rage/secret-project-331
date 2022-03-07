@@ -1,4 +1,4 @@
-import react, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 export interface Item {
   id: string

@@ -1,35 +1,42 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import React, { useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { postNewChapter } from "../../../../../../services/backend/chapters"
+import { Chapter } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
+import CheckboxFieldWrapper from "../../../../../../shared-module/components/InputFields/CheckboxFieldWrapper"
+import DateTimeLocal from "../../../../../../shared-module/components/InputFields/DateTimeLocal"
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
-
-const StyledTextField = styled(TextField)`
-  margin: 0.3rem;
-`
-const StyledButton = styled(Button)`
-  margin: 0.3rem;
-`
-
-const FieldContainer = styled.div`
-  margin-bottom: 1rem;
-`
+import { dateToString } from "../../../../../../shared-module/utils/time"
 
 interface NewChapterFormProps {
   courseId: string
   onSubmitForm: () => void
   chapterNumber: number
+  initialData: Chapter | null
+}
+
+interface Fields {
+  name: string
+  opens_at: Date
+  deadline: Date
 }
 
 const NewChapterForm: React.FC<NewChapterFormProps> = ({
   courseId,
   onSubmitForm,
   chapterNumber,
+  initialData,
 }) => {
   const { t } = useTranslation()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+  } = useForm<Fields>({ defaultValues: { opens_at: new Date() } })
   const [chapter, setChapter] = useState<number | undefined>(chapterNumber)
   const [name, setName] = useState<string>("")
 
@@ -46,40 +53,35 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
   }
 
   return (
-    <div
+    <form
+      onSubmit={handleSubmit(createNewChapter)}
       className={css`
         padding: 1rem 0;
       `}
     >
+      <TextField
+        error={errors["name"]?.message}
+        defaultValue={initialData?.name}
+        placeholder={t("text-field-label-name")}
+        label={t("text-field-label-name")}
+        register={register("name", { required: true })}
+      />
+      <CheckboxFieldWrapper fieldName={"Opens at"}>
+        <DateTimeLocal
+          error={errors["opens_at"]?.message}
+          defaultValue={initialData?.name}
+          placeholder={"Opens at"}
+          label={"Opens at"}
+          value={dateToString(getValues()["opens_at"])}
+          register={register("opens_at", { required: true })}
+        />
+      </CheckboxFieldWrapper>
       <div>
-        <FieldContainer>
-          <StyledTextField
-            required
-            label={t("text-field-label-name")}
-            value={name}
-            onChange={(value) => {
-              setName(value)
-            }}
-          />
-        </FieldContainer>
-        <FieldContainer>
-          <StyledTextField
-            required
-            label={t("text-field-label-chapter-number")}
-            type="number"
-            value={String(chapter)}
-            onChange={(value) => {
-              setChapter(Number(value))
-            }}
-          />
-        </FieldContainer>
-      </div>
-      <div>
-        <StyledButton variant="primary" size="medium" onClick={createNewChapter}>
+        <Button variant="primary" size="medium" onClick={createNewChapter}>
           {t("button-text-create")}
-        </StyledButton>
+        </Button>
       </div>
-    </div>
+    </form>
   )
 }
 

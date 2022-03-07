@@ -49,5 +49,7 @@
   "start-course": "Start course",
   "title-debug-view": "Debug view",
   "translate": "Translate",
-  "university-of-helsinki": "University of Helsinki"
+  "university-of-helsinki": "University of Helsinki",
+  "dropdown-menu": "Dropdown menu",
+  "set-field-value": "Set {{name}}"
 }

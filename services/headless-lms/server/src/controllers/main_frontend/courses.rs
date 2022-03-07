@@ -554,6 +554,25 @@ pub async fn get_course_users_counts_by_exercise(
 }
 
 /**
+POST `/api/v0/main-frontend/courses/:id/course-users-counts-by-exercise` - Returns the amount of users for each exercise.
+*/
+#[instrument(skip(pool))]
+pub async fn post_new_page_ordering(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<()> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let res =
+        models::user_exercise_states::get_course_users_counts_by_exercise(&mut conn, course_id)
+            .await?;
+    Ok(())
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.

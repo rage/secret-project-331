@@ -1,20 +1,25 @@
 import { horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable"
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faTrash } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Dialog } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { ManagePageOrderAction } from "../../../../../../../reducers/managePageOrderReducer"
 import { deletePage } from "../../../../../../../services/backend/pages"
 import { Chapter, Page } from "../../../../../../../shared-module/bindings"
 import Button from "../../../../../../../shared-module/components/Button"
 import { baseTheme, typography } from "../../../../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../../../../shared-module/styles/respond"
 import NewPageForm from "../NewPageForm"
 
-import Droppable from "./Droppable"
-import PageListItem from "./PageListItem"
+import PageListItem, {
+  MOVING_ALLOWED,
+  MOVING_ALLOWED_ONLY_DOWN,
+  MOVING_ALLOWED_ONLY_UP,
+  MOVING_NOT_ALLOWED,
+} from "./PageListItem"
+import TableWrapper from "./TableWrapper"
 
 const DeleteButton = styled.button`
   border: 0;
@@ -30,9 +35,10 @@ interface Props {
   refetch: () => any
   courseId: string
   chapter?: Chapter
+  pageOrderDispatch: React.Dispatch<ManagePageOrderAction>
 }
 
-const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
+const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter, pageOrderDispatch }) => {
   const { t } = useTranslation()
   const [showNewPageForm, setShowNewPageForm] = useState(false)
   const handleCreateTopLevelPage = () => {
@@ -40,8 +46,8 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
     refetch()
   }
 
-  const handleDeleteTopLevelPage = async (pageId: string, name: string) => {
-    const result = confirm(t("page-deletion-confirmation-message", { name }))
+  const handleDeletePage = async (pageId: string, title: string) => {
+    const result = confirm(t("page-deletion-confirmation-message", { title }))
     if (result) {
       await deletePage(pageId)
       refetch()
@@ -56,7 +62,15 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
         border: 2px solid ${baseTheme.colors.clear[500]};
         border-radius: 12px;
         background-color: white;
-        padding: 2rem 3rem;
+        padding: 2rem 1rem;
+
+        ${respondToOrLarger.sm} {
+          padding: 2rem 2rem;
+        }
+
+        ${respondToOrLarger.md} {
+          padding: 2rem 3rem;
+        }
       `}
     >
       <h3
@@ -65,21 +79,33 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter }) => {
           text-transform: uppercase;
         `}
       >
-        Pages in this chapter
+        {chapter ? "Pages in this chapter" : "Top level pages"}
       </h3>
-      <ul
-        className={css`
-          list-style: none;
-          padding-left: 0;
-        `}
-      >
-        <SortableContext items={items} strategy={horizontalListSortingStrategy}>
-          {items.map((page: Page) => (
-            <PageListItem page={page} key={page.id} />
-          ))}
-          <Droppable />
-        </SortableContext>
-      </ul>
+      <TableWrapper>
+        {items.map((page: Page, n) => {
+          let moving = MOVING_ALLOWED
+          if (n === 0) {
+            moving = MOVING_ALLOWED_ONLY_DOWN
+          }
+          if (n === items.length - 1) {
+            moving = MOVING_ALLOWED_ONLY_UP
+          }
+          if (items.length - 1 === 0) {
+            moving = MOVING_NOT_ALLOWED
+          }
+
+          return (
+            <PageListItem
+              page={page}
+              key={page.id}
+              pageOrderDispatch={pageOrderDispatch}
+              onDeletePage={() => handleDeletePage(page.id, page.title)}
+              // eslint-disable-next-line i18next/no-literal-string
+              moving={moving}
+            />
+          )
+        })}
+      </TableWrapper>
       <Button size="medium" variant="primary" onClick={() => setShowNewPageForm(!showNewPageForm)}>
         {t("button-text-new")}
       </Button>

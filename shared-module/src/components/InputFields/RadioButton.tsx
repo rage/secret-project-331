@@ -8,6 +8,7 @@ interface RadioFieldExtraProps {
   name?: string
   /* onBlur?: (name?: string) => void */
   onChange: (value: string, name?: string) => void
+  className: string
 }
 
 const label = css`
@@ -51,12 +52,21 @@ const label = css`
 
 export type RadioFieldProps = React.HTMLAttributes<HTMLInputElement> & RadioFieldExtraProps
 
-const RadioField = ({ onChange, ...rest }: RadioFieldExtraProps) => {
+const RadioField = ({ onChange, className, ...rest }: RadioFieldExtraProps) => {
   return (
-    <label className={cx(label)}>
-      <input type="radio" onChange={({ target: { value } }) => onChange(value)} {...rest} />
-      <span>{rest.label}</span>
-    </label>
+    <div
+      className={cx(
+        css`
+          margin-bottom: 1rem;
+        `,
+        className,
+      )}
+    >
+      <label className={cx(label)}>
+        <input type="radio" onChange={({ target: { value } }) => onChange(value)} {...rest} />
+        <span>{rest.label}</span>
+      </label>
+    </div>
   )
 }
 

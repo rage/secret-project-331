@@ -1,0 +1,164 @@
+/* eslint-disable i18next/no-literal-string */
+import produce from "immer"
+import { Dictionary, groupBy, mapValues, max, orderBy } from "lodash"
+
+import { CourseStructure, Page } from "../shared-module/bindings"
+
+interface ManagePageOrderLoading {
+  state: "loading"
+  chapterIdToPages: null
+  chapterIdToFrontPage: null
+  unsavedChanges: false
+}
+
+interface ManagePageOrderReady {
+  state: "ready"
+  chapterIdToPages: Dictionary<Page[]>
+  chapterIdToFrontPage: Dictionary<Page>
+  unsavedChanges: boolean
+}
+
+export type ManagePageOrderState = ManagePageOrderLoading | ManagePageOrderReady
+
+interface SetDataAction {
+  type: "setData"
+  payload: CourseStructure
+}
+
+interface MoveAction {
+  type: "move"
+  payload: { chapterId: string | null; pageId: string; direction: "up" | "down" }
+}
+
+export const managePageOrderInitialState: ManagePageOrderState = {
+  state: "loading",
+  chapterIdToPages: null,
+  chapterIdToFrontPage: null,
+  unsavedChanges: false,
+}
+
+export type ManagePageOrderAction = SetDataAction | MoveAction
+
+export default function managePageOrderReducer(
+  prev: ManagePageOrderState,
+  action: ManagePageOrderAction,
+): ManagePageOrderState {
+  return produce(prev, (draftState) => {
+    switch (action.type) {
+      case "setData": {
+        const chaptersWithFrontpages = action.payload.chapters.filter(
+          (c) => c.front_page_id !== null,
+        )
+        const ordered = orderBy(action.payload.pages, (page) => page.order_number)
+        const withoutFrontpages = ordered.filter(
+          (page) =>
+            !(
+              page.url_path.trim() === "/" ||
+              chaptersWithFrontpages.some((c) => c.front_page_id === page.id)
+            ),
+        )
+        const groupedWithoutFrontpages = groupBy(withoutFrontpages, (page) => page.chapter_id)
+        const onlyFrontPages = ordered.filter(
+          (page) =>
+            page.url_path.trim() === "/" ||
+            chaptersWithFrontpages.some((c) => c.front_page_id === page.id),
+        )
+        const groupedOnlyFrontpages = groupBy(onlyFrontPages, (page) => page.chapter_id)
+        const chapterIdToFrontpage = mapValues(groupedOnlyFrontpages, (pages) => pages[0])
+
+        draftState.state = "ready"
+        draftState.unsavedChanges = false
+        draftState.chapterIdToPages = groupedWithoutFrontpages
+        draftState.chapterIdToFrontPage = chapterIdToFrontpage
+        break
+      }
+      case "move": {
+        const { direction, chapterId, pageId } = action.payload
+
+        if (!draftState.chapterIdToPages) {
+          break
+        }
+
+        // how we actually move the page depends on whether the move is within a chapter or not
+        const currentPageChapterId = Object.values(draftState.chapterIdToPages)
+          .flat()
+          .find((page) => page.id === pageId)?.chapter_id
+
+        if (!currentPageChapterId) {
+          break
+        }
+
+        if (currentPageChapterId === chapterId) {
+          // move within a chapter
+          const pages = draftState.chapterIdToPages?.[chapterId ?? "null"]
+          if (!pages) {
+            break
+          }
+          const currentIndex = pages.findIndex((page) => page.id === pageId)
+          if (currentIndex === -1) {
+            break
+          }
+          const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1
+          if (targetIndex < 0 || targetIndex >= pages.length) {
+            break
+          }
+          const temp = pages[currentIndex]
+          pages[currentIndex] = pages[targetIndex]
+          pages[targetIndex] = temp
+          draftState.unsavedChanges = true
+        } else {
+          // moving a page to a different chapter, the new location will be the last page of the new chapter
+          const oldChapterPageList = draftState.chapterIdToPages?.[currentPageChapterId ?? "null"]
+          const newChapterPageList = draftState.chapterIdToPages?.[chapterId ?? "null"]
+          const page = oldChapterPageList?.find((page) => page.id === pageId)
+
+          if (!page) {
+            break
+          }
+
+          draftState.chapterIdToPages[currentPageChapterId ?? "null"] = oldChapterPageList?.filter(
+            (o) => o.id !== pageId,
+          )
+          const largestOrderNumber = max(newChapterPageList?.map((p) => p.order_number)) ?? -1
+          page.order_number = largestOrderNumber + 1
+          draftState.chapterIdToPages[chapterId ?? "null"] = (newChapterPageList ?? []).concat(page)
+
+          draftState.unsavedChanges = true
+        }
+
+        break
+      }
+    }
+
+    // There may be gaps or wrong order numbers in the pages.
+    // We'll iterate through pages and make sure the order numbers sequential
+    // If we end up changing some order number, we'll set unsavedChanges to true
+    // so that the changes can be saved
+    if (draftState.chapterIdToPages) {
+      const chapterIdToPages = draftState.chapterIdToPages
+      Object.values(chapterIdToPages).forEach((pages) => {
+        pages.forEach((page, index) => {
+          // Front page is always index 0, so the first page in the chapter is index 1
+          const expectedOrderNumber = index + 1
+          if (page.order_number !== expectedOrderNumber) {
+            console.info(
+              `Updating page order number for ${page.id} from ${page.order_number} to ${expectedOrderNumber}`,
+            )
+            page.order_number = expectedOrderNumber
+            draftState.unsavedChanges = true
+          }
+        })
+      })
+      // Set front page order numbers to 0
+      Object.values(draftState.chapterIdToFrontPage).forEach((page) => {
+        if (page.order_number !== 0) {
+          console.info(
+            `Updating front page order number for ${page.id} from ${page.order_number} to 0`,
+          )
+          page.order_number = 0
+          draftState.unsavedChanges = true
+        }
+      })
+    }
+  })
+}

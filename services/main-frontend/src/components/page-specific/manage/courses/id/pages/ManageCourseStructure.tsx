@@ -1,29 +1,26 @@
-import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core"
-import { sortableKeyboardCoordinates } from "@dnd-kit/sortable"
 import { css } from "@emotion/css"
+import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Dialog } from "@mui/material"
-import { groupBy, max } from "lodash"
-import React, { useState } from "react"
+import { max } from "lodash"
+import React, { useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "react-query"
 
+import managePageOrderReducer, {
+  managePageOrderInitialState,
+} from "../../../../../../reducers/managePageOrderReducer"
 import { CourseStructure } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import BreakFromCentered from "../../../../../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../../../../../shared-module/components/Centering/Centered"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
+import DropdownMenu from "../../../../../../shared-module/components/DropdownMenu"
 import { baseTheme, typography } from "../../../../../../shared-module/styles"
 
-import ChapterImageWidget from "./ChapterImageWidget"
 import NewChapterForm from "./NewChapterForm"
-import PageList from "./PageList"
+import FrontPage from "./PageList/FrontPage"
+import PageList from "./PageList/PageList"
 
 export interface ManageCourseStructureProps {
   courseStructure: CourseStructure
@@ -38,39 +35,39 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
 }) => {
   const { t } = useTranslation()
   const [showForm, setShowForm] = useState(false)
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  const [pageOrderState, pageOrderDispatch] = useReducer(
+    managePageOrderReducer,
+    managePageOrderInitialState,
   )
+
+  useEffect(() => {
+    // eslint-disable-next-line i18next/no-literal-string
+    pageOrderDispatch({ type: "setData", payload: courseStructure })
+  }, [courseStructure])
+
   const handleCreateChapter = async () => {
     setShowForm(!showForm)
     await refetch()
   }
 
-  // eslint-disable-next-line i18next/no-literal-string
-  const pagesByChapter = groupBy(courseStructure.pages, "chapter_id")
-
   const maxPart = max(courseStructure.chapters.map((p) => p.chapter_number))
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={(event) => {
-        console.log("handleDragEnd")
-        const { active, over } = event
-        if (over && active.id !== over.id) {
-          console.log("I shoud move here", { over, active })
-        }
-      }}
-    >
+    <>
       <h1>{t("course-pages-for", { "course-name": courseStructure.course.name })}</h1>
       <h2>{t("pages")}</h2>
+      <FrontPage
+        refetch={refetch}
+        data={pageOrderState.chapterIdToFrontPage?.["null"]}
+        pageOrderDispatch={pageOrderDispatch}
+        chapter={undefined}
+      />
       <PageList
-        data={courseStructure.pages.filter((page) => !page.chapter_id)}
+        data={pageOrderState.chapterIdToPages?.["null"] ?? []}
+        pageOrderDispatch={pageOrderDispatch}
         refetch={refetch}
         courseId={courseStructure.course.id}
+        chapter={undefined}
       />
-      <h2>{t("chapters")}</h2>
       <div>
         {courseStructure.chapters
           .filter((chapter) => !chapter.deleted_at)
@@ -84,6 +81,20 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
                 `}
               >
                 <Centered variant="default">
+                  <div
+                    className={css`
+                      float: right;
+                      position: relative;
+                      top: -20px;
+                    `}
+                  >
+                    <DropdownMenu
+                      items={[
+                        { label: "Edit", onClick: () => {} },
+                        { label: "Delete", onClick: () => {} },
+                      ]}
+                    />
+                  </div>
                   <h2
                     className={css`
                       font-size: ${typography.h3};
@@ -98,8 +109,14 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
                       "chapter-name": chapter.name,
                     })}
                   </h2>
+                  <FrontPage
+                    data={pageOrderState.chapterIdToFrontPage?.[chapter.id]}
+                    pageOrderDispatch={pageOrderDispatch}
+                    chapter={chapter}
+                  />
                   <PageList
-                    data={pagesByChapter[chapter.id] ?? []}
+                    data={pageOrderState.chapterIdToPages?.[chapter.id] ?? []}
+                    pageOrderDispatch={pageOrderDispatch}
                     refetch={refetch}
                     courseId={courseStructure.course.id}
                     chapter={chapter}
@@ -131,7 +148,71 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
         </Dialog>
       </div>
       <DebugModal data={courseStructure} />
-    </DndContext>
+      {pageOrderState.unsavedChanges && (
+        <div
+          className={css`
+            padding: 1rem 2rem;
+            position: fixed;
+            bottom: 0px;
+            margin: 5% auto;
+            left: 0;
+            right: 0;
+            width: 90%;
+            max-width: fit-content;
+            z-index: 20;
+            background-color: ${baseTheme.colors.clear[100]};
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.26);
+            border-radius: 2px;
+          `}
+        >
+          <div
+            className={css`
+              margin-top: 0.4rem;
+              margin-bottom: 0.6rem;
+              display: flex;
+              align-items: center;
+              font-weight: 600;
+              color: ${baseTheme.colors.grey[500]};
+            `}
+          >
+            <FontAwesomeIcon
+              icon={faExclamationCircle}
+              className={css`
+                font-size: 40px;
+                margin-right: 1rem;
+                color: ${baseTheme.colors.grey[600]};
+              `}
+            />
+            Do you want to save the changes to the page ordering?
+          </div>
+          <div>
+            <Button
+              variant="blue"
+              size="medium"
+              className={css`
+                margin-left: 55px;
+                margin-right: 0.5rem;
+              `}
+              onClick={() => {
+                console.log("Saving")
+              }}
+            >
+              Save
+            </Button>
+            <Button
+              variant="secondary"
+              size="medium"
+              onClick={() => {
+                // eslint-disable-next-line i18next/no-literal-string
+                pageOrderDispatch({ type: "setData", payload: courseStructure })
+              }}
+            >
+              Reset
+            </Button>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

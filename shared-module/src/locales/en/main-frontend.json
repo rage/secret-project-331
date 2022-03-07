@@ -164,7 +164,7 @@
   "opening-time": "Opening time",
   "organizations-heading": "Organizations",
   "other-language": "other",
-  "page-deletion-confirmation-message": "Are you sure you want to delete page {{name}}?",
+  "page-deletion-confirmation-message": "Are you sure you want to delete page {{title}}?",
   "pages": "Pages",
   "pending": "Pending",
   "playground-examples": "Playground examples",

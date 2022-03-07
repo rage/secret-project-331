@@ -11,6 +11,7 @@ use crate::course_language_groups;
 use crate::courses::get_course;
 use crate::courses::Course;
 use crate::courses::NewCourse;
+use crate::exams::Exam;
 use crate::prelude::*;
 
 use crate::ModelResult;
@@ -137,7 +138,104 @@ WHERE id = $2;
     Ok(copied_course)
 }
 
-pub async fn copy_exam() {}
+pub async fn copy_exam(conn: &mut PgConnection, parent_exam: &Exam) -> ModelResult<Exam> {
+    let mut tx = conn.begin().await?;
+
+    let res = sqlx::query!(
+        "SELECT language, organization_id FROM exams WHERE id = $1",
+        parent_exam.id
+    )
+    .fetch_one(&mut tx)
+    .await?;
+
+    // create new exam
+    let copied_exam = sqlx::query!(
+        "
+    INSERT INTO exams(
+        name,
+        organization_id,
+        instructions,
+        starts_at,
+        ends_at,
+        language,
+        time_minutes
+      )
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    RETURNING *;
+        ",
+        parent_exam.name,
+        res.organization_id,
+        parent_exam.instructions,
+        parent_exam.starts_at,
+        parent_exam.ends_at,
+        res.language,
+        parent_exam.time_minutes
+    )
+    .fetch_one(&mut tx)
+    .await?;
+
+    let contents_iter =
+        copy_exam_pages_and_return_contents(&mut tx, copied_exam.id, parent_exam.id).await?;
+
+    // Copy exam exercises
+    let old_to_new_exercise_ids =
+        map_old_exr_ids_to_new_exr_ids_for_exams(&mut tx, copied_exam.id, parent_exam.id).await?;
+
+    // Replace exercise ids in page contents.
+    for (page_id, content) in contents_iter {
+        if let Value::Array(mut blocks) = content {
+            for block in blocks.iter_mut() {
+                if block["name"] != Value::String("moocfi/exercise".to_string()) {
+                    continue;
+                }
+                if let Value::String(old_id) = &block["attributes"]["id"] {
+                    let new_id = old_to_new_exercise_ids
+                        .get(old_id)
+                        .ok_or_else(|| {
+                            ModelError::Generic("Invalid exercise id in content.".to_string())
+                        })?
+                        .to_string();
+                    block["attributes"]["id"] = Value::String(new_id);
+                }
+            }
+            sqlx::query!(
+                "
+UPDATE pages
+SET content = $1
+WHERE id = $2;
+                ",
+                Value::Array(blocks),
+                page_id,
+            )
+            .execute(&mut tx)
+            .await?;
+        }
+    }
+
+    copy_exercise_slides(&mut tx, copied_exam.id, parent_exam.id).await?;
+
+    copy_exercise_tasks(&mut tx, copied_exam.id, parent_exam.id).await?;
+
+    tx.commit().await?;
+
+    let get_page_id = sqlx::query!(
+        "SELECT id AS page_id FROM pages WHERE exam_id = $1;",
+        copied_exam.id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(Exam {
+        courses: vec![], // no related courses on newly copied exam
+        ends_at: copied_exam.ends_at,
+        starts_at: copied_exam.starts_at,
+        id: copied_exam.id,
+        instructions: copied_exam.instructions,
+        name: copied_exam.name,
+        time_minutes: copied_exam.time_minutes,
+        page_id: get_page_id.page_id,
+    })
+}
 
 async fn copy_course_pages_and_return_contents(
     tx: &mut Transaction<'_, Postgres>,
@@ -184,18 +282,16 @@ async fn copy_course_pages_and_return_contents(
     Ok(contents)
 }
 
-#[allow(dead_code)]
 async fn copy_exam_pages_and_return_contents(
     tx: &mut Transaction<'_, Postgres>,
     namespace_id: Uuid,
-    parent_course_id: Uuid,
+    parent_exam_id: Uuid,
 ) -> ModelResult<HashMap<Uuid, Value>> {
-    // Copy course pages. At this point, exercise ids in content will point to old course's exercises.
     let contents = sqlx::query!(
         "
     INSERT INTO pages (
         id,
-        course_id,
+        exam_id,
         content,
         url_path,
         title,
@@ -214,12 +310,12 @@ async fn copy_exam_pages_and_return_contents(
       id,
       content_search_language
     FROM pages
-    WHERE (course_id = $2)
+    WHERE (exam_id = $2)
     RETURNING id,
       content;
         ",
         namespace_id,
-        parent_course_id
+        parent_exam_id
     )
     .fetch_all(tx)
     .await?
@@ -341,7 +437,6 @@ async fn map_old_exr_ids_to_new_exr_ids_for_courses(
     Ok(old_to_new_exercise_ids)
 }
 
-#[allow(dead_code)]
 async fn map_old_exr_ids_to_new_exr_ids_for_exams(
     tx: &mut Transaction<'_, Postgres>,
     namespace_id: Uuid,
@@ -399,7 +494,7 @@ async fn map_old_exr_ids_to_new_exr_ids_for_exams(
 async fn copy_exercise_slides(
     tx: &mut Transaction<'_, Postgres>,
     namespace_id: Uuid,
-    parent_course_id: Uuid,
+    parent_id: Uuid,
 ) -> ModelResult<()> {
     // Copy exercise slides
     sqlx::query!(
@@ -414,7 +509,7 @@ async fn copy_exercise_slides(
     WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2);
             ",
         namespace_id,
-        parent_course_id
+        parent_id
     )
     .execute(tx)
     .await?;
@@ -425,7 +520,7 @@ async fn copy_exercise_slides(
 async fn copy_exercise_tasks(
     tx: &mut Transaction<'_, Postgres>,
     namespace_id: Uuid,
-    parent_course_id: Uuid,
+    parent_id: Uuid,
 ) -> ModelResult<()> {
     // Copy exercise tasks
     sqlx::query!(
@@ -459,7 +554,7 @@ WHERE exercise_slide_id IN (
   );
     ",
         namespace_id,
-        parent_course_id,
+        parent_id,
     )
     .execute(tx)
     .await?;

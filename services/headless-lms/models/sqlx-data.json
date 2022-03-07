@@ -5194,6 +5194,27 @@
       "nullable": [false, false, false, true, false, true, true, true, false, false]
     }
   },
+  "809b33b329ee730d5ae24494c9fda8cff94e1e6fe8a9de5a585f8ac05c6119d7": {
+    "query": "\n    INSERT INTO pages (\n        id,\n        exam_id,\n        content,\n        url_path,\n        title,\n        chapter_id,\n        order_number,\n        copied_from,\n        content_search_language\n      )\n    SELECT uuid_generate_v5($1, id::text),\n      $1,\n      content,\n      url_path,\n      title,\n      uuid_generate_v5($1, chapter_id::text),\n      order_number,\n      id,\n      content_search_language\n    FROM pages\n    WHERE (exam_id = $2)\n    RETURNING id,\n      content;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "content",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [false, false]
+    }
+  },
   "80f7868413d8874e45915bf980f553f4e9e09b8a17f9043bbdbe7d81f85c817c": {
     "query": "\nINSERT INTO pages (\n    id,\n    course_id,\n    content,\n    url_path,\n    title,\n    chapter_id,\n    order_number,\n    copied_from,\n    content_search_language\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  content,\n  url_path,\n  title,\n  uuid_generate_v5($1, chapter_id::text),\n  order_number,\n  id,\n  content_search_language\nFROM pages\nWHERE (course_id = $2)\nRETURNING id,\n  content;\n    ",
     "describe": {
@@ -6428,6 +6449,72 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false]
+    }
+  },
+  "a034dee244e1330c8c79e833f718afbe34df340690b20293155eefb513b315d9": {
+    "query": "\n    INSERT INTO exams(\n        name,\n        organization_id,\n        instructions,\n        starts_at,\n        ends_at,\n        language,\n        time_minutes\n      )\n    VALUES ($1, $2, $3, $4, $5, $6, $7)\n    RETURNING *;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "instructions",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 7,
+          "name": "starts_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "ends_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "language",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 10,
+          "name": "time_minutes",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Uuid", "Text", "Timestamptz", "Timestamptz", "Varchar", "Int4"]
+      },
+      "nullable": [false, false, false, true, false, false, false, true, true, true, false]
     }
   },
   "a0506edd480e7dec860a33702092c243a207450909a69db5a44ad6fcb72b2fb2": {
@@ -8949,6 +9036,22 @@
         ]
       },
       "nullable": []
+    }
+  },
+  "cfbcaeb25e71b8cd1791ff95aa89e4fa44b627abc938c02650af5906ddf1f9e0": {
+    "query": "SELECT id AS page_id FROM pages WHERE exam_id = $1;",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "page_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false]
     }
   },
   "d0037081bdb7d84526483a12e5070037392d36867f011134e611cfab8753b6e3": {

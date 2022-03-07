@@ -3,8 +3,8 @@ import { useRouter } from "next/router"
 import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import useQueryParameter from "../shared-module/hooks/useQueryParameter"
-import { theme } from "../shared-module/styles"
+import useQueryParameter from "../../../hooks/useQueryParameter"
+import { theme } from "../../../styles"
 
 import { TabLinkProps } from "./TabLink"
 

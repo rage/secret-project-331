@@ -5,9 +5,9 @@ import { UrlObject } from "node:url"
 import React from "react"
 import { UseQueryResult } from "react-query"
 
-import Spinner from "../shared-module/components/Spinner"
-import useQueryParameter from "../shared-module/hooks/useQueryParameter"
-import { baseTheme, theme } from "../shared-module/styles"
+import useQueryParameter from "../../../hooks/useQueryParameter"
+import { baseTheme, theme } from "../../../styles"
+import Spinner from "../../Spinner"
 
 export interface TabLinkProps {
   url: string | UrlObject

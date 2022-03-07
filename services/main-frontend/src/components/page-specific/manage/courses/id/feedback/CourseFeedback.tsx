@@ -4,8 +4,9 @@ import { useTranslation } from "react-i18next"
 
 import createUnreadFeedbackCountHook from "../../../../../../hooks/count/useUnreadFeedbackCount"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import TabLink from "../../../../../TabLink"
-import TabLinkNavigation from "../../../../../TabLinkNavigation"
+import TabLink from "../../../../../../shared-module/components/Navigation/TabLinks/TabLink"
+import TabLinkNavigation from "../../../../../../shared-module/components/Navigation/TabLinks/TabLinkNavigation"
+import TabLinkPanel from "../../../../../../shared-module/components/Navigation/TabLinks/TabLinkPanel"
 
 import FeedbackList from "./FeedbackList"
 
@@ -38,7 +39,9 @@ const CourseFeedback: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
           {t("read")}
         </TabLink>
       </TabLinkNavigation>
-      <FeedbackList courseId={courseId} read={read} perPage={4} />
+      <TabLinkPanel>
+        <FeedbackList courseId={courseId} read={read} perPage={4} />
+      </TabLinkPanel>
     </div>
   )
 }

@@ -4,8 +4,9 @@ import { useTranslation } from "react-i18next"
 
 import createPendingChangeRequestCountHook from "../../../../../../hooks/count/usePendingChangeRequestCount"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import TabLink from "../../../../../TabLink"
-import TabLinkNavigation from "../../../../../TabLinkNavigation"
+import TabLink from "../../../../../../shared-module/components/Navigation/TabLinks/TabLink"
+import TabLinkNavigation from "../../../../../../shared-module/components/Navigation/TabLinks/TabLinkNavigation"
+import TabLinkPanel from "../../../../../../shared-module/components/Navigation/TabLinks/TabLinkPanel"
 
 import EditProposalList from "./EditProposalList"
 
@@ -40,7 +41,9 @@ const ChangeRequestsPage: React.FC<CourseManagementPagesProps> = ({ courseId }) 
         </TabLink>
       </TabLinkNavigation>
       {/* TODO: Dropdown for perPage? */}
-      <EditProposalList courseId={courseId} pending={pending} perPage={4} />
+      <TabLinkPanel>
+        <EditProposalList courseId={courseId} pending={pending} perPage={4} />
+      </TabLinkPanel>
     </div>
   )
 }

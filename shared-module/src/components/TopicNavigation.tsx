@@ -21,7 +21,7 @@ const StlyedWrapper = styled.div`
 `
 const StyledTopics = styled.div`
   box-sizing: border-box;
-  border-left: 2px solid #cfd0d3;
+  border-left: 3px solid #ebedee;
 `
 const StTopic = styled.div`
   display: flex;
@@ -29,8 +29,9 @@ const StTopic = styled.div`
   list-style: none;
   color: #333;
   justify-content: space-between;
+  position: relative;
 
-  z-index: 999;
+  border-left: 3px solid transparent;
   padding: 0.8rem 1rem 0.8rem 1.5rem;
   width: 100%;
   margin: 0;
@@ -44,8 +45,24 @@ const StTopic = styled.div`
     a {
       text-decoration: none;
       color: #1a2333;
+      font-weight: 400;
+      display: inline-block;
       text-transform: lowercase;
+      &:first-letter {
+        text-transform: uppercase;
+      }
     }
+  }
+
+  &:before {
+    content: "";
+    position: absolute;
+    left: -6px;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: transparent;
+    opacity: 0.8;
   }
 `
 const Wrapper = styled.div`
@@ -107,7 +124,8 @@ const TopicNavigation = () => {
                 <StTopic
                   key={id}
                   className={css`
-                    ${isActive === id && "background: #DAE6E5; border-left: 3px solid #065853;"}
+                    ${isActive === id &&
+                    "background: #DAE6E5; /* border-color: #065853 !important; */ &:before{background: #1F6964 !important}"}
                   `}
                 >
                   <li>

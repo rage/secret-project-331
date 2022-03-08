@@ -794,6 +794,8 @@
 <span id="792">792</span>
 <span id="793">793</span>
 <span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1263,6 +1265,7 @@
             <span class="ident">instructions</span>: <span class="macro">serde_json::json!</span>([]),
             <span class="ident">starts_at</span>: <span class="ident">date_time</span>,
             <span class="ident">ends_at</span>: <span class="ident">date_time</span>,
+            <span class="ident">ended</span>: <span class="bool-val">false</span>,
             <span class="ident">time_minutes</span>: <span class="number">120</span>,
             <span class="ident">enrollment_data</span>: <span class="ident">ExamEnrollmentData::NotEnrolled</span>
         }
@@ -1271,6 +1274,7 @@
         <span class="ident">CourseMaterialExercise</span>,
         <span class="ident">CourseMaterialExercise</span> {
             <span class="ident">exercise</span>: <span class="ident">exercise</span>.<span class="ident">clone</span>(),
+            <span class="ident">can_post_submission</span>: <span class="bool-val">true</span>,
             <span class="ident">current_exercise_slide</span>: <span class="ident">CourseMaterialExerciseSlide</span> {
                 <span class="ident">id</span>,
                 <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[<span class="ident">CourseMaterialExerciseTask</span> {

@@ -566,8 +566,33 @@
 <span id="564">564</span>
 <span id="565">565</span>
 <span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">course_instances</span>,
+    <span class="ident">course_instances</span>, <span class="ident">exams</span>,
     <span class="ident">exercise_slides</span>::{<span class="self">self</span>, <span class="ident">CourseMaterialExerciseSlide</span>},
     <span class="ident">exercise_tasks</span>,
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
@@ -596,9 +621,23 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseMaterialExercise</span> {
     <span class="kw">pub</span> <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
+    <span class="kw">pub</span> <span class="ident">can_post_submission</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">current_exercise_slide</span>: <span class="ident">CourseMaterialExerciseSlide</span>,
     <span class="doccomment">/// None for logged out users.</span>
     <span class="kw">pub</span> <span class="ident">exercise_status</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseStatus</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">CourseMaterialExercise</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_grading_information</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">exercise_status</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="self">self</span>.<span class="ident">current_exercise_slide</span>
+            .<span class="ident">exercise_tasks</span>
+            .<span class="ident">iter_mut</span>()
+            .<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">task</span><span class="op">|</span> {
+                <span class="ident">task</span>.<span class="ident">model_solution_spec</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                <span class="ident">task</span>.<span class="ident">previous_submission_grading</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            });
+    }
 }
 
 <span class="doccomment">/**
@@ -844,6 +883,16 @@ WHERE id = $1
         <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
     };
 
+    <span class="kw">let</span> <span class="ident">can_post_submission</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_id</span>) <span class="op">=</span> <span class="ident">user_id</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">exam_id</span> {
+            <span class="ident">exams::verify_exam_submission_can_be_made</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>, <span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span>
+        } <span class="kw">else</span> {
+            <span class="bool-val">true</span>
+        }
+    } <span class="kw">else</span> {
+        <span class="bool-val">false</span>
+    };
+
     <span class="kw">let</span> <span class="ident">exercise_status</span> <span class="op">=</span> <span class="ident">user_exercise_state</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">user_exercise_state</span><span class="op">|</span> <span class="ident">ExerciseStatus</span> {
         <span class="ident">score_given</span>: <span class="ident">user_exercise_state</span>.<span class="ident">score_given</span>,
         <span class="ident">activity_progress</span>: <span class="ident">user_exercise_state</span>.<span class="ident">activity_progress</span>,
@@ -852,6 +901,7 @@ WHERE id = $1
 
     <span class="prelude-val">Ok</span>(<span class="ident">CourseMaterialExercise</span> {
         <span class="ident">exercise</span>,
+        <span class="ident">can_post_submission</span>,
         <span class="ident">current_exercise_slide</span>,
         <span class="ident">exercise_status</span>,
     })

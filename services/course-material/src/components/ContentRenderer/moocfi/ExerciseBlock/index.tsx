@@ -207,7 +207,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                   postSubmissionMutation.reset()
                   setAnswers(new Map())
                 }}
-                disabled={getCourseMaterialExercise.isRefetching}
+                disabled={
+                  getCourseMaterialExercise.isRefetching ||
+                  !getCourseMaterialExercise.data.can_post_submission
+                }
               >
                 {t("try-again")}
               </Button>

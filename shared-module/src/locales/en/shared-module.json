@@ -22,6 +22,7 @@
   "default-toast-success-title": "Success",
   "editable": "Editable",
   "email": "Email",
+  "tab-aria-label-default": "Choose tab to display",
   "email-templates": "Email templates",
   "error-cannot-render-dynamic-content-missing-url": "Cannot render dynamic content: missing url",
   "error-part-of-page-has-crashed-error": "Part of page has crashed: {{error}}",

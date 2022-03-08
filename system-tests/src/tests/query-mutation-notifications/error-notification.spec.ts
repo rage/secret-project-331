@@ -17,7 +17,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Add task
   await page.click("text=Add task")
   // Click text=Save
-  await page.click("text=Save")
+  await page.click("text=Save >> visible=true")
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,

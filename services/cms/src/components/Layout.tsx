@@ -10,7 +10,6 @@ import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
 import SkipLink from "../shared-module/components/SkipLink"
 import { respondToOrLarger } from "../shared-module/styles/respond"
-import basePath from "../shared-module/utils/base-path"
 
 export const SIDEBAR_WIDTH_PX = 280
 

@@ -8,21 +8,24 @@ import { useTranslation } from "react-i18next"
 import Button from "../../shared-module/components/Button"
 
 export interface ExamTimeOverModalProps {
+  disabled: boolean
   onClose: () => Promise<void>
   secondsLeft: number
 }
 
-const ExamTimeOverModal: React.FC<ExamTimeOverModalProps> = ({ onClose, secondsLeft }) => {
+const ExamTimeOverModal: React.FC<ExamTimeOverModalProps> = ({
+  disabled,
+  onClose,
+  secondsLeft,
+}) => {
   const [open, setOpen] = useState(false)
   const { t } = useTranslation()
-  const [showedExamIsOverPopup, setShowedExamIsOverPopup] = useState(false)
 
   useEffect(() => {
-    if (!showedExamIsOverPopup && secondsLeft <= 0) {
+    if (!disabled && secondsLeft <= 0) {
       setOpen(true)
-      setShowedExamIsOverPopup(true)
     }
-  }, [secondsLeft, showedExamIsOverPopup])
+  }, [disabled, secondsLeft])
 
   const handleClose = async () => {
     setOpen(false)

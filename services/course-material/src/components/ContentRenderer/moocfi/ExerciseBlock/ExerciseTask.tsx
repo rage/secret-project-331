@@ -10,7 +10,7 @@ import { narrowContainerWidthPx } from "../../../../shared-module/styles/constan
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
 
 interface ExerciseTaskProps {
-  cannotAnswerButNoSubmission: boolean
+  canPostSubmission: boolean
   exerciseTask: CourseMaterialExerciseTask
   isExam: boolean
   postThisStateToIFrame: IframeState
@@ -18,7 +18,7 @@ interface ExerciseTaskProps {
 }
 
 const ExerciseTask: React.FC<ExerciseTaskProps> = ({
-  cannotAnswerButNoSubmission,
+  canPostSubmission,
   exerciseTask,
   isExam,
   postThisStateToIFrame,
@@ -32,6 +32,7 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
     postThisStateToIFrame.view_type === "view-submission"
       ? postThisStateToIFrame.data.grading?.feedback_text ?? null
       : null
+  const cannotAnswerButNoSubmission = !canPostSubmission && !exerciseTask.previous_submission
 
   return (
     <div>

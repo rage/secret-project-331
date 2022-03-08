@@ -63,7 +63,6 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
   }, [exam])
 
   const handleTimeOverModalClose = useCallback(async () => {
-    // Maybe do something?
     await handleRefresh()
   }, [handleRefresh])
 
@@ -206,7 +205,11 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
     <CoursePageDispatch.Provider value={pageStateDispatch}>
       <PageContext.Provider value={pageState}>
         <Layout organizationSlug={query.organizationSlug}>
-          <ExamTimeOverModal secondsLeft={secondsLeft} onClose={handleTimeOverModalClose} />
+          <ExamTimeOverModal
+            disabled={exam.data.ended}
+            secondsLeft={secondsLeft}
+            onClose={handleTimeOverModalClose}
+          />
           {examInfo}
 
           <ExamTimer

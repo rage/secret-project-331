@@ -4,6 +4,7 @@
   "instructions": [],
   "starts_at": "2021-12-31T22:00:00Z",
   "ends_at": "2021-12-31T22:00:00Z",
+  "ended": false,
   "time_minutes": 120,
   "enrollment_data": {
     "tag": "NotEnrolled"

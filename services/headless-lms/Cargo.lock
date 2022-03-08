@@ -14,9 +14,9 @@ dependencies = [
 
 [[package]]
 name = "actix-codec"
-version = "0.4.1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "13895df506faee81e423febbae3a33b27fca71831b96bb3d60adf16ebcfea952"
+checksum = "57a7559404a7f3573127aab53c08ce37a6c6a315c374a31070f3c91cd1b4a7fe"
 dependencies = [
  "bitflags",
  "bytes",
@@ -26,14 +26,14 @@ dependencies = [
  "memchr",
  "pin-project-lite",
  "tokio",
- "tokio-util",
+ "tokio-util 0.7.0",
 ]
 
 [[package]]
 name = "actix-files"
-version = "0.6.0-beta.16"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b49f1b48724a52605ba40b67ede24f5a6cbc246817f9278d280d393a28e8b0e"
+checksum = "d81bde9a79336aa51ebed236e91fc1a0528ff67cfdf4f68ca4c61ede9fd26fb5"
 dependencies = [
  "actix-http",
  "actix-service",
@@ -54,9 +54,9 @@ dependencies = [
 
 [[package]]
 name = "actix-http"
-version = "3.0.0-rc.1"
+version = "3.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08aac516b88cb8cfbfa834c76b58607ffac75946d947dcb6a9ffc5673e1e875d"
+checksum = "86f4fb03b18c988b0944792e2538c7c1a4b32d3019214e2a734846e45207743e"
 dependencies = [
  "actix-codec",
  "actix-rt",
@@ -101,9 +101,9 @@ dependencies = [
 
 [[package]]
 name = "actix-multipart"
-version = "0.4.0-beta.13"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c59b1f14a8b2bc14df9be544d173f5390da5b62d531e406fd0f0ce9b825fea5a"
+checksum = "c9edfb0e7663d7fe18c8d5b668c9c1bcf79176b1dcc9d4da9592503209a6bfb0"
 dependencies = [
  "actix-utils",
  "actix-web",
@@ -119,9 +119,9 @@ dependencies = [
 
 [[package]]
 name = "actix-router"
-version = "0.5.0-rc.3"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb6506dbef336634ff35d994d58daa0a412ea23751f15f9b4dcac4d594b1ed1f"
+checksum = "eb60846b52c118f2f04a56cc90880a274271c489b2498623d58176f8ca21fa80"
 dependencies = [
  "bytestring",
  "firestorm",
@@ -172,9 +172,9 @@ dependencies = [
 
 [[package]]
 name = "actix-session"
-version = "0.5.0-beta.7"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8984fa6256873b5075143ef662898ed6699bcd0ca094d8a6e40048c12af8d591"
+checksum = "53b253be4da7f0a778831d0c8b0c2de4ce8ea30f3b1d14d11843a296e53d21db"
 dependencies = [
  "actix-service",
  "actix-utils",
@@ -199,9 +199,9 @@ dependencies = [
 
 [[package]]
 name = "actix-web"
-version = "4.0.0-rc.2"
+version = "4.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73170d019de2d82c0d826c1f315c3106134bd764e9247505ba6f0d78d22dfe9e"
+checksum = "f4e5ebffd51d50df56a3ae0de0e59487340ca456f05dd0b90c0a7a6dd6a74d31"
 dependencies = [
  "actix-codec",
  "actix-http",
@@ -214,6 +214,7 @@ dependencies = [
  "actix-web-codegen",
  "ahash",
  "bytes",
+ "bytestring",
  "cfg-if 1.0.0",
  "cookie",
  "derive_more",
@@ -238,9 +239,9 @@ dependencies = [
 
 [[package]]
 name = "actix-web-codegen"
-version = "0.5.0-rc.2"
+version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d0976042e6ddc82c7d0dedd64d39959bc26d9bba098b2f6c32a73fbef784eaf"
+checksum = "7525bedf54704abb1d469e88d7e7e9226df73778798a69cea5022d53b2ae91bc"
 dependencies = [
  "actix-router",
  "proc-macro2",
@@ -843,12 +844,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e25ea47919b1560c4e3b7fe0aaab9becf5b84a10325ddf7db0f0ba5e1026499"
 
 [[package]]
-name = "difference"
-version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "524cbf6897b527295dff137cec09ecf3a05f4fddffd7dfcd1585403449e74198"
-
-[[package]]
 name = "digest"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1216,7 +1211,7 @@ dependencies = [
  "indexmap",
  "slab",
  "tokio",
- "tokio-util",
+ "tokio-util 0.6.9",
  "tracing",
 ]
 
@@ -1345,7 +1340,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "tokio-stream",
- "tokio-util",
+ "tokio-util 0.7.0",
  "tracing",
  "ts-rs",
  "url",
@@ -1806,13 +1801,12 @@ dependencies = [
 
 [[package]]
 name = "mockito"
-version = "0.30.0"
+version = "0.31.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d10030163d67f681db11810bc486df3149e6d91c8b4f3f96fa8b62b546c2cef8"
+checksum = "401edc088069634afaa5f4a29617b36dba683c0c16fe4435a86debad23fa2f1a"
 dependencies = [
  "assert-json-diff",
  "colored",
- "difference",
  "httparse",
  "lazy_static",
  "log",
@@ -1820,6 +1814,7 @@ dependencies = [
  "regex",
  "serde_json",
  "serde_urlencoded",
+ "similar",
 ]
 
 [[package]]
@@ -2381,7 +2376,7 @@ dependencies = [
  "tokio",
  "tokio-native-tls",
  "tokio-rustls 0.23.2",
- "tokio-util",
+ "tokio-util 0.6.9",
  "url",
  "wasm-bindgen",
  "wasm-bindgen-futures",
@@ -2658,6 +2653,12 @@ checksum = "e51e73328dc4ac0c7ccbda3a494dfa03df1de2f46018127f60c693f2648455b0"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "similar"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2e24979f63a11545f5f2c60141afe249d4f19f84581ea2138065e400941d83d3"
 
 [[package]]
 name = "simple_asn1"
@@ -3222,6 +3223,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "tokio-util"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "64910e1b9c1901aaf5375561e35b9c057d95ff41a44ede043a03e09279eabaf1"
+dependencies = [
+ "bytes",
+ "futures-core",
+ "futures-sink",
+ "log",
+ "pin-project-lite",
+ "tokio",
+]
+
+[[package]]
 name = "tower-service"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3241,9 +3256,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-actix-web"
-version = "0.5.0-rc.2"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eba9ba7b978b6fd2838d47cd459cd4e23451bdd571448509e71476531b9306f2"
+checksum = "99bcebac55fba44eadf75a424ee403e756f9165596a613d125876388e5fb4c34"
 dependencies = [
  "actix-web",
  "pin-project",
@@ -3673,18 +3688,18 @@ dependencies = [
 
 [[package]]
 name = "zstd"
-version = "0.9.0+zstd.1.5.0"
+version = "0.10.0+zstd.1.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07749a5dc2cb6b36661290245e350f15ec3bbb304e493db54a1d354480522ccd"
+checksum = "3b1365becbe415f3f0fcd024e2f7b45bacfb5bdd055f0dc113571394114e7bdd"
 dependencies = [
  "zstd-safe",
 ]
 
 [[package]]
 name = "zstd-safe"
-version = "4.1.1+zstd.1.5.0"
+version = "4.1.4+zstd.1.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c91c90f2c593b003603e5e0493c837088df4469da25aafff8bce42ba48caf079"
+checksum = "2f7cd17c9af1a4d6c24beb1cc54b17e2ef7b593dc92f19e9d9acad8b182bbaee"
 dependencies = [
  "libc",
  "zstd-sys",
@@ -3692,9 +3707,9 @@ dependencies = [
 
 [[package]]
 name = "zstd-sys"
-version = "1.6.1+zstd.1.5.0"
+version = "1.6.3+zstd.1.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "615120c7a2431d16cf1cf979e7fc31ba7a5b5e5707b29c8a99e5dbf8a8392a33"
+checksum = "fc49afa5c8d634e75761feda8c592051e7eeb4683ba827211eb0d731d3402ea8"
 dependencies = [
  "cc",
  "libc",

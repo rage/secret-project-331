@@ -476,6 +476,7 @@ fn main() {
         CourseMaterialExercise,
         CourseMaterialExercise {
             exercise: exercise.clone(),
+            can_post_submission: true,
             current_exercise_slide: CourseMaterialExerciseSlide {
                 id,
                 exercise_tasks: vec![CourseMaterialExerciseTask {

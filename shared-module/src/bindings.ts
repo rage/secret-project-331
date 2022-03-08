@@ -312,6 +312,7 @@ export type ActivityProgress = "Initialized" | "Started" | "InProgress" | "Submi
 
 export interface CourseMaterialExercise {
   exercise: Exercise
+  can_post_submission: boolean
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
 }

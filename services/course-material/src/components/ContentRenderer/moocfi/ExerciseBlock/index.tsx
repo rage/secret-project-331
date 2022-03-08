@@ -89,10 +89,6 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const courseInstanceId = pageContext?.instance?.id
 
   const isExam = !!pageContext.exam
-  const inEndedExam = pageContext?.exam?.ends_at ? pageContext?.exam?.ends_at < new Date() : false
-  const noSubmission = getCourseMaterialExercise.data.exercise_status === null
-
-  const cannotAnswerButNoSubmission = inEndedExam && noSubmission
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -159,7 +155,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               postThisStateToIFrame={
                 postThisStateToIFrame?.find((x) => x.exercise_task_id === task.id) as IframeState
               }
-              cannotAnswerButNoSubmission={cannotAnswerButNoSubmission}
+              canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
             />
           ))}
           <div
@@ -169,7 +165,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               }
             `}
           >
-            {!cannotAnswerButNoSubmission &&
+            {getCourseMaterialExercise.data.can_post_submission &&
               postThisStateToIFrame?.every((x) => x.view_type !== "view-submission") && (
                 <Button
                   size="medium"

@@ -49,7 +49,7 @@ const TabLink: React.FC<TabLinkProps> = ({ children, url, isActive, countHook })
           text-align: center;
           text-decoration: none;
           background: ${isActive ? theme.secondary.activeBg : "inherit"};
-          border-radius: 1rem;
+          border-radius: 0.7rem;
           padding: 0.75rem 0.35rem;
           ${respondToOrLarger.sm} {
             padding: 0.75rem 0;
@@ -63,7 +63,7 @@ const TabLink: React.FC<TabLinkProps> = ({ children, url, isActive, countHook })
           }
         `}
       >
-        <span>{children}</span> {count?.isLoading && <Spinner variant="small" />}
+        <span>{children}</span> {count?.isLoading && <Spinner variant="small" disableMargin />}
         {count?.isSuccess && count.data !== 0 && (
           <span
             className={css`

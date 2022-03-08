@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
@@ -6,11 +7,11 @@ import { baseTheme } from "../styles"
 
 export interface SpinnerExtraProps {
   variant: "large" | "medium" | "small"
+  disableMargin?: boolean
 }
 
 export type SpinnerProps = React.HTMLAttributes<HTMLDivElement> & SpinnerExtraProps
 
-// eslint-disable-next-line i18next/no-literal-string
 const rotation = keyframes`
   0% { transform: rotate(0deg) }
   100% { transform: rotate(360deg) }
@@ -40,9 +41,8 @@ const variantSizes = {
   },
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 const StyledSpinner = styled.div<SpinnerProps>`
-  margin: 1rem;
+  margin: ${(props) => (props.disableMargin ? "0" : "1rem")};
   width: ${(props) => variantSizes[props.variant].width};
   height: ${(props) => variantSizes[props.variant].height};
   border: 5px solid #f1f1f1;

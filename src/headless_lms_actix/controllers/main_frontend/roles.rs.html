@@ -143,6 +143,17 @@
 <span id="141">141</span>
 <span id="142">142</span>
 <span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">roles</span>::{<span class="self">self</span>, <span class="ident">RoleDomain</span>, <span class="ident">RoleUser</span>, <span class="ident">UserRole</span>},
     <span class="ident">users</span>,
@@ -160,20 +171,19 @@
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">authorize_role_management</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">domain</span>: <span class="ident">RoleDomain</span>,
+    <span class="ident">action</span>: <span class="ident">Act</span>,
     <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">domain</span> {
         <span class="ident">RoleDomain::Global</span> =&gt; {
-            <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::GlobalPermissions</span>).<span class="kw">await</span><span class="question-mark">?</span>
+            <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">action</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::GlobalPermissions</span>).<span class="kw">await</span><span class="question-mark">?</span>
         }
         <span class="ident">RoleDomain::Organization</span>(<span class="ident">id</span>) =&gt; {
-            <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Organization</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
+            <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">action</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Organization</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
         }
-        <span class="ident">RoleDomain::Course</span>(<span class="ident">id</span>) =&gt; {
-            <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Course</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
-        }
+        <span class="ident">RoleDomain::Course</span>(<span class="ident">id</span>) =&gt; <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">action</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Course</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>,
         <span class="ident">RoleDomain::CourseInstance</span>(<span class="ident">id</span>) =&gt; {
-            <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::CourseInstance</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
+            <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">action</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::CourseInstance</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
         }
         <span class="ident">RoleDomain::Exam</span>(<span class="ident">id</span>) =&gt; <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Exam</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>,
     }
@@ -190,7 +200,13 @@
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize_role_management</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">role_info</span>.<span class="ident">domain</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize_role_management</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">role_info</span>.<span class="ident">domain</span>,
+        <span class="ident">Act::EditRole</span>(<span class="ident">role_info</span>.<span class="ident">role</span>),
+        <span class="ident">user</span>.<span class="ident">id</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">users::get_by_email</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">role_info</span>.<span class="ident">email</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">roles::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">role_info</span>.<span class="ident">role</span>, <span class="ident">role_info</span>.<span class="ident">domain</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -207,7 +223,13 @@
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize_role_management</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">role_info</span>.<span class="ident">domain</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize_role_management</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">role_info</span>.<span class="ident">domain</span>,
+        <span class="ident">Act::EditRole</span>(<span class="ident">role_info</span>.<span class="ident">role</span>),
+        <span class="ident">user</span>.<span class="ident">id</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">users::get_by_email</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">role_info</span>.<span class="ident">email</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">roles::remove</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">role_info</span>.<span class="ident">role</span>, <span class="ident">role_info</span>.<span class="ident">domain</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -268,7 +290,7 @@
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoleUser</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">domain</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">into_inner</span>().<span class="ident">try_into</span>()<span class="question-mark">?</span>;
-    <span class="ident">authorize_role_management</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">domain</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">authorize_role_management</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">domain</span>, <span class="ident">Act::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">roles</span> <span class="op">=</span> <span class="ident">roles::get</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">domain</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">roles</span>))

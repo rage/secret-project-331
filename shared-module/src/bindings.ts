@@ -796,6 +796,7 @@ export interface ExamData {
   instructions: unknown
   starts_at: Date
   ends_at: Date
+  ended: boolean
   time_minutes: number
   enrollment_data: ExamEnrollmentData
 }

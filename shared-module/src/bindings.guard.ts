@@ -1339,6 +1339,7 @@ export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
     typeof obj.name === "string" &&
     obj.starts_at instanceof Date &&
     obj.ends_at instanceof Date &&
+    typeof obj.ended === "boolean" &&
     typeof obj.time_minutes === "number" &&
     (isExamEnrollmentData(obj.enrollment_data) as boolean)
   )

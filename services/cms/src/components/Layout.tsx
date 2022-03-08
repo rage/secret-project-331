@@ -30,7 +30,7 @@ const DynamicToaster = dynamic(
 
 const Layout: React.FC<LayoutProps> = ({
   children,
-  title = "Secret Project 331",
+  title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
   navVariant,
   faqUrl,
   licenseUrl,

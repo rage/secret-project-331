@@ -40,5 +40,9 @@
   "title-assignment": "Tehtävänanto",
   "unsupported-block-placeholder": "Ei tuettu lohko",
   "unsupported-block-placeholder-explanation": "Tätä lohkoa käytetään paikkamerkkinä lohkoille, joita ei tueta.",
-  "reset": "Palauta"
+  "reset": "Palauta",
+  "block-props": "Lohkon ominaisuudet",
+  "block-list": "Nykyiset lohkot",
+  "block-menu": "Lisää lohko",
+  "editor-select-sidebar-view": "Vaihda näkymää"
 }

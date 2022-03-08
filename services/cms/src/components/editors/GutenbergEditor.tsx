@@ -16,9 +16,13 @@ import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
   BlockInspector,
+  // @ts-ignore: no type definition
+  __experimentalLibrary as BlockLibrary,
   BlockList,
   EditorBlockListSettings,
   EditorSettings,
+  // @ts-ignore: no type definition
+  __experimentalListView as ListView,
   ObserveTyping,
   WritingFlow,
 } from "@wordpress/block-editor"
@@ -39,8 +43,11 @@ import { addFilter } from "@wordpress/hooks"
 // @ts-ignore: no types
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
+import Button from "../../shared-module/components/Button"
+import SelectField from "../../shared-module/components/InputFields/SelectField"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
 import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
 
@@ -63,6 +70,7 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   mediaUpload,
   inspectorButtons,
 }: GutenbergEditorProps) => {
+  const { t } = useTranslation()
   const [editorSettings, setEditorSettings] = useState<
     Partial<
       EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
@@ -79,6 +87,11 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   const handleInput = (newContent: BlockInstance[]): void => {
     onContentChange(newContent)
   }
+
+  const [sidebarView, setSidebarView] = useState<"block-props" | "block-list" | "block-menu">(
+    // eslint-disable-next-line i18next/no-literal-string
+    "block-props",
+  )
 
   // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
   // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
@@ -157,12 +170,45 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
                     overflow-y: auto;
                   `}
                 >
-                  <BlockInspector />
+                  {sidebarView === "block-props" && <BlockInspector />}
+                  {sidebarView === "block-list" && (
+                    <ListView
+                      showNestedBlocks
+                      showBlockMovers
+                      __experimentalFeatures
+                      __experimentalPersistentListViewFeatures
+                      __experimentalHideContainerBlockActions
+                    />
+                  )}
+                  {sidebarView === "block-menu" && <BlockLibrary />}
+                </div>
+                <div
+                  className={css`
+                    margin: 1rem;
+                  `}
+                >
+                  <SelectField
+                    id={"select-sidebar-view"}
+                    value={sidebarView}
+                    label={t("editor-select-sidebar-view")}
+                    options={[
+                      // eslint-disable-next-line i18next/no-literal-string
+                      { value: "block-props", label: t("block-props") },
+                      // eslint-disable-next-line i18next/no-literal-string
+                      { value: "block-list", label: t("block-list") },
+                      // eslint-disable-next-line i18next/no-literal-string
+                      { value: "block-menu", label: t("block-menu") },
+                    ]}
+                    onBlur={() => {
+                      // noop
+                    }}
+                    onChange={(val) => setSidebarView(val)}
+                  />
                 </div>
                 {inspectorButtons && (
                   <div
                     className={css`
-                      padding: 1rem;
+                      margin: 1rem;
                       background: #f5f6f7;
                     `}
                   >

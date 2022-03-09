@@ -46,6 +46,7 @@ import {
   ImageDeprecated1Attributes,
   ImageDeprecated2Attributes,
   ImageDeprecated3Attributes,
+  ImageDeprecated4Attributes,
   ListAttributes,
   ListDeprecated1Attributes,
   ParagraphAttributes,
@@ -267,10 +268,16 @@ export function isImageDeprecated1Attributes(
     (typeof obj.height === "undefined" || typeof obj.height === "number") &&
     typeof obj.linkDestination === "string" &&
     (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
+    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
+    (typeof obj.sizeSlug === "undefined" || typeof obj.sizeSlug === "string") &&
     (typeof obj.lock === "undefined" ||
       (obj.lock !== null && typeof obj.lock === "object") ||
       typeof obj.lock === "function") &&
+    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
+    (typeof obj.style === "undefined" ||
+      (obj.style !== null && typeof obj.style === "object") ||
+      typeof obj.style === "function") &&
     typeof obj.blurDataUrl === "string"
   )
 }
@@ -305,6 +312,32 @@ export function isImageDeprecated3Attributes(
   obj: any,
   _argumentName?: string,
 ): obj is ImageDeprecated3Attributes {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
+    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
+    typeof obj.alt === "string" &&
+    (typeof obj.caption === "undefined" || typeof obj.caption === "string") &&
+    (typeof obj.href === "undefined" || typeof obj.href === "string") &&
+    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
+    (typeof obj.linkClass === "undefined" || typeof obj.linkClass === "string") &&
+    (typeof obj.id === "undefined" || typeof obj.id === "number") &&
+    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
+    (typeof obj.height === "undefined" || typeof obj.height === "number") &&
+    typeof obj.linkDestination === "string" &&
+    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
+    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
+    typeof obj.blurDataUrl === "string"
+  )
+}
+
+export function isImageDeprecated4Attributes(
+  obj: any,
+  _argumentName?: string,
+): obj is ImageDeprecated4Attributes {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (typeof obj.align === "undefined" || typeof obj.align === "string") &&
@@ -1084,6 +1117,7 @@ export function isColumnsAttributes(obj: any, _argumentName?: string): obj is Co
       typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
+    (typeof obj.borderColor === "undefined" || typeof obj.borderColor === "string") &&
     (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
     (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
     (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&

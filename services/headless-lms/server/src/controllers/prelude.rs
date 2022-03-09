@@ -6,7 +6,8 @@ pub use crate::controllers::{ControllerError, ControllerResult, UploadResult};
 pub use crate::domain::authorization::{authorize, Action as Act, AuthUser, Resource as Res};
 pub use crate::generated_docs;
 pub use actix_multipart::Multipart;
-pub use actix_web::web::{self, HttpRequest, HttpResponse, ServiceConfig};
+pub use actix_web::web::{self, ServiceConfig};
+pub use actix_web::{HttpRequest, HttpResponse};
 pub use anyhow::Context;
 pub use headless_lms_models as models;
 pub use headless_lms_utils::{

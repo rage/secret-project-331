@@ -575,6 +575,7 @@ export function isCourseMaterialExercise(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isExercise(obj.exercise) as boolean) &&
+    typeof obj.can_post_submission === "boolean" &&
     (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
     (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean))
   )
@@ -1339,6 +1340,7 @@ export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
     typeof obj.name === "string" &&
     obj.starts_at instanceof Date &&
     obj.ends_at instanceof Date &&
+    typeof obj.ended === "boolean" &&
     typeof obj.time_minutes === "number" &&
     (isExamEnrollmentData(obj.enrollment_data) as boolean)
   )

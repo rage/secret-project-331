@@ -467,6 +467,7 @@ fn main() {
             instructions: serde_json::json!([]),
             starts_at: date_time,
             ends_at: date_time,
+            ended: false,
             time_minutes: 120,
             enrollment_data: ExamEnrollmentData::NotEnrolled
         }
@@ -475,6 +476,7 @@ fn main() {
         CourseMaterialExercise,
         CourseMaterialExercise {
             exercise: exercise.clone(),
+            can_post_submission: true,
             current_exercise_slide: CourseMaterialExerciseSlide {
                 id,
                 exercise_tasks: vec![CourseMaterialExerciseTask {

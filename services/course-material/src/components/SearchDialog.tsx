@@ -133,6 +133,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
         className={cx(StyledIcon)}
         icon={faSearch}
         aria-label={t("button-label-search-for-pages")}
+        aria-hidden={false}
         onClick={openModal}
         onKeyPress={openModalOnEnter}
       />

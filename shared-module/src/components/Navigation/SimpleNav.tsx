@@ -207,17 +207,18 @@ const Navigation: React.FC<NavigationProps> = ({ faqUrl, returnToPath, children 
 
         {children}
 
-        <div
-          className={cx(MenuIcon)}
-          onClick={onClickHandler}
-          onKeyDown={(e) => runCallbackIfEnterPressed(e, onClickHandler)}
-          role="button"
-          aria-label={t("open-menu")}
-          tabIndex={0}
-        >
-          <Hamburger />
-        </div>
-
+        <li>
+          <div
+            className={cx(MenuIcon)}
+            onClick={onClickHandler}
+            onKeyDown={(e) => runCallbackIfEnterPressed(e, onClickHandler)}
+            role="button"
+            aria-label={t("open-menu")}
+            tabIndex={0}
+          >
+            <Hamburger />
+          </div>
+        </li>
         <li
           className={cx(
             "container",
@@ -227,9 +228,9 @@ const Navigation: React.FC<NavigationProps> = ({ faqUrl, returnToPath, children 
             `,
           )}
         >
-          <ul className={clicked ? cx(ToolTip) : cx(Hide)}>
+          <li className={clicked ? cx(ToolTip) : cx(Hide)}>
             <LoginControls returnToPath={returnToPath} />
-          </ul>
+          </li>
         </li>
       </ul>
     </nav>

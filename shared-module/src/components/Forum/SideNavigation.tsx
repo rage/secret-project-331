@@ -1,6 +1,9 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useState } from "react"
+
+import { headingFont } from "../../styles"
 
 const arr = [
   { text: "Home", path: "/" },
@@ -8,12 +11,19 @@ const arr = [
   { text: "Saved", path: "/" },
 ]
 const currentCourse = [
-  { text: "Computer science", path: "/" },
-  { text: "Biology", path: "/" },
-  { text: "Chemistry", path: "/" },
-  { text: "Economics", path: "/" },
-  { text: "Physics", path: "/" },
-  { text: "Computer science", path: "/" },
+  { id: "001", text: "Computer science", path: "/" },
+  { id: "002", text: "Biology", path: "/" },
+  { id: "003", text: "Chemistry", path: "/" },
+  {
+    text: "Economics",
+    path: "/",
+    items: [
+      { text: "Subtopic", path: "/" },
+      { text: "Subtopic threads", path: "/" },
+    ],
+  },
+  { id: "004", text: "Physics", path: "/" },
+  { id: "005", text: "Computer science", path: "/" },
 ]
 
 const Wrapper = styled.div`
@@ -23,8 +33,16 @@ const Wrapper = styled.div`
   max-width: 400px;
   height: 100vh;
   overflow: auto;
-  border-right: 2px solid #c5c5c5;
-  padding-left: 1rem;
+  border-right: 2px solid #cfcfcf;
+  padding-left: 2rem;
+  background: #f8f8f9;
+
+  h2 {
+    color: #989ca3;
+    font-size: 30px;
+    font-weight: 400;
+    padding-left: 1rem;
+  }
 
   ol:first-of-type {
     margin-bottom: 4rem;
@@ -40,34 +58,46 @@ const Wrapper = styled.div`
 
     li {
       display: flex;
-      color: #B2B2B;
-      margin-bottom: 1rem;
+      color: #767b85;
+      margin-bottom: 0.8rem;
       margin-right: 4rem;
-      padding: 0.5rem 0;
+      padding: 0.8rem 0;
       align-items: center;
+      padding-left: 1rem;
+      position: relative;
 
       &:hover {
-        background: red;
+        background: #fff;
+
+        &:before {
+          content: "";
+          background: #44827e;
+          width: 4px;
+          height: 20px;
+          position: absolute;
+          border-radius: 1px;
+          left: 0;
+        }
       }
 
       a {
         text-decoration: none;
-        color: #1a2333;
+        color: #767b85;
         font-weight: 400;
-        font-size: 20px;
-        line-height: 1.2;
+        font-size: 22px;
+        font-family: ${headingFont};
+        line-height: 1;
         align-self: center;
-        padding-bottom: 0.3rem;
       }
     }
   }
 `
 
 const PlaceholderAvatar = styled.div`
-  background: #f3f3f3;
+  background: #dddee0;
   border-radius: 100%;
-  height: 40px;
-  width: 40px;
+  height: 34px;
+  width: 34px;
   margin-right: 15px;
 `
 
@@ -75,9 +105,17 @@ const StyledButton = styled.button`
   display: flex;
   border: none;
   padding: 1rem 1.5rem;
+  margin-left: 1rem;
+`
+const ListItem = styled.li`
+  margin-left: 2rem;
 `
 
+const StyledDiv = styled.div``
+
 const SideNavigation = () => {
+  const [active, setActive] = useState<boolean>(false)
+
   return (
     <Wrapper>
       <ol>
@@ -89,13 +127,22 @@ const SideNavigation = () => {
         ))}
       </ol>
 
-      <h2>Current course {`(${currentCourse.length})`}</h2>
+      <h2>Current course</h2>
       <ol>
-        {currentCourse.map(({ text, path }) => (
-          <li key={text}>
-            <PlaceholderAvatar></PlaceholderAvatar>
-            <a href={path}>{text}</a>
-          </li>
+        {currentCourse.map(({ text, items }, index, arr) => (
+          <StyledDiv key={text} onClick={() => items && setActive(!active)}>
+            <li>
+              <PlaceholderAvatar></PlaceholderAvatar>
+              <a>{text}</a>
+            </li>
+            {active &&
+              items?.map(({ text, path }) => (
+                <ListItem key={text}>
+                  <PlaceholderAvatar></PlaceholderAvatar>
+                  <a>{text}</a>
+                </ListItem>
+              ))}
+          </StyledDiv>
         ))}
       </ol>
 

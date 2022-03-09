@@ -1,10 +1,12 @@
 import { css } from "@emotion/css"
-import React from "react"
+import axios from "axios"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 import { EmbedAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import aspectRatioFromClassName from "../../../../utils/aspectRatioFromClassName"
 
 const YoutubeEmbeddedBlock: React.FC<EmbedAttributes> = (props) => {
@@ -104,6 +106,52 @@ const TwitterEmbeddedBlock: React.FC<EmbedAttributes> = (props) => {
   )
 }
 
+const VimeoEmbeddedBlock: React.FC<EmbedAttributes> = (props) => {
+  const [embedHtml, setEmbedHtml] = useState(null)
+  useEffect(() => {
+    const fetchEmbed = async () => {
+      if (props.url) {
+        const response = await axios.get(
+          `/oembed/1.0/proxy?url=${encodeURIComponent(props.url)}&_locale=user`,
+        )
+        const data = await response.data
+        if (data.html) {
+          setEmbedHtml(data.html)
+        }
+      }
+    }
+    fetchEmbed()
+  })
+
+  return (
+    <>
+      {embedHtml ? (
+        <BreakFromCentered sidebar={false}>
+          <div
+            className={css`
+              iframe {
+                display: block;
+                width: 100%;
+                aspect-ratio: ${aspectRatioFromClassName(props.className)};
+                margin: 4rem 0;
+              }
+            `}
+            dangerouslySetInnerHTML={{
+              __html: embedHtml,
+            }}
+          ></div>
+        </BreakFromCentered>
+      ) : (
+        <ErrorBanner
+          variant="readOnly"
+          // eslint-disable-next-line i18next/no-literal-string
+          error={`Could not fetch VIMEO oEmbed with url: ${props.url}`}
+        />
+      )}
+    </>
+  )
+}
+
 const EmbedBlock: React.FC<BlockRendererProps<EmbedAttributes>> = (props) => {
   const { data } = props
   const type = data.attributes.providerNameSlug
@@ -113,6 +161,7 @@ const EmbedBlock: React.FC<BlockRendererProps<EmbedAttributes>> = (props) => {
       {type === "youtube" && <YoutubeEmbeddedBlock {...props.data.attributes} />}
       {type === "twitter" && <TwitterEmbeddedBlock {...props.data.attributes} />}
       {type === "spotify" && <SpotifyEmbeddedBlock {...props.data.attributes} />}
+      {type === "vimeo" && <VimeoEmbeddedBlock {...props.data.attributes} />}
     </div>
   )
 }

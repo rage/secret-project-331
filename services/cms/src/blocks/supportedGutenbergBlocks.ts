@@ -32,7 +32,7 @@ export const allowedBlockVariants: Record<string, string[]> = {
     // "soundcloud",
     "spotify",
     // "flickr",
-    // "vimeo",
+    "vimeo",
     // "imgur",
     // "reddit",
     // "slideshare",

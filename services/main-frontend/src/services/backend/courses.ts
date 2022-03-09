@@ -9,6 +9,7 @@ import {
   ExerciseSlideSubmissionCountByWeekAndHour,
   ExerciseUserCounts,
   NewCourse,
+  Page,
   Term,
   TermUpdate,
 } from "../../shared-module/bindings"
@@ -160,4 +161,8 @@ export const postNewTerm = async (
     definition: newDefinition,
   }
   await mainFrontendClient.post(`/courses/${courseId}/glossary`, term)
+}
+
+export const postNewPageOrdering = async (courseId: string, pages: Page[]): Promise<void> => {
+  await mainFrontendClient.post(`/courses/${courseId}/new-page-ordering`, pages)
 }

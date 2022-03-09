@@ -1,9 +1,11 @@
 import { css } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../../../../../shared-module/styles"
 
 const TableWrapper: React.FC = ({ children }) => {
+  const { t } = useTranslation()
   return (
     <table
       className={css`
@@ -28,9 +30,9 @@ const TableWrapper: React.FC = ({ children }) => {
     >
       <thead>
         <tr>
-          <td>Title</td>
-          <td>URL path</td>
-          <td aria-label="Actions"></td>
+          <td>{t("label-title")}</td>
+          <td>{t("label-url-path")}</td>
+          <td aria-label={t("label-actions")}></td>
         </tr>
       </thead>
       <tbody>{children}</tbody>

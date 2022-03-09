@@ -8,7 +8,7 @@ interface RadioFieldExtraProps {
   name?: string
   /* onBlur?: (name?: string) => void */
   onChange: (value: string, name?: string) => void
-  className: string
+  className?: string
 }
 
 const label = css`

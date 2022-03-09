@@ -1,84 +1,129 @@
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { postNewChapter } from "../../../../../../services/backend/chapters"
+import { postNewChapter, updateChapter } from "../../../../../../services/backend/chapters"
 import { Chapter } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import CheckboxFieldWrapper from "../../../../../../shared-module/components/InputFields/CheckboxFieldWrapper"
 import DateTimeLocal from "../../../../../../shared-module/components/InputFields/DateTimeLocal"
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
-import { dateToString } from "../../../../../../shared-module/utils/time"
+import { dateToDateTimeLocalString } from "../../../../../../shared-module/utils/time"
 
 interface NewChapterFormProps {
   courseId: string
   onSubmitForm: () => void
   chapterNumber: number
   initialData: Chapter | null
+  newRecord: boolean
 }
 
 interface Fields {
   name: string
-  opens_at: Date
-  deadline: Date
+  opens_at: Date | null
+  deadline: Date | null
+  chapter_number: number
 }
 
 const NewChapterForm: React.FC<NewChapterFormProps> = ({
   courseId,
   onSubmitForm,
   chapterNumber,
-  initialData,
+  initialData = {},
+  newRecord,
 }) => {
   const { t } = useTranslation()
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid, isSubmitting },
+    setValue,
     getValues,
-  } = useForm<Fields>({ defaultValues: { opens_at: new Date() } })
-  const [chapter, setChapter] = useState<number | undefined>(chapterNumber)
-  const [name, setName] = useState<string>("")
-
-  const createNewChapter = async () => {
-    if (chapter !== undefined) {
-      await postNewChapter({
-        course_id: courseId,
-        name: name,
-        chapter_number: chapter,
-        front_front_page_id: null,
-      })
-      onSubmitForm()
-    }
-  }
+  } = useForm<Fields>({
+    defaultValues: { ...initialData, chapter_number: chapterNumber },
+  })
 
   return (
     <form
-      onSubmit={handleSubmit(createNewChapter)}
+      onSubmit={handleSubmit(async (data) => {
+        if (newRecord) {
+          await postNewChapter({
+            course_id: courseId,
+            name: data.name,
+            chapter_number: chapterNumber,
+            front_page_id: null,
+            opens_at: data.opens_at,
+            deadline: data.deadline,
+          })
+        } else {
+          if (!initialData?.id) {
+            return
+          }
+          updateChapter(initialData?.id, {
+            name: data.name,
+            front_page_id: null,
+            opens_at: data.opens_at,
+            deadline: data.deadline,
+          })
+        }
+
+        onSubmitForm()
+      })}
       className={css`
         padding: 1rem 0;
       `}
     >
       <TextField
         error={errors["name"]?.message}
-        defaultValue={initialData?.name}
         placeholder={t("text-field-label-name")}
         label={t("text-field-label-name")}
         register={register("name", { required: true })}
       />
-      <CheckboxFieldWrapper fieldName={"Opens at"}>
+      <TextField
+        error={errors["chapter_number"]?.message}
+        placeholder={t("text-field-label-chapter-number")}
+        label={t("text-field-label-chapter-number")}
+        type="number"
+        register={register("chapter_number", {
+          required: true,
+          valueAsNumber: true,
+          disabled: !newRecord,
+        })}
+      />
+      <CheckboxFieldWrapper
+        initialChecked={!!getValues("opens_at")}
+        fieldName={t("label-opens-at")}
+        onUncheck={() => setValue("opens_at", null)}
+      >
         <DateTimeLocal
           error={errors["opens_at"]?.message}
-          defaultValue={initialData?.name}
-          placeholder={"Opens at"}
-          label={"Opens at"}
-          value={dateToString(getValues()["opens_at"])}
-          register={register("opens_at", { required: true })}
+          defaultValue={
+            initialData?.opens_at ? dateToDateTimeLocalString(initialData?.opens_at) : undefined
+          }
+          placeholder={t("label-opens-at")}
+          label={t("label-opens-at")}
+          register={register("opens_at", { valueAsDate: true })}
+        />
+      </CheckboxFieldWrapper>
+      <CheckboxFieldWrapper
+        initialChecked={!!getValues("deadline")}
+        fieldName={t("label-deadline")}
+        onUncheck={() => setValue("deadline", null)}
+      >
+        <DateTimeLocal
+          error={errors["opens_at"]?.message}
+          defaultValue={
+            initialData?.deadline ? dateToDateTimeLocalString(initialData?.deadline) : undefined
+          }
+          placeholder={t("label-deadline")}
+          label={t("label-deadline")}
+          register={register("deadline", { valueAsDate: true })}
         />
       </CheckboxFieldWrapper>
       <div>
-        <Button variant="primary" size="medium" onClick={createNewChapter}>
-          {t("button-text-create")}
+        <Button variant="primary" size="medium" disabled={!isValid || isSubmitting}>
+          {newRecord ? t("button-text-create") : t("button-text-update")}
         </Button>
       </div>
     </form>

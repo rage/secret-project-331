@@ -11,7 +11,7 @@ interface TextAreaExtraProps {
   disabled?: boolean
   maxlength?: string
   onChange: (value: string, name?: string) => void
-  className: string
+  className?: string
 }
 
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextAreaExtraProps

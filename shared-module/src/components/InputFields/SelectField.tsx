@@ -15,7 +15,7 @@ interface SelectMenuExtraProps<T extends string> {
   options: SelectOption<T>[]
   onBlur: (event: React.FocusEvent<HTMLSelectElement>) => void
   onChange: (value: T, name?: string) => void
-  className: string
+  className?: string
 }
 
 export type SelectMenuProps<T extends string> = React.HTMLAttributes<HTMLInputElement> &

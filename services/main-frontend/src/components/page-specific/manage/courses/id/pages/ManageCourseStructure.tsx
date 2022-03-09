@@ -10,12 +10,15 @@ import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "react-
 import managePageOrderReducer, {
   managePageOrderInitialState,
 } from "../../../../../../reducers/managePageOrderReducer"
-import { CourseStructure } from "../../../../../../shared-module/bindings"
+import { deleteChapter } from "../../../../../../services/backend/chapters"
+import { postNewPageOrdering } from "../../../../../../services/backend/courses"
+import { Chapter, CourseStructure } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import BreakFromCentered from "../../../../../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../../../../../shared-module/components/Centering/Centered"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
 import DropdownMenu from "../../../../../../shared-module/components/DropdownMenu"
+import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, typography } from "../../../../../../shared-module/styles"
 
 import NewChapterForm from "./NewChapterForm"
@@ -34,10 +37,27 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
   refetch,
 }) => {
   const { t } = useTranslation()
-  const [showForm, setShowForm] = useState(false)
+  const [showEditChapterForm, setShowEditChapterForm] = useState<boolean>(false)
+  const [chapterBeingEdited, setChapterBeingEdited] = useState<Chapter | null>(null)
   const [pageOrderState, pageOrderDispatch] = useReducer(
     managePageOrderReducer,
     managePageOrderInitialState,
+  )
+
+  const postNewPageOrderingMutation = useToastMutation(
+    () => {
+      if (!pageOrderState.chapterIdToPages) {
+        // eslint-disable-next-line i18next/no-literal-string
+        throw new Error("Page data not loaded")
+      }
+      const pages = Object.values(pageOrderState.chapterIdToPages).flat()
+      return postNewPageOrdering(courseStructure.course.id, pages)
+    },
+    {
+      notify: true,
+      method: "POST",
+    },
+    { onSuccess: () => refetch() },
   )
 
   useEffect(() => {
@@ -46,7 +66,8 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
   }, [courseStructure])
 
   const handleCreateChapter = async () => {
-    setShowForm(!showForm)
+    setShowEditChapterForm(!showEditChapterForm)
+    setChapterBeingEdited(null)
     await refetch()
   }
 
@@ -90,8 +111,25 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
                   >
                     <DropdownMenu
                       items={[
-                        { label: "Edit", onClick: () => {} },
-                        { label: "Delete", onClick: () => {} },
+                        {
+                          label: t("edit"),
+                          onClick: () => {
+                            setChapterBeingEdited(chapter)
+                            setShowEditChapterForm(true)
+                          },
+                        },
+                        {
+                          label: t("edit"),
+                          onClick: async () => {
+                            if (
+                              !confirm(t("message-are-you-sure-you-want-to-delete-this-chapter"))
+                            ) {
+                              return
+                            }
+                            await deleteChapter(chapter.id)
+                            refetch()
+                          },
+                        },
                       ]}
                     />
                   </div>
@@ -113,6 +151,7 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
                     data={pageOrderState.chapterIdToFrontPage?.[chapter.id]}
                     pageOrderDispatch={pageOrderDispatch}
                     chapter={chapter}
+                    refetch={refetch}
                   />
                   <PageList
                     data={pageOrderState.chapterIdToPages?.[chapter.id] ?? []}
@@ -126,23 +165,41 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
             </BreakFromCentered>
           ))}
 
-        <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
-          {t("button-text-new")}
+        <Button
+          variant="primary"
+          size="medium"
+          onClick={() => setShowEditChapterForm(!showEditChapterForm)}
+        >
+          {t("button-text-new-chapter")}
         </Button>
 
-        <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
+        <Dialog
+          open={!!showEditChapterForm}
+          onClose={() => {
+            setChapterBeingEdited(null)
+            setShowEditChapterForm(false)
+          }}
+        >
           <div
             className={css`
               margin: 1rem;
             `}
           >
-            <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
+            <Button
+              variant="primary"
+              size="medium"
+              onClick={() => {
+                setShowEditChapterForm(!showEditChapterForm)
+              }}
+            >
               {t("button-text-close")}
             </Button>
             <NewChapterForm
               courseId={courseStructure.course.id}
               onSubmitForm={handleCreateChapter}
-              chapterNumber={(maxPart ?? 0) + 1}
+              chapterNumber={chapterBeingEdited?.chapter_number ?? (maxPart ?? 0) + 1}
+              initialData={chapterBeingEdited}
+              newRecord={!chapterBeingEdited}
             />
           </div>
         </Dialog>
@@ -183,7 +240,7 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
                 color: ${baseTheme.colors.grey[600]};
               `}
             />
-            Do you want to save the changes to the page ordering?
+            {t("message-do-you-want-to-save-the-changes-to-the-page-ordering")}
           </div>
           <div>
             <Button
@@ -194,10 +251,10 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
                 margin-right: 0.5rem;
               `}
               onClick={() => {
-                console.log("Saving")
+                postNewPageOrderingMutation.mutate()
               }}
             >
-              Save
+              {t("button-text-save")}
             </Button>
             <Button
               variant="secondary"
@@ -207,7 +264,7 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
                 pageOrderDispatch({ type: "setData", payload: courseStructure })
               }}
             >
-              Reset
+              {t("button-reset")}
             </Button>
           </div>
         </div>

@@ -22,6 +22,7 @@ pub struct DatabaseChapter {
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
+    pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
 }
 
@@ -37,6 +38,7 @@ pub struct Chapter {
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
+    pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
 }
 
@@ -62,6 +64,7 @@ impl Chapter {
             front_page_id: chapter.front_page_id,
             opens_at: chapter.opens_at,
             copied_from: chapter.copied_from,
+            deadline: chapter.deadline,
         }
     }
 }
@@ -97,14 +100,17 @@ pub struct NewChapter {
     pub name: String,
     pub course_id: Uuid,
     pub chapter_number: i32,
-    pub front_front_page_id: Option<Uuid>,
+    pub front_page_id: Option<Uuid>,
+    pub opens_at: Option<DateTime<Utc>>,
+    pub deadline: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct ChapterUpdate {
     pub name: String,
-    pub chapter_number: i32,
-    pub front_front_page_id: Option<Uuid>,
+    pub front_page_id: Option<Uuid>,
+    pub deadline: Option<DateTime<Utc>>,
+    pub opens_at: Option<DateTime<Utc>>,
 }
 
 pub async fn insert(
@@ -208,14 +214,16 @@ pub async fn update_chapter(
         DatabaseChapter,
         r#"
 UPDATE chapters
-SET name = $1,
-  chapter_number = $2
-WHERE id = $3
+SET name = $2,
+  deadline = $3,
+  opens_at = $4
+WHERE id = $1
 RETURNING *;
     "#,
+        chapter_id,
         chapter_update.name,
-        chapter_update.chapter_number,
-        chapter_id
+        chapter_update.deadline,
+        chapter_update.opens_at,
     )
     .fetch_one(conn)
     .await?;
@@ -278,7 +286,8 @@ SELECT id,
   chapter_number,
   front_page_id,
   opens_at,
-  copied_from
+  copied_from,
+  deadline
 FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -307,7 +316,8 @@ SELECT id,
   chapter_number,
   front_page_id,
   opens_at,
-  copied_from
+  copied_from,
+  deadline
 FROM chapters
 WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
   AND deleted_at IS NULL;
@@ -329,13 +339,15 @@ pub async fn insert_chapter(
     let chapter = sqlx::query_as!(
         DatabaseChapter,
         r#"
-INSERT INTO chapters(name, course_id, chapter_number)
-VALUES($1, $2, $3)
+INSERT INTO chapters(name, course_id, chapter_number, deadline, opens_at)
+VALUES($1, $2, $3, $4, $5)
 RETURNING *;
 "#,
         chapter.name,
         chapter.course_id,
-        chapter.chapter_number
+        chapter.chapter_number,
+        chapter.deadline,
+        chapter.opens_at
     )
     .fetch_one(&mut tx)
     .await?;

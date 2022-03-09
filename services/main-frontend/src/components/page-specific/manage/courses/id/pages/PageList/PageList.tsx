@@ -1,6 +1,4 @@
-import { horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable"
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import { Dialog } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -20,14 +18,6 @@ import PageListItem, {
   MOVING_NOT_ALLOWED,
 } from "./PageListItem"
 import TableWrapper from "./TableWrapper"
-
-const DeleteButton = styled.button`
-  border: 0;
-  border: none;
-  background-color: transparent;
-  outline: none;
-  cursor: pointer;
-`
 
 interface Props {
   data: Page[]
@@ -79,7 +69,7 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter, pageOrder
           text-transform: uppercase;
         `}
       >
-        {chapter ? "Pages in this chapter" : "Top level pages"}
+        {chapter ? t("heading-pages-in-this-chapter") : t("heading-top-level-pages")}
       </h3>
       <TableWrapper>
         {items.map((page: Page, n) => {
@@ -107,7 +97,7 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter, pageOrder
         })}
       </TableWrapper>
       <Button size="medium" variant="primary" onClick={() => setShowNewPageForm(!showNewPageForm)}>
-        {t("button-text-new")}
+        {t("button-text-new-page")}
       </Button>
 
       <Dialog open={showNewPageForm} onClose={() => setShowNewPageForm(!showNewPageForm)}>

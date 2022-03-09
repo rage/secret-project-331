@@ -10,7 +10,7 @@ interface TimePickerExtraProps {
   readonly: boolean
   /*   onBlur?: (name?:string) => void */
   onChange: (value: string, name?: string) => void
-  className: string
+  className?: string
 }
 
 export type TimePickerProps = React.HTMLAttributes<HTMLInputElement> & TimePickerExtraProps

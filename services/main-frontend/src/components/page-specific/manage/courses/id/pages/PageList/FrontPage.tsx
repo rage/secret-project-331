@@ -18,9 +18,8 @@ interface Props {
   pageOrderDispatch: React.Dispatch<ManagePageOrderAction>
 }
 
-const FrontPage: React.FC<Props> = ({ data, chapter, pageOrderDispatch, refetch }) => {
+const FrontPage: React.FC<Props> = ({ data, chapter, pageOrderDispatch }) => {
   const { t } = useTranslation()
-
   if (!data) {
     return null
   }
@@ -49,7 +48,7 @@ const FrontPage: React.FC<Props> = ({ data, chapter, pageOrderDispatch, refetch 
           text-transform: uppercase;
         `}
       >
-        {chapter ? "Chapter front page" : "Course front page"}
+        {chapter ? t("heading-chapter-front-page") : t("heading-course-front-page")}
       </h3>
       <TableWrapper>
         <PageListItem

@@ -18,6 +18,11 @@ export const updateChapter = async (chapterId: string, data: ChapterUpdate): Pro
   return validateResponse(response, isChapter)
 }
 
+export const deleteChapter = async (chapterId: string): Promise<Chapter> => {
+  const response = await mainFrontendClient.delete(`/chapters/${chapterId}`)
+  return validateResponse(response, isChapter)
+}
+
 export const setChapterImage = async (chapterId: string, file: File): Promise<Chapter> => {
   // eslint-disable-next-line i18next/no-literal-string
   validateFile(file, ["image"])

@@ -202,7 +202,9 @@ macro_rules! insert_data {
                 name: "chapter".to_string(),
                 course_id: $course,
                 chapter_number: 1,
-                front_front_page_id: None,
+                front_page_id: None,
+                deadline: None,
+                opens_at: None
             },
             $user
         )

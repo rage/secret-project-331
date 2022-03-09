@@ -30,6 +30,7 @@ const ActionButton = styled.button`
   border-radius: 5px;
   margin: 0 0.2rem;
   padding: 0.2rem 0.5rem;
+  cursor: pointer;
 
   &:hover {
     filter: brightness(92%) contrast(110%);
@@ -52,8 +53,6 @@ const PageListItem: React.FC<PageListItemProps> = ({
       className={css`
         background-color: ${baseTheme.colors.clear[100]};
         border: 1px solid ${baseTheme.colors.clear[300]};
-
-        display: table-row;
       `}
       key={page.id}
     >
@@ -83,20 +82,23 @@ const PageListItem: React.FC<PageListItemProps> = ({
           `}
         >
           <a href={`/cms/pages/${page.id}`}>
-            <ActionButton>Edit page</ActionButton>
+            <ActionButton>{t("button-text-edit-page")}</ActionButton>
           </a>
           <DropdownMenu
             items={[
               {
                 label: t("link-history"),
+                // eslint-disable-next-line i18next/no-literal-string
                 href: `/manage/pages/${page.id}/history`,
               },
               canMoveUp
                 ? {
-                    label: "Move up",
+                    label: t("button-text-move-up"),
                     onClick: () => {
                       pageOrderDispatch({
+                        // eslint-disable-next-line i18next/no-literal-string
                         type: "move",
+                        // eslint-disable-next-line i18next/no-literal-string
                         payload: { pageId: page.id, chapterId: page.chapter_id, direction: "up" },
                       })
                     },
@@ -104,17 +106,23 @@ const PageListItem: React.FC<PageListItemProps> = ({
                 : null,
               canMoveDown
                 ? {
-                    label: "Move down",
+                    label: t("button-text-move-down"),
                     onClick: () => {
                       pageOrderDispatch({
+                        // eslint-disable-next-line i18next/no-literal-string
                         type: "move",
-                        payload: { pageId: page.id, chapterId: page.chapter_id, direction: "down" },
+                        payload: {
+                          pageId: page.id,
+                          chapterId: page.chapter_id,
+                          // eslint-disable-next-line i18next/no-literal-string
+                          direction: "down",
+                        },
                       })
                     },
                   }
                 : null,
               onDeletePage && {
-                label: "Delete",
+                label: t("button-text-delete"),
                 onClick: () => {
                   onDeletePage()
                 },

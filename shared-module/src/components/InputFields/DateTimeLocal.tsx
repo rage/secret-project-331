@@ -1,8 +1,9 @@
 import { css, cx } from "@emotion/css"
-import React from "react"
+import React, { useRef, useState } from "react"
 import { UseFormRegisterReturn } from "react-hook-form"
 
 import { baseTheme } from "../../styles"
+import { dateToString } from "../../utils/time"
 
 interface TimePickerExtraProps {
   label: string
@@ -27,7 +28,17 @@ const error = css`
 
 export type TimePickerProps = React.HTMLAttributes<HTMLInputElement> & TimePickerExtraProps
 
-const DateTimeLocal = ({ onChange, register, className, ...rest }: TimePickerExtraProps) => {
+const DateTimeLocal = ({
+  onChange,
+  register,
+  className,
+  defaultValue,
+  ...rest
+}: TimePickerExtraProps) => {
+  const ref = useRef<HTMLInputElement>(null)
+
+  const [value, setValue] = useState<string>(defaultValue ?? "")
+
   return (
     <div
       className={cx(
@@ -69,18 +80,33 @@ const DateTimeLocal = ({ onChange, register, className, ...rest }: TimePickerExt
         className,
       )}
     >
+      {value}
       <label>
         <span>{rest.label}</span>
         <input
+          ref={ref}
           type="datetime-local"
-          onChange={({ target: { value } }) => {
-            onChange && onChange(value)
-          }}
+          step="1"
           {...rest}
           {...register}
+          onChange={(event) => {
+            onChange && onChange(event.target.value)
+            register?.onChange && register.onChange(event)
+            setValue(event.target.value)
+          }}
+          value={value}
         />
       </label>
-      <small>{rest.value}</small>
+
+      <small
+        className={css`
+          display: block;
+          height: 18px;
+        `}
+      >
+        {value && dateToString(new Date(value))}
+      </small>
+
       {rest.error && (
         <span className={cx(error)} id={`${rest.label}_error`} role="alert">
           {rest.error}

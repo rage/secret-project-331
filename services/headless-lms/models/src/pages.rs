@@ -1911,20 +1911,37 @@ pub async fn reorder_pages(
     let mut tx = conn.begin().await?;
     for page in pages {
         if let Some(matching_db_page) = db_pages.iter().find(|p| p.id == page.id) {
-            sqlx::query!(
-                "UPDATE pages SET order_number = $2 WHERE pages.id = $1",
-                page.id,
-                page.order_number
-            )
-            .execute(&mut tx)
-            .await?;
-            // If the capter changes, we also need to update the url
-            if matching_db_page.chapter_id != page.chapter_id {
+            // if let Some(conflicting_page_record) = conflicting_page {
+            //     let id = conflicting_page_record.id;
+            //     let matchi
+            // }
+
+            if matching_db_page.chapter_id == page.chapter_id {
+                // Chapter not changing
+                // Avoid conflicts in order_number since unique indexes cannot be deferred. The random number will not end up committing in the transaction since the loop goes through all the pages and will correct the number.
+                sqlx::query!(
+                    "UPDATE pages
+SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
+WHERE pages.order_number = $1
+  AND pages.chapter_id = $2
+  AND deleted_at IS NULL",
+                    page.order_number,
+                    page.chapter_id
+                )
+                .execute(&mut tx)
+                .await?;
+                sqlx::query!(
+                    "UPDATE pages SET order_number = $2 WHERE pages.id = $1",
+                    page.id,
+                    page.order_number
+                )
+                .execute(&mut tx)
+                .await?;
+            } else {
+                // Chapter changes
                 if let Some(old_chapter_id) = matching_db_page.chapter_id {
                     if let Some(new_chapter_id) = page.chapter_id {
                         // Moving page to another chapter
-                        let old_chapter_option = chapters.iter().find(|o| o.id == old_chapter_id);
-                        let new_chapter_option = chapters.iter().find(|o| o.id == new_chapter_id);
                         if let Some(old_chapter) = chapters.iter().find(|o| o.id == old_chapter_id)
                         {
                             if let Some(new_chapter) =
@@ -1937,10 +1954,11 @@ pub async fn reorder_pages(
                                     1,
                                 );
                                 sqlx::query!(
-                                    "UPDATE pages SET url_path = $2, chapter_id = $3 WHERE pages.id = $1",
+                                    "UPDATE pages SET url_path = $2, chapter_id = $3, order_number = $4 WHERE pages.id = $1",
                                     page.id,
                                     new_path,
-                                    new_chapter.id
+                                    new_chapter.id,
+                                    page.order_number
                                 )
                                 .execute(&mut tx)
                                 .await?;
@@ -1969,12 +1987,13 @@ pub async fn reorder_pages(
                                 .to_string(),
                         ));
                     }
+                } else {
+                    error!("Cannot move a top level page to a chapter. matching_db_page.chapter_id: {:?} page.chapter_id: {:?}", matching_db_page.chapter_id, page.chapter_id);
+                    // Moving page from the top level to a chapter
+                    return Err(ModelError::InvalidRequest(
+                        "Moving a top level page to a chapter is not supported yet".to_string(),
+                    ));
                 }
-            } else {
-                // Moving page from the top level to a chapter
-                return Err(ModelError::InvalidRequest(
-                    "Moving a top level page to a chapter is not supported yet".to_string(),
-                ));
             }
         } else {
             return Err(ModelError::InvalidRequest(format!(

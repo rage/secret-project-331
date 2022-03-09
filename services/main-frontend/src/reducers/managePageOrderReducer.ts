@@ -1,5 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import produce from "immer"
+import { WritableDraft } from "immer/dist/types/types-external"
 import { Dictionary, groupBy, mapValues, max, orderBy } from "lodash"
 
 import { CourseStructure, Page } from "../shared-module/bindings"
@@ -85,6 +86,13 @@ export default function managePageOrderReducer(
           .find((page) => page.id === pageId)?.chapter_id
 
         if (!currentPageChapterId) {
+          // page is currently a top level page
+          // For now we won't support moving a top level page to a chapter
+          const toplevelPages = draftState.chapterIdToPages["null"]
+          if (!toplevelPages) {
+            break
+          }
+          movePageWithinPageList(toplevelPages, pageId, direction, draftState)
           break
         }
 
@@ -94,18 +102,7 @@ export default function managePageOrderReducer(
           if (!pages) {
             break
           }
-          const currentIndex = pages.findIndex((page) => page.id === pageId)
-          if (currentIndex === -1) {
-            break
-          }
-          const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1
-          if (targetIndex < 0 || targetIndex >= pages.length) {
-            break
-          }
-          const temp = pages[currentIndex]
-          pages[currentIndex] = pages[targetIndex]
-          pages[targetIndex] = temp
-          draftState.unsavedChanges = true
+          movePageWithinPageList(pages, pageId, direction, draftState)
         } else {
           // moving a page to a different chapter, the new location will be the last page of the new chapter
           const oldChapterPageList = draftState.chapterIdToPages?.[currentPageChapterId ?? "null"]
@@ -121,6 +118,7 @@ export default function managePageOrderReducer(
           )
           const largestOrderNumber = max(newChapterPageList?.map((p) => p.order_number)) ?? -1
           page.order_number = largestOrderNumber + 1
+          page.chapter_id = chapterId
           draftState.chapterIdToPages[chapterId ?? "null"] = (newChapterPageList ?? []).concat(page)
 
           draftState.unsavedChanges = true
@@ -161,4 +159,24 @@ export default function managePageOrderReducer(
       })
     }
   })
+}
+
+function movePageWithinPageList(
+  pages: Page[],
+  pageToMoveId: string,
+  direction: "up" | "down",
+  draftState: WritableDraft<ManagePageOrderLoading> | WritableDraft<ManagePageOrderReady>,
+) {
+  const currentIndex = pages.findIndex((page) => page.id === pageToMoveId)
+  if (currentIndex === -1) {
+    return
+  }
+  const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1
+  if (targetIndex < 0 || targetIndex >= pages.length) {
+    return
+  }
+  const temp = pages[currentIndex]
+  pages[currentIndex] = pages[targetIndex]
+  pages[targetIndex] = temp
+  draftState.unsavedChanges = true
 }

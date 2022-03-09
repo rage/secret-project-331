@@ -7,21 +7,28 @@ import CheckBox from "./CheckBox"
 export interface CheckboxFieldWrapperProps {
   fieldName: string
   className?: string
+  onUncheck: () => void
+  initialChecked?: boolean
 }
 
 const CheckboxFieldWrapper: React.FC<CheckboxFieldWrapperProps> = ({
   fieldName,
   className,
   children,
+  onUncheck,
+  initialChecked,
 }) => {
   const { t } = useTranslation()
-  const [checked, setChecked] = useState(false)
+  const [checked, setChecked] = useState(initialChecked ?? false)
   return (
     <div className={cx(className)}>
       <CheckBox
         label={t("set-field-value", { name: fieldName })}
         checked={checked}
         onChange={(checked: boolean) => {
+          if (!checked) {
+            onUncheck()
+          }
           setChecked(checked)
         }}
         className={css`

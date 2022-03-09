@@ -240,6 +240,7 @@ fn main() {
         front_page_id: None,
         opens_at: Some(date_time),
         copied_from: None,
+        deadline: Some(date_time),
     };
     let exercise_service = ExerciseService {
         id,
@@ -539,6 +540,7 @@ fn main() {
                     chapter_number: 1,
                     front_page_id: None,
                     opens_at: Some(date_time),
+                    deadline: Some(date_time),
                     copied_from: None
                 },
                 score_given: 1.0,

@@ -196,6 +196,8 @@ module.exports = {
           "styled",
           "css",
           "register",
+          "setValue",
+          "getValues",
         ],
       },
     ],

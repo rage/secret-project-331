@@ -82,7 +82,7 @@ const ERROR = "Please check the secret box"
 
 export type CheckboxProps = React.HTMLAttributes<HTMLInputElement> & CheckboxFieldExtraProps
 
-const CheckBox = ({ onChange, className, ...rest }: CheckboxFieldExtraProps) => {
+const CheckBox = ({ onChange, className, checked, ...rest }: CheckboxFieldExtraProps) => {
   return (
     <div
       className={cx(
@@ -95,6 +95,7 @@ const CheckBox = ({ onChange, className, ...rest }: CheckboxFieldExtraProps) => 
       <Label {...rest}>
         <input
           type="checkbox"
+          checked={checked}
           aria-describedby={`${rest.label}_error`}
           onChange={({ target: { checked } }) => onChange(checked)}
           {...rest}

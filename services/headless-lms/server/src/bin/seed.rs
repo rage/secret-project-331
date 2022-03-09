@@ -1267,16 +1267,20 @@ async fn seed_sample_course(
     let new_chapter = NewChapter {
         chapter_number: 1,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "The Basics".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_1, _front_page_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
     let new_chapter = NewChapter {
         chapter_number: 2,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "The intermediaries".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_2, _front_page_2) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1288,8 +1292,10 @@ async fn seed_sample_course(
     let new_chapter = NewChapter {
         chapter_number: 3,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "Advanced studies".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_3, _front_page_3) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1301,8 +1307,10 @@ async fn seed_sample_course(
     let new_chapter = NewChapter {
         chapter_number: 4,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "Forbidden magicks".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_4, _front_page_4) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -2190,8 +2198,10 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     let new_chapter = NewChapter {
         chapter_number: 1,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "User Interface".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_1, front_page_ch_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
@@ -2307,8 +2317,10 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     let new_chapter_2 = NewChapter {
         chapter_number: 2,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "User Experience".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_2, front_page_ch_2) = chapters::insert_chapter(conn, new_chapter_2, admin).await?;
     chapters::set_opens_at(conn, chapter_2.id, Utc::now()).await?;

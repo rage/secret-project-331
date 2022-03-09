@@ -52,7 +52,7 @@ test("create quizzes test", async ({ page }) => {
   expectPath(page, "/manage/courses/[id]/pages")
 
   // Click text=Add new chapter
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.click(`:nth-match(button:has-text("New page"), 1)`)
 
   // Click input[type="text"]
   // await page.click('input[type="text"]')

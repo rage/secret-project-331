@@ -35,7 +35,13 @@ const CheckboxFieldWrapper: React.FC<CheckboxFieldWrapperProps> = ({
           ${checked && `margin-bottom: 0.2rem;`}
         `}
       />
-      {checked && children}
+      <div
+        className={css`
+          ${!checked && `display: none;`}
+        `}
+      >
+        {children}
+      </div>
     </div>
   )
 }

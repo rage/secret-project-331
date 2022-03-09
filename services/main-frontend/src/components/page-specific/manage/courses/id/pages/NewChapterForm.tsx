@@ -30,19 +30,56 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
   courseId,
   onSubmitForm,
   chapterNumber,
-  initialData = {},
+  initialData,
   newRecord,
 }) => {
   const { t } = useTranslation()
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { errors, isValid, isSubmitting, dirtyFields, touchedFields },
     setValue,
     getValues,
   } = useForm<Fields>({
-    defaultValues: { ...initialData, chapter_number: chapterNumber },
+    defaultValues: {
+      name: "",
+      chapter_number: chapterNumber,
+      opens_at: null,
+      deadline: null,
+      ...initialData,
+    },
   })
+
+  console.log(
+    JSON.stringify(
+      {
+        errors: {
+          a: true,
+          name: errors.name,
+          deadline: errors.deadline,
+          chapter_number: errors.chapter_number,
+          opens_at: errors.opens_at,
+        },
+        isSubmitting,
+        isValid,
+        dirtyFields,
+        touchedFields,
+        values: getValues(),
+      },
+      undefined,
+      2,
+    ),
+  )
+
+  console.log({
+    chapter_number: chapterNumber,
+    opens_at: null,
+    deadline: null,
+    ...initialData,
+  })
+
+  const deadlineRegister = register("deadline", { valueAsDate: true, required: false })
+  const opensAtRegister = register("opens_at", { valueAsDate: true, required: false })
 
   return (
     <form
@@ -103,7 +140,7 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
           }
           placeholder={t("label-opens-at")}
           label={t("label-opens-at")}
-          register={register("opens_at", { valueAsDate: true })}
+          register={opensAtRegister}
         />
       </CheckboxFieldWrapper>
       <CheckboxFieldWrapper
@@ -112,13 +149,13 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
         onUncheck={() => setValue("deadline", null)}
       >
         <DateTimeLocal
-          error={errors["opens_at"]?.message}
+          error={errors["deadline"]?.message}
           defaultValue={
             initialData?.deadline ? dateToDateTimeLocalString(initialData?.deadline) : undefined
           }
           placeholder={t("label-deadline")}
           label={t("label-deadline")}
-          register={register("deadline", { valueAsDate: true })}
+          register={deadlineRegister}
         />
       </CheckboxFieldWrapper>
       <div>

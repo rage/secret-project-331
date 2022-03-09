@@ -74,7 +74,7 @@ test("history test", async ({ page, headless }) => {
   // Click text=Page One
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/cms/pages/ebc1c42f-c61e-4f4b-89df-b31f3d227bad' }*/),
-    page.click("text=Page One"),
+    page.click(`button:text("Edit page"):right-of(:text("Page One"))`),
   ])
 
   // Fill input[type="text"]

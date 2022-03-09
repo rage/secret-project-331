@@ -61,7 +61,7 @@ test("test", async ({ page }) => {
   await page.fill("text=Name", "The Levels of Testing")
 
   // Click button:has-text("Create chapter")
-  await page.click('button:has-text("Create")')
+  await page.click('button:text("Create")')
 
   // Click :nth-match(button:has-text("New page"), 2)
   await page.locator(`button:has-text("New")`).last().click()
@@ -70,34 +70,34 @@ test("test", async ({ page }) => {
   await page.fill("text=Name", "Unit testing")
 
   // Click button:has-text("Create")
-  await page.click('button:has-text("Create")')
+  await page.click('button:has-text("Create chapter")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.click(`:nth-match(button:has-text("New page"), 1)`)
 
   // Fill input[type="text"]
   await page.fill("text=Title", "Integration Testing")
 
   // Click button:has-text("Create")
-  await page.click('button:has-text("Create")')
+  await page.click('button:has-text("Create chapter")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.click(`:nth-match(button:has-text("New page"), 1)`)
 
   // Fill input[type="text"]
   await page.fill("text=Title", "System Testing")
 
   // Click button:has-text("Create")
-  await page.click('button:has-text("Create")')
+  await page.click('button:has-text("Create chapter")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.click(`:nth-match(button:has-text("New page"), 1)`)
 
   // Fill input[type="text"]
   await page.fill("text=Title", "Acceptance Testing")
 
   // Click button:has-text("Create")
-  await page.click('button:has-text("Create")')
+  await page.click('button:has-text("Create chapter")')
 
   // Click text=System Testing
   await Promise.all([page.waitForNavigation(), page.click("text=System Testing")])

@@ -18,7 +18,6 @@ import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import basePath from "../../../../shared-module/utils/base-path"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"

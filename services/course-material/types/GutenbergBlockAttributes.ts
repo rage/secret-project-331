@@ -178,10 +178,16 @@ export interface ImageDeprecated1Attributes {
   height?: number
   linkDestination: string
   linkTarget?: string
+  title?: string
+  sizeSlug?: string
   lock?: {
     [k: string]: unknown
   }
+  anchor?: string
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   blurDataUrl: string
 }
 
@@ -214,6 +220,30 @@ export interface ImageDeprecated2Attributes {
  */
 
 export interface ImageDeprecated3Attributes {
+  align?: string
+  url?: string
+  alt: string
+  caption?: string
+  href?: string
+  rel?: string
+  linkClass?: string
+  id?: number
+  width?: number
+  height?: number
+  linkDestination: string
+  linkTarget?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  className?: string
+  blurDataUrl: string
+}
+
+/**
+ * @deprecated This is an older version of ImageAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface ImageDeprecated4Attributes {
   align?: string
   url?: string
   alt: string
@@ -829,6 +859,7 @@ export interface ColumnsAttributes {
   }
   anchor?: string
   className?: string
+  borderColor?: string
   backgroundColor?: string
   textColor?: string
   gradient?: string

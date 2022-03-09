@@ -12,13 +12,13 @@ rust-version = "1.56.0"  # minimum required Rust version, update if you use a ne
 headless-lms-utils = { path = "../utils" }
 
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.2.0", features = ["fs", "io-util"] }
+tokio = { version = "1.17.0", features = ["fs", "io-util"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
-futures = "0.3.13"
+futures = "0.3.21"
 # A `dotenv` implementation for Rust
 dotenv = "0.15.0"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
-sqlx = { version = "0.5.1", features = [
+sqlx = { version = "0.5.11", features = [
   "postgres",
   "runtime-actix-rustls",
   "uuid",
@@ -29,23 +29,23 @@ sqlx = { version = "0.5.1", features = [
 # A library to generate and parse UUIDs.
 uuid = { version = "0.8.2", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.123", features = ["derive"] }
+serde = { version = "1.0.136", features = ["derive"] }
 # Date and time library for Rust
 chrono = { version = "0.4.19", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.62"
+serde_json = "1.0.79"
 # Adds #[derive(x)] macros for more traits
-derive_more = "0.99.11"
+derive_more = "0.99.17"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
-itertools = "0.10.0"
+itertools = "0.10.3"
 # higher level HTTP client library
-reqwest = { version = "0.11.3", features = ["brotli", "gzip", "json"] }
+reqwest = { version = "0.11.9", features = ["brotli", "gzip", "json"] }
 # URL library for Rust, based on the WHATWG URL Standard
-url = "2"
+url = "2.2.2"
 # Application-level tracing for Rust.
-tracing = "0.1"
+tracing = "0.1.31"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "1"
+thiserror = "1.0.30"
 # generate typescript bindings from rust types
 ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "3d0fd4f71fd1698e4236393206597d70974079c0", features = [
   "chrono-impl",
@@ -56,17 +56,14 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "3d0fd4f71fd1698e4236
 # Email client
 lettre = "0.10.0-rc.4"
 
-# Workaround for this issue: https://github.com/tkaitchuck/aHash/issues/95. Once the issue has been resolved, this dependency can be removed.
-indexmap = "=1.6.2"
-
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
-pretty_assertions = "1.0.0"
+pretty_assertions = "1.1.0"
 # Provides compatibility between `tracing` and the `log` crate.
-tracing-log = "0.1"
+tracing-log = "0.1.2"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.0"
 # Utilities for implementing and composing `tracing` subscribers.
-tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.9", features = ["env-filter"] }
 # Random number generators and other randomness functionality.
-rand = "0.8.3"
+rand = "0.8.5"

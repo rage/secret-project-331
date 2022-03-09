@@ -1,5 +1,4 @@
 /* eslint-disable i18next/no-literal-string */
-import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useState } from "react"
 
@@ -13,24 +12,33 @@ const arr = [
 const currentCourse = [
   { id: "001", text: "Computer science", path: "/" },
   { id: "002", text: "Biology", path: "/" },
-  { id: "003", text: "Chemistry", path: "/" },
   {
-    text: "Economics",
+    id: "003",
+    text: "Chemistry",
     path: "/",
     items: [
       { text: "Subtopic", path: "/" },
       { text: "Subtopic threads", path: "/" },
     ],
   },
-  { id: "004", text: "Physics", path: "/" },
-  { id: "005", text: "Computer science", path: "/" },
+  {
+    id: "004",
+    text: "Economics",
+    path: "/",
+    items: [
+      { text: "Subtopic I", path: "/" },
+      { text: "Subtopic threads IV", path: "/" },
+    ],
+  },
+  { id: "005", text: "Physics", path: "/" },
+  { id: "006", text: "Computer science II", path: "/" },
 ]
 
 const Wrapper = styled.div`
   display: block;
   position: sticky;
   top: 24px;
-  max-width: 400px;
+  max-width: 450px;
   height: 100vh;
   overflow: auto;
   border-right: 2px solid #cfcfcf;
@@ -104,8 +112,10 @@ const PlaceholderAvatar = styled.div`
 const StyledButton = styled.button`
   display: flex;
   border: none;
-  padding: 1rem 1.5rem;
+  padding: 1rem 2rem;
   margin-left: 1rem;
+  font-size: 18px;
+  color: #313947;
 `
 const ListItem = styled.li`
   margin-left: 2rem;
@@ -114,7 +124,7 @@ const ListItem = styled.li`
 const StyledDiv = styled.div``
 
 const SideNavigation = () => {
-  const [active, setActive] = useState<boolean>(false)
+  const [active, setActive] = useState<string>()
 
   return (
     <Wrapper>
@@ -129,13 +139,19 @@ const SideNavigation = () => {
 
       <h2>Current course</h2>
       <ol>
-        {currentCourse.map(({ text, items }, index, arr) => (
-          <StyledDiv key={text} onClick={() => items && setActive(!active)}>
+        {currentCourse.map(({ text, items, id }) => (
+          <StyledDiv
+            key={text}
+            onClick={() => {
+              const activeId = active !== id && items ? id : ""
+              setActive(activeId)
+            }}
+          >
             <li>
               <PlaceholderAvatar></PlaceholderAvatar>
               <a>{text}</a>
             </li>
-            {active &&
+            {active === id &&
               items?.map(({ text, path }) => (
                 <ListItem key={text}>
                   <PlaceholderAvatar></PlaceholderAvatar>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;futures-util-0.3.19&#x2F;src&#x2F;stream&#x2F;futures_unordered&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;futures-util-0.3.21&#x2F;src&#x2F;stream&#x2F;futures_unordered&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a class="sidebar-logo" href="../../../../futures_util/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.png" alt="logo"></div>
         </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../futures_util/index.html"><img class="rust-logo" src="../../../../rust-logo.png" alt="logo"></a><nav class="sub"><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
@@ -657,23 +657,6 @@
 <span id="655">655</span>
 <span id="656">656</span>
 <span id="657">657</span>
-<span id="658">658</span>
-<span id="659">659</span>
-<span id="660">660</span>
-<span id="661">661</span>
-<span id="662">662</span>
-<span id="663">663</span>
-<span id="664">664</span>
-<span id="665">665</span>
-<span id="666">666</span>
-<span id="667">667</span>
-<span id="668">668</span>
-<span id="669">669</span>
-<span id="670">670</span>
-<span id="671">671</span>
-<span id="672">672</span>
-<span id="673">673</span>
-<span id="674">674</span>
 </pre><pre class="rust"><code><span class="doccomment">//! An unbounded set of futures.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This module is only available when the `std` or `alloc` feature of this</span>
@@ -682,7 +665,6 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::task::AtomicWaker</span>;
 <span class="kw">use</span> <span class="ident">alloc::sync</span>::{<span class="ident">Arc</span>, <span class="ident">Weak</span>};
 <span class="kw">use</span> <span class="ident">core::cell::UnsafeCell</span>;
-<span class="kw">use</span> <span class="ident">core::cmp</span>;
 <span class="kw">use</span> <span class="ident">core::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>};
 <span class="kw">use</span> <span class="ident">core::iter::FromIterator</span>;
 <span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
@@ -706,33 +688,6 @@
 
 <span class="kw">mod</span> <span class="ident">ready_to_run_queue</span>;
 <span class="kw">use</span> <span class="ident"><span class="self">self</span>::ready_to_run_queue</span>::{<span class="ident">Dequeue</span>, <span class="ident">ReadyToRunQueue</span>};
-
-<span class="doccomment">/// Constant used for a `FuturesUnordered` to determine how many times it is</span>
-<span class="doccomment">/// allowed to poll underlying futures without yielding.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A single call to `poll_next` may potentially do a lot of work before</span>
-<span class="doccomment">/// yielding. This happens in particular if the underlying futures are awoken</span>
-<span class="doccomment">/// frequently but continue to return `Pending`. This is problematic if other</span>
-<span class="doccomment">/// tasks are waiting on the executor, since they do not get to run. This value</span>
-<span class="doccomment">/// caps the number of calls to `poll` on underlying futures a single call to</span>
-<span class="doccomment">/// `poll_next` is allowed to make.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The value itself is chosen somewhat arbitrarily. It needs to be high enough</span>
-<span class="doccomment">/// that amortize wakeup and scheduling costs, but low enough that we do not</span>
-<span class="doccomment">/// starve other tasks for long.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See also https://github.com/rust-lang/futures-rs/issues/2047.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that using the length of the `FuturesUnordered` instead of this value</span>
-<span class="doccomment">/// may cause problems if the number of futures is large.</span>
-<span class="doccomment">/// See also https://github.com/rust-lang/futures-rs/pull/2527.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Additionally, polling the same future twice per iteration may cause another</span>
-<span class="doccomment">/// problem. So, when using this value, it is necessary to limit the max value</span>
-<span class="doccomment">/// based on the length of the `FuturesUnordered`.</span>
-<span class="doccomment">/// (e.g., `cmp::min(self.len(), YIELD_EVERY)`)</span>
-<span class="doccomment">/// See also https://github.com/rust-lang/futures-rs/pull/2333.</span>
-<span class="kw">const</span> <span class="ident">YIELD_EVERY</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">32</span>;
 
 <span class="doccomment">/// A set of futures which may complete in any order.</span>
 <span class="doccomment">///</span>
@@ -825,8 +780,9 @@
             <span class="ident">next_ready_to_run</span>: <span class="ident">AtomicPtr::new</span>(<span class="ident">ptr::null_mut</span>()),
             <span class="ident">queued</span>: <span class="ident">AtomicBool::new</span>(<span class="bool-val">true</span>),
             <span class="ident">ready_to_run_queue</span>: <span class="ident">Weak::new</span>(),
+            <span class="ident">woken</span>: <span class="ident">AtomicBool::new</span>(<span class="bool-val">false</span>),
         });
-        <span class="kw">let</span> <span class="ident">stub_ptr</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">stub</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">Task</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span>;
+        <span class="kw">let</span> <span class="ident">stub_ptr</span> <span class="op">=</span> <span class="ident">Arc::as_ptr</span>(<span class="kw-2">&amp;</span><span class="ident">stub</span>);
         <span class="kw">let</span> <span class="ident">ready_to_run_queue</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">ReadyToRunQueue</span> {
             <span class="ident">waker</span>: <span class="ident">AtomicWaker::new</span>(),
             <span class="ident">head</span>: <span class="ident">AtomicPtr::new</span>(<span class="ident">stub_ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>),
@@ -871,6 +827,7 @@
             <span class="ident">next_ready_to_run</span>: <span class="ident">AtomicPtr::new</span>(<span class="ident">ptr::null_mut</span>()),
             <span class="ident">queued</span>: <span class="ident">AtomicBool::new</span>(<span class="bool-val">true</span>),
             <span class="ident">ready_to_run_queue</span>: <span class="ident">Arc::downgrade</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ready_to_run_queue</span>),
+            <span class="ident">woken</span>: <span class="ident">AtomicBool::new</span>(<span class="bool-val">false</span>),
         });
 
         <span class="comment">// Reset the `is_terminated` flag if we&#39;ve previously marked ourselves</span>
@@ -1079,7 +1036,7 @@
         <span class="comment">// The `ReadyToRunQueue` stub is never inserted into the `head_all`</span>
         <span class="comment">// list, and its pointer value will remain valid for the lifetime of</span>
         <span class="comment">// this `FuturesUnordered`, so we can make use of its value here.</span>
-        <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">ready_to_run_queue</span>.<span class="ident">stub</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>
+        <span class="ident">Arc::as_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ready_to_run_queue</span>.<span class="ident">stub</span>) <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>
     }
 }
 
@@ -1087,12 +1044,12 @@
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Fut::Output</span>;
 
     <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// See YIELD_EVERY docs　for more.</span>
-        <span class="kw">let</span> <span class="ident">yield_every</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="self">self</span>.<span class="ident">len</span>(), <span class="ident">YIELD_EVERY</span>);
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>();
 
         <span class="comment">// Keep track of how many child futures we have polled,</span>
         <span class="comment">// in case we want to forcibly yield.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polled</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">yielded</span> <span class="op">=</span> <span class="number">0</span>;
 
         <span class="comment">// Ensure `parent` is correctly set.</span>
         <span class="self">self</span>.<span class="ident">ready_to_run_queue</span>.<span class="ident">waker</span>.<span class="ident">register</span>(<span class="ident">cx</span>.<span class="ident">waker</span>());
@@ -1203,7 +1160,11 @@
             <span class="comment">// the internal allocation, appropriately accessing fields and</span>
             <span class="comment">// deallocating the task if need be.</span>
             <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> {
-                <span class="kw">let</span> <span class="ident">waker</span> <span class="op">=</span> <span class="ident">Task::waker_ref</span>(<span class="ident">bomb</span>.<span class="ident">task</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
+                <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">bomb</span>.<span class="ident">task</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
+                <span class="comment">// We are only interested in whether the future is awoken before it</span>
+                <span class="comment">// finishes polling, so reset the flag here.</span>
+                <span class="ident">task</span>.<span class="ident">woken</span>.<span class="ident">store</span>(<span class="bool-val">false</span>, <span class="ident">Relaxed</span>);
+                <span class="kw">let</span> <span class="ident">waker</span> <span class="op">=</span> <span class="ident">Task::waker_ref</span>(<span class="ident">task</span>);
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cx</span> <span class="op">=</span> <span class="ident">Context::from_waker</span>(<span class="kw-2">&amp;</span><span class="ident">waker</span>);
 
                 <span class="comment">// Safety: We won&#39;t move the future ever again</span>
@@ -1216,12 +1177,17 @@
             <span class="kw">match</span> <span class="ident">res</span> {
                 <span class="ident">Poll::Pending</span> =&gt; {
                     <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">bomb</span>.<span class="ident">task</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
+                    <span class="comment">// If the future was awoken during polling, we assume</span>
+                    <span class="comment">// the future wanted to explicitly yield.</span>
+                    <span class="ident">yielded</span> <span class="op">+</span><span class="op">=</span> <span class="ident">task</span>.<span class="ident">woken</span>.<span class="ident">load</span>(<span class="ident">Relaxed</span>) <span class="kw">as</span> <span class="ident">usize</span>;
                     <span class="ident">bomb</span>.<span class="ident">queue</span>.<span class="ident">link</span>(<span class="ident">task</span>);
 
-                    <span class="kw">if</span> <span class="ident">polled</span> <span class="op">==</span> <span class="ident">yield_every</span> {
-                        <span class="comment">// We have polled a large number of futures in a row without yielding.</span>
-                        <span class="comment">// To ensure we do not starve other tasks waiting on the executor,</span>
-                        <span class="comment">// we yield here, but immediately wake ourselves up to continue.</span>
+                    <span class="comment">// If a future yields, we respect it and yield here.</span>
+                    <span class="comment">// If all futures have been polled, we also yield here to</span>
+                    <span class="comment">// avoid starving other tasks waiting on the executor.</span>
+                    <span class="comment">// (polling the same future twice per iteration may cause</span>
+                    <span class="comment">// the problem: https://github.com/rust-lang/futures-rs/pull/2333)</span>
+                    <span class="kw">if</span> <span class="ident">yielded</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">polled</span> <span class="op">==</span> <span class="ident">len</span> {
                         <span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">wake_by_ref</span>();
                         <span class="kw">return</span> <span class="ident">Poll::Pending</span>;
                     }

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;sqlx-core-0.5.7&#x2F;src&#x2F;postgres&#x2F;type_info.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>type_info.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;sqlx-core-0.5.11&#x2F;src&#x2F;postgres&#x2F;type_info.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>type_info.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.png" alt="logo"></div>
         </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.png" alt="logo"></a><nav class="sub"><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
@@ -1022,8 +1022,132 @@
 <span id="1020">1020</span>
 <span id="1021">1021</span>
 <span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
+<span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
+<span id="1083">1083</span>
+<span id="1084">1084</span>
+<span id="1085">1085</span>
+<span id="1086">1086</span>
+<span id="1087">1087</span>
+<span id="1088">1088</span>
+<span id="1089">1089</span>
+<span id="1090">1090</span>
+<span id="1091">1091</span>
+<span id="1092">1092</span>
+<span id="1093">1093</span>
+<span id="1094">1094</span>
+<span id="1095">1095</span>
+<span id="1096">1096</span>
+<span id="1097">1097</span>
+<span id="1098">1098</span>
+<span id="1099">1099</span>
+<span id="1100">1100</span>
+<span id="1101">1101</span>
+<span id="1102">1102</span>
+<span id="1103">1103</span>
+<span id="1104">1104</span>
+<span id="1105">1105</span>
+<span id="1106">1106</span>
+<span id="1107">1107</span>
+<span id="1108">1108</span>
+<span id="1109">1109</span>
+<span id="1110">1110</span>
+<span id="1111">1111</span>
+<span id="1112">1112</span>
+<span id="1113">1113</span>
+<span id="1114">1114</span>
+<span id="1115">1115</span>
+<span id="1116">1116</span>
+<span id="1117">1117</span>
+<span id="1118">1118</span>
+<span id="1119">1119</span>
+<span id="1120">1120</span>
+<span id="1121">1121</span>
+<span id="1122">1122</span>
+<span id="1123">1123</span>
+<span id="1124">1124</span>
+<span id="1125">1125</span>
+<span id="1126">1126</span>
+<span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
+<span id="1136">1136</span>
+<span id="1137">1137</span>
+<span id="1138">1138</span>
+<span id="1139">1139</span>
+<span id="1140">1140</span>
+<span id="1141">1141</span>
+<span id="1142">1142</span>
+<span id="1143">1143</span>
+<span id="1144">1144</span>
+<span id="1145">1145</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 
+<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>, <span class="ident">Formatter</span>};
 <span class="kw">use</span> <span class="ident">std::ops::Deref</span>;
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
@@ -1766,8 +1890,130 @@
 
             <span class="ident">PgType::Custom</span>(<span class="ident">ty</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">ty</span>.<span class="ident">kind</span>,
 
-            <span class="ident">PgType::DeclareWithOid</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">PgType::DeclareWithName</span>(<span class="kw">_</span>) =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">&quot;(bug) use of unresolved type declaration [kind]&quot;</span>)
+            <span class="ident">PgType::DeclareWithOid</span>(<span class="ident">oid</span>) =&gt; {
+                <span class="macro">unreachable!</span>(<span class="string">&quot;(bug) use of unresolved type declaration [oid={}]&quot;</span>, <span class="ident">oid</span>);
+            }
+            <span class="ident">PgType::DeclareWithName</span>(<span class="ident">name</span>) =&gt; {
+                <span class="macro">unreachable!</span>(<span class="string">&quot;(bug) use of unresolved type declaration [name={}]&quot;</span>, <span class="ident">name</span>);
+            }
+        }
+    }
+
+    <span class="doccomment">/// If `self` is an array type, return the type info for its element.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method should only be called on resolved types: calling it on</span>
+    <span class="doccomment">/// a type that is merely declared (DeclareWithOid/Name) is a bug.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">try_array_element</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">PgTypeInfo</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="comment">// We explicitly match on all the `None` cases to ensure an exhaustive match.</span>
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">PgType::Bool</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::BoolArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Bool</span>))),
+            <span class="ident">PgType::Bytea</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::ByteaArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Bytea</span>))),
+            <span class="ident">PgType::Char</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::CharArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Char</span>))),
+            <span class="ident">PgType::Name</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::NameArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Name</span>))),
+            <span class="ident">PgType::Int8</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::Int8Array</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Int8</span>))),
+            <span class="ident">PgType::Int2</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::Int2Array</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Int2</span>))),
+            <span class="ident">PgType::Int4</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::Int4Array</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Int4</span>))),
+            <span class="ident">PgType::Text</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::TextArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Text</span>))),
+            <span class="ident">PgType::Oid</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::OidArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Oid</span>))),
+            <span class="ident">PgType::Json</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::JsonArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Json</span>))),
+            <span class="ident">PgType::Point</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::PointArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Point</span>))),
+            <span class="ident">PgType::Lseg</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::LsegArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Lseg</span>))),
+            <span class="ident">PgType::Path</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::PathArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Path</span>))),
+            <span class="ident">PgType::Box</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::BoxArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Box</span>))),
+            <span class="ident">PgType::Polygon</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::PolygonArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Polygon</span>))),
+            <span class="ident">PgType::Line</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::LineArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Line</span>))),
+            <span class="ident">PgType::Cidr</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::CidrArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Cidr</span>))),
+            <span class="ident">PgType::Float4</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::Float4Array</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Float4</span>))),
+            <span class="ident">PgType::Float8</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::Float8Array</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Float8</span>))),
+            <span class="ident">PgType::Circle</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::CircleArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Circle</span>))),
+            <span class="ident">PgType::Macaddr8</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::Macaddr8Array</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Macaddr8</span>))),
+            <span class="ident">PgType::Money</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::MoneyArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Money</span>))),
+            <span class="ident">PgType::Macaddr</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::MacaddrArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Macaddr</span>))),
+            <span class="ident">PgType::Inet</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::InetArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Inet</span>))),
+            <span class="ident">PgType::Bpchar</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::BpcharArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Bpchar</span>))),
+            <span class="ident">PgType::Varchar</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::VarcharArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Varchar</span>))),
+            <span class="ident">PgType::Date</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::DateArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Date</span>))),
+            <span class="ident">PgType::Time</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::TimeArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Time</span>))),
+            <span class="ident">PgType::Timestamp</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::TimestampArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Timestamp</span>))),
+            <span class="ident">PgType::Timestamptz</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::TimestamptzArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Timestamptz</span>))),
+            <span class="ident">PgType::Interval</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::IntervalArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Interval</span>))),
+            <span class="ident">PgType::Timetz</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::TimetzArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Timetz</span>))),
+            <span class="ident">PgType::Bit</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::BitArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Bit</span>))),
+            <span class="ident">PgType::Varbit</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::VarbitArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Varbit</span>))),
+            <span class="ident">PgType::Numeric</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::NumericArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Numeric</span>))),
+            <span class="ident">PgType::Record</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::RecordArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Record</span>))),
+            <span class="ident">PgType::Uuid</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::UuidArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Uuid</span>))),
+            <span class="ident">PgType::Jsonb</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::JsonbArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Jsonb</span>))),
+            <span class="ident">PgType::Int4Range</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::Int4RangeArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Int4Range</span>))),
+            <span class="ident">PgType::NumRange</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::NumRangeArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::NumRange</span>))),
+            <span class="ident">PgType::TsRange</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::TsRangeArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::TsRange</span>))),
+            <span class="ident">PgType::TstzRange</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::TstzRangeArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::TstzRange</span>))),
+            <span class="ident">PgType::DateRange</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::DateRangeArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::DateRange</span>))),
+            <span class="ident">PgType::Int8Range</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::Int8RangeArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Int8Range</span>))),
+            <span class="ident">PgType::Jsonpath</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::JsonpathArray</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Jsonpath</span>))),
+            <span class="comment">// There is no `UnknownArray`</span>
+            <span class="ident">PgType::Unknown</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="comment">// There is no `VoidArray`</span>
+            <span class="ident">PgType::Void</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">PgType::Custom</span>(<span class="ident">ty</span>) =&gt; <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">ty</span>.<span class="ident">kind</span> {
+                <span class="ident">PgTypeKind::Simple</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="ident">PgTypeKind::Pseudo</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="ident">PgTypeKind::Domain</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+                <span class="ident">PgTypeKind::Composite</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+                <span class="ident">PgTypeKind::Array</span>(<span class="kw-2">ref</span> <span class="ident">elem_type_info</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">Cow::Borrowed</span>(<span class="ident">elem_type_info</span>)),
+                <span class="ident">PgTypeKind::Enum</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+                <span class="ident">PgTypeKind::Range</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+            },
+            <span class="ident">PgType::DeclareWithOid</span>(<span class="ident">oid</span>) =&gt; {
+                <span class="macro">unreachable!</span>(<span class="string">&quot;(bug) use of unresolved type declaration [oid={}]&quot;</span>, <span class="ident">oid</span>);
+            }
+            <span class="ident">PgType::DeclareWithName</span>(<span class="ident">name</span>) =&gt; {
+                <span class="macro">unreachable!</span>(<span class="string">&quot;(bug) use of unresolved type declaration [name={}]&quot;</span>, <span class="ident">name</span>);
             }
         }
     }

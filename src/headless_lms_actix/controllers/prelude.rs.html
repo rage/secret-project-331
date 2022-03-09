@@ -18,6 +18,7 @@
 <span id="16">16</span>
 <span id="17">17</span>
 <span id="18">18</span>
+<span id="19">19</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Re-exports commonly used types for convenient use across the crate.</span>
 <span class="doccomment">//! Intended to be glob-imported like `use crate::controllers::prelude::*;`.</span>
 
@@ -26,7 +27,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization</span>::{<span class="ident">authorize</span>, <span class="ident">Action</span> <span class="kw">as</span> <span class="ident">Act</span>, <span class="ident">AuthUser</span>, <span class="ident">Resource</span> <span class="kw">as</span> <span class="ident">Res</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::generated_docs</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">actix_multipart::Multipart</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>, <span class="ident">ServiceConfig</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">ServiceConfig</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">anyhow::Context</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">headless_lms_models</span> <span class="kw">as</span> <span class="ident">models</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{

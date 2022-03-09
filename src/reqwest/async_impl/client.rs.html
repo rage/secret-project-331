@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;reqwest-0.11.8&#x2F;src&#x2F;async_impl&#x2F;client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;reqwest-0.11.9&#x2F;src&#x2F;async_impl&#x2F;client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.png" alt="logo"></div>
         </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../rust-logo.png" alt="logo"></a><nav class="sub"><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
@@ -1888,6 +1888,73 @@
 <span id="1886">1886</span>
 <span id="1887">1887</span>
 <span id="1888">1888</span>
+<span id="1889">1889</span>
+<span id="1890">1890</span>
+<span id="1891">1891</span>
+<span id="1892">1892</span>
+<span id="1893">1893</span>
+<span id="1894">1894</span>
+<span id="1895">1895</span>
+<span id="1896">1896</span>
+<span id="1897">1897</span>
+<span id="1898">1898</span>
+<span id="1899">1899</span>
+<span id="1900">1900</span>
+<span id="1901">1901</span>
+<span id="1902">1902</span>
+<span id="1903">1903</span>
+<span id="1904">1904</span>
+<span id="1905">1905</span>
+<span id="1906">1906</span>
+<span id="1907">1907</span>
+<span id="1908">1908</span>
+<span id="1909">1909</span>
+<span id="1910">1910</span>
+<span id="1911">1911</span>
+<span id="1912">1912</span>
+<span id="1913">1913</span>
+<span id="1914">1914</span>
+<span id="1915">1915</span>
+<span id="1916">1916</span>
+<span id="1917">1917</span>
+<span id="1918">1918</span>
+<span id="1919">1919</span>
+<span id="1920">1920</span>
+<span id="1921">1921</span>
+<span id="1922">1922</span>
+<span id="1923">1923</span>
+<span id="1924">1924</span>
+<span id="1925">1925</span>
+<span id="1926">1926</span>
+<span id="1927">1927</span>
+<span id="1928">1928</span>
+<span id="1929">1929</span>
+<span id="1930">1930</span>
+<span id="1931">1931</span>
+<span id="1932">1932</span>
+<span id="1933">1933</span>
+<span id="1934">1934</span>
+<span id="1935">1935</span>
+<span id="1936">1936</span>
+<span id="1937">1937</span>
+<span id="1938">1938</span>
+<span id="1939">1939</span>
+<span id="1940">1940</span>
+<span id="1941">1941</span>
+<span id="1942">1942</span>
+<span id="1943">1943</span>
+<span id="1944">1944</span>
+<span id="1945">1945</span>
+<span id="1946">1946</span>
+<span id="1947">1947</span>
+<span id="1948">1948</span>
+<span id="1949">1949</span>
+<span id="1950">1950</span>
+<span id="1951">1951</span>
+<span id="1952">1952</span>
+<span id="1953">1953</span>
+<span id="1954">1954</span>
+<span id="1955">1955</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>,))]</span>
 <span class="kw">use</span> <span class="ident">std::any::Any</span>;
 <span class="kw">use</span> <span class="ident">std::net::IpAddr</span>;
@@ -1912,7 +1979,7 @@
 <span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
 <span class="kw">use</span> <span class="ident">tokio::time::Sleep</span>;
 
-<span class="kw">use</span> <span class="ident">log::debug</span>;
+<span class="kw">use</span> <span class="ident">log</span>::{<span class="ident">debug</span>, <span class="ident">trace</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::decoder::Accepts</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::request</span>::{<span class="ident">Request</span>, <span class="ident">RequestBuilder</span>};
@@ -1993,6 +2060,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__tls&quot;</span>)]</span>
     <span class="ident">tls</span>: <span class="ident">TlsBackend</span>,
     <span class="ident">http_version_pref</span>: <span class="ident">HttpVersionPref</span>,
+    <span class="ident">http09_responses</span>: <span class="ident">bool</span>,
     <span class="ident">http1_title_case_headers</span>: <span class="ident">bool</span>,
     <span class="ident">http2_initial_stream_window_size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
     <span class="ident">http2_initial_connection_window_size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
@@ -2056,6 +2124,7 @@
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__tls&quot;</span>)]</span>
                 <span class="ident">tls</span>: <span class="ident">TlsBackend::default</span>(),
                 <span class="ident">http_version_pref</span>: <span class="ident">HttpVersionPref::All</span>,
+                <span class="ident">http09_responses</span>: <span class="bool-val">false</span>,
                 <span class="ident">http1_title_case_headers</span>: <span class="bool-val">false</span>,
                 <span class="ident">http2_initial_stream_window_size</span>: <span class="prelude-val">None</span>,
                 <span class="ident">http2_initial_connection_window_size</span>: <span class="prelude-val">None</span>,
@@ -2347,6 +2416,10 @@
         <span class="ident">builder</span>.<span class="ident">pool_idle_timeout</span>(<span class="ident">config</span>.<span class="ident">pool_idle_timeout</span>);
         <span class="ident">builder</span>.<span class="ident">pool_max_idle_per_host</span>(<span class="ident">config</span>.<span class="ident">pool_max_idle_per_host</span>);
         <span class="ident">connector</span>.<span class="ident">set_keepalive</span>(<span class="ident">config</span>.<span class="ident">tcp_keepalive</span>);
+
+        <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">http09_responses</span> {
+            <span class="ident">builder</span>.<span class="ident">http09_responses</span>(<span class="bool-val">true</span>);
+        }
 
         <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">http1_title_case_headers</span> {
             <span class="ident">builder</span>.<span class="ident">http1_title_case_headers</span>(<span class="bool-val">true</span>);
@@ -2729,6 +2802,12 @@
     <span class="doccomment">/// Only use HTTP/1.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http1_only</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
         <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">http_version_pref</span> <span class="op">=</span> <span class="ident">HttpVersionPref::Http1</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Allow HTTP/0.9 responses</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http09_responses</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">ClientBuilder</span> {
+        <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">http09_responses</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
@@ -3308,6 +3387,8 @@
 
                 <span class="ident">urls</span>: <span class="ident">Vec::new</span>(),
 
+                <span class="ident">retry_count</span>: <span class="number">0</span>,
+
                 <span class="ident">client</span>: <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clone</span>(),
 
                 <span class="ident">in_flight</span>,
@@ -3518,6 +3599,8 @@
 
         <span class="ident">urls</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span>,
 
+        <span class="ident">retry_count</span>: <span class="ident">usize</span>,
+
         <span class="ident">client</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">ClientRef</span><span class="op">&gt;</span>,
 
         <span class="attribute">#[<span class="ident">pin</span>]</span>
@@ -3543,6 +3626,54 @@
     <span class="kw">fn</span> <span class="ident">headers</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">HeaderMap</span> {
         <span class="self">self</span>.<span class="ident">project</span>().<span class="ident">headers</span>
     }
+
+    <span class="kw">fn</span> <span class="ident">retry_error</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">err</span>: <span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)) -&gt; <span class="ident">bool</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">is_retryable_error</span>(<span class="ident">err</span>) {
+            <span class="kw">return</span> <span class="bool-val">false</span>;
+        }
+
+        <span class="macro">trace!</span>(<span class="string">&quot;can retry {:?}&quot;</span>, <span class="ident">err</span>);
+
+        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">body</span> {
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">body</span>)) =&gt; <span class="ident">Body::reusable</span>(<span class="ident">body</span>.<span class="ident">clone</span>()),
+            <span class="prelude-val">Some</span>(<span class="prelude-val">None</span>) =&gt; {
+                <span class="macro">debug!</span>(<span class="string">&quot;error was retryable, but body not reusable&quot;</span>);
+                <span class="kw">return</span> <span class="bool-val">false</span>;
+            }
+            <span class="prelude-val">None</span> =&gt; <span class="ident">Body::empty</span>(),
+        };
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">retry_count</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span> {
+            <span class="macro">trace!</span>(<span class="string">&quot;retry count too high&quot;</span>);
+            <span class="kw">return</span> <span class="bool-val">false</span>;
+        }
+        <span class="self">self</span>.<span class="ident">retry_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+
+        <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">expect_uri</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">url</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">hyper::Request::builder</span>()
+            .<span class="ident">method</span>(<span class="self">self</span>.<span class="ident">method</span>.<span class="ident">clone</span>())
+            .<span class="ident">uri</span>(<span class="ident">uri</span>)
+            .<span class="ident">body</span>(<span class="ident">body</span>.<span class="ident">into_stream</span>())
+            .<span class="ident">expect</span>(<span class="string">&quot;valid request parts&quot;</span>);
+
+        <span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">headers_mut</span>() <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">clone</span>();
+
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">in_flight</span>().<span class="ident">get_mut</span>() <span class="op">=</span> <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">hyper</span>.<span class="ident">request</span>(<span class="ident">req</span>);
+
+        <span class="bool-val">true</span>
+    }
+}
+
+<span class="kw">fn</span> <span class="ident">is_retryable_error</span>(<span class="ident">err</span>: <span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)) -&gt; <span class="ident">bool</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cause</span>) <span class="op">=</span> <span class="ident">err</span>.<span class="ident">source</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">cause</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">h2::Error</span><span class="op">&gt;</span>() {
+            <span class="comment">// They sent us a graceful shutdown, try with a new connection!</span>
+            <span class="kw">return</span> <span class="ident">err</span>.<span class="ident">is_go_away</span>()
+                <span class="op">&amp;&amp;</span> <span class="ident">err</span>.<span class="ident">is_remote</span>()
+                <span class="op">&amp;&amp;</span> <span class="ident">err</span>.<span class="ident">reason</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">h2::Reason::NO_ERROR</span>);
+        }
+    }
+    <span class="bool-val">false</span>
 }
 
 <span class="kw">impl</span> <span class="ident">Pending</span> {
@@ -3586,6 +3717,9 @@
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">in_flight</span>().<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>) {
                 <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) =&gt; {
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">retry_error</span>(<span class="kw-2">&amp;</span><span class="ident">e</span>) {
+                        <span class="kw">continue</span>;
+                    }
                     <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::request</span>(<span class="ident">e</span>).<span class="ident">with_url</span>(<span class="self">self</span>.<span class="ident">url</span>.<span class="ident">clone</span>())));
                 }
                 <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">res</span>)) =&gt; <span class="ident">res</span>,

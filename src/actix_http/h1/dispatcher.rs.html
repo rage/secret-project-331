@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-rc.1&#x2F;src&#x2F;h1&#x2F;dispatcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.3&#x2F;src&#x2F;h1&#x2F;dispatcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png" alt="logo"></div>
         </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png" alt="logo"></a><nav class="sub"><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
@@ -1253,6 +1253,79 @@
 <span id="1251">1251</span>
 <span id="1252">1252</span>
 <span id="1253">1253</span>
+<span id="1254">1254</span>
+<span id="1255">1255</span>
+<span id="1256">1256</span>
+<span id="1257">1257</span>
+<span id="1258">1258</span>
+<span id="1259">1259</span>
+<span id="1260">1260</span>
+<span id="1261">1261</span>
+<span id="1262">1262</span>
+<span id="1263">1263</span>
+<span id="1264">1264</span>
+<span id="1265">1265</span>
+<span id="1266">1266</span>
+<span id="1267">1267</span>
+<span id="1268">1268</span>
+<span id="1269">1269</span>
+<span id="1270">1270</span>
+<span id="1271">1271</span>
+<span id="1272">1272</span>
+<span id="1273">1273</span>
+<span id="1274">1274</span>
+<span id="1275">1275</span>
+<span id="1276">1276</span>
+<span id="1277">1277</span>
+<span id="1278">1278</span>
+<span id="1279">1279</span>
+<span id="1280">1280</span>
+<span id="1281">1281</span>
+<span id="1282">1282</span>
+<span id="1283">1283</span>
+<span id="1284">1284</span>
+<span id="1285">1285</span>
+<span id="1286">1286</span>
+<span id="1287">1287</span>
+<span id="1288">1288</span>
+<span id="1289">1289</span>
+<span id="1290">1290</span>
+<span id="1291">1291</span>
+<span id="1292">1292</span>
+<span id="1293">1293</span>
+<span id="1294">1294</span>
+<span id="1295">1295</span>
+<span id="1296">1296</span>
+<span id="1297">1297</span>
+<span id="1298">1298</span>
+<span id="1299">1299</span>
+<span id="1300">1300</span>
+<span id="1301">1301</span>
+<span id="1302">1302</span>
+<span id="1303">1303</span>
+<span id="1304">1304</span>
+<span id="1305">1305</span>
+<span id="1306">1306</span>
+<span id="1307">1307</span>
+<span id="1308">1308</span>
+<span id="1309">1309</span>
+<span id="1310">1310</span>
+<span id="1311">1311</span>
+<span id="1312">1312</span>
+<span id="1313">1313</span>
+<span id="1314">1314</span>
+<span id="1315">1315</span>
+<span id="1316">1316</span>
+<span id="1317">1317</span>
+<span id="1318">1318</span>
+<span id="1319">1319</span>
+<span id="1320">1320</span>
+<span id="1321">1321</span>
+<span id="1322">1322</span>
+<span id="1323">1323</span>
+<span id="1324">1324</span>
+<span id="1325">1325</span>
+<span id="1326">1326</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections::VecDeque</span>,
     <span class="ident">fmt</span>,
@@ -1276,7 +1349,7 @@
     <span class="ident">config::ServiceConfig</span>,
     <span class="ident">error</span>::{<span class="ident">DispatchError</span>, <span class="ident">ParseError</span>, <span class="ident">PayloadError</span>},
     <span class="ident">service::HttpFlow</span>,
-    <span class="ident">Error</span>, <span class="ident">Extensions</span>, <span class="ident">OnConnectData</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">StatusCode</span>,
+    <span class="ident">ConnectionType</span>, <span class="ident">Error</span>, <span class="ident">Extensions</span>, <span class="ident">OnConnectData</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">StatusCode</span>,
 };
 
 <span class="kw">use</span> <span class="kw">super</span>::{
@@ -1406,7 +1479,8 @@
         <span class="ident">error</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DispatchError</span><span class="op">&gt;</span>,
 
         <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">state</span>: <span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span><span class="op">&gt;</span>,
+        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">state</span>: <span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span><span class="op">&gt;</span>,
+        <span class="comment">// when Some(_) dispatcher is in state of receiving request payload</span>
         <span class="ident">payload</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PayloadSender</span><span class="op">&gt;</span>,
         <span class="ident">messages</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">DispatcherMessage</span><span class="op">&gt;</span>,
 
@@ -1429,7 +1503,7 @@
 
 <span class="macro">pin_project!</span> {
     <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">StateProj</span>]</span>
-    <span class="kw">enum</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span><span class="op">&gt;</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
         <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
@@ -1449,7 +1523,7 @@
     <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
     <span class="ident">B</span>: <span class="ident">MessageBody</span>,
 {
-    <span class="kw">fn</span> <span class="ident">is_none</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is_none</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">State::None</span>)
     }
 }
@@ -1629,8 +1703,6 @@
                 <span class="ident">DispatchError::Io</span>(<span class="ident">err</span>)
             })<span class="question-mark">?</span>;
 
-        <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">set</span>(<span class="ident">Flags::KEEP_ALIVE</span>, <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">keep_alive</span>());
-
         <span class="prelude-val">Ok</span>(<span class="ident">size</span>)
     }
 
@@ -1713,7 +1785,12 @@
                     }
 
                     <span class="comment">// all messages are dealt with</span>
-                    <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">PollResponse::DoNothing</span>),
+                    <span class="prelude-val">None</span> =&gt; {
+                        <span class="comment">// start keep-alive if last request allowed it</span>
+                        <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">set</span>(<span class="ident">Flags::KEEP_ALIVE</span>, <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">keep_alive</span>());
+
+                        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">PollResponse::DoNothing</span>);
+                    }
                 },
 
                 <span class="ident">StateProj::ServiceCall</span> { <span class="ident">fut</span> } =&gt; {
@@ -1941,14 +2018,77 @@
         <span class="kw">let</span> <span class="ident">can_not_read</span> <span class="op">=</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">can_read</span>(<span class="ident">cx</span>);
 
         <span class="comment">// limit amount of non-processed requests</span>
-        <span class="kw">if</span> <span class="ident">pipeline_queue_full</span> <span class="op">|</span><span class="op">|</span> <span class="ident">can_not_read</span> {
+        <span class="kw">if</span> <span class="ident">pipeline_queue_full</span> {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
 
+        <span class="kw">if</span> <span class="ident">can_not_read</span> {
+            <span class="macro">log::debug!</span>(<span class="string">&quot;cannot read request payload&quot;</span>);
+
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sender</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">this</span>.<span class="ident">payload</span> {
+                <span class="comment">// ...maybe handler does not want to read any more payload...</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PayloadStatus::Dropped</span> <span class="op">=</span> <span class="ident">sender</span>.<span class="ident">need_read</span>(<span class="ident">cx</span>) {
+                    <span class="macro">log::debug!</span>(<span class="string">&quot;handler dropped payload early; attempt to clean connection&quot;</span>);
+                    <span class="comment">// ...in which case poll request payload a few times</span>
+                    <span class="kw">loop</span> {
+                        <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">decode</span>(<span class="ident">this</span>.<span class="ident">read_buf</span>)<span class="question-mark">?</span> {
+                            <span class="prelude-val">Some</span>(<span class="ident">msg</span>) =&gt; {
+                                <span class="kw">match</span> <span class="ident">msg</span> {
+                                    <span class="comment">// payload decoded did not yield EOF yet</span>
+                                    <span class="ident">Message::Chunk</span>(<span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; {
+                                        <span class="comment">// if non-clean connection, next loop iter will detect empty</span>
+                                        <span class="comment">// read buffer and close connection</span>
+                                    }
+
+                                    <span class="comment">// connection is in clean state for next request</span>
+                                    <span class="ident">Message::Chunk</span>(<span class="prelude-val">None</span>) =&gt; {
+                                        <span class="macro">log::debug!</span>(<span class="string">&quot;connection successfully cleaned&quot;</span>);
+
+                                        <span class="comment">// reset dispatcher state</span>
+                                        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">payload</span>.<span class="ident">take</span>();
+                                        <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::None</span>);
+
+                                        <span class="comment">// break out of payload decode loop</span>
+                                        <span class="kw">break</span>;
+                                    }
+
+                                    <span class="comment">// Either whole payload is read and loop is broken or more data</span>
+                                    <span class="comment">// was expected in which case connection is closed. In both</span>
+                                    <span class="comment">// situations dispatcher cannot get here.</span>
+                                    <span class="ident">Message::Item</span>(<span class="kw">_</span>) =&gt; {
+                                        <span class="macro">unreachable!</span>(<span class="string">&quot;dispatcher is in payload receive state&quot;</span>)
+                                    }
+                                }
+                            }
+
+                            <span class="comment">// not enough info to decide if connection is going to be clean or not</span>
+                            <span class="prelude-val">None</span> =&gt; {
+                                <span class="macro">log::error!</span>(
+                                    <span class="string">&quot;handler did not read whole payload and dispatcher could not \
+                                    drain read buf; return 500 and close connection&quot;</span>
+                                );
+
+                                <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::SHUTDOWN</span>);
+                                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::internal_server_error</span>().<span class="ident">drop_body</span>();
+                                <span class="ident">res</span>.<span class="ident">head_mut</span>().<span class="ident">set_connection_type</span>(<span class="ident">ConnectionType::Close</span>);
+                                <span class="ident">this</span>.<span class="ident">messages</span>.<span class="ident">push_back</span>(<span class="ident">DispatcherMessage::Error</span>(<span class="ident">res</span>));
+                                <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DispatchError::HandlerDroppedPayload</span>);
+                                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
+                            }
+                        }
+                    }
+                }
+            } <span class="kw">else</span> {
+                <span class="comment">// can_not_read and no request payload</span>
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
+            }
+        }
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">updated</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
+        <span class="comment">// decode from read buf as many full requests as possible</span>
         <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">decode</span>(<span class="ident">this</span>.<span class="ident">read_buf</span>) {
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">msg</span>)) =&gt; {
@@ -2123,10 +2263,16 @@
                 <span class="string">&quot;dispatcher should not be in keep-alive phase if state is not none: {:?}&quot;</span>,
                 <span class="ident">this</span>.<span class="ident">state</span>,
             );
-            <span class="macro">debug_assert!</span>(
-                <span class="ident">this</span>.<span class="ident">write_buf</span>.<span class="ident">is_empty</span>(),
-                <span class="string">&quot;dispatcher should not be in keep-alive phase if write_buf is not empty&quot;</span>,
-            );
+
+            <span class="comment">// Assert removed by @robjtede on account of issue #2655. There are cases where an I/O</span>
+            <span class="comment">// flush can be pending after entering the keep-alive state causing the subsequent flush</span>
+            <span class="comment">// wake up to panic here. This appears to be a Linux-only problem. Leaving original code</span>
+            <span class="comment">// below for posterity because a simple and reliable test could not be found to trigger</span>
+            <span class="comment">// the behavior.</span>
+            <span class="comment">// debug_assert!(</span>
+            <span class="comment">//     this.write_buf.is_empty(),</span>
+            <span class="comment">//     &quot;dispatcher should not be in keep-alive phase if write_buf is not empty&quot;,</span>
+            <span class="comment">// );</span>
 
             <span class="comment">// keep-alive timer has timed out</span>
             <span class="kw">if</span> <span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">is_ready</span>() {

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-rc.1&#x2F;src&#x2F;h1&#x2F;decoder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.3&#x2F;src&#x2F;h1&#x2F;decoder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png" alt="logo"></div>
         </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html"><img src="https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png" alt="logo"></a><nav class="sub"><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
@@ -1039,6 +1039,18 @@
 <span id="1037">1037</span>
 <span id="1038">1038</span>
 <span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">convert::TryFrom</span>, <span class="ident">io</span>, <span class="ident">marker::PhantomData</span>, <span class="ident">mem::MaybeUninit</span>, <span class="ident">task::Poll</span>};
 
 <span class="kw">use</span> <span class="ident">actix_codec::Decoder</span>;
@@ -1250,15 +1262,16 @@
 
         <span class="kw">let</span> (<span class="ident">len</span>, <span class="ident">method</span>, <span class="ident">uri</span>, <span class="ident">ver</span>, <span class="ident">h_len</span>) <span class="op">=</span> {
             <span class="comment">// SAFETY:</span>
-            <span class="comment">// Create an uninitialized array of `MaybeUninit`. The `assume_init` is</span>
-            <span class="comment">// safe because the type we are claiming to have initialized here is a</span>
-            <span class="comment">// bunch of `MaybeUninit`s, which do not require initialization.</span>
+            <span class="comment">// Create an uninitialized array of `MaybeUninit`. The `assume_init` is safe because the</span>
+            <span class="comment">// type we are claiming to have initialized here is a bunch of `MaybeUninit`s, which</span>
+            <span class="comment">// do not require initialization.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parsed</span> <span class="op">=</span> <span class="kw">unsafe</span> {
                 <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">httparse::Header</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>; <span class="ident">MAX_HEADERS</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>()
                     .<span class="ident">assume_init</span>()
             };
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">httparse::Request::new</span>(<span class="kw-2">&amp;mut</span> []);
+
             <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">parse_with_uninit_headers</span>(<span class="ident">src</span>, <span class="kw-2">&amp;mut</span> <span class="ident">parsed</span>)<span class="question-mark">?</span> {
                 <span class="ident">httparse::Status::Complete</span>(<span class="ident">len</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">method</span> <span class="op">=</span> <span class="ident">Method::from_bytes</span>(<span class="ident">req</span>.<span class="ident">method</span>.<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>())
@@ -1273,6 +1286,7 @@
 
                     (<span class="ident">len</span>, <span class="ident">method</span>, <span class="ident">uri</span>, <span class="ident">version</span>, <span class="ident">req</span>.<span class="ident">headers</span>.<span class="ident">len</span>())
                 }
+
                 <span class="ident">httparse::Status::Partial</span> =&gt; {
                     <span class="kw">return</span> <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">MAX_BUFFER_SIZE</span> {
                         <span class="macro">trace!</span>(<span class="string">&quot;MAX_BUFFER_SIZE unprocessed data reached, closing&quot;</span>);
@@ -1332,22 +1346,35 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span>: [<span class="ident">HeaderIndex</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span> <span class="ident">EMPTY_HEADER_INDEX_ARRAY</span>;
 
         <span class="kw">let</span> (<span class="ident">len</span>, <span class="ident">ver</span>, <span class="ident">status</span>, <span class="ident">h_len</span>) <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parsed</span>: [<span class="ident">httparse::Header</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span> <span class="ident">EMPTY_HEADER_ARRAY</span>;
+            <span class="comment">// SAFETY:</span>
+            <span class="comment">// Create an uninitialized array of `MaybeUninit`. The `assume_init` is safe because the</span>
+            <span class="comment">// type we are claiming to have initialized here is a bunch of `MaybeUninit`s, which</span>
+            <span class="comment">// do not require initialization.</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parsed</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+                <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">httparse::Header</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>; <span class="ident">MAX_HEADERS</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>()
+                    .<span class="ident">assume_init</span>()
+            };
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">httparse::Response::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">parsed</span>);
-            <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">parse</span>(<span class="ident">src</span>)<span class="question-mark">?</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">httparse::Response::new</span>(<span class="kw-2">&amp;mut</span> []);
+
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">httparse::ParserConfig::default</span>();
+            <span class="ident">config</span>.<span class="ident">allow_spaces_after_header_name_in_responses</span>(<span class="bool-val">true</span>);
+
+            <span class="kw">match</span> <span class="ident">config</span>.<span class="ident">parse_response_with_uninit_headers</span>(<span class="kw-2">&amp;mut</span> <span class="ident">res</span>, <span class="ident">src</span>, <span class="kw-2">&amp;mut</span> <span class="ident">parsed</span>)<span class="question-mark">?</span> {
                 <span class="ident">httparse::Status::Complete</span>(<span class="ident">len</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">version</span>.<span class="ident">unwrap</span>() <span class="op">==</span> <span class="number">1</span> {
                         <span class="ident">Version::HTTP_11</span>
                     } <span class="kw">else</span> {
                         <span class="ident">Version::HTTP_10</span>
                     };
+
                     <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">StatusCode::from_u16</span>(<span class="ident">res</span>.<span class="ident">code</span>.<span class="ident">unwrap</span>())
                         .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ParseError::Status</span>)<span class="question-mark">?</span>;
                     <span class="ident">HeaderIndex::record</span>(<span class="ident">src</span>, <span class="ident">res</span>.<span class="ident">headers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">headers</span>);
 
                     (<span class="ident">len</span>, <span class="ident">version</span>, <span class="ident">status</span>, <span class="ident">res</span>.<span class="ident">headers</span>.<span class="ident">len</span>())
                 }
+
                 <span class="ident">httparse::Status::Partial</span> =&gt; {
                     <span class="kw">return</span> <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">MAX_BUFFER_SIZE</span> {
                         <span class="macro">error!</span>(<span class="string">&quot;MAX_BUFFER_SIZE unprocessed data reached, closing&quot;</span>);
@@ -1398,9 +1425,6 @@
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">EMPTY_HEADER_INDEX_ARRAY</span>: [<span class="ident">HeaderIndex</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span>
     [<span class="ident">EMPTY_HEADER_INDEX</span>; <span class="ident">MAX_HEADERS</span>];
-
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">EMPTY_HEADER_ARRAY</span>: [<span class="ident">httparse::Header</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span>
-    [<span class="ident">httparse::EMPTY_HEADER</span>; <span class="ident">MAX_HEADERS</span>];
 
 <span class="kw">impl</span> <span class="ident">HeaderIndex</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">record</span>(

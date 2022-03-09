@@ -42,7 +42,7 @@ values.</p>
 <span class="ident">LengthDelimitedCodec::builder</span>()
     .<span class="ident">native_endian</span>()
     .<span class="ident">new_read</span>(<span class="ident">io</span>);</code></pre></div>
-</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.max_frame_length" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../../src/tokio_util/codec/length_delimited.rs.html#775-778" title="goto source code">[src]</a></div><a href="#method.max_frame_length" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.max_frame_length" class="fnname">max_frame_length</a>(&amp;mut self, val: <a class="primitive" href="https://doc.rust-lang.org/1.59.0/std/primitive.usize.html">usize</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.59.0/std/primitive.reference.html">&amp;mut </a>Self</h4></div></summary><div class="docblock"><p>Sets the max frame length</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.max_frame_length" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../../src/tokio_util/codec/length_delimited.rs.html#775-778" title="goto source code">[src]</a></div><a href="#method.max_frame_length" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.max_frame_length" class="fnname">max_frame_length</a>(&amp;mut self, val: <a class="primitive" href="https://doc.rust-lang.org/1.59.0/std/primitive.usize.html">usize</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.59.0/std/primitive.reference.html">&amp;mut </a>Self</h4></div></summary><div class="docblock"><p>Sets the max frame length in bytes</p>
 <p>This configuration option applies to both encoding and decoding. The
 default value is 8MB.</p>
 <p>When decoding, the length field read from the byte stream is checked
@@ -55,7 +55,7 @@ of the <code>LengthDelimitedCodecError</code> type will be returned.</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">tokio_util::codec::LengthDelimitedCodec</span>;
 
 <span class="ident">LengthDelimitedCodec::builder</span>()
-    .<span class="ident">max_frame_length</span>(<span class="number">8</span> <span class="op">*</span> <span class="number">1024</span>)
+    .<span class="ident">max_frame_length</span>(<span class="number">8</span> <span class="op">*</span> <span class="number">1024</span> <span class="op">*</span> <span class="number">1024</span>)
     .<span class="ident">new_read</span>(<span class="ident">io</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.length_field_length" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../../src/tokio_util/codec/length_delimited.rs.html#799-803" title="goto source code">[src]</a></div><a href="#method.length_field_length" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.length_field_length" class="fnname">length_field_length</a>(&amp;mut self, val: <a class="primitive" href="https://doc.rust-lang.org/1.59.0/std/primitive.usize.html">usize</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.59.0/std/primitive.reference.html">&amp;mut </a>Self</h4></div></summary><div class="docblock"><p>Sets the number of bytes used to represent the length field</p>
 <p>The default value is <code>4</code>. The max value is <code>8</code>.</p>

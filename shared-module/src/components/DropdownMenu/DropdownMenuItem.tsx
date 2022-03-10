@@ -24,9 +24,7 @@ interface DropdownMenuProps {
 }
 
 const itemInnerStyles = css`
-  padding: 0;
   border: none;
-  background-color: white;
   padding: 0.5rem 1.5rem;
   background-color: white;
   cursor: pointer;

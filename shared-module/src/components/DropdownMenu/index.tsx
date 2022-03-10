@@ -59,12 +59,12 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ items }) => {
             top: 33px;
             left: 0;
 
-            li:hover {
-              filter: brightness(92%) contrast(110%);
-            }
-
             li + li {
               border-top: 2px solid ${baseTheme.colors.clear[200]};
+            }
+
+            li:hover {
+              filter: brightness(92%) contrast(110%);
             }
           `}
         >

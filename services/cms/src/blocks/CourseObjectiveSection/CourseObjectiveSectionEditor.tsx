@@ -5,6 +5,7 @@ import React from "react"
 
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import { baseTheme } from "../../shared-module/styles"
+import { CMS_EDITOR_SIDEBAR_WIDTH } from "../../shared-module/utils/constants"
 import BlockWrapper from "../BlockWrapper"
 
 import { CourseObjectiveSectionAttributes } from "."
@@ -60,7 +61,7 @@ const CourseObjectiveSectionEditor: React.FC<BlockEditProps<CourseObjectiveSecti
   const { title } = attributes
   return (
     <BlockWrapper id={clientId}>
-      <BreakFromCentered sidebar sidebarPosition="right" sidebarWidth="280px">
+      <BreakFromCentered sidebar sidebarPosition="right" sidebarWidth={CMS_EDITOR_SIDEBAR_WIDTH}>
         <div
           className={css`
             background: ${baseTheme.colors.clear[100]};

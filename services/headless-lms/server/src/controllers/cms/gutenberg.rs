@@ -33,7 +33,7 @@ Endpoint for proxying oembed requests to correct provider using url query param.
 Request:
 ```http
 GET /api/v0/cms/gutenberg/oembed/preview?url=https%3A%2F%2Fyoutube.com%2Fwatch%3Fv%3D123123123 HTTP/1.1
-Content-Type: text/html
+Content-Type: application/json
 
 ```
 
@@ -103,14 +103,18 @@ https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/emb
 Request:
 ```http
 GET /api/v0/cms/gutenberg/themes?context=edit&status=active&_locale=user HTTP/1.1
-Content-Type: text/html
+Content-Type: application/json
 
 ```
 
 Response:
 ```json
 {
-
+    {
+        "theme_supports": {
+                "responsive-embeds": true
+            }
+        }
 }
 
 ```

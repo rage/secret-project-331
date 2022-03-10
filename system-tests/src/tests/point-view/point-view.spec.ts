@@ -40,10 +40,7 @@ test("test", async ({ page, headless }) => {
   ])
 
   // Click text=Page One
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/point-view-for-teachers/chapter-1/page-1' }*/),
-    page.click(`button:text("Edit page"):right-of(:text("Page One"))`),
-  ])
+  await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
 
   // Click text=b
   const frame = await waitForFunction(page, () =>

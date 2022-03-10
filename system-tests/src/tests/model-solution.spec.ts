@@ -85,10 +85,7 @@ test.describe("Model solutions", () => {
     await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
     expectPath(page, "/org/uh-cs/courses/introduction-to-everything/chapter-1")
     // Click text=Page One
-    await Promise.all([
-      page.waitForNavigation(),
-      page.click(`button:text("Edit page"):right-of(:text("Page One"))`),
-    ])
+    await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
     expectPath(page, "/org/uh-cs/courses/introduction-to-everything/chapter-1/page-1")
     // Wait for the frame to be visible
     await page.waitForLoadState("networkidle")

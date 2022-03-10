@@ -35,9 +35,7 @@ test("create quizzes test", async ({ page }) => {
   // Click text=Create course
   await page.click(`button:text("Create"):below(:text("Course language"))`)
 
-  // TODO: The next click sometimes fails because we click before the modal has closed.
-  // Maybe we should wait for a success notification first?
-  await page.waitForTimeout(100)
+  await page.waitForSelector("text=Operation successful!")
 
   await Promise.all([
     page.waitForNavigation(),

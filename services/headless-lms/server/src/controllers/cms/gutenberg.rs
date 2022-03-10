@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use headless_lms_utils::url_to_oembed_endpoint::url_to_oembed_endpoint;
+use serde::{Deserialize, Serialize};
 
 use crate::controllers::prelude::*;
 
@@ -9,18 +10,29 @@ pub struct OEmbedRequest {
     url: String,
 }
 
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub struct ThemeSupports {
+    pub responsive_embeds: bool,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct ThemeResponse {
+    pub theme_supports: ThemeSupports,
+}
+
 // Needed for Spotify oembed, should be fetched from env?
 static APP_USER_AGENT: &str = concat!("moocfi", "/", "0.1.0",);
 
 /**
-GET `/api/v0/cms/oembed/preview?url=https%3A%2F%2Fyoutube.com%2Fwatch%3Fv%3D123123123` - Fetch oembed response from correct provider.
+GET `/api/v0/cms/gutenberg/oembed/preview?url=https%3A%2F%2Fyoutube.com%2Fwatch%3Fv%3D123123123` - Fetch oembed response from correct provider.
 Endpoint for proxying oembed requests to correct provider using url query param.
 
 # Example
 
 Request:
 ```http
-GET /api/v0/cms/oembed/preview?url=https%3A%2F%2Fyoutube.com%2Fwatch%3Fv%3D123123123 HTTP/1.1
+GET /api/v0/cms/gutenberg/oembed/preview?url=https%3A%2F%2Fyoutube.com%2Fwatch%3Fv%3D123123123 HTTP/1.1
 Content-Type: text/html
 
 ```
@@ -82,6 +94,42 @@ async fn get_oembed_data_from_provider(
 }
 
 /**
+GET `/api/v0/cms/gutenberg/themes?context=edit&status=active&_locale=user` - Mock themes response
+Endpoint for proxying themes requests.
+https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/embed/test/index.native.js#L128
+
+# Example
+
+Request:
+```http
+GET /api/v0/cms/gutenberg/themes?context=edit&status=active&_locale=user HTTP/1.1
+Content-Type: text/html
+
+```
+
+Response:
+```json
+{
+
+}
+
+```
+*/
+async fn get_theme_settings(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<ThemeResponse>> {
+    let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    let response = ThemeResponse {
+        theme_supports: ThemeSupports {
+            responsive_embeds: true,
+        },
+    };
+    Ok(web::Json(response))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -89,5 +137,9 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/preview", web::get().to(get_oembed_data_from_provider));
+    cfg.route(
+        "/oembed/preview",
+        web::get().to(get_oembed_data_from_provider),
+    )
+    .route("/themes", web::get().to(get_theme_settings));
 }

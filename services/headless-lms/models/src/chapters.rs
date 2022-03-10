@@ -402,17 +402,17 @@ RETURNING *;
     .execute(&mut tx)
     .await?;
     sqlx::query!(
-        "UPDATE exercise_tasks SET deleted_at = now() WHERE exercise_slide_id = (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL));",
+        "UPDATE exercise_tasks SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_slide_id IN (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL));",
         chapter_id
     )
     .execute(&mut tx).await?;
     sqlx::query!(
-        "UPDATE exercise_slides SET deleted_at = now() WHERE exercise_id = (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL);",
+        "UPDATE exercise_slides SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL);",
         chapter_id
     )
     .execute(&mut tx).await?;
     sqlx::query!(
-        "UPDATE exercises SET deleted_at = now() WHERE chapter_id = $1;",
+        "UPDATE exercises SET deleted_at = now() WHERE deleted_at IS NULL AND chapter_id = $1;",
         chapter_id
     )
     .execute(&mut tx)

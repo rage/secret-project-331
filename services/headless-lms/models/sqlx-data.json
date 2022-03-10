@@ -3476,6 +3476,16 @@
       "nullable": [null, null, null]
     }
   },
+  "4d463289b30366e199adbf4801cc8a685da54990989a74b6c07e592234f41e1b": {
+    "query": "UPDATE exercise_tasks SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_slide_id IN (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL));",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "4e0c321cdf774495ae5abb90d777362066957858b50f1da00e85dcb062f573e8": {
     "query": "\nSELECT pages.id,\n  pages.created_at,\n  pages.updated_at,\n  pages.course_id,\n  pages.exam_id,\n  pages.chapter_id,\n  pages.url_path,\n  pages.title,\n  pages.deleted_at,\n  pages.content,\n  pages.order_number,\n  pages.copied_from\nFROM url_redirections\n  JOIN pages on pages.id = url_redirections.destination_page_id\nWHERE url_redirections.course_id = $1\n  AND old_url_path = $2\n  AND url_redirections.deleted_at IS NULL\n  AND pages.deleted_at IS NULL;\n    ",
     "describe": {
@@ -4192,6 +4202,16 @@
         "Left": ["Uuid"]
       },
       "nullable": [true, true]
+    }
+  },
+  "5c2d00b7d8e7f5656b0c77ba75fdb90aaac7dcdafbd40bf0c6ac411ee1debeac": {
+    "query": "UPDATE exercise_slides SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL);",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
     }
   },
   "5ca1aa049939baf58ecd4ef69a9344cf7cf82ce93aa64f694250008a1ecd5f07": {
@@ -6288,16 +6308,6 @@
       "nullable": [false, false, false, false, false, true, true, true, true, true, true, false]
     }
   },
-  "9c74a126b3c1f7ec98bf0e7f9699c488f1d70414fd40dfa3d61e35a2140716bf": {
-    "query": "UPDATE exercise_tasks SET deleted_at = now() WHERE exercise_slide_id = (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL));",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "9c85b99d223ec35dd6a3d00598117fba6db802ec315cd2d1c38012b577d270bb": {
     "query": "\nSELECT *\nFROM exercises\nWHERE page_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL\n        ",
     "describe": {
@@ -6394,16 +6404,6 @@
       "columns": [],
       "parameters": {
         "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
-  "9d1c44aa44354bba58b24c5575a242ff24152d363990edffed7f8c9b509d26bb": {
-    "query": "UPDATE exercise_slides SET deleted_at = now() WHERE exercise_id = (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL);",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid"]
       },
       "nullable": []
     }
@@ -6534,16 +6534,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true]
-    }
-  },
-  "a2c7e3300231b39184a0aa9b25accaeb700d038a1dd0e93d59436eecb2c1fd02": {
-    "query": "UPDATE exercises SET deleted_at = now() WHERE chapter_id = $1;",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": []
     }
   },
   "a30dd050694b11436fa9f039719f4f0817460468c40fe0649880ff7f7023bdcc": {
@@ -10045,6 +10035,16 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, true, false, true, true, true, false]
+    }
+  },
+  "f3c50d3ee90f67f0195297e40aa65e836cae2eaa96a5e56381ad2e0b47681052": {
+    "query": "UPDATE exercises SET deleted_at = now() WHERE deleted_at IS NULL AND chapter_id = $1;",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
     }
   },
   "f4027fdbb6bf446e8c75423168c3c97e5509c4e44d2246e9894494a96e8f752d": {

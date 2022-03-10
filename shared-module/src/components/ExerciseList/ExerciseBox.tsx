@@ -115,6 +115,12 @@ const ExerciseBox: React.FC<ExerciseBox> = ({
           <a
             className={css`
               text-decoration: none;
+              &:focus-visible {
+                & > div {
+                  background-color: ${baseTheme.colors.grey[500]};
+                  color: ${baseTheme.colors.clear[100]};
+                }
+              }
             `}
             href="replace"
           >

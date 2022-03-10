@@ -8,7 +8,7 @@ import DebugModal from "../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import UHNoBG from "../../../../shared-module/img/uh_without_background.svg"
-import { typography } from "../../../../shared-module/styles"
+import { baseTheme, typography } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import { organizationCoursesPageHref } from "../../../../shared-module/utils/cross-routing"
 
@@ -54,6 +54,15 @@ const OrganizationsList: React.FC = () => {
                 padding: 0em 1em;
                 text-decoration: none;
                 color: #656565;
+
+                &:focus-visible > div {
+                  outline: 2px solid ${baseTheme.colors.green[500]};
+                  outline-offset: 2px;
+                }
+
+                &:focus {
+                  outline: none;
+                }
               `}
             >
               <div

@@ -12,6 +12,7 @@ import { searchPagesWithPhrase, searchPagesWithWords } from "../services/backend
 import { PageSearchResult } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
 import DebugModal from "../shared-module/components/DebugModal"
+import { baseTheme } from "../shared-module/styles"
 import { sanitizeCourseMaterialHtml } from "../utils/sanitizeCourseMaterialHtml"
 
 export interface SearchDialogProps {
@@ -48,6 +49,10 @@ const HeaderBar = styled.div`
 const StyledIcon = css`
   :hover {
     cursor: pointer;
+  }
+  &:focus-visible {
+    outline: 2px solid ${baseTheme.colors.green[500]};
+    outline-offset: 2px;
   }
 `
 
@@ -114,14 +119,23 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
     setOpen(true)
   }
 
+  const openModalOnEnter = (event: React.KeyboardEvent<SVGSVGElement>) => {
+    if (event.key == "Enter") {
+      setOpen(true)
+    }
+  }
+
   return (
     <>
       <FontAwesomeIcon
+        tabIndex={0}
         id="search-for-pages-button"
         className={cx(StyledIcon)}
         icon={faSearch}
         aria-label={t("button-label-search-for-pages")}
+        aria-hidden={false}
         onClick={openModal}
+        onKeyPress={openModalOnEnter}
       />
       {/* eslint-disable-next-line i18next/no-literal-string */}
       <Dialog

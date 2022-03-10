@@ -75,11 +75,13 @@ const Layout: React.FC<LayoutProps> = ({
             returnToPath={returnToPath ?? returnPath}
           >
             {courseId && courseSlug && (
-              <SearchDialog
-                courseId={courseId}
-                courseSlug={courseSlug}
-                organizationSlug={organizationSlug}
-              />
+              <li>
+                <SearchDialog
+                  courseId={courseId}
+                  courseSlug={courseSlug}
+                  organizationSlug={organizationSlug}
+                />
+              </li>
             )}
           </Navbar>
         </nav>

@@ -93,6 +93,10 @@ const PagesInChapterBox: React.FC<PagesInChapterBoxProps> = (props) => {
             className={css`
               color: #1c3b40;
               box-shadow: none;
+              &:focus-visible {
+                outline: 2px solid ${baseTheme.colors.green[500]};
+                outline-offset: 2px;
+              }
             `}
           >
             <ChapterParts {...props}>

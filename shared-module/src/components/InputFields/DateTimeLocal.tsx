@@ -80,7 +80,6 @@ const DateTimeLocal = ({
         className,
       )}
     >
-      {value}
       <label>
         <span>{rest.label}</span>
         <input

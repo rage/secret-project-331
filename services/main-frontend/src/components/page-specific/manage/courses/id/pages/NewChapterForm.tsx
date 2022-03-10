@@ -4,11 +4,12 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { postNewChapter, updateChapter } from "../../../../../../services/backend/chapters"
-import { Chapter } from "../../../../../../shared-module/bindings"
+import { Chapter, NewChapter } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import CheckboxFieldWrapper from "../../../../../../shared-module/components/InputFields/CheckboxFieldWrapper"
 import DateTimeLocal from "../../../../../../shared-module/components/InputFields/DateTimeLocal"
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
+import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import { dateToDateTimeLocalString } from "../../../../../../shared-module/utils/time"
 
 interface NewChapterFormProps {
@@ -37,10 +38,12 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting, dirtyFields, touchedFields },
+    formState: { errors, isValid, isSubmitting },
     setValue,
     getValues,
   } = useForm<Fields>({
+    // eslint-disable-next-line i18next/no-literal-string
+    mode: "onChange",
     defaultValues: {
       name: "",
       chapter_number: chapterNumber,
@@ -50,33 +53,20 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
     },
   })
 
-  console.log(
-    JSON.stringify(
-      {
-        errors: {
-          a: true,
-          name: errors.name,
-          deadline: errors.deadline,
-          chapter_number: errors.chapter_number,
-          opens_at: errors.opens_at,
-        },
-        isSubmitting,
-        isValid,
-        dirtyFields,
-        touchedFields,
-        values: getValues(),
-      },
-      undefined,
-      2,
-    ),
+  const submitMutation = useToastMutation(
+    (data: NewChapter) => {
+      if (newRecord) {
+        return postNewChapter(data)
+      }
+      if (!initialData?.id) {
+        // eslint-disable-next-line i18next/no-literal-string
+        throw new Error("No id for chapter")
+      }
+      return updateChapter(initialData?.id, data)
+    },
+    { notify: true, method: "POST" },
+    { onSuccess: () => onSubmitForm() },
   )
-
-  console.log({
-    chapter_number: chapterNumber,
-    opens_at: null,
-    deadline: null,
-    ...initialData,
-  })
 
   const deadlineRegister = register("deadline", { valueAsDate: true, required: false })
   const opensAtRegister = register("opens_at", { valueAsDate: true, required: false })
@@ -84,28 +74,14 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
   return (
     <form
       onSubmit={handleSubmit(async (data) => {
-        if (newRecord) {
-          await postNewChapter({
-            course_id: courseId,
-            name: data.name,
-            chapter_number: chapterNumber,
-            front_page_id: null,
-            opens_at: data.opens_at,
-            deadline: data.deadline,
-          })
-        } else {
-          if (!initialData?.id) {
-            return
-          }
-          updateChapter(initialData?.id, {
-            name: data.name,
-            front_page_id: null,
-            opens_at: data.opens_at,
-            deadline: data.deadline,
-          })
-        }
-
-        onSubmitForm()
+        submitMutation.mutate({
+          course_id: courseId,
+          name: data.name,
+          chapter_number: chapterNumber,
+          front_page_id: null,
+          opens_at: data.opens_at,
+          deadline: data.deadline,
+        })
       })}
       className={css`
         padding: 1rem 0;

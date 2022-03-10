@@ -36,6 +36,13 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
   courseStructure,
   refetch,
 }) => {
+  const deleteChapterMutation = useToastMutation(
+    (chapterId: string) => {
+      return deleteChapter(chapterId)
+    },
+    { notify: true, method: "DELETE" },
+    { onSuccess: () => refetch() },
+  )
   const { t } = useTranslation()
   const [showEditChapterForm, setShowEditChapterForm] = useState<boolean>(false)
   const [chapterBeingEdited, setChapterBeingEdited] = useState<Chapter | null>(null)
@@ -119,15 +126,14 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
                           },
                         },
                         {
-                          label: t("edit"),
+                          label: t("button-text-delete"),
                           onClick: async () => {
                             if (
                               !confirm(t("message-are-you-sure-you-want-to-delete-this-chapter"))
                             ) {
                               return
                             }
-                            await deleteChapter(chapter.id)
-                            refetch()
+                            deleteChapterMutation.mutate(chapter.id)
                           },
                         },
                       ]}
@@ -189,7 +195,8 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
               variant="primary"
               size="medium"
               onClick={() => {
-                setShowEditChapterForm(!showEditChapterForm)
+                setChapterBeingEdited(null)
+                setShowEditChapterForm(false)
               }}
             >
               {t("button-text-close")}

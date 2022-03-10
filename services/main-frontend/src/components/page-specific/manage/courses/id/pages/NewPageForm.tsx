@@ -76,7 +76,8 @@ const NewPageForm: React.FC<NewPageFormProps> = ({
               className={css`
                 margin-right: 0.5rem;
                 white-space: nowrap;
-                margin-top: 1.5rem;
+                position: relative;
+                top: 4px;
               `}
             >
               {prefix}

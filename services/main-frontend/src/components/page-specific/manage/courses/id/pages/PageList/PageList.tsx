@@ -7,6 +7,7 @@ import { ManagePageOrderAction } from "../../../../../../../reducers/managePageO
 import { deletePage } from "../../../../../../../services/backend/pages"
 import { Chapter, Page } from "../../../../../../../shared-module/bindings"
 import Button from "../../../../../../../shared-module/components/Button"
+import useToastMutation from "../../../../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, typography } from "../../../../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../../../../shared-module/styles/respond"
 import NewPageForm from "../NewPageForm"
@@ -31,6 +32,13 @@ interface Props {
 const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter, pageOrderDispatch }) => {
   const { t } = useTranslation()
   const [showNewPageForm, setShowNewPageForm] = useState(false)
+  const deletePageMutation = useToastMutation(
+    (pageId: string) => {
+      return deletePage(pageId)
+    },
+    { notify: true, method: "DELETE" },
+    { onSuccess: () => refetch() },
+  )
   const handleCreateTopLevelPage = () => {
     setShowNewPageForm(!showNewPageForm)
     refetch()
@@ -39,8 +47,7 @@ const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter, pageOrder
   const handleDeletePage = async (pageId: string, title: string) => {
     const result = confirm(t("page-deletion-confirmation-message", { title }))
     if (result) {
-      await deletePage(pageId)
-      refetch()
+      deletePageMutation.mutate(pageId)
     }
   }
 

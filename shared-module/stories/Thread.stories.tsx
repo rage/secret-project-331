@@ -5,7 +5,7 @@ import React from "react"
 import Thread from "../src/components/Forum/Thread"
 
 export default {
-  title: "Components/Thread",
+  title: "Components/Forum/Thread",
   component: Thread,
 } as Meta
 

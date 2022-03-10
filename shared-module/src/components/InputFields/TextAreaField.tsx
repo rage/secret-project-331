@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import React from "react"
 
 interface TextAreaExtraProps {
-  label: string
+  label?: string
   name?: string
   errorMessage?: string
   placeholder?: string
@@ -20,6 +20,7 @@ const Wrapper = styled.div`
     textarea {
       background: #fcfcfc;
       border: 1.6px solid #dedede;
+      padding: 0.4rem 0.8rem;
     }
 
     span {

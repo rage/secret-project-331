@@ -3,15 +3,14 @@ import styled from "@emotion/styled"
 
 const Wrapper = styled.div`
   background: #fff;
-  width: 60%;
+  width: 100%;
   height: auto;
-  border: 2px solid rgba(205, 205, 205, 0.8);
   border-radius: 4px;
 `
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 2rem 2rem 2rem 2rem;
+  padding: 2rem 2rem 1.6rem 2rem;
 
   h2 {
     align-self: end;
@@ -30,8 +29,7 @@ const Text = styled.p`
   font-size: 20px;
   line-height: 140%;
   font-weight: 500;
-  padding-bottom: 3rem;
-  border-bottom: 2px solid rgba(197, 197, 197, 0.8);
+  padding-bottom: 0rem;
 `
 const Footer = styled.div`
   display: flex;
@@ -42,14 +40,15 @@ const Footer = styled.div`
 const Author = styled.div`
   display: flex;
 
-  p {
+  span {
     margin-right: 10px;
-    color: #b2b2b2;
-    span {
-      color: #32bea6;
-      margin: 0 10px;
-    }
+    color: #535a66;
+    font-size: 20px;
+    align-self: center;
   }
+`
+const ActionTab = styled.div`
+  display: flex;
 `
 const ChatIcon = styled.div`
   display: flex;
@@ -57,17 +56,41 @@ const ChatIcon = styled.div`
 const PlaceholderAvatar = styled.div`
   background: #f3f3f3;
   border-radius: 100%;
+  height: 35px;
+  width: 35px;
+  margin-right: 10px;
+`
+const PlaceholderIcon = styled.div`
+  background: #f3f3f3;
+  border-radius: 100%;
   height: 30px;
   width: 30px;
   margin-right: 10px;
 `
+const StyledReplyIcon = styled.div`
+  display: flex;
+  margin: 0 1.5rem;
 
-const SideNavigation = () => {
+  span {
+    color: #535a66;
+  }
+`
+const StyledReportIcon = styled.span`
+  color: #b66757;
+`
+const TimeLabel = styled.span`
+  color: #535a66;
+`
+
+const Thread = () => {
   return (
     <Wrapper>
       <Header>
-        <h2>New date for final exams</h2>
-        <Tag>Computer science</Tag>
+        <Author>
+          <PlaceholderAvatar></PlaceholderAvatar>
+          <span>Henrik Nygren</span>
+        </Author>
+        <TimeLabel>12hr ago</TimeLabel>
       </Header>
       <Content>
         <Text>
@@ -78,16 +101,18 @@ const SideNavigation = () => {
           unchanged.
         </Text>
         <Footer>
-          <Author>
-            <PlaceholderAvatar></PlaceholderAvatar>
-            <p>
-              Posted by <span>Henrik Nygren</span>
-            </p>
-            <span>12hr ago</span>
-          </Author>
+          <ActionTab>
+            <PlaceholderIcon></PlaceholderIcon>
+            <PlaceholderIcon></PlaceholderIcon>
+            <PlaceholderIcon></PlaceholderIcon>
+            <StyledReplyIcon>
+              <PlaceholderIcon></PlaceholderIcon>
+              <span>Reply</span>
+            </StyledReplyIcon>
+            <StyledReportIcon>Report</StyledReportIcon>
+          </ActionTab>
           <ChatIcon>
-            <PlaceholderAvatar></PlaceholderAvatar>
-            <span>50+</span>
+            <PlaceholderIcon></PlaceholderIcon>
           </ChatIcon>
         </Footer>
       </Content>
@@ -95,4 +120,4 @@ const SideNavigation = () => {
   )
 }
 
-export default SideNavigation
+export default Thread

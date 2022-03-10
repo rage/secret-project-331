@@ -12,10 +12,12 @@ interface RadioFieldExtraProps {
 
 const label = css`
   font-family: system-ui, sans-serif;
-  font-size: 1.2rem;
-  line-height: 1.1;
+  font-size: 16px;
+  margin: 0.5rem 0.5rem 0.5rem 0;
+  line-height: 1;
   display: grid;
   grid-template-columns: 1em auto;
+  justify-content: center;
   gap: 0.5em;
 
   input[type="radio"] {
@@ -23,7 +25,6 @@ const label = css`
     background-color: #fff;
     margin: 0;
     font: inherit;
-    color: currentColor;
     width: 1.15em;
     height: 1.15em;
     border: 1.5px solid #787878;
@@ -43,9 +44,15 @@ const label = css`
     background-color: #37bc9b;
   }
 
+  span {
+    font-family: Lato;
+    font-weight: 400;
+    font-size: 18px;
+  }
+
   input[type="radio"]:checked::before {
     transform: scale(1);
-    background: #37bc9b;
+    background: #1f6964;
   }
 `
 

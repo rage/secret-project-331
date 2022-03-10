@@ -5,7 +5,7 @@ import React from "react"
 import SideNavigation from "../src/components/Forum/SideNavigation"
 
 export default {
-  title: "Components/SideNavigation",
+  title: "Components/Forum/SideNavigation",
   component: SideNavigation,
 } as Meta
 

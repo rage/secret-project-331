@@ -112,10 +112,12 @@ const PlaceholderAvatar = styled.div`
 const StyledButton = styled.button`
   display: flex;
   border: none;
+  justify-content: center;
   padding: 1rem 2rem;
   margin-left: 1rem;
   font-size: 18px;
   color: #313947;
+  width: 21rem;
 `
 const ListItem = styled.li`
   margin-left: 2rem;

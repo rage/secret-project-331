@@ -82,7 +82,7 @@ test("test", async ({ page, headless }) => {
     page,
     headless,
     snapshotName: "search-content-with-two-words-not-just-after-each-other",
-    waitForThisToBeVisibleAndStable: "text=Introduction to Course Material",
+    waitForThisToBeVisibleAndStable: "text=Welcome to Introduction to Course Material",
   })
 
   // phrases should be ranked higher than word matches

@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import { faBullseye } from "@fortawesome/free-solid-svg-icons"
+import { faFingerprint } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -190,7 +190,7 @@ const Navigation: React.FC<NavigationProps> = ({ faqUrl, returnToPath, children 
         <a href="/" aria-label="Home page" role="button">
           <FontAwesomeIcon
             className={cx(StyledIcon)}
-            icon={faBullseye}
+            icon={faFingerprint}
             aria-label={t("home-page")}
             aria-hidden="true"
           ></FontAwesomeIcon>

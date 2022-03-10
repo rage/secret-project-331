@@ -35,24 +35,13 @@ VALUES ($1, $2)
     Ok(())
 }
 
-pub async fn upsert_score_with_grading(
+/// Upserts user score from task grading results. The score can always increase
+/// or decrease, since they represent only a part of the whole user submission.
+pub async fn upsert_with_grading(
     conn: &mut PgConnection,
     user_exercise_slide_state_id: Uuid,
     exercise_task_grading: &ExerciseTaskGrading,
-    user_points_update_strategy: UserPointsUpdateStrategy,
 ) -> ModelResult<UserExerciseTaskState> {
-    let exercise_task_id = exercise_task_grading.exercise_task_id;
-    let user_exercise_task_state = get(conn, exercise_task_id, user_exercise_slide_state_id)
-        .await
-        .optional()?;
-    let user_exercise_task_state_ref = user_exercise_task_state.as_ref();
-
-    let new_score_given = figure_out_new_score_given(
-        user_exercise_task_state_ref.and_then(|x| x.score_given),
-        exercise_task_grading.score_given,
-        user_points_update_strategy,
-    );
-
     let res = sqlx::query_as!(
         UserExerciseTaskState,
         r#"
@@ -67,9 +56,9 @@ SET deleted_at = NULL,
   score_given = $3
 RETURNING *
     "#,
-        exercise_task_id,
+        exercise_task_grading.exercise_task_id,
         user_exercise_slide_state_id,
-        new_score_given,
+        exercise_task_grading.score_given,
     )
     .fetch_one(conn)
     .await?;
@@ -96,6 +85,24 @@ WHERE exercise_task_id = $1
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn get_total_score_by_user_exercise_slide_state_id(
+    conn: &mut PgConnection,
+    user_exercise_slide_state_id: Uuid,
+) -> ModelResult<Option<f32>> {
+    let res = sqlx::query!(
+        "
+SELECT SUM(COALESCE(score_given, 0))
+FROM user_exercise_task_states
+WHERE user_exercise_slide_state_id = $1
+  AND deleted_at IS NULL
+        ",
+        user_exercise_slide_state_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.sum)
 }
 
 pub async fn delete(

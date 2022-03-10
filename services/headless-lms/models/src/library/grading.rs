@@ -7,9 +7,11 @@ use crate::{
     exercise_task_gradings::{self, ExerciseTaskGrading, UserPointsUpdateStrategy},
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, ExerciseTask},
-    exercises::{Exercise, ExerciseStatus},
+    exercises::{ActivityProgress, Exercise, ExerciseStatus, GradingProgress},
     prelude::*,
+    user_exercise_slide_states::{self, UserExerciseSlideState},
     user_exercise_states::{self, UserExerciseState},
+    user_exercise_task_states,
 };
 
 /// Contains data sent by the student when they make a submission for an exercise slide.
@@ -72,7 +74,6 @@ pub async fn grade_user_submission(
     let mut tx = conn.begin().await?;
     let mut results = Vec::with_capacity(user_exercise_task_submissions.len());
 
-    // Exercise is only needed for course id here.
     let user_points_update_strategy = if exercise.exam_id.is_some() {
         UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
     } else {
@@ -92,6 +93,12 @@ pub async fn grade_user_submission(
         new_exercise_slide_submission,
     )
     .await?;
+    let user_exercise_slide_state = user_exercise_slide_states::get_or_insert_by_unique_index(
+        &mut tx,
+        user_exercise_state.id,
+        selected_exercise_slide_id,
+    )
+    .await?;
     for task_submission in user_exercise_task_submissions {
         let exercise_task = exercise_tasks
             .get(&task_submission.exercise_task_id)
@@ -108,22 +115,29 @@ pub async fn grade_user_submission(
             task_submission.data_json,
         )
         .await?;
-        if let Some(_grading) = submission.grading.as_ref() {
-            // user_exercise_task_states::upsert_score_with_grading(
-            //     &mut tx,
-            //     user_exercise_state.id,
-            //     grading,
-            // )
-            // .await?;
+        if let Some(grading) = submission.grading.as_ref() {
+            user_exercise_task_states::upsert_with_grading(
+                &mut tx,
+                user_exercise_slide_state.id,
+                grading,
+            )
+            .await?;
         }
         results.push(submission)
     }
 
-    let user_exercise_state = user_exercise_states::update_user_exercise_state_after_submission(
+    update_user_exercise_slide_state(
         &mut tx,
-        &exercise_slide_submission,
+        &user_exercise_slide_state,
+        user_points_update_strategy,
     )
     .await?;
+    update_user_exercise_state(&mut tx, user_exercise_state, user_points_update_strategy).await?;
+    // let user_exercise_state = user_exercise_states::update_user_exercise_state_after_submission(
+    //     &mut tx,
+    //     &exercise_slide_submission,
+    // )
+    // .await?;
     tx.commit().await?;
 
     let exercise_status = Some(ExerciseStatus {
@@ -176,4 +190,59 @@ async fn grade_user_submission_task(
         grading: Some(grading),
         model_solution_spec,
     })
+}
+
+async fn update_user_exercise_state(
+    conn: &mut PgConnection,
+    user_exercise_state: &UserExerciseState,
+    user_points_update_strategy: UserPointsUpdateStrategy,
+) -> ModelResult<UserExerciseState> {
+    let points_from_slides = user_exercise_slide_states::get_total_score_by_user_exercise_state_id(
+        conn,
+        user_exercise_state.id,
+    )
+    .await?;
+    let new_score_given = user_exercise_task_states::figure_out_new_score_given(
+        user_exercise_state.score_given,
+        points_from_slides,
+        user_points_update_strategy,
+    );
+    let new_user_exercise_state = user_exercise_states::update_grading_state(
+        conn,
+        user_exercise_state.id,
+        new_score_given,
+        GradingProgress::FullyGraded,
+        ActivityProgress::Completed,
+    )
+    .await?;
+    Ok(new_user_exercise_state)
+}
+
+async fn update_user_exercise_slide_state(
+    conn: &mut PgConnection,
+    user_exercise_slide_state: &UserExerciseSlideState,
+    user_points_update_strategy: UserPointsUpdateStrategy,
+) -> ModelResult<()> {
+    let points_from_tasks =
+        user_exercise_task_states::get_total_score_by_user_exercise_slide_state_id(
+            conn,
+            user_exercise_slide_state.id,
+        )
+        .await?;
+    let new_score_given = user_exercise_task_states::figure_out_new_score_given(
+        user_exercise_slide_state.score_given,
+        points_from_tasks,
+        user_points_update_strategy,
+    );
+    let changes = user_exercise_slide_states::update_score_given(
+        conn,
+        user_exercise_slide_state.id,
+        new_score_given,
+    )
+    .await?;
+    info!(
+        "Updating user exercise slide state {} affected {} rows.",
+        user_exercise_slide_state.id, changes
+    );
+    Ok(())
 }

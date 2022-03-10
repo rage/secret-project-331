@@ -416,6 +416,45 @@ WHERE user_id = $1
     Ok(())
 }
 
+pub async fn update_grading_state(
+    conn: &mut PgConnection,
+    id: Uuid,
+    score_given: Option<f32>,
+    grading_progress: GradingProgress,
+    activity_progress: ActivityProgress,
+) -> ModelResult<UserExerciseState> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+UPDATE user_exercise_states
+SET score_given = $1,
+  grading_progress = $2,
+  activity_progress = $3
+WHERE id = $4
+  AND deleted_at IS NULL
+RETURNING id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress as "grading_progress: _",
+  activity_progress as "activity_progress: _",
+  selected_exercise_slide_id
+        "#,
+        score_given,
+        grading_progress as GradingProgress,
+        activity_progress as ActivityProgress,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn update_user_exercise_state_after_submission(
     conn: &mut PgConnection,
     exercise_slide_submission: &ExerciseSlideSubmission,

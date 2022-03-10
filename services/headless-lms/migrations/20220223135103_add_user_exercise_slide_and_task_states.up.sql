@@ -17,6 +17,8 @@ COMMENT ON COLUMN user_exercise_slide_states.deleted_at IS 'Timestamp when the r
 COMMENT ON COLUMN user_exercise_slide_states.user_exercise_state_id IS 'TODO';
 COMMENT ON COLUMN user_exercise_slide_states.exercise_slide_id IS 'TODO';
 COMMENT ON COLUMN user_exercise_slide_states.score_given IS 'TODO';
+CREATE UNIQUE INDEX user_exercise_slide_state_uniqueness ON user_exercise_slide_states (user_exercise_state_id, exercise_slide_id)
+WHERE deleted_at IS NULL;
 CREATE TABLE user_exercise_task_states (
   user_exercise_slide_state_id UUID NOT NULL REFERENCES user_exercise_slide_states,
   exercise_task_id UUID NOT NULL REFERENCES exercise_tasks,

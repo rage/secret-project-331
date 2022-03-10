@@ -1,5 +1,5 @@
 use crate::{
-    course_instances,
+    course_instances, exams,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
     prelude::*,
@@ -28,9 +28,23 @@ pub struct Exercise {
 #[derive(Debug, Serialize, Deserialize, TS)]
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
+    pub can_post_submission: bool,
     pub current_exercise_slide: CourseMaterialExerciseSlide,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
+}
+
+impl CourseMaterialExercise {
+    pub fn clear_grading_information(&mut self) {
+        self.exercise_status = None;
+        self.current_exercise_slide
+            .exercise_tasks
+            .iter_mut()
+            .for_each(|task| {
+                task.model_solution_spec = None;
+                task.previous_submission_grading = None;
+            });
+    }
 }
 
 /**
@@ -282,6 +296,16 @@ pub async fn get_course_material_exercise(
         _ => None,
     };
 
+    let can_post_submission = if let Some(user_id) = user_id {
+        if let Some(exam_id) = exercise.exam_id {
+            exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await?
+        } else {
+            true
+        }
+    } else {
+        false
+    };
+
     let exercise_status = user_exercise_state.map(|user_exercise_state| ExerciseStatus {
         score_given: user_exercise_state.score_given,
         activity_progress: user_exercise_state.activity_progress,
@@ -290,6 +314,7 @@ pub async fn get_course_material_exercise(
 
     Ok(CourseMaterialExercise {
         exercise,
+        can_post_submission,
         current_exercise_slide,
         exercise_status,
     })

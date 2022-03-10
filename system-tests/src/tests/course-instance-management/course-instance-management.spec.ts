@@ -79,7 +79,7 @@ test("test", async ({ page, headless }) => {
     snapshotName: "initial-management-page",
     waitForThisToBeVisibleAndStable: "text=Course instance default",
     page,
-    waitForNotificationsToClear: true,
+    clearNotifications: true,
   })
 
   // Click text=Edit contact details

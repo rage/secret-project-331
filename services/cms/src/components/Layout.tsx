@@ -10,7 +10,6 @@ import Footer from "../shared-module/components/Footer"
 import Navbar from "../shared-module/components/Navigation"
 import SkipLink from "../shared-module/components/SkipLink"
 import { respondToOrLarger } from "../shared-module/styles/respond"
-import basePath from "../shared-module/utils/base-path"
 
 export const SIDEBAR_WIDTH_PX = 280
 
@@ -30,7 +29,7 @@ const DynamicToaster = dynamic(
 
 const Layout: React.FC<LayoutProps> = ({
   children,
-  title = "Secret Project 331",
+  title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
   navVariant,
   faqUrl,
   licenseUrl,

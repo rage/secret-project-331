@@ -81,9 +81,9 @@ test("history test", async ({ page, headless }) => {
   await page.fill("text=Title", "New title!")
 
   // Click text=Save
-  await page.click("text=Save")
+  await page.click("text=Save >> visible=true")
   // TODO: wait for page saved notification
-  await page.waitForSelector(`button:enabled:text("Save")`)
+  await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
   await page.waitForTimeout(100)
 
   // Triple click [placeholder="Exercise name"]
@@ -95,9 +95,9 @@ test("history test", async ({ page, headless }) => {
   await page.fill('[placeholder="Exercise name"]', "New exercise!")
 
   // Click text=Save
-  await page.click("text=Save")
+  await page.click("text=Save >> visible=true")
   // TODO: wait for page saved notification
-  await page.waitForSelector(`button:enabled:text("Save")`)
+  await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
   await page.waitForTimeout(100)
 
   // Click [aria-label="Block: ExerciseTask"] div[role="button"]
@@ -121,8 +121,8 @@ test("history test", async ({ page, headless }) => {
   await frame.check(':nth-match(input[type="checkbox"], 2)')
 
   // Click text=Save
-  await page.click("text=Save")
-  await page.waitForSelector(`button:enabled:text("Save")`)
+  await page.click("text=Save >> visible=true")
+  await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
   await page.waitForTimeout(100)
 
   // Click text=Home

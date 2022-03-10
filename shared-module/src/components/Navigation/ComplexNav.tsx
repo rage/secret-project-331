@@ -1,6 +1,6 @@
 import { css, cx, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faBullseye } from "@fortawesome/free-solid-svg-icons"
+import { faFingerprint } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -231,7 +231,7 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
     <nav role="navigation" className={cx(navbarItems)}>
       <div className={cx(navbarLogo)}>
         <a href="/" aria-label={t("home-page")} role="button">
-          <StyledIcon icon={faBullseye} aria-label={t("home-page")}></StyledIcon>
+          <StyledIcon icon={faFingerprint} aria-label={t("home-page")}></StyledIcon>
         </a>
       </div>
       <div

@@ -23,7 +23,7 @@ const TableWrapper: React.FC = ({ children }) => {
             font-weight: 600;
             font-size: 16px;
             line-height: 16px;
-            color: ${baseTheme.colors.grey[400]};
+            color: ${baseTheme.colors.grey[500]};
           }
         }
       `}

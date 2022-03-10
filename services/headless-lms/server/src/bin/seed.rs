@@ -301,6 +301,17 @@ async fn main() -> Result<()> {
         &users,
     )
     .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("86cbc198-601c-42f4-8e0f-3e6cce49bbfc")?,
+        "Course Structure",
+        "course-structure",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
     roles::insert(
         &mut conn,
         language_teacher,

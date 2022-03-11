@@ -28,6 +28,7 @@ export interface Chapter {
   chapter_number: number
   front_page_id: string | null
   opens_at: Date | null
+  deadline: Date | null
   copied_from: string | null
 }
 
@@ -42,6 +43,7 @@ export interface DatabaseChapter {
   chapter_number: number
   front_page_id: string | null
   opens_at: Date | null
+  deadline: Date | null
   copied_from: string | null
 }
 
@@ -49,8 +51,9 @@ export type ChapterStatus = "open" | "closed"
 
 export interface ChapterUpdate {
   name: string
-  chapter_number: number
-  front_front_page_id: string | null
+  front_page_id: string | null
+  deadline: Date | null
+  opens_at: Date | null
 }
 
 export interface ChapterWithStatus {
@@ -70,7 +73,9 @@ export interface NewChapter {
   name: string
   course_id: string
   chapter_number: number
-  front_front_page_id: string | null
+  front_page_id: string | null
+  opens_at: Date | null
+  deadline: Date | null
 }
 
 export interface UserCourseInstanceChapterProgress {
@@ -98,6 +103,7 @@ export interface ChapterScore {
   chapter_number: number
   front_page_id: string | null
   opens_at: Date | null
+  deadline: Date | null
   copied_from: string | null
   score_given: number
   score_total: number

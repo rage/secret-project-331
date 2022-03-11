@@ -1911,11 +1911,6 @@ pub async fn reorder_pages(
     let mut tx = conn.begin().await?;
     for page in pages {
         if let Some(matching_db_page) = db_pages.iter().find(|p| p.id == page.id) {
-            // if let Some(conflicting_page_record) = conflicting_page {
-            //     let id = conflicting_page_record.id;
-            //     let matchi
-            // }
-
             if matching_db_page.chapter_id == page.chapter_id {
                 // Chapter not changing
                 // Avoid conflicts in order_number since unique indexes cannot be deferred. The random number will not end up committing in the transaction since the loop goes through all the pages and will correct the number.

@@ -44,16 +44,6 @@ const CourseCard = styled.a`
   }
 `
 
-const StyledSettingIcon = styled(SettingIcon)`
-  position: absolute;
-  top: 30px;
-  right: 40px;
-
-  :hover {
-    cursor: pointer;
-  }
-`
-
 const CourseContent = styled.div`
   padding: 60px 28px 0px 40px;
 `
@@ -132,8 +122,20 @@ const CourseComponent: React.FC<CourseCardProps> = ({
   return (
     <CourseCard href={navigateToCourseHref} aria-label={t("course-navigation", { title })}>
       {loginStateContext.signedIn && (
-        <a aria-label={t("manage-course", { title })} href={manageHref}>
-          <StyledSettingIcon />
+        <a
+          aria-label={t("manage-course", { title })}
+          href={manageHref}
+          className={css`
+            position: absolute;
+            top: 30px;
+            right: 40px;
+
+            :hover {
+              cursor: pointer;
+            }
+          `}
+        >
+          <SettingIcon />
         </a>
       )}
 

@@ -36,10 +36,11 @@ test("create quizzes test", async ({ page }) => {
   await page.click(`button:text("Create"):below(:text("Course language"))`)
 
   await page.waitForSelector("text=Operation successful!")
+  await page.waitForTimeout(200)
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("[aria-label=\"Manage course 'quizzes test'\"] svg"),
+    page.click(`a[aria-label="Manage course 'quizzes test'"]`),
   ])
   // Click :nth-match(:text("Manage"), 4)
 

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import SettingIcon from "../../../../imgs/setting.svg"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { fontWeights, headingFont, primaryFont } from "../../../../shared-module/styles"
+import { baseTheme, fontWeights, headingFont, primaryFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
 import Language, { DEFAULT_FLAG_CLIP_PATH } from "./Language"
@@ -37,20 +37,14 @@ const CourseCard = styled.a`
   border-radius: 3px;
   text-decoration: none;
   border: 1px solid #bec3c7;
+  :focus-visible {
+    outline: 2px solid ${baseTheme.colors.green[500]};
+    outline-offset: 2px;
+  }
 
   :hover {
     cursor: pointer;
     background: #ebedee;
-  }
-`
-
-const StyledSettingIcon = styled(SettingIcon)`
-  position: absolute;
-  top: 30px;
-  right: 40px;
-
-  :hover {
-    cursor: pointer;
   }
 `
 
@@ -132,8 +126,25 @@ const CourseComponent: React.FC<CourseCardProps> = ({
   return (
     <CourseCard href={navigateToCourseHref} aria-label={t("course-navigation", { title })}>
       {loginStateContext.signedIn && (
-        <a aria-label={t("manage-course", { title })} href={manageHref}>
-          <StyledSettingIcon />
+        <a
+          className={css`
+            :focus-visible > * {
+              outline: 2px solid ${baseTheme.colors.green[500]};
+              outline-offset: 2px;
+            }
+            outline: none;
+            position: absolute;
+            top: 30px;
+            right: 40px;
+
+            :hover {
+              cursor: pointer;
+            }
+          `}
+          aria-label={t("manage-course", { title })}
+          href={manageHref}
+        >
+          <SettingIcon />
         </a>
       )}
 

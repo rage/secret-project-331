@@ -407,6 +407,43 @@
 <span id="405">405</span>
 <span id="406">406</span>
 <span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -431,6 +468,7 @@
     <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">copied_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
@@ -446,6 +484,7 @@
     <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">copied_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
@@ -471,6 +510,7 @@
             <span class="ident">front_page_id</span>: <span class="ident">chapter</span>.<span class="ident">front_page_id</span>,
             <span class="ident">opens_at</span>: <span class="ident">chapter</span>.<span class="ident">opens_at</span>,
             <span class="ident">copied_from</span>: <span class="ident">chapter</span>.<span class="ident">copied_from</span>,
+            <span class="ident">deadline</span>: <span class="ident">chapter</span>.<span class="ident">deadline</span>,
         }
     }
 }
@@ -506,14 +546,17 @@
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">front_front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">TS</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChapterUpdate</span> {
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">front_front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
@@ -617,14 +660,16 @@ where id = $1;&quot;</span>,
         <span class="ident">DatabaseChapter</span>,
         <span class="string">r#&quot;
 UPDATE chapters
-SET name = $1,
-  chapter_number = $2
-WHERE id = $3
+SET name = $2,
+  deadline = $3,
+  opens_at = $4
+WHERE id = $1
 RETURNING *;
     &quot;#</span>,
+        <span class="ident">chapter_id</span>,
         <span class="ident">chapter_update</span>.<span class="ident">name</span>,
-        <span class="ident">chapter_update</span>.<span class="ident">chapter_number</span>,
-        <span class="ident">chapter_id</span>
+        <span class="ident">chapter_update</span>.<span class="ident">deadline</span>,
+        <span class="ident">chapter_update</span>.<span class="ident">opens_at</span>,
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -687,7 +732,8 @@ SELECT id,
   chapter_number,
   front_page_id,
   opens_at,
-  copied_from
+  copied_from,
+  deadline
 FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -716,7 +762,8 @@ SELECT id,
   chapter_number,
   front_page_id,
   opens_at,
-  copied_from
+  copied_from,
+  deadline
 FROM chapters
 WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
   AND deleted_at IS NULL;
@@ -738,13 +785,15 @@ WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
     <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">DatabaseChapter</span>,
         <span class="string">r#&quot;
-INSERT INTO chapters(name, course_id, chapter_number)
-VALUES($1, $2, $3)
+INSERT INTO chapters(name, course_id, chapter_number, deadline, opens_at)
+VALUES($1, $2, $3, $4, $5)
 RETURNING *;
 &quot;#</span>,
         <span class="ident">chapter</span>.<span class="ident">name</span>,
         <span class="ident">chapter</span>.<span class="ident">course_id</span>,
-        <span class="ident">chapter</span>.<span class="ident">chapter_number</span>
+        <span class="ident">chapter</span>.<span class="ident">chapter_number</span>,
+        <span class="ident">chapter</span>.<span class="ident">deadline</span>,
+        <span class="ident">chapter</span>.<span class="ident">opens_at</span>
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -778,6 +827,7 @@ RETURNING *;
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">deleted</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">DatabaseChapter</span>,
         <span class="string">r#&quot;
@@ -788,8 +838,32 @@ RETURNING *;
 &quot;#</span>,
         <span class="ident">chapter_id</span>
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// We&#39;ll also delete all the pages and exercises so that they don&#39;t conflict with future chapters</span>
+    <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;UPDATE pages SET deleted_at = now() WHERE chapter_id = $1;&quot;</span>,
+        <span class="ident">chapter_id</span>
+    )
+    .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;UPDATE exercise_tasks SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_slide_id IN (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL));&quot;</span>,
+        <span class="ident">chapter_id</span>
+    )
+    .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;UPDATE exercise_slides SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL);&quot;</span>,
+        <span class="ident">chapter_id</span>
+    )
+    .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;UPDATE exercises SET deleted_at = now() WHERE deleted_at IS NULL AND chapter_id = $1;&quot;</span>,
+        <span class="ident">chapter_id</span>
+    )
+    .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">deleted</span>)
 }
 

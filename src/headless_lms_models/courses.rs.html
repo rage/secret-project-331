@@ -1119,6 +1119,8 @@
 <span id="1117">1117</span>
 <span id="1118">1118</span>
 <span id="1119">1119</span>
+<span id="1120">1120</span>
+<span id="1121">1121</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
@@ -2096,8 +2098,10 @@ WHERE id = $1
             <span class="ident">NewChapter</span> {
                 <span class="ident">chapter_number</span>: <span class="number">1</span>,
                 <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
-                <span class="ident">front_front_page_id</span>: <span class="prelude-val">None</span>,
+                <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
                 <span class="ident">name</span>: <span class="string">&quot;Chapter&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
+                <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
             },
             <span class="ident">user_id</span>,
         )

@@ -2016,6 +2016,108 @@
 <span id="2014">2014</span>
 <span id="2015">2015</span>
 <span id="2016">2016</span>
+<span id="2017">2017</span>
+<span id="2018">2018</span>
+<span id="2019">2019</span>
+<span id="2020">2020</span>
+<span id="2021">2021</span>
+<span id="2022">2022</span>
+<span id="2023">2023</span>
+<span id="2024">2024</span>
+<span id="2025">2025</span>
+<span id="2026">2026</span>
+<span id="2027">2027</span>
+<span id="2028">2028</span>
+<span id="2029">2029</span>
+<span id="2030">2030</span>
+<span id="2031">2031</span>
+<span id="2032">2032</span>
+<span id="2033">2033</span>
+<span id="2034">2034</span>
+<span id="2035">2035</span>
+<span id="2036">2036</span>
+<span id="2037">2037</span>
+<span id="2038">2038</span>
+<span id="2039">2039</span>
+<span id="2040">2040</span>
+<span id="2041">2041</span>
+<span id="2042">2042</span>
+<span id="2043">2043</span>
+<span id="2044">2044</span>
+<span id="2045">2045</span>
+<span id="2046">2046</span>
+<span id="2047">2047</span>
+<span id="2048">2048</span>
+<span id="2049">2049</span>
+<span id="2050">2050</span>
+<span id="2051">2051</span>
+<span id="2052">2052</span>
+<span id="2053">2053</span>
+<span id="2054">2054</span>
+<span id="2055">2055</span>
+<span id="2056">2056</span>
+<span id="2057">2057</span>
+<span id="2058">2058</span>
+<span id="2059">2059</span>
+<span id="2060">2060</span>
+<span id="2061">2061</span>
+<span id="2062">2062</span>
+<span id="2063">2063</span>
+<span id="2064">2064</span>
+<span id="2065">2065</span>
+<span id="2066">2066</span>
+<span id="2067">2067</span>
+<span id="2068">2068</span>
+<span id="2069">2069</span>
+<span id="2070">2070</span>
+<span id="2071">2071</span>
+<span id="2072">2072</span>
+<span id="2073">2073</span>
+<span id="2074">2074</span>
+<span id="2075">2075</span>
+<span id="2076">2076</span>
+<span id="2077">2077</span>
+<span id="2078">2078</span>
+<span id="2079">2079</span>
+<span id="2080">2080</span>
+<span id="2081">2081</span>
+<span id="2082">2082</span>
+<span id="2083">2083</span>
+<span id="2084">2084</span>
+<span id="2085">2085</span>
+<span id="2086">2086</span>
+<span id="2087">2087</span>
+<span id="2088">2088</span>
+<span id="2089">2089</span>
+<span id="2090">2090</span>
+<span id="2091">2091</span>
+<span id="2092">2092</span>
+<span id="2093">2093</span>
+<span id="2094">2094</span>
+<span id="2095">2095</span>
+<span id="2096">2096</span>
+<span id="2097">2097</span>
+<span id="2098">2098</span>
+<span id="2099">2099</span>
+<span id="2100">2100</span>
+<span id="2101">2101</span>
+<span id="2102">2102</span>
+<span id="2103">2103</span>
+<span id="2104">2104</span>
+<span id="2105">2105</span>
+<span id="2106">2106</span>
+<span id="2107">2107</span>
+<span id="2108">2108</span>
+<span id="2109">2109</span>
+<span id="2110">2110</span>
+<span id="2111">2111</span>
+<span id="2112">2112</span>
+<span id="2113">2113</span>
+<span id="2114">2114</span>
+<span id="2115">2115</span>
+<span id="2116">2116</span>
+<span id="2117">2117</span>
+<span id="2118">2118</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -2029,7 +2131,7 @@
 <span class="kw">use</span> <span class="ident">url::Url</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">chapters</span>::{<span class="ident">ChapterStatus</span>, <span class="ident">DatabaseChapter</span>},
+    <span class="ident">chapters</span>::{<span class="ident">course_chapters</span>, <span class="ident">ChapterStatus</span>, <span class="ident">DatabaseChapter</span>},
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>},
     <span class="ident">courses</span>::{<span class="ident">get_nondeleted_course_id_by_slug</span>, <span class="ident">Course</span>},
     <span class="ident">exercise_service_info</span>,
@@ -3915,6 +4017,108 @@ WHERE pages.id = $1
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+}
+
+<span class="doccomment">/// Makes the order numebers and chapter ids to match in the db what&#39;s in the page objects</span>
+<span class="doccomment">/// Assumes that all pages belong to the given course id</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">reorder_pages</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">pages</span>: <span class="kw-2">&amp;</span>[<span class="ident">Page</span>],
+    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">db_pages</span> <span class="op">=</span> <span class="ident">course_pages</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">chapters</span> <span class="op">=</span> <span class="ident">course_chapters</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">for</span> <span class="ident">page</span> <span class="kw">in</span> <span class="ident">pages</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">matching_db_page</span>) <span class="op">=</span> <span class="ident">db_pages</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">page</span>.<span class="ident">id</span>) {
+            <span class="kw">if</span> <span class="ident">matching_db_page</span>.<span class="ident">chapter_id</span> <span class="op">==</span> <span class="ident">page</span>.<span class="ident">chapter_id</span> {
+                <span class="comment">// Chapter not changing</span>
+                <span class="comment">// Avoid conflicts in order_number since unique indexes cannot be deferred. The random number will not end up committing in the transaction since the loop goes through all the pages and will correct the number.</span>
+                <span class="macro">sqlx::query!</span>(
+                    <span class="string">&quot;UPDATE pages
+SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
+WHERE pages.order_number = $1
+  AND pages.chapter_id = $2
+  AND deleted_at IS NULL&quot;</span>,
+                    <span class="ident">page</span>.<span class="ident">order_number</span>,
+                    <span class="ident">page</span>.<span class="ident">chapter_id</span>
+                )
+                .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+                .<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="macro">sqlx::query!</span>(
+                    <span class="string">&quot;UPDATE pages SET order_number = $2 WHERE pages.id = $1&quot;</span>,
+                    <span class="ident">page</span>.<span class="ident">id</span>,
+                    <span class="ident">page</span>.<span class="ident">order_number</span>
+                )
+                .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+                .<span class="kw">await</span><span class="question-mark">?</span>;
+            } <span class="kw">else</span> {
+                <span class="comment">// Chapter changes</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">old_chapter_id</span>) <span class="op">=</span> <span class="ident">matching_db_page</span>.<span class="ident">chapter_id</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_chapter_id</span>) <span class="op">=</span> <span class="ident">page</span>.<span class="ident">chapter_id</span> {
+                        <span class="comment">// Moving page to another chapter</span>
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">old_chapter</span>) <span class="op">=</span> <span class="ident">chapters</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">old_chapter_id</span>)
+                        {
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_chapter</span>) <span class="op">=</span>
+                                <span class="ident">chapters</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">new_chapter_id</span>)
+                            {
+                                <span class="kw">let</span> <span class="ident">old_path</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">page</span>.<span class="ident">url_path</span>;
+                                <span class="kw">let</span> <span class="ident">new_path</span> <span class="op">=</span> <span class="ident">old_path</span>.<span class="ident">replacen</span>(
+                                    <span class="kw-2">&amp;</span><span class="ident">old_chapter</span>.<span class="ident">chapter_number</span>.<span class="ident">to_string</span>(),
+                                    <span class="kw-2">&amp;</span><span class="ident">new_chapter</span>.<span class="ident">chapter_number</span>.<span class="ident">to_string</span>(),
+                                    <span class="number">1</span>,
+                                );
+                                <span class="macro">sqlx::query!</span>(
+                                    <span class="string">&quot;UPDATE pages SET url_path = $2, chapter_id = $3, order_number = $4 WHERE pages.id = $1&quot;</span>,
+                                    <span class="ident">page</span>.<span class="ident">id</span>,
+                                    <span class="ident">new_path</span>,
+                                    <span class="ident">new_chapter</span>.<span class="ident">id</span>,
+                                    <span class="ident">page</span>.<span class="ident">order_number</span>
+                                )
+                                .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+                                .<span class="kw">await</span><span class="question-mark">?</span>;
+                                <span class="macro">sqlx::query!</span>(
+                                    <span class="string">&quot;INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)&quot;</span>,
+                                    <span class="ident">page</span>.<span class="ident">id</span>,
+                                    <span class="ident">old_path</span>,
+                                    <span class="ident">course_id</span>
+                                )
+                                .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+                                .<span class="kw">await</span><span class="question-mark">?</span>;
+                            } <span class="kw">else</span> {
+                                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::InvalidRequest</span>(
+                                    <span class="string">&quot;New chapter not found&quot;</span>.<span class="ident">to_string</span>(),
+                                ));
+                            }
+                        } <span class="kw">else</span> {
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::InvalidRequest</span>(
+                                <span class="string">&quot;Old chapter not found&quot;</span>.<span class="ident">to_string</span>(),
+                            ));
+                        }
+                    } <span class="kw">else</span> {
+                        <span class="comment">// Moving page from a chapter to a top level page</span>
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::InvalidRequest</span>(
+                            <span class="string">&quot;Making a chapter page a top level page is not supported yet&quot;</span>
+                                .<span class="ident">to_string</span>(),
+                        ));
+                    }
+                } <span class="kw">else</span> {
+                    <span class="macro">error!</span>(<span class="string">&quot;Cannot move a top level page to a chapter. matching_db_page.chapter_id: {:?} page.chapter_id: {:?}&quot;</span>, <span class="ident">matching_db_page</span>.<span class="ident">chapter_id</span>, <span class="ident">page</span>.<span class="ident">chapter_id</span>);
+                    <span class="comment">// Moving page from the top level to a chapter</span>
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::InvalidRequest</span>(
+                        <span class="string">&quot;Moving a top level page to a chapter is not supported yet&quot;</span>.<span class="ident">to_string</span>(),
+                    ));
+                }
+            }
+        } <span class="kw">else</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::InvalidRequest</span>(<span class="macro">format!</span>(
+                <span class="string">&quot;Page {} does exist in course {}&quot;</span>,
+                <span class="ident">page</span>.<span class="ident">id</span>, <span class="ident">course_id</span>
+            )));
+        }
+    }
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>

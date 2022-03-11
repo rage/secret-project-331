@@ -19,6 +19,7 @@
   "closed": "Closed!",
   "commenting-on-selection": "Commenting on: {{selection}}",
   "continue": "Continue",
+  "could-not-fetch-embed": "Could not fetch {{provider}} oEmbed with URL: {{url}}",
   "course": "Course",
   "course-has-no-page-at-path": "This course has no page at <1>{{path}}</1>",
   "course-overview": "Course overview",

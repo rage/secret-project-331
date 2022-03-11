@@ -15,8 +15,12 @@ metadata:
       grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
     nginx.ingress.kubernetes.io/server-snippet: |
       location ^~ /oembed/1.0/proxy {
-         return 301 /api/v0/cms/oembed/preview?$args;
-       }
+        return 301 /api/v0/cms/gutenberg/oembed/preview?$args;
+      }
+      location ^~ /wp/v2/themes {
+        return 301 /api/v0/cms/gutenberg/themes?$args;
+      }
+
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:

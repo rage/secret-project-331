@@ -73,7 +73,9 @@ test("test", async ({ page, headless }) => {
 
   // Fill [placeholder="Search..."]
   await page.fill('[placeholder="Search..."]', "welcome course")
-  await page.waitForSelector("text=Introduction to Course Material")
+  await page.waitForSelector(
+    "text=Welcome to Introduction to Course Material In this course you'll...",
+  )
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["aria-hidden-focus", "landmark-one-main"],

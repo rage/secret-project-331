@@ -66,6 +66,7 @@
     "i18next": "^21.6.13",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.32.1",
+    "react-hook-form": "^7.27.1",
     "react-hot-toast": "^2.2.0",
     "react-i18next": "^11.15.6",
     "react-query": "^3.34.16",

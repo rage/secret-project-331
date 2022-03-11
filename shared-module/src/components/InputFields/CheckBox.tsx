@@ -9,6 +9,7 @@ interface CheckboxFieldExtraProps {
   name?: string
   /* onBlur?: (name?: string) => void */
   onChange: (checked: boolean, name?: string) => void
+  className?: string
 }
 
 const ERRORCOLOR = "#F76D82"
@@ -81,12 +82,20 @@ const ERROR = "Please check the secret box"
 
 export type CheckboxProps = React.HTMLAttributes<HTMLInputElement> & CheckboxFieldExtraProps
 
-const CheckBox = ({ onChange, ...rest }: CheckboxFieldExtraProps) => {
+const CheckBox = ({ onChange, className, checked, ...rest }: CheckboxFieldExtraProps) => {
   return (
-    <>
+    <div
+      className={cx(
+        css`
+          margin-bottom: 1rem;
+        `,
+        className,
+      )}
+    >
       <Label {...rest}>
         <input
           type="checkbox"
+          checked={checked}
           aria-describedby={`${rest.label}_error`}
           onChange={({ target: { checked } }) => onChange(checked)}
           {...rest}
@@ -98,7 +107,7 @@ const CheckBox = ({ onChange, ...rest }: CheckboxFieldExtraProps) => {
           {ERROR}
         </span>
       )}
-    </>
+    </div>
   )
 }
 

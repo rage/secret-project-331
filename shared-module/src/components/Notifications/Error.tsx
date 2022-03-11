@@ -65,6 +65,7 @@ const TextWrapper = styled.div`
   display: inline-flex;
   flex-direction: column;
   height: 100%;
+
   ${respondToOrLarger.xs} {
     padding-top: 0.1rem;
   }
@@ -74,6 +75,7 @@ const ErrorHeader = styled.div`
   ${respondToOrLarger.xs} {
     font-size: 1.25rem;
   }
+  margin-bottom: 0.2rem;
   color: ${baseTheme.colors.red[700]};
   line-height: 18px;
 `

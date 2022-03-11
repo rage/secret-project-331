@@ -56,7 +56,6 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChangeName}
             type={"text"}
-            error={false}
           />
           <ContentArea
             title={t("text-field-label-or-header-slug-or-short-name")}
@@ -64,7 +63,6 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange(EXERCISE_SERVICE_SLUG)}
             type={"text"}
-            error={false}
           />
           <ContentArea
             title={t("title-public-url")}
@@ -72,7 +70,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange(SERVICE_PUBLIC_URL)}
             type={"text"}
-            error={!validURL(exercise_service.public_url)}
+            error={!validURL(exercise_service.public_url) ? t("error-title") : undefined}
           />
           <ContentArea
             title={t("title-internal-url")}
@@ -80,7 +78,7 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange(SERVICE_INTERNAL_URL)}
             type={"text"}
-            error={!validURL(exercise_service.internal_url ?? "")}
+            error={!validURL(exercise_service.internal_url ?? "") ? t("error-title") : undefined}
           />
           <ContentArea
             title={t("title-reprocessing-submissions")}
@@ -88,7 +86,11 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange(MAX_REPROCESSING_SUBMISSION_AT_ONCE)}
             type={"number"}
-            error={exercise_service.max_reprocessing_submissions_at_once < 0}
+            error={
+              exercise_service.max_reprocessing_submissions_at_once < 0
+                ? t("error-title")
+                : undefined
+            }
           />
         </CardContent>
         <CardContent>

@@ -1,12 +1,12 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import { fontWeights, headingFont, theme } from "../styles"
+import { baseTheme, fontWeights, headingFont, theme } from "../styles"
 import { defaultFontSizePx } from "../styles/constants"
 import { respondToOrLarger } from "../styles/respond"
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant: "primary" | "secondary" | "tertiary" | "outlined"
+  variant: "primary" | "secondary" | "tertiary" | "outlined" | "blue"
   size: "medium" | "large"
   transform?: "normal" | "uppercase"
   children?: React.ReactNode
@@ -136,6 +136,33 @@ export const TertiaryButtonStyles = (props: ButtonProps) => {
   return TERTIARY_BUTTON_STYLES
 }
 
+export const BlueButtonStyles = (props: ButtonProps) => {
+  const BLUE_BUTTON_STYLES = `
+    text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+    padding: ${theme.buttonSizes[props.size].padding};
+
+    color: ${theme.tertiary.text};
+    background-color: ${baseTheme.colors.blue[700]};
+    border: unset;
+    border: 2px solid ${theme.secondary.border};
+
+    &:hover {
+      border: 2px solid ${baseTheme.colors.blue[500]};
+    }
+
+    &:active {
+      border: 2px solid ${baseTheme.colors.blue[500]};
+    }
+
+    &:disabled {
+      color: ${theme.secondary.disabledText};
+      background-color: ${theme.secondary.disabledBg};
+      border-color: ${theme.secondary.disabledBorder};
+    }
+  `
+  return BLUE_BUTTON_STYLES
+}
+
 const PrimaryButton = styled.button`
   ${BASE_BUTTON_STYLES}
   ${PrimaryButtonStyles}
@@ -149,6 +176,11 @@ const SecondaryButton = styled.button`
 const TertiaryButton = styled.button`
   ${BASE_BUTTON_STYLES}
   ${TertiaryButtonStyles}
+`
+
+const BlueButton = styled.button`
+  ${BASE_BUTTON_STYLES}
+  ${BlueButtonStyles}
 `
 
 export const LabelButton = styled.label`
@@ -173,6 +205,8 @@ const Button: React.FC<ButtonProps> = (props: ButtonProps) => {
       return <TertiaryButton {...props} />
     case "outlined":
       return <SecondaryButton {...props} />
+    case "blue":
+      return <BlueButton {...props} />
     default:
       return <PrimaryButton {...props} />
   }

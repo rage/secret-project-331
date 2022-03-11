@@ -11,6 +11,7 @@ use models::{
     exercises::Exercise,
     feedback::{self, Feedback, FeedbackCount},
     glossary::{Term, TermUpdate},
+    pages::Page,
     user_exercise_states::ExerciseUserCounts,
 };
 
@@ -554,6 +555,26 @@ pub async fn get_course_users_counts_by_exercise(
 }
 
 /**
+POST `/api/v0/main-frontend/courses/:id/new-page-ordering` - Reorders pages to the given order numbers and given chapters.#
+
+Creates redirects if url_path changes.
+*/
+#[instrument(skip(pool))]
+pub async fn post_new_page_ordering(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    payload: web::Json<Vec<Page>>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    models::pages::reorder_pages(&mut conn, &payload, course_id).await?;
+    Ok(web::Json(()))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -613,5 +634,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/course-users-counts-by-exercise",
             web::get().to(get_course_users_counts_by_exercise),
+        )
+        .route(
+            "/{course_id}/new-page-ordering",
+            web::post().to(post_new_page_ordering),
         );
 }

@@ -9,5 +9,6 @@ type Chapter = {
   chapter_number: number
   front_page_id: string | null
   opens_at: Date | null
+  deadline: Date | null
   copied_from: string | null
 }

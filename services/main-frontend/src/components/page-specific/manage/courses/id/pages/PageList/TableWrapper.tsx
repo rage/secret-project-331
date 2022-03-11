@@ -1,0 +1,43 @@
+import { css } from "@emotion/css"
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import { baseTheme } from "../../../../../../../shared-module/styles"
+
+const TableWrapper: React.FC = ({ children }) => {
+  const { t } = useTranslation()
+  return (
+    <table
+      className={css`
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 1rem;
+
+        td {
+          padding: 1rem;
+        }
+
+        thead {
+          td {
+            padding-bottom: 0;
+            font-weight: 600;
+            font-size: 16px;
+            line-height: 16px;
+            color: ${baseTheme.colors.grey[500]};
+          }
+        }
+      `}
+    >
+      <thead>
+        <tr>
+          <td>{t("label-title")}</td>
+          <td>{t("label-url-path")}</td>
+          <td aria-label={t("label-actions")}></td>
+        </tr>
+      </thead>
+      <tbody>{children}</tbody>
+    </table>
+  )
+}
+
+export default TableWrapper

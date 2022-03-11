@@ -48,16 +48,6 @@ const CourseCard = styled.a`
   }
 `
 
-const StyledSettingIcon = styled(SettingIcon)`
-  position: absolute;
-  top: 30px;
-  right: 40px;
-
-  :hover {
-    cursor: pointer;
-  }
-`
-
 const CourseContent = styled.div`
   padding: 60px 28px 0px 40px;
 `
@@ -143,11 +133,18 @@ const CourseComponent: React.FC<CourseCardProps> = ({
               outline-offset: 2px;
             }
             outline: none;
+            position: absolute;
+            top: 30px;
+            right: 40px;
+
+            :hover {
+              cursor: pointer;
+            }
           `}
           aria-label={t("manage-course", { title })}
           href={manageHref}
         >
-          <StyledSettingIcon />
+          <SettingIcon />
         </a>
       )}
 

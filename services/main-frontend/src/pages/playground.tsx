@@ -208,7 +208,7 @@ const Home: React.FC = () => {
           placeholder={invalidUrl ? t("invalid-url") : t("label-url")}
           label={t("label-url")}
           onChange={(value) => handleUrlChange(value)}
-          error={invalidUrl}
+          error={invalidUrl ? t("invalid-url") : undefined}
           className={css`
             margin-bottom: 1rem !important;
           `}

@@ -167,7 +167,7 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
       </StyledModal>
       <RegexContainer>
         <TextField
-          error={!variables.validRegex}
+          error={!variables.validRegex ? t("error-title") : undefined}
           label={t("validity-regular-expression")}
           value={variables.regex ?? ""}
           onChange={(value) => {
@@ -189,7 +189,7 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
       </RegexContainer>
       <RegexContainer>
         <TextField
-          error={!variables.validFormatRegex}
+          error={!variables.validFormatRegex ? t("error-title") : undefined}
           label={t("format-regular-expression")}
           value={variables.formatRegex ?? ""}
           onChange={(value) => {

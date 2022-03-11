@@ -1,6 +1,7 @@
 import { Frame, Page, test } from "@playwright/test"
 
 import expectPath from "../../utils/expect"
+import { goToPageIfAvailable } from "../../utils/mainFrontendActions"
 import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
@@ -35,13 +36,12 @@ test("create quizzes test", async ({ page }) => {
   // Click text=Create course
   await page.click(`button:text("Create"):below(:text("Course language"))`)
 
-  // TODO: The next click sometimes fails because we click before the modal has closed.
-  // Maybe we should wait for a success notification first?
-  await page.waitForTimeout(100)
+  await page.waitForSelector("text=Operation successful!")
+  await goToPageIfAvailable(page, 2)
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("[aria-label=\"Manage course 'quizzes test'\"] svg"),
+    page.click(`a[aria-label="Manage course 'quizzes test'"]`),
   ])
   // Click :nth-match(:text("Manage"), 4)
 
@@ -52,31 +52,36 @@ test("create quizzes test", async ({ page }) => {
   expectPath(page, "/manage/courses/[id]/pages")
 
   // Click text=Add new chapter
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
 
   // Click input[type="text"]
   // await page.click('input[type="text"]')
 
   // Fill input[type="text"]
-  await page.fill("text=Name", "first")
+  await page.fill(`label:has-text("Name")`, "first")
 
   // Click text=Create chapter
   await page.click(`button:text("Create")`)
 
+  await page.waitForSelector(`text=Chapter 1`)
+
   // Click :nth-match(:text("New page"), 2)
-  await page.click(`:nth-match(button:text("New"):below(:text("Chapter 1")), 1)`)
+  await page.click(`:nth-match(button:text("New page"):below(:text("Chapter 1")), 1)`)
 
   // Click input[type="text"]
   // await page.click('input[type="text"]')
 
   // Fill input[type="text"]
-  await page.fill("text=Title", "first page")
+  await page.fill(`label:has-text("Title")`, "first page")
 
   // Click text=Create
   await page.click(`button:text("Create")`)
 
   // Click text=first page
-  await Promise.all([page.waitForNavigation(), page.click('a:has-text("first page")')])
+  await Promise.all([
+    page.waitForNavigation(),
+    page.click(`button:text("Edit page"):right-of(:text("first page"))`),
+  ])
 
   // Click :nth-match([aria-label="Add block"], 2)
   await page.click(':nth-match([aria-label="Add block"], 1)')

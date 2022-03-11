@@ -103,12 +103,19 @@ export default function useToastMutation<
     },
     onError: (error: TError, variables: TVariables, context: TContext | undefined) => {
       if (notificationOptions.notify) {
+        console.log({ error })
+        let errorMessage = notificationOptions.errorMessage
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (!errorMessage && (error as any)?.data?.message) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          errorMessage = (error as any).data.message
+        }
         toast.custom(
           (toast) => {
             return (
               <ErrorNotification
                 header={notificationOptions.errorHeader}
-                message={notificationOptions.errorMessage}
+                message={errorMessage}
                 {...(notificationOptions.dismissable ? { toastId: toast.id } : {})}
               />
             )

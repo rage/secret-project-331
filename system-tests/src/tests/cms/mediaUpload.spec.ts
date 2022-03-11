@@ -44,7 +44,9 @@ test.describe("Uploading media as admin", async () => {
 
     await Promise.all([
       page.waitForNavigation(),
-      page.click("text=Welcome to Introduction to Everything"),
+      page.click(
+        `button:text("Edit page"):right-of(:text("Welcome to Introduction to Everything"))`,
+      ),
     ])
     expect(page.url().startsWith("http://project-331.local/cms/pages/")).toBe(true)
 

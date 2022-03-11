@@ -167,7 +167,6 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
                 editing={editing}
                 onChange={onChangeName}
                 type={"text"}
-                error={false}
               />
               <ContentArea
                 title={t("text-field-label-or-header-slug-or-short-name")}
@@ -176,7 +175,6 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
                 // eslint-disable-next-line i18next/no-literal-string
                 onChange={onChange("slug")}
                 type={"text"}
-                error={false}
               />
             </>
           )}
@@ -187,7 +185,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
             // eslint-disable-next-line i18next/no-literal-string
             onChange={onChange("public_url")}
             type={"text"}
-            error={!validURL(service.public_url)}
+            error={!validURL(service.public_url) ? t("error-title") : undefined}
           />
           <ContentArea
             title={t("title-internal-url")}
@@ -196,7 +194,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
             // eslint-disable-next-line i18next/no-literal-string
             onChange={onChange("internal_url")}
             type={"text"}
-            error={!validURL(service.internal_url ?? "")}
+            error={!validURL(service.internal_url ?? "") ? t("error-title") : undefined}
           />
           <ContentArea
             title={t("title-reprocessing-submissions")}
@@ -205,7 +203,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
             // eslint-disable-next-line i18next/no-literal-string
             onChange={onChange("max_reprocessing_submissions_at_once")}
             type={"number"}
-            error={service.max_reprocessing_submissions_at_once < 0}
+            error={service.max_reprocessing_submissions_at_once < 0 ? t("error-title") : undefined}
           />
         </CardContent>
 

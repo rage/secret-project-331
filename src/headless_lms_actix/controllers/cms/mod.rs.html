@@ -38,7 +38,7 @@ This documents all endpoints. Select a module below for a category.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">courses</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">email_templates</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exams</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">oembed</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">gutenberg</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">organizations</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pages</span>;
 
@@ -49,7 +49,7 @@ This documents all endpoints. Select a module below for a category.
     <span class="ident">cfg</span>.<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/pages&quot;</span>).<span class="ident">configure</span>(<span class="ident">pages::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/course-instances&quot;</span>).<span class="ident">configure</span>(<span class="ident">course_instances::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/email-templates&quot;</span>).<span class="ident">configure</span>(<span class="ident">email_templates::_add_routes</span>))
-        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/oembed&quot;</span>).<span class="ident">configure</span>(<span class="ident">oembed::_add_routes</span>))
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/gutenberg&quot;</span>).<span class="ident">configure</span>(<span class="ident">gutenberg::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/organizations&quot;</span>).<span class="ident">configure</span>(<span class="ident">organizations::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/courses&quot;</span>).<span class="ident">configure</span>(<span class="ident">courses::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/exams&quot;</span>).<span class="ident">configure</span>(<span class="ident">exams::_add_routes</span>));

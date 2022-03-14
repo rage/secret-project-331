@@ -4,13 +4,18 @@ import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import { createExam, fetchOrganizationExams } from "../../../../services/backend/exams"
+import {
+  createExam,
+  createExamDuplicate,
+  fetchOrganizationExams,
+} from "../../../../services/backend/exams"
 import { NewExam } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
+import DuplicateExam from "../../../forms/DuplicateExam"
 import NewExamForm from "../../../forms/NewExamForm"
 
 import { CourseGrid } from "./CourseCard"
@@ -35,15 +40,30 @@ const ExamList: React.FC<Props> = ({ organizationId }) => {
     { enabled: !!organizationId },
   )
 
-  const examMutation = useToastMutation(
+  const createExamMutation = useToastMutation(
     (exam: NewExam) => createExam(organizationId, exam),
-    { notify: true, successMessage: t("exam-created-succesfully"), method: "POST" },
+    {
+      notify: true,
+      successMessage: t("exam-created-succesfully"),
+      method: "POST",
+    },
+    { onSuccess: () => getOrgExams.refetch() },
+  )
+
+  const duplicateExamMutation = useToastMutation(
+    (examId: string) => createExamDuplicate(examId),
+    {
+      notify: true,
+      successMessage: t("exam-duplicated-succesfully"),
+      method: "POST",
+    },
     { onSuccess: () => getOrgExams.refetch() },
   )
 
   const loginStateContext = useContext(LoginStateContext)
 
   const [newExamFormOpen, setNewExamFormOpen] = useState(false)
+  const [duplicateExamOpen, setDuplicateExamOpen] = useState(false)
 
   if (getOrgExams.isError) {
     return <ErrorBanner variant={"readOnly"} error={getOrgExams.error} />
@@ -80,7 +100,27 @@ const ExamList: React.FC<Props> = ({ organizationId }) => {
               initialData={null}
               organization={organizationId}
               onCancel={() => setNewExamFormOpen(!newExamFormOpen)}
-              onSubmit={(data) => examMutation.mutate(data)}
+              onSubmit={(data) => createExamMutation.mutate(data)}
+            />
+          </div>
+        </Dialog>
+        <Dialog open={duplicateExamOpen} onClose={() => setDuplicateExamOpen(!duplicateExamOpen)}>
+          <div
+            className={css`
+              margin: 1rem;
+            `}
+          >
+            <Button
+              size="medium"
+              variant="secondary"
+              onClick={() => setDuplicateExamOpen(!duplicateExamOpen)}
+            >
+              {t("button-text-close")}
+            </Button>
+            <DuplicateExam
+              exams={getOrgExams.data}
+              onCancel={() => setDuplicateExamOpen(!duplicateExamOpen)}
+              onSubmit={(data) => duplicateExamMutation.mutate(data)}
             />
           </div>
         </Dialog>
@@ -95,8 +135,13 @@ const ExamList: React.FC<Props> = ({ organizationId }) => {
           >
             {t("button-text-create")}
           </Button>
-          <br />
-          <br />
+          <Button
+            size="medium"
+            variant="primary"
+            onClick={() => setDuplicateExamOpen(!duplicateExamOpen)}
+          >
+            {t("duplicate")}
+          </Button>
         </>
       )}
     </div>

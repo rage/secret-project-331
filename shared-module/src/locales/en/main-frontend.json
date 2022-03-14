@@ -243,5 +243,7 @@
   "text-field-label-ends-at": "ends at",
   "text-field-label-time-minutes": "Time in minutes",
   "create-exam": "create exam",
-  "exam-created-succesfully": "exam created succesfully"
+  "exam-created-succesfully": "exam created succesfully",
+  "duplicate": "duplicate",
+  "exam-duplicated-succesfully": "Exam duplicated succesfully!"
 }

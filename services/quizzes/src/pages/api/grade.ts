@@ -126,9 +126,10 @@ function assesMultipleChoiceQuizzes(
     throw new Error("No option answers")
   }
 
-  // quizItem.multi tells that student can only select one option but there are several correct options
-  if (quizItem.multi && quizItemAnswer.optionAnswers.length > 1) {
-    throw new Error("Cannot select multiple options when multi is true")
+  // quizItem.multi tells that student can select many options and there are one or several correct options
+  // This is to prevent that if user somehow passes more optionAnswers then allowed
+  if (!quizItem.multi && quizItemAnswer.optionAnswers.length > 1) {
+    throw new Error("Cannot select multiple answer options on this quiz item")
   }
 
   // Check if every selected option was a correct answer
@@ -147,8 +148,8 @@ function assesMultipleChoiceQuizzes(
   return {
     quizItemId: quizItem.id,
     correct: quizItem.multi
-      ? allSelectedOptionsAreCorrect
-      : selectedAllCorrectOptions && allSelectedOptionsAreCorrect,
+      ? selectedAllCorrectOptions && allSelectedOptionsAreCorrect
+      : allSelectedOptionsAreCorrect,
   }
 }
 

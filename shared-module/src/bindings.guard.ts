@@ -80,6 +80,7 @@ import {
   NewProposedBlockEdit,
   NewProposedPageEdits,
   Organization,
+  OrgExam,
   Page,
   PageChapterAndCourseInformation,
   PageHistory,
@@ -440,6 +441,19 @@ export function isExamEnrollment(obj: any, _argumentName?: string): obj is ExamE
 }
 
 export function isNewExam(obj: any, _argumentName?: string): obj is NewExam {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.instructions === "string" &&
+    (obj.starts_at === null || obj.starts_at instanceof Date) &&
+    (obj.ends_at === null || obj.ends_at instanceof Date) &&
+    typeof obj.time_minutes === "number" &&
+    typeof obj.organization_id === "string"
+  )
+}
+
+export function isOrgExam(obj: any, _argumentName?: string): obj is OrgExam {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&

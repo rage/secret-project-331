@@ -14,6 +14,17 @@ pub struct Exam {
     pub time_minutes: i32,
 }
 
+#[derive(Debug, Serialize, TS)]
+pub struct OrgExam {
+    pub id: Uuid,
+    pub name: String,
+    pub instructions: String,
+    pub starts_at: Option<DateTime<Utc>>,
+    pub ends_at: Option<DateTime<Utc>>,
+    pub time_minutes: i32,
+    pub organization_id: Uuid,
+}
+
 pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exam> {
     let exam = sqlx::query!(
         "
@@ -181,6 +192,31 @@ WHERE exam_id = $1
 }
 
 pub async fn get_exams_for_organization(
+    conn: &mut PgConnection,
+    organization: Uuid,
+) -> ModelResult<Vec<OrgExam>> {
+    let res = sqlx::query_as!(
+        OrgExam,
+        "
+SELECT id,
+  name,
+  instructions,
+  starts_at,
+  ends_at,
+  time_minutes,
+  organization_id
+FROM exams
+WHERE exams.organization_id = $1
+  AND exams.deleted_at IS NULL
+",
+        organization
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_course_exams_for_organization(
     conn: &mut PgConnection,
     organization: Uuid,
 ) -> ModelResult<Vec<CourseExam>> {

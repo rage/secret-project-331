@@ -13,6 +13,7 @@ use crate::courses::Course;
 use crate::courses::NewCourse;
 use crate::exams;
 use crate::exams::Exam;
+use crate::exams::NewExam;
 use crate::prelude::*;
 
 use crate::ModelResult;
@@ -139,7 +140,11 @@ WHERE id = $2;
     Ok(copied_course)
 }
 
-pub async fn copy_exam(conn: &mut PgConnection, parent_exam_id: &Uuid) -> ModelResult<Exam> {
+pub async fn copy_exam(
+    conn: &mut PgConnection,
+    parent_exam_id: &Uuid,
+    new_exam: &NewExam,
+) -> ModelResult<Exam> {
     let parent_exam = exams::get(conn, *parent_exam_id).await?;
 
     let mut tx = conn.begin().await?;
@@ -166,13 +171,13 @@ pub async fn copy_exam(conn: &mut PgConnection, parent_exam_id: &Uuid) -> ModelR
     VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *;
         ",
-        parent_exam.name,
+        new_exam.name,
         res.organization_id,
-        parent_exam.instructions,
-        parent_exam.starts_at,
-        parent_exam.ends_at,
+        new_exam.instructions,
+        new_exam.starts_at,
+        new_exam.ends_at,
         res.language,
-        parent_exam.time_minutes
+        new_exam.time_minutes
     )
     .fetch_one(&mut tx)
     .await?;

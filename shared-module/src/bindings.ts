@@ -237,6 +237,16 @@ export interface NewExam {
   organization_id: string
 }
 
+export interface OrgExam {
+  id: string
+  name: string
+  instructions: string
+  starts_at: Date | null
+  ends_at: Date | null
+  time_minutes: number
+  organization_id: string
+}
+
 export interface CourseMaterialExerciseServiceInfo {
   exercise_iframe_url: string
 }

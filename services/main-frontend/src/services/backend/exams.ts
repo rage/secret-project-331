@@ -1,4 +1,4 @@
-import { CourseExam, Exam, ExamCourseInfo, NewExam } from "../../shared-module/bindings"
+import { CourseExam, Exam, ExamCourseInfo, NewExam, OrgExam } from "../../shared-module/bindings"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const createExam = async (organizationId: string, data: NewExam) => {
@@ -7,8 +7,11 @@ export const createExam = async (organizationId: string, data: NewExam) => {
   })
 }
 
-export const createExamDuplicate = async (examId: string) => {
-  return (await mainFrontendClient.post(`/exams/${examId}/duplicate`)).data
+export const createExamDuplicate = async (examId: string, newExam: NewExam) => {
+  console.log(newExam)
+  return (
+    await mainFrontendClient.post(`/exams/${examId}/duplicate`, newExam, { responseType: "json" })
+  ).data
 }
 
 export const fetchExam = async (id: string): Promise<Exam> => {
@@ -16,13 +19,19 @@ export const fetchExam = async (id: string): Promise<Exam> => {
   return response.data
 }
 
-export const fetchOrganizationExams = async (
-  organizationId: string,
-): Promise<Array<CourseExam>> => {
-  const response = await mainFrontendClient.get(`/organizations/${organizationId}/exams`, {
+export const fetchCourseExams = async (organizationId: string): Promise<Array<CourseExam>> => {
+  const response = await mainFrontendClient.get(`/organizations/${organizationId}/course_exams`, {
     responseType: "json",
   })
   return response.data
+}
+
+export const fetchOrganizationExams = async (organizationId: string): Promise<Array<OrgExam>> => {
+  return (
+    await mainFrontendClient.get(`/organizations/${organizationId}/org_exams`, {
+      responseType: "json",
+    })
+  ).data
 }
 
 export const setCourse = async (examId: string, courseId: string): Promise<void> => {

@@ -4,7 +4,7 @@ use std::{path::PathBuf, str::FromStr};
 
 use models::{
     courses::{Course, CourseCount},
-    exams::{CourseExam, NewExam},
+    exams::{CourseExam, NewExam, OrgExam},
     organizations::Organization,
 };
 
@@ -216,7 +216,7 @@ async fn get_organization(
 }
 
 /**
-GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations with id.
+GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
@@ -224,6 +224,20 @@ async fn get_course_exams(
     pool: web::Data<PgPool>,
     organization: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<Vec<CourseExam>>> {
+    let mut conn = pool.acquire().await?;
+    let exams = models::exams::get_course_exams_for_organization(&mut conn, *organization).await?;
+    Ok(web::Json(exams))
+}
+
+/**
+GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations exams in Exam form.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_org_exams(
+    pool: web::Data<PgPool>,
+    organization: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<OrgExam>>> {
     let mut conn = pool.acquire().await?;
     let exams = models::exams::get_exams_for_organization(&mut conn, *organization).await?;
     Ok(web::Json(exams))
@@ -282,7 +296,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{organization_id}/image",
             web::delete().to(remove_organization_image),
         )
-        .route("/{organization_id}/exams", web::get().to(get_course_exams))
+        .route(
+            "/{organization_id}/course_exams",
+            web::get().to(get_course_exams),
+        )
+        .route("/{organization_id}/org_exams", web::get().to(get_org_exams))
         .route(
             "/{organization_id}/exams",
             web::post().to(create_course_exam),

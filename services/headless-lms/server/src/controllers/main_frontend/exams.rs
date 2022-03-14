@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use chrono::Utc;
-use models::exams::{self, Exam};
+use models::exams::{self, Exam, NewExam};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
@@ -177,6 +177,7 @@ pub async fn export_submissions(
 async fn duplicate_exam(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
+    new_exam: web::Json<NewExam>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
@@ -188,7 +189,7 @@ async fn duplicate_exam(
     )
     .await?;
 
-    models::library::copying::copy_exam(&mut conn, &exam_id).await?;
+    models::library::copying::copy_exam(&mut conn, &exam_id, &new_exam).await?;
 
     Ok(web::Json(()))
 }

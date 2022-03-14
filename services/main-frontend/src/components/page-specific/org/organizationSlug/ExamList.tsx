@@ -16,7 +16,6 @@ import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import DuplicateExam from "../../../forms/DuplicateExam"
 import NewExamForm from "../../../forms/NewExamForm"
 
 import ExamComponent from "./ExamCard"
@@ -60,7 +59,7 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
   )
 
   const duplicateExamMutation = useToastMutation(
-    (examId: string) => createExamDuplicate(examId),
+    (data: { examId: string; newExam: NewExam }) => createExamDuplicate(data.examId, data.newExam),
     {
       notify: true,
       successMessage: t("exam-duplicated-succesfully"),
@@ -72,7 +71,6 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
   const loginStateContext = useContext(LoginStateContext)
 
   const [newExamFormOpen, setNewExamFormOpen] = useState(false)
-  const [duplicateExamOpen, setDuplicateExamOpen] = useState(false)
 
   if (getOrgExams.isError) {
     return <ErrorBanner variant={"readOnly"} error={getOrgExams.error} />
@@ -116,30 +114,14 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
               {t("button-text-close")}
             </Button>
             <NewExamForm
+              exams={getOrgExams.data}
               initialData={null}
               organization={organizationId}
               onCancel={() => setNewExamFormOpen(!newExamFormOpen)}
-              onSubmit={(data) => createExamMutation.mutate(data)}
-            />
-          </div>
-        </Dialog>
-        <Dialog open={duplicateExamOpen} onClose={() => setDuplicateExamOpen(!duplicateExamOpen)}>
-          <div
-            className={css`
-              margin: 1rem;
-            `}
-          >
-            <Button
-              size="medium"
-              variant="secondary"
-              onClick={() => setDuplicateExamOpen(!duplicateExamOpen)}
-            >
-              {t("button-text-close")}
-            </Button>
-            <DuplicateExam
-              exams={getOrgExams.data}
-              onCancel={() => setDuplicateExamOpen(!duplicateExamOpen)}
-              onSubmit={(data) => duplicateExamMutation.mutate(data)}
+              onCreateNewExam={(newExam) => createExamMutation.mutate(newExam)}
+              onDuplicateExam={(parentId: string, newExam: NewExam) =>
+                duplicateExamMutation.mutate({ examId: parentId, newExam: newExam })
+              }
             />
           </div>
         </Dialog>
@@ -153,13 +135,6 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
             onClick={() => setNewExamFormOpen(!newExamFormOpen)}
           >
             {t("button-text-create")}
-          </Button>
-          <Button
-            size="medium"
-            variant="primary"
-            onClick={() => setDuplicateExamOpen(!duplicateExamOpen)}
-          >
-            {t("duplicate")}
           </Button>
         </>
       )}

@@ -245,5 +245,7 @@
   "create-exam": "create exam",
   "exam-created-succesfully": "exam created succesfully",
   "duplicate": "duplicate",
-  "exam-duplicated-succesfully": "Exam duplicated succesfully!"
+  "exam-duplicated-succesfully": "Exam duplicated succesfully!",
+  "manage-exam": "manage exam",
+  "exam-navigation": "Navigate to exam '{{ title }}'"
 }

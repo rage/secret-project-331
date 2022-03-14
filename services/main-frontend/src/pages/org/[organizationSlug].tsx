@@ -70,7 +70,10 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
               perPage={15}
             />
             <h2>{t("exam-list")}</h2>
-            <ExamList organizationId={getOrganizationBySlug.data.id} />
+            <ExamList
+              organizationId={getOrganizationBySlug.data.id}
+              organizationSlug={query.organizationSlug}
+            />
           </>
         )}
 

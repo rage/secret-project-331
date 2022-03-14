@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { Dialog } from "@mui/material"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -18,14 +19,22 @@ import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import DuplicateExam from "../../../forms/DuplicateExam"
 import NewExamForm from "../../../forms/NewExamForm"
 
-import { CourseGrid } from "./CourseCard"
 import ExamComponent from "./ExamCard"
+
+const ExamGrid = styled.div`
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding-bottom: 10px;
+`
 
 interface Props {
   organizationId: string
+  organizationSlug: string
 }
 
-const ExamList: React.FC<Props> = ({ organizationId }) => {
+const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
   const { t } = useTranslation()
 
   const getOrgExams = useQuery(
@@ -73,10 +82,20 @@ const ExamList: React.FC<Props> = ({ organizationId }) => {
     return <Spinner variant={"medium"} />
   }
 
-  const exams = getOrgExams.data.map((e) => <ExamComponent key={e.id} id={e.id} />)
+  const exams = getOrgExams.data.map((e) => (
+    <ExamComponent
+      key={e.id}
+      id={e.id}
+      name={e.name}
+      // eslint-disable-next-line i18next/no-literal-string
+      manageHref={`/manage/exams/${e.id}`}
+      // eslint-disable-next-line i18next/no-literal-string
+      navigateToExamHref={`/org/${organizationSlug}/exams/${e.id}`}
+    />
+  ))
   return (
     <div>
-      <CourseGrid>{exams}</CourseGrid>
+      <ExamGrid>{exams}</ExamGrid>
 
       <div
         className={css`

@@ -6,7 +6,7 @@ interface BlockWrapperProps {
 }
 
 const BlockWrapper: React.FC<BlockWrapperProps> = ({ id, children }) => {
-  return <div id={"block-" + id}>{children}</div>
+  return <div id={"wrapper-block-" + id}>{children}</div>
 }
 
 export default BlockWrapper

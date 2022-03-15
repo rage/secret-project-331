@@ -96,17 +96,26 @@ const CheckBox = ({ onChange, className, checked, ...rest }: CheckboxFieldExtraP
         <input
           type="checkbox"
           checked={checked}
-          aria-describedby={`${rest.label}_error`}
+          aria-errormessage={`${rest.label}_error`}
+          aria-invalid={rest.error !== undefined}
           onChange={({ target: { checked } }) => onChange(checked)}
           {...rest}
         />
         <span>{rest.label}</span>
       </Label>
-      {rest.error && (
-        <span className={cx(error)} id={`${rest.label}_error`} role="alert">
-          {ERROR}
-        </span>
-      )}
+      <span
+        className={
+          rest.error
+            ? cx(error)
+            : css`
+                visibility: hidden;
+              `
+        }
+        id={`${rest.label}_error`}
+        role="alert"
+      >
+        {ERROR}
+      </span>
     </div>
   )
 }

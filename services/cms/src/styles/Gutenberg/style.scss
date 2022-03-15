@@ -8,6 +8,7 @@
 @import "./editor-styles";
 
 $sidebar-threshold: 75rem;
+$sidebar-width: 350px;
 
 // The Gutenberg components styling
 .editor__content {
@@ -38,7 +39,7 @@ $sidebar-threshold: 75rem;
 .editor__sidebar {
   position: fixed;
   // Height of the complex navbar
-  top: 0;
+  top: var(--start-sidebar-top-px);
   right: 0;
   bottom: 0;
   width: $sidebar-width;

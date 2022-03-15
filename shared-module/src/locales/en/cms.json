@@ -40,5 +40,9 @@
   "skip-to-content": "Skip to content",
   "unsupported-block-placeholder": "Unsupported block placeholder",
   "unsupported-block-placeholder-explanation": "This block is used as placeholder for blocks that are unsupported.",
-  "reset": "Reset"
+  "reset": "Reset",
+  "block-props": "Block properties",
+  "block-list": "Current blocks",
+  "block-menu": "Add block / All available blocks",
+  "editor-select-sidebar-view": "Toggle view"
 }

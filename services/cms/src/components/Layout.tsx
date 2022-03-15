@@ -11,7 +11,7 @@ import Navbar from "../shared-module/components/Navigation"
 import SkipLink from "../shared-module/components/SkipLink"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 
-export const SIDEBAR_WIDTH_PX = 280
+export const SIDEBAR_WIDTH_PX = 350
 
 type LayoutProps = {
   children: ReactNode

@@ -6,6 +6,10 @@ import React from "react"
 
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import { baseTheme } from "../../shared-module/styles"
+import {
+  CMS_EDITOR_SIDEBAR_THRESHOLD,
+  CMS_EDITOR_SIDEBAR_WIDTH,
+} from "../../shared-module/utils/constants"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 import BlockWrapper from "../BlockWrapper"
 
@@ -19,7 +23,12 @@ const HeroSectionEditor: React.FC<BlockEditProps<HeroSectionAttributes>> = ({
   const { title, subtitle } = attributes
   return (
     <BlockWrapper id={clientId}>
-      <BreakFromCentered {...breakFromCenteredProps}>
+      <BreakFromCentered
+        sidebar
+        sidebarPosition="right"
+        sidebarWidth={CMS_EDITOR_SIDEBAR_WIDTH}
+        sidebarThreshold={CMS_EDITOR_SIDEBAR_THRESHOLD}
+      >
         <div
           className={css`
             background: ${baseTheme.colors.green[200]};

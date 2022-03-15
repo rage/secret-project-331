@@ -7,6 +7,10 @@ import React from "react"
 import Button from "../../shared-module/components/Button"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import { baseTheme } from "../../shared-module/styles"
+import {
+  CMS_EDITOR_SIDEBAR_THRESHOLD,
+  CMS_EDITOR_SIDEBAR_WIDTH,
+} from "../../shared-module/utils/constants"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 import BlockWrapper from "../BlockWrapper"
 
@@ -28,7 +32,12 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
   const { title } = attributes
   return (
     <BlockWrapper id={clientId}>
-      <BreakFromCentered {...breakFromCenteredProps}>
+      <BreakFromCentered
+        sidebar
+        sidebarPosition="right"
+        sidebarWidth={CMS_EDITOR_SIDEBAR_WIDTH}
+        sidebarThreshold={CMS_EDITOR_SIDEBAR_THRESHOLD}
+      >
         <div
           className={css`
             background: ${baseTheme.colors.blue[100]};

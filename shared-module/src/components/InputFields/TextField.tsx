@@ -94,7 +94,9 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
         <Input
           id={rest.id}
           disabled={disabled}
-          aria-describedby={`${rest.label}_error`}
+          // eslint-disable-next-line i18next/no-literal-string
+          aria-errormessage={`${rest.label}_error`}
+          aria-invalid={rest.error !== undefined}
           onChange={({ target: { value } }) => onChange && onChange(value)}
           defaultValue={rest.defaultValue}
           {...rest}
@@ -102,11 +104,19 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
           {...register}
         />
       </label>
-      {rest.error && (
-        <span className={cx(error)} id={`${rest.label}_error`} role="alert">
-          {rest.error}
-        </span>
-      )}
+      <span
+        className={
+          rest.error
+            ? cx(error)
+            : css`
+                visibility: hidden;
+              `
+        }
+        id={`${rest.label}_error`}
+        role="alert"
+      >
+        {rest.error}
+      </span>
     </div>
   )
 }

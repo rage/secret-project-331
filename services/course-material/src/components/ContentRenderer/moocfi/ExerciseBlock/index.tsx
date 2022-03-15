@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import HelpIcon from "@mui/icons-material/Help"
-import { query } from "express"
 import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery, useQueryClient } from "react-query"
@@ -104,8 +103,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const triesRemaining = maxTries && maxTries - spentTries
 
   const limit_number_of_attempts = getCourseMaterialExercise.data.exercise.limit_number_of_attempts
-  const ranOutOfTries =
-    limit_number_of_attempts && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
+  // const _ranOutOfTries =
+  //   limit_number_of_attempts && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
 
   return (
     <BreakFromCentered sidebar={false}>

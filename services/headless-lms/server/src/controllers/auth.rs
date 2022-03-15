@@ -2,6 +2,8 @@
 Handlers for HTTP requests to `/api/v0/login`.
 */
 
+use std::env;
+
 use actix_session::Session;
 use models::users::User;
 use oauth2::{
@@ -85,22 +87,26 @@ pub async fn login(
             return Ok(HttpResponse::Ok().finish());
         } else {
             return Err(ControllerError::Unauthorized(
-                "Incorrect email ora password.".to_string(),
+                "Incorrect email or password.".to_string(),
             ));
         };
     }
+
+    let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
+        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
 
     let token = client
         .exchange_password(
             &ResourceOwnerUsername::new(email.clone()),
             &ResourceOwnerPassword::new(password.clone()),
         )
+        .add_extra_param("RATELIMIT_PROTECTION_SAFE_API_KEY", ratelimit_api_key)
         .request_async(oauth2::reqwest::async_http_client)
         .await;
 
     if token.is_err() {
         return Err(ControllerError::Unauthorized(
-            "Incorrect email ora password.".to_string(),
+            "Incorrect email or password.".to_string(),
         ));
     }
 

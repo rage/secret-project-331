@@ -975,8 +975,10 @@ mod test {
             NewChapter {
                 chapter_number: 1,
                 course_id: course.id,
-                front_front_page_id: None,
+                front_page_id: None,
                 name: "Chapter".to_string(),
+                opens_at: None,
+                deadline: None,
             },
             user_id,
         )

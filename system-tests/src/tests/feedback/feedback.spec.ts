@@ -103,8 +103,8 @@ test("feedback test", async ({ headless, page }) => {
   // Click text=Manage feedback
 
   await Promise.all([page.waitForNavigation(), page.click("text=Feedback")])
-  await page.waitForURL((url) => url.searchParams.has("read"))
-  expectPath(page, "/manage/courses/[id]/feedback?read=false")
+  // await page.waitForURL((url) => url.searchParams.has("read"))
+  expectPath(page, "/manage/courses/[id]/feedback")
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
@@ -135,7 +135,7 @@ test("feedback test", async ({ headless, page }) => {
         window.scrollTo({ top: 0, left: 0 })
       })
     },
-    waitForNotificationsToClear: true,
+    clearNotifications: true,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 

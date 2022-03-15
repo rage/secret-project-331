@@ -28,6 +28,7 @@ export interface Chapter {
   chapter_number: number
   front_page_id: string | null
   opens_at: Date | null
+  deadline: Date | null
   copied_from: string | null
 }
 
@@ -42,6 +43,7 @@ export interface DatabaseChapter {
   chapter_number: number
   front_page_id: string | null
   opens_at: Date | null
+  deadline: Date | null
   copied_from: string | null
 }
 
@@ -49,8 +51,9 @@ export type ChapterStatus = "open" | "closed"
 
 export interface ChapterUpdate {
   name: string
-  chapter_number: number
-  front_front_page_id: string | null
+  front_page_id: string | null
+  deadline: Date | null
+  opens_at: Date | null
 }
 
 export interface ChapterWithStatus {
@@ -70,7 +73,9 @@ export interface NewChapter {
   name: string
   course_id: string
   chapter_number: number
-  front_front_page_id: string | null
+  front_page_id: string | null
+  opens_at: Date | null
+  deadline: Date | null
 }
 
 export interface UserCourseInstanceChapterProgress {
@@ -98,6 +103,7 @@ export interface ChapterScore {
   chapter_number: number
   front_page_id: string | null
   opens_at: Date | null
+  deadline: Date | null
   copied_from: string | null
   score_given: number
   score_total: number
@@ -213,7 +219,7 @@ export interface CourseExam {
 export interface Exam {
   id: string
   name: string
-  instructions: string
+  instructions: unknown
   page_id: string
   courses: Array<Course>
   starts_at: Date | null
@@ -225,6 +231,15 @@ export interface ExamEnrollment {
   user_id: string
   exam_id: string
   started_at: Date
+}
+
+export interface ExamInstructions {
+  id: string
+  instructions: unknown
+}
+
+export interface ExamInstructionsUpdate {
+  instructions: unknown
 }
 
 export interface CourseMaterialExerciseServiceInfo {
@@ -303,6 +318,7 @@ export type ActivityProgress = "Initialized" | "Started" | "InProgress" | "Submi
 
 export interface CourseMaterialExercise {
   exercise: Exercise
+  can_post_submission: boolean
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
@@ -790,9 +806,10 @@ export interface RoleInfo {
 export interface ExamData {
   id: string
   name: string
-  instructions: string
+  instructions: unknown
   starts_at: Date
   ends_at: Date
+  ended: boolean
   time_minutes: number
   enrollment_data: ExamEnrollmentData
 }

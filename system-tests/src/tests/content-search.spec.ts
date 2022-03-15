@@ -73,14 +73,16 @@ test("test", async ({ page, headless }) => {
 
   // Fill [placeholder="Search..."]
   await page.fill('[placeholder="Search..."]', "welcome course")
-  await page.waitForSelector("text=Introduction to Course Material")
+  await page.waitForSelector(
+    "text=Welcome to Introduction to Course Material In this course you'll...",
+  )
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["aria-hidden-focus", "landmark-one-main"],
     page,
     headless,
     snapshotName: "search-content-with-two-words-not-just-after-each-other",
-    waitForThisToBeVisibleAndStable: "text=Introduction to Course Material",
+    waitForThisToBeVisibleAndStable: "text=Welcome to Introduction to Course Material",
   })
 
   // phrases should be ranked higher than word matches

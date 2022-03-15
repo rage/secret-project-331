@@ -301,6 +301,17 @@ async fn main() -> Result<()> {
         &users,
     )
     .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("86cbc198-601c-42f4-8e0f-3e6cce49bbfc")?,
+        "Course Structure",
+        "course-structure",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
     roles::insert(
         &mut conn,
         language_teacher,
@@ -1076,7 +1087,7 @@ async fn main() -> Result<()> {
                   "id": "d2422f0c-2378-4099-bde7-e1231ceac220",
                   "body": "",
                   "type": "clickable-multiple-choice",
-                  "multi": false,
+                  "multi": true,
                   "order": 1,
                   "title": "Choose your favorite colors",
                   "quizId": "3562f83c-4d5d-41a9-aceb-a8f98511dd5d",
@@ -1267,16 +1278,20 @@ async fn seed_sample_course(
     let new_chapter = NewChapter {
         chapter_number: 1,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "The Basics".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_1, _front_page_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
     let new_chapter = NewChapter {
         chapter_number: 2,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "The intermediaries".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_2, _front_page_2) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1288,8 +1303,10 @@ async fn seed_sample_course(
     let new_chapter = NewChapter {
         chapter_number: 3,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "Advanced studies".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_3, _front_page_3) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1301,8 +1318,10 @@ async fn seed_sample_course(
     let new_chapter = NewChapter {
         chapter_number: 4,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "Forbidden magicks".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_4, _front_page_4) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1689,7 +1708,7 @@ async fn seed_sample_course(
                 "id": "d30bec57-4011-4ac4-b676-79fe766d6424",
                 "body": null,
                 "type": "clickable-multiple-choice",
-                "multi": false,
+                "multi": true,
                 "order": 0,
                 "title": "Pick all the programming languages from below",
                 "quizId": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
@@ -2190,8 +2209,10 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     let new_chapter = NewChapter {
         chapter_number: 1,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "User Interface".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_1, front_page_ch_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
@@ -2307,8 +2328,10 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     let new_chapter_2 = NewChapter {
         chapter_number: 2,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "User Experience".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_2, front_page_ch_2) = chapters::insert_chapter(conn, new_chapter_2, admin).await?;
     chapters::set_opens_at(conn, chapter_2.id, Utc::now()).await?;
@@ -2668,7 +2691,13 @@ async fn create_exam(
         NewExam {
             id: exam_id,
             name,
-            instructions: "Do your best!",
+            instructions: serde_json::json!([GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                attributes!{
+                  "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum felis nisi, vitae commodo mi venenatis in. Mauris hendrerit lacinia augue ut hendrerit. Vestibulum non tellus mattis, convallis magna vel, semper mauris. Maecenas porta, arcu eget porttitor sagittis, nulla magna auctor dolor, sed tempus sem lacus eu tortor. Ut id diam quam. Etiam quis sagittis justo. Quisque sagittis dolor vitae felis facilisis, ut suscipit ipsum malesuada. Nulla tempor ultricies erat ut venenatis. Ut pulvinar lectus non mollis efficitur.",
+                  "dropCap": false
+                },
+            )]),
             starts_at,
             ends_at,
             time_minutes,

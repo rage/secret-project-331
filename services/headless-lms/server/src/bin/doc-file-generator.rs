@@ -20,7 +20,7 @@ use headless_lms_models::{
     course_instances::{ChapterScore, CourseInstance, Points},
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
-    exams::{CourseExam, Exam, ExamEnrollment},
+    exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions},
     exercise_services::ExerciseService,
     exercise_slide_submissions::{
         ExerciseSlideSubmission, ExerciseSlideSubmissionCount,
@@ -242,6 +242,7 @@ fn main() {
         front_page_id: None,
         opens_at: Some(date_time),
         copied_from: None,
+        deadline: Some(date_time),
     };
     let exercise_service = ExerciseService {
         id,
@@ -469,9 +470,10 @@ fn main() {
         ExamData {
             id,
             name: "Course exam".to_string(),
-            instructions: "Do your best!".to_string(),
+            instructions: serde_json::json!([]),
             starts_at: date_time,
             ends_at: date_time,
+            ended: false,
             time_minutes: 120,
             enrollment_data: ExamEnrollmentData::NotEnrolled
         }
@@ -480,6 +482,7 @@ fn main() {
         CourseMaterialExercise,
         CourseMaterialExercise {
             exercise: exercise.clone(),
+            can_post_submission: true,
             current_exercise_slide: CourseMaterialExerciseSlide {
                 id,
                 exercise_tasks: vec![CourseMaterialExerciseTask {
@@ -554,6 +557,7 @@ fn main() {
                     chapter_number: 1,
                     front_page_id: None,
                     opens_at: Some(date_time),
+                    deadline: Some(date_time),
                     copied_from: None
                 },
                 score_given: 1.0,
@@ -621,7 +625,7 @@ fn main() {
         Exam {
             id,
             name: "Course exam".to_string(),
-            instructions: "Do your best!".to_string(),
+            instructions: serde_json::json!([]),
             page_id: id,
             courses: vec![course.clone()],
             starts_at: Some(date_time),
@@ -785,6 +789,13 @@ fn main() {
                 opens_at: None,
                 status: ChapterStatus::Open
             }]
+        }
+    );
+    write_docs!(
+        ExamInstructions,
+        ExamInstructions {
+            id,
+            instructions: page.content.clone()
         }
     );
 }

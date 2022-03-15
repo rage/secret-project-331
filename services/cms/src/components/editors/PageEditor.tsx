@@ -1,8 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import SaveIcon from "@mui/icons-material/Save"
-import LoadingButton from "@mui/lab/LoadingButton"
 import { BlockInstance } from "@wordpress/blocks"
+import { isEqual } from "lodash"
 import dynamic from "next/dynamic"
 import React, { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -13,6 +12,8 @@ import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supporte
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
+import Button from "../../shared-module/components/Button"
+import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
@@ -51,18 +52,19 @@ const supportedBlocks = (chapter_id: string | null, exam_id: string | null): str
 const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
   const { t } = useTranslation()
   const [title, setTitle] = useState(data.title)
-  console.log({ data })
+  const savedTitle = data.title
+  const savedContent = modifyBlocks(
+    data.content as BlockInstance[],
+    supportedBlocks(data.chapter_id, data.exam_id),
+  ) as BlockInstance[]
   const [content, contentDispatch] = useReducer(
     editorContentReducer,
-    modifyBlocks(
-      data.content as BlockInstance[],
-      supportedBlocks(data.chapter_id, data.exam_id),
-    ) as BlockInstance[],
+    modifyBlocks(savedContent, supportedBlocks(data.chapter_id, data.exam_id)) as BlockInstance[],
   )
-
-  const currentContentStateSaved = data.content === content
-
+  const currentContentStateSaved = isEqual(savedContent, content) && savedTitle === title
+  const [currentlySaving, setCurrentlySaving] = useState(false)
   const handleOnSave = async () => {
+    setCurrentlySaving(true)
     saveMutation.mutate(
       normalizeDocument({
         chapterId: data.chapter_id,
@@ -85,6 +87,9 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
             }).content,
           })
         },
+        onSettled: () => {
+          setCurrentlySaving(false)
+        },
       },
     )
   }
@@ -98,22 +103,49 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
     throw "The backend should ensure that a page is associated with either a course or an exam"
   }
 
+  const saveAndReset = (
+    <div
+      className={css`
+        display: flex;
+        justify-content: center;
+      `}
+    >
+      <Button
+        variant="primary"
+        size="medium"
+        className={css`
+          margin-right: 1rem;
+          border: 1px black solid;
+          pointer-events: auto;
+        `}
+        onClick={handleOnSave}
+        disabled={currentContentStateSaved || currentlySaving}
+      >
+        {t("save")}
+      </Button>
+      <Button
+        variant="secondary"
+        size="medium"
+        className={css`
+          margin-left: 1rem;
+          border: 1px black solid;
+          pointer-events: auto;
+        `}
+        onClick={() => contentDispatch({ type: "setContent", payload: savedContent })}
+        disabled={currentContentStateSaved || currentlySaving}
+      >
+        {t("reset")}
+      </Button>
+    </div>
+  )
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>
+      <BreakFromCentered sidebar={false}>
+        <div className="editor__top-button-wrapper">{saveAndReset}</div>
+      </BreakFromCentered>
       <div className="editor__component">
         <div>
           {saveMutation.isError && <ErrorBanner variant={"text"} error={saveMutation.error} />}
-          <LoadingButton
-            // eslint-disable-next-line i18next/no-literal-string
-            loadingPosition="start"
-            startIcon={<SaveIcon />}
-            loading={saveMutation.isLoading}
-            onClick={handleOnSave}
-          >
-            {/* TODO: This doesn't work? */}
-            {currentContentStateSaved ? t("saved") : t("save")}
-          </LoadingButton>
-
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />
         </div>
       </div>
@@ -129,6 +161,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
           allowedBlocks={supportedCoreBlocks}
           allowedBlockVariations={allowedBlockVariants}
           mediaUpload={mediaUpload}
+          inspectorButtons={saveAndReset}
         />
       </div>
       <div className="editor__component">

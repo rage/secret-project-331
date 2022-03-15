@@ -41,6 +41,7 @@ const CourseUsersCountsByExercise: React.FC<CourseUsersCountsByExerciseProps> = 
       `}
     >
       <Echarts
+        height={data.length * 100}
         options={{
           tooltip: {
             // eslint-disable-next-line i18next/no-literal-string

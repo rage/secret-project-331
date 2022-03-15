@@ -1,6 +1,7 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
+import { UseFormRegisterReturn } from "react-hook-form"
 
 import { baseTheme } from "../../styles"
 import { primaryFont } from "../../styles/typography"
@@ -9,7 +10,7 @@ interface TextFieldExtraProps {
   type?: "email" | "password" | "text" | "number"
   label: string
   hint?: string
-  error?: boolean
+  error?: string
   placeholder?: string
   required?: boolean
   value?: string
@@ -19,13 +20,15 @@ interface TextFieldExtraProps {
   className?: string
   disabled?: boolean
   id?: string
+  defaultValue?: string
+  register?: UseFormRegisterReturn
 }
 
 const ERRORCOLOR = "#F76D82"
 const DEFAULTCOLOR = "#dedede"
 
 interface InputExtraProps {
-  error?: boolean
+  error?: string
   disabled?: boolean
 }
 
@@ -58,22 +61,19 @@ const error = css`
   margin-top: -15px;
 `
 
-// Error string might change in the future
-
-const ERROR = "Error"
-
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldExtraProps
 
-const TextField = ({ onChange, className, disabled, ...rest }: TextFieldExtraProps) => {
+const TextField = ({ onChange, className, register, disabled, ...rest }: TextFieldExtraProps) => {
   return (
     <div
       className={cx(
-        className,
         css`
+          margin-bottom: 1rem;
           ${disabled &&
           `cursor: not-allowed;
-          filter: opacity(0.5);`}
+            filter: opacity(0.5);`}
         `,
+        className,
       )}
     >
       <label>
@@ -96,12 +96,15 @@ const TextField = ({ onChange, className, disabled, ...rest }: TextFieldExtraPro
           disabled={disabled}
           aria-describedby={`${rest.label}_error`}
           onChange={({ target: { value } }) => onChange && onChange(value)}
+          defaultValue={rest.defaultValue}
           {...rest}
+          // Register overrides onChange if specified
+          {...register}
         />
       </label>
       {rest.error && (
         <span className={cx(error)} id={`${rest.label}_error`} role="alert">
-          {ERROR}
+          {rest.error}
         </span>
       )}
     </div>

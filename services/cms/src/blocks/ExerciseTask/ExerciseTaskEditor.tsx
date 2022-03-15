@@ -20,7 +20,7 @@ import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
 import { exerciseTaskTypes } from "./ChooseExerciseTaskType/ExerciseServiceList"
 import ExerciseTaskIFrameEditor from "./IFrameEditor"
 
-const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list"]
+const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
 
 const ExerciseTaskEditorCard = styled.div`
   padding: 2rem 0;

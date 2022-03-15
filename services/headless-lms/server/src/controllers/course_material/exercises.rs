@@ -27,8 +27,12 @@ async fn get_exercise(
 ) -> ControllerResult<web::Json<CourseMaterialExercise>> {
     let mut conn = pool.acquire().await?;
     let user_id = user.map(|u| u.id);
-    let exercise =
+    let mut exercise =
         models::exercises::get_course_material_exercise(&mut conn, user_id, *exercise_id).await?;
+    if exercise.can_post_submission && exercise.exercise.exam_id.is_some() {
+        // Explicitely clear grading information from ongoing exam submissions.
+        exercise.clear_grading_information();
+    }
     Ok(web::Json(exercise))
 }
 

@@ -93,10 +93,6 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const courseInstanceId = pageContext?.instance?.id
 
   const isExam = !!pageContext.exam
-  const inEndedExam = pageContext?.exam?.ends_at ? pageContext?.exam?.ends_at < new Date() : false
-  const noSubmission = getCourseMaterialExercise.data.exercise_status === null
-
-  const cannotAnswerButNoSubmission = inEndedExam && noSubmission
 
   const spentTries =
     getCourseMaterialExercise.data.exercise_slide_submission_counts[
@@ -177,7 +173,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               postThisStateToIFrame={postThisStateToIFrame?.find(
                 (x) => x.exercise_task_id === task.id,
               )}
-              cannotAnswerButNoSubmission={cannotAnswerButNoSubmission}
+              canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
             />
           ))}
           <div
@@ -187,7 +183,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               }
             `}
           >
-            {!cannotAnswerButNoSubmission &&
+            {getCourseMaterialExercise.data.can_post_submission &&
               postThisStateToIFrame?.every((x) => x.view_type !== "view-submission") && (
                 <Button
                   size="medium"
@@ -239,24 +235,26 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 </Button>
               )}
             {/* These are now arrays so should be refactored */}
-            {postThisStateToIFrame?.every((x) => x.view_type === "view-submission") &&
-              !ranOutOfTries && (
-                <Button
-                  variant="primary"
-                  size="medium"
-                  onClick={() => {
-                    dispatch({
-                      type: "tryAgain",
-                      payload: getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks,
-                    })
-                    postSubmissionMutation.reset()
-                    setAnswers(new Map())
-                  }}
-                  disabled={getCourseMaterialExercise.isRefetching}
-                >
-                  {t("try-again")}
-                </Button>
-              )}
+            {postThisStateToIFrame?.every((x) => x.view_type === "view-submission") && (
+              <Button
+                variant="primary"
+                size="medium"
+                onClick={() => {
+                  dispatch({
+                    type: "tryAgain",
+                    payload: getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks,
+                  })
+                  postSubmissionMutation.reset()
+                  setAnswers(new Map())
+                }}
+                disabled={
+                  getCourseMaterialExercise.isRefetching ||
+                  !getCourseMaterialExercise.data.can_post_submission
+                }
+              >
+                {t("try-again")}
+              </Button>
+            )}
             {postSubmissionMutation.isError && (
               <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
             )}

@@ -16,7 +16,7 @@ const normalResponseHeaders = [
   {
     key: "Content-Security-Policy",
     value:
-      "default-src 'self'; connect-src 'self'; font-src 'self'; frame-src *; img-src 'self' data: blob: https://storage.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'",
+      "default-src 'self'; connect-src 'self' https://vimeo.com/api/oembed.json; font-src 'self'; frame-src *; img-src 'self' data: blob: https://storage.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'",
   },
   {
     key: "X-Frame-Options",

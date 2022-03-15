@@ -12,6 +12,7 @@ import "@wordpress/block-library/build-style/editor.css"
 import "@wordpress/format-library/build-style/style.css"
 
 import { css } from "@emotion/css"
+import { CSSProperties } from "@emotion/serialize"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
@@ -45,8 +46,8 @@ import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
-import Button from "../../shared-module/components/Button"
 import SelectField from "../../shared-module/components/InputFields/SelectField"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
 import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
@@ -76,6 +77,8 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
       EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
     >
   >({})
+
+  const sideBarStartingYCoordinate = useSidebarStartingYCoodrinate()
 
   useEffect(() => {
     setEditorSettings((prev) => ({ ...prev, mediaUpload }))
@@ -145,6 +148,7 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
     <div
       className={css`
         padding-top: 1rem;
+        --start-sidebar-top-px: ${sideBarStartingYCoordinate}px;
       `}
     >
       <ShortcutProvider>
@@ -168,19 +172,48 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
                     display: flex;
                     flex-grow: 1;
                     overflow-y: auto;
+                    overflow-x: hidden;
                   `}
                 >
-                  {sidebarView === "block-props" && <BlockInspector />}
-                  {sidebarView === "block-list" && (
-                    <ListView
-                      showNestedBlocks
-                      showBlockMovers
-                      __experimentalFeatures
-                      __experimentalPersistentListViewFeatures
-                      __experimentalHideContainerBlockActions
-                    />
+                  {sidebarView === "block-props" && (
+                    <div
+                      className={css`
+                        width: 100%;
+                        .block-editor-block-inspector {
+                          width: 100%;
+                        }
+                      `}
+                    >
+                      <BlockInspector />
+                    </div>
                   )}
-                  {sidebarView === "block-menu" && <BlockLibrary />}
+                  {sidebarView === "block-list" && (
+                    <div
+                      className={css`
+                        height: fit-content;
+                        width: 100%;
+                      `}
+                    >
+                      <ListView
+                        showNestedBlocks
+                        showBlockMovers
+                        __experimentalFeatures
+                        __experimentalPersistentListViewFeatures
+                        __experimentalHideContainerBlockActions
+                      />
+                    </div>
+                  )}
+                  {sidebarView === "block-menu" && (
+                    <div
+                      className={css`
+                        .block-editor-inserter__main-area {
+                          overflow-x: hidden;
+                        }
+                      `}
+                    >
+                      <BlockLibrary />
+                    </div>
+                  )}
                 </div>
                 <div
                   className={css`

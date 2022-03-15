@@ -39,7 +39,7 @@ $sidebar-width: 350px;
 .editor__sidebar {
   position: fixed;
   // Height of the complex navbar
-  top: 0;
+  top: var(--start-sidebar-top-px);
   right: 0;
   bottom: 0;
   width: $sidebar-width;

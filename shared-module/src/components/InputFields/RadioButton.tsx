@@ -61,7 +61,11 @@ export type RadioFieldProps = React.HTMLAttributes<HTMLInputElement> & RadioFiel
 const RadioField = ({ onChange, ...rest }: RadioFieldExtraProps) => {
   return (
     <label className={cx(label)}>
-      <input type="radio" onChange={({ target: { value } }) => onChange(value)} {...rest} />
+      <input
+        type="radio"
+        onChange={({ target: { value, name } }) => onChange(value, name)}
+        {...rest}
+      />
       <span>{rest.label}</span>
     </label>
   )

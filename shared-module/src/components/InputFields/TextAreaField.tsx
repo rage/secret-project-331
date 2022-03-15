@@ -39,7 +39,7 @@ const TextArea = ({ onChange, ...rest }: TextAreaExtraProps) => {
     <Wrapper>
       <label>
         <span>{rest.label}</span>
-        <textarea onChange={({ target: { value } }) => onChange(value)} {...rest} />
+        <textarea onChange={({ target: { value, name } }) => onChange(value, name)} {...rest} />
       </label>
     </Wrapper>
   )

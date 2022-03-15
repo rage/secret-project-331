@@ -1,11 +1,17 @@
 /* eslint-disable i18next/no-literal-string */
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { Fragment } from "react"
+
+const placeholder = `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
+been the industry's standard dummy text ever since the 1500s, when an unknown printer took
+a galley of type and scrambled it to make a type specimen book. It has survived not only
+five centuries, but also the leap into electronic typesetting, remaining essentially
+unchanged.`
 
 const Wrapper = styled.div`
-  background: #fff;
   width: 100%;
   height: auto;
-  border-radius: 4px;
 `
 const Header = styled.div`
   display: flex;
@@ -82,42 +88,58 @@ const TimeLabel = styled.span`
   color: #535a66;
 `
 
-const Thread = () => {
+interface ThreadProps {
+  text?: string
+  time?: string
+  author?: any
+  items?: string
+}
+
+const Thread = ({ text, time, author, items }: ThreadProps) => {
   return (
-    <Wrapper>
-      <Header>
-        <Author>
-          <PlaceholderAvatar></PlaceholderAvatar>
-          <span>Henrik Nygren</span>
-        </Author>
-        <TimeLabel>12hr ago</TimeLabel>
-      </Header>
-      <Content>
-        <Text>
-          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
-          been the industry's standard dummy text ever since the 1500s, when an unknown printer took
-          a galley of type and scrambled it to make a type specimen book. It has survived not only
-          five centuries, but also the leap into electronic typesetting, remaining essentially
-          unchanged.
-        </Text>
-        <Footer>
-          <ActionTab>
-            <PlaceholderIcon></PlaceholderIcon>
-            <PlaceholderIcon></PlaceholderIcon>
-            <PlaceholderIcon></PlaceholderIcon>
-            <StyledReplyIcon>
-              <PlaceholderIcon></PlaceholderIcon>
-              <span>Reply</span>
-            </StyledReplyIcon>
-            <StyledReportIcon>Report</StyledReportIcon>
-          </ActionTab>
-          <ChatIcon>
-            <PlaceholderIcon></PlaceholderIcon>
-          </ChatIcon>
-        </Footer>
-      </Content>
-    </Wrapper>
+    <Fragment>
+      {getThread(text, time, author)}
+      {items && getThread(items, time, author, true)}
+    </Fragment>
   )
 }
+
+const getThread = (text, time, author, nested = false) => (
+  <Wrapper
+    className={css`
+      ${nested && "padding-left: 40px;"}
+    `}
+  >
+    <Header
+      className={css`
+        ${nested && "padding-top: 0 !important;"}
+      `}
+    >
+      <Author>
+        <PlaceholderAvatar></PlaceholderAvatar>
+        <span>{author ? author : "Henrik Ngyren"}</span>
+      </Author>
+      <TimeLabel>{time ? time : "12hr ago"}</TimeLabel>
+    </Header>
+    <Content>
+      <Text>{text ? text : placeholder}</Text>
+      <Footer>
+        <ActionTab>
+          <PlaceholderIcon></PlaceholderIcon>
+          <PlaceholderIcon></PlaceholderIcon>
+          <PlaceholderIcon></PlaceholderIcon>
+          <StyledReplyIcon>
+            <PlaceholderIcon></PlaceholderIcon>
+            <span>Reply</span>
+          </StyledReplyIcon>
+          <StyledReportIcon>Report</StyledReportIcon>
+        </ActionTab>
+        <ChatIcon>
+          <PlaceholderIcon></PlaceholderIcon>
+        </ChatIcon>
+      </Footer>
+    </Content>
+  </Wrapper>
+)
 
 export default Thread

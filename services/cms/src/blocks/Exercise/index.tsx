@@ -10,8 +10,8 @@ export interface ExerciseAttributes {
   id: string
   name: string
   score_maximum: number
-  max_attempts_per_slide?: number
-  limit_number_of_attempts: boolean
+  max_tries_per_slide?: number
+  limit_number_of_tries: boolean
 }
 
 const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
@@ -33,11 +33,11 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
       type: "number",
       default: 1,
     },
-    max_attempts_per_slide: {
+    max_tries_per_slide: {
       type: "number",
       default: undefined,
     },
-    limit_number_of_attempts: {
+    limit_number_of_tries: {
       type: "boolean",
       default: false,
     },

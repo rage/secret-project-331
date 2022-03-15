@@ -38,8 +38,8 @@
       "name": "exercise",
       "order_number": 123,
       "score_maximum": 1,
-      "max_attempts_per_slide": 17,
-      "limit_number_of_attempts": true
+      "max_tries_per_slide": 17,
+      "limit_number_of_tries": true
     }
   ],
   "exercise_slides": [

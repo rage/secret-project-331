@@ -46,8 +46,8 @@
         "score_maximum": 1,
         "order_number": 123,
         "copied_from": null,
-        "max_attempts_per_slide": 17,
-        "limit_number_of_attempts": true
+        "max_tries_per_slide": 17,
+        "limit_number_of_tries": true
       }
     ]
   }

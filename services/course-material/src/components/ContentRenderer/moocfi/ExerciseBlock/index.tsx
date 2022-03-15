@@ -98,13 +98,13 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       getCourseMaterialExercise.data.current_exercise_slide.id
     ] ?? 0
 
-  const maxTries = getCourseMaterialExercise.data.exercise.max_attempts_per_slide
+  const maxTries = getCourseMaterialExercise.data.exercise.max_tries_per_slide
 
   const triesRemaining = maxTries && maxTries - spentTries
 
-  const limit_number_of_attempts = getCourseMaterialExercise.data.exercise.limit_number_of_attempts
+  const limit_number_of_tries = getCourseMaterialExercise.data.exercise.limit_number_of_tries
   // const _ranOutOfTries =
-  //   limit_number_of_attempts && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
+  //   limit_number_of_tries && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -257,7 +257,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             {postSubmissionMutation.isError && (
               <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
             )}
-            {limit_number_of_attempts && maxTries !== null && triesRemaining !== null && (
+            {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
               <div
                 className={css`
                   color: ${baseTheme.colors.grey[500]};

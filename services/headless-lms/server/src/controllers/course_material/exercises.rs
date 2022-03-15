@@ -139,8 +139,8 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
                 "Exam doesn't belong to either a course nor exam.".to_string(),
             ))
         }?;
-    if exercise.limit_number_of_attempts {
-        if let Some(max_attempts_per_slide) = exercise.max_attempts_per_slide {
+    if exercise.limit_number_of_tries {
+        if let Some(max_tries_per_slide) = exercise.max_tries_per_slide {
             // check if the user has attempts remaining
             let slide_id_to_submissions_count =
                 get_exercise_slide_submission_counts_for_exercise_user(
@@ -152,7 +152,7 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
                 .await?;
 
             let count = slide_id_to_submissions_count.get(&slide_id).unwrap_or(&0);
-            if count >= &(max_attempts_per_slide as i64) {
+            if count >= &(max_tries_per_slide as i64) {
                 return Err(ControllerError::BadRequest(
                     "You've ran out of tries.".to_string(),
                 ));

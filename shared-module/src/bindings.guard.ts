@@ -604,8 +604,8 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     typeof obj.score_maximum === "number" &&
     typeof obj.order_number === "number" &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    (obj.max_attempts_per_slide === null || typeof obj.max_attempts_per_slide === "number") &&
-    typeof obj.limit_number_of_attempts === "boolean"
+    (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
+    typeof obj.limit_number_of_tries === "boolean"
   )
 }
 
@@ -714,8 +714,8 @@ export function isCmsPageExercise(obj: any, _argumentName?: string): obj is CmsP
     typeof obj.name === "string" &&
     typeof obj.order_number === "number" &&
     typeof obj.score_maximum === "number" &&
-    (obj.max_attempts_per_slide === null || typeof obj.max_attempts_per_slide === "number") &&
-    typeof obj.limit_number_of_attempts === "boolean"
+    (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
+    typeof obj.limit_number_of_tries === "boolean"
   )
 }
 

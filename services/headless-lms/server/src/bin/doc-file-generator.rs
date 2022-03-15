@@ -155,8 +155,8 @@ fn main() {
         score_maximum: 1,
         order_number: 123,
         copied_from: None,
-        max_attempts_per_slide: Some(17),
-        limit_number_of_attempts: true,
+        max_tries_per_slide: Some(17),
+        limit_number_of_tries: true,
     };
     let exercise_slide_submission = ExerciseSlideSubmission {
         id,
@@ -327,8 +327,8 @@ fn main() {
                 name: "exercise".to_string(),
                 order_number: 123,
                 score_maximum: 1,
-                max_attempts_per_slide: Some(17),
-                limit_number_of_attempts: true
+                max_tries_per_slide: Some(17),
+                limit_number_of_tries: true
             }],
             exercise_slides: vec![CmsPageExerciseSlide {
                 id,

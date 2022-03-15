@@ -541,8 +541,8 @@ pub struct CmsPageExercise {
     pub name: String,
     pub order_number: i32,
     pub score_maximum: i32,
-    pub max_attempts_per_slide: Option<i32>,
-    pub limit_number_of_attempts: bool,
+    pub max_tries_per_slide: Option<i32>,
+    pub limit_number_of_tries: bool,
 }
 
 impl From<Exercise> for CmsPageExercise {
@@ -552,8 +552,8 @@ impl From<Exercise> for CmsPageExercise {
             name: exercise.name,
             order_number: exercise.order_number,
             score_maximum: exercise.score_maximum,
-            max_attempts_per_slide: exercise.max_attempts_per_slide,
-            limit_number_of_attempts: exercise.limit_number_of_attempts,
+            max_tries_per_slide: exercise.max_tries_per_slide,
+            limit_number_of_tries: exercise.limit_number_of_tries,
         }
     }
 }
@@ -857,8 +857,8 @@ INSERT INTO exercises(
     chapter_id,
     exam_id,
     score_maximum,
-    max_attempts_per_slide,
-    limit_number_of_attempts
+    max_tries_per_slide,
+    limit_number_of_tries
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO
 UPDATE
@@ -869,15 +869,15 @@ SET course_id = $2,
   chapter_id = $6,
   exam_id = $7,
   score_maximum = $8,
-  max_attempts_per_slide = $9,
-  limit_number_of_attempts = $10,
+  max_tries_per_slide = $9,
+  limit_number_of_tries = $10,
   deleted_at = NULL
 RETURNING id,
   name,
   order_number,
   score_maximum,
-  max_attempts_per_slide,
-  limit_number_of_attempts;
+  max_tries_per_slide,
+  limit_number_of_tries;
             ",
             safe_for_db_exercise_id,
             page.course_id,
@@ -887,8 +887,8 @@ RETURNING id,
             page.chapter_id,
             page.exam_id,
             exercise_update.score_maximum,
-            exercise_update.max_attempts_per_slide,
-            exercise_update.limit_number_of_attempts
+            exercise_update.max_tries_per_slide,
+            exercise_update.limit_number_of_tries
         )
         .fetch_one(&mut *conn)
         .await?;
@@ -2076,8 +2076,8 @@ mod test {
             name: "".to_string(),
             order_number: 1,
             score_maximum: 1,
-            max_attempts_per_slide: None,
-            limit_number_of_attempts: false,
+            max_tries_per_slide: None,
+            limit_number_of_tries: false,
         };
         let e1_s1 = CmsPageExerciseSlide {
             id: Uuid::parse_str("43380e81-6ff2-4f46-9f38-af0ac6a8421a").unwrap(),

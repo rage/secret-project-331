@@ -12,6 +12,6 @@ type Vec<Exercise> = Array<{
   score_maximum: number
   order_number: number
   copied_from: string | null
-  max_attempts_per_slide: number | null
-  limit_number_of_attempts: boolean
+  max_tries_per_slide: number | null
+  limit_number_of_tries: boolean
 }>

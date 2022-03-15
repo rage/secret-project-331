@@ -57,8 +57,8 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
       name: exerciseAttributes.name,
       order_number: exerciseCount,
       score_maximum: exerciseAttributes.score_maximum,
-      max_attempts_per_slide: exerciseAttributes.max_attempts_per_slide ?? null,
-      limit_number_of_attempts: exerciseAttributes.limit_number_of_attempts,
+      max_tries_per_slide: exerciseAttributes.max_tries_per_slide ?? null,
+      limit_number_of_tries: exerciseAttributes.limit_number_of_tries,
     })
     exerciseCount = exerciseCount + 1
     let exerciseSlideCount = 0
@@ -164,8 +164,8 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         id: normalizedBlock.attributes.id,
         name: exercise.name,
         score_maximum: exercise.score_maximum,
-        max_attempts_per_slide: exercise.max_attempts_per_slide ?? undefined,
-        limit_number_of_attempts: exercise.limit_number_of_attempts,
+        max_tries_per_slide: exercise.max_tries_per_slide ?? undefined,
+        limit_number_of_tries: exercise.limit_number_of_tries,
       },
     }
 

@@ -58,8 +58,8 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
       name: "exercise",
       order_number: 0,
       score_maximum: 5,
-      max_attempts_per_slide: 72,
-      limit_number_of_attempts: true,
+      max_tries_per_slide: 72,
+      limit_number_of_tries: true,
     },
   ],
   exercise_slides: [
@@ -102,8 +102,8 @@ const exampleUnnormalizedDocumentExerciseAttributes: ExerciseAttributes = {
   id: "dd46fb67-d168-4554-b912-0018f812166d",
   name: "exercise",
   score_maximum: 5,
-  max_attempts_per_slide: 72,
-  limit_number_of_attempts: true,
+  max_tries_per_slide: 72,
+  limit_number_of_tries: true,
 }
 
 // Doing this separately so that we get type errors when the type changes

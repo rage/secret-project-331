@@ -104,9 +104,9 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
               >
                 <CheckBox
                   label={t("limit-number-of-attempts")}
-                  checked={attributes.limit_number_of_attempts}
+                  checked={attributes.limit_number_of_tries}
                   onChange={function (checked: boolean): void {
-                    setAttributes({ limit_number_of_attempts: checked })
+                    setAttributes({ limit_number_of_tries: checked })
                   }}
                   className={css`
                     flex: 1;
@@ -116,17 +116,17 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
                 <TextField
                   label={t("attempts-per-slide")}
                   placeholder={t("attempts-per-slide")}
-                  value={attributes.max_attempts_per_slide?.toString() ?? ""}
-                  disabled={!attributes.limit_number_of_attempts}
+                  value={attributes.max_tries_per_slide?.toString() ?? ""}
+                  disabled={!attributes.limit_number_of_tries}
                   type="number"
                   onChange={(value) => {
                     const parsed = parseInt(value)
                     if (isNaN(parsed)) {
                       // empty
-                      setAttributes({ max_attempts_per_slide: undefined })
+                      setAttributes({ max_tries_per_slide: undefined })
                       return
                     }
-                    setAttributes({ max_attempts_per_slide: parsed })
+                    setAttributes({ max_tries_per_slide: parsed })
                   }}
                   className={css`
                     flex: 1;

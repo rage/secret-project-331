@@ -338,8 +338,8 @@ export interface Exercise {
   score_maximum: number
   order_number: number
   copied_from: string | null
-  max_attempts_per_slide: number | null
-  limit_number_of_attempts: boolean
+  max_tries_per_slide: number | null
+  limit_number_of_tries: boolean
 }
 
 export interface ExerciseStatus {
@@ -410,8 +410,8 @@ export interface CmsPageExercise {
   name: string
   order_number: number
   score_maximum: number
-  max_attempts_per_slide: number | null
-  limit_number_of_attempts: boolean
+  max_tries_per_slide: number | null
+  limit_number_of_tries: boolean
 }
 
 export interface CmsPageExerciseSlide {

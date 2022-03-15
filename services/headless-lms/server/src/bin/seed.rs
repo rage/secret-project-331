@@ -2512,8 +2512,8 @@ fn example_exercise(
         name: "Best exercise".to_string(),
         order_number: 1,
         score_maximum: 1,
-        max_attempts_per_slide: None,
-        limit_number_of_attempts: false,
+        max_tries_per_slide: None,
+        limit_number_of_tries: false,
     };
     let exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,
@@ -2594,8 +2594,8 @@ fn quizzes_exercise(
         name: "Best quizzes exercise".to_string(),
         order_number: 1,
         score_maximum: 1,
-        max_attempts_per_slide: None,
-        limit_number_of_attempts: false,
+        max_tries_per_slide: None,
+        limit_number_of_tries: false,
     };
     let exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,

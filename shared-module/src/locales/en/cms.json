@@ -43,6 +43,6 @@
   "reset": "Reset",
   "block-props": "Block properties",
   "block-list": "Current blocks",
-  "block-menu": "Add block",
+  "block-menu": "Add block / All available blocks",
   "editor-select-sidebar-view": "Toggle view"
 }

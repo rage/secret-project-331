@@ -49,6 +49,7 @@ import { useTranslation } from "react-i18next"
 import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import SelectField from "../../shared-module/components/InputFields/SelectField"
+import { primaryFont } from "../../shared-module/styles"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
 import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
 
@@ -208,6 +209,9 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
                       className={css`
                         .block-editor-inserter__main-area {
                           overflow-x: hidden;
+                        }
+                        .components-search-control {
+                          font-family: ${primaryFont} !important;
                         }
                       `}
                     >

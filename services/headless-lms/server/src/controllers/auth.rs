@@ -8,6 +8,7 @@ use actix_session::Session;
 use models::users::User;
 use oauth2::{
     basic::{BasicErrorResponseType, BasicTokenType},
+    reqwest::AsyncHttpClientError,
     EmptyExtraTokenFields, RequestTokenError, ResourceOwnerPassword, ResourceOwnerUsername,
     StandardErrorResponse, StandardTokenResponse, TokenResponse,
 };
@@ -92,16 +93,12 @@ pub async fn login(
         };
     }
 
-    let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
-        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
-
     let token = client
         .exchange_password(
             &ResourceOwnerUsername::new(email.clone()),
             &ResourceOwnerPassword::new(password.clone()),
         )
-        .add_extra_param("RATELIMIT_PROTECTION_SAFE_API_KEY", ratelimit_api_key)
-        .request_async(oauth2::reqwest::async_http_client)
+        .request_async(async_http_client_with_headers)
         .await;
 
     if token.is_err() {
@@ -119,6 +116,25 @@ pub async fn login(
             "Incorrect email or password.".to_string().finish(),
         ))
     }
+}
+
+/**
+ * HTTP Client used only for authing with TMC server, this is to ensure that TMC server
+ * does not rate limit auth requests from backend
+ */
+async fn async_http_client_with_headers(
+    mut request: oauth2::HttpRequest,
+) -> Result<oauth2::HttpResponse, AsyncHttpClientError> {
+    let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
+        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
+    request.headers.append(
+        "RATELIMIT_PROTECTION_SAFE_API_KEY",
+        ratelimit_api_key.parse().map_err(|_err| {
+            AsyncHttpClientError::Other("Invalid RATELIMIT API key.".to_string())
+        })?,
+    );
+    let result = oauth2::reqwest::async_http_client(request).await?;
+    Ok(result)
 }
 
 /**

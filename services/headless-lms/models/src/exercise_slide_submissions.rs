@@ -60,8 +60,8 @@ pub struct ExerciseSlideSubmissionCountByWeekAndHour {
 /// Contains data sent by the student when they make a submission for an exercise slide.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct StudentExerciseSlideSubmission {
-    exercise_slide_id: Uuid,
-    exercise_task_submissions: Vec<StudentExerciseTaskSubmission>,
+    pub exercise_slide_id: Uuid,
+    pub exercise_task_submissions: Vec<StudentExerciseTaskSubmission>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]

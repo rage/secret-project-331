@@ -69,7 +69,10 @@ async fn post_submission(
 
     let course_instance_or_exam_id =
         resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
-            &mut conn, user.id, &exercise,
+            &mut conn,
+            user.id,
+            &exercise,
+            payload.exercise_slide_id,
         )
         .await?;
     let user_exercise_state = models::user_exercise_states::get_user_exercise_state_if_exists(
@@ -104,6 +107,38 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
     exercise: &Exercise,
     slide_id: Uuid,
 ) -> ControllerResult<CourseInstanceOrExamId> {
+    let course_instance_id_or_exam_id: CourseInstanceOrExamId =
+        if let Some(course_id) = exercise.course_id {
+            // If submitting for a course, there should be existing course settings that dictate which
+            // instance the user is on.
+            let settings = models::user_course_settings::get_user_course_settings_by_course_id(
+                conn, user_id, course_id,
+            )
+            .await?;
+            if let Some(settings) = settings {
+                Ok(CourseInstanceOrExamId::Instance(
+                    settings.current_course_instance_id,
+                ))
+            } else {
+                Err(ControllerError::Unauthorized(
+                    "User is not enrolled on this course.".to_string(),
+                ))
+            }
+        } else if let Some(exam_id) = exercise.exam_id {
+            // If submitting for an exam, make sure that user's time is not up.
+            if models::exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await? {
+                Ok(CourseInstanceOrExamId::Exam(exam_id))
+            } else {
+                Err(ControllerError::Unauthorized(
+                    "Submissions for this exam are no longer accepted.".to_string(),
+                ))
+            }
+        } else {
+            // On database level this scenario is impossible.
+            Err(ControllerError::InternalServerError(
+                "Exam doesn't belong to either a course nor exam.".to_string(),
+            ))
+        }?;
     if exercise.limit_number_of_attempts {
         if let Some(max_attempts_per_slide) = exercise.max_attempts_per_slide {
             // check if the user has attempts remaining
@@ -116,43 +151,15 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
                 )
                 .await?;
 
-            let count = slide_id_to_submissions_count.get(&slide_id).unwrap_or(0);
-            if count >= max_attempts_per_slide {
-                return Err(ControllerError::BadRequest("You've ran out of tries."));
+            let count = slide_id_to_submissions_count.get(&slide_id).unwrap_or(&0);
+            if count >= &(max_attempts_per_slide as i64) {
+                return Err(ControllerError::BadRequest(
+                    "You've ran out of tries.".to_string(),
+                ));
             }
         }
     }
-    if let Some(course_id) = exercise.course_id {
-        // If submitting for a course, there should be existing course settings that dictate which
-        // instance the user is on.
-        let settings = models::user_course_settings::get_user_course_settings_by_course_id(
-            conn, user_id, course_id,
-        )
-        .await?;
-        if let Some(settings) = settings {
-            Ok(CourseInstanceOrExamId::Instance(
-                settings.current_course_instance_id,
-            ))
-        } else {
-            Err(ControllerError::Unauthorized(
-                "User is not enrolled on this course.".to_string(),
-            ))
-        }
-    } else if let Some(exam_id) = exercise.exam_id {
-        // If submitting for an exam, make sure that user's time is not up.
-        if models::exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await? {
-            Ok(CourseInstanceOrExamId::Exam(exam_id))
-        } else {
-            Err(ControllerError::Unauthorized(
-                "Submissions for this exam are no longer accepted.".to_string(),
-            ))
-        }
-    } else {
-        // On database level this scenario is impossible.
-        Err(ControllerError::InternalServerError(
-            "Exam doesn't belong to either a course nor exam.".to_string(),
-        ))
-    }
+    Ok(course_instance_id_or_exam_id)
 }
 
 /**

@@ -2,7 +2,8 @@
 Handlers for HTTP requests to `/api/v0/login`.
 */
 
-use std::env;
+use actix_governor::{Governor, GovernorConfigBuilder};
+use std::{env, time::Duration};
 
 use actix_session::Session;
 use models::users::User;
@@ -101,7 +102,8 @@ pub async fn login(
         .request_async(async_http_client_with_headers)
         .await;
 
-    if token.is_err() {
+    if let Err(error) = token {
+        info!(token_error = ?error, "Token error when fetching");
         return Err(ControllerError::Unauthorized(
             "Incorrect email or password.".to_string(),
         ));
@@ -154,12 +156,6 @@ GET `/api/v0/auth/logged-in` Returns the current user's login status.
 pub async fn logged_in(session: Session) -> web::Json<bool> {
     let logged_in = authorization::has_auth_user_session(&session);
     web::Json(logged_in)
-}
-
-pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/login", web::post().to(login))
-        .route("/logout", web::post().to(logout))
-        .route("/logged-in", web::get().to(logged_in));
 }
 
 pub type LoginToken = Result<
@@ -247,4 +243,19 @@ pub async fn get_user_from_moocfi(
             "User not found.".to_string().finish(),
         ))
     }
+}
+
+pub fn _add_routes(cfg: &mut ServiceConfig) {
+    let governor_conf = GovernorConfigBuilder::default()
+        .period(Duration::from_secs(10))
+        .burst_size(10)
+        .finish()
+        .unwrap();
+    cfg.service(
+        web::resource("/login")
+            .wrap(Governor::new(&governor_conf))
+            .to(login),
+    )
+    .route("/logout", web::post().to(logout))
+    .route("/logged-in", web::get().to(logged_in));
 }

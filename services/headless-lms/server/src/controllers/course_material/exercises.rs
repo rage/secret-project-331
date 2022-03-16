@@ -128,7 +128,11 @@ async fn post_submission(
         result.clear_grading_information();
     }
 
-    let score_given = user_exercise_state.score_given.unwrap_or(0.0);
+    let score_given = if let Some(exercise_status) = &result.exercise_status {
+        exercise_status.score_given.unwrap_or(0.0)
+    } else {
+        0.0
+    };
 
     // Model solution spec should only be shown when this is the last try for the current slide or they have gotten full points from the current slide.
     // TODO: this uses points for the whole exercise, change this to slide points when slide grading finalized

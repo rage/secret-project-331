@@ -43,7 +43,7 @@ const ExerciseSlideEditor: React.FC<BlockEditProps<ExerciseSlideAttributes>> = (
           margin-bottom: 1.5rem;
         `}
       >
-        {t("slide-title", { number: attributes.order_number })}
+        {t("slide-title", { number: attributes.order_number + 1 })}
       </div>
       <div className={gutenbergControlsHidden}>
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />

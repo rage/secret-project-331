@@ -61,7 +61,7 @@ export const editorContentReducer = (
           isValid: true,
           attributes: {
             id: v4(),
-            order_number: block.innerBlocks.length + 1,
+            order_number: block.innerBlocks.length,
           },
           innerBlocks: [],
         }

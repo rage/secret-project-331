@@ -98,24 +98,24 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
               <div
                 className={css`
                   display: flex;
-                  align-items: flex-end;
+                  align-items: center;
                   margin-bottom: 1rem;
                 `}
               >
                 <CheckBox
-                  label={t("limit-number-of-attempts")}
+                  label={t("limit-number-of-tries")}
                   checked={attributes.limit_number_of_tries}
                   onChange={function (checked: boolean): void {
                     setAttributes({ limit_number_of_tries: checked })
                   }}
                   className={css`
                     flex: 1;
-                    padding-bottom: 0.6rem;
+                    padding-top: 1.3rem;
                   `}
                 />
                 <TextField
-                  label={t("attempts-per-slide")}
-                  placeholder={t("attempts-per-slide")}
+                  label={t("tries-per-slide")}
+                  placeholder={t("tries-per-slide")}
                   value={attributes.max_tries_per_slide?.toString() ?? ""}
                   disabled={!attributes.limit_number_of_tries}
                   type="number"

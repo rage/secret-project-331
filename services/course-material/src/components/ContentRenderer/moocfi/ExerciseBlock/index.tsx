@@ -103,8 +103,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const triesRemaining = maxTries && maxTries - spentTries
 
   const limit_number_of_tries = getCourseMaterialExercise.data.exercise.limit_number_of_tries
-  // const _ranOutOfTries =
-  //   limit_number_of_tries && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
+  const ranOutOfTries =
+    limit_number_of_tries && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -234,26 +234,27 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 </Button>
               )}
             {/* These are now arrays so should be refactored */}
-            {postThisStateToIFrame?.every((x) => x.view_type === "view-submission") && (
-              <Button
-                variant="primary"
-                size="medium"
-                onClick={() => {
-                  dispatch({
-                    type: "tryAgain",
-                    payload: getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks,
-                  })
-                  postSubmissionMutation.reset()
-                  setAnswers(new Map())
-                }}
-                disabled={
-                  getCourseMaterialExercise.isRefetching ||
-                  !getCourseMaterialExercise.data.can_post_submission
-                }
-              >
-                {t("try-again")}
-              </Button>
-            )}
+            {postThisStateToIFrame?.every((x) => x.view_type === "view-submission") &&
+              !ranOutOfTries && (
+                <Button
+                  variant="primary"
+                  size="medium"
+                  onClick={() => {
+                    dispatch({
+                      type: "tryAgain",
+                      payload: getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks,
+                    })
+                    postSubmissionMutation.reset()
+                    setAnswers(new Map())
+                  }}
+                  disabled={
+                    getCourseMaterialExercise.isRefetching ||
+                    !getCourseMaterialExercise.data.can_post_submission
+                  }
+                >
+                  {t("try-again")}
+                </Button>
+              )}
             {postSubmissionMutation.isError && (
               <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
             )}

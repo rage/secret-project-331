@@ -109,6 +109,8 @@ const CheckBox = ({ onChange, className, checked, ...rest }: CheckboxFieldExtraP
             ? cx(error)
             : css`
                 visibility: hidden;
+                height: 0;
+                display: block;
               `
         }
         id={`${rest.label}_error`}

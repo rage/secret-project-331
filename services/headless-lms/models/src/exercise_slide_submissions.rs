@@ -80,6 +80,14 @@ impl StudentExerciseSlideSubmissionResult {
                 result.model_solution_spec = None;
             });
     }
+
+    pub fn clear_model_solution_specs(&mut self) {
+        self.exercise_task_submission_results
+            .iter_mut()
+            .for_each(|result| {
+                result.model_solution_spec = None;
+            });
+    }
 }
 
 pub async fn insert_exercise_slide_submission(

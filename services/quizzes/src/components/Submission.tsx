@@ -16,7 +16,7 @@ interface SubmissionProps {
   user_answer: QuizAnswer
   publicAlternatives: PublicQuiz
   modelSolutions: ModelSolutionQuiz | null
-  feedback_json: ItemAnswerFeedback[] | null
+  gradingFeedbackJson: ItemAnswerFeedback[] | null
 }
 
 type QuizItemType =
@@ -47,7 +47,7 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
 const Submission: React.FC<SubmissionProps> = ({
   publicAlternatives,
   modelSolutions,
-  feedback_json,
+  gradingFeedbackJson: feedback_json,
   user_answer,
 }) => {
   return (

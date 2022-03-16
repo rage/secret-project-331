@@ -31,6 +31,8 @@ interface ExerciseBlockAttributes {
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
+  const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
+  const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
@@ -75,8 +77,6 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       },
     },
   )
-  const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
-  const [points, setPoints] = useState<number | null>(null)
 
   if (!showExercise) {
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>

@@ -51,6 +51,15 @@ impl CourseMaterialExercise {
                 task.previous_submission_grading = None;
             });
     }
+
+    pub fn clear_model_solution_specs(&mut self) {
+        self.current_exercise_slide
+            .exercise_tasks
+            .iter_mut()
+            .for_each(|task| {
+                task.model_solution_spec = None;
+            });
+    }
 }
 
 /**
@@ -347,13 +356,9 @@ async fn get_or_select_exercise_slide(
             // No signed in user. Show random exercise without model solution.
             let random_slide =
                 exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise.id).await?;
-            let random_slide_tasks = exercise_tasks::get_course_material_exercise_tasks(
-                conn,
-                &random_slide.id,
-                None,
-                false,
-            )
-            .await?;
+            let random_slide_tasks =
+                exercise_tasks::get_course_material_exercise_tasks(conn, &random_slide.id, None)
+                    .await?;
             Ok((
                 CourseMaterialExerciseSlide {
                     id: random_slide.id,
@@ -421,7 +426,6 @@ async fn get_or_select_exercise_slide(
                                 conn,
                                 &random_slide.id,
                                 Some(&user_id),
-                                false,
                             )
                             .await?;
 
@@ -446,7 +450,6 @@ async fn get_or_select_exercise_slide(
                             conn,
                             &random_slide.id,
                             Some(&user_id),
-                            false,
                         )
                         .await?;
 

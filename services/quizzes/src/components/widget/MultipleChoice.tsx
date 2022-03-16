@@ -20,6 +20,7 @@ const optionButton = css`
   justify-content: center;
   margin: 0.3rem;
   padding: 1rem;
+  transition: background-color 0.2s;
 `
 
 const optionButtonColumn = css`

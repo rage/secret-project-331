@@ -74,16 +74,16 @@ test("history test", async ({ page, headless }) => {
   // Click text=Page One
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/cms/pages/ebc1c42f-c61e-4f4b-89df-b31f3d227bad' }*/),
-    page.click("text=Page One"),
+    page.click(`button:text("Edit page"):right-of(:text("Page One"))`),
   ])
 
   // Fill input[type="text"]
-  await page.fill("text=Title", "New title!")
+  await page.fill(`label:has-text("Title")`, "New title!")
 
   // Click text=Save
-  await page.click("text=Save")
+  await page.click("text=Save >> visible=true")
   // TODO: wait for page saved notification
-  await page.waitForSelector(`button:enabled:text("Save")`)
+  await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
   await page.waitForTimeout(100)
 
   // Triple click [placeholder="Exercise name"]
@@ -95,9 +95,9 @@ test("history test", async ({ page, headless }) => {
   await page.fill('[placeholder="Exercise name"]', "New exercise!")
 
   // Click text=Save
-  await page.click("text=Save")
+  await page.click("text=Save >> visible=true")
   // TODO: wait for page saved notification
-  await page.waitForSelector(`button:enabled:text("Save")`)
+  await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
   await page.waitForTimeout(100)
 
   // Click [aria-label="Block: ExerciseTask"] div[role="button"]
@@ -121,8 +121,8 @@ test("history test", async ({ page, headless }) => {
   await frame.check(':nth-match(input[type="checkbox"], 2)')
 
   // Click text=Save
-  await page.click("text=Save")
-  await page.waitForSelector(`button:enabled:text("Save")`)
+  await page.click("text=Save >> visible=true")
+  await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
   await page.waitForTimeout(100)
 
   // Click text=Home
@@ -149,10 +149,12 @@ test("history test", async ({ page, headless }) => {
   await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
   expectPath(page, "/manage/courses/[id]/pages")
 
+  await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
+
   // Click text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/pages/ebc1c42f-c61e-4f4b-89df-b31f3d227bad/history' }*/),
-    page.click("text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)"),
+    page.click(`a:has-text("History")`),
   ])
 
   await page.waitForSelector("text=core/paragraph")
@@ -161,10 +163,9 @@ test("history test", async ({ page, headless }) => {
   await page.goBack()
   await page.waitForSelector("text=Course pages for Introduction to history")
 
-  await Promise.all([
-    page.waitForNavigation(),
-    page.click("text=New title!(/chapter-1/page-1) history >> :nth-match(a, 2)"),
-  ])
+  await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
+
+  await Promise.all([page.waitForNavigation(), page.click(`a:has-text("History")`)])
 
   const stableElement = await page.waitForSelector("text=core/paragraph")
 

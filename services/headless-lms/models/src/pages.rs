@@ -11,7 +11,7 @@ use itertools::Itertools;
 use url::Url;
 
 use crate::{
-    chapters::{ChapterStatus, DatabaseChapter},
+    chapters::{course_chapters, ChapterStatus, DatabaseChapter},
     course_instances::{self, CourseInstance},
     courses::{get_nondeleted_course_id_by_slug, Course},
     exercise_service_info,
@@ -984,9 +984,7 @@ async fn upsert_exercise_tasks(
             &normalized_task,
             &model_solution_urls_by_exercise_type,
             &client,
-            existing_exercise_task
-                .map(|value| value.model_solution_spec.clone())
-                .flatten(),
+            existing_exercise_task.and_then(|value| value.model_solution_spec.clone()),
             task_update.id,
         )
         .await?;
@@ -995,9 +993,7 @@ async fn upsert_exercise_tasks(
             &normalized_task,
             &public_spec_urls_by_exercise_type,
             &client,
-            existing_exercise_task
-                .map(|value| value.public_spec.clone())
-                .flatten(),
+            existing_exercise_task.and_then(|value| value.public_spec.clone()),
             task_update.id,
         )
         .await?;
@@ -1897,6 +1893,108 @@ WHERE pages.id = $1
     .fetch_one(&mut *conn)
     .await?;
     Ok(res)
+}
+
+/// Makes the order numebers and chapter ids to match in the db what's in the page objects
+/// Assumes that all pages belong to the given course id
+pub async fn reorder_pages(
+    conn: &mut PgConnection,
+    pages: &[Page],
+    course_id: Uuid,
+) -> ModelResult<()> {
+    let db_pages = course_pages(conn, course_id).await?;
+    let chapters = course_chapters(conn, course_id).await?;
+    let mut tx = conn.begin().await?;
+    for page in pages {
+        if let Some(matching_db_page) = db_pages.iter().find(|p| p.id == page.id) {
+            if matching_db_page.chapter_id == page.chapter_id {
+                // Chapter not changing
+                // Avoid conflicts in order_number since unique indexes cannot be deferred. The random number will not end up committing in the transaction since the loop goes through all the pages and will correct the number.
+                sqlx::query!(
+                    "UPDATE pages
+SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
+WHERE pages.order_number = $1
+  AND pages.chapter_id = $2
+  AND deleted_at IS NULL",
+                    page.order_number,
+                    page.chapter_id
+                )
+                .execute(&mut tx)
+                .await?;
+                sqlx::query!(
+                    "UPDATE pages SET order_number = $2 WHERE pages.id = $1",
+                    page.id,
+                    page.order_number
+                )
+                .execute(&mut tx)
+                .await?;
+            } else {
+                // Chapter changes
+                if let Some(old_chapter_id) = matching_db_page.chapter_id {
+                    if let Some(new_chapter_id) = page.chapter_id {
+                        // Moving page to another chapter
+                        if let Some(old_chapter) = chapters.iter().find(|o| o.id == old_chapter_id)
+                        {
+                            if let Some(new_chapter) =
+                                chapters.iter().find(|o| o.id == new_chapter_id)
+                            {
+                                let old_path = &page.url_path;
+                                let new_path = old_path.replacen(
+                                    &old_chapter.chapter_number.to_string(),
+                                    &new_chapter.chapter_number.to_string(),
+                                    1,
+                                );
+                                sqlx::query!(
+                                    "UPDATE pages SET url_path = $2, chapter_id = $3, order_number = $4 WHERE pages.id = $1",
+                                    page.id,
+                                    new_path,
+                                    new_chapter.id,
+                                    page.order_number
+                                )
+                                .execute(&mut tx)
+                                .await?;
+                                sqlx::query!(
+                                    "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
+                                    page.id,
+                                    old_path,
+                                    course_id
+                                )
+                                .execute(&mut tx)
+                                .await?;
+                            } else {
+                                return Err(ModelError::InvalidRequest(
+                                    "New chapter not found".to_string(),
+                                ));
+                            }
+                        } else {
+                            return Err(ModelError::InvalidRequest(
+                                "Old chapter not found".to_string(),
+                            ));
+                        }
+                    } else {
+                        // Moving page from a chapter to a top level page
+                        return Err(ModelError::InvalidRequest(
+                            "Making a chapter page a top level page is not supported yet"
+                                .to_string(),
+                        ));
+                    }
+                } else {
+                    error!("Cannot move a top level page to a chapter. matching_db_page.chapter_id: {:?} page.chapter_id: {:?}", matching_db_page.chapter_id, page.chapter_id);
+                    // Moving page from the top level to a chapter
+                    return Err(ModelError::InvalidRequest(
+                        "Moving a top level page to a chapter is not supported yet".to_string(),
+                    ));
+                }
+            }
+        } else {
+            return Err(ModelError::InvalidRequest(format!(
+                "Page {} does exist in course {}",
+                page.id, course_id
+            )));
+        }
+    }
+    tx.commit().await?;
+    Ok(())
 }
 
 #[cfg(test)]

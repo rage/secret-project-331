@@ -79,7 +79,7 @@ test("test", async ({ page, headless }) => {
     snapshotName: "initial-management-page",
     waitForThisToBeVisibleAndStable: "text=Course instance default",
     page,
-    waitForNotificationsToClear: true,
+    clearNotifications: true,
   })
 
   // Click text=Edit contact details
@@ -101,6 +101,10 @@ test("test", async ({ page, headless }) => {
   await page.fill("text=Closing time", "2098-01-01T23:59")
 
   await page.click("text=Submit")
+
+  await page.evaluate(() => {
+    window.scrollTo(0, 0)
+  })
 
   await page.waitForSelector("text=Instance is open and ends at")
 

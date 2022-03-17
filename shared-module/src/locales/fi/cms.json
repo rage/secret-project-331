@@ -33,8 +33,16 @@
   "serialize-to-html": "Näytä HTML-muodossa",
   "skip-to-content": "Siirry sisältöön",
   "slide-title": "Dia {{ number }}",
+  "glossary-placeholder": "Sanasto lohko",
+  "glossary-placeholder-explanation": "Tämä lohko sisältää kurssin sanaston.",
+  "skip-to-content": "Siirry sisältöön",
   "task": "Tehtävä",
   "title-assignment": "Tehtävänanto",
   "unsupported-block-placeholder": "Ei tuettu lohko",
-  "unsupported-block-placeholder-explanation": "Tätä lohkoa käytetään paikkamerkkinä lohkoille, joita ei tueta."
+  "unsupported-block-placeholder-explanation": "Tätä lohkoa käytetään paikkamerkkinä lohkoille, joita ei tueta.",
+  "reset": "Palauta",
+  "block-props": "Lohkon ominaisuudet",
+  "block-list": "Nykyiset lohkot",
+  "block-menu": "Lisää lohko / Kaikki saatavilla olevat lohkot ",
+  "editor-select-sidebar-view": "Vaihda näkymää"
 }

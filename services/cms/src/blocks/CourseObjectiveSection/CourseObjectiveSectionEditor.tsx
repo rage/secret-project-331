@@ -5,6 +5,10 @@ import React from "react"
 
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import { baseTheme } from "../../shared-module/styles"
+import {
+  CMS_EDITOR_SIDEBAR_THRESHOLD,
+  CMS_EDITOR_SIDEBAR_WIDTH,
+} from "../../shared-module/utils/constants"
 import BlockWrapper from "../BlockWrapper"
 
 import { CourseObjectiveSectionAttributes } from "."
@@ -19,7 +23,10 @@ const COURSE_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
         "core/column",
         {},
         [
-          ["core/heading", { placeholder: "Objective #1", level: 3, textAlign: "center" }],
+          [
+            "core/heading",
+            { placeholder: "Objective #1", level: 3, textAlign: "center", anchor: "objective-1" },
+          ],
           ["core/paragraph", { placeholder: "Insert text...", align: "center" }],
         ],
       ],
@@ -27,7 +34,10 @@ const COURSE_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
         "core/column",
         {},
         [
-          ["core/heading", { placeholder: "Objective #2", level: 3, textAlign: "center" }],
+          [
+            "core/heading",
+            { placeholder: "Objective #2", level: 3, textAlign: "center", anchor: "objective-2" },
+          ],
           ["core/paragraph", { placeholder: "Insert text...", align: "center" }],
         ],
       ],
@@ -35,7 +45,10 @@ const COURSE_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
         "core/column",
         {},
         [
-          ["core/heading", { placeholder: "Objective #3", level: 3, textAlign: "center" }],
+          [
+            "core/heading",
+            { placeholder: "Objective #3", level: 3, textAlign: "center", anchor: "objective-2" },
+          ],
           ["core/paragraph", { placeholder: "Insert text...", align: "center" }],
         ],
       ],
@@ -51,7 +64,12 @@ const CourseObjectiveSectionEditor: React.FC<BlockEditProps<CourseObjectiveSecti
   const { title } = attributes
   return (
     <BlockWrapper id={clientId}>
-      <BreakFromCentered sidebar sidebarPosition="right" sidebarWidth="280px">
+      <BreakFromCentered
+        sidebar
+        sidebarPosition="right"
+        sidebarWidth={CMS_EDITOR_SIDEBAR_WIDTH}
+        sidebarThreshold={CMS_EDITOR_SIDEBAR_THRESHOLD}
+      >
         <div
           className={css`
             background: ${baseTheme.colors.clear[100]};

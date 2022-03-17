@@ -20,7 +20,7 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   headless: boolean
   snapshotName: string
   waitForThisToBeVisibleAndStable?: string | ElementHandle | (string | ElementHandle)[]
-  waitForNotificationsToClear?: boolean
+  clearNotifications?: boolean
   toMatchSnapshotOptions?: ToMatchSnapshotOptions
   beforeScreenshot?: () => Promise<void>
   page?: Page
@@ -41,7 +41,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   page,
   elementId,
   pageScreenshotOptions,
-  waitForNotificationsToClear = false,
+  clearNotifications = false,
   // keep false for new screenshots
   axeSkip = false,
   skipMobile = false,
@@ -65,14 +65,18 @@ export default async function expectScreenshotsToMatchSnapshots({
     await frameElement.scrollIntoViewIfNeeded()
   }
 
-  if (waitForNotificationsToClear) {
-    await page.waitForFunction(() => !document.querySelector(".toast-notification"))
-  }
-
   const elementHandle = await waitToBeVisible({
     waitForThisToBeVisibleAndStable,
     container: visibilityWaitContainer,
   })
+
+  if (clearNotifications) {
+    await page.evaluate(() => {
+      for (const notif of document.querySelectorAll(".toast-notification")) {
+        notif.remove()
+      }
+    })
+  }
 
   if (!skipMobile) {
     await snapshotWithViewPort({

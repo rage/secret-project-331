@@ -98,7 +98,8 @@ impl error::ResponseError for ControllerError {
         let detail = if let ControllerError::InternalServerError(reason)
         | ControllerError::BadRequest(reason)
         | ControllerError::BadRequestWithData(reason, _)
-        | ControllerError::Forbidden(reason) = self
+        | ControllerError::Forbidden(reason)
+        | ControllerError::Unauthorized(reason) = self
         {
             reason
         } else {

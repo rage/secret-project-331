@@ -61,6 +61,7 @@ Then, without closing the `bin/dev-only-db`, run in another terminal:
 ```bash
 bin/sqlx-database-reset
 bin/generate-bindings
+bin/generate-doc-files
 ```
 
 ## Testing the system

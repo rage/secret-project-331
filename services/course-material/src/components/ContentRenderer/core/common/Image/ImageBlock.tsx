@@ -33,17 +33,21 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
         ? rel.split(" ").join(" ").concat(" noopener")
         : "noopener"
       : rel
-
   return (
     <div
       className={css`
-        margin: 0 auto;
         width: fit-content;
+        ${align === "center" ||
+        (align === undefined &&
+          `margin-left: auto;
+        margin-right: auto;
+        text-align: center;`)}
       `}
     >
       <Zoom>
         <figure
           className={css`
+            display: table;
             ${align === "center" && `text-align: center; display: table; margin: 0 auto;`}
             ${align !== "center" &&
             `float: ${align};
@@ -82,16 +86,18 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
                 <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
               )}
             </a>
-            <figcaption
-              className={css`
-                text-align: center;
-                font-size: 0.8125rem;
-                margin-top: 0.40625rem;
-                margin-bottom: 0.8125rem;
-              `}
-              dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(caption ?? "") }}
-            />
           </div>
+          <figcaption
+            className={css`
+              display: table-caption;
+              caption-side: bottom;
+              text-align: center;
+              font-size: 0.8125rem;
+              margin-top: 0.5rem;
+              margin-bottom: 0.8125rem;
+            `}
+            dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(caption ?? "") }}
+          />
         </figure>
       </Zoom>
     </div>

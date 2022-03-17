@@ -92,8 +92,7 @@ pub async fn regrade(
     // wait for all the submissions to be completed
     let mut grading_futures = grading_futures
         .into_iter()
-        .map(|v| v.1)
-        .flatten()
+        .flat_map(|v| v.1)
         .collect::<FuturesUnordered<_>>();
     while let Some(GradingData {
         exercise_service_name,

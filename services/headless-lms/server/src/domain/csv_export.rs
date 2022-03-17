@@ -1,5 +1,4 @@
 use std::{
-    array::IntoIter,
     collections::HashMap,
     io,
     io::Write,
@@ -123,7 +122,7 @@ where
 
     let header_count = csv_fields_before_headers + chapters.len();
     // remember to update csv_fields_before_headers if this changes!
-    let headers = IntoIter::new(["user_id".to_string()])
+    let headers = IntoIterator::into_iter(["user_id".to_string()])
         .chain(chapters.into_iter().map(|c| c.chapter_number.to_string()));
 
     let mut stream = user_exercise_states::stream_course_instance_points(conn, course_instance_id);
@@ -165,7 +164,7 @@ where
 
     let header_count = csv_fields_before_headers + exercises.len();
     // remember to update csv_fields_before_headers if this changes!
-    let headers = IntoIter::new(["user_id".to_string(), "email".to_string()]).chain(
+    let headers = IntoIterator::into_iter(["user_id".to_string(), "email".to_string()]).chain(
         exercises
             .into_iter()
             .map(|e| format!("{}: {}", e.order_number, e.name)),
@@ -202,7 +201,7 @@ pub async fn export_exam_submissions<W>(
 where
     W: Write + Send + 'static,
 {
-    let headers = IntoIter::new([
+    let headers = IntoIterator::into_iter([
         "id".to_string(),
         "user_id".to_string(),
         "created_at".to_string(),

@@ -25,7 +25,7 @@ export type State =
       publicSpec: PublicQuiz
       modelSolutions: ModelSolutionQuiz | null
       userAnswer: QuizAnswer
-      feedbackJson: ItemAnswerFeedback[] | null
+      gradingFeedbackJson: ItemAnswerFeedback[] | null
     }
   | { viewType: "exercise-editor"; privateSpec: Quiz }
 
@@ -80,7 +80,9 @@ const IFrame: React.FC = () => {
                   publicSpec: data.data.public_spec as PublicQuiz,
                   modelSolutions: data.data.model_solution_spec as ModelSolutionQuiz | null,
                   userAnswer: data.data.user_answer as QuizAnswer,
-                  feedbackJson: data.data.grading?.feedback_json as ItemAnswerFeedback[] | null,
+                  gradingFeedbackJson: data.data.grading?.feedback_json as
+                    | ItemAnswerFeedback[]
+                    | null,
                 })
               } else {
                 // eslint-disable-next-line i18next/no-literal-string

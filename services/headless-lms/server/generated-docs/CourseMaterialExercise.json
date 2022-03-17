@@ -12,7 +12,9 @@
     "deleted_at": null,
     "score_maximum": 1,
     "order_number": 123,
-    "copied_from": null
+    "copied_from": null,
+    "max_tries_per_slide": 17,
+    "limit_number_of_tries": true
   },
   "can_post_submission": true,
   "current_exercise_slide": {
@@ -89,5 +91,9 @@
     "score_given": null,
     "activity_progress": "InProgress",
     "grading_progress": "NotReady"
+  },
+  "exercise_slide_submission_counts": {
+    "7dea54af-3d38-4f7c-8969-ecb17b55ec02": 4,
+    "2794a98e-d594-40cf-949e-7cc011755a58": 2
   }
 }

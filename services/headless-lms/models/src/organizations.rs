@@ -77,7 +77,7 @@ RETURNING id
 pub async fn all_organizations(conn: &mut PgConnection) -> ModelResult<Vec<DatabaseOrganization>> {
     let organizations = sqlx::query_as!(
         DatabaseOrganization,
-        "SELECT * FROM organizations WHERE deleted_at IS NULL;"
+        "SELECT * FROM organizations WHERE deleted_at IS NULL ORDER BY name;"
     )
     .fetch_all(conn)
     .await?;

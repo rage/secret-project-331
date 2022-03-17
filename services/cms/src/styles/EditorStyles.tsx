@@ -5,13 +5,13 @@ import { css } from "@emotion/css"
  * preferred instead. */
 export const gutenbergControlsHidden = css`
   .block-editor-button-block-appender {
-    display: none;
+    display: none !important;
   }
 `
 
 /** Shows Gutenberg's add component button again if it was hidden in a parent component. */
 export const gutenbergControlsVisible = css`
   .block-editor-button-block-appender {
-    display: block;
+    display: block !important;
   }
 `

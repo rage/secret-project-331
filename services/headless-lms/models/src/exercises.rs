@@ -1,5 +1,6 @@
 use crate::{
     course_instances, exams,
+    exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
     prelude::*,
@@ -7,6 +8,7 @@ use crate::{
     user_exercise_states::{self, CourseInstanceOrExamId},
     CourseOrExamId,
 };
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
 pub struct Exercise {
@@ -23,6 +25,8 @@ pub struct Exercise {
     pub score_maximum: i32,
     pub order_number: i32,
     pub copied_from: Option<Uuid>,
+    pub max_tries_per_slide: Option<i32>,
+    pub limit_number_of_tries: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, TS)]
@@ -32,6 +36,8 @@ pub struct CourseMaterialExercise {
     pub current_exercise_slide: CourseMaterialExerciseSlide,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
+    #[ts(type = "Record<string, number>")]
+    pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
 }
 
 impl CourseMaterialExercise {
@@ -43,6 +49,15 @@ impl CourseMaterialExercise {
             .for_each(|task| {
                 task.model_solution_spec = None;
                 task.previous_submission_grading = None;
+            });
+    }
+
+    pub fn clear_model_solution_specs(&mut self) {
+        self.current_exercise_slide
+            .exercise_tasks
+            .iter_mut()
+            .for_each(|task| {
+                task.model_solution_spec = None;
             });
     }
 }
@@ -306,11 +321,28 @@ pub async fn get_course_material_exercise(
         grading_progress: user_exercise_state.grading_progress,
     });
 
+    let exercise_slide_submission_counts = if let Some(user_id) = user_id {
+        if let Some(cioreid) = instance_or_exam_id {
+            get_exercise_slide_submission_counts_for_exercise_user(
+                conn,
+                exercise_id,
+                cioreid,
+                user_id,
+            )
+            .await?
+        } else {
+            HashMap::new()
+        }
+    } else {
+        HashMap::new()
+    };
+
     Ok(CourseMaterialExercise {
         exercise,
         can_post_submission,
         current_exercise_slide,
         exercise_status,
+        exercise_slide_submission_counts,
     })
 }
 
@@ -324,13 +356,9 @@ async fn get_or_select_exercise_slide(
             // No signed in user. Show random exercise without model solution.
             let random_slide =
                 exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise.id).await?;
-            let random_slide_tasks = exercise_tasks::get_course_material_exercise_tasks(
-                conn,
-                &random_slide.id,
-                None,
-                false,
-            )
-            .await?;
+            let random_slide_tasks =
+                exercise_tasks::get_course_material_exercise_tasks(conn, &random_slide.id, None)
+                    .await?;
             Ok((
                 CourseMaterialExerciseSlide {
                     id: random_slide.id,
@@ -398,7 +426,6 @@ async fn get_or_select_exercise_slide(
                                 conn,
                                 &random_slide.id,
                                 Some(&user_id),
-                                false,
                             )
                             .await?;
 
@@ -423,7 +450,6 @@ async fn get_or_select_exercise_slide(
                             conn,
                             &random_slide.id,
                             Some(&user_id),
-                            false,
                         )
                         .await?;
 

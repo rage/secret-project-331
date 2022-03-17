@@ -28,6 +28,7 @@ pub struct UserExerciseState {
 ///
 /// Exercises can either be part of courses or exams. Many user-related actions need to differentiate
 /// between two, so `CourseInstanceOrExamId` helps when handling these separate scenarios.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 pub enum CourseInstanceOrExamId {
     Instance(Uuid),
     Exam(Uuid),

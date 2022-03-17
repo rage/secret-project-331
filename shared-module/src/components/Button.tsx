@@ -33,6 +33,7 @@ export const BASE_BUTTON_STYLES = `
   transition: all 150ms linear;
   border: 2.5px solid transparent;
   z-index: 1;
+  white-space: nowrap;
 
   color: ${theme.primary.text};
   background-color: ${theme.primary.bg};

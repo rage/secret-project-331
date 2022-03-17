@@ -225,15 +225,9 @@ pub async fn get_course_material_exercise_slide_by_id(
     conn: &mut PgConnection,
     id: Uuid,
     user_id: Option<&Uuid>,
-    expose_model_solution_spec: bool,
 ) -> ModelResult<CourseMaterialExerciseSlide> {
-    let exercise_tasks = exercise_tasks::get_course_material_exercise_tasks(
-        conn,
-        &id,
-        user_id,
-        expose_model_solution_spec,
-    )
-    .await?;
+    let exercise_tasks =
+        exercise_tasks::get_course_material_exercise_tasks(conn, &id, user_id).await?;
     Ok(CourseMaterialExerciseSlide { id, exercise_tasks })
 }
 

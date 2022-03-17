@@ -9,7 +9,7 @@ use crate::{
     exercise_tasks::{self, ExerciseTask},
     exercises::{Exercise, ExerciseStatus},
     prelude::*,
-    user_exercise_states::{self, UserExerciseState},
+    user_exercise_states::{self, CourseInstanceOrExamId, UserExerciseState},
     CourseOrExamId,
 };
 
@@ -60,8 +60,8 @@ pub struct ExerciseSlideSubmissionCountByWeekAndHour {
 /// Contains data sent by the student when they make a submission for an exercise slide.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
 pub struct StudentExerciseSlideSubmission {
-    exercise_slide_id: Uuid,
-    exercise_task_submissions: Vec<StudentExerciseTaskSubmission>,
+    pub exercise_slide_id: Uuid,
+    pub exercise_task_submissions: Vec<StudentExerciseTaskSubmission>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
@@ -77,6 +77,14 @@ impl StudentExerciseSlideSubmissionResult {
             .iter_mut()
             .for_each(|result| {
                 result.grading = None;
+                result.model_solution_spec = None;
+            });
+    }
+
+    pub fn clear_model_solution_specs(&mut self) {
+        self.exercise_task_submission_results
+            .iter_mut()
+            .for_each(|result| {
                 result.model_solution_spec = None;
             });
     }
@@ -406,5 +414,39 @@ SELECT counts.*, exercises.name exercise_name
     )
     .fetch_all(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn get_exercise_slide_submission_counts_for_exercise_user(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    course_instance_id_or_exam_id: CourseInstanceOrExamId,
+    user_id: Uuid,
+) -> ModelResult<HashMap<Uuid, i64>> {
+    let ci_id_or_e_id = match course_instance_id_or_exam_id {
+        CourseInstanceOrExamId::Instance(id) => id,
+        CourseInstanceOrExamId::Exam(id) => id,
+    };
+    let res = sqlx::query!(
+        r#"
+SELECT exercise_slide_id,
+  COUNT(*) as count
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+  AND (course_instance_id = $2 OR exam_id = $2)
+  AND user_id = $3
+  AND deleted_at IS NULL
+GROUP BY exercise_slide_id;
+    "#,
+        exercise_id,
+        ci_id_or_e_id,
+        user_id
+    )
+    .fetch_all(conn)
+    .await?
+    .iter()
+    .map(|row| (row.exercise_slide_id, row.count.unwrap_or(0)))
+    .collect::<HashMap<Uuid, i64>>();
+
     Ok(res)
 }

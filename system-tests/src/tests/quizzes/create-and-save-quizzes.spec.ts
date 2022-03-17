@@ -247,6 +247,6 @@ async function scrollToFrame(page: Page, frame: Frame) {
   const boundingBox = await frameElement.boundingBox()
   const y = boundingBox.y
   await page.evaluate((y) => {
-    window.scrollTo(0, y)
+    window.scrollTo(0, window.scrollY + y)
   }, y)
 }

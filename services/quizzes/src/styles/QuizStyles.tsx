@@ -19,7 +19,7 @@ export const quizTheme = {
   quizBodyFontSize: "24px",
   quizItemBackground: baseTheme.colors.clear[200],
   quizTitleFontSize: "16px",
-  selectedItemBackground: baseTheme.colors.green[600],
+  selectedItemBackground: baseTheme.colors.grey[700],
   selectedItemColor: baseTheme.colors.clear[100],
 }
 

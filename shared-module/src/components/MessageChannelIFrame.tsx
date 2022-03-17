@@ -24,6 +24,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   onMessageFromIframe,
   breakFromCenteredProps,
 }) => {
+  const [showBorders, _] = useState(false)
   const { t } = useTranslation()
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
@@ -133,13 +134,14 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
     <BreakFromCentered {...(breakFromCenteredProps ?? { sidebar: false })}>
       <div
         className={css`
+          border: 0;
           /*
           To see the size of the frame in development
           Only top and bottom because frame is 100% of window width.
-        */
-          border: 0;
-          border-top: 1px solid black;
-          border-bottom: 1px solid black;
+          */
+          ${showBorders &&
+          `border-top: 1px solid black;
+          border-bottom: 1px solid black;`}
           margin-bottom: 1rem;
         `}
       >

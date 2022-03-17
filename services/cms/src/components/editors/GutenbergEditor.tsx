@@ -246,6 +246,8 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
                   <div
                     className={css`
                       margin: 1rem;
+                      margin-top: 0;
+                      padding: 1rem;
                       background: #f5f6f7;
                     `}
                   >

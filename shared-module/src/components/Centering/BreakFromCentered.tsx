@@ -5,7 +5,7 @@ interface NoSidebar {
   sidebar: false
 }
 
-interface WithSidebar {
+export interface WithSidebar {
   sidebar: true
   sidebarPosition: "left" | "right"
   sidebarWidth: string

@@ -6,7 +6,6 @@ use sqlx::Transaction;
 
 use crate::course_instances;
 use crate::course_instances::NewCourseInstance;
-use crate::course_instances::VariantStatus;
 use crate::course_language_groups;
 use crate::courses::get_course;
 use crate::courses::Course;
@@ -59,7 +58,8 @@ RETURNING id,
   language_code,
   copied_from,
   course_language_group_id,
-  description;
+  description,
+  is_draft;
     ",
         new_course.name,
         new_course.organization_id,
@@ -126,7 +126,6 @@ WHERE id = $2;
             course_id: copied_course.id,
             name: None,
             description: None,
-            variant_status: Some(VariantStatus::Draft),
             support_email: None,
             teacher_in_charge_name: &new_course.teacher_in_charge_name,
             teacher_in_charge_email: &new_course.teacher_in_charge_email,

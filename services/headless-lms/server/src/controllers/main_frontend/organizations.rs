@@ -38,12 +38,19 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a
 async fn get_organization_courses(
     organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
     pagination: web::Query<Pagination>,
 ) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-    let courses =
-        models::courses::organization_courses_paginated(&mut conn, &organization_id, &pagination)
-            .await?;
+
+    let user = user.map(|u| u.id);
+    let courses = models::courses::organization_courses_visible_to_user_paginated(
+        &mut conn,
+        *organization_id,
+        user,
+        *pagination,
+    )
+    .await?;
     Ok(web::Json(courses))
 }
 
@@ -248,7 +255,7 @@ POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn create_course_exam(
+async fn create_exam(
     pool: web::Data<PgPool>,
     payload: web::Json<NewExam>,
     user: AuthUser,
@@ -301,8 +308,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_course_exams),
         )
         .route("/{organization_id}/org_exams", web::get().to(get_org_exams))
-        .route(
-            "/{organization_id}/exams",
-            web::post().to(create_course_exam),
-        );
+        .route("/{organization_id}/exams", web::post().to(create_exam));
 }

@@ -61,7 +61,7 @@ test("test", async ({ page }) => {
   await page.fill("text=Name", "The Levels of Testing")
 
   // Click button:has-text("Create chapter")
-  await page.click('button:has-text("Create")')
+  await page.click('button:text("Create")')
 
   // Click :nth-match(button:has-text("New page"), 2)
   await page.locator(`button:has-text("New")`).last().click()
@@ -70,42 +70,46 @@ test("test", async ({ page }) => {
   await page.fill("text=Name", "Unit testing")
 
   // Click button:has-text("Create")
-  await page.click('button:has-text("Create")')
+  await page.click('button:text("Create")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
 
   // Fill input[type="text"]
-  await page.fill("text=Title", "Integration Testing")
+  await page.fill(`label:has-text("Title")`, "Integration Testing")
 
   // Click button:has-text("Create")
-  await page.click('button:has-text("Create")')
+  await page.click('button:text("Create")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
 
   // Fill input[type="text"]
-  await page.fill("text=Title", "System Testing")
+  await page.fill(`label:has-text("Title")`, "System Testing")
 
   // Click button:has-text("Create")
-  await page.click('button:has-text("Create")')
+  await page.click('button:text("Create")')
 
   // Click :nth-match(button:has-text("New page"), 2)
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
 
   // Fill input[type="text"]
-  await page.fill("text=Title", "Acceptance Testing")
+  await page.fill(`label:has-text("Title")`, "Acceptance Testing")
 
   // Click button:has-text("Create")
-  await page.click('button:has-text("Create")')
+  await page.click('button:text("Create")')
 
   // Click text=System Testing
-  await Promise.all([page.waitForNavigation(), page.click("text=System Testing")])
+  await Promise.all([
+    page.waitForNavigation(),
+    page.click(`button:text("Edit page"):right-of(:text("System Testing"))`),
+  ])
   expect(page.url().startsWith("http://project-331.local/cms/pages/")).toBe(true)
 
   // Click text=Type / to choose a block
-  await page.click("text=Type / to choose a block")
-
+  await page.click('[aria-label="Add block"]')
+  await page.keyboard.type("/paragraph")
+  await page.click('button[role="option"]:has-text("Paragraph")')
   await page.keyboard.type("In system level testing, we test the system as a whole")
   await page.keyboard.press("Enter")
   await page.keyboard.type("/exercise")
@@ -185,7 +189,7 @@ test("test", async ({ page }) => {
   await frame.check(':nth-match(input[type="checkbox"], 2)')
 
   // Click button:has-text("Save")
-  await page.click('button:has-text("Save")')
+  await page.click('button:has-text("Save") >> visible=true')
   await page.waitForSelector(`text="Operation successful!"`)
 
   // Check that the assignment still displays after saving
@@ -235,6 +239,7 @@ test("test", async ({ page }) => {
       return f.url().startsWith("http://project-331.local/example-exercise/iframe")
     }),
   )
+  await (await frame2.frameElement()).scrollIntoViewIfNeeded()
 
   // Click text=Automatically testing the whole system
   await frame2.click("text=Automatically testing the whole system")

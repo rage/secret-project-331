@@ -59,9 +59,10 @@ pub async fn enroll(
 pub struct ExamData {
     pub id: Uuid,
     pub name: String,
-    pub instructions: String,
+    pub instructions: serde_json::Value,
     pub starts_at: DateTime<Utc>,
     pub ends_at: DateTime<Utc>,
+    pub ended: bool,
     pub time_minutes: i32,
     pub enrollment_data: ExamEnrollmentData,
 }
@@ -107,6 +108,8 @@ pub async fn fetch_exam_for_user(
         ));
     };
 
+    let ended = ends_at < Utc::now();
+
     if starts_at > Utc::now() {
         // exam has not started yet
         return Ok(web::Json(ExamData {
@@ -115,6 +118,7 @@ pub async fn fetch_exam_for_user(
             instructions: exam.instructions,
             starts_at,
             ends_at,
+            ended,
             time_minutes: exam.time_minutes,
             enrollment_data: ExamEnrollmentData::NotYetStarted,
         }));
@@ -133,6 +137,7 @@ pub async fn fetch_exam_for_user(
                     instructions: exam.instructions,
                     starts_at,
                     ends_at,
+                    ended,
                     time_minutes: exam.time_minutes,
                     enrollment_data: ExamEnrollmentData::StudentTimeUp,
                 }));
@@ -146,6 +151,7 @@ pub async fn fetch_exam_for_user(
                 instructions: exam.instructions,
                 starts_at,
                 ends_at,
+                ended,
                 time_minutes: exam.time_minutes,
                 enrollment_data: ExamEnrollmentData::NotEnrolled,
             }));
@@ -159,6 +165,7 @@ pub async fn fetch_exam_for_user(
         instructions: exam.instructions,
         starts_at,
         ends_at,
+        ended,
         time_minutes: exam.time_minutes,
         enrollment_data: ExamEnrollmentData::EnrolledAndStarted {
             page_id: exam.page_id,

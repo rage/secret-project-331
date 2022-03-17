@@ -32,7 +32,7 @@ const DynamicToaster = dynamic(
 
 const Layout: React.FC<LayoutProps> = ({
   children,
-  title = "Secret Project 331",
+  title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
   navVariant,
   faqUrl,
   licenseUrl,
@@ -75,11 +75,13 @@ const Layout: React.FC<LayoutProps> = ({
             returnToPath={returnToPath ?? returnPath}
           >
             {courseId && courseSlug && (
-              <SearchDialog
-                courseId={courseId}
-                courseSlug={courseSlug}
-                organizationSlug={organizationSlug}
-              />
+              <li>
+                <SearchDialog
+                  courseId={courseId}
+                  courseSlug={courseSlug}
+                  organizationSlug={organizationSlug}
+                />
+              </li>
             )}
           </Navbar>
         </nav>

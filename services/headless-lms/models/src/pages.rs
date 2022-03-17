@@ -11,7 +11,7 @@ use itertools::Itertools;
 use url::Url;
 
 use crate::{
-    chapters::{self, ChapterStatus, DatabaseChapter},
+    chapters::{course_chapters, ChapterStatus, DatabaseChapter},
     course_instances::{self, CourseInstance},
     courses::{get_nondeleted_course_id_by_slug, Course},
     exercise_service_info,
@@ -336,7 +336,7 @@ WHERE id = $1;
     Ok(pages)
 }
 
-pub async fn get_page_by_path(
+async fn get_page_by_path(
     conn: &mut PgConnection,
     course_id: Uuid,
     url_path: &str,
@@ -438,7 +438,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     was_redirected: bool,
 ) -> ModelResult<CoursePageWithUserData> {
     if let Some(chapter_id) = page.chapter_id {
-        if !chapters::is_open(conn, chapter_id).await? {
+        if !crate::chapters::is_open(conn, chapter_id).await? {
             return Err(ModelError::PreconditionFailed(
                 "Chapter is not open yet".to_string(),
             ));
@@ -1121,6 +1121,37 @@ async fn fetch_derived_spec(
     Ok(result_spec)
 }
 
+pub async fn insert_new_content_page(
+    conn: &mut PgConnection,
+    new_page: NewPage,
+    user: Uuid,
+) -> ModelResult<Page> {
+    let mut tx = conn.begin().await?;
+
+    let course_material_content = serde_json::to_value(vec![GutenbergBlock::hero_section(
+        new_page.title.trim(),
+        "",
+    )])?;
+
+    let content_page = NewPage {
+        chapter_id: new_page.chapter_id,
+        content: course_material_content,
+        course_id: new_page.course_id,
+        exam_id: None,
+        front_page_of_chapter_id: None,
+        title: new_page.title,
+        url_path: new_page.url_path,
+        exercises: vec![],
+        exercise_slides: vec![],
+        exercise_tasks: vec![],
+        content_search_language: None,
+    };
+    let page = crate::pages::insert_page(&mut tx, content_page, user).await?;
+
+    tx.commit().await?;
+    Ok(page)
+}
+
 pub async fn insert_page(
     conn: &mut PgConnection,
     new_page: NewPage,
@@ -1145,6 +1176,7 @@ pub async fn insert_page(
         .and_then(|c| c.content_search_language)
         .or(new_page.content_search_language)
         .unwrap_or_else(|| "simple".to_string());
+
     let page = sqlx::query_as!(
         Page,
         r#"
@@ -1867,6 +1899,108 @@ WHERE pages.id = $1
     Ok(res)
 }
 
+/// Makes the order numebers and chapter ids to match in the db what's in the page objects
+/// Assumes that all pages belong to the given course id
+pub async fn reorder_pages(
+    conn: &mut PgConnection,
+    pages: &[Page],
+    course_id: Uuid,
+) -> ModelResult<()> {
+    let db_pages = course_pages(conn, course_id).await?;
+    let chapters = course_chapters(conn, course_id).await?;
+    let mut tx = conn.begin().await?;
+    for page in pages {
+        if let Some(matching_db_page) = db_pages.iter().find(|p| p.id == page.id) {
+            if matching_db_page.chapter_id == page.chapter_id {
+                // Chapter not changing
+                // Avoid conflicts in order_number since unique indexes cannot be deferred. The random number will not end up committing in the transaction since the loop goes through all the pages and will correct the number.
+                sqlx::query!(
+                    "UPDATE pages
+SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
+WHERE pages.order_number = $1
+  AND pages.chapter_id = $2
+  AND deleted_at IS NULL",
+                    page.order_number,
+                    page.chapter_id
+                )
+                .execute(&mut tx)
+                .await?;
+                sqlx::query!(
+                    "UPDATE pages SET order_number = $2 WHERE pages.id = $1",
+                    page.id,
+                    page.order_number
+                )
+                .execute(&mut tx)
+                .await?;
+            } else {
+                // Chapter changes
+                if let Some(old_chapter_id) = matching_db_page.chapter_id {
+                    if let Some(new_chapter_id) = page.chapter_id {
+                        // Moving page to another chapter
+                        if let Some(old_chapter) = chapters.iter().find(|o| o.id == old_chapter_id)
+                        {
+                            if let Some(new_chapter) =
+                                chapters.iter().find(|o| o.id == new_chapter_id)
+                            {
+                                let old_path = &page.url_path;
+                                let new_path = old_path.replacen(
+                                    &old_chapter.chapter_number.to_string(),
+                                    &new_chapter.chapter_number.to_string(),
+                                    1,
+                                );
+                                sqlx::query!(
+                                    "UPDATE pages SET url_path = $2, chapter_id = $3, order_number = $4 WHERE pages.id = $1",
+                                    page.id,
+                                    new_path,
+                                    new_chapter.id,
+                                    page.order_number
+                                )
+                                .execute(&mut tx)
+                                .await?;
+                                sqlx::query!(
+                                    "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
+                                    page.id,
+                                    old_path,
+                                    course_id
+                                )
+                                .execute(&mut tx)
+                                .await?;
+                            } else {
+                                return Err(ModelError::InvalidRequest(
+                                    "New chapter not found".to_string(),
+                                ));
+                            }
+                        } else {
+                            return Err(ModelError::InvalidRequest(
+                                "Old chapter not found".to_string(),
+                            ));
+                        }
+                    } else {
+                        // Moving page from a chapter to a top level page
+                        return Err(ModelError::InvalidRequest(
+                            "Making a chapter page a top level page is not supported yet"
+                                .to_string(),
+                        ));
+                    }
+                } else {
+                    error!("Cannot move a top level page to a chapter. matching_db_page.chapter_id: {:?} page.chapter_id: {:?}", matching_db_page.chapter_id, page.chapter_id);
+                    // Moving page from the top level to a chapter
+                    return Err(ModelError::InvalidRequest(
+                        "Moving a top level page to a chapter is not supported yet".to_string(),
+                    ));
+                }
+            }
+        } else {
+            return Err(ModelError::InvalidRequest(format!(
+                "Page {} does exist in course {}",
+                page.id, course_id
+            )));
+        }
+    }
+    tx.commit().await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -1885,7 +2019,7 @@ mod test {
             NewExam {
                 id: exam,
                 name: "name".to_string(),
-                instructions: "instr".to_string(),
+                instructions: serde_json::json!([]),
                 starts_at: None,
                 ends_at: None,
                 time_minutes: 120,

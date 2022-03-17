@@ -55,7 +55,7 @@ export const EssayModalContent: React.FC<ModalContentProps> = ({ item }) => {
         />
         <MinWords
           label={t("min-words")}
-          value={String(item.minValue) ?? ""}
+          value={String(item.minWords) ?? ""}
           type="number"
           onChange={(value) => dispatch(editedItemMinWords(item.id, Number(value)))}
         />

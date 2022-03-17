@@ -1,10 +1,13 @@
 #![allow(clippy::redundant_clone)]
 
-use std::collections::HashMap;
+use std::{collections::HashMap, fs};
 
 use chrono::{NaiveDate, TimeZone, Utc};
 use headless_lms_actix::controllers::{
-    course_material::exams::{ExamData, ExamEnrollmentData},
+    course_material::{
+        courses::ChaptersWithStatus,
+        exams::{ExamData, ExamEnrollmentData},
+    },
     main_frontend::exercises::ExerciseSubmissions,
     UploadResult,
 };
@@ -14,10 +17,10 @@ use headless_lms_models::{
         UserCourseInstanceChapterProgress,
     },
     course_instance_enrollments::CourseInstanceEnrollment,
-    course_instances::{ChapterScore, CourseInstance, Points, VariantStatus},
+    course_instances::{ChapterScore, CourseInstance, Points},
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
-    exams::{CourseExam, Exam, ExamEnrollment},
+    exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions},
     exercise_services::ExerciseService,
     exercise_slide_submissions::{
         ExerciseSlideSubmission, ExerciseSlideSubmissionCount,
@@ -125,7 +128,6 @@ fn main() {
         ends_at: None,
         name: Some("Instance".to_string()),
         description: Some("Description".to_string()),
-        variant_status: VariantStatus::Active,
         teacher_in_charge_name: "Example Teacher".to_string(),
         teacher_in_charge_email: "example@email.com".to_string(),
         support_email: Some("example@email.com".to_string()),
@@ -224,6 +226,7 @@ fn main() {
         content_search_language: Some("simple".to_string()),
         course_language_group_id: id,
         description: Some("Example".to_string()),
+        is_draft: true,
     };
     let chapter = Chapter {
         id,
@@ -237,6 +240,7 @@ fn main() {
         front_page_id: None,
         opens_at: Some(date_time),
         copied_from: None,
+        deadline: Some(date_time),
     };
     let exercise_service = ExerciseService {
         id,
@@ -292,6 +296,18 @@ fn main() {
         description: None,
         organization_image_url: None,
     };
+
+    // clear previous results
+    fs::read_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/generated-docs/"))
+        .unwrap()
+        .filter_map(|file| {
+            file.ok().filter(|f| {
+                f.file_name()
+                    .to_str()
+                    .map_or(false, |n| n.ends_with(".json") || n.ends_with(".ts"))
+            })
+        })
+        .for_each(|f| fs::remove_file(f.path()).unwrap());
 
     // write docs
     write_docs!(UploadResult, UploadResult {
@@ -412,21 +428,6 @@ fn main() {
     write_docs!(Vec<CourseInstance>, vec![course_instance.clone()]);
     write_docs!(Option<CourseInstance>, Some(course_instance.clone()));
     write_docs!(
-        Vec<ChapterWithStatus>,
-        vec![ChapterWithStatus {
-            id,
-            created_at,
-            updated_at,
-            name: "The Basics".to_string(),
-            course_id: id,
-            deleted_at,
-            chapter_number: 1,
-            front_page_id: None,
-            opens_at: None,
-            status: ChapterStatus::Open
-        }]
-    );
-    write_docs!(
         Option<UserCourseSettings>,
         Some(user_course_settings.clone())
     );
@@ -464,9 +465,10 @@ fn main() {
         ExamData {
             id,
             name: "Course exam".to_string(),
-            instructions: "Do your best!".to_string(),
+            instructions: serde_json::json!([]),
             starts_at: date_time,
             ends_at: date_time,
+            ended: false,
             time_minutes: 120,
             enrollment_data: ExamEnrollmentData::NotEnrolled
         }
@@ -475,6 +477,7 @@ fn main() {
         CourseMaterialExercise,
         CourseMaterialExercise {
             exercise: exercise.clone(),
+            can_post_submission: true,
             current_exercise_slide: CourseMaterialExerciseSlide {
                 id,
                 exercise_tasks: vec![CourseMaterialExerciseTask {
@@ -539,6 +542,7 @@ fn main() {
                     chapter_number: 1,
                     front_page_id: None,
                     opens_at: Some(date_time),
+                    deadline: Some(date_time),
                     copied_from: None
                 },
                 score_given: 1.0,
@@ -606,7 +610,7 @@ fn main() {
         Exam {
             id,
             name: "Course exam".to_string(),
-            instructions: "Do your best!".to_string(),
+            instructions: serde_json::json!([]),
             page_id: id,
             courses: vec![course.clone()],
             starts_at: Some(date_time),
@@ -752,6 +756,31 @@ fn main() {
             ),
             chapter_front_page_url_path: Some("/chapter-1".to_string()),
             organization_slug: "uh-cs".to_string()
+        }
+    );
+    write_docs!(
+        ChaptersWithStatus,
+        ChaptersWithStatus {
+            is_previewable: false,
+            chapters: vec![ChapterWithStatus {
+                id,
+                created_at,
+                updated_at,
+                name: "The Basics".to_string(),
+                course_id: id,
+                deleted_at,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                status: ChapterStatus::Open
+            }]
+        }
+    );
+    write_docs!(
+        ExamInstructions,
+        ExamInstructions {
+            id,
+            instructions: page.content.clone()
         }
     );
 }

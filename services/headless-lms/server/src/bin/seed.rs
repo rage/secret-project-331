@@ -11,7 +11,7 @@ use headless_lms_models::{
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances,
-    course_instances::{NewCourseInstance, VariantStatus},
+    course_instances::NewCourseInstance,
     courses,
     courses::NewCourse,
     exams,
@@ -301,6 +301,17 @@ async fn main() -> Result<()> {
         &users,
     )
     .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("86cbc198-601c-42f4-8e0f-3e6cce49bbfc")?,
+        "Course Structure",
+        "course-structure",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
     roles::insert(
         &mut conn,
         language_teacher,
@@ -369,6 +380,7 @@ async fn main() -> Result<()> {
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
+        is_draft: false,
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance) = courses::insert_course(
         &mut conn,
@@ -385,7 +397,6 @@ async fn main() -> Result<()> {
             course_id: cs_course.id,
             name: Some("non-default instance"),
             description: Some("this is another non-default instance"),
-            variant_status: Some(VariantStatus::Upcoming),
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",
@@ -413,6 +424,7 @@ async fn main() -> Result<()> {
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
+        is_draft: false,
     };
     let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
         courses::insert_course(
@@ -430,13 +442,31 @@ async fn main() -> Result<()> {
             course_id: statistics_course.id,
             name: Some("non-default instance"),
             description: Some("this appears to be a non-default instance"),
-            variant_status: Some(VariantStatus::Active),
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",
             opening_time: None,
             closing_time: None,
         },
+    )
+    .await?;
+
+    let draft_course = NewCourse {
+        name: "Introduction to Drafts".to_string(),
+        slug: "introduction-to-drafts".to_string(),
+        organization_id: uh_mathstat,
+        language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "description".to_string(),
+        is_draft: true,
+    };
+    courses::insert_course(
+        &mut conn,
+        Uuid::parse_str("963a9caf-1e2d-4560-8c88-9c6d20794da3")?,
+        Uuid::parse_str("5cb4b4d6-4599-4f81-ab7e-79b415f8f584")?,
+        draft_course,
+        admin,
     )
     .await?;
 
@@ -1057,7 +1087,7 @@ async fn main() -> Result<()> {
                   "id": "d2422f0c-2378-4099-bde7-e1231ceac220",
                   "body": "",
                   "type": "clickable-multiple-choice",
-                  "multi": false,
+                  "multi": true,
                   "order": 1,
                   "title": "Choose your favorite colors",
                   "quizId": "3562f83c-4d5d-41a9-aceb-a8f98511dd5d",
@@ -1217,6 +1247,7 @@ async fn seed_sample_course(
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
+        is_draft: false,
     };
     let (course, _front_page, default_instance) = courses::insert_course(
         conn,
@@ -1233,7 +1264,6 @@ async fn seed_sample_course(
             course_id: course.id,
             name: Some("non-default instance"),
             description: Some("this is a non-default instance"),
-            variant_status: None,
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",
@@ -1248,16 +1278,20 @@ async fn seed_sample_course(
     let new_chapter = NewChapter {
         chapter_number: 1,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "The Basics".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_1, _front_page_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
     let new_chapter = NewChapter {
         chapter_number: 2,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "The intermediaries".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_2, _front_page_2) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1269,8 +1303,10 @@ async fn seed_sample_course(
     let new_chapter = NewChapter {
         chapter_number: 3,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "Advanced studies".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_3, _front_page_3) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1282,8 +1318,10 @@ async fn seed_sample_course(
     let new_chapter = NewChapter {
         chapter_number: 4,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "Forbidden magicks".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_4, _front_page_4) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1670,7 +1708,7 @@ async fn seed_sample_course(
                 "id": "d30bec57-4011-4ac4-b676-79fe766d6424",
                 "body": null,
                 "type": "clickable-multiple-choice",
-                "multi": false,
+                "multi": true,
                 "order": 0,
                 "title": "Pick all the programming languages from below",
                 "quizId": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
@@ -2125,6 +2163,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
+        is_draft: false,
     };
     let (course, front_page, _default_instance) = courses::insert_course(
         conn,
@@ -2170,8 +2209,10 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     let new_chapter = NewChapter {
         chapter_number: 1,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "User Interface".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_1, front_page_ch_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
@@ -2287,8 +2328,10 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     let new_chapter_2 = NewChapter {
         chapter_number: 2,
         course_id: course.id,
-        front_front_page_id: None,
+        front_page_id: None,
         name: "User Experience".to_string(),
+        opens_at: None,
+        deadline: None,
     };
     let (chapter_2, front_page_ch_2) = chapters::insert_chapter(conn, new_chapter_2, admin).await?;
     chapters::set_opens_at(conn, chapter_2.id, Utc::now()).await?;
@@ -2642,7 +2685,13 @@ async fn create_exam(
         NewExam {
             id: exam_id,
             name,
-            instructions: "Do your best!".to_string(),
+            instructions: serde_json::json!([GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                attributes!{
+                  "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum felis nisi, vitae commodo mi venenatis in. Mauris hendrerit lacinia augue ut hendrerit. Vestibulum non tellus mattis, convallis magna vel, semper mauris. Maecenas porta, arcu eget porttitor sagittis, nulla magna auctor dolor, sed tempus sem lacus eu tortor. Ut id diam quam. Etiam quis sagittis justo. Quisque sagittis dolor vitae felis facilisis, ut suscipit ipsum malesuada. Nulla tempor ultricies erat ut venenatis. Ut pulvinar lectus non mollis efficitur.",
+                  "dropCap": false
+                },
+            )]),
             starts_at,
             ends_at,
             time_minutes,

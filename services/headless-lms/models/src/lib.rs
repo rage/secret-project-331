@@ -48,6 +48,7 @@ pub use self::error::{ModelError, ModelResult};
 #[macro_use]
 extern crate tracing;
 
+/// Many database tables are related to either a course or an exam
 pub enum CourseOrExamId {
     Course(Uuid),
     Exam(Uuid),
@@ -71,6 +72,13 @@ impl CourseOrExamId {
         match self {
             Self::Course(instance_id) => (Some(*instance_id), None),
             Self::Exam(exam_id) => (None, Some(*exam_id)),
+        }
+    }
+    pub fn exam_id(&self) -> Option<&Uuid> {
+        if let CourseOrExamId::Exam(id) = self {
+            Some(id)
+        } else {
+            None
         }
     }
 }

@@ -20,11 +20,12 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   headless: boolean
   snapshotName: string
   waitForThisToBeVisibleAndStable?: string | ElementHandle | (string | ElementHandle)[]
-  waitForNotificationsToClear?: boolean
+  clearNotifications?: boolean
   toMatchSnapshotOptions?: ToMatchSnapshotOptions
   beforeScreenshot?: () => Promise<void>
   page?: Page
   frame?: Frame
+  elementId?: string
   pageScreenshotOptions?: PageScreenshotOptions
   axeSkip?: boolean | string[]
   skipMobile?: boolean
@@ -38,8 +39,9 @@ export default async function expectScreenshotsToMatchSnapshots({
   beforeScreenshot,
   frame,
   page,
+  elementId,
   pageScreenshotOptions,
-  waitForNotificationsToClear = false,
+  clearNotifications = false,
   // keep false for new screenshots
   axeSkip = false,
   skipMobile = false,
@@ -63,14 +65,18 @@ export default async function expectScreenshotsToMatchSnapshots({
     await frameElement.scrollIntoViewIfNeeded()
   }
 
-  if (waitForNotificationsToClear) {
-    await page.waitForFunction(() => !document.querySelector(".toast-notification"))
-  }
-
   const elementHandle = await waitToBeVisible({
     waitForThisToBeVisibleAndStable,
     container: visibilityWaitContainer,
   })
+
+  if (clearNotifications) {
+    await page.evaluate(() => {
+      for (const notif of document.querySelectorAll(".toast-notification")) {
+        notif.remove()
+      }
+    })
+  }
 
   if (!skipMobile) {
     await snapshotWithViewPort({
@@ -81,6 +87,7 @@ export default async function expectScreenshotsToMatchSnapshots({
       beforeScreenshot,
       page,
       frame,
+      elementId,
       headless,
       pageScreenshotOptions,
       axeSkip,
@@ -95,6 +102,7 @@ export default async function expectScreenshotsToMatchSnapshots({
     beforeScreenshot,
     page,
     frame,
+    elementId,
     headless,
     pageScreenshotOptions,
     axeSkip,
@@ -112,6 +120,7 @@ interface SnapshotWithViewPortProps {
   beforeScreenshot?: () => Promise<void>
   page?: Page
   frame?: Frame
+  elementId?: string
   headless: boolean
   persistMousePosition?: boolean
   pageScreenshotOptions?: PageScreenshotOptions
@@ -126,6 +135,7 @@ async function snapshotWithViewPort({
   beforeScreenshot,
   frame,
   page,
+  elementId,
   headless,
   persistMousePosition,
   pageScreenshotOptions,
@@ -141,7 +151,13 @@ async function snapshotWithViewPort({
   if (frame) {
     pageObjectToUse = frame.page()
     thingBeingScreenshotted = await frame.frameElement()
+    if (elementId) {
+      thingBeingScreenshotted = await thingBeingScreenshotted.$(elementId)
+    }
     thingBeingScreenshottedObject = frame
+  }
+  if (elementId) {
+    thingBeingScreenshotted = await page.$(elementId)
   }
   // typing caret sometimes blinks and fails screenshot tests
   const style = await thingBeingScreenshottedObject.addStyleTag({

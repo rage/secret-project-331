@@ -11,22 +11,22 @@
     "deleted_at": null,
     "content": [
       {
-        "name": "moocfi/pages-in-part",
-        "isValid": true,
-        "clientId": "c68f55ae-65c4-4e9b-aded-0b52e36e344a",
         "attributes": {
           "hidden": false
         },
-        "innerBlocks": []
+        "clientId": "c68f55ae-65c4-4e9b-aded-0b52e36e344a",
+        "innerBlocks": [],
+        "isValid": true,
+        "name": "moocfi/pages-in-part"
       },
       {
-        "name": "moocfi/exercises-in-part",
-        "isValid": true,
-        "clientId": "415ecc4c-a5c6-410e-a43f-c14b8ee910ea",
         "attributes": {
           "hidden": false
         },
-        "innerBlocks": []
+        "clientId": "415ecc4c-a5c6-410e-a43f-c14b8ee910ea",
+        "innerBlocks": [],
+        "isValid": true,
+        "name": "moocfi/exercises-in-part"
       }
     ],
     "order_number": 123,
@@ -42,7 +42,6 @@
     "ends_at": null,
     "name": "Instance",
     "description": "Description",
-    "variant_status": "Active",
     "teacher_in_charge_name": "Example Teacher",
     "teacher_in_charge_email": "example@email.com",
     "support_email": "example@email.com"

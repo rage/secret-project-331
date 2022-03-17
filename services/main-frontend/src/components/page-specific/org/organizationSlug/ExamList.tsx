@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import { Dialog } from "@mui/material"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -18,22 +17,12 @@ import LoginStateContext from "../../../../shared-module/contexts/LoginStateCont
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import NewExamForm from "../../../forms/NewExamForm"
 
-import ExamComponent from "./ExamCard"
-
-const ExamGrid = styled.div`
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  padding-bottom: 10px;
-`
-
 interface Props {
   organizationId: string
   organizationSlug: string
 }
 
-const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
+const ExamList: React.FC<Props> = ({ organizationId }) => {
   const { t } = useTranslation()
 
   const getOrgExams = useQuery(

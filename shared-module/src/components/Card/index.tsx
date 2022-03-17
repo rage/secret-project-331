@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+import { baseTheme } from "../../styles"
 import basePath from "../../utils/base-path"
 
 // import CourseCard from "./CourseCard"
@@ -20,6 +21,7 @@ export interface CardExtraProps {
   url?: string
   bg?: string
   open?: boolean
+  allowedToPreview?: boolean
   date?: string
   time?: string
   description?: string
@@ -47,6 +49,10 @@ const Card: React.FC<CardProps> = (props) => {
         className={css`
           text-decoration: none;
           display: block;
+          &:focus-visible {
+            outline: 4px solid ${baseTheme.colors.green[500]};
+            outline-offset: 2px;
+          }
         `}
       >
         <Component {...props} />

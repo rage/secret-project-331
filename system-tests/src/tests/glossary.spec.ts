@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
@@ -83,7 +83,7 @@ test("test", async ({ page, headless }) => {
   await page.fill('textarea[name="New definition"]', "efgh")
 
   // Click text=Save
-  await page.click("text=Save")
+  await page.click("text=Save >> visible=true")
 
   await expectScreenshotsToMatchSnapshots({
     page,
@@ -100,7 +100,7 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "editing-term",
     waitForThisToBeVisibleAndStable: "text=updated term",
-    waitForNotificationsToClear: true,
+    clearNotifications: true,
   })
 
   // Fill [placeholder="updated term"]
@@ -126,6 +126,6 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "final-glossary-page",
     waitForThisToBeVisibleAndStable: "text=Glossary",
-    waitForNotificationsToClear: true,
+    clearNotifications: true,
   })
 })

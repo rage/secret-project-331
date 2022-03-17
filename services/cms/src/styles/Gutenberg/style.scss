@@ -7,6 +7,9 @@
 
 @import "./editor-styles";
 
+$sidebar-threshold: 75rem;
+$sidebar-width: 350px;
+
 // The Gutenberg components styling
 .editor__content {
   // Reference element for the block popover position.
@@ -15,7 +18,7 @@
   /* Give space for sidebar so that it won't accidentally overlap the main editor */
   /* Same as sidebar width */
   margin-right: calc("auto" - $sidebar-width);
-  @media (max-width: 75rem) {
+  @media (max-width: $sidebar-threshold) {
     // Disable the margin-right if min-width more than 600px for responsiveness
     margin-right: 0px;
   }
@@ -26,7 +29,7 @@
   /* Give space for sidebar so that it won't accidentally overlap the main editor */
   /* Same as sidebar width */
   margin-right: calc("auto" - $sidebar-width);
-  @media (max-width: 75rem) {
+  @media (max-width: $sidebar-threshold) {
     // Disable the margin-right if min-width more than 600px for responsiveness
     margin-right: 0px;
   }
@@ -36,7 +39,7 @@
 .editor__sidebar {
   position: fixed;
   // Height of the complex navbar
-  top: 0;
+  top: var(--start-sidebar-top-px);
   right: 0;
   bottom: 0;
   width: $sidebar-width;
@@ -50,8 +53,16 @@
   // Temporarily disable the sidebar on mobile
   // Do we want to support advanced content editing with a mobile phone?
   display: block;
-  /* stylelint-disable-next-line */
-  @media (max-width: 75rem) {
+  @media (max-width: $sidebar-threshold) {
     display: none;
   }
+}
+
+.editor__top-button-wrapper {
+  padding: 1rem;
+  display: none;
+  @media (max-width: $sidebar-threshold) {
+    display: block;
+  }
+  background: #f5f6f7;
 }

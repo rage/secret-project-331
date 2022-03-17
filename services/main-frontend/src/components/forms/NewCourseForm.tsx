@@ -10,6 +10,7 @@ import RadioButton from "../../shared-module/components/InputFields/RadioButton"
 import SelectMenu from "../../shared-module/components/InputFields/SelectField"
 import TextArea from "../../shared-module/components/InputFields/TextAreaField"
 import TextField from "../../shared-module/components/InputFields/TextField"
+import useToastMutation from "../../shared-module/hooks/useToastMutation"
 import { normalizeIETFLanguageTag } from "../../shared-module/utils/strings"
 import { normalizePath } from "../../utils/normalizePath"
 const FieldContainer = styled.div`
@@ -49,6 +50,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
   )
 
   const [createDuplicate, setCreateDuplicate] = useState<boolean>(false)
+  const [isDraft, setIsDraft] = useState<boolean>(false)
   const [description, setDescription] = useState("")
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -77,6 +79,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
         language_code: normalizedLanguageCode,
         teacher_in_charge_email: teacherInChargeEmail,
         teacher_in_charge_name: teacherInChargeName,
+        is_draft: isDraft,
       }
       if (courseId) {
         await onSubmitDuplicateCourseForm(courseId, newCourse)
@@ -108,6 +111,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
         teacher_in_charge_name: teacherInChargeName,
         teacher_in_charge_email: teacherInChargeEmail,
         description,
+        is_draft: isDraft,
       })
       setName("")
       setSlug("")
@@ -122,6 +126,16 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
       setSubmitDisabled(false)
     }
   }
+
+  const mutation = useToastMutation(
+    () => {
+      if (createDuplicate) {
+        return handleCreateNewLanguageVersion()
+      }
+      return createNewCourse()
+    },
+    { notify: true, method: "POST" },
+  )
 
   const handleLanguageSelectionChange = (value: string) => {
     if (value === "other") {
@@ -190,6 +204,15 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
             onChange={(value) => {
               setDescription(value)
             }}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <CheckBox
+            label={t("draft")}
+            onChange={() => {
+              setIsDraft(!isDraft)
+            }}
+            checked={isDraft}
           />
         </FieldContainer>
         {courses && (
@@ -288,7 +311,9 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
         <Button
           size="medium"
           variant="primary"
-          onClick={createDuplicate ? handleCreateNewLanguageVersion : createNewCourse}
+          onClick={() => {
+            mutation.mutate()
+          }}
           disabled={submitDisabled}
         >
           {t("button-text-create")}

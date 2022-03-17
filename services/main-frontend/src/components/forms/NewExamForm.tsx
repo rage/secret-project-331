@@ -6,7 +6,6 @@ import { v4 } from "uuid"
 import { NewExam, OrgExam } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import CheckBox from "../../shared-module/components/InputFields/CheckBox"
-import TimePicker from "../../shared-module/components/InputFields/DateTimeLocal"
 import SelectMenu from "../../shared-module/components/InputFields/SelectField"
 import FormField from "../FormField"
 
@@ -21,7 +20,6 @@ interface NewExamFormProps {
 
 interface NewExamFields {
   name: string
-  instructions: string
   startsAt: Date
   endsAt: Date
   timeMinutes: number
@@ -50,17 +48,15 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
   const [duplicateExam, setDuplicateExam] = useState(false)
 
   const onCreateNewExamWrapper = handleSubmit((data) => {
-    if (exam) {
-      onCreateNewExam({
-        id: v4(),
-        organization_id: organization,
-        name: data.name,
-        instructions: data.instructions,
-        starts_at: startsAt,
-        ends_at: endsAt,
-        time_minutes: Number(data.timeMinutes),
-      })
-    }
+    onCreateNewExam({
+      id: v4(),
+      organization_id: organization,
+      name: data.name,
+      instructions: [],
+      starts_at: new Date(data.startsAt),
+      ends_at: new Date(data.endsAt),
+      time_minutes: Number(data.timeMinutes),
+    })
   })
 
   const onDuplicateExamWrapper = handleSubmit((data) => {
@@ -69,7 +65,7 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
         id: v4(),
         organization_id: organization,
         name: data.name,
-        instructions: data.instructions,
+        instructions: exam.instructions,
         starts_at: startsAt,
         ends_at: endsAt,
         time_minutes: Number(data.timeMinutes),
@@ -93,14 +89,7 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
           id={"name"}
           error={errors["name"]}
           defaultValue={exam?.name}
-          placeholder={t("text-field-label-name")}
-          register={register}
-        />
-        <FormField
-          id={"instructions"}
-          error={errors["instructions"]}
-          defaultValue={exam?.instructions}
-          placeholder={t("text-field-label-instructions")}
+          placeholder={t("label-name")}
           register={register}
         />
         <FormField
@@ -108,7 +97,7 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
           error={errors["startsAt"]}
           defaultValue={null}
           value={exam?.starts_at?.toISOString().slice(0, 16)}
-          placeholder={t("text-field-label-starts-at")}
+          placeholder={t("label-starts-at")}
           register={register}
           type="datetime-local"
         />
@@ -117,7 +106,7 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
           error={errors.endsAt}
           defaultValue={null}
           value={exam?.ends_at?.toISOString().slice(0, 16)}
-          placeholder={t("text-field-label-ends-at")}
+          placeholder={t("label-ends-at")}
           register={register}
           type="datetime-local"
         />
@@ -125,13 +114,13 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
           id={"timeMinutes"}
           error={errors["timeMinutes"]}
           defaultValue={String(exam?.time_minutes || "")}
-          placeholder={t("text-field-label-time-minutes")}
+          placeholder={t("label-time-minutes")}
           register={register}
         />
         <br />
         <CheckBox
           checked={duplicateExam}
-          label={t("main-frontend:duplicate")}
+          label={t("duplicate")}
           onChange={() => setDuplicateExam(!duplicateExam)}
         />
         <br />

@@ -39,16 +39,16 @@ test("latex-block renders", async ({ headless, page }) => {
   await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
   expectPath(page, "/manage/courses/[id]/pages")
   // Click text=Add new chapter
-  await page.click(`:nth-match(button:has-text("New"):below(:text("Chapters")), 1)`)
+  await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
 
   // Fill input[type="text"]
-  await page.fill("text=Name", "first page")
+  await page.fill(`label:has-text("Name")`, "first page")
   // Click text=Create chapter
   await page.click(`button:text("Create")`)
   // Click a:has-text("first page")
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/cms/pages/f2f1482e-4f49-4f6e-a5ef-99ac1513d97c' }*/),
-    page.click('a:has-text("first page")'),
+    page.click(`button:text("Edit page"):right-of(:text("first page"))`),
   ])
   // - PROGRESS
   // Click text=Chapter Progress PlaceholderThis block is used to display Chapter progress. To d
@@ -124,7 +124,7 @@ test("latex-block renders", async ({ headless, page }) => {
   )
 
   // Click button:has-text("Save")
-  await page.click('button:has-text("Save")')
+  await page.click('button:has-text("Save") >> visible=true')
 
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),

@@ -132,7 +132,7 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
       </ScaleContainer>
       <MinMaxContainer>
         <MinField
-          error={!minValid}
+          error={!minValid ? t("error-title") : undefined}
           label={t("minimum")}
           value={variables.scaleMin?.toString() ?? ""}
           type="number"
@@ -140,7 +140,7 @@ const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
         />
         {!minValid && t("invalid-minimum-value")}
         <MaxField
-          error={!maxValid}
+          error={!maxValid ? t("error-title") : undefined}
           label={t("maximum")}
           value={variables.scaleMax?.toString() ?? ""}
           type="number"

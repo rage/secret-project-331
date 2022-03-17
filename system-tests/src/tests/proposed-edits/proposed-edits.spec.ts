@@ -36,10 +36,7 @@ test("test", async ({ page, headless }) => {
   ])
 
   // Click text=Page One
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-edit-proposals/chapter-1/page-1' }*/),
-    page.click("text=Page One"),
-  ])
+  await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
 
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
@@ -140,7 +137,7 @@ test("test", async ({ page, headless }) => {
   // Click text=Manage change requests
   await Promise.all([page.waitForNavigation(), page.click("text=Change requests")])
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests?pending=true",
+    "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests",
   )
 
   await expectScreenshotsToMatchSnapshots({
@@ -175,7 +172,7 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "manage-after-send",
     waitForThisToBeVisibleAndStable: "text=Reject",
-    waitForNotificationsToClear: true,
+    clearNotifications: true,
   })
 
   await page.click('text="Old"')
@@ -208,10 +205,7 @@ test("test", async ({ page, headless }) => {
   ])
 
   // Click text=Page One
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-edit-proposals/chapter-1/page-1' }*/),
-    page.click("text=Page One"),
-  ])
+  await page.click("text=Page One")
 
   await page.click("text=At vero")
   await page.click("text=So big")

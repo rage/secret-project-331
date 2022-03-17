@@ -13,6 +13,7 @@ import {
   Chapter,
   ChapterScore,
   ChapterStatus,
+  ChaptersWithStatus,
   ChapterUpdate,
   ChapterWithStatus,
   CmsPageExercise,
@@ -45,6 +46,8 @@ import {
   ExamData,
   ExamEnrollment,
   ExamEnrollmentData,
+  ExamInstructions,
+  ExamInstructionsUpdate,
   Exercise,
   ExerciseService,
   ExerciseServiceInfoApi,
@@ -115,7 +118,6 @@ import {
   UserCourseSettings,
   UserPointsUpdateStrategy,
   UserRole,
-  VariantStatus,
 } from "./bindings"
 
 export function isTerm(obj: any, _argumentName?: string): obj is Term {
@@ -148,6 +150,7 @@ export function isChapter(obj: any, _argumentName?: string): obj is Chapter {
     typeof obj.chapter_number === "number" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string")
   )
 }
@@ -165,6 +168,7 @@ export function isDatabaseChapter(obj: any, _argumentName?: string): obj is Data
     typeof obj.chapter_number === "number" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string")
   )
 }
@@ -177,8 +181,9 @@ export function isChapterUpdate(obj: any, _argumentName?: string): obj is Chapte
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.name === "string" &&
-    typeof obj.chapter_number === "number" &&
-    (obj.front_front_page_id === null || typeof obj.front_front_page_id === "string")
+    (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
+    (obj.deadline === null || obj.deadline instanceof Date) &&
+    (obj.opens_at === null || obj.opens_at instanceof Date)
   )
 }
 
@@ -204,7 +209,9 @@ export function isNewChapter(obj: any, _argumentName?: string): obj is NewChapte
     typeof obj.name === "string" &&
     typeof obj.course_id === "string" &&
     typeof obj.chapter_number === "number" &&
-    (obj.front_front_page_id === null || typeof obj.front_front_page_id === "string")
+    (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
+    (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.deadline === null || obj.deadline instanceof Date)
   )
 }
 
@@ -247,6 +254,7 @@ export function isChapterScore(obj: any, _argumentName?: string): obj is Chapter
     typeof obj.chapter_number === "number" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
     typeof obj.score_given === "number" &&
     typeof obj.score_total === "number"
@@ -265,7 +273,6 @@ export function isCourseInstance(obj: any, _argumentName?: string): obj is Cours
     (obj.ends_at === null || obj.ends_at instanceof Date) &&
     (obj.name === null || typeof obj.name === "string") &&
     (obj.description === null || typeof obj.description === "string") &&
-    (isVariantStatus(obj.variant_status) as boolean) &&
     typeof obj.teacher_in_charge_name === "string" &&
     typeof obj.teacher_in_charge_email === "string" &&
     (obj.support_email === null || typeof obj.support_email === "string")
@@ -309,10 +316,6 @@ export function isPoints(obj: any, _argumentName?: string): obj is Points {
   )
 }
 
-export function isVariantStatus(obj: any, _argumentName?: string): obj is VariantStatus {
-  return obj === "Draft" || obj === "Upcoming" || obj === "Active" || obj === "Ended"
-}
-
 export function isCourse(obj: any, _argumentName?: string): obj is Course {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -327,7 +330,8 @@ export function isCourse(obj: any, _argumentName?: string): obj is Course {
     typeof obj.language_code === "string" &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
     (obj.content_search_language === null || typeof obj.content_search_language === "string") &&
-    typeof obj.course_language_group_id === "string"
+    typeof obj.course_language_group_id === "string" &&
+    typeof obj.is_draft === "boolean"
   )
 }
 
@@ -345,7 +349,8 @@ export function isCourseStructure(obj: any, _argumentName?: string): obj is Cour
 export function isCourseUpdate(obj: any, _argumentName?: string): obj is CourseUpdate {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.name === "string"
+    typeof obj.name === "string" &&
+    typeof obj.is_draft === "boolean"
   )
 }
 
@@ -358,7 +363,8 @@ export function isNewCourse(obj: any, _argumentName?: string): obj is NewCourse 
     typeof obj.language_code === "string" &&
     typeof obj.teacher_in_charge_name === "string" &&
     typeof obj.teacher_in_charge_email === "string" &&
-    typeof obj.description === "string"
+    typeof obj.description === "string" &&
+    typeof obj.is_draft === "boolean"
   )
 }
 
@@ -421,7 +427,6 @@ export function isExam(obj: any, _argumentName?: string): obj is Exam {
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.name === "string" &&
-    typeof obj.instructions === "string" &&
     typeof obj.page_id === "string" &&
     Array.isArray(obj.courses) &&
     obj.courses.every((e: any) => isCourse(e) as boolean) &&
@@ -445,7 +450,6 @@ export function isNewExam(obj: any, _argumentName?: string): obj is NewExam {
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.name === "string" &&
-    typeof obj.instructions === "string" &&
     (obj.starts_at === null || obj.starts_at instanceof Date) &&
     (obj.ends_at === null || obj.ends_at instanceof Date) &&
     typeof obj.time_minutes === "number" &&
@@ -458,12 +462,25 @@ export function isOrgExam(obj: any, _argumentName?: string): obj is OrgExam {
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.name === "string" &&
-    typeof obj.instructions === "string" &&
     (obj.starts_at === null || obj.starts_at instanceof Date) &&
     (obj.ends_at === null || obj.ends_at instanceof Date) &&
     typeof obj.time_minutes === "number" &&
     typeof obj.organization_id === "string"
   )
+}
+
+export function isExamInstructions(obj: any, _argumentName?: string): obj is ExamInstructions {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string"
+  )
+}
+
+export function isExamInstructionsUpdate(
+  obj: any,
+  _argumentName?: string,
+): obj is ExamInstructionsUpdate {
+  return (obj !== null && typeof obj === "object") || typeof obj === "function"
 }
 
 export function isCourseMaterialExerciseServiceInfo(
@@ -590,6 +607,7 @@ export function isCourseMaterialExercise(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isExercise(obj.exercise) as boolean) &&
+    typeof obj.can_post_submission === "boolean" &&
     (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
     (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean))
   )
@@ -1250,7 +1268,7 @@ export function isRoleDomain(obj: any, _argumentName?: string): obj is RoleDomai
 }
 
 export function isUserRole(obj: any, _argumentName?: string): obj is UserRole {
-  return obj === "Admin" || obj === "Assistant" || obj === "Teacher" || obj === "Reviewer"
+  return obj === "Reviewer" || obj === "Assistant" || obj === "Teacher" || obj === "Admin"
 }
 
 export function isUserCourseSettings(obj: any, _argumentName?: string): obj is UserCourseSettings {
@@ -1318,6 +1336,15 @@ export function isUser(obj: any, _argumentName?: string): obj is User {
   )
 }
 
+export function isChaptersWithStatus(obj: any, _argumentName?: string): obj is ChaptersWithStatus {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.is_previewable === "boolean" &&
+    Array.isArray(obj.chapters) &&
+    obj.chapters.every((e: any) => isChapterWithStatus(e) as boolean)
+  )
+}
+
 export function isRoleQuery(obj: any, _argumentName?: string): obj is RoleQuery {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1343,9 +1370,9 @@ export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.name === "string" &&
-    typeof obj.instructions === "string" &&
     obj.starts_at instanceof Date &&
     obj.ends_at instanceof Date &&
+    typeof obj.ended === "boolean" &&
     typeof obj.time_minutes === "number" &&
     (isExamEnrollmentData(obj.enrollment_data) as boolean)
   )

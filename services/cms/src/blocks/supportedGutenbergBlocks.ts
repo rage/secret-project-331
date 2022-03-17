@@ -32,7 +32,7 @@ export const allowedBlockVariants: Record<string, string[]> = {
     // "soundcloud",
     "spotify",
     // "flickr",
-    // "vimeo",
+    "vimeo",
     // "imgur",
     // "reddit",
     // "slideshare",
@@ -42,6 +42,14 @@ export const allowedBlockVariants: Record<string, string[]> = {
 }
 
 export const allowedEmailCoreBlocks: string[] = [
+  "core/paragraph",
+  "core/image",
+  "core/heading",
+  "core/list",
+  "core/table",
+]
+
+export const allowedExamInstructionsCoreBlocks: string[] = [
   "core/paragraph",
   "core/image",
   "core/heading",

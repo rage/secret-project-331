@@ -80,21 +80,17 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
     return <Spinner variant={"medium"} />
   }
 
-  const exams = getOrgExams.data.map((e) => (
-    <ExamComponent
-      key={e.id}
-      id={e.id}
-      name={e.name}
-      // eslint-disable-next-line i18next/no-literal-string
-      manageHref={`/manage/exams/${e.id}`}
-      // eslint-disable-next-line i18next/no-literal-string
-      navigateToExamHref={`/org/${organizationSlug}/exams/${e.id}`}
-    />
-  ))
   return (
     <div>
-      <ExamGrid>{exams}</ExamGrid>
-
+      <ul>
+        {getOrgExams.data.map((exam) => {
+          return (
+            <li key={exam.id}>
+              <a href={`/manage/exams/${exam.id}`}>{exam.name}</a>
+            </li>
+          )
+        })}
+      </ul>
       <div
         className={css`
           margin-bottom: 1rem;

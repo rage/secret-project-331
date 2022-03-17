@@ -155,6 +155,8 @@ fn main() {
         score_maximum: 1,
         order_number: 123,
         copied_from: None,
+        max_tries_per_slide: Some(17),
+        limit_number_of_tries: true,
     };
     let exercise_slide_submission = ExerciseSlideSubmission {
         id,
@@ -324,6 +326,9 @@ fn main() {
                 id,
                 name: "exercise".to_string(),
                 order_number: 123,
+                score_maximum: 1,
+                max_tries_per_slide: Some(17),
+                limit_number_of_tries: true
             }],
             exercise_slides: vec![CmsPageExerciseSlide {
                 id,
@@ -499,7 +504,17 @@ fn main() {
                 score_given: None,
                 activity_progress: ActivityProgress::InProgress,
                 grading_progress: GradingProgress::NotReady
-            })
+            }),
+            exercise_slide_submission_counts: HashMap::from([
+                (
+                    Uuid::parse_str("2794a98e-d594-40cf-949e-7cc011755a58").unwrap(),
+                    2_i64
+                ),
+                (
+                    Uuid::parse_str("7dea54af-3d38-4f7c-8969-ecb17b55ec02").unwrap(),
+                    4_i64
+                )
+            ])
         }
     );
     write_docs!(

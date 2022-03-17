@@ -6,11 +6,10 @@ use serde_json::Value;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 use crate::{
-    exams, exercise_service_info,
+    exercise_service_info,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_task_gradings::{self, ExerciseTaskGrading},
     exercise_task_submissions::{self, ExerciseTaskSubmission},
-    exercises,
     prelude::*,
     user_exercise_states::{self, CourseInstanceOrExamId},
     CourseOrExamId,
@@ -142,7 +141,6 @@ pub async fn get_course_material_exercise_tasks(
     conn: &mut PgConnection,
     exercise_slide_id: &Uuid,
     user_id: Option<&Uuid>,
-    expose_model_solution_spec: bool,
 ) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
     let exercise_tasks: Vec<ExerciseTask> =
         get_exercise_tasks_by_exercise_slide_id(conn, exercise_slide_id).await?;
@@ -170,11 +168,7 @@ pub async fn get_course_material_exercise_tasks(
         )
         .await?
         .exercise_type_specific_user_interface_iframe;
-        let model_solution_spec = if expose_model_solution_spec {
-            exercise_task.model_solution_spec
-        } else {
-            None
-        };
+        let model_solution_spec = exercise_task.model_solution_spec;
         let previous_submission = latest_submissions_by_task_id.remove(&exercise_task.id);
         let previous_submission_grading = if let Some(submission) = previous_submission.as_ref() {
             exercise_task_gradings::get_by_exercise_task_submission_id(conn, &submission.id).await?
@@ -257,7 +251,6 @@ pub async fn get_existing_users_exercise_slide_for_course_instance(
                 conn,
                 &selected_exercise_slide_id,
                 Some(&user_id),
-                false,
             )
             .await?;
             Some(CourseMaterialExerciseSlide {
@@ -312,20 +305,9 @@ pub async fn get_or_select_user_exercise_tasks_for_course_instance_or_exam(
             exercise_slide_id
         };
 
-    let exercise = exercises::get_by_id(conn, exercise_id).await?;
-    let exam_and_ended = if let Some(exam_id) = exercise.exam_id {
-        let exam = exams::get(conn, exam_id).await?;
-        exam.ends_at.map(|ea| ea < Utc::now()).unwrap_or_default()
-    } else {
-        false
-    };
-    let exercise_tasks = get_course_material_exercise_tasks(
-        conn,
-        &selected_exercise_slide_id,
-        Some(&user_id),
-        exam_and_ended,
-    )
-    .await?;
+    let exercise_tasks =
+        get_course_material_exercise_tasks(conn, &selected_exercise_slide_id, Some(&user_id))
+            .await?;
     info!("got tasks");
     if exercise_tasks.is_empty() {
         return Err(ModelError::PreconditionFailed(

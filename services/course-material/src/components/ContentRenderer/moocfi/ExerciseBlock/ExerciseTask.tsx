@@ -61,13 +61,15 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
         ) : (
           t("dont-know-how-to-render-this-assignment")
         ))}
-      <div
-        className={css`
-          margin: 1rem 0;
-        `}
-      >
-        {feedbackText}
-      </div>
+      {feedbackText && (
+        <div
+          className={css`
+            margin: 1rem 0;
+          `}
+        >
+          {feedbackText}
+        </div>
+      )}
     </div>
   )
 }

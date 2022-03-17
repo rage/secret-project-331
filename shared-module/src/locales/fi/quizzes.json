@@ -65,5 +65,8 @@
   "validity-regular-expression-not-provided": "Oikeellisuuden säännöllinen lauseketta ei ole",
   "waiting-for-content": "Odotetaan sisältöä...",
   "waiting-for-port": "Odotetaan porttia...",
-  "word-count": "Sanamäärä"
+  "word-count": "Sanamäärä",
+  "your-answer-was-correct": "Vastauksesi oli oikein.",
+  "your-answer-was-not-correct": "Vastauksesi ei ollut oikein.",
+  "select-all-correct-options": "Valitse kaikki oikeat vaihtoehdot."
 }

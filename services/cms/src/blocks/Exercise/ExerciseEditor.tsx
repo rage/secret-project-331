@@ -67,6 +67,7 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
                 border: 1px solid ${baseTheme.colors.clear[100]};
                 border-radius: 2px;
                 padding: 1rem 2rem;
+                margin-bottom: 1rem;
               `}
             >
               <TextField

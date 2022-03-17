@@ -1,13 +1,15 @@
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, TS)]
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Term {
     pub id: Uuid,
     pub term: String,
     pub definition: String,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct TermUpdate {
     pub term: String,
     pub definition: String,

@@ -16,7 +16,8 @@ use crate::{
     CourseOrExamId,
 };
 
-#[derive(Debug, Serialize, Deserialize, TS)]
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExerciseTask {
     pub id: Uuid,
     pub exercise_slide_id: Uuid,
@@ -32,7 +33,8 @@ pub struct CourseMaterialExerciseTask {
     pub previous_submission_grading: Option<ExerciseTaskGrading>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseTask {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

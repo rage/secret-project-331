@@ -1002,9 +1002,7 @@ async fn upsert_exercise_tasks(
             &normalized_task,
             &model_solution_urls_by_exercise_type,
             &client,
-            existing_exercise_task
-                .map(|value| value.model_solution_spec.clone())
-                .flatten(),
+            existing_exercise_task.and_then(|value| value.model_solution_spec.clone()),
             task_update.id,
         )
         .await?;
@@ -1013,9 +1011,7 @@ async fn upsert_exercise_tasks(
             &normalized_task,
             &public_spec_urls_by_exercise_type,
             &client,
-            existing_exercise_task
-                .map(|value| value.public_spec.clone())
-                .flatten(),
+            existing_exercise_task.and_then(|value| value.public_spec.clone()),
             task_update.id,
         )
         .await?;

@@ -123,7 +123,7 @@ Not all of the traits can be derived for every struct. In those cases, it's fine
 
 Some structures and enums are also used by frontend services, primarily those that represent a request or response data. When these types are either changed or new ones added, their type bindings need to be regenerated.
 
-The configuration for which types should be generated is located in `/services/headless-lms/src/ts_binding_generator.rs`. Any new type added there should derive the `ts_rs::TS` type.
+The configuration for which types should be generated is located in `/services/headless-lms/src/ts_binding_generator.rs`. Any new type added there should derive the `ts_rs::TS` type. The ts_rs crate is behind a feature flag for [compilation performance reasons](https://github.com/rage/secret-project-331/pull/685), so you need to do the derive like this: `#[cfg_attr(feature = "ts_rs", derive(TS))]`.
 
 To generate bindings, run the `bin/generate-bindings` binary. This will generate bindings for all services and makes sure they are properly formated.
 

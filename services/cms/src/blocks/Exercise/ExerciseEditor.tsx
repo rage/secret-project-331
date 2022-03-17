@@ -12,6 +12,7 @@ import Centered from "../../shared-module/components/Centering/Centered"
 import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import TextField from "../../shared-module/components/InputFields/TextField"
 import { baseTheme, primaryFont, typography } from "../../shared-module/styles"
+import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { gutenbergControlsHidden } from "../../styles/EditorStyles"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 
@@ -98,8 +99,12 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
               <div
                 className={css`
                   display: flex;
-                  align-items: center;
+                  flex-direction: column;
                   margin-bottom: 1rem;
+                  ${respondToOrLarger.md} {
+                    align-items: center;
+                    flex-direction: row;
+                  }
                 `}
               >
                 <CheckBox

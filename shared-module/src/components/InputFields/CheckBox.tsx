@@ -2,6 +2,8 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { primaryFont } from "../../styles"
+
 interface CheckboxFieldExtraProps {
   label: string
   error?: boolean
@@ -19,8 +21,9 @@ interface LabelExtraProps {
   error?: boolean
 }
 
+// eslint-disable-next-line i18next/no-literal-string
 const Label = styled.label<LabelExtraProps>`
-  font-family: system-ui, sans-serif;
+  font-family: ${primaryFont};
   font-size: 1.2rem;
   line-height: 1.1;
   display: grid;

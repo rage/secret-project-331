@@ -304,6 +304,17 @@ async fn main() -> Result<()> {
     seed_sample_course(
         &mut conn,
         uh_cs,
+        Uuid::parse_str("9da60c66-9517-46e4-b351-07d0f7aa6cd4")?,
+        "Limited tries",
+        "limited-tries",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
         Uuid::parse_str("86cbc198-601c-42f4-8e0f-3e6cce49bbfc")?,
         "Course Structure",
         "course-structure",

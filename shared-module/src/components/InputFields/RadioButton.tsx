@@ -1,6 +1,8 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
 
+import { primaryFont } from "../../styles"
+
 interface RadioFieldExtraProps {
   label: string
   checked?: boolean
@@ -11,8 +13,9 @@ interface RadioFieldExtraProps {
   className?: string
 }
 
+// eslint-disable-next-line i18next/no-literal-string
 const label = css`
-  font-family: system-ui, sans-serif;
+  font-family: ${primaryFont};
   font-size: 1.2rem;
   line-height: 1.1;
   display: grid;

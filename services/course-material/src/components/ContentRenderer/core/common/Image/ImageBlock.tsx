@@ -37,8 +37,13 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
   return (
     <div
       className={css`
-        margin: 0 auto;
         width: fit-content;
+        ${(align === "center" || align === undefined) &&
+        `margin-left: auto;
+        margin-right: auto;
+        text-align: center;`}
+        ${align === "right" && `margin-left: auto;`}
+        ${align === "left" && `margin-right: auto;`}
       `}
     >
       <Zoom>

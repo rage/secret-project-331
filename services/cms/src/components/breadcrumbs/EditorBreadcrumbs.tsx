@@ -2,7 +2,7 @@ import { useRouter } from "next/router"
 import React from "react"
 import { useQuery } from "react-query"
 
-import { fetchPageWithId } from "../../services/backend/pages"
+import { fetchPageInfo } from "../../services/backend/pages"
 import Breadcrumbs from "../../shared-module/components/Breadcrumbs"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
@@ -16,7 +16,7 @@ const EditorBreadcrumbs: React.FC = () => {
     if (!pageId) {
       return null
     }
-    return fetchPageWithId(pageId)
+    return fetchPageInfo(pageId)
   })
 
   if (!data) {
@@ -39,13 +39,14 @@ const EditorBreadcrumbs: React.FC = () => {
     return null
   }
 
-  const pageTitle = data.data.page.title
-
+  const pageTitle = data.data.page_title
+  const courseId = data.data.course_id
+  const courseName = data.data.course_name
   /* eslint-disable i18next/no-literal-string */
   const pieces = [
     {
-      text: "Course",
-      url: "",
+      text: courseName,
+      url: `/manage/courses/${courseId}/pages`,
     },
     {
       text: pageTitle,

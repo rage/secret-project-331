@@ -110,6 +110,7 @@ fn ts_binding_generator() {
         pages::ExerciseWithExerciseTasks,
         pages::HistoryRestoreData,
         pages::Page,
+        pages::PageInfo,
         pages::PageRoutingDataWithChapterStatus,
         pages::PageSearchRequest,
         pages::PageSearchResult,

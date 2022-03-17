@@ -479,6 +479,13 @@ export interface Page {
   copied_from: string | null
 }
 
+export interface PageInfo {
+  page_id: string
+  page_title: string
+  course_id: string
+  course_name: string
+}
+
 export interface PageRoutingDataWithChapterStatus {
   url_path: string
   title: string

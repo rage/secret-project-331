@@ -611,11 +611,11 @@ export function isExerciseStatus(obj: any, _argumentName?: string): obj is Exerc
 
 export function isGradingProgress(obj: any, _argumentName?: string): obj is GradingProgress {
   return (
-    obj === "FullyGraded" ||
-    obj === "Pending" ||
-    obj === "PendingManual" ||
     obj === "Failed" ||
-    obj === "NotReady"
+    obj === "NotReady" ||
+    obj === "PendingManual" ||
+    obj === "Pending" ||
+    obj === "FullyGraded"
   )
 }
 

@@ -7,7 +7,7 @@ use crate::{
     exercise_task_gradings::{self, ExerciseTaskGrading, UserPointsUpdateStrategy},
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, ExerciseTask},
-    exercises::{ActivityProgress, Exercise, ExerciseStatus, GradingProgress},
+    exercises::{ActivityProgress, Exercise, ExerciseStatus},
     prelude::*,
     user_exercise_slide_states::{self, UserExerciseSlideState},
     user_exercise_states::{self, UserExerciseState},
@@ -132,12 +132,9 @@ pub async fn grade_user_submission(
         user_points_update_strategy,
     )
     .await?;
-    update_user_exercise_state(&mut tx, user_exercise_state, user_points_update_strategy).await?;
-    // let user_exercise_state = user_exercise_states::update_user_exercise_state_after_submission(
-    //     &mut tx,
-    //     &exercise_slide_submission,
-    // )
-    // .await?;
+    let user_exercise_state =
+        update_user_exercise_state(&mut tx, user_exercise_state, user_points_update_strategy)
+            .await?;
     tx.commit().await?;
 
     let exercise_status = Some(ExerciseStatus {
@@ -197,11 +194,12 @@ async fn update_user_exercise_state(
     user_exercise_state: &UserExerciseState,
     user_points_update_strategy: UserPointsUpdateStrategy,
 ) -> ModelResult<UserExerciseState> {
-    let points_from_slides = user_exercise_slide_states::get_total_score_by_user_exercise_state_id(
-        conn,
-        user_exercise_state.id,
-    )
-    .await?;
+    let (points_from_slides, grading_progress) =
+        user_exercise_slide_states::get_grading_summary_by_user_exercise_state_id(
+            conn,
+            user_exercise_state.id,
+        )
+        .await?;
     let new_score_given = user_exercise_task_states::figure_out_new_score_given(
         user_exercise_state.score_given,
         points_from_slides,
@@ -211,7 +209,7 @@ async fn update_user_exercise_state(
         conn,
         user_exercise_state.id,
         new_score_given,
-        GradingProgress::FullyGraded,
+        grading_progress,
         ActivityProgress::Completed,
     )
     .await?;
@@ -223,8 +221,8 @@ async fn update_user_exercise_slide_state(
     user_exercise_slide_state: &UserExerciseSlideState,
     user_points_update_strategy: UserPointsUpdateStrategy,
 ) -> ModelResult<()> {
-    let points_from_tasks =
-        user_exercise_task_states::get_total_score_by_user_exercise_slide_state_id(
+    let (points_from_tasks, grading_progress) =
+        user_exercise_task_states::get_grading_summary_by_user_exercise_slide_state_id(
             conn,
             user_exercise_slide_state.id,
         )
@@ -234,10 +232,11 @@ async fn update_user_exercise_slide_state(
         points_from_tasks,
         user_points_update_strategy,
     );
-    let changes = user_exercise_slide_states::update_score_given(
+    let changes = user_exercise_slide_states::update(
         conn,
         user_exercise_slide_state.id,
         new_score_given,
+        grading_progress,
     )
     .await?;
     info!(

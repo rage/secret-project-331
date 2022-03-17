@@ -107,9 +107,10 @@ INSERT INTO exercise_slide_submissions (
     course_instance_id,
     exam_id,
     exercise_id,
-    user_id
+    user_id,
+    user_points_update_strategy
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id,
   created_at,
   updated_at,
@@ -129,6 +130,7 @@ RETURNING id,
         exercise_slide_submission.exam_id,
         exercise_slide_submission.exercise_id,
         exercise_slide_submission.user_id,
+        exercise_slide_submission.user_points_update_strategy as UserPointsUpdateStrategy,
     )
     .fetch_one(conn)
     .await?;

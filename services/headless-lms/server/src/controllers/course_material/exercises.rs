@@ -63,7 +63,6 @@ async fn post_submission(
 ) -> ControllerResult<web::Json<StudentExerciseSlideSubmissionResult>> {
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
-
     let course_instance_or_exam_id =
         resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             &mut conn, user.id, &exercise,

@@ -84,11 +84,11 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
           typeof obj.data.grading.grading_priority === "number" &&
           (obj.data.grading.score_given === null ||
             typeof obj.data.grading.score_given === "number") &&
-          (obj.data.grading.grading_progress === "FullyGraded" ||
-            obj.data.grading.grading_progress === "Pending" ||
+          (obj.data.grading.grading_progress === "Failed" ||
+            obj.data.grading.grading_progress === "NotReady" ||
             obj.data.grading.grading_progress === "PendingManual" ||
-            obj.data.grading.grading_progress === "Failed" ||
-            obj.data.grading.grading_progress === "NotReady") &&
+            obj.data.grading.grading_progress === "Pending" ||
+            obj.data.grading.grading_progress === "FullyGraded") &&
           (obj.data.grading.unscaled_score_given === null ||
             typeof obj.data.grading.unscaled_score_given === "number") &&
           (obj.data.grading.unscaled_score_maximum === null ||
@@ -148,11 +148,11 @@ export function isIframeState(obj: any, _argumentName?: string): obj is IframeSt
           typeof obj.data.grading.grading_priority === "number" &&
           (obj.data.grading.score_given === null ||
             typeof obj.data.grading.score_given === "number") &&
-          (obj.data.grading.grading_progress === "FullyGraded" ||
-            obj.data.grading.grading_progress === "Pending" ||
+          (obj.data.grading.grading_progress === "Failed" ||
+            obj.data.grading.grading_progress === "NotReady" ||
             obj.data.grading.grading_progress === "PendingManual" ||
-            obj.data.grading.grading_progress === "Failed" ||
-            obj.data.grading.grading_progress === "NotReady") &&
+            obj.data.grading.grading_progress === "Pending" ||
+            obj.data.grading.grading_progress === "FullyGraded") &&
           (obj.data.grading.unscaled_score_given === null ||
             typeof obj.data.grading.unscaled_score_given === "number") &&
           (obj.data.grading.unscaled_score_maximum === null ||

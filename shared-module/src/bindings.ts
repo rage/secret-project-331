@@ -339,7 +339,7 @@ export interface ExerciseStatus {
   grading_progress: GradingProgress
 }
 
-export type GradingProgress = "FullyGraded" | "Pending" | "PendingManual" | "Failed" | "NotReady"
+export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
 
 export interface Feedback {
   id: string

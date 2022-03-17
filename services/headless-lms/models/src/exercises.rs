@@ -79,19 +79,21 @@ Tells what's the status of the grading progress for a user and exercise.
 
 As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
+#[derive(
+    Clone, Copy, Debug, Deserialize, Eq, Serialize, Ord, PartialEq, PartialOrd, sqlx::Type, TS,
+)]
 #[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]
 pub enum GradingProgress {
-    /// The grading process is completed; the score value, if any, represents the current Final Grade;
-    FullyGraded,
-    /// Final Grade is pending, but does not require manual intervention; if a Score value is present, it indicates the current value is partial and may be updated.
-    Pending,
-    /// Final Grade is pending, and it does require human intervention; if a Score value is present, it indicates the current value is partial and may be updated during the manual grading.
-    PendingManual,
     /// The grading could not complete.
     Failed,
     /// There is no grading process occurring; for example, the student has not yet made any submission.
     NotReady,
+    /// Final Grade is pending, and it does require human intervention; if a Score value is present, it indicates the current value is partial and may be updated during the manual grading.
+    PendingManual,
+    /// Final Grade is pending, but does not require manual intervention; if a Score value is present, it indicates the current value is partial and may be updated.
+    Pending,
+    /// The grading process is completed; the score value, if any, represents the current Final Grade;
+    FullyGraded,
 }
 
 impl GradingProgress {

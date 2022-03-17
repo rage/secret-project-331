@@ -1,7 +1,16 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import { InnerBlocks, RichText } from "@wordpress/block-editor"
+import {
+  BlockIcon,
+  ColorPalette,
+  InnerBlocks,
+  InspectorControls,
+  MediaPlaceholder,
+  RichText,
+} from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
+import { PanelBody } from "@wordpress/components"
+import { cover as icon } from "@wordpress/icons"
 import React from "react"
 
 import Button from "../../shared-module/components/Button"
@@ -31,6 +40,43 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
   const { title } = attributes
   return (
     <BlockWrapper id={clientId}>
+      <InspectorControls key="settings">
+        <PanelBody title="Background" initialOpen={false}>
+          <MediaPlaceholder
+            icon={<BlockIcon icon={icon} />}
+            labels={{
+              title: "Background image",
+              instructions:
+                "Drag and drop onto this block, upload, or select existing media from your library.",
+            }}
+            onSelect={(media) => {
+              setAttributes({ backgroundImage: media.url })
+              console.log({ media })
+            }}
+            accept="image/svg+xml"
+            allowedTypes={["image/svg+xml"]}
+            onError={(error) => {
+              console.error({ error })
+            }}
+            className={css`
+              min-height: unset !important;
+              margin-bottom: 1rem !important;
+            `}
+            mediaPreview={() => <div>Mediapreview</div>}
+          ></MediaPlaceholder>
+          <ColorPalette
+            disableCustomColors={false}
+            value={attributes.backgroundColor ?? "#FFFFFF"}
+            onChange={(backgroundColor) => setAttributes({ backgroundColor })}
+            clearable={false}
+            colors={[
+              { color: "#FFFFFF", name: "white" },
+              { color: "#663399", name: "rebeccapurple" },
+              { color: baseTheme.colors.blue[100], name: "lightblue" },
+            ]}
+          />
+        </PanelBody>
+      </InspectorControls>
       <BreakFromCentered
         sidebar
         sidebarPosition="right"
@@ -39,7 +85,11 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
       >
         <div
           className={css`
-            background: ${baseTheme.colors.blue[100]};
+            background-color: ${attributes.backgroundColor};
+            ${attributes.backgroundImage &&
+            `background-image: url("${attributes.backgroundImage}");
+            background-repeat: no-repeat;
+            background-position: center;`}
             width: 100%;
             border-radius: 1px;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);

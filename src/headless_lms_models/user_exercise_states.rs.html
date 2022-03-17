@@ -1008,6 +1008,7 @@
 <span id="1006">1006</span>
 <span id="1007">1007</span>
 <span id="1008">1008</span>
+<span id="1009">1009</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">futures::Stream</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals</span>;
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -1038,6 +1039,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Exercises can either be part of courses or exams. Many user-related actions need to differentiate</span>
 <span class="doccomment">/// between two, so `CourseInstanceOrExamId` helps when handling these separate scenarios.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CourseInstanceOrExamId</span> {
     <span class="ident">Instance</span>(<span class="ident">Uuid</span>),
     <span class="ident">Exam</span>(<span class="ident">Uuid</span>),

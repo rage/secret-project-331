@@ -798,6 +798,21 @@
 <span id="796">796</span>
 <span id="797">797</span>
 <span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -955,6 +970,8 @@
         <span class="ident">score_maximum</span>: <span class="number">1</span>,
         <span class="ident">order_number</span>: <span class="number">123</span>,
         <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
+        <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">Some</span>(<span class="number">17</span>),
+        <span class="ident">limit_number_of_tries</span>: <span class="bool-val">true</span>,
     };
     <span class="kw">let</span> <span class="ident">exercise_slide_submission</span> <span class="op">=</span> <span class="ident">ExerciseSlideSubmission</span> {
         <span class="ident">id</span>,
@@ -1124,6 +1141,9 @@
                 <span class="ident">id</span>,
                 <span class="ident">name</span>: <span class="string">&quot;exercise&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">order_number</span>: <span class="number">123</span>,
+                <span class="ident">score_maximum</span>: <span class="number">1</span>,
+                <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">Some</span>(<span class="number">17</span>),
+                <span class="ident">limit_number_of_tries</span>: <span class="bool-val">true</span>
             }],
             <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[<span class="ident">CmsPageExerciseSlide</span> {
                 <span class="ident">id</span>,
@@ -1299,7 +1319,17 @@
                 <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
                 <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress::InProgress</span>,
                 <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::NotReady</span>
-            })
+            }),
+            <span class="ident">exercise_slide_submission_counts</span>: <span class="ident">HashMap::from</span>([
+                (
+                    <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;2794a98e-d594-40cf-949e-7cc011755a58&quot;</span>).<span class="ident">unwrap</span>(),
+                    <span class="number">2_i64</span>
+                ),
+                (
+                    <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;7dea54af-3d38-4f7c-8969-ecb17b55ec02&quot;</span>).<span class="ident">unwrap</span>(),
+                    <span class="number">4_i64</span>
+                )
+            ])
         }
     );
     <span class="macro">write_docs!</span>(

@@ -382,24 +382,6 @@
 <span id="380">380</span>
 <span id="381">381</span>
 <span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::TryStreamExt</span>;
@@ -408,11 +390,10 @@
 <span class="kw">use</span> <span class="ident">headless_lms_utils::document_schema_processor::GutenbergBlock</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">exams</span>, <span class="ident">exercise_service_info</span>,
+    <span class="ident">exercise_service_info</span>,
     <span class="ident">exercise_slides</span>::{<span class="self">self</span>, <span class="ident">CourseMaterialExerciseSlide</span>},
     <span class="ident">exercise_task_gradings</span>::{<span class="self">self</span>, <span class="ident">ExerciseTaskGrading</span>},
     <span class="ident">exercise_task_submissions</span>::{<span class="self">self</span>, <span class="ident">ExerciseTaskSubmission</span>},
-    <span class="ident">exercises</span>,
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
     <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">CourseInstanceOrExamId</span>},
     <span class="ident">CourseOrExamId</span>,
@@ -544,7 +525,6 @@ WHERE id = (
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">exercise_slide_id</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
     <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">expose_model_solution_spec</span>: <span class="ident">bool</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseMaterialExerciseTask</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseTask</span><span class="op">&gt;</span> <span class="op">=</span>
         <span class="ident">get_exercise_tasks_by_exercise_slide_id</span>(<span class="ident">conn</span>, <span class="ident">exercise_slide_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -572,11 +552,7 @@ WHERE id = (
         )
         .<span class="kw">await</span><span class="question-mark">?</span>
         .<span class="ident">exercise_type_specific_user_interface_iframe</span>;
-        <span class="kw">let</span> <span class="ident">model_solution_spec</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">expose_model_solution_spec</span> {
-            <span class="ident">exercise_task</span>.<span class="ident">model_solution_spec</span>
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        };
+        <span class="kw">let</span> <span class="ident">model_solution_spec</span> <span class="op">=</span> <span class="ident">exercise_task</span>.<span class="ident">model_solution_spec</span>;
         <span class="kw">let</span> <span class="ident">previous_submission</span> <span class="op">=</span> <span class="ident">latest_submissions_by_task_id</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">previous_submission_grading</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">submission</span>) <span class="op">=</span> <span class="ident">previous_submission</span>.<span class="ident">as_ref</span>() {
             <span class="ident">exercise_task_gradings::get_by_exercise_task_submission_id</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>
@@ -659,7 +635,6 @@ WHERE exercise_slide_id = ANY($1)
                 <span class="ident">conn</span>,
                 <span class="kw-2">&amp;</span><span class="ident">selected_exercise_slide_id</span>,
                 <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">user_id</span>),
-                <span class="bool-val">false</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Some</span>(<span class="ident">CourseMaterialExerciseSlide</span> {
@@ -714,20 +689,9 @@ WHERE exercise_slide_id = ANY($1)
             <span class="ident">exercise_slide_id</span>
         };
 
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exam_and_ended</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">exam_id</span> {
-        <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">exam</span>.<span class="ident">ends_at</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ea</span><span class="op">|</span> <span class="ident">ea</span> <span class="op">&lt;</span> <span class="ident">Utc::now</span>()).<span class="ident">unwrap_or_default</span>()
-    } <span class="kw">else</span> {
-        <span class="bool-val">false</span>
-    };
-    <span class="kw">let</span> <span class="ident">exercise_tasks</span> <span class="op">=</span> <span class="ident">get_course_material_exercise_tasks</span>(
-        <span class="ident">conn</span>,
-        <span class="kw-2">&amp;</span><span class="ident">selected_exercise_slide_id</span>,
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">user_id</span>),
-        <span class="ident">exam_and_ended</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exercise_tasks</span> <span class="op">=</span>
+        <span class="ident">get_course_material_exercise_tasks</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">selected_exercise_slide_id</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">user_id</span>))
+            .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">info!</span>(<span class="string">&quot;got tasks&quot;</span>);
     <span class="kw">if</span> <span class="ident">exercise_tasks</span>.<span class="ident">is_empty</span>() {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::PreconditionFailed</span>(

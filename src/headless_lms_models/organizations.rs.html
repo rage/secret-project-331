@@ -243,7 +243,7 @@ RETURNING id
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">all_organizations</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseOrganization</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">organizations</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">DatabaseOrganization</span>,
-        <span class="string">&quot;SELECT * FROM organizations WHERE deleted_at IS NULL;&quot;</span>
+        <span class="string">&quot;SELECT * FROM organizations WHERE deleted_at IS NULL ORDER BY name;&quot;</span>
     )
     .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

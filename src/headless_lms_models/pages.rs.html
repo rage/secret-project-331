@@ -2118,6 +2118,27 @@
 <span id="2116">2116</span>
 <span id="2117">2117</span>
 <span id="2118">2118</span>
+<span id="2119">2119</span>
+<span id="2120">2120</span>
+<span id="2121">2121</span>
+<span id="2122">2122</span>
+<span id="2123">2123</span>
+<span id="2124">2124</span>
+<span id="2125">2125</span>
+<span id="2126">2126</span>
+<span id="2127">2127</span>
+<span id="2128">2128</span>
+<span id="2129">2129</span>
+<span id="2130">2130</span>
+<span id="2131">2131</span>
+<span id="2132">2132</span>
+<span id="2133">2133</span>
+<span id="2134">2134</span>
+<span id="2135">2135</span>
+<span id="2136">2136</span>
+<span id="2137">2137</span>
+<span id="2138">2138</span>
+<span id="2139">2139</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -2660,6 +2681,9 @@ AND pages.deleted_at IS NULL
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">score_maximum</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">max_tries_per_slide</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">limit_number_of_tries</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CmsPageExercise</span> {
@@ -2668,6 +2692,9 @@ AND pages.deleted_at IS NULL
             <span class="ident">id</span>: <span class="ident">exercise</span>.<span class="ident">id</span>,
             <span class="ident">name</span>: <span class="ident">exercise</span>.<span class="ident">name</span>,
             <span class="ident">order_number</span>: <span class="ident">exercise</span>.<span class="ident">order_number</span>,
+            <span class="ident">score_maximum</span>: <span class="ident">exercise</span>.<span class="ident">score_maximum</span>,
+            <span class="ident">max_tries_per_slide</span>: <span class="ident">exercise</span>.<span class="ident">max_tries_per_slide</span>,
+            <span class="ident">limit_number_of_tries</span>: <span class="ident">exercise</span>.<span class="ident">limit_number_of_tries</span>,
         }
     }
 }
@@ -2969,9 +2996,12 @@ INSERT INTO exercises(
     order_number,
     page_id,
     chapter_id,
-    exam_id
+    exam_id,
+    score_maximum,
+    max_tries_per_slide,
+    limit_number_of_tries
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO
 UPDATE
 SET course_id = $2,
   name = $3,
@@ -2979,10 +3009,16 @@ SET course_id = $2,
   page_id = $5,
   chapter_id = $6,
   exam_id = $7,
+  score_maximum = $8,
+  max_tries_per_slide = $9,
+  limit_number_of_tries = $10,
   deleted_at = NULL
 RETURNING id,
   name,
-  order_number;
+  order_number,
+  score_maximum,
+  max_tries_per_slide,
+  limit_number_of_tries;
             &quot;</span>,
             <span class="ident">safe_for_db_exercise_id</span>,
             <span class="ident">page</span>.<span class="ident">course_id</span>,
@@ -2991,6 +3027,9 @@ RETURNING id,
             <span class="ident">page</span>.<span class="ident">id</span>,
             <span class="ident">page</span>.<span class="ident">chapter_id</span>,
             <span class="ident">page</span>.<span class="ident">exam_id</span>,
+            <span class="ident">exercise_update</span>.<span class="ident">score_maximum</span>,
+            <span class="ident">exercise_update</span>.<span class="ident">max_tries_per_slide</span>,
+            <span class="ident">exercise_update</span>.<span class="ident">limit_number_of_tries</span>
         )
         .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -4177,6 +4216,9 @@ WHERE pages.order_number = $1
             <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;0c9dca80-5904-4d35-a945-8c080446f667&quot;</span>).<span class="ident">unwrap</span>(),
             <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">order_number</span>: <span class="number">1</span>,
+            <span class="ident">score_maximum</span>: <span class="number">1</span>,
+            <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">None</span>,
+            <span class="ident">limit_number_of_tries</span>: <span class="bool-val">false</span>,
         };
         <span class="kw">let</span> <span class="ident">e1_s1</span> <span class="op">=</span> <span class="ident">CmsPageExerciseSlide</span> {
             <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;43380e81-6ff2-4f46-9f38-af0ac6a8421a&quot;</span>).<span class="ident">unwrap</span>(),

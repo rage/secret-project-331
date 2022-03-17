@@ -1,13 +1,9 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { Fragment } from "react"
+import { Fragment, useState } from "react"
 
-const placeholder = `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
-been the industry's standard dummy text ever since the 1500s, when an unknown printer took
-a galley of type and scrambled it to make a type specimen book. It has survived not only
-five centuries, but also the leap into electronic typesetting, remaining essentially
-unchanged.`
+import TextAreaField from "../InputFields/TextAreaField"
 
 const Wrapper = styled.div`
   width: 100%;
@@ -76,6 +72,7 @@ const PlaceholderIcon = styled.div`
 const StyledReplyIcon = styled.div`
   display: flex;
   margin: 0 1.5rem;
+  cursor: pointer;
 
   span {
     color: #535a66;
@@ -87,59 +84,107 @@ const StyledReportIcon = styled.span`
 const TimeLabel = styled.span`
   color: #535a66;
 `
-
-interface ThreadProps {
-  text?: string
-  time?: string
-  author?: any
-  items?: string
+interface Item {
+  id: string
+  text: string
+  time: string
 }
 
-const Thread = ({ text, time, author, items }: ThreadProps) => {
+interface StateProps {
+  id: string
+  text: string
+  time: string
+  items?: Item[]
+}
+interface ThreadProps {
+  state: StateProps
+  author: string
+  onKeyPress?: any
+  clicked?: boolean
+  selectedId?: string
+  handleClick?: any
+}
+interface Threads extends ThreadProps {
+  nested: boolean
+}
+
+const Thread = (props: ThreadProps) => {
+  const {
+    state,
+    state: { items },
+    author,
+    onKeyPress,
+    handleClick,
+    clicked,
+    selectedId,
+  } = props
+  /*  const [clicked, setClicked] = useState(false) */
   return (
     <Fragment>
-      {getThread(text, time, author)}
-      {items && getThread(items, time, author, true)}
+      {getThread(state, author, handleClick, onKeyPress, clicked, selectedId)}
+      {items?.map((item) => getThread(item, author, null, null, null, null, true))}
     </Fragment>
   )
 }
 
-const getThread = (text, time, author, nested = false) => (
-  <Wrapper
-    className={css`
-      ${nested && "padding-left: 40px;"}
-    `}
-  >
-    <Header
-      className={css`
-        ${nested && "padding-top: 0 !important;"}
-      `}
-    >
-      <Author>
-        <PlaceholderAvatar></PlaceholderAvatar>
-        <span>{author ? author : "Henrik Ngyren"}</span>
-      </Author>
-      <TimeLabel>{time ? time : "12hr ago"}</TimeLabel>
-    </Header>
-    <Content>
-      <Text>{text ? text : placeholder}</Text>
-      <Footer>
-        <ActionTab>
-          <PlaceholderIcon></PlaceholderIcon>
-          <PlaceholderIcon></PlaceholderIcon>
-          <PlaceholderIcon></PlaceholderIcon>
-          <StyledReplyIcon>
-            <PlaceholderIcon></PlaceholderIcon>
-            <span>Reply</span>
-          </StyledReplyIcon>
-          <StyledReportIcon>Report</StyledReportIcon>
-        </ActionTab>
-        <ChatIcon>
-          <PlaceholderIcon></PlaceholderIcon>
-        </ChatIcon>
-      </Footer>
-    </Content>
-  </Wrapper>
-)
+const getThread = (
+  state,
+  author,
+  handleClick,
+  onKeyPress,
+  clicked,
+  selectedId,
+  nested = false,
+): Threads => {
+  const { id, text, time } = state
+  return (
+    text && (
+      <Wrapper
+        className={css`
+          ${nested && "padding-left: 40px;"}
+        `}
+        key={text}
+      >
+        <Header
+          className={css`
+            ${nested && "padding-top: 0 !important;"}
+          `}
+        >
+          <Author>
+            <PlaceholderAvatar></PlaceholderAvatar>
+            <span>{author}</span>
+          </Author>
+          <TimeLabel>{time}</TimeLabel>
+        </Header>
+        <Content>
+          <Text>{text}</Text>
+          <Footer>
+            <ActionTab>
+              <PlaceholderIcon></PlaceholderIcon>
+              <PlaceholderIcon></PlaceholderIcon>
+              <PlaceholderIcon></PlaceholderIcon>
+              <StyledReplyIcon onClick={handleClick}>
+                <PlaceholderIcon></PlaceholderIcon>
+                <span id={id}>Reply</span>
+              </StyledReplyIcon>
+              <StyledReportIcon>Report</StyledReportIcon>
+            </ActionTab>
+            <ChatIcon>
+              <PlaceholderIcon></PlaceholderIcon>
+            </ChatIcon>
+          </Footer>
+          {clicked && selectedId === id && (
+            <TextAreaField
+              name="comment"
+              placeholder="leave a comment"
+              onChange={() => null}
+              onKeyPress={onKeyPress}
+            />
+          )}
+        </Content>
+      </Wrapper>
+    )
+  )
+}
 
 export default Thread

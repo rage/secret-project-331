@@ -11,6 +11,7 @@ interface TextAreaExtraProps {
   disabled?: boolean
   maxlength?: string
   onChange: (value: string, name?: string) => void
+  onKeyPress: (event: any) => void
 }
 
 const Wrapper = styled.div`
@@ -34,12 +35,16 @@ const Wrapper = styled.div`
 
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextAreaExtraProps
 
-const TextArea = ({ onChange, ...rest }: TextAreaExtraProps) => {
+const TextArea = ({ onChange, onKeyPress, ...rest }: TextAreaExtraProps) => {
   return (
     <Wrapper>
       <label>
         <span>{rest.label}</span>
-        <textarea onChange={({ target: { value, name } }) => onChange(value, name)} {...rest} />
+        <textarea
+          onChange={({ target: { value, name } }) => onChange(value, name)}
+          onKeyPress={(event) => onKeyPress(event)}
+          {...rest}
+        />
       </label>
     </Wrapper>
   )

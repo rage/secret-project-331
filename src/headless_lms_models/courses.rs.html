@@ -1121,6 +1121,7 @@
 <span id="1119">1119</span>
 <span id="1120">1120</span>
 <span id="1121">1121</span>
+<span id="1122">1122</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
@@ -1703,6 +1704,7 @@ WHERE courses.organization_id = $1
     )
   )
   AND courses.deleted_at IS NULL
+ORDER BY courses.name
 LIMIT $3 OFFSET $4;
 &quot;#</span>,
         <span class="ident">organization_id</span>,

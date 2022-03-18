@@ -1,7 +1,6 @@
 import { Frame, Page, test } from "@playwright/test"
 
 import expectPath from "../../utils/expect"
-import { goToPageIfAvailable } from "../../utils/mainFrontendActions"
 import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
@@ -37,7 +36,6 @@ test("create quizzes test", async ({ page }) => {
   await page.click(`button:text("Create"):below(:text("Course language"))`)
 
   await page.waitForSelector("text=Operation successful!")
-  await goToPageIfAvailable(page, 2)
 
   await Promise.all([
     page.waitForNavigation(),

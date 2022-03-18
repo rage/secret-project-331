@@ -782,7 +782,6 @@
 <span id="780">780</span>
 <span id="781">781</span>
 <span id="782">782</span>
-<span id="783">783</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>},
     <span class="ident">convert::TryFrom</span>,
@@ -877,8 +876,7 @@
     <span class="comment">// wait for all the submissions to be completed</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">grading_futures</span> <span class="op">=</span> <span class="ident">grading_futures</span>
         .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="number">1</span>)
-        .<span class="ident">flatten</span>()
+        .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="number">1</span>)
         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">FuturesUnordered</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">GradingData</span> {
         <span class="ident">exercise_service_name</span>,

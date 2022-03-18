@@ -431,9 +431,7 @@
 <span id="429">429</span>
 <span id="430">430</span>
 <span id="431">431</span>
-<span id="432">432</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">array::IntoIter</span>,
     <span class="ident">collections::HashMap</span>,
     <span class="ident">io</span>,
     <span class="ident">io::Write</span>,
@@ -557,7 +555,7 @@
 
     <span class="kw">let</span> <span class="ident">header_count</span> <span class="op">=</span> <span class="ident">csv_fields_before_headers</span> <span class="op">+</span> <span class="ident">chapters</span>.<span class="ident">len</span>();
     <span class="comment">// remember to update csv_fields_before_headers if this changes!</span>
-    <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">IntoIter::new</span>([<span class="string">&quot;user_id&quot;</span>.<span class="ident">to_string</span>()])
+    <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">IntoIterator::into_iter</span>([<span class="string">&quot;user_id&quot;</span>.<span class="ident">to_string</span>()])
         .<span class="ident">chain</span>(<span class="ident">chapters</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">chapter_number</span>.<span class="ident">to_string</span>()));
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">user_exercise_states::stream_course_instance_points</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>);
@@ -599,7 +597,7 @@
 
     <span class="kw">let</span> <span class="ident">header_count</span> <span class="op">=</span> <span class="ident">csv_fields_before_headers</span> <span class="op">+</span> <span class="ident">exercises</span>.<span class="ident">len</span>();
     <span class="comment">// remember to update csv_fields_before_headers if this changes!</span>
-    <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">IntoIter::new</span>([<span class="string">&quot;user_id&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;email&quot;</span>.<span class="ident">to_string</span>()]).<span class="ident">chain</span>(
+    <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">IntoIterator::into_iter</span>([<span class="string">&quot;user_id&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;email&quot;</span>.<span class="ident">to_string</span>()]).<span class="ident">chain</span>(
         <span class="ident">exercises</span>
             .<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">e</span>.<span class="ident">order_number</span>, <span class="ident">e</span>.<span class="ident">name</span>)),
@@ -636,7 +634,7 @@
 <span class="kw">where</span>
     <span class="ident">W</span>: <span class="ident">Write</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">IntoIter::new</span>([
+    <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">IntoIterator::into_iter</span>([
         <span class="string">&quot;id&quot;</span>.<span class="ident">to_string</span>(),
         <span class="string">&quot;user_id&quot;</span>.<span class="ident">to_string</span>(),
         <span class="string">&quot;created_at&quot;</span>.<span class="ident">to_string</span>(),

@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test"
 
 import expectPath from "../utils/expect"
-import { goToPageIfAvailable } from "../utils/mainFrontendActions"
 import waitForFunction from "../utils/waitForFunction"
 
 test.use({
@@ -35,8 +34,6 @@ test("test", async ({ page }) => {
 
   // Click text=Create course
   await page.click(`button:text("Create"):below(:text("Course language"))`)
-
-  await goToPageIfAvailable(page, 2)
 
   // Click :nth-match(:text("Manage"), 3)
   await Promise.all([
@@ -210,8 +207,6 @@ test("test", async ({ page }) => {
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
-
-  await goToPageIfAvailable(page, 2)
 
   // Click text=Introduction to System Level Testing
   await Promise.all([

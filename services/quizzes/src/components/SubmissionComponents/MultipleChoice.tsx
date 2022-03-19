@@ -24,7 +24,7 @@ const gradingOption = css`
 `
 
 // eslint-disable-next-line i18next/no-literal-string
-const gradingOptionWrong = css`
+const gradingOptionWrongAndSelected = css`
   background: ${quizTheme.gradingWrongItemBackground};
   color: ${quizTheme.gradingWrongItemColor};
 `
@@ -36,7 +36,7 @@ const gradingOptionSelected = css`
 `
 
 // eslint-disable-next-line i18next/no-literal-string
-const gradingOptionCorrect = css`
+const gradingOptionCorrectAndSelected = css`
   background: ${quizTheme.gradingCorrectItemBackground};
   color: ${quizTheme.gradingCorrectItemColor};
 `
@@ -45,6 +45,7 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
   public_quiz_item,
   quiz_item_model_solution,
   user_quiz_item_answer,
+  quiz_item_feedback,
 }) => {
   const { t } = useTranslation()
 
@@ -92,23 +93,32 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
       >
         {public_quiz_item.options.map((qo) => {
           const selectedAnswer = user_quiz_item_answer.optionAnswers?.includes(qo.id) ?? false
-          const correctAnswerExists = (quiz_item_model_solution?.options.length ?? 0) > 0
-          const correctAnswer =
-            quiz_item_model_solution?.options.some((x) => x.id === qo.id && x.correct) ?? false
-
           const submissionFeedback = quiz_item_model_solution?.options.find(
             (option) => option.id === qo.id,
           )
-
+          const modelSolutionForThisOption =
+            quiz_item_model_solution?.options.find((x) => x.id === qo.id) ?? null
+          // If correctAnswer is null we don't know whether this option was correct or not
+          let correctAnswer = modelSolutionForThisOption?.correct ?? null
+          const feedbackForThisOption = quiz_item_feedback?.quiz_item_option_feedbacks?.find(
+            (f) => f.option_id === qo.id,
+          )
+          if (feedbackForThisOption && feedbackForThisOption.this_option_was_correct !== null) {
+            // if we have received feedback for this option, use that
+            // However, if the model solution thinks this option is correct and the feedback says it's not, we'll trust the model solution
+            if (!correctAnswer) {
+              correctAnswer = feedbackForThisOption.this_option_was_correct
+            }
+          }
           return (
             <>
               <div
                 key={qo.id}
                 className={cx(
                   gradingOption,
-                  selectedAnswer ? gradingOptionSelected : "",
-                  selectedAnswer && correctAnswerExists ? gradingOptionWrong : "",
-                  correctAnswer ? gradingOptionCorrect : "",
+                  selectedAnswer && gradingOptionSelected,
+                  selectedAnswer && correctAnswer === false && gradingOptionWrongAndSelected,
+                  selectedAnswer && correctAnswer === true && gradingOptionCorrectAndSelected,
                 )}
               >
                 <div
@@ -117,15 +127,6 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                   `}
                 >
                   <MarkdownText text={qo.title || qo.body || ""} />
-                </div>
-                <div
-                  className={css`
-                    display: flex;
-                    flex-direction: column;
-                  `}
-                >
-                  <div>{selectedAnswer && t("student-answer")}</div>
-                  <div>{correctAnswer && t("correct-answer")}</div>
                 </div>
               </div>
               <div>
@@ -173,6 +174,15 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                     </p>
                   </div>
                 ) : null}
+                <div
+                  className={css`
+                    display: flex;
+                    flex-direction: column;
+                  `}
+                >
+                  <div>{correctAnswer == true && t("correct-option")}</div>
+                  <div>{correctAnswer == false && t("incorrect-option")}</div>
+                </div>
               </div>
             </>
           )

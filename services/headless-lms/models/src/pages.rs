@@ -540,6 +540,9 @@ pub struct CmsPageExercise {
     pub id: Uuid,
     pub name: String,
     pub order_number: i32,
+    pub score_maximum: i32,
+    pub max_tries_per_slide: Option<i32>,
+    pub limit_number_of_tries: bool,
 }
 
 impl From<Exercise> for CmsPageExercise {
@@ -548,6 +551,9 @@ impl From<Exercise> for CmsPageExercise {
             id: exercise.id,
             name: exercise.name,
             order_number: exercise.order_number,
+            score_maximum: exercise.score_maximum,
+            max_tries_per_slide: exercise.max_tries_per_slide,
+            limit_number_of_tries: exercise.limit_number_of_tries,
         }
     }
 }
@@ -849,9 +855,12 @@ INSERT INTO exercises(
     order_number,
     page_id,
     chapter_id,
-    exam_id
+    exam_id,
+    score_maximum,
+    max_tries_per_slide,
+    limit_number_of_tries
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO
 UPDATE
 SET course_id = $2,
   name = $3,
@@ -859,10 +868,16 @@ SET course_id = $2,
   page_id = $5,
   chapter_id = $6,
   exam_id = $7,
+  score_maximum = $8,
+  max_tries_per_slide = $9,
+  limit_number_of_tries = $10,
   deleted_at = NULL
 RETURNING id,
   name,
-  order_number;
+  order_number,
+  score_maximum,
+  max_tries_per_slide,
+  limit_number_of_tries;
             ",
             safe_for_db_exercise_id,
             page.course_id,
@@ -871,6 +886,9 @@ RETURNING id,
             page.id,
             page.chapter_id,
             page.exam_id,
+            exercise_update.score_maximum,
+            exercise_update.max_tries_per_slide,
+            exercise_update.limit_number_of_tries
         )
         .fetch_one(&mut *conn)
         .await?;
@@ -984,9 +1002,7 @@ async fn upsert_exercise_tasks(
             &normalized_task,
             &model_solution_urls_by_exercise_type,
             &client,
-            existing_exercise_task
-                .map(|value| value.model_solution_spec.clone())
-                .flatten(),
+            existing_exercise_task.and_then(|value| value.model_solution_spec.clone()),
             task_update.id,
         )
         .await?;
@@ -995,9 +1011,7 @@ async fn upsert_exercise_tasks(
             &normalized_task,
             &public_spec_urls_by_exercise_type,
             &client,
-            existing_exercise_task
-                .map(|value| value.public_spec.clone())
-                .flatten(),
+            existing_exercise_task.and_then(|value| value.public_spec.clone()),
             task_update.id,
         )
         .await?;
@@ -2057,6 +2071,9 @@ mod test {
             id: Uuid::parse_str("0c9dca80-5904-4d35-a945-8c080446f667").unwrap(),
             name: "".to_string(),
             order_number: 1,
+            score_maximum: 1,
+            max_tries_per_slide: None,
+            limit_number_of_tries: false,
         };
         let e1_s1 = CmsPageExerciseSlide {
             id: Uuid::parse_str("43380e81-6ff2-4f46-9f38-af0ac6a8421a").unwrap(),

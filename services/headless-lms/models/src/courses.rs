@@ -580,6 +580,7 @@ WHERE courses.organization_id = $1
     )
   )
   AND courses.deleted_at IS NULL
+ORDER BY courses.name
 LIMIT $3 OFFSET $4;
 "#,
         organization_id,

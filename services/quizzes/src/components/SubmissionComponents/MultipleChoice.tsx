@@ -128,6 +128,17 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                 >
                   <MarkdownText text={qo.title || qo.body || ""} />
                 </div>
+                <div>
+                  <div
+                    className={css`
+                      display: flex;
+                      flex-direction: column;
+                    `}
+                  >
+                    <div>{correctAnswer == true && t("correct-option")}</div>
+                    <div>{correctAnswer == false && t("incorrect-option")}</div>
+                  </div>
+                </div>
               </div>
               <div>
                 {feedbackDisplayPolicy === "DisplayFeedbackOnQuizItem" && submissionFeedback ? (
@@ -174,15 +185,6 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                     </p>
                   </div>
                 ) : null}
-                <div
-                  className={css`
-                    display: flex;
-                    flex-direction: column;
-                  `}
-                >
-                  <div>{correctAnswer == true && t("correct-option")}</div>
-                  <div>{correctAnswer == false && t("incorrect-option")}</div>
-                </div>
               </div>
             </>
           )

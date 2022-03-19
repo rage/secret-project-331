@@ -53,6 +53,10 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
   const direction: "row" | "column" =
     public_quiz_item.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
 
+  console.log(public_quiz_item)
+  console.log(quiz_item_model_solution)
+  console.log(user_quiz_item_answer)
+  const feedbackDisplayPolicy = quiz_item_model_solution?.feedbackDisplayPolicy
   return (
     <div
       className={css`
@@ -92,33 +96,85 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
           const correctAnswer =
             quiz_item_model_solution?.options.some((x) => x.id === qo.id && x.correct) ?? false
 
+          const submissionFeedback = quiz_item_model_solution?.options.find(
+            (option) => option.id === qo.id,
+          )
+
           return (
-            <div
-              key={qo.id}
-              className={cx(
-                gradingOption,
-                selectedAnswer ? gradingOptionSelected : "",
-                selectedAnswer && correctAnswerExists ? gradingOptionWrong : "",
-                correctAnswer ? gradingOptionCorrect : "",
-              )}
-            >
+            <>
               <div
-                className={css`
-                  padding: 1rem 0;
-                `}
+                key={qo.id}
+                className={cx(
+                  gradingOption,
+                  selectedAnswer ? gradingOptionSelected : "",
+                  selectedAnswer && correctAnswerExists ? gradingOptionWrong : "",
+                  correctAnswer ? gradingOptionCorrect : "",
+                )}
               >
-                <MarkdownText text={qo.title || qo.body || ""} />
+                <div
+                  className={css`
+                    padding: 1rem 0;
+                  `}
+                >
+                  <MarkdownText text={qo.title || qo.body || ""} />
+                </div>
+                <div
+                  className={css`
+                    display: flex;
+                    flex-direction: column;
+                  `}
+                >
+                  <div>{selectedAnswer && t("student-answer")}</div>
+                  <div>{correctAnswer && t("correct-answer")}</div>
+                </div>
               </div>
-              <div
-                className={css`
-                  display: flex;
-                  flex-direction: column;
-                `}
-              >
-                <div>{selectedAnswer && t("student-answer")}</div>
-                <div>{correctAnswer && t("correct-answer")}</div>
+              <div>
+                {feedbackDisplayPolicy === "DisplayFeedbackOnQuizItem" && submissionFeedback ? (
+                  <>
+                    {selectedAnswer ? (
+                      <div
+                        className={css`
+                          margin-left: 2em;
+                          display: flex;
+                          border-left: ${submissionFeedback.correct
+                            ? `6px solid #1F6964`
+                            : `6px solid #A84835`};
+                          box-sizing: border-box;
+                          padding: 0.5rem 0px 0.5rem 0.5rem;
+                          margin-bottom: 5px !important;
+                        `}
+                      >
+                        <p>
+                          {submissionFeedback.correct
+                            ? submissionFeedback.successMessage
+                            : submissionFeedback.failureMessage}
+                        </p>
+                      </div>
+                    ) : null}
+                  </>
+                ) : null}
+                {feedbackDisplayPolicy === "DisplayFeedbackOnAllOptions" && submissionFeedback ? (
+                  <div
+                    className={css`
+                      margin-left: 2em;
+                      display: flex;
+                      border-left: ${submissionFeedback.correct
+                        ? `6px solid #1F6964`
+                        : `6px solid #A84835`};
+                      box-sizing: border-box;
+                      padding: 0.5rem 0px 0.5rem 0.5rem;
+                      margin-bottom: 5px !important;
+                    `}
+                  >
+                    <p>
+                      {submissionFeedback.correct
+                        ? submissionFeedback.successMessage
+                        : submissionFeedback.failureMessage}
+                    </p>
+                  </div>
+                ) : null}
               </div>
-            </div>
+            </>
           )
         })}
       </div>

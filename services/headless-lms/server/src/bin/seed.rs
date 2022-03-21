@@ -304,6 +304,17 @@ async fn main() -> Result<()> {
     seed_sample_course(
         &mut conn,
         uh_cs,
+        Uuid::parse_str("9da60c66-9517-46e4-b351-07d0f7aa6cd4")?,
+        "Limited tries",
+        "limited-tries",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
         Uuid::parse_str("86cbc198-601c-42f4-8e0f-3e6cce49bbfc")?,
         "Course Structure",
         "course-structure",
@@ -1087,7 +1098,7 @@ async fn main() -> Result<()> {
                   "id": "d2422f0c-2378-4099-bde7-e1231ceac220",
                   "body": "",
                   "type": "clickable-multiple-choice",
-                  "multi": false,
+                  "multi": true,
                   "order": 1,
                   "title": "Choose your favorite colors",
                   "quizId": "3562f83c-4d5d-41a9-aceb-a8f98511dd5d",
@@ -1708,7 +1719,7 @@ async fn seed_sample_course(
                 "id": "d30bec57-4011-4ac4-b676-79fe766d6424",
                 "body": null,
                 "type": "clickable-multiple-choice",
-                "multi": false,
+                "multi": true,
                 "order": 0,
                 "title": "Pick all the programming languages from below",
                 "quizId": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
@@ -2511,6 +2522,9 @@ fn example_exercise(
         id: exercise_id,
         name: "Best exercise".to_string(),
         order_number: 1,
+        score_maximum: 1,
+        max_tries_per_slide: None,
+        limit_number_of_tries: false,
     };
     let exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,
@@ -2590,6 +2604,9 @@ fn quizzes_exercise(
         id: exercise_id,
         name: "Best quizzes exercise".to_string(),
         order_number: 1,
+        score_maximum: 1,
+        max_tries_per_slide: None,
+        limit_number_of_tries: false,
     };
     let exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,

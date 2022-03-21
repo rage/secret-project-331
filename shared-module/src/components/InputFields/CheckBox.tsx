@@ -2,6 +2,8 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { primaryFont } from "../../styles"
+
 interface CheckboxFieldExtraProps {
   label: string
   error?: boolean
@@ -19,8 +21,9 @@ interface LabelExtraProps {
   error?: boolean
 }
 
+// eslint-disable-next-line i18next/no-literal-string
 const Label = styled.label<LabelExtraProps>`
-  font-family: system-ui, sans-serif;
+  font-family: ${primaryFont};
   font-size: 1.2rem;
   line-height: 1.1;
   display: grid;
@@ -96,17 +99,28 @@ const CheckBox = ({ onChange, className, checked, ...rest }: CheckboxFieldExtraP
         <input
           type="checkbox"
           checked={checked}
-          aria-describedby={`${rest.label}_error`}
+          aria-errormessage={`${rest.label}_error`}
+          aria-invalid={rest.error !== undefined}
           onChange={({ target: { checked } }) => onChange(checked)}
           {...rest}
         />
         <span>{rest.label}</span>
       </Label>
-      {rest.error && (
-        <span className={cx(error)} id={`${rest.label}_error`} role="alert">
-          {ERROR}
-        </span>
-      )}
+      <span
+        className={
+          rest.error
+            ? cx(error)
+            : css`
+                visibility: hidden;
+                height: 0;
+                display: block;
+              `
+        }
+        id={`${rest.label}_error`}
+        role="alert"
+      >
+        {ERROR}
+      </span>
     </div>
   )
 }

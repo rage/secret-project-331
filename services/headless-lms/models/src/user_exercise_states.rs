@@ -28,6 +28,7 @@ pub struct UserExerciseState {
 ///
 /// Exercises can either be part of courses or exams. Many user-related actions need to differentiate
 /// between two, so `CourseInstanceOrExamId` helps when handling these separate scenarios.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 pub enum CourseInstanceOrExamId {
     Instance(Uuid),
     Exam(Uuid),
@@ -69,7 +70,8 @@ impl TryFrom<UserExerciseState> for CourseInstanceOrExamId {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseInstanceProgress {
     pub score_given: f32,
     pub score_maximum: Option<u32>,
@@ -77,7 +79,8 @@ pub struct UserCourseInstanceProgress {
     pub completed_exercises: Option<u32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseInstanceChapterExerciseProgress {
     pub exercise_id: Uuid,
     pub score_given: f32,
@@ -106,18 +109,19 @@ pub struct CourseInstanceExerciseMetrics {
     score_maximum: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseUserCounts {
     exercise_name: Option<String>,
     exercise_order_number: Option<i32>,
     page_order_number: Option<i32>,
     chapter_number: Option<i32>,
     exercise_id: Option<Uuid>,
-    #[ts(type = "number")]
+    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
     n_users_attempted: Option<i64>,
-    #[ts(type = "number")]
+    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
     n_users_with_some_points: Option<i64>,
-    #[ts(type = "number")]
+    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
     n_users_with_max_points: Option<i64>,
 }
 

@@ -65,7 +65,7 @@ test("mange course structure works", async ({ headless, page }) => {
   // Fill [placeholder="Name"]
   await page.fill('[placeholder="Name"]', "The intermediaries TEST change")
   // Check text=Set DeadlineDeadline >> input[type="checkbox"]
-  await page.check('text=Set DeadlineDeadline >> input[type="checkbox"]')
+  await page.check('input[label="Set Deadline"]')
   // Click [placeholder="Deadline"]
   await page.click('[placeholder="Deadline"]')
   // Click [placeholder="Deadline"]

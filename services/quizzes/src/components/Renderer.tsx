@@ -34,7 +34,7 @@ export const Renderer: React.FC<RendererProps> = ({ state, port }) => {
         publicAlternatives={state.publicSpec}
         modelSolutions={state.modelSolutions}
         user_answer={state.userAnswer}
-        feedback_json={state.feedbackJson}
+        gradingFeedbackJson={state.gradingFeedbackJson}
       />
     )
   } else if (state.viewType === "exercise-editor") {

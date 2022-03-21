@@ -12,6 +12,7 @@ interface QuizzesGradingRequest {
 interface OptionAnswerFeedback {
   option_id: string | null
   option_feedback: string | null
+  this_option_was_correct: boolean | null
 }
 
 export interface ItemAnswerFeedback {
@@ -126,9 +127,10 @@ function assesMultipleChoiceQuizzes(
     throw new Error("No option answers")
   }
 
-  // quizItem.multi tells that student can only select one option but there are several correct options
-  if (quizItem.multi && quizItemAnswer.optionAnswers.length > 1) {
-    throw new Error("Cannot select multiple options when multi is true")
+  // quizItem.multi tells that student can select many options and there are one or several correct options
+  // This is to prevent that if user somehow passes more optionAnswers then allowed
+  if (!quizItem.multi && quizItemAnswer.optionAnswers.length > 1) {
+    throw new Error("Cannot select multiple answer options on this quiz item")
   }
 
   // Check if every selected option was a correct answer
@@ -147,8 +149,8 @@ function assesMultipleChoiceQuizzes(
   return {
     quizItemId: quizItem.id,
     correct: quizItem.multi
-      ? allSelectedOptionsAreCorrect
-      : selectedAllCorrectOptions && allSelectedOptionsAreCorrect,
+      ? selectedAllCorrectOptions && allSelectedOptionsAreCorrect
+      : allSelectedOptionsAreCorrect,
   }
 }
 
@@ -205,14 +207,16 @@ function submissionFeedback(
         quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
         quiz_item_correct: itemGrading.correct,
         quiz_item_option_feedbacks: ia.optionAnswers
-          ? ia.optionAnswers.map((oa) => {
+          ? ia.optionAnswers.map((oa): OptionAnswerFeedback => {
               const option = item.options.find((o) => o.id === oa) || null
               if (!option) {
-                return { option_id: null, option_feedback: null }
+                return { option_id: null, option_feedback: null, this_option_was_correct: null }
               }
               return {
                 option_id: option.id,
                 option_feedback: option.correct ? option.successMessage : option.failureMessage,
+                // We'll reveal whether what the student chose was correct or not. If this is not desirable in the future, we can add a configurable policy for this.
+                this_option_was_correct: option.correct,
               }
             })
           : null,

@@ -19,12 +19,14 @@ pub struct CourseInfo {
     pub is_draft: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseCount {
     pub count: u32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Course {
     pub id: Uuid,
     pub slug: String,
@@ -41,7 +43,8 @@ pub struct Course {
     pub is_draft: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseStructure {
     pub course: Course,
     pub pages: Vec<Page>,
@@ -580,6 +583,7 @@ WHERE courses.organization_id = $1
     )
   )
   AND courses.deleted_at IS NULL
+ORDER BY courses.name
 LIMIT $3 OFFSET $4;
 "#,
         organization_id,
@@ -614,7 +618,8 @@ WHERE organization_id = $1
 }
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewCourse {
     pub name: String,
     pub slug: String,
@@ -710,7 +715,8 @@ RETURNING id,
 }
 
 // Represents the subset of page fields that one is allowed to update in a course
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseUpdate {
     name: String,
     is_draft: bool,

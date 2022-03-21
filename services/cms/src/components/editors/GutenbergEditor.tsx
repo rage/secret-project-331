@@ -12,13 +12,18 @@ import "@wordpress/block-library/build-style/editor.css"
 import "@wordpress/format-library/build-style/style.css"
 
 import { css } from "@emotion/css"
+import { CSSProperties } from "@emotion/serialize"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
   BlockInspector,
+  // @ts-ignore: no type definition
+  __experimentalLibrary as BlockLibrary,
   BlockList,
   EditorBlockListSettings,
   EditorSettings,
+  // @ts-ignore: no type definition
+  __experimentalListView as ListView,
   ObserveTyping,
   WritingFlow,
 } from "@wordpress/block-editor"
@@ -43,8 +48,12 @@ import { addFilter, removeFilter } from "@wordpress/hooks"
 // @ts-ignore: no types
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
+import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
+import SelectField from "../../shared-module/components/InputFields/SelectField"
+import { primaryFont } from "../../shared-module/styles"
 import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
 import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
@@ -68,11 +77,14 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   mediaUpload,
   inspectorButtons,
 }: GutenbergEditorProps) => {
+  const { t } = useTranslation()
   const [editorSettings, setEditorSettings] = useState<
     Partial<
       EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
     >
   >({})
+
+  const sideBarStartingYCoordinate = useSidebarStartingYCoodrinate()
 
   useEffect(() => {
     setEditorSettings((prev) => ({ ...prev, mediaUpload }))
@@ -84,6 +96,18 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   const handleInput = (newContent: BlockInstance[]): void => {
     onContentChange(newContent)
   }
+
+  const [sidebarView, setSidebarView] = useState<"block-props" | "block-list" | "block-menu">(
+    // eslint-disable-next-line i18next/no-literal-string
+    "block-props",
+  )
+
+  // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
+  // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
+
+  // Ensure that type core/image has some attributes set to a value, so that the CMS/image block doesn't crash when uploading image.
+  // eslint-disable-next-line i18next/no-literal-string
+  addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
 
   useEffect(() => {
     // Register all core blocks
@@ -158,6 +182,7 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
     <div
       className={css`
         padding-top: 1rem;
+        --start-sidebar-top-px: ${sideBarStartingYCoordinate}px;
       `}
     >
       <ShortcutProvider>
@@ -181,16 +206,80 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
                     display: flex;
                     flex-grow: 1;
                     overflow-y: auto;
-                    .block-editor-block-inspector {
-                      width: 100%;
-                    }
+                    overflow-x: hidden;
                   `}
                 >
-                  <BlockInspector />
+                  {sidebarView === "block-props" && (
+                    <div
+                      className={css`
+                        width: 100%;
+                        .block-editor-block-inspector {
+                          width: 100%;
+                        }
+                      `}
+                    >
+                      <BlockInspector />
+                    </div>
+                  )}
+                  {sidebarView === "block-list" && (
+                    <div
+                      className={css`
+                        height: fit-content;
+                        width: 100%;
+                      `}
+                    >
+                      <ListView
+                        showNestedBlocks
+                        showBlockMovers
+                        __experimentalFeatures
+                        __experimentalPersistentListViewFeatures
+                        __experimentalHideContainerBlockActions
+                      />
+                    </div>
+                  )}
+                  {sidebarView === "block-menu" && (
+                    <div
+                      className={css`
+                        .block-editor-inserter__main-area {
+                          overflow-x: hidden;
+                        }
+                        .components-search-control {
+                          font-family: ${primaryFont} !important;
+                        }
+                      `}
+                    >
+                      <BlockLibrary />
+                    </div>
+                  )}
+                </div>
+                <div
+                  className={css`
+                    margin: 1rem;
+                  `}
+                >
+                  <SelectField
+                    id={"select-sidebar-view"}
+                    value={sidebarView}
+                    label={t("editor-select-sidebar-view")}
+                    options={[
+                      // eslint-disable-next-line i18next/no-literal-string
+                      { value: "block-props", label: t("block-props") },
+                      // eslint-disable-next-line i18next/no-literal-string
+                      { value: "block-list", label: t("block-list") },
+                      // eslint-disable-next-line i18next/no-literal-string
+                      { value: "block-menu", label: t("block-menu") },
+                    ]}
+                    onBlur={() => {
+                      // noop
+                    }}
+                    onChange={(val) => setSidebarView(val)}
+                  />
                 </div>
                 {inspectorButtons && (
                   <div
                     className={css`
+                      margin: 1rem;
+                      margin-top: 0;
                       padding: 1rem;
                       background: #f5f6f7;
                     `}

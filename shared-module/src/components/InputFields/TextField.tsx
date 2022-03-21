@@ -3,6 +3,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { UseFormRegisterReturn } from "react-hook-form"
 
+import { baseTheme } from "../../styles"
 import { primaryFont } from "../../styles/typography"
 
 interface TextFieldExtraProps {
@@ -28,8 +29,10 @@ const DEFAULTCOLOR = "#dedede"
 
 interface InputExtraProps {
   error?: string
+  disabled?: boolean
 }
 
+// eslint-disable-next-line i18next/no-literal-string
 const Input = styled.input<InputExtraProps>`
   background: #fcfcfc;
   border-width: 1.6px;
@@ -43,18 +46,12 @@ const Input = styled.input<InputExtraProps>`
   width: 100%;
   display: block;
 
+  ${({ disabled }) => disabled && `cursor: not-allowed;`}
+
   &:focus,
   &:active {
     border-color: #55b3f5;
   }
-`
-const label = css`
-  color: #333;
-  font-family: ${primaryFont};
-  font-weight: 500;
-  font-size: 14px;
-  display: inline-block;
-  margin-bottom: 2px;
 `
 
 const error = css`
@@ -66,21 +63,40 @@ const error = css`
 
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextFieldExtraProps
 
-const TextField = ({ onChange, className, register, ...rest }: TextFieldExtraProps) => {
+const TextField = ({ onChange, className, register, disabled, ...rest }: TextFieldExtraProps) => {
   return (
     <div
       className={cx(
         css`
           margin-bottom: 1rem;
+          ${disabled &&
+          `cursor: not-allowed;
+            filter: opacity(0.5);`}
         `,
         className,
       )}
     >
       <label>
-        <span className={cx(label)}>{rest.label}</span>
+        <span
+          className={css`
+            color: #333;
+            font-family: ${primaryFont};
+            font-weight: 500;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 2px;
+            ${disabled && `color: ${baseTheme.colors.grey[400]};`}
+            ${disabled && `cursor: not-allowed;`}
+          `}
+        >
+          {rest.label}
+        </span>
         <Input
           id={rest.id}
-          aria-describedby={`${rest.label}_error`}
+          disabled={disabled}
+          // eslint-disable-next-line i18next/no-literal-string
+          aria-errormessage={`${rest.label}_error`}
+          aria-invalid={rest.error !== undefined}
           onChange={({ target: { value } }) => onChange && onChange(value)}
           defaultValue={rest.defaultValue}
           {...rest}
@@ -88,11 +104,19 @@ const TextField = ({ onChange, className, register, ...rest }: TextFieldExtraPro
           {...register}
         />
       </label>
-      {rest.error && (
-        <span className={cx(error)} id={`${rest.label}_error`} role="alert">
-          {rest.error}
-        </span>
-      )}
+      <span
+        className={
+          rest.error
+            ? cx(error)
+            : css`
+                visibility: hidden;
+              `
+        }
+        id={`${rest.label}_error`}
+        role="alert"
+      >
+        {rest.error}
+      </span>
     </div>
   )
 }

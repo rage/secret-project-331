@@ -2,7 +2,8 @@ use headless_lms_utils::ApplicationConfiguration;
 
 use crate::prelude::*;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct User {
     pub id: Uuid,
     pub first_name: Option<String>,

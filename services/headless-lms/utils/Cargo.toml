@@ -51,7 +51,7 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "3d0fd4f71fd1698e4236
   "serde-compat",
   "serde-json-impl",
   "uuid-impl",
-] }
+], optional = true }
 # An implementation of regular expressions for Rust.
 regex = "1.5.5"
 # Single assignment cells and lazy values.
@@ -69,3 +69,6 @@ indexmap = "1.6.2"
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "1.1.0"
+
+[features]
+ts_rs = ["ts-rs"]

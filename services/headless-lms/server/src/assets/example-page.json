@@ -839,6 +839,28 @@
     "innerBlocks": []
   },
   {
+    "name": "core/quote",
+    "isValid": true,
+    "clientId": "0d009bd7-6666-4516-8093-4a0bc46adafa",
+    "attributes": {
+      "align": "left",
+      "value": "<p>TLorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus </p>",
+      "citation": "Somebody somewhere"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "c0c3bc7a-c3f2-46ae-aaff-e54a2b169857",
+    "name": "core/quote",
+    "isValid": true,
+    "attributes": {
+      "value": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus </p>",
+      "citation": "Somebody from somewhere",
+      "align": "right"
+    },
+    "innerBlocks": []
+  },
+  {
     "clientId": "44b434c7-be41-4eb4-850f-cd8922246062",
     "isValid": true,
     "name": "core/table",

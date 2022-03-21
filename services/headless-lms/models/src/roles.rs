@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
     Reviewer,
@@ -45,7 +46,8 @@ impl Role {
     }
 }
 
-#[derive(Debug, Clone, Copy, Deserialize, TS)]
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "tag", content = "id")]
 pub enum RoleDomain {
     Global,
@@ -55,7 +57,8 @@ pub enum RoleDomain {
     Exam(Uuid),
 }
 
-#[derive(Debug, Serialize, TS)]
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct RoleUser {
     id: Uuid,
     first_name: Option<String>,

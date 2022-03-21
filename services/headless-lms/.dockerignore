@@ -9,3 +9,4 @@ dbdoc
 shared-module
 Dockerfile
 *.dockerfile
+server/generated-docs

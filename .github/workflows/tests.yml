@@ -1,4 +1,4 @@
-name: Rust
+name: Tests
 
 on:
   push:
@@ -13,7 +13,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  headless_lms:
     runs-on: ubuntu-latest
     container: eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest
 
@@ -54,3 +54,29 @@ jobs:
         env:
           DATABASE_URL: postgres://postgres:postgres@postgres/headless_lms_test
           DATABASE_URL_TEST: postgres://postgres:postgres@postgres/headless_lms_integration
+
+  cms:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: npm ci for the root of the repo
+        run: npm ci
+      - name: npm ci
+        run: npm ci
+        working-directory: ./services/cms
+      - name: Run tests
+        run: npm run test
+        working-directory: ./services/cms
+
+  shared-module:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: npm ci for the root of the repo
+        run: npm ci
+      - name: npm ci
+        run: npm ci
+        working-directory: ./shared-module
+      - name: Run tests
+        run: npm run test
+        working-directory: ./shared-module

@@ -2,7 +2,8 @@ use models::proposed_page_edits::{self, EditProposalInfo, PageProposal, Proposal
 
 use crate::controllers::prelude::*;
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct GetEditProposalsQuery {
     pending: bool,
     #[serde(flatten)]

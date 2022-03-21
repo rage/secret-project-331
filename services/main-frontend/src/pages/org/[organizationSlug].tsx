@@ -67,7 +67,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             <CourseList
               organizationId={getOrganizationBySlug.data.id}
               organizationSlug={query.organizationSlug}
-              perPage={15}
+              perPage={100}
             />
             <h2>{t("exam-list")}</h2>
             <ExamList

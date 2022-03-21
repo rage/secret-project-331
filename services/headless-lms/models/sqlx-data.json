@@ -84,6 +84,16 @@
           "ordinal": 12,
           "name": "exam_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 13,
+          "name": "max_tries_per_slide",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 14,
+          "name": "limit_number_of_tries",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -102,7 +112,9 @@
         false,
         true,
         true,
-        true
+        true,
+        true,
+        false
       ]
     }
   },
@@ -335,32 +347,6 @@
         "Left": ["Varchar", "Text", "Uuid"]
       },
       "nullable": []
-    }
-  },
-  "0abf4ceadb65c21805f0bdb6bed8b664a5442776880ab24eed295d6d88797ec0": {
-    "query": "\nINSERT INTO exercises(\n    id,\n    course_id,\n    name,\n    order_number,\n    page_id,\n    chapter_id,\n    exam_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO\nUPDATE\nSET course_id = $2,\n  name = $3,\n  order_number = $4,\n  page_id = $5,\n  chapter_id = $6,\n  exam_id = $7,\n  deleted_at = NULL\nRETURNING id,\n  name,\n  order_number;\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "order_number",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Int4", "Uuid", "Uuid", "Uuid"]
-      },
-      "nullable": [false, false, false]
     }
   },
   "0b8c4705a77d9ac8cca192ce62f98cddf054bcb9b067715f25ded813bddaf3c9": {
@@ -1134,57 +1120,6 @@
       "nullable": [false, false, false, false, false, false, true, true, true, true, true, true]
     }
   },
-  "17ac831ff424d02bd7609c76c190768ef00265bf144ab61459e11f1b7179b660": {
-    "query": "SELECT * FROM organizations WHERE deleted_at IS NULL;",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "slug",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "organization_image_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "description",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": []
-      },
-      "nullable": [false, false, false, false, true, false, true, true]
-    }
-  },
   "17bc8217e956a003b026fa4c2a13670229d5426c0d89bb9338dcecb5068621cc": {
     "query": "\nSELECT proposed_page_edits.id AS \"page_proposal_id!\",\n  proposed_block_edits.id AS \"block_proposal_id!\",\n  page_id as \"page_id!\",\n  user_id,\n  block_id,\n  original_text,\n  changed_text,\n  proposed_page_edits.pending as \"pending!\",\n  block_attribute,\n  proposed_block_edits.status as \"block_proposal_status: ProposalStatus\",\n  proposed_page_edits.created_at as \"created_at!\",\n  pages.title as \"page_title!\",\n  pages.url_path as \"page_url_path!\"\nFROM (\n    SELECT id,\n      page_id,\n      user_id,\n      pending,\n      created_at\n    FROM proposed_page_edits\n    WHERE course_id = $1\n      AND pending = $2\n      AND deleted_at IS NULL\n    ORDER BY created_at DESC,\n      id\n    LIMIT $3 OFFSET $4\n  ) proposed_page_edits\n  LEFT JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id\n  LEFT JOIN pages ON proposed_page_edits.page_id = pages.id\nWHERE proposed_block_edits.deleted_at IS NULL\n",
     "describe": {
@@ -1350,6 +1285,16 @@
           "ordinal": 12,
           "name": "exam_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 13,
+          "name": "max_tries_per_slide",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 14,
+          "name": "limit_number_of_tries",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -1368,7 +1313,9 @@
         false,
         true,
         true,
-        true
+        true,
+        true,
+        false
       ]
     }
   },
@@ -2507,6 +2454,16 @@
           "ordinal": 12,
           "name": "exam_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 13,
+          "name": "max_tries_per_slide",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 14,
+          "name": "limit_number_of_tries",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -2525,7 +2482,9 @@
         false,
         true,
         true,
-        true
+        true,
+        true,
+        false
       ]
     }
   },
@@ -3528,6 +3487,57 @@
       "nullable": []
     }
   },
+  "4dd782cd803242c13bb09a513ce1b947433a940989d46a40391a4564e305dfa8": {
+    "query": "SELECT * FROM organizations WHERE deleted_at IS NULL ORDER BY name;",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "organization_image_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "description",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [false, false, false, false, true, false, true, true]
+    }
+  },
   "4e0c321cdf774495ae5abb90d777362066957858b50f1da00e85dcb062f573e8": {
     "query": "\nSELECT pages.id,\n  pages.created_at,\n  pages.updated_at,\n  pages.course_id,\n  pages.exam_id,\n  pages.chapter_id,\n  pages.url_path,\n  pages.title,\n  pages.deleted_at,\n  pages.content,\n  pages.order_number,\n  pages.copied_from\nFROM url_redirections\n  JOIN pages on pages.id = url_redirections.destination_page_id\nWHERE url_redirections.course_id = $1\n  AND old_url_path = $2\n  AND url_redirections.deleted_at IS NULL\n  AND pages.deleted_at IS NULL;\n    ",
     "describe": {
@@ -4173,6 +4183,16 @@
           "ordinal": 12,
           "name": "exam_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 13,
+          "name": "max_tries_per_slide",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 14,
+          "name": "limit_number_of_tries",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -4191,7 +4211,9 @@
         false,
         true,
         true,
-        true
+        true,
+        true,
+        false
       ]
     }
   },
@@ -4657,6 +4679,96 @@
       "nullable": [false, false, false, true]
     }
   },
+  "627802a035d9da85e7c5d43394d26cd93ea94d065ab200c6f81278df3ec4a151": {
+    "query": "\nSELECT courses.id,\n  courses.name,\n  courses.created_at,\n  courses.updated_at,\n  courses.organization_id,\n  courses.deleted_at,\n  courses.slug,\n  courses.content_search_language::text,\n  courses.language_code,\n  courses.copied_from,\n  courses.course_language_group_id,\n  courses.description,\n  courses.is_draft\nFROM courses\nWHERE courses.organization_id = $1\n  AND (\n    courses.is_draft IS FALSE\n    OR EXISTS (\n      SELECT id\n      FROM roles\n      WHERE user_id = $2\n        AND (\n          course_id = courses.id\n          OR roles.organization_id = courses.organization_id\n          OR roles.is_global IS TRUE\n        )\n    )\n  )\n  AND courses.deleted_at IS NULL\nORDER BY courses.name\nLIMIT $3 OFFSET $4;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "content_search_language",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 8,
+          "name": "language_code",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 9,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 10,
+          "name": "course_language_group_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 11,
+          "name": "description",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 12,
+          "name": "is_draft",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Int8", "Int8"]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null,
+        false,
+        true,
+        false,
+        true,
+        false
+      ]
+    }
+  },
   "65cc3c8d7fd2610ad86c2aec0773281029298a5165fcb245bdb10c1dfc9e73c6": {
     "query": "SELECT cfgname::text FROM pg_ts_config WHERE cfgname = $1",
     "describe": {
@@ -4741,6 +4853,16 @@
           "ordinal": 12,
           "name": "exam_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 13,
+          "name": "max_tries_per_slide",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 14,
+          "name": "limit_number_of_tries",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -4759,7 +4881,9 @@
         false,
         true,
         true,
-        true
+        true,
+        true,
+        false
       ]
     }
   },
@@ -4997,6 +5121,27 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false]
+    }
+  },
+  "70153b30b4c994da2fcc85853bc4a56e406477b77390a85d8d2c4436a038e67a": {
+    "query": "\nSELECT exercise_slide_id,\n  COUNT(*) as count\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND (course_instance_id = $2 OR exam_id = $2)\n  AND user_id = $3\n  AND deleted_at IS NULL\nGROUP BY exercise_slide_id;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "exercise_slide_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "count",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [false, null]
     }
   },
   "7074164915eca8a60f6f1d36ba2dfaf2df3b8b430c01f15a37b4a8ec4fd62470": {
@@ -5898,6 +6043,47 @@
       "nullable": [null]
     }
   },
+  "8c85f79ed0d5dcf05591666096432579f411e381a0a70cfb900c9d00ce295043": {
+    "query": "\nINSERT INTO exercises(\n    id,\n    course_id,\n    name,\n    order_number,\n    page_id,\n    chapter_id,\n    exam_id,\n    score_maximum,\n    max_tries_per_slide,\n    limit_number_of_tries\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO\nUPDATE\nSET course_id = $2,\n  name = $3,\n  order_number = $4,\n  page_id = $5,\n  chapter_id = $6,\n  exam_id = $7,\n  score_maximum = $8,\n  max_tries_per_slide = $9,\n  limit_number_of_tries = $10,\n  deleted_at = NULL\nRETURNING id,\n  name,\n  order_number,\n  score_maximum,\n  max_tries_per_slide,\n  limit_number_of_tries;\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "score_maximum",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 4,
+          "name": "max_tries_per_slide",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 5,
+          "name": "limit_number_of_tries",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Varchar", "Int4", "Uuid", "Uuid", "Uuid", "Int4", "Int4", "Bool"]
+      },
+      "nullable": [false, false, false, false, true, false]
+    }
+  },
   "8cc039e70b30221cc7c05ccac3d0db3c4b304ba90d3eea8be6c94666e9bd383b": {
     "query": "\nINSERT INTO user_course_settings (\n    user_id,\n    course_language_group_id,\n    current_course_id,\n    current_course_instance_id\n  )\nSELECT $1,\n  course_language_group_id,\n  $2,\n  $3\nFROM courses\nWHERE id = $2\n  AND deleted_at IS NULL ON CONFLICT (user_id, course_language_group_id) DO\nUPDATE\nSET current_course_id = $2,\n  current_course_instance_id = $3\nRETURNING *;\n        ",
     "describe": {
@@ -6486,6 +6672,16 @@
           "ordinal": 12,
           "name": "exam_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 13,
+          "name": "max_tries_per_slide",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 14,
+          "name": "limit_number_of_tries",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -6504,7 +6700,9 @@
         false,
         true,
         true,
-        true
+        true,
+        true,
+        false
       ]
     }
   },
@@ -7717,6 +7915,16 @@
           "ordinal": 12,
           "name": "exam_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 13,
+          "name": "max_tries_per_slide",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 14,
+          "name": "limit_number_of_tries",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -7735,7 +7943,9 @@
         false,
         true,
         true,
-        true
+        true,
+        true,
+        false
       ]
     }
   },
@@ -8106,6 +8316,16 @@
           "ordinal": 12,
           "name": "exam_id",
           "type_info": "Uuid"
+        },
+        {
+          "ordinal": 13,
+          "name": "max_tries_per_slide",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 14,
+          "name": "limit_number_of_tries",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -8124,7 +8344,9 @@
         false,
         true,
         true,
-        true
+        true,
+        true,
+        false
       ]
     }
   },
@@ -10145,96 +10367,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, true, true, false, false]
-    }
-  },
-  "f00a84a1428c15f025e04c7e850e4a4e903ecd90986dd6fb61cb474733c2a637": {
-    "query": "\nSELECT courses.id,\n  courses.name,\n  courses.created_at,\n  courses.updated_at,\n  courses.organization_id,\n  courses.deleted_at,\n  courses.slug,\n  courses.content_search_language::text,\n  courses.language_code,\n  courses.copied_from,\n  courses.course_language_group_id,\n  courses.description,\n  courses.is_draft\nFROM courses\nWHERE courses.organization_id = $1\n  AND (\n    courses.is_draft IS FALSE\n    OR EXISTS (\n      SELECT id\n      FROM roles\n      WHERE user_id = $2\n        AND (\n          course_id = courses.id\n          OR roles.organization_id = courses.organization_id\n          OR roles.is_global IS TRUE\n        )\n    )\n  )\n  AND courses.deleted_at IS NULL\nLIMIT $3 OFFSET $4;\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "organization_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "slug",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "content_search_language",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 8,
-          "name": "language_code",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 9,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 10,
-          "name": "course_language_group_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 11,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 12,
-          "name": "is_draft",
-          "type_info": "Bool"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Int8", "Int8"]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        null,
-        false,
-        true,
-        false,
-        true,
-        false
-      ]
     }
   },
   "f0f97d1ed0cb831152deb37dc09cd70dba84aae7b211e181d1225e14a01047d5": {

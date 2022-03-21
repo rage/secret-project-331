@@ -609,7 +609,8 @@ export function isCourseMaterialExercise(
     (isExercise(obj.exercise) as boolean) &&
     typeof obj.can_post_submission === "boolean" &&
     (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
-    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean))
+    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
+    (isPointMap(obj.exercise_slide_submission_counts) as boolean)
   )
 }
 
@@ -628,7 +629,9 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.score_maximum === "number" &&
     typeof obj.order_number === "number" &&
-    (obj.copied_from === null || typeof obj.copied_from === "string")
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
+    typeof obj.limit_number_of_tries === "boolean"
   )
 }
 
@@ -735,7 +738,10 @@ export function isCmsPageExercise(obj: any, _argumentName?: string): obj is CmsP
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.name === "string" &&
-    typeof obj.order_number === "number"
+    typeof obj.order_number === "number" &&
+    typeof obj.score_maximum === "number" &&
+    (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
+    typeof obj.limit_number_of_tries === "boolean"
   )
 }
 

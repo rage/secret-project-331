@@ -341,6 +341,7 @@ export interface CourseMaterialExercise {
   can_post_submission: boolean
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
+  exercise_slide_submission_counts: Record<string, number>
 }
 
 export interface Exercise {
@@ -357,6 +358,8 @@ export interface Exercise {
   score_maximum: number
   order_number: number
   copied_from: string | null
+  max_tries_per_slide: number | null
+  limit_number_of_tries: boolean
 }
 
 export interface ExerciseStatus {
@@ -426,6 +429,9 @@ export interface CmsPageExercise {
   id: string
   name: string
   order_number: number
+  score_maximum: number
+  max_tries_per_slide: number | null
+  limit_number_of_tries: boolean
 }
 
 export interface CmsPageExerciseSlide {

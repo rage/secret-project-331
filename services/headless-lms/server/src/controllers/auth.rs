@@ -16,7 +16,11 @@ use oauth2::{
 use reqwest::Client;
 use url::form_urlencoded::Target;
 
-use crate::{controllers::prelude::*, domain::authorization, OAuthClient};
+use crate::{
+    controllers::prelude::*,
+    domain::authorization::{self, ActionOnResource},
+    OAuthClient,
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -48,6 +52,22 @@ pub struct MoocfiCurrentUser {
     pub last_name: Option<String>,
     pub email: String,
     pub upstream_id: i32,
+}
+
+/**
+POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
+**/
+#[generated_doc]
+#[instrument(skip(pool, payload,))]
+pub async fn authorize_action_on_resource(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    payload: web::Json<ActionOnResource>,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    let data = payload.0;
+    authorize(&mut conn, data.action, Some(user.id), data.resource).await?;
+    Ok(HttpResponse::Ok().finish())
 }
 
 /**
@@ -258,5 +278,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             .to(login),
     )
     .route("/logout", web::post().to(logout))
-    .route("/logged-in", web::get().to(logged_in));
+    .route("/logged-in", web::get().to(logged_in))
+    .route("/authorize", web::post().to(authorize_action_on_resource));
 }

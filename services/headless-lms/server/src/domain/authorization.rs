@@ -26,6 +26,13 @@ pub struct AuthUser {
     upstream_id: Option<i32>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ActionOnResource {
+    pub action: Action,
+    pub resource: Resource,
+}
+
 impl AuthUser {
     /// The user's ID in TMC.
     pub fn upstream_id(&self) -> Option<i32> {

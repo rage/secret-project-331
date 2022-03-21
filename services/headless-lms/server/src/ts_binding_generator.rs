@@ -44,6 +44,8 @@ fn ts_binding_generator() {
     let res = export! {
         &mut target,
 
+        authorization::ActionOnResource,
+
         glossary::Term,
         glossary::TermUpdate,
 

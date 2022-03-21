@@ -1,6 +1,7 @@
 use crate::{course_instance_enrollments::CourseInstanceEnrollment, prelude::*};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseSettings {
     pub user_id: Uuid,
     pub course_language_group_id: Uuid,

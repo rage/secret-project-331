@@ -12,6 +12,7 @@ interface QuizzesGradingRequest {
 interface OptionAnswerFeedback {
   option_id: string | null
   option_feedback: string | null
+  this_option_was_correct: boolean | null
 }
 
 export interface ItemAnswerFeedback {
@@ -206,14 +207,16 @@ function submissionFeedback(
         quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
         quiz_item_correct: itemGrading.correct,
         quiz_item_option_feedbacks: ia.optionAnswers
-          ? ia.optionAnswers.map((oa) => {
+          ? ia.optionAnswers.map((oa): OptionAnswerFeedback => {
               const option = item.options.find((o) => o.id === oa) || null
               if (!option) {
-                return { option_id: null, option_feedback: null }
+                return { option_id: null, option_feedback: null, this_option_was_correct: null }
               }
               return {
                 option_id: option.id,
                 option_feedback: option.correct ? option.successMessage : option.failureMessage,
+                // We'll reveal whether what the student chose was correct or not. If this is not desirable in the future, we can add a configurable policy for this.
+                this_option_was_correct: option.correct,
               }
             })
           : null,

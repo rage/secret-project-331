@@ -14,7 +14,8 @@ use models::organizations::DatabaseOrganization;
 
 use crate::controllers::prelude::*;
 
-#[derive(Debug, Clone, Copy, Deserialize, TS)]
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum StoreKind {
     Organization(Uuid),
     Course(Uuid),

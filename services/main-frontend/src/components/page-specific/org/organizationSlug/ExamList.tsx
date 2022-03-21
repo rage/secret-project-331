@@ -22,7 +22,7 @@ interface Props {
   organizationSlug: string
 }
 
-const ExamList: React.FC<Props> = ({ organizationId }) => {
+const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
   const { t } = useTranslation()
 
   const getOrgExams = useQuery(
@@ -75,7 +75,9 @@ const ExamList: React.FC<Props> = ({ organizationId }) => {
         {getOrgExams.data.map((exam) => {
           return (
             <li key={exam.id}>
-              <a href={`/manage/exams/${exam.id}`}>{exam.name}</a>
+              <a href={`/org/${organizationSlug}/exams/${exam.id}`}>{exam.name}</a>
+              <br />
+              <a href={`/manage/exams/${exam.id}`}>{t("manage")}</a>
             </li>
           )
         })}

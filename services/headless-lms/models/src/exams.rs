@@ -1,6 +1,6 @@
 use chrono::Duration;
 
-use crate::{courses::Course, pages, prelude::*};
+use crate::{courses::Course, prelude::*};
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 #[derive(Debug, Serialize, TS)]

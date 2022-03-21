@@ -17,7 +17,7 @@ test("test", async ({ page, headless }) => {
   // Click [aria-label="Manage\ Ongoing\ short\ timer"]
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/exams/6959e7af-6b78-4d37-b381-eef5b7aaad6c' }*/),
-    page.click('[aria-label="Manage\\ Ongoing\\ short\\ timer"]'),
+    page.click("text=manage Ongoing short timer"),
   ])
   // Click text=Edit exam instructions
   await Promise.all([

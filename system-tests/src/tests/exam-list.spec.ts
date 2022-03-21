@@ -18,13 +18,13 @@ test("exam list renders", async ({ headless, page }) => {
     ),
   ])
 
-  page.click("text=Exams")
+  await page.click("text=Exams")
 
   expectPath(page, "/org/uh-cs")
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
-    snapshotName: "course-listing",
-    waitForThisToBeVisibleAndStable: ["text=Courses:"],
+    snapshotName: "exam-listing",
+    waitForThisToBeVisibleAndStable: ["text=Exams"],
   })
 })

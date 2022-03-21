@@ -16,7 +16,8 @@ pub struct DatabaseOrganization {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Organization {
     pub id: Uuid,
     pub slug: String,
@@ -77,7 +78,7 @@ RETURNING id
 pub async fn all_organizations(conn: &mut PgConnection) -> ModelResult<Vec<DatabaseOrganization>> {
     let organizations = sqlx::query_as!(
         DatabaseOrganization,
-        "SELECT * FROM organizations WHERE deleted_at IS NULL;"
+        "SELECT * FROM organizations WHERE deleted_at IS NULL ORDER BY name;"
     )
     .fetch_all(conn)
     .await?;

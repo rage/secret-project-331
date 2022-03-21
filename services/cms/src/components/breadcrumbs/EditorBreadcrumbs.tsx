@@ -47,6 +47,7 @@ const EditorBreadcrumbs: React.FC = () => {
     {
       text: courseName,
       url: `/manage/courses/${courseId}/pages`,
+      externalLink: true,
     },
     {
       text: pageTitle,

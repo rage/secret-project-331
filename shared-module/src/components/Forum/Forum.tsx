@@ -1,7 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
-import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useCallback, useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 
 import RadioButton from "../InputFields/RadioButton"
 import TextAreaField from "../InputFields/TextAreaField"
@@ -55,7 +54,8 @@ const StyledButton = styled.input`
   color: #313947;
   margin-top: 1.5rem;
 `
-const leadingRadio = css`
+
+const StRadio = styled(RadioButton)`
   border-left: 1px solid rgba(205, 205, 205, 0.8);
   margin-right: 2rem !important;
 `
@@ -63,6 +63,7 @@ interface Item {
   id: string
   text: string
   time: string
+  author: string
 }
 
 interface Thread {
@@ -80,36 +81,47 @@ const Forum = () => {
 
   const current = new Date()
 
-  const handleChange = (value, name) => {
+  const handleChange = (props: any) => {
+    const { value } = props
     setVisibility(value)
   }
 
-  const handleClick = (event) => {
+  const handleClick = (event: React.ChangeEvent<HTMLDivElement>) => {
     setClicked(!clicked)
     selectedId.current = event.target.id
   }
 
-  const onKeyPress = (e) => {
-    if (e.key === "Enter" && e.shiftKey == false) {
-      const data = e.target.value
-      setState((prevState) => {
-        return prevState.map((item) => {
-          return item.id === selectedId.current
-            ? {
-                ...item,
-                items: [
-                  { id: current.toLocaleString(), text: data, time: current.toLocaleString() },
-                ],
-              }
-            : item
-        })
-      })
-
-      setClicked(false)
+  const handleReply = (e: React.SyntheticEvent) => {
+    e.preventDefault()
+    const target = e.target as typeof e.target & {
+      reply: { value: string }
     }
+
+    const reply = target.reply.value
+
+    setState((prevState) => {
+      return prevState.map((item) => {
+        const { items } = item
+        return item.id === selectedId.current
+          ? {
+              ...item,
+              items: [
+                {
+                  id: current.toLocaleString(),
+                  text: reply,
+                  time: current.toLocaleString(),
+                  author: "Anonymous",
+                },
+                ...(items ? items : []),
+              ],
+            }
+          : item
+      })
+    })
+    setClicked(false)
+    target.reply.value = ""
   }
 
-  console.log("state", state)
   return (
     <Wrapper>
       <Head>
@@ -120,7 +132,7 @@ const Forum = () => {
           key={obj.id}
           state={obj}
           author={visibility === "hide" ? "Anonymous" : "Sebastien"}
-          onKeyPress={onKeyPress}
+          handleReply={handleReply}
           handleClick={handleClick}
           selectedId={selectedId.current}
           clicked={clicked}
@@ -136,7 +148,6 @@ const Forum = () => {
 
           const comment = target.comment.value
           const visible = target.visibility.value
-          console.log("****comment", comment)
 
           setState((state) => [
             ...state,
@@ -153,8 +164,7 @@ const Forum = () => {
       >
         <Label>Select name visibility: </Label>
         <RadioSection>
-          <RadioButton
-            className={cx(leadingRadio)}
+          <StRadio
             name="visibility"
             label="show name"
             value="show"
@@ -169,13 +179,7 @@ const Forum = () => {
             checked={visibility === "hide"}
           />
         </RadioSection>
-        <TextAreaField
-          name="comment"
-          placeholder="leave a comment"
-          /* value={state.comment} */
-          onChange={() => null}
-          onKeyPress={() => null}
-        />
+        <TextAreaField name="comment" placeholder="leave a comment" onChange={() => null} />
         <StyledButton type="submit" name="submit" value="Submit" />
       </CommentSection>
     </Wrapper>

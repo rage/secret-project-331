@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { Fragment, useState } from "react"
+import { Fragment } from "react"
 
 import TextAreaField from "../InputFields/TextAreaField"
 
@@ -17,12 +17,6 @@ const Header = styled.div`
   h2 {
     align-self: end;
   }
-`
-const Tag = styled.div`
-  background: #ececec;
-  width: auto;
-  padding: 1rem;
-  text-transform: uppercase;
 `
 const Content = styled.div`
   padding: 0 2rem;
@@ -84,10 +78,21 @@ const StyledReportIcon = styled.span`
 const TimeLabel = styled.span`
   color: #535a66;
 `
+const StyledButton = styled.input`
+  display: flex;
+  border: none;
+  align-self: end;
+  padding: 0.5rem 2rem;
+  font-size: 18px;
+  color: #313947;
+  margin: 1rem 0;
+`
+
 interface Item {
   id: string
   text: string
   time: string
+  author: string
 }
 
 interface StateProps {
@@ -99,57 +104,33 @@ interface StateProps {
 interface ThreadProps {
   state: StateProps
   author: string
-  onKeyPress?: any
+  handleReply?: (e: React.SyntheticEvent) => void
   clicked?: boolean
   selectedId?: string
   handleClick?: any
 }
-interface Threads extends ThreadProps {
-  nested: boolean
-}
 
 const Thread = (props: ThreadProps) => {
   const {
-    state,
     state: { items },
-    author,
-    onKeyPress,
-    handleClick,
-    clicked,
-    selectedId,
   } = props
-  /*  const [clicked, setClicked] = useState(false) */
+
   return (
     <Fragment>
-      {getThread(state, author, handleClick, onKeyPress, clicked, selectedId)}
-      {items?.map((item) => getThread(item, author, null, null, null, null, true))}
+      {getThread(props)}
+      {items?.map((item) => getNestedThread(item))}
     </Fragment>
   )
 }
 
-const getThread = (
-  state,
-  author,
-  handleClick,
-  onKeyPress,
-  clicked,
-  selectedId,
-  nested = false,
-): Threads => {
+const getThread = (props: ThreadProps) => {
+  const { state, author, handleReply, handleClick, clicked, selectedId } = props
+
   const { id, text, time } = state
   return (
     text && (
-      <Wrapper
-        className={css`
-          ${nested && "padding-left: 40px;"}
-        `}
-        key={text}
-      >
-        <Header
-          className={css`
-            ${nested && "padding-top: 0 !important;"}
-          `}
-        >
+      <Wrapper key={text}>
+        <Header>
           <Author>
             <PlaceholderAvatar></PlaceholderAvatar>
             <span>{author}</span>
@@ -174,13 +155,51 @@ const getThread = (
             </ChatIcon>
           </Footer>
           {clicked && selectedId === id && (
-            <TextAreaField
-              name="comment"
-              placeholder="leave a comment"
-              onChange={() => null}
-              onKeyPress={onKeyPress}
-            />
+            <form onSubmit={handleReply}>
+              <TextAreaField name="reply" placeholder="leave a comment" onChange={() => null} />
+              <StyledButton type="submit" name="submit" value="Reply" />
+            </form>
           )}
+        </Content>
+      </Wrapper>
+    )
+  )
+}
+
+const getNestedThread = (item: Item) => {
+  const { text, time, author } = item
+  return (
+    text && (
+      <Wrapper
+        className={css`
+          padding-left: 40px;
+        `}
+        key={text}
+      >
+        <Header
+          className={css`
+            padding-top: 0 !important;
+          `}
+        >
+          <Author>
+            <PlaceholderAvatar></PlaceholderAvatar>
+            <span>{author}</span>
+          </Author>
+          <TimeLabel>{time}</TimeLabel>
+        </Header>
+        <Content>
+          <Text>{text}</Text>
+          <Footer>
+            <ActionTab>
+              <PlaceholderIcon></PlaceholderIcon>
+              <PlaceholderIcon></PlaceholderIcon>
+              <PlaceholderIcon></PlaceholderIcon>
+              <StyledReportIcon>Report</StyledReportIcon>
+            </ActionTab>
+            <ChatIcon>
+              <PlaceholderIcon></PlaceholderIcon>
+            </ChatIcon>
+          </Footer>
         </Content>
       </Wrapper>
     )

@@ -130,7 +130,7 @@ async fn async_http_client_with_headers(
     let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
         .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
     request.headers.append(
-        "RATELIMIT_PROTECTION_SAFE_API_KEY",
+        "RATELIMIT-PROTECTION-SAFE-API-KEY",
         ratelimit_api_key.parse().map_err(|_err| {
             AsyncHttpClientError::Other("Invalid RATELIMIT API key.".to_string())
         })?,

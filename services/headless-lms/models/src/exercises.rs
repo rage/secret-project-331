@@ -38,7 +38,7 @@ pub struct CourseMaterialExercise {
     pub current_exercise_slide: CourseMaterialExerciseSlide,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
-    #[ts(type = "Record<string, number>")]
+    #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, number>"))]
     pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
 }
 

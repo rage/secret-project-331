@@ -1,7 +1,8 @@
-use std::time::Duration;
+use std::{collections::HashMap, time::Duration};
 
 use headless_lms_utils::url_to_oembed_endpoint::url_to_oembed_endpoint;
 use serde::{Deserialize, Serialize};
+use url::Url;
 
 use crate::controllers::prelude::*;
 
@@ -19,6 +20,23 @@ pub struct ThemeSupports {
 #[derive(Deserialize, Serialize)]
 pub struct ThemeResponse {
     pub theme_supports: ThemeSupports,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct OEmbedResponse {
+    pub author_name: String,
+    pub author_url: String,
+    // pub height: i32,
+    pub html: String,
+    pub provider_name: String,
+    pub provider_url: String,
+    // pub thumbnail_height: i32,
+    // pub thumbnail_url: String,
+    // pub thumbnail_width: i32,
+    pub title: String,
+    // pub "type": String,
+    pub version: String,
+    // pub width: i32,
 }
 
 // Needed for Spotify oembed, should be fetched from env?
@@ -60,10 +78,14 @@ async fn get_oembed_data_from_provider(
     query_params: web::Query<OEmbedRequest>,
     pool: web::Data<PgPool>,
     user: AuthUser,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<serde_json::Value>> {
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    let endpoint = url_to_oembed_endpoint(query_params.url.to_string())?;
+    let endpoint = url_to_oembed_endpoint(
+        query_params.url.to_string(),
+        Some(app_conf.base_url.to_string()),
+    )?;
     let client = reqwest::Client::builder()
         .user_agent(APP_USER_AGENT)
         .build()
@@ -133,6 +155,40 @@ async fn get_theme_settings(
     Ok(web::Json(response))
 }
 
+async fn get_mentimeter_oembed_data(
+    query_params: web::Query<OEmbedRequest>,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<OEmbedResponse>> {
+    // let mut conn = pool.acquire().await?;
+    // authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    let url = query_params.url.to_string();
+    let parsed_url = Url::parse(url.as_str()).unwrap();
+    let params: HashMap<_, _> = parsed_url.query_pairs().into_owned().collect();
+    let response = OEmbedResponse {
+        author_name: "Mooc.fi".to_string(),
+        author_url: app_conf.base_url.to_string(),
+        html: format!(
+            "<iframe src={} style='width: 99%' height={:?} title={:?}> </iframe>",
+            url,
+            params.get("height").unwrap_or(&"500".to_string()),
+            params
+                .get("title")
+                .unwrap_or(&"Mentimeter embed".to_string())
+        ),
+        provider_name: "mentimeter".to_string(),
+        provider_url: parsed_url
+            .host_str()
+            .unwrap_or(&"https://www.mentimeter.com")
+            .to_string(),
+        title: params
+            .get("title")
+            .unwrap_or(&"Mentimeter embed".to_string())
+            .to_string(),
+        version: "1.0".to_string(),
+    };
+    Ok(web::Json(response))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -145,5 +201,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/oembed/preview",
         web::get().to(get_oembed_data_from_provider),
     )
-    .route("/themes", web::get().to(get_theme_settings));
+    .route("/themes", web::get().to(get_theme_settings))
+    .route(
+        "/oembed/mentimeter",
+        web::get().to(get_mentimeter_oembed_data),
+    );
 }

@@ -11,19 +11,35 @@ Content-Type: application/json
   &quot;slug&quot;: &quot;johdatus-kaikkeen&quot;,
   &quot;organization_id&quot;: &quot;1b89e57e-8b57-42f2-9fed-c7a6736e3eec&quot;,
   &quot;language_code&quot;: &quot;fi-FI&quot;
-}</code></pre></div><h3 id="response-typescript-definition" class="section-header"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Course = { id: string, slug: string, created_at: Date, updated_at: Date, name: string, description: string | null, organization_id: string, deleted_at: Date | null, language_code: string, copied_from: string | null, content_search_language: string | null, course_language_group_id: string, is_draft: boolean, }</code></pre></div><h3 id="example-response" class="section-header"><a href="#example-response">Example response</a></h3><div class="example-wrap"><pre class="language-json"><code>{
-    &quot;id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
-    &quot;slug&quot;: &quot;introduction-to-cs&quot;,
-    &quot;created_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
-    &quot;updated_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
-    &quot;name&quot;: &quot;Introduction to Computer Science&quot;,
-    &quot;description&quot;: &quot;Example&quot;,
-    &quot;organization_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
-    &quot;deleted_at&quot;: null,
-    &quot;language_code&quot;: &quot;en-US&quot;,
-    &quot;copied_from&quot;: null,
-    &quot;content_search_language&quot;: &quot;simple&quot;,
-    &quot;course_language_group_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
-    &quot;is_draft&quot;: true
-}</code></pre></div></div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>
+}</code></pre></div><h3 id="response-typescript-definition" class="section-header"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type Course = {
+  id: string
+  slug: string
+  created_at: Date
+  updated_at: Date
+  name: string
+  description: string | null
+  organization_id: string
+  deleted_at: Date | null
+  language_code: string
+  copied_from: string | null
+  content_search_language: string | null
+  course_language_group_id: string
+  is_draft: boolean
+}
+</code></pre></div><h3 id="example-response" class="section-header"><a href="#example-response">Example response</a></h3><div class="example-wrap"><pre class="language-json"><code>{
+  &quot;id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+  &quot;slug&quot;: &quot;introduction-to-cs&quot;,
+  &quot;created_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
+  &quot;updated_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
+  &quot;name&quot;: &quot;Introduction to Computer Science&quot;,
+  &quot;description&quot;: &quot;Example&quot;,
+  &quot;organization_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+  &quot;deleted_at&quot;: null,
+  &quot;language_code&quot;: &quot;en-US&quot;,
+  &quot;copied_from&quot;: null,
+  &quot;content_search_language&quot;: &quot;simple&quot;,
+  &quot;course_language_group_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+  &quot;is_draft&quot;: true
+}
+</code></pre></div></div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>
 </body></html>

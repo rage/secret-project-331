@@ -4,63 +4,70 @@
 <p>If the page has moved and there’s a redirection, this will still return the moved page but the field <code>was_redirected</code> will indicate that the redirection happened. The new path can be found in the page object. The frontend is supposed to update the url of the page to the new location without reloading the page.</p>
 <h2 id="example" class="section-header"><a href="#example">Example</a></h2>
 <p>GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world</p>
-<h3 id="response-typescript-definition" class="section-header"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type CoursePageWithUserData = { page: Page, instance: CourseInstance | null, settings: UserCourseSettings | null, was_redirected: boolean, }</code></pre></div><h3 id="example-response" class="section-header"><a href="#example-response">Example response</a></h3><div class="example-wrap"><pre class="language-json"><code>{
-    &quot;page&quot;: {
-        &quot;id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
-        &quot;created_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
-        &quot;updated_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
-        &quot;course_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
-        &quot;exam_id&quot;: null,
-        &quot;chapter_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
-        &quot;url_path&quot;: &quot;/part-1/hello-world&quot;,
-        &quot;title&quot;: &quot;Hello world!&quot;,
-        &quot;deleted_at&quot;: null,
-        &quot;content&quot;: [
-            {
-                &quot;attributes&quot;: {
-                    &quot;hidden&quot;: false
-                },
-                &quot;clientId&quot;: &quot;c68f55ae-65c4-4e9b-aded-0b52e36e344a&quot;,
-                &quot;innerBlocks&quot;: [],
-                &quot;isValid&quot;: true,
-                &quot;name&quot;: &quot;moocfi/pages-in-part&quot;
-            },
-            {
-                &quot;attributes&quot;: {
-                    &quot;hidden&quot;: false
-                },
-                &quot;clientId&quot;: &quot;415ecc4c-a5c6-410e-a43f-c14b8ee910ea&quot;,
-                &quot;innerBlocks&quot;: [],
-                &quot;isValid&quot;: true,
-                &quot;name&quot;: &quot;moocfi/exercises-in-part&quot;
-            }
-        ],
-        &quot;order_number&quot;: 123,
-        &quot;copied_from&quot;: null
-    },
-    &quot;instance&quot;: {
-        &quot;id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
-        &quot;created_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
-        &quot;updated_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
-        &quot;deleted_at&quot;: null,
-        &quot;course_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
-        &quot;starts_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
-        &quot;ends_at&quot;: null,
-        &quot;name&quot;: &quot;Instance&quot;,
-        &quot;description&quot;: &quot;Description&quot;,
-        &quot;teacher_in_charge_name&quot;: &quot;Example Teacher&quot;,
-        &quot;teacher_in_charge_email&quot;: &quot;example@email.com&quot;,
-        &quot;support_email&quot;: &quot;example@email.com&quot;
-    },
-    &quot;settings&quot;: {
-        &quot;user_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
-        &quot;course_language_group_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
-        &quot;created_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
-        &quot;updated_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
-        &quot;deleted_at&quot;: null,
-        &quot;current_course_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
-        &quot;current_course_instance_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;
-    },
-    &quot;was_redirected&quot;: false
-}</code></pre></div></div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>
+<h3 id="response-typescript-definition" class="section-header"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type CoursePageWithUserData = {
+  page: Page
+  instance: CourseInstance | null
+  settings: UserCourseSettings | null
+  was_redirected: boolean
+}
+</code></pre></div><h3 id="example-response" class="section-header"><a href="#example-response">Example response</a></h3><div class="example-wrap"><pre class="language-json"><code>{
+  &quot;page&quot;: {
+    &quot;id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+    &quot;created_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
+    &quot;updated_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
+    &quot;course_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+    &quot;exam_id&quot;: null,
+    &quot;chapter_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+    &quot;url_path&quot;: &quot;/part-1/hello-world&quot;,
+    &quot;title&quot;: &quot;Hello world!&quot;,
+    &quot;deleted_at&quot;: null,
+    &quot;content&quot;: [
+      {
+        &quot;attributes&quot;: {
+          &quot;hidden&quot;: false
+        },
+        &quot;clientId&quot;: &quot;c68f55ae-65c4-4e9b-aded-0b52e36e344a&quot;,
+        &quot;innerBlocks&quot;: [],
+        &quot;isValid&quot;: true,
+        &quot;name&quot;: &quot;moocfi/pages-in-part&quot;
+      },
+      {
+        &quot;attributes&quot;: {
+          &quot;hidden&quot;: false
+        },
+        &quot;clientId&quot;: &quot;415ecc4c-a5c6-410e-a43f-c14b8ee910ea&quot;,
+        &quot;innerBlocks&quot;: [],
+        &quot;isValid&quot;: true,
+        &quot;name&quot;: &quot;moocfi/exercises-in-part&quot;
+      }
+    ],
+    &quot;order_number&quot;: 123,
+    &quot;copied_from&quot;: null
+  },
+  &quot;instance&quot;: {
+    &quot;id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+    &quot;created_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
+    &quot;updated_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
+    &quot;deleted_at&quot;: null,
+    &quot;course_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+    &quot;starts_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
+    &quot;ends_at&quot;: null,
+    &quot;name&quot;: &quot;Instance&quot;,
+    &quot;description&quot;: &quot;Description&quot;,
+    &quot;teacher_in_charge_name&quot;: &quot;Example Teacher&quot;,
+    &quot;teacher_in_charge_email&quot;: &quot;example@email.com&quot;,
+    &quot;support_email&quot;: &quot;example@email.com&quot;
+  },
+  &quot;settings&quot;: {
+    &quot;user_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+    &quot;course_language_group_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+    &quot;created_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
+    &quot;updated_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
+    &quot;deleted_at&quot;: null,
+    &quot;current_course_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+    &quot;current_course_instance_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;
+  },
+  &quot;was_redirected&quot;: false
+}
+</code></pre></div></div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>
 </body></html>

@@ -1,1 +1,0 @@
-initSidebarItems({"trait":[["Map","Moved Copied from `syntax::ptr::P` of rustc."]]});

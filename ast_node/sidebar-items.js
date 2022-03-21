@@ -1,1 +1,0 @@
-initSidebarItems({"attr":[["ast_node","Alias for `#[derive(Spanned, Fold, Clone, Debug, PartialEq)]` for a struct and `#[derive(Spanned, Fold, Clone, Debug, PartialEq, FromVariant)]` for an enum."],["ast_serde","Derives `serde::Serialize` and `serde::Deerialize`."]],"derive":[["DeserializeEnum",""],["Spanned",""]]});

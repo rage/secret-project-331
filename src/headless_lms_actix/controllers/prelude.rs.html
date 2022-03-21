@@ -19,6 +19,7 @@
 <span id="17">17</span>
 <span id="18">18</span>
 <span id="19">19</span>
+<span id="20">20</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Re-exports commonly used types for convenient use across the crate.</span>
 <span class="doccomment">//! Intended to be glob-imported like `use crate::controllers::prelude::*;`.</span>
 
@@ -36,6 +37,7 @@
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Connection</span>, <span class="ident">FromRow</span>, <span class="ident">PgConnection</span>, <span class="ident">PgPool</span>, <span class="ident">Type</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 </code></pre></div>

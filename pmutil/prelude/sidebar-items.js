@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Quote","Buffer for quasi quotting."]],"trait":[["SpanExt","Extension trait for Span and syn::Span."]]});

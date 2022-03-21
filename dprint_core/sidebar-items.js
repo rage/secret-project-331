@@ -1,1 +1,0 @@
-initSidebarItems({"macro":[["err",""],["err_obj",""],["generate_str_to_from",""]],"mod":[["configuration",""],["formatting",""],["plugins",""],["types",""]]});

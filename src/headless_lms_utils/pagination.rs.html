@@ -209,22 +209,26 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">num::ParseIntError</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{
     <span class="ident">de</span>::{<span class="self">self</span>, <span class="ident">MapAccess</span>, <span class="ident">Visitor</span>},
     <span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>,
 };
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
 
 <span class="doccomment">/// Represents the URL query parameters `page` and `limit`, used for paginating database queries.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">TS</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pagination</span> {
     <span class="comment">// the deserialize implementation contains a default value for page</span>
-    <span class="attribute">#[<span class="ident">ts</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;page?&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">ts</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;page?&quot;</span>))]</span>
     <span class="ident">page</span>: <span class="ident">u32</span>,
     <span class="comment">// the deserialize implementation contains a default value for limit</span>
-    <span class="attribute">#[<span class="ident">ts</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;limit?&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">ts</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;limit?&quot;</span>))]</span>
     <span class="ident">limit</span>: <span class="ident">u32</span>,
 }
 

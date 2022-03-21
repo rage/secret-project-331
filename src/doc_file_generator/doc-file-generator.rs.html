@@ -813,6 +813,10 @@
 <span id="811">811</span>
 <span id="812">812</span>
 <span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -869,6 +873,7 @@
 };
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 <span class="kw">use</span> <span class="ident">serde_json</span>::{<span class="ident">ser::PrettyFormatter</span>, <span class="ident">Serializer</span>, <span class="ident">Value</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
@@ -881,6 +886,7 @@
             <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>),
             <span class="string">&quot;.json&quot;</span>
         );
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
         <span class="kw">let</span> <span class="ident">ts_path</span> <span class="op">=</span> <span class="macro">concat!</span>(
             <span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>),
             <span class="string">&quot;/generated-docs/&quot;</span>,
@@ -888,6 +894,7 @@
             <span class="string">&quot;.ts&quot;</span>
         );
         <span class="ident">write_json</span>(<span class="ident">json_path</span>, <span class="ident">t</span>);
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
         <span class="ident">write_ts</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span><span class="op">&gt;</span>(<span class="ident">ts_path</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>));
     }};
 }
@@ -1622,6 +1629,7 @@
     <span class="ident">serde::Serialize::serialize</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>, <span class="kw-2">&amp;mut</span> <span class="ident">serializer</span>).<span class="ident">unwrap</span>();
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
 <span class="kw">fn</span> <span class="ident">write_ts</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
     <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;type {} = {}&quot;</span>, <span class="ident">type_name</span>, <span class="ident">T::inline</span>());
     <span class="ident">std::fs::write</span>(<span class="ident">path</span>, <span class="ident">contents</span>).<span class="ident">unwrap</span>();

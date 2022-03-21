@@ -261,6 +261,7 @@
 <span id="259">259</span>
 <span id="260">260</span>
 <span id="261">261</span>
+<span id="262">262</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/login`.
 */</span>
@@ -281,7 +282,8 @@ Handlers for HTTP requests to `/api/v0/login`.
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">controllers::prelude</span>::<span class="kw-2">*</span>, <span class="ident">domain::authorization</span>, <span class="ident">OAuthClient</span>};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">TS</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Login</span> {
     <span class="ident">email</span>: <span class="ident">String</span>,
     <span class="ident">password</span>: <span class="ident">String</span>,

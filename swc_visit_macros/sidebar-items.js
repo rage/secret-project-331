@@ -1,1 +1,0 @@
-initSidebarItems({"macro":[["define","This creates `Visit`. This is extensible visitor generator, and it"]]});

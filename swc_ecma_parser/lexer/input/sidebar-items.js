@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["StringInput","Implementation of [Input]."]],"trait":[["Input",""]],"type":[["SourceFileInput",""]]});

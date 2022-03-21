@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main",""],["write_json",""],["write_ts",""]],"macro":[["write_docs",""]]});
+initSidebarItems({"fn":[["main",""],["write_json",""]],"macro":[["write_docs",""]]});

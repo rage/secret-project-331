@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["format_diagnostic",""],["get_column_number_of_pos",""],["get_line_number_of_pos",""]]});

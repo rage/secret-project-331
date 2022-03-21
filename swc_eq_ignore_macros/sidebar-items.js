@@ -1,1 +1,0 @@
-initSidebarItems({"derive":[["EqIgnoreSpan","Fields annotated with `#[not_panned]` or `#[use_eq]` will use` ==` instead of `eq_ignore_span`."],["TypeEq","Field annotated with `#[use_eq]` will be compared using `==`.Field annotated with `#[not_type]` will be ignored"]]});

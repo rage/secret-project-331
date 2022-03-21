@@ -54,6 +54,7 @@ use headless_lms_models::{
 };
 use serde::Serialize;
 use serde_json::{ser::PrettyFormatter, Serializer, Value};
+#[cfg(feature = "ts_rs")]
 use ts_rs::TS;
 use uuid::Uuid;
 
@@ -66,6 +67,7 @@ macro_rules! write_docs {
             stringify!($t),
             ".json"
         );
+        #[cfg(feature = "ts_rs")]
         let ts_path = concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/generated-docs/",
@@ -73,6 +75,7 @@ macro_rules! write_docs {
             ".ts"
         );
         write_json(json_path, t);
+        #[cfg(feature = "ts_rs")]
         write_ts::<$t>(ts_path, stringify!($t));
     }};
 }
@@ -807,6 +810,7 @@ fn write_json<T: Serialize>(path: &str, value: T) {
     serde::Serialize::serialize(&value, &mut serializer).unwrap();
 }
 
+#[cfg(feature = "ts_rs")]
 fn write_ts<T: TS>(path: &str, type_name: &str) {
     let contents = format!("type {} = {}", type_name, T::inline());
     std::fs::write(path, contents).unwrap();

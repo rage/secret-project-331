@@ -124,7 +124,8 @@ async fn get_course_pages(
     Ok(web::Json(pages))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChaptersWithStatus {
     pub is_previewable: bool,
     pub chapters: Vec<ChapterWithStatus>,

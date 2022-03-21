@@ -5,7 +5,8 @@ use models::{
 
 use crate::controllers::prelude::*;
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct RoleInfo {
     pub email: String,
     pub role: UserRole,
@@ -80,7 +81,8 @@ pub async fn unset(
     Ok(HttpResponse::Ok().finish())
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct RoleQuery {
     #[serde(skip_serializing_if = "Option::is_none")]
     global: Option<bool>,

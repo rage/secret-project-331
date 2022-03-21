@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PlaygroundExample {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -12,7 +13,8 @@ pub struct PlaygroundExample {
     pub data: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PlaygroundExampleData {
     pub name: String,
     pub url: String,

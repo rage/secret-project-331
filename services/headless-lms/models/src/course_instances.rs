@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 use crate::{chapters, chapters::DatabaseChapter, exercises, prelude::*, users::User};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseInstance {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -18,7 +19,8 @@ pub struct CourseInstance {
     pub support_email: Option<String>,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseInstanceForm {
     pub name: Option<String>,
     pub description: Option<String>,
@@ -258,7 +260,8 @@ WHERE course_id = $1
     Ok(course_instances)
 }
 
-#[derive(Debug, Serialize, TS)]
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterScore {
     #[serde(flatten)]
     pub chapter: DatabaseChapter,
@@ -266,10 +269,12 @@ pub struct ChapterScore {
     pub score_total: i32,
 }
 
-#[derive(Debug, Default, Serialize, TS)]
+#[derive(Debug, Default, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PointMap(pub HashMap<Uuid, f32>);
 
-#[derive(Debug, Serialize, TS)]
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Points {
     pub chapter_points: Vec<ChapterScore>,
     pub users: Vec<User>,

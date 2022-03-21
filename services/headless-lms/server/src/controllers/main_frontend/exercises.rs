@@ -5,7 +5,8 @@ use models::{exercise_slide_submissions::ExerciseSlideSubmission, CourseOrExamId
 
 use crate::controllers::prelude::*;
 
-#[derive(Debug, Serialize, TS)]
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSubmissions {
     pub data: Vec<ExerciseSlideSubmission>,
     pub total_pages: u32,

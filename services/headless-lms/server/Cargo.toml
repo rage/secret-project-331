@@ -87,7 +87,7 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "3d0fd4f71fd1698e4236
   "serde-compat",
   "serde-json-impl",
   "uuid-impl",
-] }
+], optional = true }
 # restricting the transitive dependencies of actix-web during beta.
 # HTTP primitives for the Actix ecosystem .
 actix-http = "3.0.3"
@@ -112,3 +112,6 @@ pretty_assertions = "1.1.0"
 mockito = "0.31.0"
 # Random number generators and other randomness functionality.
 rand = "0.8.5"
+
+[features]
+ts_rs = ["ts-rs"]

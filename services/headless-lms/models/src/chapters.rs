@@ -10,7 +10,8 @@ use headless_lms_utils::{
     numbers::option_f32_to_f32_two_decimals, ApplicationConfiguration,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct DatabaseChapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -26,7 +27,8 @@ pub struct DatabaseChapter {
     pub copied_from: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Chapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -69,7 +71,8 @@ impl Chapter {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case")]
 pub enum ChapterStatus {
     Open,
@@ -95,7 +98,8 @@ pub struct ChapterPagesWithExercises {
 }
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewChapter {
     pub name: String,
     pub course_id: Uuid,
@@ -105,7 +109,8 @@ pub struct NewChapter {
     pub deadline: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterUpdate {
     pub name: String,
     pub front_page_id: Option<Uuid>,
@@ -250,7 +255,8 @@ RETURNING *;",
     Ok(updated_chapter)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterWithStatus {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -263,7 +269,8 @@ pub struct ChapterWithStatus {
     pub opens_at: Option<DateTime<Utc>>,
     pub status: ChapterStatus,
 }
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseInstanceChapterProgress {
     pub score_given: f32,
     pub score_maximum: i32,

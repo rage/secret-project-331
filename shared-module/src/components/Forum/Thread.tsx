@@ -5,6 +5,8 @@ import { Fragment } from "react"
 
 import TextAreaField from "../InputFields/TextAreaField"
 
+import { Item, Thread as StateProps } from "./Forum"
+
 const Wrapper = styled.div`
   width: 100%;
   height: auto;
@@ -88,19 +90,6 @@ const StyledButton = styled.input`
   margin: 1rem 0;
 `
 
-interface Item {
-  id: string
-  text: string
-  time: string
-  author: string
-}
-
-interface StateProps {
-  id: string
-  text: string
-  time: string
-  items?: Item[]
-}
 interface ThreadProps {
   state: StateProps
   author: string

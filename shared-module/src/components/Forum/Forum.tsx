@@ -59,14 +59,14 @@ const StRadio = styled(RadioButton)`
   border-left: 1px solid rgba(205, 205, 205, 0.8);
   margin-right: 2rem !important;
 `
-interface Item {
+export interface Item {
   id: string
   text: string
   time: string
   author: string
 }
 
-interface Thread {
+export interface Thread {
   id: string
   text: string
   time: string

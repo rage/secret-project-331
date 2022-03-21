@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
 
-interface RadioFieldExtraProps {
+export interface RadioFieldExtraProps {
   label: string
   checked?: boolean
   value?: string

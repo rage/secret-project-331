@@ -26,5 +26,6 @@ test("exam list renders", async ({ headless, page }) => {
     headless,
     snapshotName: "exam-listing",
     waitForThisToBeVisibleAndStable: ["text=Exams"],
+    beforeScreenshot: () => page.locator("text=Exams").scrollIntoViewIfNeeded(),
   })
 })

@@ -102,16 +102,17 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
     "block-props",
   )
 
-  // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
-  // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
-
-  // Ensure that type core/image has some attributes set to a value, so that the CMS/image block doesn't crash when uploading image.
-  // eslint-disable-next-line i18next/no-literal-string
-  addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
-
   useEffect(() => {
     // Register all core blocks
     registerCoreBlocks()
+    // We register the BlockVariation and if it's not in allowedBlockVariations, it will be removed.
+    registerBlockVariation("core/embed", {
+      name: "mentimeter",
+      title: "Mentimeter",
+      icon: embedContentIcon,
+      description: "Insert Mentimeter URL to embed its content.",
+      attributes: { providerNameSlug: "mentimeter" },
+    })
 
     // Unregister unwanted blocks
     if (allowedBlocks) {
@@ -134,14 +135,6 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
       }
     }
 
-    registerBlockVariation("core/embed", {
-      name: "mentimeter",
-      title: "Mentimeter",
-      icon: embedContentIcon,
-      description: "Insert Mentimeter URL to embed its content.",
-      attributes: { providerNameSlug: "mentimeter" },
-    })
-
     // Register own blocks
     if (customBlocks) {
       customBlocks.forEach(([blockName, block]) => {
@@ -159,16 +152,16 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   }, [allowedBlockVariations, allowedBlocks, customBlocks])
 
   // Ensure that type core/image has some attributes set to a value, so that the CMS/image block doesn't crash when uploading image.
+  // eslint-disable-next-line i18next/no-literal-string
+  addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
+
   // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
   // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
-  addFilter(
-    // eslint-disable-next-line i18next/no-literal-string
-    "blocks.registerBlockType",
-    // eslint-disable-next-line i18next/no-literal-string
-    "moocfi/cms/modify-blockAttributes",
-    modifyBlockAttributes,
-  )
 
+  /**
+   * editor.BlockEdit edits the edit function for a block
+   * Add the custom attributes for the Mentimeter to the sidebar.
+   */
   useEffect(() => {
     // eslint-disable-next-line i18next/no-literal-string
     addFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector", withMentimeterInspector)

@@ -20,7 +20,7 @@ use headless_lms_models::{
     course_instances::{ChapterScore, CourseInstance, Points},
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
-    exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions},
+    exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions, OrgExam},
     exercise_services::ExerciseService,
     exercise_slide_submissions::{
         ExerciseSlideSubmission, ExerciseSlideSubmissionCount,
@@ -655,6 +655,18 @@ fn main() {
             course_id: id,
             course_name: "Example course".to_string(),
             name: "Course exam".to_string()
+        }]
+    );
+    write_docs!(
+        Vec<OrgExam>,
+        vec![OrgExam {
+            id,
+            organization_id: id,
+            name: "Org exam".to_string(),
+            instructions: page.content.clone(),
+            time_minutes: 120,
+            starts_at: Some(date_time),
+            ends_at: Some(date_time)
         }]
     );
     write_docs!(Page, page.clone());

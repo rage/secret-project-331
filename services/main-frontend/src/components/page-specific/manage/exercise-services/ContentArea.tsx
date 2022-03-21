@@ -10,7 +10,7 @@ interface ContentAreaProps {
   editing: boolean
   onChange: (value: string) => void
   type: inputType
-  error: boolean
+  error?: string
 }
 
 const ContentArea: React.FC<ContentAreaProps> = ({

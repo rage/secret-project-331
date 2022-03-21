@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React, { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useDebounce } from "use-debounce"
 
@@ -60,7 +61,17 @@ const HeightTrackingContainer: React.FC<Props> = ({ port, children }) => {
     onHeightChange(debouncedHeight, port)
   }, [debouncedHeight, port])
 
-  return <div ref={contentRef}>{children}</div>
+  return (
+    <div
+      // overflow: hidden required because otherwise margin-top in the children can otherwise mess up the height calculation
+      className={css`
+        overflow: hidden;
+      `}
+      ref={contentRef}
+    >
+      {children}
+    </div>
+  )
 }
 
 function onHeightChange(newHeight: number, port: MessagePort) {

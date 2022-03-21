@@ -56,8 +56,7 @@ const StyledButton = styled.input`
 `
 
 const StRadio = styled(RadioButton)`
-  border-left: 1px solid rgba(205, 205, 205, 0.8);
-  margin-right: 2rem !important;
+  margin-right: 1rem !important;
 `
 export interface Item {
   id: string

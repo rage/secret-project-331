@@ -5,7 +5,8 @@ use models::{
 
 use crate::controllers::prelude::*;
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct RoleInfo {
     pub email: String,
     pub role: UserRole,
@@ -15,20 +16,19 @@ pub struct RoleInfo {
 async fn authorize_role_management(
     conn: &mut PgConnection,
     domain: RoleDomain,
+    action: Act,
     user_id: Uuid,
 ) -> ControllerResult<()> {
     match domain {
         RoleDomain::Global => {
-            authorize(conn, Act::Edit, Some(user_id), Res::GlobalPermissions).await?
+            authorize(conn, action, Some(user_id), Res::GlobalPermissions).await?
         }
         RoleDomain::Organization(id) => {
-            authorize(conn, Act::Edit, Some(user_id), Res::Organization(id)).await?
+            authorize(conn, action, Some(user_id), Res::Organization(id)).await?
         }
-        RoleDomain::Course(id) => {
-            authorize(conn, Act::Edit, Some(user_id), Res::Course(id)).await?
-        }
+        RoleDomain::Course(id) => authorize(conn, action, Some(user_id), Res::Course(id)).await?,
         RoleDomain::CourseInstance(id) => {
-            authorize(conn, Act::Edit, Some(user_id), Res::CourseInstance(id)).await?
+            authorize(conn, action, Some(user_id), Res::CourseInstance(id)).await?
         }
         RoleDomain::Exam(id) => authorize(conn, Act::Edit, Some(user_id), Res::Exam(id)).await?,
     }
@@ -45,7 +45,13 @@ pub async fn set(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    authorize_role_management(&mut conn, role_info.domain, user.id).await?;
+    authorize_role_management(
+        &mut conn,
+        role_info.domain,
+        Act::EditRole(role_info.role),
+        user.id,
+    )
+    .await?;
 
     let user = users::get_by_email(&mut conn, &role_info.email).await?;
     roles::insert(&mut conn, user.id, role_info.role, role_info.domain).await?;
@@ -62,14 +68,21 @@ pub async fn unset(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    authorize_role_management(&mut conn, role_info.domain, user.id).await?;
+    authorize_role_management(
+        &mut conn,
+        role_info.domain,
+        Act::EditRole(role_info.role),
+        user.id,
+    )
+    .await?;
 
     let user = users::get_by_email(&mut conn, &role_info.email).await?;
     roles::remove(&mut conn, user.id, role_info.role, role_info.domain).await?;
     Ok(HttpResponse::Ok().finish())
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct RoleQuery {
     #[serde(skip_serializing_if = "Option::is_none")]
     global: Option<bool>,
@@ -123,7 +136,7 @@ pub async fn fetch(
 ) -> ControllerResult<web::Json<Vec<RoleUser>>> {
     let mut conn = pool.acquire().await?;
     let domain = query.into_inner().try_into()?;
-    authorize_role_management(&mut conn, domain, user.id).await?;
+    authorize_role_management(&mut conn, domain, Act::Edit, user.id).await?;
 
     let roles = roles::get(&mut conn, domain).await?;
     Ok(web::Json(roles))

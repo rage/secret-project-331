@@ -12,12 +12,15 @@ test("test", async ({ page, headless }) => {
   // Click a:has-text("In the second chapter...")
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/cms/pages/e89e3590-3280-4536-a980-5e0c4d039f86' }*/),
-    page.click('a:has-text("In the second chapter...")'),
+    page.click(`button:text("Edit page"):right-of(:text("In the second chapter..."))`),
   ])
   // Click text=Add task
   await page.click("text=Add task")
   // Click text=Save
   await page.click("text=Save >> visible=true")
+  await page.evaluate(() => {
+    window.scrollTo(0, 0)
+  })
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,

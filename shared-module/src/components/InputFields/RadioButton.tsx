@@ -1,17 +1,22 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
 
-export interface RadioFieldExtraProps {
+import { primaryFont } from "../../styles"
+
+interface RadioFieldExtraProps {
   label: string
   checked?: boolean
   value?: string
   name?: string
   /* onBlur?: (name?: string) => void */
   onChange: (value: string, name?: string) => void
+  className?: string
 }
 
+// eslint-disable-next-line i18next/no-literal-string
 const label = css`
-  font-family: system-ui, sans-serif;
+  /* font-family: system-ui, sans-serif; */
+  font-family: ${primaryFont};
   font-size: 16px;
   margin: 0.5rem 0.5rem 0.5rem 0;
   line-height: 1;
@@ -58,16 +63,25 @@ const label = css`
 
 export type RadioFieldProps = React.HTMLAttributes<HTMLInputElement> & RadioFieldExtraProps
 
-const RadioField = ({ onChange, ...rest }: RadioFieldExtraProps) => {
+const RadioField = ({ onChange, className, ...rest }: RadioFieldExtraProps) => {
   return (
-    <label className={cx(label)}>
-      <input
-        type="radio"
-        onChange={({ target: { value, name } }) => onChange(value, name)}
-        {...rest}
-      />
-      <span>{rest.label}</span>
-    </label>
+    <div
+      className={cx(
+        css`
+          margin-bottom: 1rem;
+        `,
+        className,
+      )}
+    >
+      <label className={cx(label)}>
+        <input
+          type="radio"
+          onChange={({ target: { value, name } }) => onChange(value, name)}
+          {...rest}
+        />
+        <span>{rest.label}</span>
+      </label>
+    </div>
   )
 }
 

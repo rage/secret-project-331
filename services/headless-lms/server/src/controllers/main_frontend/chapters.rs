@@ -51,7 +51,7 @@ async fn post_new_chapter(
 }
 
 /**
-DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a course part.
+DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a chapter.
 */
 #[generated_doc]
 #[instrument(skip(pool, file_store, app_conf))]
@@ -74,7 +74,7 @@ async fn delete_chapter(
 }
 
 /**
-PUT `/api/v0/main-frontend/chapters/:chapter_id` - Update course part.
+PUT `/api/v0/main-frontend/chapters/:chapter_id` - Update chapter.
 # Example
 
 Request:

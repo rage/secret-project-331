@@ -2,10 +2,14 @@
 Handlers for HTTP requests to `/api/v0/login`.
 */
 
+use actix_governor::{Governor, GovernorConfigBuilder};
+use std::{env, time::Duration};
+
 use actix_session::Session;
 use models::users::User;
 use oauth2::{
     basic::{BasicErrorResponseType, BasicTokenType},
+    reqwest::AsyncHttpClientError,
     EmptyExtraTokenFields, RequestTokenError, ResourceOwnerPassword, ResourceOwnerUsername,
     StandardErrorResponse, StandardTokenResponse, TokenResponse,
 };
@@ -14,7 +18,8 @@ use url::form_urlencoded::Target;
 
 use crate::{controllers::prelude::*, domain::authorization, OAuthClient};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Login {
     email: String,
     password: String,
@@ -85,7 +90,7 @@ pub async fn login(
             return Ok(HttpResponse::Ok().finish());
         } else {
             return Err(ControllerError::Unauthorized(
-                "Incorrect email ora password.".to_string(),
+                "Incorrect email or password.".to_string(),
             ));
         };
     }
@@ -95,12 +100,13 @@ pub async fn login(
             &ResourceOwnerUsername::new(email.clone()),
             &ResourceOwnerPassword::new(password.clone()),
         )
-        .request_async(oauth2::reqwest::async_http_client)
+        .request_async(async_http_client_with_headers)
         .await;
 
-    if token.is_err() {
+    if let Err(error) = token {
+        info!(token_error = ?error, "Token error when fetching");
         return Err(ControllerError::Unauthorized(
-            "Incorrect email ora password.".to_string(),
+            "Incorrect email or password.".to_string(),
         ));
     }
 
@@ -113,6 +119,25 @@ pub async fn login(
             "Incorrect email or password.".to_string().finish(),
         ))
     }
+}
+
+/**
+ * HTTP Client used only for authing with TMC server, this is to ensure that TMC server
+ * does not rate limit auth requests from backend
+ */
+async fn async_http_client_with_headers(
+    mut request: oauth2::HttpRequest,
+) -> Result<oauth2::HttpResponse, AsyncHttpClientError> {
+    let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
+        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
+    request.headers.append(
+        "RATELIMIT-PROTECTION-SAFE-API-KEY",
+        ratelimit_api_key.parse().map_err(|_err| {
+            AsyncHttpClientError::Other("Invalid RATELIMIT API key.".to_string())
+        })?,
+    );
+    let result = oauth2::reqwest::async_http_client(request).await?;
+    Ok(result)
 }
 
 /**
@@ -132,12 +157,6 @@ GET `/api/v0/auth/logged-in` Returns the current user's login status.
 pub async fn logged_in(session: Session) -> web::Json<bool> {
     let logged_in = authorization::has_auth_user_session(&session);
     web::Json(logged_in)
-}
-
-pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/login", web::post().to(login))
-        .route("/logout", web::post().to(logout))
-        .route("/logged-in", web::get().to(logged_in));
 }
 
 pub type LoginToken = Result<
@@ -225,4 +244,19 @@ pub async fn get_user_from_moocfi(
             "User not found.".to_string().finish(),
         ))
     }
+}
+
+pub fn _add_routes(cfg: &mut ServiceConfig) {
+    let governor_conf = GovernorConfigBuilder::default()
+        .period(Duration::from_secs(10))
+        .burst_size(10)
+        .finish()
+        .unwrap();
+    cfg.service(
+        web::resource("/login")
+            .wrap(Governor::new(&governor_conf))
+            .to(login),
+    )
+    .route("/logout", web::post().to(logout))
+    .route("/logged-in", web::get().to(logged_in));
 }

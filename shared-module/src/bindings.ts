@@ -28,6 +28,7 @@ export interface Chapter {
   chapter_number: number
   front_page_id: string | null
   opens_at: Date | null
+  deadline: Date | null
   copied_from: string | null
 }
 
@@ -42,6 +43,7 @@ export interface DatabaseChapter {
   chapter_number: number
   front_page_id: string | null
   opens_at: Date | null
+  deadline: Date | null
   copied_from: string | null
 }
 
@@ -49,8 +51,9 @@ export type ChapterStatus = "open" | "closed"
 
 export interface ChapterUpdate {
   name: string
-  chapter_number: number
-  front_front_page_id: string | null
+  front_page_id: string | null
+  deadline: Date | null
+  opens_at: Date | null
 }
 
 export interface ChapterWithStatus {
@@ -70,7 +73,9 @@ export interface NewChapter {
   name: string
   course_id: string
   chapter_number: number
-  front_front_page_id: string | null
+  front_page_id: string | null
+  opens_at: Date | null
+  deadline: Date | null
 }
 
 export interface UserCourseInstanceChapterProgress {
@@ -98,6 +103,7 @@ export interface ChapterScore {
   chapter_number: number
   front_page_id: string | null
   opens_at: Date | null
+  deadline: Date | null
   copied_from: string | null
   score_given: number
   score_total: number
@@ -312,8 +318,10 @@ export type ActivityProgress = "Initialized" | "Started" | "InProgress" | "Submi
 
 export interface CourseMaterialExercise {
   exercise: Exercise
+  can_post_submission: boolean
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
+  exercise_slide_submission_counts: Record<string, number>
 }
 
 export interface Exercise {
@@ -330,6 +338,8 @@ export interface Exercise {
   score_maximum: number
   order_number: number
   copied_from: string | null
+  max_tries_per_slide: number | null
+  limit_number_of_tries: boolean
 }
 
 export interface ExerciseStatus {
@@ -399,6 +409,9 @@ export interface CmsPageExercise {
   id: string
   name: string
   order_number: number
+  score_maximum: number
+  max_tries_per_slide: number | null
+  limit_number_of_tries: boolean
 }
 
 export interface CmsPageExerciseSlide {
@@ -796,6 +809,7 @@ export interface ExamData {
   instructions: unknown
   starts_at: Date
   ends_at: Date
+  ended: boolean
   time_minutes: number
   enrollment_data: ExamEnrollmentData
 }

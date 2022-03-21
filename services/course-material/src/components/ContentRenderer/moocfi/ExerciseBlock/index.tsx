@@ -2,22 +2,24 @@ import { css } from "@emotion/css"
 import HelpIcon from "@mui/icons-material/Help"
 import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
+import { useQuery, useQueryClient } from "react-query"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
 import { fetchExerciseById, postSubmission } from "../../../../services/backend"
-import { StudentExerciseSlideSubmission } from "../../../../shared-module/bindings"
+import {
+  CourseMaterialExercise,
+  StudentExerciseSlideSubmission,
+} from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../../../shared-module/components/Centering/Centered"
-import DebugModal from "../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import { IframeState } from "../../../../shared-module/iframe-protocol-types"
+import { baseTheme } from "../../../../shared-module/styles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
@@ -29,6 +31,9 @@ interface ExerciseBlockAttributes {
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
+  const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
+  const [points, setPoints] = useState<number | null>(null)
+  const queryClient = useQueryClient()
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const pageContext = useContext(PageContext)
@@ -72,8 +77,6 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       },
     },
   )
-  const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
-  const [points, setPoints] = useState<number | null>(null)
 
   if (!showExercise) {
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
@@ -89,10 +92,19 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const courseInstanceId = pageContext?.instance?.id
 
   const isExam = !!pageContext.exam
-  const inEndedExam = pageContext?.exam?.ends_at ? pageContext?.exam?.ends_at < new Date() : false
-  const noSubmission = getCourseMaterialExercise.data.exercise_status === null
 
-  const cannotAnswerButNoSubmission = inEndedExam && noSubmission
+  const spentTries =
+    getCourseMaterialExercise.data.exercise_slide_submission_counts[
+      getCourseMaterialExercise.data.current_exercise_slide.id
+    ] ?? 0
+
+  const maxTries = getCourseMaterialExercise.data.exercise.max_tries_per_slide
+
+  const triesRemaining = maxTries && maxTries - spentTries
+
+  const limit_number_of_tries = getCourseMaterialExercise.data.exercise.limit_number_of_tries
+  const ranOutOfTries =
+    limit_number_of_tries && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -102,6 +114,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
           background: #f6f6f6;
           margin-bottom: 1rem;
           padding-top: 2rem;
+          padding-bottom: 1rem;
         `}
         id={id}
       >
@@ -156,10 +169,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                   return answers
                 })
               }
-              postThisStateToIFrame={
-                postThisStateToIFrame?.find((x) => x.exercise_task_id === task.id) as IframeState
-              }
-              cannotAnswerButNoSubmission={cannotAnswerButNoSubmission}
+              postThisStateToIFrame={postThisStateToIFrame?.find(
+                (x) => x.exercise_task_id === task.id,
+              )}
+              canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
             />
           ))}
           <div
@@ -169,7 +182,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               }
             `}
           >
-            {!cannotAnswerButNoSubmission &&
+            {getCourseMaterialExercise.data.can_post_submission &&
               postThisStateToIFrame?.every((x) => x.view_type !== "view-submission") && (
                 <Button
                   size="medium"
@@ -183,44 +196,77 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                     if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
                       return
                     }
-                    postSubmissionMutation.mutate({
-                      exercise_slide_id: getCourseMaterialExercise.data.current_exercise_slide.id,
-                      exercise_task_submissions:
-                        getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map(
-                          (task) => ({
-                            exercise_task_id: task.id,
-                            data_json: answers.get(task.id)?.data,
-                          }),
-                        ),
-                    })
+                    postSubmissionMutation.mutate(
+                      {
+                        exercise_slide_id: getCourseMaterialExercise.data.current_exercise_slide.id,
+                        exercise_task_submissions:
+                          getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map(
+                            (task) => ({
+                              exercise_task_id: task.id,
+                              data_json: answers.get(task.id)?.data,
+                            }),
+                          ),
+                      },
+                      {
+                        onSuccess: () => {
+                          queryClient.setQueryData(queryUniqueKey, (old) => {
+                            // Update slide submission counts without refetching
+                            const oldData = old as CourseMaterialExercise
+                            const oldSubmissionCounts =
+                              oldData?.exercise_slide_submission_counts ?? {}
+                            const slideId =
+                              getCourseMaterialExercise?.data?.current_exercise_slide?.id
+                            const newSubmissionCounts = { ...oldSubmissionCounts }
+                            if (slideId) {
+                              newSubmissionCounts[slideId] = (oldSubmissionCounts[slideId] ?? 0) + 1
+                            }
+                            return {
+                              ...oldData,
+                              exercise_slide_submission_counts: newSubmissionCounts,
+                            }
+                          })
+                        },
+                      },
+                    )
                   }}
                 >
                   {t("submit-button")}
                 </Button>
               )}
             {/* These are now arrays so should be refactored */}
-            {postThisStateToIFrame?.every((x) => x.view_type === "view-submission") && (
-              <Button
-                variant="primary"
-                size="medium"
-                onClick={() => {
-                  dispatch({
-                    type: "tryAgain",
-                    payload: getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks,
-                  })
-                  postSubmissionMutation.reset()
-                  setAnswers(new Map())
-                }}
-                disabled={getCourseMaterialExercise.isRefetching}
-              >
-                {t("try-again")}
-              </Button>
-            )}
+            {postThisStateToIFrame?.every((x) => x.view_type === "view-submission") &&
+              !ranOutOfTries && (
+                <Button
+                  variant="primary"
+                  size="medium"
+                  onClick={() => {
+                    dispatch({
+                      type: "tryAgain",
+                      payload: getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks,
+                    })
+                    postSubmissionMutation.reset()
+                    setAnswers(new Map())
+                  }}
+                  disabled={
+                    getCourseMaterialExercise.isRefetching ||
+                    !getCourseMaterialExercise.data.can_post_submission
+                  }
+                >
+                  {t("try-again")}
+                </Button>
+              )}
             {postSubmissionMutation.isError && (
               <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
             )}
-            <br />
-            <DebugModal data={getCourseMaterialExercise.data} />
+            {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
+              <div
+                className={css`
+                  color: ${baseTheme.colors.grey[500]};
+                `}
+              >
+                {t("tries-remaining-n", { n: triesRemaining })}
+              </div>
+            )}
           </div>
         </Centered>
       </div>

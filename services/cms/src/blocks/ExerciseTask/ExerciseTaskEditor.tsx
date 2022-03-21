@@ -8,16 +8,19 @@ import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
+import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
+import Centered from "../../shared-module/components/Centering/Centered"
 import { baseTheme, primaryFont, typography } from "../../shared-module/styles"
 import { narrowContainerWidthPx } from "../../shared-module/styles/constants"
 import { runCallbackIfEnterPressed } from "../../shared-module/utils/accessibility"
 import { gutenbergControlsVisible } from "../../styles/EditorStyles"
+import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
 import { exerciseTaskTypes } from "./ChooseExerciseTaskType/ExerciseServiceList"
 import ExerciseTaskIFrameEditor from "./IFrameEditor"
 
-const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list"]
+const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
 
 const ExerciseTaskEditorCard = styled.div`
   padding: 2rem 0;
@@ -34,19 +37,19 @@ const svgSquare = css`
 
 // eslint-disable-next-line i18next/no-literal-string
 const grey400WithHover = css`
-  background-color: ${baseTheme.colors.grey[400]};
+  background-color: ${baseTheme.colors.grey[200]};
 
   :hover {
-    background-color: ${baseTheme.colors.grey[600]};
+    filter: brightness(92%) contrast(110%);
   }
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const grey500WithHover = css`
-  background-color: ${baseTheme.colors.grey[500]};
+  background-color: ${baseTheme.colors.grey[300]};
 
   :hover {
-    background-color: ${baseTheme.colors.grey[600]};
+    filter: brightness(92%) contrast(110%);
   }
 `
 
@@ -103,12 +106,13 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
           <div
             className={css`
               align-items: center;
-              background-color: ${baseTheme.colors.grey[300]};
+              background-color: ${baseTheme.colors.grey[100]};
               display: flex;
               flex: 1;
               font-family: ${primaryFont};
               font-size: ${typography.paragraph};
               padding: 0 1rem;
+              border-radius: 2px;
             `}
           >
             {t("task")}
@@ -136,30 +140,41 @@ const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
         </div>
       </div>
       {attributes.show_editor ? (
-        <ExerciseTaskEditorCard>
+        <BreakFromCentered {...breakFromCenteredProps}>
           <div
             className={css`
-              padding: 1rem;
-              border: 1px solid black;
-              ${gutenbergControlsVisible}
+              background-color: white;
             `}
           >
-            <h3>{t("title-assignment")}</h3>
-            <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+            <Centered variant="narrow">
+              <ExerciseTaskEditorCard>
+                <div
+                  className={css`
+                    padding: 1rem;
+                    border: 1px solid black;
+                    margin-bottom: 2rem;
+                    ${gutenbergControlsVisible}
+                  `}
+                >
+                  <h3>{t("title-assignment")}</h3>
+                  <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+                </div>
+                {!exerciseType ? (
+                  <ChooseExerciseTaskType
+                    onChooseItem={(x) => setAttributes({ exercise_type: x.identifier })}
+                  />
+                ) : (
+                  <ExerciseTaskIFrameEditor
+                    exerciseTaskId={attributes.id}
+                    onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
+                    privateSpec={privateSpecOnFirstRender}
+                    url={`${url}?width=${narrowContainerWidthPx}`}
+                  />
+                )}
+              </ExerciseTaskEditorCard>
+            </Centered>
           </div>
-          {!exerciseType ? (
-            <ChooseExerciseTaskType
-              onChooseItem={(x) => setAttributes({ exercise_type: x.identifier })}
-            />
-          ) : (
-            <ExerciseTaskIFrameEditor
-              exerciseTaskId={attributes.id}
-              onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
-              privateSpec={privateSpecOnFirstRender}
-              url={`${url}?width=${narrowContainerWidthPx}`}
-            />
-          )}
-        </ExerciseTaskEditorCard>
+        </BreakFromCentered>
       ) : null}
     </div>
   )

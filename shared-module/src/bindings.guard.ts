@@ -148,6 +148,7 @@ export function isChapter(obj: any, _argumentName?: string): obj is Chapter {
     typeof obj.chapter_number === "number" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string")
   )
 }
@@ -165,6 +166,7 @@ export function isDatabaseChapter(obj: any, _argumentName?: string): obj is Data
     typeof obj.chapter_number === "number" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string")
   )
 }
@@ -177,8 +179,9 @@ export function isChapterUpdate(obj: any, _argumentName?: string): obj is Chapte
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.name === "string" &&
-    typeof obj.chapter_number === "number" &&
-    (obj.front_front_page_id === null || typeof obj.front_front_page_id === "string")
+    (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
+    (obj.deadline === null || obj.deadline instanceof Date) &&
+    (obj.opens_at === null || obj.opens_at instanceof Date)
   )
 }
 
@@ -204,7 +207,9 @@ export function isNewChapter(obj: any, _argumentName?: string): obj is NewChapte
     typeof obj.name === "string" &&
     typeof obj.course_id === "string" &&
     typeof obj.chapter_number === "number" &&
-    (obj.front_front_page_id === null || typeof obj.front_front_page_id === "string")
+    (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
+    (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.deadline === null || obj.deadline instanceof Date)
   )
 }
 
@@ -247,6 +252,7 @@ export function isChapterScore(obj: any, _argumentName?: string): obj is Chapter
     typeof obj.chapter_number === "number" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
     typeof obj.score_given === "number" &&
     typeof obj.score_total === "number"
@@ -575,8 +581,10 @@ export function isCourseMaterialExercise(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (isExercise(obj.exercise) as boolean) &&
+    typeof obj.can_post_submission === "boolean" &&
     (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
-    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean))
+    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
+    (isPointMap(obj.exercise_slide_submission_counts) as boolean)
   )
 }
 
@@ -595,7 +603,9 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.score_maximum === "number" &&
     typeof obj.order_number === "number" &&
-    (obj.copied_from === null || typeof obj.copied_from === "string")
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
+    typeof obj.limit_number_of_tries === "boolean"
   )
 }
 
@@ -702,7 +712,10 @@ export function isCmsPageExercise(obj: any, _argumentName?: string): obj is CmsP
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.name === "string" &&
-    typeof obj.order_number === "number"
+    typeof obj.order_number === "number" &&
+    typeof obj.score_maximum === "number" &&
+    (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
+    typeof obj.limit_number_of_tries === "boolean"
   )
 }
 
@@ -1339,6 +1352,7 @@ export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
     typeof obj.name === "string" &&
     obj.starts_at instanceof Date &&
     obj.ends_at instanceof Date &&
+    typeof obj.ended === "boolean" &&
     typeof obj.time_minutes === "number" &&
     (isExamEnrollmentData(obj.enrollment_data) as boolean)
   )

@@ -1,5 +1,6 @@
 use crate::{
-    course_instances,
+    course_instances, exams,
+    exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
     prelude::*,
@@ -7,8 +8,10 @@ use crate::{
     user_exercise_states::{self, CourseInstanceOrExamId},
     CourseOrExamId,
 };
+use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Exercise {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -23,14 +26,42 @@ pub struct Exercise {
     pub score_maximum: i32,
     pub order_number: i32,
     pub copied_from: Option<Uuid>,
+    pub max_tries_per_slide: Option<i32>,
+    pub limit_number_of_tries: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, TS)]
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
+    pub can_post_submission: bool,
     pub current_exercise_slide: CourseMaterialExerciseSlide,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
+    #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, number>"))]
+    pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
+}
+
+impl CourseMaterialExercise {
+    pub fn clear_grading_information(&mut self) {
+        self.exercise_status = None;
+        self.current_exercise_slide
+            .exercise_tasks
+            .iter_mut()
+            .for_each(|task| {
+                task.model_solution_spec = None;
+                task.previous_submission_grading = None;
+            });
+    }
+
+    pub fn clear_model_solution_specs(&mut self) {
+        self.current_exercise_slide
+            .exercise_tasks
+            .iter_mut()
+            .for_each(|task| {
+                task.model_solution_spec = None;
+            });
+    }
 }
 
 /**
@@ -38,7 +69,8 @@ Indicates what is the user's completion status for a exercise.
 
 As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "activity_progress", rename_all = "snake_case")]
 pub enum ActivityProgress {
     /// The user has not started the activity, or the activity has been reset for that student.
@@ -59,7 +91,8 @@ Tells what's the status of the grading progress for a user and exercise.
 
 As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]
 pub enum GradingProgress {
     /// The grading process is completed; the score value, if any, represents the current Final Grade;
@@ -80,7 +113,8 @@ impl GradingProgress {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseStatus {
     // None when grading has not completed yet. Max score can be found from the associated exercise.
     pub score_given: Option<f32>,
@@ -276,16 +310,44 @@ pub async fn get_course_material_exercise(
         _ => None,
     };
 
+    let can_post_submission = if let Some(user_id) = user_id {
+        if let Some(exam_id) = exercise.exam_id {
+            exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await?
+        } else {
+            true
+        }
+    } else {
+        false
+    };
+
     let exercise_status = user_exercise_state.map(|user_exercise_state| ExerciseStatus {
         score_given: user_exercise_state.score_given,
         activity_progress: user_exercise_state.activity_progress,
         grading_progress: user_exercise_state.grading_progress,
     });
 
+    let exercise_slide_submission_counts = if let Some(user_id) = user_id {
+        if let Some(cioreid) = instance_or_exam_id {
+            get_exercise_slide_submission_counts_for_exercise_user(
+                conn,
+                exercise_id,
+                cioreid,
+                user_id,
+            )
+            .await?
+        } else {
+            HashMap::new()
+        }
+    } else {
+        HashMap::new()
+    };
+
     Ok(CourseMaterialExercise {
         exercise,
+        can_post_submission,
         current_exercise_slide,
         exercise_status,
+        exercise_slide_submission_counts,
     })
 }
 
@@ -299,13 +361,9 @@ async fn get_or_select_exercise_slide(
             // No signed in user. Show random exercise without model solution.
             let random_slide =
                 exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise.id).await?;
-            let random_slide_tasks = exercise_tasks::get_course_material_exercise_tasks(
-                conn,
-                &random_slide.id,
-                None,
-                false,
-            )
-            .await?;
+            let random_slide_tasks =
+                exercise_tasks::get_course_material_exercise_tasks(conn, &random_slide.id, None)
+                    .await?;
             Ok((
                 CourseMaterialExerciseSlide {
                     id: random_slide.id,
@@ -373,7 +431,6 @@ async fn get_or_select_exercise_slide(
                                 conn,
                                 &random_slide.id,
                                 Some(&user_id),
-                                false,
                             )
                             .await?;
 
@@ -398,7 +455,6 @@ async fn get_or_select_exercise_slide(
                             conn,
                             &random_slide.id,
                             Some(&user_id),
-                            false,
                         )
                         .await?;
 

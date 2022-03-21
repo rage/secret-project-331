@@ -17,9 +17,9 @@ export const quizTheme = {
   gradingWrongItemColor: baseTheme.colors.clear[200],
   quizBodyColor: baseTheme.colors.grey[700],
   quizBodyFontSize: "24px",
-  quizItemBackground: baseTheme.colors.green[700],
+  quizItemBackground: baseTheme.colors.clear[200],
   quizTitleFontSize: "16px",
-  selectedItemBackground: baseTheme.colors.green[600],
+  selectedItemBackground: baseTheme.colors.grey[700],
   selectedItemColor: baseTheme.colors.clear[100],
 }
 

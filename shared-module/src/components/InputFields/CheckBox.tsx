@@ -2,6 +2,8 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { primaryFont } from "../../styles"
+
 interface CheckboxFieldExtraProps {
   label: string
   error?: boolean
@@ -9,6 +11,7 @@ interface CheckboxFieldExtraProps {
   name?: string
   /* onBlur?: (name?: string) => void */
   onChange: (checked: boolean, name?: string) => void
+  className?: string
 }
 
 const ERRORCOLOR = "#F76D82"
@@ -18,8 +21,9 @@ interface LabelExtraProps {
   error?: boolean
 }
 
+// eslint-disable-next-line i18next/no-literal-string
 const Label = styled.label<LabelExtraProps>`
-  font-family: system-ui, sans-serif;
+  font-family: ${primaryFont};
   font-size: 1.2rem;
   line-height: 1.1;
   display: grid;
@@ -81,24 +85,43 @@ const ERROR = "Please check the secret box"
 
 export type CheckboxProps = React.HTMLAttributes<HTMLInputElement> & CheckboxFieldExtraProps
 
-const CheckBox = ({ onChange, ...rest }: CheckboxFieldExtraProps) => {
+const CheckBox = ({ onChange, className, checked, ...rest }: CheckboxFieldExtraProps) => {
   return (
-    <>
+    <div
+      className={cx(
+        css`
+          margin-bottom: 1rem;
+        `,
+        className,
+      )}
+    >
       <Label {...rest}>
         <input
           type="checkbox"
-          aria-describedby={`${rest.label}_error`}
+          checked={checked}
+          aria-errormessage={`${rest.label}_error`}
+          aria-invalid={rest.error !== undefined}
           onChange={({ target: { checked } }) => onChange(checked)}
           {...rest}
         />
         <span>{rest.label}</span>
       </Label>
-      {rest.error && (
-        <span className={cx(error)} id={`${rest.label}_error`} role="alert">
-          {ERROR}
-        </span>
-      )}
-    </>
+      <span
+        className={
+          rest.error
+            ? cx(error)
+            : css`
+                visibility: hidden;
+                height: 0;
+                display: block;
+              `
+        }
+        id={`${rest.label}_error`}
+        role="alert"
+      >
+        {ERROR}
+      </span>
+    </div>
   )
 }
 

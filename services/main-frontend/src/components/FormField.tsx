@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React from "react"
 import { FieldError, FieldPath, FieldValues, UseFormRegister } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -39,6 +40,9 @@ const FormField = <T extends FieldValues>({
         defaultValue={defaultValue || ""}
         {...register(id, { required: required })}
         {...rest}
+        className={css`
+          width: 100%;
+        `}
       ></input>
       <br />
     </>

@@ -5070,6 +5070,22 @@
       "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
     }
   },
+  "72ccb19101a587401452123425b5659747e50e8cd0693b33a914a4aa10875521": {
+    "query": "\nINSERT INTO pages (\n    exam_id,\n    content,\n    url_path,\n    title,\n    order_number\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Int4"]
+      },
+      "nullable": [false]
+    }
+  },
   "730d9d3474c329d22e509b14cef2eca33b1fe2c99df9bce0836a8f1f4a47a1ab": {
     "query": "\nINSERT INTO exercise_task_submissions (\n    id,\n    exercise_slide_submission_id,\n    exercise_slide_id,\n    exercise_task_id,\n    data_json\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n        ",
     "describe": {

@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -84,7 +85,12 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
 
   return (
     <div>
-      <form onSubmit={duplicateExam ? onDuplicateExamWrapper : onCreateNewExamWrapper}>
+      <form
+        onSubmit={duplicateExam ? onDuplicateExamWrapper : onCreateNewExamWrapper}
+        className={css`
+          width: 15rem;
+        `}
+      >
         <FormField
           id={"name"}
           error={errors["name"]}
@@ -123,7 +129,6 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
           label={t("duplicate")}
           onChange={() => setDuplicateExam(!duplicateExam)}
         />
-        <br />
         {duplicateExam && (
           <SelectMenu
             id={"parentId"}
@@ -137,7 +142,6 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
             defaultValue={exams[0].id}
           />
         )}
-        <br />
         <br />
         <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
           {t("button-text-submit")}

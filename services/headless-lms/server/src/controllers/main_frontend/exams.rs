@@ -43,7 +43,7 @@ pub async fn create_exam(
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(exam.id)).await?;
 
-    let exam = exams::insert(&mut conn, exam.0).await?;
+    let exam = exams::insert(&mut conn, &exam.0).await?;
     Ok(web::Json(exam))
 }
 

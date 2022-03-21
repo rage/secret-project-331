@@ -1331,7 +1331,7 @@ async fn seed_sample_course(
     )
     .await?;
 
-    let (_page, _) = pages::insert(
+    let (_page, _) = pages::insert_course_page(
         conn,
         course.id,
         "/welcome",
@@ -2203,7 +2203,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
-    let (_page, _history) = pages::insert(conn, course.id, "/faq", "FAQ", 1, admin).await?;
+    let (_page, _history) =
+        pages::insert_course_page(conn, course.id, "/faq", "FAQ", 1, admin).await?;
 
     // Chapter-1
     let new_chapter = NewChapter {
@@ -2682,7 +2683,7 @@ async fn create_exam(
 ) -> Result<()> {
     exams::insert(
         conn,
-        NewExam {
+        &NewExam {
             id: exam_id,
             name,
             instructions: serde_json::json!([GutenbergBlock::block_with_name_and_attributes(

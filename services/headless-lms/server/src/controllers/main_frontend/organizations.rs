@@ -6,6 +6,7 @@ use models::{
     courses::{Course, CourseCount},
     exams::{CourseExam, NewExam, OrgExam},
     organizations::Organization,
+    pages::{self, NewPage},
 };
 
 use crate::controllers::{helpers::media::upload_image_for_organization, prelude::*};
@@ -265,7 +266,26 @@ async fn create_exam(
 
     authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(new_exam.id)).await?;
 
-    models::exams::insert(&mut conn, new_exam).await?;
+    models::exams::insert(&mut conn, &new_exam).await?;
+    pages::insert_exam_page(
+        &mut conn,
+        new_exam.id,
+        NewPage {
+            chapter_id: None,
+            course_id: None,
+            exam_id: Some(new_exam.id),
+            front_page_of_chapter_id: None,
+            content: serde_json::Value::Array(vec![]),
+            content_search_language: Some("simple".to_string()),
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            exercises: vec![],
+            title: "exam page".to_string(),
+            url_path: "".to_string(),
+        },
+        user.id,
+    )
+    .await?;
     Ok(web::Json(()))
 }
 

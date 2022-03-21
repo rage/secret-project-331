@@ -1,6 +1,6 @@
 use chrono::Duration;
 
-use crate::{courses::Course, prelude::*};
+use crate::{courses::Course, pages, prelude::*};
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 #[derive(Debug, Serialize, TS)]
@@ -112,7 +112,7 @@ pub struct ExamInstructionsUpdate {
     pub instructions: serde_json::Value,
 }
 
-pub async fn insert(conn: &mut PgConnection, exam: NewExam) -> ModelResult<()> {
+pub async fn insert(conn: &mut PgConnection, exam: &NewExam) -> ModelResult<()> {
     sqlx::query!(
         "
 INSERT INTO exams (
@@ -136,6 +136,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)
     )
     .execute(conn)
     .await?;
+
     Ok(())
 }
 

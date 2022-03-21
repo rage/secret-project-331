@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
 
-import { primaryFont } from "../../styles"
+import { baseTheme, primaryFont } from "../../styles"
 
 interface RadioFieldExtraProps {
   label: string
@@ -46,11 +46,11 @@ const label = css`
     border-radius: 50%;
     transform: scale(0);
     transition: 120ms transform ease-in-out;
-    background-color: #37bc9b;
+    background-color: ${baseTheme.colors.green[600]};
   }
 
   span {
-    font-family: Lato;
+    font-family: ${primaryFont};
     font-weight: 400;
     font-size: 18px;
   }

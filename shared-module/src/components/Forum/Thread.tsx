@@ -1,7 +1,7 @@
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { Fragment } from "react"
+import React, { Fragment } from "react"
+import { useTranslation } from "react-i18next"
 
 import TextAreaField from "../InputFields/TextAreaField"
 
@@ -99,20 +99,24 @@ interface ThreadProps {
   handleClick?: any
 }
 
-const Thread = (props: ThreadProps) => {
+const REPLY = "reply"
+const SUBMIT = "submit"
+
+const Thread: React.FC<ThreadProps> = (props) => {
+  const { t } = useTranslation()
   const {
     state: { items },
   } = props
 
   return (
     <Fragment>
-      {getThread(props)}
-      {items?.map((item) => getNestedThread(item))}
+      {getThread(props, t)}
+      {items?.map((item) => getNestedThread(item, t))}
     </Fragment>
   )
 }
 
-const getThread = (props: ThreadProps) => {
+const getThread = (props: ThreadProps, t: any) => {
   const { state, author, handleReply, handleClick, clicked, selectedId } = props
 
   const { id, text, time } = state
@@ -135,9 +139,9 @@ const getThread = (props: ThreadProps) => {
               <PlaceholderIcon></PlaceholderIcon>
               <StyledReplyIcon onClick={handleClick}>
                 <PlaceholderIcon></PlaceholderIcon>
-                <span id={id}>Reply</span>
+                <span id={id}>{t("reply")}</span>
               </StyledReplyIcon>
-              <StyledReportIcon>Report</StyledReportIcon>
+              <StyledReportIcon>{t("report")}</StyledReportIcon>
             </ActionTab>
             <ChatIcon>
               <PlaceholderIcon></PlaceholderIcon>
@@ -145,8 +149,12 @@ const getThread = (props: ThreadProps) => {
           </Footer>
           {clicked && selectedId === id && (
             <form onSubmit={handleReply}>
-              <TextAreaField name="reply" placeholder="leave a comment" onChange={() => null} />
-              <StyledButton type="submit" name="submit" value="Reply" />
+              <TextAreaField
+                name={REPLY}
+                placeholder={t("leave a comment")}
+                onChange={() => null}
+              />
+              <StyledButton type="submit" name={SUBMIT} value={t("reply")} />
             </form>
           )}
         </Content>
@@ -155,7 +163,7 @@ const getThread = (props: ThreadProps) => {
   )
 }
 
-const getNestedThread = (item: Item) => {
+const getNestedThread = (item: Item, t: any) => {
   const { text, time, author } = item
   return (
     text && (
@@ -183,7 +191,7 @@ const getNestedThread = (item: Item) => {
               <PlaceholderIcon></PlaceholderIcon>
               <PlaceholderIcon></PlaceholderIcon>
               <PlaceholderIcon></PlaceholderIcon>
-              <StyledReportIcon>Report</StyledReportIcon>
+              <StyledReportIcon>{t("report")}</StyledReportIcon>
             </ActionTab>
             <ChatIcon>
               <PlaceholderIcon></PlaceholderIcon>

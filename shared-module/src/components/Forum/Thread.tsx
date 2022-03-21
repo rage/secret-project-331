@@ -96,7 +96,7 @@ interface ThreadProps {
   handleReply?: (e: React.SyntheticEvent) => void
   clicked?: boolean
   selectedId?: string
-  handleClick?: any
+  handleClick?: (event: React.ChangeEvent<HTMLDivElement>) => void
 }
 
 const REPLY = "reply"

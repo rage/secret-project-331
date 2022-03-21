@@ -80,11 +80,6 @@ const Forum = () => {
 
   const current = new Date()
 
-  const handleChange = (props: any) => {
-    const { value } = props
-    setVisibility(value)
-  }
-
   const handleClick = (event: React.ChangeEvent<HTMLDivElement>) => {
     setClicked(!clicked)
     selectedId.current = event.target.id
@@ -168,13 +163,13 @@ const Forum = () => {
             label="show name"
             value="show"
             checked={visibility === "show"}
-            onChange={handleChange}
+            onChange={(value) => setVisibility(value)}
           />
           <RadioButton
             name="visibility"
             label="hide name"
             value="hide"
-            onChange={handleChange}
+            onChange={(value) => setVisibility(value)}
             checked={visibility === "hide"}
           />
         </RadioSection>

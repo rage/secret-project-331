@@ -260,18 +260,19 @@ mod test {
 
     use bytes::Bytes;
     use headless_lms_models::{
-        exercise_slide_submissions::{self, NewExerciseSlideSubmission},
         exercise_slides,
         exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
         exercise_task_submissions, exercise_tasks,
         exercises::{self, GradingProgress},
-        users,
+        library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission},
+        user_exercise_slide_states, user_exercise_task_states, users,
     };
     use serde_json::Value;
 
     use super::*;
     use crate::test_helper::*;
 
+    // THIS FAILS
     #[tokio::test]
     async fn exports() {
         insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
@@ -362,32 +363,43 @@ mod test {
         score_given: f32,
     ) {
         let exercise = exercises::get_by_id(tx, ex).await.unwrap();
-        let exercise_slide_submission =
-            exercise_slide_submissions::insert_exercise_slide_submission(
+        let user_exercise_state =
+            user_exercise_states::get_or_create_user_exercise_state(tx, u, ex, Some(ci), None)
+                .await
+                .unwrap();
+        user_exercise_states::upsert_selected_exercise_slide_id(
+            tx,
+            u,
+            ex,
+            Some(ci),
+            None,
+            Some(ex_slide),
+        )
+        .await
+        .unwrap();
+        let user_exercise_slide_state_id =
+            user_exercise_slide_states::insert(tx, user_exercise_state.id, ex_slide)
+                .await
+                .unwrap();
+        let slide_submission =
+            headless_lms_models::library::grading::create_user_exercise_slide_submission(
                 tx,
-                NewExerciseSlideSubmission {
-                    course_id: Some(c),
-                    course_instance_id: Some(ci),
-                    exam_id: None,
-                    exercise_id: ex,
-                    user_id: u,
+                &exercise,
+                &user_exercise_state,
+                StudentExerciseSlideSubmission {
                     exercise_slide_id: ex_slide,
-                    user_points_update_strategy:
-                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
+                    exercise_task_submissions: vec![StudentExerciseTaskSubmission {
+                        exercise_task_id: et,
+                        data_json: Value::Null,
+                    }],
                 },
             )
             .await
             .unwrap();
-        let s = exercise_task_submissions::insert(
-            tx,
-            exercise_slide_submission.id,
-            ex_slide,
-            et,
-            Value::Null,
-        )
-        .await
-        .unwrap();
-        let submission = exercise_task_submissions::get_by_id(tx, s).await.unwrap();
+        let submission = slide_submission
+            .exercise_slide_submission_tasks
+            .first()
+            .unwrap();
         let grading = exercise_task_gradings::new_grading(tx, &exercise, &submission)
             .await
             .unwrap();
@@ -406,9 +418,13 @@ mod test {
         exercise_task_submissions::set_grading_id(tx, grading.id, submission.id)
             .await
             .unwrap();
-        user_exercise_states::update_user_exercise_state_after_submission(
+        user_exercise_task_states::upsert_with_grading(tx, user_exercise_slide_state_id, &grading)
+            .await
+            .unwrap();
+        headless_lms_models::library::grading::update_points_for_user_exercise_state(
             tx,
-            &exercise_slide_submission,
+            user_exercise_state,
+            UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
         )
         .await
         .unwrap();

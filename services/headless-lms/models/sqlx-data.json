@@ -8059,6 +8059,64 @@
       "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
+  "bc9ec84596a94fb96cb6efa0bc1ea8e7b99add5da3e67ec659365c02623a770c": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  user_exercise_state_id,\n  score_given,\n  grading_progress AS \"grading_progress: _\"\nFROM user_exercise_slide_states\nWHERE user_exercise_state_id = $1\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "exercise_slide_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "user_exercise_state_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 7,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, false, false, true, false]
+    }
+  },
   "bd0d6dbc44d2430327d775796d4ab1ec8a2c6eb29d27592fe5cffbfd9dc98213": {
     "query": "\nSELECT course_id,\n  exam_id\nfrom exercise_task_gradings\nwhere id = $1\n",
     "describe": {
@@ -8303,6 +8361,34 @@
         "Left": ["Uuid"]
       },
       "nullable": []
+    }
+  },
+  "c2e755ac4f0fe429d46f15c303e97a6feea1a7c4aa6c5a1ee7d758407c3385c6": {
+    "query": "\nINSERT INTO user_exercise_slide_states (\n    id,\n    exercise_slide_id,\n    user_exercise_state_id,\n    grading_progress\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              }
+            }
+          }
+        ]
+      },
+      "nullable": [false]
     }
   },
   "c41883ff57f67f01814525030af67d4a3bc472010ee6871a3191dcd0ee3e8f53": {
@@ -10882,113 +10968,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, false, false, false, true, false]
-    }
-  },
-  "fac0f6777eaccc0edbbce1fed4980a747ee4d9f818f502a9aee9ebb78cf632b2": {
-    "query": "\nUPDATE user_exercise_states\nSET score_given = $4, grading_progress = $5, activity_progress = $6\nWHERE user_id = $1\nAND exercise_id = $2\nAND (course_instance_id = $3 OR exam_id = $7)\nRETURNING id,\n  user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\",\n  selected_exercise_slide_id;\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "exercise_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_instance_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "exam_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 7,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "score_given",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 9,
-          "name": "grading_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 10,
-          "name": "activity_progress: _",
-          "type_info": {
-            "Custom": {
-              "name": "activity_progress",
-              "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 11,
-          "name": "selected_exercise_slide_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid",
-          "Uuid",
-          "Float4",
-          {
-            "Custom": {
-              "name": "grading_progress",
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              }
-            }
-          },
-          {
-            "Custom": {
-              "name": "activity_progress",
-              "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
-              }
-            }
-          },
-          "Uuid"
-        ]
-      },
-      "nullable": [false, false, false, true, true, false, false, true, true, false, false, true]
     }
   },
   "fb18b61c85778ef2bffb9dc1d388e1f5d1a7f53af4ffbe102a731c39a353afe8": {

@@ -36,6 +36,33 @@ RETURNING id
     Ok(res.id)
 }
 
+pub async fn insert_with_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+    user_exercise_state_id: Uuid,
+    exercise_slide_id: Uuid,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO user_exercise_slide_states (
+    id,
+    exercise_slide_id,
+    user_exercise_state_id,
+    grading_progress
+  )
+VALUES ($1, $2, $3, $4)
+RETURNING id
+        ",
+        id,
+        exercise_slide_id,
+        user_exercise_state_id,
+        GradingProgress::NotReady as GradingProgress,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<UserExerciseSlideState> {
     let res = sqlx::query_as!(
         UserExerciseSlideState,
@@ -84,6 +111,32 @@ WHERE user_exercise_state_id = $1
         exercise_slide_id,
     )
     .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_all_by_user_exercise_state_id(
+    conn: &mut PgConnection,
+    user_exercise_state_id: Uuid,
+) -> ModelResult<Vec<UserExerciseSlideState>> {
+    let res = sqlx::query_as!(
+        UserExerciseSlideState,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  user_exercise_state_id,
+  score_given,
+  grading_progress AS "grading_progress: _"
+FROM user_exercise_slide_states
+WHERE user_exercise_state_id = $1
+  AND deleted_at IS NULL
+        "#,
+        user_exercise_state_id
+    )
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }

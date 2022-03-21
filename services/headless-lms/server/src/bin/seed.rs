@@ -33,7 +33,8 @@ use headless_lms_models::{
     proposed_page_edits::NewProposedPageEdits,
     roles::UserRole,
     roles::{self, RoleDomain},
-    url_redirections, user_exercise_states, users,
+    url_redirections, user_exercise_slide_states, user_exercise_states, user_exercise_task_states,
+    users,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::Value;
@@ -2613,6 +2614,23 @@ async fn submit_and_grade(
     )
     .await
     .unwrap();
+    let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+        conn,
+        user_id,
+        exercise_id,
+        Some(course_instance_id),
+        None,
+    )
+    .await
+    .unwrap();
+    let user_exercise_slide_state_id = user_exercise_slide_states::insert_with_id(
+        conn,
+        Uuid::new_v4(),
+        user_exercise_state.id,
+        exercise_slide_id,
+    )
+    .await
+    .unwrap();
     let task_submission_id = exercise_task_submissions::insert_with_id(
         conn,
         &exercise_task_submissions::SubmissionData {
@@ -2641,9 +2659,17 @@ async fn submit_and_grade(
     };
     let grading =
         exercise_task_gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
+    user_exercise_task_states::upsert_with_grading(conn, user_exercise_slide_state_id, &grading)
+        .await
+        .unwrap();
     exercise_task_submissions::set_grading_id(conn, grading.id, task_submission.id).await?;
-    user_exercise_states::update_user_exercise_state_after_submission(conn, &slide_submission)
-        .await?;
+    headless_lms_models::library::grading::update_points_for_user_exercise_state(
+        conn,
+        user_exercise_state,
+        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
+    )
+    .await
+    .unwrap();
     Ok(())
 }
 

@@ -80,7 +80,7 @@ async fn post_submission(
     let mut result = models::library::grading::grade_user_submission(
         &mut conn,
         &exercise,
-        &user_exercise_state,
+        user_exercise_state,
         payload.0,
     )
     .await?;

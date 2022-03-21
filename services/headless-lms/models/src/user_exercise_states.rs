@@ -3,11 +3,8 @@ use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use serde_json::Value;
 
 use crate::{
-    exercise_slide_submissions::ExerciseSlideSubmission,
-    exercise_task_gradings,
     exercises::{ActivityProgress, GradingProgress},
     prelude::*,
-    user_exercise_task_states,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -455,83 +452,6 @@ RETURNING id,
     Ok(res)
 }
 
-pub async fn update_user_exercise_state_after_submission(
-    conn: &mut PgConnection,
-    exercise_slide_submission: &ExerciseSlideSubmission,
-) -> ModelResult<UserExerciseState> {
-    let current_state = get_or_create_user_exercise_state(
-        conn,
-        exercise_slide_submission.user_id,
-        exercise_slide_submission.exercise_id,
-        exercise_slide_submission.course_instance_id,
-        exercise_slide_submission.exam_id,
-    )
-    .await?;
-
-    // There used to be only one task per exercise. For now this data is summarized from a set of
-    // submissions belonging to a slide submission.
-    let score_given = exercise_task_gradings::get_total_score_given_for_exercise_slide_submission(
-        conn,
-        &exercise_slide_submission.id,
-    )
-    .await?;
-    let grading_progress = exercise_task_gradings::get_point_update_strategy_from_gradings(
-        conn,
-        &exercise_slide_submission.id,
-    )
-    .await?;
-    info!(
-        "Using user points updating strategy {:?}",
-        exercise_slide_submission.user_points_update_strategy,
-    );
-    let new_score_given = user_exercise_task_states::figure_out_new_score_given(
-        current_state.score_given,
-        score_given,
-        exercise_slide_submission.user_points_update_strategy,
-    );
-
-    let new_grading_progress = user_exercise_task_states::figure_out_new_grading_progress(
-        Some(current_state.grading_progress),
-        grading_progress,
-    );
-    let new_activity_progress = user_exercise_task_states::figure_out_new_activity_progress(
-        current_state.activity_progress,
-    );
-
-    let res = sqlx::query_as!(
-        UserExerciseState,
-        r#"
-UPDATE user_exercise_states
-SET score_given = $4, grading_progress = $5, activity_progress = $6
-WHERE user_id = $1
-AND exercise_id = $2
-AND (course_instance_id = $3 OR exam_id = $7)
-RETURNING id,
-  user_id,
-  exercise_id,
-  course_instance_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress as "grading_progress: _",
-  activity_progress as "activity_progress: _",
-  selected_exercise_slide_id;
-    "#,
-        exercise_slide_submission.user_id,
-        exercise_slide_submission.exercise_id,
-        exercise_slide_submission.course_instance_id,
-        new_score_given,
-        new_grading_progress as GradingProgress,
-        new_activity_progress as ActivityProgress,
-        exercise_slide_submission.exam_id
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct CourseInstanceUserPoints {
     pub user_id: Uuid,
@@ -676,92 +596,4 @@ SELECT exercises.name as exercise_name,
     .fetch_all(conn)
     .await?;
     Ok(res)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::{
-        exercise_slide_submissions::{self, NewExerciseSlideSubmission},
-        exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
-        exercise_task_submissions::{self, SubmissionData},
-        exercises,
-        test_helper::*,
-    };
-
-    #[tokio::test]
-    async fn updates_exercise_states() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
-        let slide_submission =
-            exercise_slide_submissions::insert_exercise_slide_submission_with_id(
-                tx.as_mut(),
-                Uuid::new_v4(),
-                &NewExerciseSlideSubmission {
-                    course_id: Some(course),
-                    course_instance_id: Some(instance.id),
-                    exam_id: None,
-                    exercise_id: exercise,
-                    user_id: user,
-                    exercise_slide_id: slide,
-                    user_points_update_strategy:
-                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
-                },
-            )
-            .await
-            .unwrap();
-        let task_submission_id = exercise_task_submissions::insert_with_id(
-            tx.as_mut(),
-            &SubmissionData {
-                exercise_id: exercise,
-                course_id: course,
-                exercise_task_id: task,
-                user_id: user,
-                course_instance_id: instance.id,
-                exercise_slide_id: slide,
-                data_json: serde_json::json! {"abcd"},
-                id: Uuid::new_v4(),
-                exercise_slide_submission_id: slide_submission.id,
-            },
-        )
-        .await
-        .unwrap();
-        let task_submission = exercise_task_submissions::get_by_id(tx.as_mut(), task_submission_id)
-            .await
-            .unwrap();
-        let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
-        let task_grading =
-            exercise_task_gradings::new_grading(tx.as_mut(), &exercise, &task_submission)
-                .await
-                .unwrap();
-        exercise_task_gradings::update_grading(
-            tx.as_mut(),
-            &task_grading,
-            &ExerciseTaskGradingResult {
-                feedback_json: None,
-                feedback_text: None,
-                grading_progress: GradingProgress::FullyGraded,
-                score_given: 100.0,
-                score_maximum: 100,
-            },
-            &exercise,
-        )
-        .await
-        .unwrap();
-        exercise_task_submissions::set_grading_id(tx.as_mut(), task_grading.id, task_submission.id)
-            .await
-            .unwrap();
-        update_user_exercise_state_after_submission(tx.as_mut(), &slide_submission)
-            .await
-            .unwrap();
-        let state = get_or_create_user_exercise_state(
-            tx.as_mut(),
-            user,
-            exercise.id,
-            Some(instance.id),
-            None,
-        )
-        .await
-        .unwrap();
-        assert!(state.score_given.is_some());
-    }
 }

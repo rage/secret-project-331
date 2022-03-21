@@ -172,7 +172,6 @@ pub async fn export_submissions(
 /**
  * POST `/api/v0/cms/exams/:exam_id/duplicate` - duplicates existing exam.
  */
-
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn duplicate_exam(

@@ -16,7 +16,8 @@ pub struct Exam {
     pub time_minutes: i32,
 }
 
-#[derive(Debug, Serialize, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct OrgExam {
     pub id: Uuid,
     pub name: String,
@@ -83,7 +84,7 @@ WHERE course_exams.exam_id = $1
     })
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseExam {
     pub id: Uuid,
@@ -92,7 +93,8 @@ pub struct CourseExam {
     pub name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewExam {
     pub id: Uuid,
     pub name: String,

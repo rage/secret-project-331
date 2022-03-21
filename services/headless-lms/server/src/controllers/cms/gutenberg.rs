@@ -168,7 +168,7 @@ async fn get_mentimeter_oembed_data(
         author_name: "Mooc.fi".to_string(),
         author_url: app_conf.base_url.to_string(),
         html: format!(
-            "<iframe src={} style='width: 99%' height={:?} title={:?}> </iframe>",
+            "<iframe src={} style='width: 99%;' height={:?} title={:?}></iframe>",
             url,
             params.get("height").unwrap_or(&"500".to_string()),
             params

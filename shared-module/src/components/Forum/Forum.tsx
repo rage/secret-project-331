@@ -80,9 +80,9 @@ const Forum = () => {
 
   const current = new Date()
 
-  const handleClick = (event: React.ChangeEvent<HTMLDivElement>) => {
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     setClicked(!clicked)
-    selectedId.current = event.target.id
+    selectedId.current = event.currentTarget.id
   }
 
   const handleReply = (e: React.SyntheticEvent) => {

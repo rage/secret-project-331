@@ -141,7 +141,7 @@ const SideNavigation = () => {
 
       <h2>Current course</h2>
       <ol>
-        {currentCourse.map(({ text, items, id }) => (
+        {currentCourse.map(({ text, items, id, path }) => (
           <StyledDiv
             key={text}
             onClick={() => {
@@ -151,13 +151,13 @@ const SideNavigation = () => {
           >
             <li>
               <PlaceholderAvatar></PlaceholderAvatar>
-              <a>{text}</a>
+              <a href={path}>{text}</a>
             </li>
             {active === id &&
               items?.map(({ text, path }) => (
                 <ListItem key={text}>
                   <PlaceholderAvatar></PlaceholderAvatar>
-                  <a>{text}</a>
+                  <a href={path}>{text}</a>
                 </ListItem>
               ))}
           </StyledDiv>

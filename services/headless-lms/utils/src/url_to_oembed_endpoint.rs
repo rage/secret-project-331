@@ -1,7 +1,30 @@
+use std::collections::HashMap;
+
 use url::Url;
 
 use crate::UtilError;
+use serde::{Deserialize, Serialize};
 use urlencoding::encode;
+
+#[cfg(feature = "ts_rs")]
+use ts_rs::TS;
+
+#[derive(Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct OEmbedResponse {
+    pub author_name: String,
+    pub author_url: String,
+    pub html: String,
+    pub provider_name: String,
+    pub provider_url: String,
+    pub title: String,
+    pub version: String,
+}
+
+#[derive(Deserialize)]
+pub struct OEmbedRequest {
+    pub url: String,
+}
 
 // https://github.com/WordPress/wordpress-develop/blob/master/src/wp-includes/class-wp-oembed.php
 pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> Result<Url, UtilError> {
@@ -87,6 +110,37 @@ pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> Result<U
     } else {
         Err(UtilError::Other("Failed to parse host from URL."))
     }
+}
+
+pub fn mentimeter_oembed_response_builder(
+    url: String,
+    base_url: String,
+) -> Result<OEmbedResponse, UtilError> {
+    let parsed_url = Url::parse(url.as_str()).unwrap();
+    let params: HashMap<_, _> = parsed_url.query_pairs().into_owned().collect();
+    let response = OEmbedResponse {
+        author_name: "Mooc.fi".to_string(),
+        author_url: base_url,
+        html: format!(
+            "<iframe src={} style='width: 99%;' height={:?} title={:?}></iframe>",
+            url,
+            params.get("height").unwrap_or(&"500".to_string()),
+            params
+                .get("title")
+                .unwrap_or(&"Mentimeter embed".to_string())
+        ),
+        provider_name: "mentimeter".to_string(),
+        provider_url: parsed_url
+            .host_str()
+            .unwrap_or("https://www.mentimeter.com")
+            .to_string(),
+        title: params
+            .get("title")
+            .unwrap_or(&"Mentimeter embed".to_string())
+            .to_string(),
+        version: "1.0".to_string(),
+    };
+    Ok(response)
 }
 
 fn oembed_url_builder(url: &str, query_params: &str) -> Result<Url, UtilError> {

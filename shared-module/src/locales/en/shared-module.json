@@ -52,5 +52,11 @@
   "translate": "Translate",
   "university-of-helsinki": "University of Helsinki",
   "dropdown-menu": "Dropdown menu",
+  "reply": "Reply",
+  "report": "Report",
+  "leave-a-comment": "Leave a comment",
+  "show": "show",
+  "hide": "hide",
+  "submit": "Submit",
   "set-field-value": "Set {{name}}"
 }

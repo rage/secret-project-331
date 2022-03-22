@@ -2,7 +2,7 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 
 interface TextAreaExtraProps {
-  label: string
+  label?: string
   name?: string
   errorMessage?: string
   placeholder?: string
@@ -44,7 +44,11 @@ const TextArea = ({ onChange, className, ...rest }: TextAreaExtraProps) => {
     >
       <label>
         <span>{rest.label}</span>
-        <textarea onChange={({ target: { value } }) => onChange(value)} {...rest} />
+        <textarea
+          onChange={({ target: { value, name } }) => onChange(value, name)}
+          /* onKeyPress={(event) => onKeyPress(event)} */
+          {...rest}
+        />
       </label>
     </div>
   )

@@ -123,8 +123,6 @@ const ListItem = styled.li`
   margin-left: 2rem;
 `
 
-const StyledDiv = styled.div``
-
 const SideNavigation = () => {
   const [active, setActive] = useState<string>()
 
@@ -141,13 +139,19 @@ const SideNavigation = () => {
 
       <h2>Current course</h2>
       <ol>
-        {currentCourse.map(({ text, items, id, path }) => (
-          <StyledDiv
+        {currentCourse.map(({ text, items, id, path }, index) => (
+          <div
             key={text}
             onClick={() => {
               const activeId = active !== id && items ? id : ""
               setActive(activeId)
             }}
+            onKeyDown={() => {
+              const activeId = active !== id && items ? id : ""
+              setActive(activeId)
+            }}
+            role="button"
+            tabIndex={index}
           >
             <li>
               <PlaceholderAvatar></PlaceholderAvatar>
@@ -160,7 +164,7 @@ const SideNavigation = () => {
                   <a href={path}>{text}</a>
                 </ListItem>
               ))}
-          </StyledDiv>
+          </div>
         ))}
       </ol>
 

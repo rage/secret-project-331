@@ -52,13 +52,6 @@ const Wrapper = styled.div`
     padding-left: 1rem;
   }
 
-  ol:first-of-type {
-    margin-bottom: 4rem;
-  }
-  ol:last-of-type {
-    margin-bottom: 3rem;
-  }
-
   ol {
     text-decoration: none;
     list-style: none;
@@ -98,6 +91,13 @@ const Wrapper = styled.div`
         align-self: center;
       }
     }
+  }
+
+  ol:first-of-type {
+    margin-bottom: 4rem;
+  }
+  ol:last-of-type {
+    margin-bottom: 3rem;
   }
 `
 

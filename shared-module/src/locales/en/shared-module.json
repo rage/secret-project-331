@@ -54,5 +54,8 @@
   "dropdown-menu": "Dropdown menu",
   "reply": "Reply",
   "report": "Report",
-  "leave a comment": "Leave a comment"
+  "leave-a-comment": "Leave a comment",
+  "show": "show",
+  "hide": "hide",
+  "submit": "submit"
 }

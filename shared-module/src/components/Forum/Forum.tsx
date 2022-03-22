@@ -1,6 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import React, { useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import RadioButton from "../InputFields/RadioButton"
 import TextAreaField from "../InputFields/TextAreaField"
@@ -80,9 +81,12 @@ const Forum = () => {
 
   const current = new Date()
 
-  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const { t } = useTranslation()
+
+  const handleClick = (event: React.MouseEvent<HTMLInputElement>) => {
     setClicked(!clicked)
-    selectedId.current = event.currentTarget.id
+    const target = event.target as HTMLInputElement
+    selectedId.current = target.id
   }
 
   const handleReply = (e: React.SyntheticEvent) => {
@@ -161,20 +165,20 @@ const Forum = () => {
           <StRadio
             name="visibility"
             label="show name"
-            value="show"
+            value={t("show")}
             checked={visibility === "show"}
             onChange={(value) => setVisibility(value)}
           />
           <RadioButton
             name="visibility"
             label="hide name"
-            value="hide"
+            value={t("hide")}
             onChange={(value) => setVisibility(value)}
             checked={visibility === "hide"}
           />
         </RadioSection>
-        <TextAreaField name="comment" placeholder="leave a comment" onChange={() => null} />
-        <StyledButton type="submit" name="submit" value="Submit" />
+        <TextAreaField name="comment" placeholder={t("leave-a-comment")} onChange={() => null} />
+        <StyledButton type="submit" name="submit" value={t("submit")} />
       </CommentSection>
     </Wrapper>
   )

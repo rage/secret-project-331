@@ -96,7 +96,7 @@ interface ThreadProps {
   handleReply?: (e: React.SyntheticEvent) => void
   clicked?: boolean
   selectedId?: string
-  handleClick?: (event: React.MouseEvent<HTMLDivElement>) => void
+  handleClick?: (event: React.MouseEvent<HTMLInputElement>) => void
 }
 
 const REPLY = "reply"
@@ -151,7 +151,7 @@ const getThread = (props: ThreadProps, t: any) => {
             <form onSubmit={handleReply}>
               <TextAreaField
                 name={REPLY}
-                placeholder={t("leave a comment")}
+                placeholder={t("leave-a-comment")}
                 onChange={() => null}
               />
               <StyledButton type="submit" name={SUBMIT} value={t("reply")} />

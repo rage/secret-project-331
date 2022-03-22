@@ -57,5 +57,6 @@
   "leave-a-comment": "Leave a comment",
   "show": "show",
   "hide": "hide",
-  "submit": "submit"
+  "submit": "submit",
+  "set-field-value": "Set field value"
 }

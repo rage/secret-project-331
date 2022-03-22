@@ -58,5 +58,5 @@
   "show": "show",
   "hide": "hide",
   "submit": "submit",
-  "set-field-value": "Set field value"
+  "set-field-value": "Set {{name}}"
 }

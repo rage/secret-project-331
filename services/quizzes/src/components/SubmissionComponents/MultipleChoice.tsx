@@ -109,79 +109,84 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
           }
           return (
             <>
-              <div
-                key={qo.id}
-                className={cx(
-                  gradingOption,
-                  selectedAnswer && gradingOptionSelected,
-                  selectedAnswer && correctAnswer === false && gradingOptionWrongAndSelected,
-                  selectedAnswer && correctAnswer === true && gradingOptionCorrectAndSelected,
-                )}
-              >
-                <div
-                  className={css`
-                    padding: 1rem 0;
-                  `}
-                >
-                  <MarkdownText text={qo.title || qo.body || ""} />
-                </div>
-                <div>
-                  <div
-                    className={css`
-                      display: flex;
-                      flex-direction: column;
-                    `}
-                  >
-                    <div>{correctAnswer == true && t("correct-option")}</div>
-                    <div>{correctAnswer == false && t("incorrect-option")}</div>
-                  </div>
-                </div>
-              </div>
               <div>
-                {feedbackDisplayPolicy === "DisplayFeedbackOnQuizItem" && submissionFeedback ? (
-                  <>
-                    {selectedAnswer ? (
-                      <div
-                        className={css`
-                          margin-left: 2em;
-                          display: flex;
-                          border-left: ${submissionFeedback.correct
-                            ? `6px solid #1F6964`
-                            : `6px solid #A84835`};
-                          box-sizing: border-box;
-                          padding: 0.5rem 0px 0.5rem 0.5rem;
-                          margin-bottom: 5px !important;
-                        `}
-                      >
-                        <p>
-                          {submissionFeedback.correct
-                            ? submissionFeedback.successMessage
-                            : submissionFeedback.failureMessage}
-                        </p>
-                      </div>
-                    ) : null}
-                  </>
-                ) : null}
-                {feedbackDisplayPolicy === "DisplayFeedbackOnAllOptions" && submissionFeedback ? (
+                <div
+                  key={qo.id}
+                  className={cx(
+                    gradingOption,
+                    selectedAnswer && gradingOptionSelected,
+                    selectedAnswer && correctAnswer === false && gradingOptionWrongAndSelected,
+                    selectedAnswer && correctAnswer === true && gradingOptionCorrectAndSelected,
+                  )}
+                >
                   <div
                     className={css`
-                      margin-left: 2em;
-                      display: flex;
-                      border-left: ${submissionFeedback.correct
-                        ? `6px solid #1F6964`
-                        : `6px solid #A84835`};
-                      box-sizing: border-box;
-                      padding: 0.5rem 0px 0.5rem 0.5rem;
-                      margin-bottom: 5px !important;
+                      padding: 1rem 0;
                     `}
                   >
-                    <p>
-                      {submissionFeedback.correct
-                        ? submissionFeedback.successMessage
-                        : submissionFeedback.failureMessage}
-                    </p>
+                    <MarkdownText text={qo.title || qo.body || ""} />
                   </div>
-                ) : null}
+                  <div>
+                    <div
+                      className={css`
+                        display: flex;
+                        flex-direction: ${public_quiz_item.direction === "column"
+                          ? "row"
+                          : "column"};
+                      `}
+                    >
+                      <div>{correctAnswer == true && t("correct-option")}</div>
+                      <div>{correctAnswer == false && t("incorrect-option")}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  {feedbackDisplayPolicy === "DisplayFeedbackOnQuizItem" && submissionFeedback ? (
+                    <>
+                      {selectedAnswer ? (
+                        <div
+                          className={css`
+                            margin-left: 2em;
+                            display: flex;
+                            border-left: ${submissionFeedback.correct
+                              ? `6px solid #1F6964`
+                              : `6px solid #A84835`};
+                            box-sizing: border-box;
+                            padding: 0.5rem 0px 0.5rem 0.5rem;
+                            margin-bottom: 5px !important;
+                          `}
+                        >
+                          <p>
+                            {submissionFeedback.correct
+                              ? submissionFeedback.successMessage
+                              : submissionFeedback.failureMessage}
+                          </p>
+                        </div>
+                      ) : null}
+                    </>
+                  ) : null}
+                  {feedbackDisplayPolicy === "DisplayFeedbackOnAllOptions" && submissionFeedback ? (
+                    <div
+                      className={css`
+                        margin-left: 2em;
+                        display: flex;
+                        border-left: ${submissionFeedback.correct
+                          ? `6px solid #1F6964`
+                          : `6px solid #A84835`};
+                        box-sizing: border-box;
+                        padding: 0.5rem 0px 0.5rem 0.5rem;
+                        margin-bottom: 5px !important;
+                      `}
+                    >
+                      <p>
+                        {submissionFeedback.correct
+                          ? submissionFeedback.successMessage
+                          : submissionFeedback.failureMessage}
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </>
           )

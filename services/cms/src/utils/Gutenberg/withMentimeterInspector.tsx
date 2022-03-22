@@ -1,11 +1,17 @@
+import { css } from "@emotion/css"
 import { InspectorControls } from "@wordpress/block-editor"
 import { PanelBody, TextControl } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
+import { useTranslation } from "react-i18next"
+
+import { baseTheme } from "../../shared-module/styles"
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
-  const mentiMeterEmbed = (props: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const MentiMeterEmbed = (props: any) => {
+    const { t } = useTranslation()
     if (props.attributes.providerNameSlug !== "mentimeter") {
       return <BlockEdit {...props} />
     }
@@ -14,6 +20,7 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
       if (!url) {
         return
       }
+      // eslint-disable-next-line i18next/no-literal-string
       const re = new RegExp("([?&])" + key + "=.*?(&|$)", "i")
       const separator = url.indexOf("?") !== -1 ? "&" : "?"
       if (url.match(re)) {
@@ -28,44 +35,50 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
       <Fragment>
         <BlockEdit {...props} />
         <InspectorControls>
-          <PanelBody title={"Mentimeter attributes"} initialOpen={true}>
-            <p>
-              Please first set the URL in the input box on the left and then press the Embed. After
-              that you can edit the height and title.
+          <PanelBody title={t("menti-panel-title")} initialOpen={true}>
+            <p
+              className={css`
+                font-size: ${baseTheme.fontSizes[0]};
+                margin: 1rem 0;
+              `}
+            >
+              {t("menti-panel-instructions")}
             </p>
             <TextControl
               key={"title-edit"}
-              label={"Title"}
+              label={t("menti-title-label")}
               value={title}
               onChange={(value) => {
                 props.setAttributes({
                   title: value,
+                  // eslint-disable-next-line i18next/no-literal-string
                   url: updateQueryStringParameter(url, "title", value),
                 })
-                console.log(url)
               }}
-              help={"Set a title which is used for example by screen readers."}
+              help={t("menti-title-help-text")}
             />
             <TextControl
               key={"height-edit"}
-              label={"Height"}
+              label={t("menti-height-label")}
               value={height}
               onChange={(value) => {
                 props.setAttributes({
                   height: value,
+                  // eslint-disable-next-line i18next/no-literal-string
                   url: updateQueryStringParameter(url, "height", value),
                 })
-                console.log(url)
               }}
-              help={"Set the correct height so that the scrollbar disappears."}
+              help={t("menti-height-help-text")}
             />
           </PanelBody>
         </InspectorControls>
       </Fragment>
     )
   }
-  mentiMeterEmbed.displayName = "MentimeterComponent"
-  return mentiMeterEmbed
+  // eslint-disable-next-line i18next/no-literal-string
+  MentiMeterEmbed.displayName = "MentimeterComponent"
+  return MentiMeterEmbed
+  // eslint-disable-next-line i18next/no-literal-string
 }, "withMentimeterInspector")
 
 export default withMentimeterInspector

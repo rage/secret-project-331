@@ -924,6 +924,8 @@ export interface EmbedAttributes {
     [k: string]: unknown
   }
   className?: string
+  height?: number
+  title?: string
 }
 
 /**
@@ -942,6 +944,8 @@ export interface EmbedDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  height?: number
+  title?: string
 }
 
 export interface FileAttributes {

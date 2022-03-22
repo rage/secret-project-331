@@ -12,7 +12,6 @@ import "@wordpress/block-library/build-style/editor.css"
 import "@wordpress/format-library/build-style/style.css"
 
 import { css } from "@emotion/css"
-import { CSSProperties } from "@emotion/serialize"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
@@ -30,15 +29,11 @@ import {
 // @ts-ignore: no type definition
 import { BlockTools } from "@wordpress/block-editor/build-module/components/"
 import { registerCoreBlocks } from "@wordpress/block-library"
-// @ts-ignore: no type definition
-import { embedContentIcon } from "@wordpress/block-library/build-module/embed/icons"
 import {
   BlockInstance,
   getBlockType,
   getBlockTypes,
   registerBlockType,
-  /* @ts-ignore: type signature incorrect */
-  registerBlockVariation,
   unregisterBlockType,
   /* @ts-ignore: type signature incorrect */
   unregisterBlockVariation,
@@ -54,8 +49,12 @@ import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodri
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import SelectField from "../../shared-module/components/InputFields/SelectField"
 import { primaryFont } from "../../shared-module/styles"
-import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
+import {
+  modifyEmbedBlockAttributes,
+  modifyImageBlockAttributes,
+} from "../../utils/Gutenberg/modifyBlockAttributes"
 import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
+import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
 
 interface GutenbergEditorProps {
@@ -106,13 +105,7 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
     // Register all core blocks
     registerCoreBlocks()
     // We register the BlockVariation and if it's not in allowedBlockVariations, it will be removed.
-    registerBlockVariation("core/embed", {
-      name: "mentimeter",
-      title: "Mentimeter",
-      icon: embedContentIcon,
-      description: "Insert Mentimeter URL to embed its content.",
-      attributes: { providerNameSlug: "mentimeter" },
-    })
+    registerBlockVariations()
 
     // Unregister unwanted blocks
     if (allowedBlocks) {
@@ -151,9 +144,10 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
     window.wp = null
   }, [allowedBlockVariations, allowedBlocks, customBlocks])
 
-  // Ensure that type core/image has some attributes set to a value, so that the CMS/image block doesn't crash when uploading image.
   // eslint-disable-next-line i18next/no-literal-string
-  addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
+  addFilter("blocks.registerBlockType", "moocfi/modifyImageAttributes", modifyImageBlockAttributes)
+  // eslint-disable-next-line i18next/no-literal-string
+  addFilter("blocks.registerBlockType", "moocfi/modifyEmbedAttributes", modifyEmbedBlockAttributes)
 
   // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
   // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)

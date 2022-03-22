@@ -116,14 +116,17 @@ pub fn mentimeter_oembed_response_builder(
     url: String,
     base_url: String,
 ) -> Result<OEmbedResponse, UtilError> {
-    let parsed_url = Url::parse(url.as_str()).unwrap();
+    let mut parsed_url = Url::parse(url.as_str()).unwrap();
+    // Get the height and title params
     let params: HashMap<_, _> = parsed_url.query_pairs().into_owned().collect();
+    // We want to remove the query params so that the iframe src url doesn't have them
+    parsed_url.set_query(None);
     let response = OEmbedResponse {
         author_name: "Mooc.fi".to_string(),
         author_url: base_url,
         html: format!(
             "<iframe src={} style='width: 99%;' height={:?} title={:?}></iframe>",
-            url,
+            parsed_url,
             params.get("height").unwrap_or(&"500".to_string()),
             params
                 .get("title")

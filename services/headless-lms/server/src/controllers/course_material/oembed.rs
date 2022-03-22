@@ -5,7 +5,7 @@ use headless_lms_utils::url_to_oembed_endpoint::{
 };
 
 /**
-GET `/api/v0/course-material/oembed-edits/mentimeter?url=https://menti.com/123qwerty`
+GET `/api/v0/course-material/oembed/mentimeter?url=https://menti.com/123qwerty`
 */
 async fn get_mentimeter_oembed_data(
     query_params: web::Query<OEmbedRequest>,
@@ -24,8 +24,5 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route(
-        "/oembed/mentimeter",
-        web::get().to(get_mentimeter_oembed_data),
-    );
+    cfg.route("/mentimeter", web::get().to(get_mentimeter_oembed_data));
 }

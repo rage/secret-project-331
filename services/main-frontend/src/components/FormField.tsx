@@ -42,6 +42,7 @@ const FormField = <T extends FieldValues>({
         {...rest}
         className={css`
           width: 100%;
+          margin-bottom: 0.5rem;
         `}
       ></input>
       <br />

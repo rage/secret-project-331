@@ -87,7 +87,13 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
           margin-bottom: 1rem;
         `}
       >
-        <Dialog open={newExamFormOpen} onClose={() => setNewExamFormOpen(!newExamFormOpen)}>
+        <Dialog
+          open={newExamFormOpen}
+          onClose={() => setNewExamFormOpen(!newExamFormOpen)}
+          className={css`
+            padding: 1rem;
+          `}
+        >
           <div
             className={css`
               margin: 1rem;

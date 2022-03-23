@@ -4,6 +4,7 @@ import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
+
 test("test", async ({ page, headless }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
@@ -14,10 +15,11 @@ test("test", async ({ page, headless }) => {
       '[aria-label="University\\ of\\ Helsinki\\,\\ Department\\ of\\ Computer\\ Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")',
     ),
   ])
-  // Click [aria-label="Manage\ Ongoing\ short\ timer"]
+
+  // Click text=Ongoing ends soonManage >> a >> nth=1
   await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/exams/6959e7af-6b78-4d37-b381-eef5b7aaad6c' }*/),
-    page.click("text=manage Ongoing short timer"),
+    page.waitForNavigation(/*{ url: 'http://project-331.local/manage/exams/7d6ed843-2a94-445b-8ced-ab3c67290ad0' }*/),
+    page.locator("text=Ongoing short timerManage >> a").nth(1).click(),
   ])
   // Click text=Edit exam instructions
   await Promise.all([
@@ -58,7 +60,7 @@ test("test", async ({ page, headless }) => {
   await page.press('[aria-label="Block\\:\\ List"]', "Enter")
   await page.type('[aria-label="Block\\:\\ List"] >> :nth-match(li, 2)', "Two")
   // Click text=Save
-  await page.click("text=Save")
+  await page.locator("text=Save").click()
   // Go to http://project-331.local/org/uh-cs
   await page.goto("http://project-331.local/org/uh-cs")
   // Click text=Ongoing short timer

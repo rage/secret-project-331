@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
+import RenderIfPermissions from "../../components/OnlyRenderIfPermissions"
 import CourseList from "../../components/page-specific/org/organizationSlug/CourseList"
 import ExamList from "../../components/page-specific/org/organizationSlug/ExamList"
 import { fetchOrganizationBySlug } from "../../services/backend/organizations"
@@ -69,11 +70,18 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
               organizationSlug={query.organizationSlug}
               perPage={100}
             />
-            <h2>{t("exam-list")}</h2>
-            <ExamList
-              organizationId={getOrganizationBySlug.data.id}
-              organizationSlug={query.organizationSlug}
-            />
+
+            <RenderIfPermissions
+              // eslint-disable-next-line i18next/no-literal-string
+              action={"view"}
+              resource={{ organization: getOrganizationBySlug.data.id }}
+            >
+              <h2>{t("exam-list")}</h2>
+              <ExamList
+                organizationId={getOrganizationBySlug.data.id}
+                organizationSlug={query.organizationSlug}
+              />
+            </RenderIfPermissions>
           </>
         )}
 

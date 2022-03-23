@@ -20,6 +20,7 @@ export type Action =
   | { type: "duplicate" }
   | { type: "delete_answer" }
   | { type: "edit_role"; variant: UserRole }
+  | { type: "create_courses_or_exams" }
 
 export type Resource =
   | { type: "global_permissions" }
@@ -270,7 +271,6 @@ export interface ExamEnrollment {
 export interface NewExam {
   id: string
   name: string
-  instructions: unknown
   starts_at: Date | null
   ends_at: Date | null
   time_minutes: number

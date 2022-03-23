@@ -2096,7 +2096,6 @@ mod test {
             &NewExam {
                 id: exam,
                 name: "name".to_string(),
-                instructions: serde_json::json!([]),
                 starts_at: None,
                 ends_at: None,
                 time_minutes: 120,

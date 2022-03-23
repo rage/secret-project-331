@@ -98,7 +98,6 @@ pub struct CourseExam {
 pub struct NewExam {
     pub id: Uuid,
     pub name: String,
-    pub instructions: serde_json::Value,
     pub starts_at: Option<DateTime<Utc>>,
     pub ends_at: Option<DateTime<Utc>>,
     pub time_minutes: i32,
@@ -134,7 +133,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)
 ",
         exam.id,
         exam.name,
-        exam.instructions,
+        serde_json::Value::Array(vec![]),
         exam.starts_at,
         exam.ends_at,
         exam.time_minutes,

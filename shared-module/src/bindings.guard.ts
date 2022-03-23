@@ -149,7 +149,9 @@ export function isAction(obj: any, _argumentName?: string): obj is Action {
       obj.type === "delete_answer") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.type === "edit_role" &&
-      (isUserRole(obj.variant) as boolean))
+      (isUserRole(obj.variant) as boolean)) ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "create_courses_or_exams")
   )
 }
 

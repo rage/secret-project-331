@@ -4,7 +4,7 @@ use url::Url;
 
 use crate::UtilError;
 use serde::{Deserialize, Serialize};
-use urlencoding::encode;
+use urlencoding::{decode, encode};
 
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
@@ -128,9 +128,12 @@ pub fn mentimeter_oembed_response_builder(
             "<iframe src={} style='width: 99%;' height={:?} title={:?}></iframe>",
             parsed_url,
             params.get("height").unwrap_or(&"500".to_string()),
-            params
-                .get("title")
-                .unwrap_or(&"Mentimeter embed".to_string())
+            decode(
+                params
+                    .get("title")
+                    .unwrap_or(&"Mentimeter20embed".to_string())
+            )
+            .expect("Unwrap or")
         ),
         provider_name: "mentimeter".to_string(),
         provider_url: parsed_url

@@ -6,6 +6,7 @@ import { Fragment } from "@wordpress/element"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../shared-module/styles"
+import { updateQueryStringParameter } from "../../shared-module/utils/urlManipulation"
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
@@ -14,20 +15,6 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
     const { t } = useTranslation()
     if (props.attributes.providerNameSlug !== "mentimeter") {
       return <BlockEdit {...props} />
-    }
-
-    function updateQueryStringParameter(url: string | undefined, key: string, value: string) {
-      if (!url) {
-        return
-      }
-      // eslint-disable-next-line i18next/no-literal-string
-      const re = new RegExp("([?&])" + key + "=.*?(&|$)", "i")
-      const separator = url.indexOf("?") !== -1 ? "&" : "?"
-      if (url.match(re)) {
-        return url.replace(re, "$1" + key + "=" + value + "$2")
-      } else {
-        return url + separator + key + "=" + value
-      }
     }
 
     const { height, title, url } = props.attributes
@@ -51,9 +38,13 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
               onChange={(value) => {
                 props.setAttributes({
                   title: value,
-                  // eslint-disable-next-line i18next/no-literal-string
-                  url: updateQueryStringParameter(url, "title", value),
                 })
+                if (url) {
+                  props.setAttributes({
+                    // eslint-disable-next-line i18next/no-literal-string
+                    url: updateQueryStringParameter(url, "title", value),
+                  })
+                }
               }}
               help={t("menti-title-help-text")}
             />
@@ -64,9 +55,13 @@ const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {
               onChange={(value) => {
                 props.setAttributes({
                   height: value,
-                  // eslint-disable-next-line i18next/no-literal-string
-                  url: updateQueryStringParameter(url, "height", value),
                 })
+                if (url) {
+                  props.setAttributes({
+                    // eslint-disable-next-line i18next/no-literal-string
+                    url: updateQueryStringParameter(url, "height", value),
+                  })
+                }
               }}
               help={t("menti-height-help-text")}
             />

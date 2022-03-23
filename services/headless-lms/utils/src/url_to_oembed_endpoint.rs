@@ -21,7 +21,7 @@ pub struct OEmbedResponse {
     pub version: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OEmbedRequest {
     pub url: String,
 }

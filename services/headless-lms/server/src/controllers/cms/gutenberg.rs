@@ -53,6 +53,7 @@ Response:
 
 ```
 */
+#[instrument(skip(pool, app_conf))]
 async fn get_oembed_data_from_provider(
     query_params: web::Query<OEmbedRequest>,
     pool: web::Data<PgPool>,
@@ -120,6 +121,7 @@ Response:
 
 ```
 */
+#[instrument(skip(pool))]
 async fn get_theme_settings(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -134,12 +136,12 @@ async fn get_theme_settings(
     Ok(web::Json(response))
 }
 
+#[generated_doc]
+#[instrument(skip(app_conf))]
 async fn get_mentimeter_oembed_data(
     query_params: web::Query<OEmbedRequest>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<OEmbedResponse>> {
-    // let mut conn = pool.acquire().await?;
-    // authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
     let url = query_params.url.to_string();
     let response = mentimeter_oembed_response_builder(url, app_conf.base_url.to_string())?;
     Ok(web::Json(response))

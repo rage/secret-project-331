@@ -114,4 +114,4 @@ mockito = "0.31.0"
 rand = "0.8.5"
 
 [features]
-ts_rs = ["ts-rs"]
+ts_rs = ["ts-rs", "headless-lms-models/ts_rs", "headless-lms-utils/ts_rs"]

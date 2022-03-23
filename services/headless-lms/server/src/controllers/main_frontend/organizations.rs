@@ -262,13 +262,20 @@ async fn create_exam(
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
+    let mut tx = conn.begin().await?;
+
     let new_exam = payload.0;
+    authorize(
+        &mut tx,
+        Act::CreateCoursesOrExams,
+        Some(user.id),
+        Res::Organization(new_exam.organization_id),
+    )
+    .await?;
 
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(new_exam.id)).await?;
-
-    models::exams::insert(&mut conn, &new_exam).await?;
+    models::exams::insert(&mut tx, &new_exam).await?;
     pages::insert_exam_page(
-        &mut conn,
+        &mut tx,
         new_exam.id,
         NewPage {
             chapter_id: None,
@@ -281,11 +288,21 @@ async fn create_exam(
             exercise_tasks: vec![],
             exercises: vec![],
             title: "exam page".to_string(),
-            url_path: "".to_string(),
+            url_path: "/".to_string(),
         },
         user.id,
     )
     .await?;
+
+    models::roles::insert(
+        &mut tx,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Exam(new_exam.id),
+    )
+    .await?;
+
+    tx.commit().await?;
     Ok(web::Json(()))
 }
 

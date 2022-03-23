@@ -148,7 +148,7 @@ pub async fn copy_exam(
 
     let mut tx = conn.begin().await?;
 
-    let res = sqlx::query!(
+    let parent_exam_org_and_lang = sqlx::query!(
         "SELECT language, organization_id FROM exams WHERE id = $1",
         parent_exam.id
     )
@@ -171,11 +171,11 @@ pub async fn copy_exam(
     RETURNING *;
         ",
         new_exam.name,
-        res.organization_id,
-        new_exam.instructions,
+        parent_exam_org_and_lang.organization_id,
+        parent_exam.instructions,
         new_exam.starts_at,
         new_exam.ends_at,
-        res.language,
+        parent_exam_org_and_lang.language,
         new_exam.time_minutes
     )
     .fetch_one(&mut tx)

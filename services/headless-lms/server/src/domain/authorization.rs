@@ -99,6 +99,7 @@ pub enum Action {
     Duplicate,
     DeleteAnswer,
     EditRole(UserRole),
+    CreateCoursesOrExams,
 }
 
 /// The target of an action.
@@ -335,6 +336,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | Duplicate
                 | DeleteAnswer
                 | EditRole(Teacher | Assistant | Reviewer)
+                | CreateCoursesOrExams
         ),
         Assistant => matches!(
             action,

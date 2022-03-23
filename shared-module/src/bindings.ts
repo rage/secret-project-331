@@ -12,33 +12,33 @@ export interface ActionOnResource {
 }
 
 export type Action =
-  | "view"
-  | "edit"
-  | "grade"
-  | "teach"
-  | "download"
-  | "duplicate"
-  | "delete_answer"
-  | { edit_role: UserRole }
+  | { type: "view" }
+  | { type: "edit" }
+  | { type: "grade" }
+  | { type: "teach" }
+  | { type: "download" }
+  | { type: "duplicate" }
+  | { type: "delete_answer" }
+  | { type: "edit_role"; variant: UserRole }
 
 export type Resource =
-  | "global_permissions"
-  | { chapter: string }
-  | { course: string }
-  | { course_instance: string }
-  | { exam: string }
-  | { exercise: string }
-  | { exercise_slide_submission: string }
-  | { exercise_task: string }
-  | { exercise_task_grading: string }
-  | { exercise_task_submission: string }
-  | { organization: string }
-  | { page: string }
-  | "any_course"
-  | "role"
-  | "user"
-  | "playground_example"
-  | "exercise_service"
+  | { type: "global_permissions" }
+  | { type: "chapter"; id: string }
+  | { type: "course"; id: string }
+  | { type: "course_instance"; id: string }
+  | { type: "exam"; id: string }
+  | { type: "exercise"; id: string }
+  | { type: "exercise_slide_submission"; id: string }
+  | { type: "exercise_task"; id: string }
+  | { type: "exercise_task_grading"; id: string }
+  | { type: "exercise_task_submission"; id: string }
+  | { type: "organization"; id: string }
+  | { type: "page"; id: string }
+  | { type: "any_course" }
+  | { type: "role" }
+  | { type: "user" }
+  | { type: "playground_example" }
+  | { type: "exercise_service" }
 
 export interface Term {
   id: string

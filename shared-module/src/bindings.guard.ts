@@ -133,48 +133,73 @@ export function isActionOnResource(obj: any, _argumentName?: string): obj is Act
 
 export function isAction(obj: any, _argumentName?: string): obj is Action {
   return (
-    obj === "view" ||
-    obj === "edit" ||
-    obj === "grade" ||
-    obj === "teach" ||
-    obj === "download" ||
-    obj === "duplicate" ||
-    obj === "delete_answer" ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      (isUserRole(obj.edit_role) as boolean))
+      obj.type === "view") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "edit") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "grade") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "teach") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "download") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "duplicate") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "delete_answer") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "edit_role" &&
+      (isUserRole(obj.variant) as boolean))
   )
 }
 
 export function isResource(obj: any, _argumentName?: string): obj is Resource {
   return (
-    obj === "global_permissions" ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      typeof obj.chapter === "string") ||
+      obj.type === "global_permissions") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      typeof obj.course === "string") ||
+      obj.type === "chapter" &&
+      typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      typeof obj.course_instance === "string") ||
+      obj.type === "course" &&
+      typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      typeof obj.exam === "string") ||
+      obj.type === "course_instance" &&
+      typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      typeof obj.exercise === "string") ||
+      obj.type === "exam" &&
+      typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      typeof obj.exercise_slide_submission === "string") ||
+      obj.type === "exercise" &&
+      typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      typeof obj.exercise_task === "string") ||
+      obj.type === "exercise_slide_submission" &&
+      typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      typeof obj.exercise_task_grading === "string") ||
+      obj.type === "exercise_task" &&
+      typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      typeof obj.exercise_task_submission === "string") ||
+      obj.type === "exercise_task_grading" &&
+      typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      typeof obj.organization === "string") ||
+      obj.type === "exercise_task_submission" &&
+      typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      typeof obj.page === "string") ||
-    obj === "any_course" ||
-    obj === "role" ||
-    obj === "user" ||
-    obj === "playground_example" ||
-    obj === "exercise_service"
+      obj.type === "organization" &&
+      typeof obj.id === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "page" &&
+      typeof obj.id === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "any_course") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "role") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "user") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "playground_example") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "exercise_service")
   )
 }
 

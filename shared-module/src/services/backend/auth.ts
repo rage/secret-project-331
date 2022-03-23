@@ -22,6 +22,6 @@ export const logout = async (): Promise<void> => {
   await axios.post(url)
 }
 
-export const authorize = async (action: ActionOnResource): Promise<void> => {
-  await axios.post("/api/v0/auth/authorize", action)
+export const authorize = async (action: ActionOnResource): Promise<boolean> => {
+  return (await axios.post("/api/v0/auth/authorize", action)).data
 }

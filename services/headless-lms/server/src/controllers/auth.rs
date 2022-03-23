@@ -63,11 +63,14 @@ pub async fn authorize_action_on_resource(
     pool: web::Data<PgPool>,
     user: AuthUser,
     payload: web::Json<ActionOnResource>,
-) -> ControllerResult<HttpResponse> {
+) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let data = payload.0;
-    authorize(&mut conn, data.action, Some(user.id), data.resource).await?;
-    Ok(HttpResponse::Ok().finish())
+
+    return match authorize(&mut conn, data.action, Some(user.id), data.resource).await {
+        Ok(()) => Ok(web::Json(true)),
+        Err(_) => Ok(web::Json(false)),
+    };
 }
 
 /**

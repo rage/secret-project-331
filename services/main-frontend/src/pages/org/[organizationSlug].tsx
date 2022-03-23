@@ -3,8 +3,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
+import RenderIfPermissions from "../../../../../shared-module/src/components/OnlyRenderIfPermissions"
 import Layout from "../../components/Layout"
-import RenderIfPermissions from "../../components/OnlyRenderIfPermissions"
 import CourseList from "../../components/page-specific/org/organizationSlug/CourseList"
 import ExamList from "../../components/page-specific/org/organizationSlug/ExamList"
 import { fetchOrganizationBySlug } from "../../services/backend/organizations"
@@ -72,9 +72,8 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             />
 
             <RenderIfPermissions
-              // eslint-disable-next-line i18next/no-literal-string
-              action={"view"}
-              resource={{ organization: getOrganizationBySlug.data.id }}
+              action={{ type: "view" }}
+              resource={{ id: getOrganizationBySlug.data.id, type: "organization" }}
             >
               <h2>{t("exam-list")}</h2>
               <ExamList

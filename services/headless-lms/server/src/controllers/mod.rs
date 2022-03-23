@@ -29,6 +29,7 @@ use headless_lms_models::ModelError;
 use headless_lms_utils::UtilError;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "ts_rs")]
 use ts_rs::TS;
 use uuid::Uuid;
 
@@ -65,14 +66,16 @@ pub enum ControllerError {
     Forbidden(String),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case")]
 pub enum ErrorData {
     BlockId(Uuid),
 }
 
 /// The format all error messages from the API is in
-#[derive(Debug, Serialize, Deserialize, TS)]
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ErrorResponse {
     pub title: String,
     pub message: String,
@@ -196,7 +199,8 @@ Only put information here that you want to be visible to users.
 pub type ControllerResult<T, E = ControllerError> = std::result::Result<T, E>;
 
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UploadResult {
     pub url: String,
 }

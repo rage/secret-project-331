@@ -52,7 +52,7 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "3d0fd4f71fd1698e4236
   "serde-compat",
   "serde-json-impl",
   "uuid-impl",
-] }
+], optional = true }
 # Email client
 lettre = "0.10.0-rc.4"
 
@@ -70,3 +70,6 @@ tracing-error = "0.2.0"
 tracing-subscriber = { version = "0.3.9", features = ["env-filter"] }
 # Random number generators and other randomness functionality.
 rand = "0.8.5"
+
+[features]
+ts_rs = ["ts-rs", "headless-lms-utils/ts_rs"]

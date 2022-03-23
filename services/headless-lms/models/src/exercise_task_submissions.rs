@@ -10,7 +10,8 @@ use crate::{
     CourseOrExamId,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseTaskSubmission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -24,7 +25,8 @@ pub struct ExerciseTaskSubmission {
     pub metadata: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct SubmissionInfo {
     pub submission: ExerciseTaskSubmission,
     pub exercise: Exercise,
@@ -33,7 +35,8 @@ pub struct SubmissionInfo {
     pub iframe_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct SubmissionData {
     pub exercise_id: Uuid,
     pub course_id: Uuid,
@@ -46,20 +49,23 @@ pub struct SubmissionData {
     pub id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseTaskSubmission {
     pub exercise_task_id: Uuid,
     pub data_json: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseTaskSubmissionResult {
     pub submission: ExerciseTaskSubmission,
     pub grading: Option<ExerciseTaskGrading>,
     pub model_solution_spec: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExportedSubmission {
     pub id: Uuid,
     pub user_id: Uuid,

@@ -55,7 +55,8 @@ pub async fn enroll(
     ))
 }
 
-#[derive(Debug, Serialize, TS)]
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExamData {
     pub id: Uuid,
     pub name: String,
@@ -67,7 +68,8 @@ pub struct ExamData {
     pub enrollment_data: ExamEnrollmentData,
 }
 
-#[derive(Debug, Serialize, TS)]
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "tag")]
 pub enum ExamEnrollmentData {
     EnrolledAndStarted {

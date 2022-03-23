@@ -18,7 +18,8 @@ use url::form_urlencoded::Target;
 
 use crate::{controllers::prelude::*, domain::authorization, OAuthClient};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Login {
     email: String,
     password: String,

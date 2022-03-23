@@ -429,7 +429,8 @@ async fn get_course_instances(
     Ok(web::Json(course_instances))
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct GetFeedbackQuery {
     read: bool,
     #[serde(flatten)]

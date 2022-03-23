@@ -8,7 +8,8 @@ pub struct NewExerciseSlide {
     order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlide {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -18,7 +19,8 @@ pub struct ExerciseSlide {
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, TS)]
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExerciseSlide {
     pub id: Uuid,
     pub exercise_tasks: Vec<CourseMaterialExerciseTask>,

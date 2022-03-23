@@ -813,6 +813,7 @@ fn main() {
             instructions: page.content.clone()
         }
     );
+    write_docs!(bool, false);
 }
 
 fn write_json<T: Serialize>(path: &str, value: T) {

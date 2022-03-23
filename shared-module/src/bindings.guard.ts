@@ -6,6 +6,8 @@
  * WARNING: Do not manually change this file.
  */
 import {
+  Action,
+  ActionOnResource,
   ActivityProgress,
   BlockProposal,
   BlockProposalAction,
@@ -99,6 +101,7 @@ import {
   Points,
   ProposalCount,
   ProposalStatus,
+  Resource,
   RoleDomain,
   RoleInfo,
   RoleQuery,
@@ -119,6 +122,61 @@ import {
   UserPointsUpdateStrategy,
   UserRole,
 } from "./bindings"
+
+export function isActionOnResource(obj: any, _argumentName?: string): obj is ActionOnResource {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isAction(obj.action) as boolean) &&
+    (isResource(obj.resource) as boolean)
+  )
+}
+
+export function isAction(obj: any, _argumentName?: string): obj is Action {
+  return (
+    obj === "view" ||
+    obj === "edit" ||
+    obj === "grade" ||
+    obj === "teach" ||
+    obj === "download" ||
+    obj === "duplicate" ||
+    obj === "delete_answer" ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      (isUserRole(obj.edit_role) as boolean))
+  )
+}
+
+export function isResource(obj: any, _argumentName?: string): obj is Resource {
+  return (
+    obj === "global_permissions" ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      typeof obj.chapter === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      typeof obj.course === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      typeof obj.course_instance === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      typeof obj.exam === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      typeof obj.exercise === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      typeof obj.exercise_slide_submission === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      typeof obj.exercise_task === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      typeof obj.exercise_task_grading === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      typeof obj.exercise_task_submission === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      typeof obj.organization === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      typeof obj.page === "string") ||
+    obj === "any_course" ||
+    obj === "role" ||
+    obj === "user" ||
+    obj === "playground_example" ||
+    obj === "exercise_service"
+  )
+}
 
 export function isTerm(obj: any, _argumentName?: string): obj is Term {
   return (

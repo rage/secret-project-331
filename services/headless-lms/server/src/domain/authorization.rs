@@ -6,6 +6,7 @@ use chrono::{DateTime, Utc};
 use futures::future::{err, ok, Ready};
 use headless_lms_models::{self as models, roles::UserRole};
 use models::{roles::Role, CourseOrExamId};
+
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 use uuid::Uuid;
@@ -28,6 +29,7 @@ pub struct AuthUser {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
+#[serde(rename_all = "snake_case")]
 pub struct ActionOnResource {
     pub action: Action,
     pub resource: Resource,
@@ -84,6 +86,8 @@ pub fn forget(session: &Session) {
 
 /// Describes an action that a user can take on some resource.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[serde(rename_all = "snake_case")]
 pub enum Action {
     View,
     Edit,
@@ -97,6 +101,8 @@ pub enum Action {
 
 /// The target of an action.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[serde(rename_all = "snake_case")]
 pub enum Resource {
     GlobalPermissions,
     Chapter(Uuid),

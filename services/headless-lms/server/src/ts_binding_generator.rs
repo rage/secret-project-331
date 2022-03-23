@@ -15,6 +15,10 @@ use crate::controllers::{
     },
     ErrorData, ErrorResponse, UploadResult,
 };
+
+#[cfg(feature = "ts_rs")]
+use crate::domain::*;
+
 #[cfg(feature = "ts_rs")]
 use headless_lms_models::*;
 #[cfg(feature = "ts_rs")]
@@ -45,6 +49,8 @@ fn ts_binding_generator() {
         &mut target,
 
         authorization::ActionOnResource,
+        authorization::Action,
+        authorization::Resource,
 
         glossary::Term,
         glossary::TermUpdate,

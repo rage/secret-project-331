@@ -7,6 +7,7 @@ import Breadcrumbs from "../../shared-module/components/Breadcrumbs"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
+import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 
 const EditorBreadcrumbs: React.FC = () => {
   const router = useRouter()
@@ -21,7 +22,7 @@ const EditorBreadcrumbs: React.FC = () => {
 
   if (!data) {
     return (
-      <BreakFromCentered sidebar={false}>
+      <BreakFromCentered {...breakFromCenteredProps}>
         <Breadcrumbs pieces={[]} />
       </BreakFromCentered>
     )
@@ -56,7 +57,7 @@ const EditorBreadcrumbs: React.FC = () => {
   ]
 
   return (
-    <BreakFromCentered sidebar={false}>
+    <BreakFromCentered {...breakFromCenteredProps}>
       <Breadcrumbs pieces={pieces} />
     </BreakFromCentered>
   )

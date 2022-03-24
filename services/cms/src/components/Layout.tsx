@@ -68,7 +68,6 @@ const Layout: React.FC<LayoutProps> = ({
           // Return to path can be override per page
           returnToPath={returnToPath ?? returnPath}
         ></Navbar>
-        <EditorBreadcrumbs />
         {/* Do not touch flex */}
         <main
           className={css`
@@ -82,7 +81,10 @@ const Layout: React.FC<LayoutProps> = ({
           `}
           id="maincontent"
         >
-          <Centered variant="narrow">{children}</Centered>
+          <Centered variant="narrow">
+            <EditorBreadcrumbs />
+            {children}
+          </Centered>
         </main>
       </div>
       <DynamicToaster />

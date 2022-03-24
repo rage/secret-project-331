@@ -43,6 +43,15 @@ pub struct Page {
     pub copied_from: Option<Uuid>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PageInfo {
+    pub page_id: Uuid,
+    pub page_title: String,
+    pub course_id: Uuid,
+    pub course_name: String,
+}
+
 impl Page {
     pub fn blocks_cloned(&self) -> ModelResult<Vec<GutenbergBlock>> {
         serde_json::from_value(self.content.clone()).map_err(Into::into)
@@ -346,6 +355,33 @@ WHERE id = $1;
     .fetch_one(conn)
     .await?;
     Ok(pages)
+}
+
+pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<PageInfo> {
+    let res = sqlx::query_as!(
+        PageInfo,
+        "
+    SELECT
+        p.id as page_id,
+        p.title as page_title,
+        c.id as course_id,
+        c.name as course_name
+    FROM pages p
+    JOIN courses c
+        on c.id = p.course_id
+    WHERE p.id = $1;
+        ",
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(PageInfo {
+        page_id: res.page_id,
+        page_title: res.page_title,
+        course_id: res.course_id,
+        course_name: res.course_name,
+    })
 }
 
 async fn get_page_by_path(

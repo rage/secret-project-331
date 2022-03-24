@@ -8699,6 +8699,37 @@
       "nullable": [null, null]
     }
   },
+  "c0af1afc813cd738fc9578365ecf4e067153b041981be376ffc74b5764a58fd1": {
+    "query": "\n    SELECT\n        p.id as page_id,\n        p.title as page_title,\n        c.id as course_id,\n        c.name as course_name\n    FROM pages p\n    JOIN courses c\n        on c.id = p.course_id\n    WHERE p.id = $1;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "page_title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_name",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false]
+    }
+  },
   "c0e77b688094cd88143669d7562d1412e2cb9c49374c1a95c75419f3ff7ac8cc": {
     "query": "\nDELETE FROM roles\nWHERE user_id = $1\n  AND role = $2\n  AND course_id = $3\n",
     "describe": {

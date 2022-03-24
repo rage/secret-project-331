@@ -817,6 +817,19 @@
 <span id="815">815</span>
 <span id="816">816</span>
 <span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -871,6 +884,7 @@
     <span class="ident">user_exercise_states</span>::{<span class="ident">UserCourseInstanceChapterExerciseProgress</span>, <span class="ident">UserCourseInstanceProgress</span>},
     <span class="ident">users::User</span>,
 };
+<span class="kw">use</span> <span class="ident">headless_lms_utils::url_to_oembed_endpoint::OEmbedResponse</span>;
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 <span class="kw">use</span> <span class="ident">serde_json</span>::{<span class="ident">ser::PrettyFormatter</span>, <span class="ident">Serializer</span>, <span class="ident">Value</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
@@ -1618,6 +1632,18 @@
         <span class="ident">ExamInstructions</span> {
             <span class="ident">id</span>,
             <span class="ident">instructions</span>: <span class="ident">page</span>.<span class="ident">content</span>.<span class="ident">clone</span>()
+        }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">OEmbedResponse</span>,
+        <span class="ident">OEmbedResponse</span> {
+            <span class="ident">author_name</span>: <span class="string">&quot;Mooc.fi&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">author_url</span>: <span class="string">&quot;http://project-331.local&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">html</span>: <span class="string">&quot;&lt;iframe src=&#39;http://project-331.local/oembed&#39; style=&#39;width: 99%;&#39; height=&#39;500&#39; title=&#39;OEmbed iFrame&#39;&gt;&lt;/iframe&gt;&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">provider_name</span>: <span class="string">&quot;project&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">provider_url</span>: <span class="string">&quot;http://project-331.local&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;OEmbed&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">version</span>: <span class="string">&quot;1.0&quot;</span>.<span class="ident">to_string</span>(),
         }
     );
 }

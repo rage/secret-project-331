@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 
+use percent_encoding::{percent_decode_str, utf8_percent_encode, NON_ALPHANUMERIC};
 use url::Url;
 
 use crate::UtilError;
 use serde::{Deserialize, Serialize};
-use urlencoding::{decode, encode};
 
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
@@ -72,7 +72,10 @@ pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> Result<U
                     "{}/api/v0/cms/gutenberg/oembed/mentimeter",
                     base_url.unwrap()
                 ),
-                &format!("url={}", encode(url.as_str())),
+                &format!(
+                    "url={}",
+                    utf8_percent_encode(url.as_str(), NON_ALPHANUMERIC)
+                ),
             );
         }
         if host.ends_with("imgur.com") {
@@ -121,6 +124,15 @@ pub fn mentimeter_oembed_response_builder(
     let params: HashMap<_, _> = parsed_url.query_pairs().into_owned().collect();
     // We want to remove the query params so that the iframe src url doesn't have them
     parsed_url.set_query(None);
+    let decoded_title = percent_decode_str(
+        params
+            .get("title")
+            .unwrap_or(&"Mentimeter%20embed".to_string()),
+    )
+    .decode_utf8()
+    .expect("Decoding title or default value for menti embed failed")
+    .to_string();
+
     let response = OEmbedResponse {
         author_name: "Mooc.fi".to_string(),
         author_url: base_url,
@@ -128,22 +140,14 @@ pub fn mentimeter_oembed_response_builder(
             "<iframe src={} style='width: 99%;' height={:?} title={:?}></iframe>",
             parsed_url,
             params.get("height").unwrap_or(&"500".to_string()),
-            decode(
-                params
-                    .get("title")
-                    .unwrap_or(&"Mentimeter20embed".to_string())
-            )
-            .expect("Unwrap or")
+            decoded_title
         ),
         provider_name: "mentimeter".to_string(),
         provider_url: parsed_url
             .host_str()
             .unwrap_or("https://www.mentimeter.com")
             .to_string(),
-        title: params
-            .get("title")
-            .unwrap_or(&"Mentimeter embed".to_string())
-            .to_string(),
+        title: decoded_title,
         version: "1.0".to_string(),
     };
     Ok(response)

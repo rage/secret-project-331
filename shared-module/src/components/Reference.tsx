@@ -3,7 +3,7 @@ import { css, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useEffect, useState } from "react"
 
-import { baseTheme, headingFont } from "../styles"
+import { baseTheme } from "../styles"
 
 const arr = [
   {
@@ -124,10 +124,6 @@ const TextWrapper = styled.div`
     transform: rotate(45deg);
     font-size: 3rem;
   }
-  details[open] summary {
-    font-weight: 600;
-    opacity: 0.9;
-  }
 
   ul {
     padding: 0 1.5rem 3rem 4.5rem;
@@ -161,7 +157,7 @@ interface Reference {
 
 const PLACEHOLDER_HEADING = "Reference"
 
-export type ReferenceProps = React.QuoteHTMLAttributes<HTMLDivElement>
+export type ReferenceProps = React.HTMLAttributes<HTMLDivElement>
 
 const Reference: React.FC<ReferenceProps> = () => {
   const [reference, setReference] = useState<Reference[]>([])

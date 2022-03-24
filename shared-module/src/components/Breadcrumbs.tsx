@@ -59,6 +59,7 @@ export interface BreakcrumbProps {
 export interface BreadcrumbPiece {
   text: string
   url: string
+  externalLink?: boolean
 }
 
 const MARKER = "›"
@@ -81,11 +82,17 @@ const Breadcrumbs: React.FC<BreakcrumbProps> = ({ pieces }) => {
                 </li>
               ) : (
                 <li className="group">
-                  <Link passHref href={piece.url}>
-                    <a href="replace" className={cx(breadCrumbText, link)}>
+                  {piece.externalLink ? (
+                    <a href={piece.url} className={cx(breadCrumbText, link)}>
                       {piece.text}
                     </a>
-                  </Link>
+                  ) : (
+                    <Link href={piece.url}>
+                      <a href={piece.url} className={cx(breadCrumbText, link)}>
+                        {piece.text}
+                      </a>
+                    </Link>
+                  )}
                   <span className="arrow" aria-hidden="true">
                     {MARKER}
                   </span>

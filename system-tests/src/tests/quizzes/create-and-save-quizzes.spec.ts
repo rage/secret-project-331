@@ -25,7 +25,7 @@ test("create quizzes test", async ({ page }) => {
   await page.click('input[type="radio"]')
 
   // Fill input[type="text"]
-  await page.fill("text=Name", "quizzes test")
+  await page.fill("text=Name", "exercise test")
 
   await page.fill("text=Teacher in charge name", "teacher")
   await page.fill("text=Teacher in charge email", "teacher@example.com")
@@ -39,7 +39,7 @@ test("create quizzes test", async ({ page }) => {
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click(`a[aria-label="Manage course 'quizzes test'"]`),
+    page.click(`a[aria-label="Manage course 'exercise test'"]`),
   ])
   // Click :nth-match(:text("Manage"), 4)
 

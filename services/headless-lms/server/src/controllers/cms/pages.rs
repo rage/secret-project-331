@@ -2,7 +2,7 @@
 
 use models::{
     page_history::HistoryChangeReason,
-    pages::{CmsPageUpdate, ContentManagementPage},
+    pages::{CmsPageUpdate, ContentManagementPage, PageInfo},
     CourseOrExamId,
 };
 
@@ -27,6 +27,23 @@ async fn get_page(
 
     let cms_page = models::pages::get_page_with_exercises(&mut conn, *page_id).await?;
     Ok(web::Json(cms_page))
+}
+
+/**
+GET `/api/v0/cms/pages/:page_id/info` - Get a page and its courses ids an titles
+
+Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
+*/
+async fn get_page_info(
+    page_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<PageInfo>> {
+    let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+
+    let cms_page_info = models::pages::get_page_info(&mut conn, *page_id).await?;
+    Ok(web::Json(cms_page_info))
 }
 
 /**
@@ -88,5 +105,6 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{page_id}", web::get().to(get_page))
+        .route("/{page_id}/info", web::get().to(get_page_info))
         .route("/{page_id}", web::put().to(update_page));
 }

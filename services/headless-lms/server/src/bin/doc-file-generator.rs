@@ -52,6 +52,7 @@ use headless_lms_models::{
 };
 use serde::Serialize;
 use serde_json::{ser::PrettyFormatter, Serializer, Value};
+#[cfg(feature = "ts_rs")]
 use ts_rs::TS;
 use uuid::Uuid;
 
@@ -64,6 +65,7 @@ macro_rules! write_docs {
             stringify!($t),
             ".json"
         );
+        #[cfg(feature = "ts_rs")]
         let ts_path = concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/generated-docs/",
@@ -71,6 +73,7 @@ macro_rules! write_docs {
             ".ts"
         );
         write_json(json_path, t);
+        #[cfg(feature = "ts_rs")]
         write_ts::<$t>(ts_path, stringify!($t));
     }};
 }
@@ -153,6 +156,8 @@ fn main() {
         score_maximum: 1,
         order_number: 123,
         copied_from: None,
+        max_tries_per_slide: Some(17),
+        limit_number_of_tries: true,
     };
     let exercise_slide_submission = ExerciseSlideSubmission {
         id,
@@ -238,6 +243,7 @@ fn main() {
         front_page_id: None,
         opens_at: Some(date_time),
         copied_from: None,
+        deadline: Some(date_time),
     };
     let exercise_service = ExerciseService {
         id,
@@ -321,6 +327,9 @@ fn main() {
                 id,
                 name: "exercise".to_string(),
                 order_number: 123,
+                score_maximum: 1,
+                max_tries_per_slide: Some(17),
+                limit_number_of_tries: true
             }],
             exercise_slides: vec![CmsPageExerciseSlide {
                 id,
@@ -496,7 +505,17 @@ fn main() {
                 score_given: None,
                 activity_progress: ActivityProgress::InProgress,
                 grading_progress: GradingProgress::NotReady
-            })
+            }),
+            exercise_slide_submission_counts: HashMap::from([
+                (
+                    Uuid::parse_str("2794a98e-d594-40cf-949e-7cc011755a58").unwrap(),
+                    2_i64
+                ),
+                (
+                    Uuid::parse_str("7dea54af-3d38-4f7c-8969-ecb17b55ec02").unwrap(),
+                    4_i64
+                )
+            ])
         }
     );
     write_docs!(
@@ -539,6 +558,7 @@ fn main() {
                     chapter_number: 1,
                     front_page_id: None,
                     opens_at: Some(date_time),
+                    deadline: Some(date_time),
                     copied_from: None
                 },
                 score_given: 1.0,
@@ -788,6 +808,7 @@ fn write_json<T: Serialize>(path: &str, value: T) {
     serde::Serialize::serialize(&value, &mut serializer).unwrap();
 }
 
+#[cfg(feature = "ts_rs")]
 fn write_ts<T: TS>(path: &str, type_name: &str) {
     let contents = format!("type {} = {}", type_name, T::inline());
     std::fs::write(path, contents).unwrap();

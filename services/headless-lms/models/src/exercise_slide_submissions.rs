@@ -1,21 +1,26 @@
+use std::collections::HashMap;
+
 use chrono::NaiveDate;
 
 use crate::{
-    courses::Course, exercise_task_gradings::UserPointsUpdateStrategy, prelude::*, CourseOrExamId,
+    courses::Course, exercise_task_gradings::UserPointsUpdateStrategy, prelude::*,
+    user_exercise_states::CourseInstanceOrExamId, CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub course_id: Option<Uuid>,
     pub course_instance_id: Option<Uuid>,
     pub exam_id: Option<Uuid>,
-    pub exercise_id: Uuid,
     pub user_id: Uuid,
+    pub exercise_id: Uuid,
     pub user_points_update_strategy: UserPointsUpdateStrategy,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -30,20 +35,23 @@ pub struct ExerciseSlideSubmission {
     pub user_points_update_strategy: UserPointsUpdateStrategy,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmissionCount {
     pub date: Option<NaiveDate>,
     pub count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmissionCountByExercise {
     pub exercise_id: Option<Uuid>,
     pub count: Option<i32>,
     pub exercise_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmissionCountByWeekAndHour {
     pub isodow: Option<i32>,
     pub hour: Option<i32>,
@@ -366,5 +374,39 @@ SELECT counts.*, exercises.name exercise_name
     )
     .fetch_all(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn get_exercise_slide_submission_counts_for_exercise_user(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    course_instance_id_or_exam_id: CourseInstanceOrExamId,
+    user_id: Uuid,
+) -> ModelResult<HashMap<Uuid, i64>> {
+    let ci_id_or_e_id = match course_instance_id_or_exam_id {
+        CourseInstanceOrExamId::Instance(id) => id,
+        CourseInstanceOrExamId::Exam(id) => id,
+    };
+    let res = sqlx::query!(
+        r#"
+SELECT exercise_slide_id,
+  COUNT(*) as count
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+  AND (course_instance_id = $2 OR exam_id = $2)
+  AND user_id = $3
+  AND deleted_at IS NULL
+GROUP BY exercise_slide_id;
+    "#,
+        exercise_id,
+        ci_id_or_e_id,
+        user_id
+    )
+    .fetch_all(conn)
+    .await?
+    .iter()
+    .map(|row| (row.exercise_slide_id, row.count.unwrap_or(0)))
+    .collect::<HashMap<Uuid, i64>>();
+
     Ok(res)
 }

@@ -19,6 +19,7 @@
   "closed": "Suljettu!",
   "commenting-on-selection": "Kommentoimassa: {{selection}}",
   "continue": "Jatka",
+  "could-not-fetch-embed": "Ei voitu upottaa {{provider}} osoitteella: {{url}}",
   "course": "Kurssi",
   "course-has-no-page-at-path": "Tällä kurssilla ei ole sivua osoitteessa <1>{{path}}</1>",
   "course-overview": "Kurssin yhteenveto",

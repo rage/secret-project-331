@@ -10,6 +10,7 @@ import RadioButton from "../../shared-module/components/InputFields/RadioButton"
 import SelectMenu from "../../shared-module/components/InputFields/SelectField"
 import TextArea from "../../shared-module/components/InputFields/TextAreaField"
 import TextField from "../../shared-module/components/InputFields/TextField"
+import useToastMutation from "../../shared-module/hooks/useToastMutation"
 import { normalizeIETFLanguageTag } from "../../shared-module/utils/strings"
 import { normalizePath } from "../../utils/normalizePath"
 const FieldContainer = styled.div`
@@ -125,6 +126,16 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
       setSubmitDisabled(false)
     }
   }
+
+  const mutation = useToastMutation(
+    () => {
+      if (createDuplicate) {
+        return handleCreateNewLanguageVersion()
+      }
+      return createNewCourse()
+    },
+    { notify: true, method: "POST" },
+  )
 
   const handleLanguageSelectionChange = (value: string) => {
     if (value === "other") {
@@ -300,7 +311,9 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
         <Button
           size="medium"
           variant="primary"
-          onClick={createDuplicate ? handleCreateNewLanguageVersion : createNewCourse}
+          onClick={() => {
+            mutation.mutate()
+          }}
           disabled={submitDisabled}
         >
           {t("button-text-create")}

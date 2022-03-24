@@ -15,13 +15,15 @@ use crate::{
 };
 
 /// Contains data sent by the student when they make a submission for an exercise slide.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub exercise_task_submissions: Vec<StudentExerciseTaskSubmission>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseSlideSubmissionResult {
     pub exercise_status: Option<ExerciseStatus>,
     pub exercise_task_submission_results: Vec<StudentExerciseTaskSubmissionResult>,
@@ -37,15 +39,25 @@ impl StudentExerciseSlideSubmissionResult {
                 result.model_solution_spec = None;
             });
     }
+
+    pub fn clear_model_solution_specs(&mut self) {
+        self.exercise_task_submission_results
+            .iter_mut()
+            .for_each(|result| {
+                result.model_solution_spec = None;
+            })
+    }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseTaskSubmission {
     pub exercise_task_id: Uuid,
     pub data_json: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseTaskSubmissionResult {
     pub submission: ExerciseTaskSubmission,
     pub grading: Option<ExerciseTaskGrading>,

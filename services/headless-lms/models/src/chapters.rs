@@ -10,7 +10,8 @@ use headless_lms_utils::{
     numbers::option_f32_to_f32_two_decimals, ApplicationConfiguration,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct DatabaseChapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -22,10 +23,12 @@ pub struct DatabaseChapter {
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
+    pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Chapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -37,6 +40,7 @@ pub struct Chapter {
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
+    pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
 }
 
@@ -62,11 +66,13 @@ impl Chapter {
             front_page_id: chapter.front_page_id,
             opens_at: chapter.opens_at,
             copied_from: chapter.copied_from,
+            deadline: chapter.deadline,
         }
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case")]
 pub enum ChapterStatus {
     Open,
@@ -92,19 +98,24 @@ pub struct ChapterPagesWithExercises {
 }
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewChapter {
     pub name: String,
     pub course_id: Uuid,
     pub chapter_number: i32,
-    pub front_front_page_id: Option<Uuid>,
+    pub front_page_id: Option<Uuid>,
+    pub opens_at: Option<DateTime<Utc>>,
+    pub deadline: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterUpdate {
     pub name: String,
-    pub chapter_number: i32,
-    pub front_front_page_id: Option<Uuid>,
+    pub front_page_id: Option<Uuid>,
+    pub deadline: Option<DateTime<Utc>>,
+    pub opens_at: Option<DateTime<Utc>>,
 }
 
 pub async fn insert(
@@ -208,14 +219,16 @@ pub async fn update_chapter(
         DatabaseChapter,
         r#"
 UPDATE chapters
-SET name = $1,
-  chapter_number = $2
-WHERE id = $3
+SET name = $2,
+  deadline = $3,
+  opens_at = $4
+WHERE id = $1
 RETURNING *;
     "#,
+        chapter_id,
         chapter_update.name,
-        chapter_update.chapter_number,
-        chapter_id
+        chapter_update.deadline,
+        chapter_update.opens_at,
     )
     .fetch_one(conn)
     .await?;
@@ -242,7 +255,8 @@ RETURNING *;",
     Ok(updated_chapter)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterWithStatus {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -255,7 +269,8 @@ pub struct ChapterWithStatus {
     pub opens_at: Option<DateTime<Utc>>,
     pub status: ChapterStatus,
 }
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseInstanceChapterProgress {
     pub score_given: f32,
     pub score_maximum: i32,
@@ -278,7 +293,8 @@ SELECT id,
   chapter_number,
   front_page_id,
   opens_at,
-  copied_from
+  copied_from,
+  deadline
 FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -307,7 +323,8 @@ SELECT id,
   chapter_number,
   front_page_id,
   opens_at,
-  copied_from
+  copied_from,
+  deadline
 FROM chapters
 WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
   AND deleted_at IS NULL;
@@ -329,13 +346,15 @@ pub async fn insert_chapter(
     let chapter = sqlx::query_as!(
         DatabaseChapter,
         r#"
-INSERT INTO chapters(name, course_id, chapter_number)
-VALUES($1, $2, $3)
+INSERT INTO chapters(name, course_id, chapter_number, deadline, opens_at)
+VALUES($1, $2, $3, $4, $5)
 RETURNING *;
 "#,
         chapter.name,
         chapter.course_id,
-        chapter.chapter_number
+        chapter.chapter_number,
+        chapter.deadline,
+        chapter.opens_at
     )
     .fetch_one(&mut tx)
     .await?;
@@ -369,6 +388,7 @@ pub async fn delete_chapter(
     conn: &mut PgConnection,
     chapter_id: Uuid,
 ) -> ModelResult<DatabaseChapter> {
+    let mut tx = conn.begin().await?;
     let deleted = sqlx::query_as!(
         DatabaseChapter,
         r#"
@@ -379,8 +399,32 @@ RETURNING *;
 "#,
         chapter_id
     )
-    .fetch_one(conn)
+    .fetch_one(&mut tx)
     .await?;
+    // We'll also delete all the pages and exercises so that they don't conflict with future chapters
+    sqlx::query!(
+        "UPDATE pages SET deleted_at = now() WHERE chapter_id = $1;",
+        chapter_id
+    )
+    .execute(&mut tx)
+    .await?;
+    sqlx::query!(
+        "UPDATE exercise_tasks SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_slide_id IN (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL));",
+        chapter_id
+    )
+    .execute(&mut tx).await?;
+    sqlx::query!(
+        "UPDATE exercise_slides SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL);",
+        chapter_id
+    )
+    .execute(&mut tx).await?;
+    sqlx::query!(
+        "UPDATE exercises SET deleted_at = now() WHERE deleted_at IS NULL AND chapter_id = $1;",
+        chapter_id
+    )
+    .execute(&mut tx)
+    .await?;
+    tx.commit().await?;
     Ok(deleted)
 }
 

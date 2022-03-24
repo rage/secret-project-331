@@ -8,7 +8,8 @@ pub struct NewExerciseSlide {
     order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlide {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -18,7 +19,8 @@ pub struct ExerciseSlide {
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, TS)]
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExerciseSlide {
     pub id: Uuid,
     pub exercise_tasks: Vec<CourseMaterialExerciseTask>,
@@ -225,15 +227,9 @@ pub async fn get_course_material_exercise_slide_by_id(
     conn: &mut PgConnection,
     id: Uuid,
     user_id: Option<&Uuid>,
-    expose_model_solution_spec: bool,
 ) -> ModelResult<CourseMaterialExerciseSlide> {
-    let exercise_tasks = exercise_tasks::get_course_material_exercise_tasks(
-        conn,
-        &id,
-        user_id,
-        expose_model_solution_spec,
-    )
-    .await?;
+    let exercise_tasks =
+        exercise_tasks::get_course_material_exercise_tasks(conn, &id, user_id).await?;
     Ok(CourseMaterialExerciseSlide { id, exercise_tasks })
 }
 

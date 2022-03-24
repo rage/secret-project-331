@@ -1,6 +1,7 @@
 use crate::{exercises::GradingProgress, prelude::*};
 
-#[derive(Clone, Debug, Deserialize, Serialize, TS)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserExerciseSlideState {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

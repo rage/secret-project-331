@@ -102,6 +102,10 @@ test("test", async ({ page, headless }) => {
 
   await page.click("text=Submit")
 
+  await page.evaluate(() => {
+    window.scrollTo(0, 0)
+  })
+
   await page.waitForSelector("text=Instance is open and ends at")
 
   await page.evaluate(() => {

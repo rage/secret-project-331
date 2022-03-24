@@ -15,7 +15,8 @@ use crate::{
     CourseOrExamId,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseTaskGrading {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -43,7 +44,8 @@ pub struct ExerciseTaskGradingRequest<'a> {
     pub submission_data: &'a Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseTaskGradingResult {
     pub grading_progress: GradingProgress,
     pub score_given: f32,
@@ -52,7 +54,8 @@ pub struct ExerciseTaskGradingResult {
     pub feedback_json: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "user_points_update_strategy", rename_all = "kebab-case")]
 pub enum UserPointsUpdateStrategy {
     CanAddPointsButCannotRemovePoints,

@@ -2,7 +2,8 @@ use url::Url;
 
 use crate::{exercise_service_info::ExerciseServiceInfo, prelude::*};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseService {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -16,7 +17,8 @@ pub struct ExerciseService {
     pub max_reprocessing_submissions_at_once: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseServiceNewOrUpdate {
     pub name: String,
     pub slug: String,

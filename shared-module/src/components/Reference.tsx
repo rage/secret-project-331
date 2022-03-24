@@ -146,8 +146,12 @@ const TextWrapper = styled.div`
     margin-left: 2rem !important;
   }
 `
-const StyledLink = styled.a`
+const StyledLink = styled.sup`
   text-decoration: underline;
+
+  &:hover {
+    cursor: pointer;
+  }
 `
 
 interface Reference {
@@ -276,7 +280,7 @@ const Reference: React.FC<ReferenceProps> = () => {
         a treatise on the theory of ethics, very popular during the Renaissance. The first line of
         Lorem Ipsum, Lorem ipsum dolor sit amet., comes from a line in section 1.10.32. The standard
       </p>
-      <h1>Why do spongebob have a square pant?</h1>
+      <h1>Why does spongebob have a square pant?</h1>
       <p>
         Contrary to popular belief, Lorem Ipsum is not simply random text.
         <StyledLink id="ref" href="#ref-4">

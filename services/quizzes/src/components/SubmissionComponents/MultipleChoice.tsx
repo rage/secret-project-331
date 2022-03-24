@@ -2,6 +2,7 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { QuizItemOption } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { quizTheme } from "../../styles/QuizStyles"
 import MarkdownText from "../MarkdownText"
@@ -140,53 +141,11 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                     </div>
                   </div>
                 </div>
-
-                <div>
-                  {feedbackDisplayPolicy === "DisplayFeedbackOnQuizItem" && submissionFeedback ? (
-                    <>
-                      {selectedAnswer ? (
-                        <div
-                          className={css`
-                            margin-left: 2em;
-                            display: flex;
-                            border-left: ${submissionFeedback.correct
-                              ? `6px solid #1F6964`
-                              : `6px solid #A84835`};
-                            box-sizing: border-box;
-                            padding: 0.5rem 0px 0.5rem 0.5rem;
-                            margin-bottom: 5px !important;
-                          `}
-                        >
-                          <p>
-                            {submissionFeedback.correct
-                              ? submissionFeedback.successMessage
-                              : submissionFeedback.failureMessage}
-                          </p>
-                        </div>
-                      ) : null}
-                    </>
-                  ) : null}
-                  {feedbackDisplayPolicy === "DisplayFeedbackOnAllOptions" && submissionFeedback ? (
-                    <div
-                      className={css`
-                        margin-left: 2em;
-                        display: flex;
-                        border-left: ${submissionFeedback.correct
-                          ? `6px solid #1F6964`
-                          : `6px solid #A84835`};
-                        box-sizing: border-box;
-                        padding: 0.5rem 0px 0.5rem 0.5rem;
-                        margin-bottom: 5px !important;
-                      `}
-                    >
-                      <p>
-                        {submissionFeedback.correct
-                          ? submissionFeedback.successMessage
-                          : submissionFeedback.failureMessage}
-                      </p>
-                    </div>
-                  ) : null}
-                </div>
+                <RowSubmissionFeedback
+                  submissionFeedback={submissionFeedback}
+                  selectedAnswer={selectedAnswer}
+                  feedbackDisplayPolicy={feedbackDisplayPolicy}
+                ></RowSubmissionFeedback>
               </div>
             </>
           )
@@ -195,5 +154,62 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
     </div>
   )
 }
+
+interface MultipleChoiceDirectionProps {
+  submissionFeedback: QuizItemOption | undefined
+  selectedAnswer: boolean
+  feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions" | undefined
+}
+
+const RowSubmissionFeedback: React.FC<MultipleChoiceDirectionProps> = ({
+  submissionFeedback,
+  selectedAnswer,
+  feedbackDisplayPolicy,
+}) => (
+  <div>
+    {feedbackDisplayPolicy === "DisplayFeedbackOnQuizItem" && submissionFeedback ? (
+      <>
+        {selectedAnswer ? (
+          <div
+            className={css`
+              margin-left: 2em;
+              display: flex;
+              border-left: ${submissionFeedback.correct
+                ? `6px solid #1F6964`
+                : `6px solid #A84835`};
+              box-sizing: border-box;
+              padding: 0.5rem 0px 0.5rem 0.5rem;
+              margin-bottom: 5px !important;
+            `}
+          >
+            <p>
+              {submissionFeedback.correct
+                ? submissionFeedback.successMessage
+                : submissionFeedback.failureMessage}
+            </p>
+          </div>
+        ) : null}
+      </>
+    ) : null}
+    {feedbackDisplayPolicy === "DisplayFeedbackOnAllOptions" && submissionFeedback ? (
+      <div
+        className={css`
+          margin-left: 2em;
+          display: flex;
+          border-left: ${submissionFeedback.correct ? `6px solid #1F6964` : `6px solid #A84835`};
+          box-sizing: border-box;
+          padding: 0.5rem 0px 0.5rem 0.5rem;
+          margin-bottom: 5px !important;
+        `}
+      >
+        <p>
+          {submissionFeedback.correct
+            ? submissionFeedback.successMessage
+            : submissionFeedback.failureMessage}
+        </p>
+      </div>
+    ) : null}
+  </div>
+)
 
 export default MultipleChoiceSubmission

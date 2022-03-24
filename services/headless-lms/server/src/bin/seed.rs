@@ -1870,6 +1870,227 @@ async fn seed_sample_course(
             "awardPointsEvenIfWrong": false}),
     );
 
+    let (
+        quizzes_exercise_block_6,
+        quizzes_exercise_6,
+        quizzes_exercise_slide_6,
+        quizzes_exercise_task_6,
+    ) = quizzes_exercise(
+        Uuid::new_v5(&course_id, b"925d4a89-0f25-4e8e-bc11-350393d8d894"),
+        Uuid::new_v5(&course_id, b"ff92ca4a-aa9c-11ec-ac56-475e57747ad3"),
+        Uuid::new_v5(&course_id, b"9037cb17-3841-4a79-8f50-bbe595a4f785"),
+        Uuid::new_v5(&course_id, b"d6d80ae0-97a1-4db1-8a3b-2bdde3cfbe9a"),
+        Uuid::new_v5(&course_id, b"085b60ec-aa9d-11ec-b500-7b1e176646f8"),
+        serde_json::json!({
+            "id": "783a7697-5e9e-41dc-90b5-c7fe1570bd3a",
+            "body": "very hard",
+            "part": 7,
+            "items": [{
+                "id": "6100f2ad-55b3-455a-80bc-85a2977628c6",
+                "body": "",
+                "type": "multiple-choice",
+                "multi": false,
+                "order": 0,
+                "title": "Choose the first answer",
+                "quizId": "783a7697-5e9e-41dc-90b5-c7fe1570bd3a",
+                "options": [{
+                    "id": "fd028533-6ea3-4b05-9354-5501ea7aac71",
+                    "body": "This is first option",
+                    "order": 1,
+                    "title": null,
+                    "quizItemId": "6100f2ad-55b3-455a-80bc-85a2977628c6",
+                    "correct":true,
+                    "failureMessage": null,
+                    "successMessage": "Correct! This is indeed the first answer".to_string(),
+                },{
+                    "id": "7bfd34f7-a2a0-4c5d-8726-cbf627a77624",
+                    "body": "This is second option",
+                    "order": 1,
+                    "title": null,
+                    "quizItemId": "6100f2ad-55b3-455a-80bc-85a2977628c6",
+                    "correct":false,
+                    "failureMessage": "Incorrect. This is not the first answer".to_string(),
+                    "successMessage": null
+                },{
+                    "id": "3e77aa66-739a-4a7a-8e2c-e775356a3b42",
+                    "body": "This is third option",
+                    "order": 1,
+                    "title": null,
+                    "quizItemId": "6100f2ad-55b3-455a-80bc-85a2977628c6",
+                    "correct":false,
+                    "failureMessage": "Incorrect. This is not the first answer".to_string(),
+                    "successMessage": null
+                },],
+                "allAnswersCorrect": false,
+                "feedbackDisplayPolicy": "DisplayFeedbackOnAllOptions",
+                "sharedOptionFeedbackMessage": null,
+                "usesSharedOptionFeedbackMessage": false
+            }],
+            "title": "Very good exercise",
+            "tries": 1,
+            "points": 3,
+            "section": 0,
+            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+            "deadline": "2021-12-17T07:15:33.479Z",
+            "createdAt": "2021-12-17T07:15:33.479Z",
+            "updatedAt": "2021-12-17T07:15:33.479Z",
+            "autoReject": false,
+            "autoConfirm": true,
+            "triesLimited": true,
+            "submitMessage": "your submit has been answered",
+            "excludedFromScore": true,
+            "grantPointsPolicy": "grant_whenever_possible",
+            "awardPointsEvenIfWrong": false}),
+    );
+
+    let (
+        quizzes_exercise_block_7,
+        quizzes_exercise_7,
+        quizzes_exercise_slide_7,
+        quizzes_exercise_task_7,
+    ) = quizzes_exercise(
+        Uuid::new_v5(&course_id, b"57905c8a-aa9d-11ec-92d4-47ab996cb70c"),
+        Uuid::new_v5(&course_id, b"5b058552-aa9d-11ec-bc36-57e1c5f8407a"),
+        Uuid::new_v5(&course_id, b"5d953894-aa9d-11ec-97e7-2ff4d73f69f1"),
+        Uuid::new_v5(&course_id, b"604dae7c-aa9d-11ec-8df1-575042832340"),
+        Uuid::new_v5(&course_id, b"6365746e-aa9d-11ec-8718-0b5628cbe29f"),
+        serde_json::json!({
+            "id": "33cd47ea-aa9d-11ec-897c-5b22513d61ee",
+            "body": "very hard",
+            "part": 7,
+            "items": [{
+                "id": "395888c8-aa9d-11ec-bb81-cb3a3f2609e4",
+                "body": "",
+                "type": "multiple-choice",
+                "direction": "column",
+                "multi": false,
+                "order": 0,
+                "title": "Choose the first answer",
+                "quizId": "33cd47ea-aa9d-11ec-897c-5b22513d61ee",
+                "options": [{
+                    "id": "490543d8-aa9d-11ec-a20f-07269e5c09df",
+                    "body": "This is first option",
+                    "order": 1,
+                    "title": null,
+                    "quizItemId": "395888c8-aa9d-11ec-bb81-cb3a3f2609e4",
+                    "correct":true,
+                    "failureMessage": null,
+                    "successMessage": "Correct! This is indeed the first answer".to_string(),
+                },{
+                    "id": "45e77450-aa9d-11ec-abea-6b824f5ae1f6",
+                    "body": "This is second option",
+                    "order": 1,
+                    "title": null,
+                    "quizItemId": "395888c8-aa9d-11ec-bb81-cb3a3f2609e4",
+                    "correct":false,
+                    "failureMessage": "Incorrect. This is not the first answer".to_string(),
+                    "successMessage": null
+                },{
+                    "id": "43428140-aa9d-11ec-a6b3-83ec8e2dfb88",
+                    "body": "This is third option",
+                    "order": 1,
+                    "title": null,
+                    "quizItemId": "395888c8-aa9d-11ec-bb81-cb3a3f2609e4",
+                    "correct":false,
+                    "failureMessage": "Incorrect. This is not the first answer".to_string(),
+                    "successMessage": null
+                },],
+                "allAnswersCorrect": false,
+                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
+                "sharedOptionFeedbackMessage": null,
+                "usesSharedOptionFeedbackMessage": false
+            }],
+            "title": "Very good exercise",
+            "tries": 1,
+            "points": 3,
+            "section": 0,
+            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+            "deadline": "2021-12-17T07:15:33.479Z",
+            "createdAt": "2021-12-17T07:15:33.479Z",
+            "updatedAt": "2021-12-17T07:15:33.479Z",
+            "autoReject": false,
+            "autoConfirm": true,
+            "triesLimited": true,
+            "submitMessage": "your submit has been answered",
+            "excludedFromScore": true,
+            "grantPointsPolicy": "grant_whenever_possible",
+            "awardPointsEvenIfWrong": false}),
+    );
+
+    let (
+        quizzes_exercise_block_8,
+        quizzes_exercise_8,
+        quizzes_exercise_slide_8,
+        quizzes_exercise_task_8,
+    ) = quizzes_exercise(
+        Uuid::new_v5(&course_id, b"c1a4831c-cc78-4f42-be18-2a35a7f3b506"),
+        Uuid::new_v5(&course_id, b"75045b18-aa9d-11ec-b3d1-6f64c2d6d46d"),
+        Uuid::new_v5(&course_id, b"712fd37c-e3d7-4569-8a64-371d7dda9c19"),
+        Uuid::new_v5(&course_id, b"6799021d-ff0c-4e4d-b5db-c2c19fba7fb9"),
+        Uuid::new_v5(&course_id, b"01b69776-3e82-4694-98a9-5ce53f2a4ab5"),
+        serde_json::json!({
+            "id": "9a186f2b-7616-472e-b839-62ab0f2f0a6c",
+            "body": "very hard",
+            "part": 7,
+            "items": [{
+                "id": "871c3640-aa9d-11ec-8103-633d645899a3",
+                "body": "",
+                "type": "multiple-choice",
+                "direction": "column",
+                "multi": false,
+                "order": 0,
+                "title": "Choose the first answer",
+                "quizId": "9a186f2b-7616-472e-b839-62ab0f2f0a6c",
+                "options": [{
+                    "id": "4435ed30-c1da-46a0-80b8-c5b9ee923dd4",
+                    "body": "This is first option",
+                    "order": 1,
+                    "title": null,
+                    "quizItemId": "871c3640-aa9d-11ec-8103-633d645899a3",
+                    "correct":true,
+                    "failureMessage": null,
+                    "successMessage": "Correct! This is indeed the first answer".to_string(),
+                },{
+                    "id": "1d5de4d0-8499-4ac1-b44c-21c1562639cb",
+                    "body": "This is second option",
+                    "order": 1,
+                    "title": null,
+                    "quizItemId": "871c3640-aa9d-11ec-8103-633d645899a3",
+                    "correct":false,
+                    "failureMessage": "Incorrect. This is not the first answer".to_string(),
+                    "successMessage": null
+                },{
+                    "id": "93fe358e-aa9d-11ec-9aa1-f3d18a09d58c",
+                    "body": "This is third option",
+                    "order": 1,
+                    "title": null,
+                    "quizItemId": "871c3640-aa9d-11ec-8103-633d645899a3",
+                    "correct":false,
+                    "failureMessage": "Incorrect. This is not the first answer".to_string(),
+                    "successMessage": null
+                },],
+                "allAnswersCorrect": false,
+                "feedbackDisplayPolicy": "DisplayFeedbackOnAllOptions",
+                "sharedOptionFeedbackMessage": null,
+                "usesSharedOptionFeedbackMessage": false
+            }],
+            "title": "Very good exercise",
+            "tries": 1,
+            "points": 3,
+            "section": 0,
+            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+            "deadline": "2021-12-17T07:15:33.479Z",
+            "createdAt": "2021-12-17T07:15:33.479Z",
+            "updatedAt": "2021-12-17T07:15:33.479Z",
+            "autoReject": false,
+            "autoConfirm": true,
+            "triesLimited": true,
+            "submitMessage": "your submit has been answered",
+            "excludedFromScore": true,
+            "grantPointsPolicy": "grant_whenever_possible",
+            "awardPointsEvenIfWrong": false}),
+    );
+
     let page_3 = create_page(
         conn,
         course.id,
@@ -1979,7 +2200,76 @@ async fn seed_sample_course(
                     "First chapters seventh page",
                     Uuid::new_v5(&course_id, b"771b9c61-dbc9-4266-a980-dadc853455c9")
                 ),
-                quizzes_exercise_block_5
+                quizzes_exercise_block_5,
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-8".to_string(),
+            title: "Page 8".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_6],
+            exercise_slides: vec![quizzes_exercise_slide_6],
+            exercise_tasks: vec![quizzes_exercise_task_6],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters eighth page",
+                    Uuid::new_v5(&course_id, b"771b9c61-dbc9-4266-a980-dadc853455c9")
+                ),
+                quizzes_exercise_block_6,
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-9".to_string(),
+            title: "Page 9".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_7],
+            exercise_slides: vec![quizzes_exercise_slide_7],
+            exercise_tasks: vec![quizzes_exercise_task_7],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters ninth page",
+                    Uuid::new_v5(&course_id, b"771b9c61-dbc9-4266-a980-dadc853455c9")
+                ),
+                quizzes_exercise_block_7,
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/page-10".to_string(),
+            title: "Page 10".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_8],
+            exercise_slides: vec![quizzes_exercise_slide_8],
+            exercise_tasks: vec![quizzes_exercise_task_8],
+            content: serde_json::json!([
+                paragraph(
+                    "First chapters tenth page",
+                    Uuid::new_v5(&course_id, b"771b9c61-dbc9-4266-a980-dadc853455c9")
+                ),
+                quizzes_exercise_block_8,
             ]),
         },
     )

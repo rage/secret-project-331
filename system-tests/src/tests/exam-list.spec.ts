@@ -80,5 +80,6 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
     headless,
     snapshotName: "new-exam-in-list",
     waitForThisToBeVisibleAndStable: ["text=new exam"],
+    beforeScreenshot: () => page.locator("text=Exams").scrollIntoViewIfNeeded(),
   })
 })

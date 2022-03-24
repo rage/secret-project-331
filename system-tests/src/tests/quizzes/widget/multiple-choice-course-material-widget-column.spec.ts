@@ -6,7 +6,7 @@ import waitForFunction from "../../../utils/waitForFunction"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
-test("test", async ({ page, headless }) => {
+test("multiple-choice course material column test", async ({ page, headless }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
   // Click text=University of Helsinki, Department of Computer Science

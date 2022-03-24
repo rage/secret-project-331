@@ -1,9 +1,33 @@
+use std::collections::HashMap;
+
+use percent_encoding::{percent_decode_str, utf8_percent_encode, NON_ALPHANUMERIC};
 use url::Url;
 
 use crate::UtilError;
+use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "ts_rs")]
+use ts_rs::TS;
+
+#[derive(Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct OEmbedResponse {
+    pub author_name: String,
+    pub author_url: String,
+    pub html: String,
+    pub provider_name: String,
+    pub provider_url: String,
+    pub title: String,
+    pub version: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct OEmbedRequest {
+    pub url: String,
+}
 
 // https://github.com/WordPress/wordpress-develop/blob/master/src/wp-includes/class-wp-oembed.php
-pub fn url_to_oembed_endpoint(url: String) -> Result<Url, UtilError> {
+pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> Result<Url, UtilError> {
     let parsed_url = Url::parse(url.as_str())?;
     if let Some(host) = parsed_url.host_str() {
         if host.ends_with("youtu.be") || host.ends_with("youtube.com") {
@@ -40,6 +64,18 @@ pub fn url_to_oembed_endpoint(url: String) -> Result<Url, UtilError> {
             return oembed_url_builder(
                 "https://vimeo.com/api/oembed.json",
                 &format!("url={}&maxwidth=780&maxheight=440", url),
+            );
+        }
+        if host.ends_with("menti.com") || host.ends_with("mentimeter.com") {
+            return oembed_url_builder(
+                &format!(
+                    "{}/api/v0/cms/gutenberg/oembed/mentimeter",
+                    base_url.unwrap()
+                ),
+                &format!(
+                    "url={}",
+                    utf8_percent_encode(url.as_str(), NON_ALPHANUMERIC)
+                ),
             );
         }
         if host.ends_with("imgur.com") {
@@ -79,6 +115,44 @@ pub fn url_to_oembed_endpoint(url: String) -> Result<Url, UtilError> {
     }
 }
 
+pub fn mentimeter_oembed_response_builder(
+    url: String,
+    base_url: String,
+) -> Result<OEmbedResponse, UtilError> {
+    let mut parsed_url = Url::parse(url.as_str()).unwrap();
+    // Get the height and title params
+    let params: HashMap<_, _> = parsed_url.query_pairs().into_owned().collect();
+    // We want to remove the query params so that the iframe src url doesn't have them
+    parsed_url.set_query(None);
+    let decoded_title = percent_decode_str(
+        params
+            .get("title")
+            .unwrap_or(&"Mentimeter%20embed".to_string()),
+    )
+    .decode_utf8()
+    .expect("Decoding title or default value for menti embed failed")
+    .to_string();
+
+    let response = OEmbedResponse {
+        author_name: "Mooc.fi".to_string(),
+        author_url: base_url,
+        html: format!(
+            "<iframe src={} style='width: 99%;' height={:?} title={:?}></iframe>",
+            parsed_url,
+            params.get("height").unwrap_or(&"500".to_string()),
+            decoded_title
+        ),
+        provider_name: "mentimeter".to_string(),
+        provider_url: parsed_url
+            .host_str()
+            .unwrap_or("https://www.mentimeter.com")
+            .to_string(),
+        title: decoded_title,
+        version: "1.0".to_string(),
+    };
+    Ok(response)
+}
+
 fn oembed_url_builder(url: &str, query_params: &str) -> Result<Url, UtilError> {
     let mut endpoint_url = Url::parse(url)?;
     endpoint_url.set_query(Some(query_params));
@@ -93,7 +167,7 @@ mod tests {
     #[test]
     fn works_with_youtu_be() {
         assert_eq!(
-            url_to_oembed_endpoint("https://youtu.be/dQw4w9WgXcQ".to_string()).unwrap(),
+            url_to_oembed_endpoint("https://youtu.be/dQw4w9WgXcQ".to_string(), None).unwrap(),
             Url::parse(
                 "https://www.youtube.com/oembed?url=https://youtu.be/dQw4w9WgXcQ&format=json&maxwidth=780&maxheight=440"
             )
@@ -103,7 +177,7 @@ mod tests {
     #[test]
     fn works_with_youtube_com() {
         assert_eq!(
-            url_to_oembed_endpoint("https://www.youtube.com/watch?v=dQw4w9WgXcQ".to_string())
+            url_to_oembed_endpoint("https://www.youtube.com/watch?v=dQw4w9WgXcQ".to_string(), None)
                 .unwrap(),
             Url::parse("https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=dQw4w9WgXcQ&format=json&maxwidth=780&maxheight=440").unwrap()
         )
@@ -112,7 +186,7 @@ mod tests {
     fn works_with_youtube_com_playlist() {
         assert_eq!(
             url_to_oembed_endpoint(
-                "https://www.youtube.com/playlist?list=gYLqDMMh1GEbHf-Q1".to_string()
+                "https://www.youtube.com/playlist?list=gYLqDMMh1GEbHf-Q1".to_string(), None
             )
             .unwrap(),
             Url::parse("https://www.youtube.com/oembed?url=https://www.youtube.com/playlist?list=gYLqDMMh1GEbHf-Q1&format=json&maxwidth=780&maxheight=440").unwrap()
@@ -121,7 +195,7 @@ mod tests {
     #[test]
     fn works_with_open_spotify_com() {
         assert_eq!(url_to_oembed_endpoint(
-            "http://open.spotify.com/track/298gs9ATwKlQR".to_string()
+            "http://open.spotify.com/track/298gs9ATwKlQR".to_string(), None
         )
         .unwrap(),
         Url::parse("https://embed.spotify.com/oembed?url=http://open.spotify.com/track/298gs9ATwKlQR&format=json&height=335&width=780").unwrap())
@@ -129,7 +203,7 @@ mod tests {
     #[test]
     fn works_with_flic_kr_com() {
         assert_eq!(
-            url_to_oembed_endpoint("https://flic.kr/p/2jJ".to_string()).unwrap(),
+            url_to_oembed_endpoint("https://flic.kr/p/2jJ".to_string(), None).unwrap(),
             Url::parse(
                 "https://www.flickr.com/services/oembed?url=https://flic.kr/p/2jJ&format=json&maxwidth=780&maxheight=780"
             ).unwrap()

@@ -3,7 +3,7 @@ import { css, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useEffect, useState } from "react"
 
-import { baseTheme } from "../styles"
+import { baseTheme, headingFont } from "../styles"
 
 const arr = [
   {
@@ -76,7 +76,7 @@ const TextWrapper = styled.div`
   }
 
   details {
-    border-left: 4px solid ${baseTheme.colors.grey[700]};
+    border-left: 4px solid #90abc3;
   }
 
   details[open] > div {
@@ -86,11 +86,12 @@ const TextWrapper = styled.div`
   }
 
   details summary {
-    padding: 1rem 1rem 1rem 3rem;
+    padding: 1.4rem 1rem 1.4rem 3.5rem;
     position: relative;
     cursor: pointer;
-    font-size: 1.25rem;
-    font-weight: medium;
+    font-size: 1.8rem;
+    font-weight: 400;
+    font-family: "Josefin Sans", sans-serif;
     list-style: none;
     height: 100px;
     outline: 0;
@@ -109,10 +110,10 @@ const TextWrapper = styled.div`
 
   details summary:after {
     content: "+";
-    color: black;
+    color: #6b8faf;
     position: absolute;
-    font-size: 1.75rem;
-    line-height: 0;
+    font-size: 3rem;
+    line-height: 0.3;
     margin-top: 0.75rem;
     left: 20px;
     font-weight: 200;
@@ -121,7 +122,7 @@ const TextWrapper = styled.div`
   }
   details[open] summary:after {
     transform: rotate(45deg);
-    font-size: 2rem;
+    font-size: 3rem;
   }
   details[open] summary {
     font-weight: 600;
@@ -129,15 +130,15 @@ const TextWrapper = styled.div`
   }
 
   ul {
-    padding: 0 3rem 3rem 3rem;
+    padding: 0 1.5rem 3rem 4.5rem;
     counter-reset: ref;
   }
 
   details ul li {
     counter-increment: ref;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     line-height: 1.6;
-    margin: 0 0 0.2rem;
+    margin: 1rem 0 1rem 0.2rem;
     padding-left: 8px;
     list-style-position: outside;
   }
@@ -177,8 +178,6 @@ const Reference: React.FC<ReferenceProps> = () => {
     setReference(x)
   }, [])
 
-  console.log("***ref", reference)
-
   useEffect(() => {
     const eventHandler = (evt: any) => {
       if (reference) {
@@ -198,7 +197,6 @@ const Reference: React.FC<ReferenceProps> = () => {
             document.querySelector(`#ref-${elementId}`)?.scrollIntoView({
               behavior: "smooth",
             })
-            console.log("details", details)
           }
         })
       }
@@ -428,7 +426,7 @@ const Reference: React.FC<ReferenceProps> = () => {
                 key={id}
                 id={id}
                 className={css`
-                  ${active === id && `background: red;`}
+                  ${active === id && `background: #DAE3EB;`}
                 `}
               >
                 {text}

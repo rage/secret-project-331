@@ -6,6 +6,7 @@ import { newCourseInstance } from "../../../../../../services/backend/courses"
 import { CourseInstanceForm } from "../../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 
 import NewCourseInstanceForm from "./NewCourseInstanceForm"
 
@@ -48,25 +49,31 @@ const NewCourseInstanceDialog: React.FC<NewCourseLanguageVersionDialogProps> = (
       }}
       className={css`
         z-index: 10000;
-        padding: 1rem;
       `}
       // eslint-disable-next-line i18next/no-literal-string
-      aria-label="New Course Instance dialog"
+      aria-label={t("new-course-instance-dialog")}
       role="dialog"
     >
-      <DialogTitle id="alert-dialog-title">
-        <h1>{t("new-course-instance")}</h1>
-      </DialogTitle>
-      <DialogContentText role="main" id="alert-dialog-description">
-        {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
-        <NewCourseInstanceForm
-          initialData={null}
-          onSubmit={(data) => {
-            mutation.mutate(data)
-          }}
-          onCancel={onClose}
-        />
-      </DialogContentText>
+      <div
+        className={css`
+          padding: 1rem;
+          width: 80vw;
+          max-width: 500px;
+        `}
+      >
+        {/* <DialogTitle id="alert-dialog-title">{t("new-course-instance")}</DialogTitle> */}
+        <h2 aria-label={t("new-course-instance")}>{t("new-course-instance")}</h2>
+        <DialogContentText role="main" id="alert-dialog-description">
+          {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
+          <NewCourseInstanceForm
+            initialData={null}
+            onSubmit={(data) => {
+              mutation.mutate(data)
+            }}
+            onCancel={onClose}
+          />
+        </DialogContentText>
+      </div>
     </Dialog>
   )
 }

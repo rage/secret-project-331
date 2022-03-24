@@ -90,22 +90,17 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
         <Dialog
           open={newExamFormOpen}
           onClose={() => setNewExamFormOpen(!newExamFormOpen)}
-          className={css`
-            padding: 1rem;
-          `}
           // eslint-disable-next-line i18next/no-literal-string
-          aria-label="New Exam dialog"
+          aria-label={t("new-exam-dialog")}
           role="dialog"
         >
-          <DialogTitle id="alert-dialog-title">
-            <h1>{t("new-exam")}</h1>
-          </DialogTitle>
-          <DialogContentText role="main" id="alert-dialog-description">
-            <div
-              className={css`
-                margin: 1rem;
-              `}
-            >
+          <div
+            className={css`
+              padding: 1rem;
+            `}
+          >
+            <h2 aria-label={t("new-exam")}>{t("new-exam")}</h2>
+            <DialogContentText role="main" id="alert-dialog-description">
               <Button
                 size="medium"
                 variant="secondary"
@@ -123,8 +118,8 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
                   duplicateExamMutation.mutate({ examId: parentId, newExam: newExam })
                 }
               />
-            </div>
-          </DialogContentText>
+            </DialogContentText>
+          </div>
         </Dialog>
       </div>
       <br />

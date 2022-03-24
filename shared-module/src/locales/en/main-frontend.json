@@ -266,5 +266,7 @@
   "duplicate": "duplicate",
   "exam-created-succesfully": "exam created succesfully",
   "exam-duplicated-succesfully": "exam duplicated succesfully",
-  "new-exam": "New Exam"
+  "new-exam": "New Exam",
+  "new-course-instance-dialog": "New Course Instance dialog",
+  "new-exam-dialog": "New Exam dialog"
 }

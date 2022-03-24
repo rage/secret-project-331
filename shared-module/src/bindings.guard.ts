@@ -81,6 +81,7 @@ import {
   NewPage,
   NewProposedBlockEdit,
   NewProposedPageEdits,
+  OEmbedResponse,
   Organization,
   Page,
   PageChapterAndCourseInformation,
@@ -1458,5 +1459,18 @@ export function isPagination(obj: any, _argumentName?: string): obj is Paginatio
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (typeof obj.page === "undefined" || typeof obj.page === "number") &&
     (typeof obj.limit === "undefined" || typeof obj.limit === "number")
+  )
+}
+
+export function isOEmbedResponse(obj: any, _argumentName?: string): obj is OEmbedResponse {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.author_name === "string" &&
+    typeof obj.author_url === "string" &&
+    typeof obj.html === "string" &&
+    typeof obj.provider_name === "string" &&
+    typeof obj.provider_url === "string" &&
+    typeof obj.title === "string" &&
+    typeof obj.version === "string"
   )
 }

@@ -1197,7 +1197,9 @@ export function isEmbedAttributes(obj: any, _argumentName?: string): obj is Embe
     (typeof obj.lock === "undefined" ||
       (obj.lock !== null && typeof obj.lock === "object") ||
       typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
+    (typeof obj.height === "undefined" || typeof obj.height === "number") &&
+    (typeof obj.title === "undefined" || typeof obj.title === "string")
   )
 }
 
@@ -1217,7 +1219,9 @@ export function isEmbedDeprecated1Attributes(
     (typeof obj.lock === "undefined" ||
       (obj.lock !== null && typeof obj.lock === "object") ||
       typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
+    (typeof obj.height === "undefined" || typeof obj.height === "number") &&
+    (typeof obj.title === "undefined" || typeof obj.title === "string")
   )
 }
 

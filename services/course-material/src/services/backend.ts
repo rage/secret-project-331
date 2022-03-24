@@ -8,6 +8,7 @@ import {
   ExamEnrollment,
   NewFeedback,
   NewProposedPageEdits,
+  OEmbedResponse,
   Page,
   PageChapterAndCourseInformation,
   PageRoutingDataWithChapterStatus,
@@ -30,6 +31,7 @@ import {
   isCourseMaterialExercise,
   isCoursePageWithUserData,
   isExamData,
+  isOEmbedResponse,
   isPage,
   isPageChapterAndCourseInformation,
   isPageRoutingDataWithChapterStatus,
@@ -288,4 +290,12 @@ export const newGlossaryTerm = async (
   newAcronym: TermUpdate,
 ): Promise<void> => {
   await courseMaterialClient.post(`/courses/${courseSlug}/acronyms`, newAcronym)
+}
+
+export const fetchMentimeterEmbed = async (url: string): Promise<OEmbedResponse> => {
+  const response = await courseMaterialClient.get(
+    `/oembed/mentimeter?url=${encodeURIComponent(url)}`,
+    { responseType: "json" },
+  )
+  return validateResponse(response, isOEmbedResponse)
 }

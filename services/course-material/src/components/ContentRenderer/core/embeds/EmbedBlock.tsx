@@ -3,6 +3,7 @@ import React from "react"
 import { BlockRendererProps } from "../.."
 import { EmbedAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
+import { MentimeterEmbedBlock } from "./variants/MentimeterEmbedBlock"
 import { SpotifyEmbedBlock } from "./variants/SpotifyEmbedBlock"
 import { TwitterEmbedBlock } from "./variants/TwitterEmbedBlock"
 import { VimeoEmbedBlock } from "./variants/VimeoEmbedBlock"
@@ -18,6 +19,7 @@ const EmbedBlock: React.FC<BlockRendererProps<EmbedAttributes>> = (props) => {
       {type === "twitter" && <TwitterEmbedBlock {...props.data.attributes} />}
       {type === "spotify" && <SpotifyEmbedBlock {...props.data.attributes} />}
       {type === "vimeo" && <VimeoEmbedBlock {...props.data.attributes} />}
+      {type === "mentimeter" && <MentimeterEmbedBlock {...props.data.attributes} />}
     </div>
   )
 }

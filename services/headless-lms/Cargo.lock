@@ -1368,6 +1368,7 @@ dependencies = [
  "futures",
  "indexmap",
  "once_cell",
+ "percent-encoding",
  "pretty_assertions",
  "rand 0.8.5",
  "regex",

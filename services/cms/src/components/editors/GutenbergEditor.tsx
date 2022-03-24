@@ -12,7 +12,6 @@ import "@wordpress/block-library/build-style/editor.css"
 import "@wordpress/format-library/build-style/style.css"
 
 import { css } from "@emotion/css"
-import { CSSProperties } from "@emotion/serialize"
 import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
@@ -40,7 +39,7 @@ import {
   unregisterBlockVariation,
 } from "@wordpress/blocks"
 import { Popover, SlotFillProvider } from "@wordpress/components"
-import { addFilter } from "@wordpress/hooks"
+import { addFilter, removeFilter } from "@wordpress/hooks"
 // @ts-ignore: no types
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useEffect, useState } from "react"
@@ -50,8 +49,13 @@ import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodri
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import SelectField from "../../shared-module/components/InputFields/SelectField"
 import { primaryFont } from "../../shared-module/styles"
-import { modifyBlockAttributes } from "../../utils/Gutenberg/modifyBlockAttributes"
+import {
+  modifyEmbedBlockAttributes,
+  modifyImageBlockAttributes,
+} from "../../utils/Gutenberg/modifyBlockAttributes"
 import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
+import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
+import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
 
 interface GutenbergEditorProps {
   content: BlockInstance[]
@@ -97,16 +101,11 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
     "block-props",
   )
 
-  // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
-  // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
-
-  // Ensure that type core/image has some attributes set to a value, so that the CMS/image block doesn't crash when uploading image.
-  // eslint-disable-next-line i18next/no-literal-string
-  addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
-
   useEffect(() => {
     // Register all core blocks
     registerCoreBlocks()
+    // We register the BlockVariation and if it's not in allowedBlockVariations, it will be removed.
+    registerBlockVariations()
 
     // Unregister unwanted blocks
     if (allowedBlocks) {
@@ -144,6 +143,27 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
     // @ts-expect-error: setting a global
     window.wp = null
   }, [allowedBlockVariations, allowedBlocks, customBlocks])
+
+  // eslint-disable-next-line i18next/no-literal-string
+  addFilter("blocks.registerBlockType", "moocfi/modifyImageAttributes", modifyImageBlockAttributes)
+  // eslint-disable-next-line i18next/no-literal-string
+  addFilter("blocks.registerBlockType", "moocfi/modifyEmbedAttributes", modifyEmbedBlockAttributes)
+
+  // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
+  // addFilter("editor.MediaUpload", "moocfi/cms/replace-media-upload", mediaUploadGallery)
+
+  /**
+   * editor.BlockEdit edits the edit function for a block
+   * Add the custom attributes for the Mentimeter to the sidebar.
+   */
+  useEffect(() => {
+    // eslint-disable-next-line i18next/no-literal-string
+    addFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector", withMentimeterInspector)
+    return () => {
+      // eslint-disable-next-line i18next/no-literal-string
+      removeFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector")
+    }
+  }, [])
 
   return (
     <div

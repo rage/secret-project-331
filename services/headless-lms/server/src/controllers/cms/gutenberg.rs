@@ -1,14 +1,11 @@
 use std::time::Duration;
 
-use headless_lms_utils::url_to_oembed_endpoint::url_to_oembed_endpoint;
+use headless_lms_utils::url_to_oembed_endpoint::{
+    mentimeter_oembed_response_builder, url_to_oembed_endpoint, OEmbedRequest, OEmbedResponse,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::controllers::prelude::*;
-
-#[derive(Deserialize)]
-pub struct OEmbedRequest {
-    url: String,
-}
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
@@ -56,14 +53,19 @@ Response:
 
 ```
 */
+#[instrument(skip(pool, app_conf))]
 async fn get_oembed_data_from_provider(
     query_params: web::Query<OEmbedRequest>,
     pool: web::Data<PgPool>,
     user: AuthUser,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<serde_json::Value>> {
     let mut conn = pool.acquire().await?;
     authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    let endpoint = url_to_oembed_endpoint(query_params.url.to_string())?;
+    let endpoint = url_to_oembed_endpoint(
+        query_params.url.to_string(),
+        Some(app_conf.base_url.to_string()),
+    )?;
     let client = reqwest::Client::builder()
         .user_agent(APP_USER_AGENT)
         .build()
@@ -119,6 +121,7 @@ Response:
 
 ```
 */
+#[instrument(skip(pool))]
 async fn get_theme_settings(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -130,6 +133,17 @@ async fn get_theme_settings(
             responsive_embeds: true,
         },
     };
+    Ok(web::Json(response))
+}
+
+#[generated_doc]
+#[instrument(skip(app_conf))]
+async fn get_mentimeter_oembed_data(
+    query_params: web::Query<OEmbedRequest>,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<OEmbedResponse>> {
+    let url = query_params.url.to_string();
+    let response = mentimeter_oembed_response_builder(url, app_conf.base_url.to_string())?;
     Ok(web::Json(response))
 }
 
@@ -145,5 +159,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/oembed/preview",
         web::get().to(get_oembed_data_from_provider),
     )
-    .route("/themes", web::get().to(get_theme_settings));
+    .route("/themes", web::get().to(get_theme_settings))
+    .route(
+        "/oembed/mentimeter",
+        web::get().to(get_mentimeter_oembed_data),
+    );
 }

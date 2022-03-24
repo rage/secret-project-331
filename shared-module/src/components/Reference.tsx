@@ -8,35 +8,35 @@ import { baseTheme } from "../styles"
 const arr = [
   {
     id: "ref-1",
-    text: "Juntunen, Marja-Leena & Kivijärvi, Sanna. (2019). Opetuksen saavutettavuuden lisääminen taiteen perusopetusta antavissa oppilaitoksissa. The Finnish Journal of Music Education, 22(1–2), 70–87.",
+    text: "Juntunen, Marja-Leena & Kivijärvi, Sanna. (2019). Opetuksen saavutettavuuden lisääminen taiteen perusopetusta antavissa toksissa. The Finnish Journal of Music Education, 22(1–2), 70–87.",
   },
   {
     id: "ref-2",
-    text: "Juntunen, Marja-Leena & Kivijärvi, Sanna. (2019). Opetuksen saavutettavuuden lisääminen taiteen perusopetusta antavissa oppilaitoksissa. The Finnish Journal of Music Education, 22(1–2), 70–87.",
+    text: "Kokkonen, H. (2020). Recycling should be easy! Factors affecting the sorting of household waste: Region and Environment, 49 (2), 110-129 https://doi.org/10.30663/ay.88321",
   },
   {
     id: "ref-3",
-    text: "Juntunen, Marja-Leena & Kivijärvi, Sanna. (2019). Opetuksen saavutettavuuden lisääminen taiteen perusopetusta antavissa oppilaitoksissa. The Finnish Journal of Music Education, 22(1–2), 70–87.",
+    text: "Lagström, H., Luoto, S., Mäkelä, J., Iirola, J., & Kunttu, K. (2017). Factors associated with a health-promoting diet in college students. Social Medicine Magazine, 54 (2), 104–120. https://doi.org/10.23990/sa.63652.",
   },
   {
     id: "ref-4",
-    text: "Juntunen, Marja-Leena & Kivijärvi, Sanna. (2019). Opetuksen saavutettavuuden lisääminen taiteen perusopetusta antavissa oppilaitoksissa. The Finnish Journal of Music Education, 22(1–2), 70–87.",
+    text: "Lilja, N., Laakkonen, R., Sariola, L. & Tapaninen, T. (2020). The bodily representations of experience: The interaction of the social circus in supporting the use and learning of language. AFinLA-e Studies in Applied Linguistics, 32–56. https://doi.org/10.30660/afinla.84314",
   },
   {
     id: "ref-5",
-    text: "Juntunen, Marja-Leena & Kivijärvi, Sanna. (2019). Opetuksen saavutettavuuden lisääminen taiteen perusopetusta antavissa oppilaitoksissa. The Finnish Journal of Music Education, 22(1–2), 70–87.",
+    text: "Myllykoski, TJ, Mattila, P., Ali-Löytty, S., Kaarakka, T., & Estonia, E. (2018). Development of Electronic Problems and Mathematical Thinking in University Mathematics. FMSERA Journal, 2 (1), 46-55. Retrieved from https://journal.fi/fmsera/article/view/69887.",
   },
   {
     id: "ref-6",
-    text: "Juntunen, Marja-Leena & Kivijärvi, Sanna. (2019). Opetuksen saavutettavuuden lisääminen taiteen perusopetusta antavissa oppilaitoksissa. The Finnish Journal of Music Education, 22(1–2), 70–87.",
+    text: "Paappa, R., Ahomäki, R., Löyttyniemi, E. & Aromaa, M. (2020). Significant improvement in treatment outcomes in children and adolescents with type 1 diabetes through the development of diabetes management. Medical Journal Duodecim, 135 (16), 1839–47. Retrieved from https://www.duodecimlehti.fi/lehti/2020/16/duo15740.",
   },
   {
     id: "ref-7",
-    text: "Juntunen, Marja-Leena & Kivijärvi, Sanna. (2019). Opetuksen saavutettavuuden lisääminen taiteen perusopetusta antavissa oppilaitoksissa. The Finnish Journal of Music Education, 22(1–2), 70–87.",
+    text: "Räihä, P., Mankki, V. & Samppala, K. (2019). The significance of written feedback for a university student. University Pedagogy, 26 (2), 8–22. Retrieved from https://lehti.yliopistopedagogiikka.fi/2019/08/12/kirjallisen-palautteen-merkitys/.",
   },
   {
     id: "ref-8",
-    text: "Juntunen, Marja-Leena & Kivijärvi, Sanna. (2019). Opetuksen saavutettavuuden lisääminen taiteen perusopetusta antavissa oppilaitoksissa. The Finnish Journal of Music Education, 22(1–2), 70–87.",
+    text: "Tuononen, T., Kangas, T., Carver, E. & Parpala, A. (2019). University studies five years after graduation - Did the university studies support the development of working life skills from a career perspective? University Pedagogy, 26 (1), 8–19. Retrieved from https://lehti.yliopistopedagogiikka.fi/2019/02/08/yliopisto-opinnan-anti-tyoelamataitojen-kehittlemine/.",
   },
   {
     id: "ref-9",
@@ -126,7 +126,7 @@ const TextWrapper = styled.div`
   }
 
   ul {
-    padding: 0 1.5rem 3rem 4.5rem;
+    padding: 0 4.5rem 3rem 4.5rem;
     counter-reset: ref;
   }
 
@@ -175,12 +175,13 @@ const Reference: React.FC<ReferenceProps> = () => {
   }, [])
 
   useEffect(() => {
-    const eventHandler = (evt: any) => {
+    const eventHandler = (evt: MouseEvent) => {
+      const target = evt.target as HTMLInputElement
       if (reference) {
         reference.forEach(({ text }) => {
-          if (text === evt.target.innerText) {
+          if (text === target.innerText) {
             evt.preventDefault()
-            let elementId = evt.target.innerText
+            let elementId = target.innerText
             elementId = elementId.substring(1, elementId.length - 1)
             const details = document.querySelector<HTMLDetailsElement>("#reference")
             setActive(`ref-${elementId}`)
@@ -413,6 +414,10 @@ const Reference: React.FC<ReferenceProps> = () => {
         a treatise on the theory of ethics, very popular during the Renaissance. The first line of
         Lorem Ipsum, Lorem ipsum dolor sit amet., comes from a line in section 1.10.32. The standard
       </p>
+      <br />
+      <br />
+      <br />
+      <br />
       <TextWrapper>
         <details id="reference">
           <summary>{PLACEHOLDER_HEADING}</summary>

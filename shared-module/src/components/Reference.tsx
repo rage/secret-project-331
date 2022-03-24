@@ -215,7 +215,7 @@ const Reference: React.FC<ReferenceProps> = () => {
       <h1>What is the meaning of Life</h1>
       <p>
         Contrary to popular belief, Lorem Ipsum is not simply random text.
-        <StyledLink id="ref" href="#ref-1" /*onClick={handleClick} onKeyDown={handleClick} */>
+        <StyledLink id="ref" href="#ref-1">
           [1]
         </StyledLink>
         It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years
@@ -235,7 +235,7 @@ const Reference: React.FC<ReferenceProps> = () => {
         Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the
         word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from
         sections 1.10.32{" "}
-        <StyledLink id="ref" /*href="#ref-2"  onClick={handleClick} onKeyDown={handleClick} */>
+        <StyledLink id="ref" href="#ref-2">
           [2]
         </StyledLink>
         and 1.10.33 of de Finibus Bonorum et Malorum (The Extremes of Good and Evil) by Cicero,
@@ -262,7 +262,7 @@ const Reference: React.FC<ReferenceProps> = () => {
         more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the
         cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum
         comes from sections 1.10.32{" "}
-        <StyledLink id="ref" /* href="#ref-3"   onClick={handleClick} onKeyDown={handleClick} */>
+        <StyledLink id="ref" href="#ref-3">
           [3]
         </StyledLink>{" "}
         and 1.10.33 of de Finibus Bonorum et Malorum (The Extremes of Good and Evil) by Cicero,
@@ -284,7 +284,7 @@ const Reference: React.FC<ReferenceProps> = () => {
       <h1>Why do spongebob have a square pant?</h1>
       <p>
         Contrary to popular belief, Lorem Ipsum is not simply random text.
-        <StyledLink id="ref" href="#ref-1" /*onClick={handleClick} onKeyDown={handleClick} */>
+        <StyledLink id="ref" href="#ref-4">
           [3]
         </StyledLink>
         It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years
@@ -304,7 +304,7 @@ const Reference: React.FC<ReferenceProps> = () => {
         Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the
         word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from
         sections 1.10.32{" "}
-        <StyledLink id="ref" /*href="#ref-2"  onClick={handleClick} onKeyDown={handleClick} */>
+        <StyledLink id="ref" href="#ref-5">
           [4]
         </StyledLink>
         and 1.10.33 of de Finibus Bonorum et Malorum (The Extremes of Good and Evil) by Cicero,
@@ -331,7 +331,7 @@ const Reference: React.FC<ReferenceProps> = () => {
         more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the
         cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum
         comes from sections 1.10.32{" "}
-        <StyledLink id="ref" /* href="#ref-3"   onClick={handleClick} onKeyDown={handleClick} */>
+        <StyledLink id="ref" href="#ref-6">
           [5]
         </StyledLink>{" "}
         and 1.10.33 of de Finibus Bonorum et Malorum (The Extremes of Good and Evil) by Cicero,
@@ -353,7 +353,7 @@ const Reference: React.FC<ReferenceProps> = () => {
       <h1>Who is a project manager?</h1>
       <p>
         Contrary to popular belief, Lorem Ipsum is not simply random text.
-        <StyledLink id="ref" href="#ref-1" /*onClick={handleClick} onKeyDown={handleClick} */>
+        <StyledLink id="ref" href="#ref-7">
           [6]
         </StyledLink>
         It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years
@@ -373,7 +373,7 @@ const Reference: React.FC<ReferenceProps> = () => {
         Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the
         word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from
         sections 1.10.32{" "}
-        <StyledLink id="ref" /*href="#ref-2"  onClick={handleClick} onKeyDown={handleClick} */>
+        <StyledLink id="ref" href="#ref-8">
           [7]
         </StyledLink>
         and 1.10.33 of de Finibus Bonorum et Malorum (The Extremes of Good and Evil) by Cicero,
@@ -400,7 +400,7 @@ const Reference: React.FC<ReferenceProps> = () => {
         more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the
         cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum
         comes from sections 1.10.32{" "}
-        <StyledLink id="ref" /* href="#ref-3"   onClick={handleClick} onKeyDown={handleClick} */>
+        <StyledLink id="ref" href="#ref-9">
           [8]
         </StyledLink>{" "}
         and 1.10.33 of de Finibus Bonorum et Malorum (The Extremes of Good and Evil) by Cicero,

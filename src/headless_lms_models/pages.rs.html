@@ -2151,6 +2151,42 @@
 <span id="2149">2149</span>
 <span id="2150">2150</span>
 <span id="2151">2151</span>
+<span id="2152">2152</span>
+<span id="2153">2153</span>
+<span id="2154">2154</span>
+<span id="2155">2155</span>
+<span id="2156">2156</span>
+<span id="2157">2157</span>
+<span id="2158">2158</span>
+<span id="2159">2159</span>
+<span id="2160">2160</span>
+<span id="2161">2161</span>
+<span id="2162">2162</span>
+<span id="2163">2163</span>
+<span id="2164">2164</span>
+<span id="2165">2165</span>
+<span id="2166">2166</span>
+<span id="2167">2167</span>
+<span id="2168">2168</span>
+<span id="2169">2169</span>
+<span id="2170">2170</span>
+<span id="2171">2171</span>
+<span id="2172">2172</span>
+<span id="2173">2173</span>
+<span id="2174">2174</span>
+<span id="2175">2175</span>
+<span id="2176">2176</span>
+<span id="2177">2177</span>
+<span id="2178">2178</span>
+<span id="2179">2179</span>
+<span id="2180">2180</span>
+<span id="2181">2181</span>
+<span id="2182">2182</span>
+<span id="2183">2183</span>
+<span id="2184">2184</span>
+<span id="2185">2185</span>
+<span id="2186">2186</span>
+<span id="2187">2187</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -2194,6 +2230,15 @@
     <span class="kw">pub</span> <span class="ident">content</span>: <span class="ident">serde_json::Value</span>,
     <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">copied_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageInfo</span> {
+    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">page_title</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">course_name</span>: <span class="ident">String</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Page</span> {
@@ -2499,6 +2544,33 @@ WHERE id = $1;
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">pages</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_info</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PageInfo</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">PageInfo</span>,
+        <span class="string">&quot;
+    SELECT
+        p.id as page_id,
+        p.title as page_title,
+        c.id as course_id,
+        c.name as course_name
+    FROM pages p
+    JOIN courses c
+        on c.id = p.course_id
+    WHERE p.id = $1;
+        &quot;</span>,
+        <span class="ident">page_id</span>
+    )
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">PageInfo</span> {
+        <span class="ident">page_id</span>: <span class="ident">res</span>.<span class="ident">page_id</span>,
+        <span class="ident">page_title</span>: <span class="ident">res</span>.<span class="ident">page_title</span>,
+        <span class="ident">course_id</span>: <span class="ident">res</span>.<span class="ident">course_id</span>,
+        <span class="ident">course_name</span>: <span class="ident">res</span>.<span class="ident">course_name</span>,
+    })
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_by_path</span>(

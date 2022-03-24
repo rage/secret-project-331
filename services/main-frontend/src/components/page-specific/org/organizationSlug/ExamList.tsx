@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@mui/material"
+import { Dialog, DialogContentText, DialogTitle } from "@mui/material"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
@@ -93,30 +93,38 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
           className={css`
             padding: 1rem;
           `}
+          // eslint-disable-next-line i18next/no-literal-string
+          aria-label="New Exam dialog"
+          role="dialog"
         >
-          <div
-            className={css`
-              margin: 1rem;
-            `}
-          >
-            <Button
-              size="medium"
-              variant="secondary"
-              onClick={() => setNewExamFormOpen(!newExamFormOpen)}
+          <DialogTitle id="alert-dialog-title">
+            <h1>{t("new-exam")}</h1>
+          </DialogTitle>
+          <DialogContentText role="main" id="alert-dialog-description">
+            <div
+              className={css`
+                margin: 1rem;
+              `}
             >
-              {t("button-text-close")}
-            </Button>
-            <NewExamForm
-              exams={getOrgExams.data}
-              initialData={null}
-              organization={organizationId}
-              onCancel={() => setNewExamFormOpen(!newExamFormOpen)}
-              onCreateNewExam={(newExam) => createExamMutation.mutate(newExam)}
-              onDuplicateExam={(parentId: string, newExam: NewExam) =>
-                duplicateExamMutation.mutate({ examId: parentId, newExam: newExam })
-              }
-            />
-          </div>
+              <Button
+                size="medium"
+                variant="secondary"
+                onClick={() => setNewExamFormOpen(!newExamFormOpen)}
+              >
+                {t("button-text-close")}
+              </Button>
+              <NewExamForm
+                exams={getOrgExams.data}
+                initialData={null}
+                organization={organizationId}
+                onCancel={() => setNewExamFormOpen(!newExamFormOpen)}
+                onCreateNewExam={(newExam) => createExamMutation.mutate(newExam)}
+                onDuplicateExam={(parentId: string, newExam: NewExam) =>
+                  duplicateExamMutation.mutate({ examId: parentId, newExam: newExam })
+                }
+              />
+            </div>
+          </DialogContentText>
         </Dialog>
       </div>
       <br />

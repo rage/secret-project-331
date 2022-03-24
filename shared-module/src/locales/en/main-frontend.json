@@ -259,11 +259,12 @@
   "label-actions": "Actions",
   "label-opens-at": "Opens at",
   "label-deadline": "Deadline",
-  "label-starts-at": "starts at",
+  "label-starts-at": "Starts at",
   "label-ends-at": "Ends at",
   "label-time-minutes": "Time in minutes",
   "label-name": "Name",
   "duplicate": "duplicate",
   "exam-created-succesfully": "exam created succesfully",
-  "exam-duplicated-succesfully": "exam duplicated succesfully"
+  "exam-duplicated-succesfully": "exam duplicated succesfully",
+  "new-exam": "New Exam"
 }

@@ -48,6 +48,7 @@ const NewCourseInstanceDialog: React.FC<NewCourseLanguageVersionDialogProps> = (
       }}
       className={css`
         z-index: 10000;
+        padding: 1rem;
       `}
       // eslint-disable-next-line i18next/no-literal-string
       aria-label="New Course Instance dialog"

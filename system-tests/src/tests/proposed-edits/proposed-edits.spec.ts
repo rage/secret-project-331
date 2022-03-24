@@ -168,7 +168,6 @@ test("test", async ({ page, headless }) => {
   await page.click('text="Change requests"')
 
   await expectScreenshotsToMatchSnapshots({
-    //axeSkip: true,
     page,
     headless,
     snapshotName: "manage-after-send",

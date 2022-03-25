@@ -58,12 +58,20 @@
   iframe[title="Embedded content from reddit.com"],
   iframe[title="Embedded content from slideshare.net"],
   iframe[title="Embedded content from ted.com"],
-  iframe[title="Embedded content from tumblr.com"] {
+  iframe[title="Embedded content from tumblr.com"],
+  iframe[title="Embedded content from menti.com"],
+  iframe[title="Embedded content from mentimeter.com"] {
     box-sizing: initial;
     border-top-width: 0px;
     border-right-width: 0px;
     border-bottom-width: 0px;
     border-left-width: 0px;
+  }
+  iframe[title="Embedded content from menti.com"],
+  iframe[title="Embedded content from mentimeter.com"] {
+    html {
+      overflow: hidden;
+    }
   }
   iframe[title="Embedded content from soundcloud"] {
     box-sizing: initial;

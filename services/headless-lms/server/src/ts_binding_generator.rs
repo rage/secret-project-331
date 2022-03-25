@@ -23,6 +23,8 @@ use crate::domain::*;
 use headless_lms_models::*;
 #[cfg(feature = "ts_rs")]
 use headless_lms_utils::pagination::Pagination;
+#[cfg(feature = "ts_rs")]
+use headless_lms_utils::url_to_oembed_endpoint::OEmbedResponse;
 
 #[cfg(feature = "ts_rs")]
 macro_rules! export {
@@ -126,6 +128,7 @@ fn ts_binding_generator() {
         pages::ExerciseWithExerciseTasks,
         pages::HistoryRestoreData,
         pages::Page,
+        pages::PageInfo,
         pages::PageRoutingDataWithChapterStatus,
         pages::PageSearchRequest,
         pages::PageSearchResult,
@@ -189,7 +192,8 @@ fn ts_binding_generator() {
         GetEditProposalsQuery,
         ErrorResponse,
         ErrorData,
-        Pagination
+        Pagination,
+        OEmbedResponse
     };
     res.unwrap();
 }

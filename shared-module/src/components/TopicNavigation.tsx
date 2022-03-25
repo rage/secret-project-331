@@ -72,9 +72,9 @@ export interface Topic {
 
 const PLACEHOLDER_TEXT = "TOPIC"
 
-export type TestProps = React.HTMLAttributes<HTMLDivElement>
+export type TopicNavigationProps = React.HTMLAttributes<HTMLDivElement>
 
-const TopicNavigation: React.FC<TestProps> = () => {
+const TopicNavigation: React.FC<TopicNavigationProps> = () => {
   // eslint-disable-next-line i18next/no-literal-string
   const [isActive, setIsActive] = useState<string>("id-1")
 

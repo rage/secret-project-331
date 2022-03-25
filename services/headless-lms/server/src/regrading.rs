@@ -129,7 +129,7 @@ pub async fn regrade(
         models::exercise_task_submissions::set_grading_id(
             &mut *conn,
             grading.id,
-            regrading_submission.id,
+            regrading_submission.exercise_task_submission_id,
         )
         .await?;
     }
@@ -210,7 +210,6 @@ async fn do_single_regrading(
             not_ready_grading.id,
         )
         .await?;
-
         // get the corresponding exercise service
         let exercise_task = models::exercise_tasks::get_exercise_task_by_id(
             &mut *conn,
@@ -299,9 +298,10 @@ mod test {
     use mockito::Matcher;
     use models::{
         exercise_services,
-        exercise_slide_submissions::NewExerciseSlideSubmission,
         exercise_task_gradings::{ExerciseTaskGradingResult, UserPointsUpdateStrategy},
-        exercises::GradingProgress,
+        exercises::{self, GradingProgress},
+        library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission},
+        user_exercise_states,
     };
     use serde_json::Value;
 
@@ -311,7 +311,7 @@ mod test {
     #[tokio::test]
     async fn regrades_submission() {
         insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
-
+        let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
             slide,
@@ -323,6 +323,25 @@ mod test {
         )
         .await
         .unwrap();
+        user_exercise_states::upsert_selected_exercise_slide_id(
+            tx.as_mut(),
+            user,
+            exercise.id,
+            Some(instance.id),
+            None,
+            Some(slide),
+        )
+        .await
+        .unwrap();
+        let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise.id,
+            Some(instance.id),
+            None,
+        )
+        .await
+        .unwrap();
         let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
             score_given: 0.0,
@@ -330,85 +349,51 @@ mod test {
             feedback_text: None,
             feedback_json: None,
         };
-        let _m = mockito::mock("POST", Matcher::Any)
-            .with_body(serde_json::to_string(&grading_result).unwrap())
-            .create();
+        let original_grading = headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results(
+            tx.as_mut(),
+            &exercise,
+            user_exercise_state,
+            StudentExerciseSlideSubmission {
+                exercise_slide_id: slide,
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
+                    exercise_task_id: task,
+                    data_json: Value::Null,
+                }],
+            },
+            HashMap::from([(
+                task,
+                grading_result.clone(),
+            )]),
+        )
+        .await
+        .unwrap();
 
-        let slide_submission =
-            models::exercise_slide_submissions::insert_exercise_slide_submission(
-                tx.as_mut(),
-                NewExerciseSlideSubmission {
-                    course_id: Some(course),
-                    course_instance_id: Some(instance.id),
-                    exam_id: None,
-                    exercise_id: exercise,
-                    user_id: user,
-                    exercise_slide_id: slide,
-                    user_points_update_strategy:
-                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
-                },
-            )
-            .await
-            .unwrap();
-        let task_submission = models::exercise_task_submissions::insert(
-            tx.as_mut(),
-            slide_submission.id,
-            slide,
-            task,
-            Value::Null,
-        )
-        .await
-        .unwrap();
-        let grading = models::exercise_task_gradings::insert(
-            tx.as_mut(),
-            task_submission,
-            course,
-            exercise,
-            task,
-        )
-        .await
-        .unwrap();
         let regrading = models::regradings::insert(
             tx.as_mut(),
             UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
         )
         .await
         .unwrap();
+        let exercise_task_submission_result = original_grading
+            .exercise_task_submission_results
+            .first()
+            .unwrap();
         let regrading_submission_id = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
             regrading,
-            task_submission,
-            grading,
+            exercise_task_submission_result.submission.id,
+            exercise_task_submission_result.grading.as_ref().unwrap().id,
         )
         .await
         .unwrap();
 
-        let exercise_service = models::exercise_services::insert_exercise_service(
-            tx.as_mut(),
-            &exercise_services::ExerciseServiceNewOrUpdate {
-                name: "".to_string(),
-                slug: "test-exercise".to_string(),
-                public_url: "".to_string(),
-                internal_url: Some(mockito::server_url()),
-                max_reprocessing_submissions_at_once: 1,
-            },
-        )
-        .await
-        .unwrap();
-        let info = models::exercise_service_info::insert(
-            tx.as_mut(),
-            &models::exercise_service_info::PathInfo {
-                exercise_service_id: exercise_service.id,
-                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
-                grade_endpoint_path: "/grade".to_string(),
-                public_spec_endpoint_path: "/public-spec".to_string(),
-                model_solution_path: "/model-solution".to_string(),
-            },
-        )
-        .await
-        .unwrap();
-        let mut services = HashMap::new();
-        services.insert("test-exercise".to_string(), (exercise_service, info));
+        let _m = mockito::mock("POST", Matcher::Any)
+            .with_body(serde_json::to_string(&grading_result).unwrap())
+            .create();
+        let service = create_mock_service(tx.as_mut(), "test-exercise".to_string(), 1)
+            .await
+            .unwrap();
+        let services = HashMap::from([("test-exercise".to_string(), service)]);
 
         let regrading_submission =
             models::exercise_task_regrading_submissions::get_regrading_submission(
@@ -438,15 +423,34 @@ mod test {
     #[tokio::test]
     async fn regrades_complete() {
         insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
-
+        let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
             slide,
-            "test-exercise-1",
+            "test-exercise",
             vec![],
             Value::Null,
             Value::Null,
             Value::Null,
+        )
+        .await
+        .unwrap();
+        user_exercise_states::upsert_selected_exercise_slide_id(
+            tx.as_mut(),
+            user,
+            exercise.id,
+            Some(instance.id),
+            None,
+            Some(slide),
+        )
+        .await
+        .unwrap();
+        let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise.id,
+            Some(instance.id),
+            None,
         )
         .await
         .unwrap();
@@ -457,85 +461,51 @@ mod test {
             feedback_text: None,
             feedback_json: None,
         };
+        let original_grading = headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results(
+            tx.as_mut(),
+            &exercise,
+            user_exercise_state,
+            StudentExerciseSlideSubmission {
+                exercise_slide_id: slide,
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
+                    exercise_task_id: task,
+                    data_json: Value::Null,
+                }],
+            },
+            HashMap::from([(
+                task,
+                grading_result.clone(),
+            )]),
+        )
+        .await
+        .unwrap();
+
         let _m = mockito::mock("POST", Matcher::Any)
             .with_body(serde_json::to_string(&grading_result).unwrap())
             .create();
-
-        let slide_submission =
-            models::exercise_slide_submissions::insert_exercise_slide_submission(
-                tx.as_mut(),
-                NewExerciseSlideSubmission {
-                    exercise_slide_id: slide,
-                    course_id: Some(course),
-                    course_instance_id: Some(instance.id),
-                    exam_id: None,
-                    exercise_id: exercise,
-                    user_id: user,
-                    user_points_update_strategy:
-                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
-                },
-            )
+        let service = create_mock_service(tx.as_mut(), "test-exercise".to_string(), 1)
             .await
             .unwrap();
-        let task_submission = models::exercise_task_submissions::insert(
-            tx.as_mut(),
-            slide_submission.id,
-            slide,
-            task,
-            Value::Null,
-        )
-        .await
-        .unwrap();
-        let grading = models::exercise_task_gradings::insert(
-            tx.as_mut(),
-            task_submission,
-            course,
-            exercise,
-            task,
-        )
-        .await
-        .unwrap();
+        let services = HashMap::from([("test-exercise".to_string(), service)]);
+
         let regrading = models::regradings::insert(
             tx.as_mut(),
             UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
         )
         .await
         .unwrap();
+        let exercise_task_submission_result = original_grading
+            .exercise_task_submission_results
+            .first()
+            .unwrap();
         let _regrading_submission_id = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
             regrading,
-            task_submission,
-            grading,
+            exercise_task_submission_result.submission.id,
+            exercise_task_submission_result.grading.as_ref().unwrap().id,
         )
         .await
         .unwrap();
-
-        let exercise_service = models::exercise_services::insert_exercise_service(
-            tx.as_mut(),
-            &exercise_services::ExerciseServiceNewOrUpdate {
-                name: "".to_string(),
-                slug: "test-exercise-3".to_string(),
-                public_url: "".to_string(),
-                internal_url: Some(mockito::server_url()),
-                max_reprocessing_submissions_at_once: 1,
-            },
-        )
-        .await
-        .unwrap();
-        let info = models::exercise_service_info::insert(
-            tx.as_mut(),
-            &models::exercise_service_info::PathInfo {
-                exercise_service_id: exercise_service.id,
-                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
-                grade_endpoint_path: "/grade".to_string(),
-                public_spec_endpoint_path: "/public-spec".to_string(),
-                model_solution_path: "/model-solution".to_string(),
-            },
-        )
-        .await
-        .unwrap();
-        let mut services = HashMap::new();
-        services.insert("test-exercise-1".to_string(), (exercise_service, info));
 
         let regrading = models::regradings::get_by_id(tx.as_mut(), regrading)
             .await
@@ -560,7 +530,7 @@ mod test {
     #[tokio::test]
     async fn regrades_partial() {
         insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, slide: slide_1);
-
+        let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
             score_given: 0.0,
@@ -568,9 +538,6 @@ mod test {
             feedback_text: None,
             feedback_json: None,
         };
-        let _m = mockito::mock("POST", Matcher::Any)
-            .with_body(serde_json::to_string(&grading_result).unwrap())
-            .create();
 
         let task_1 = models::exercise_tasks::insert(
             tx.as_mut(),
@@ -583,7 +550,49 @@ mod test {
         )
         .await
         .unwrap();
-        let slide_2 = models::exercise_slides::insert(tx.as_mut(), exercise, 1)
+        user_exercise_states::upsert_selected_exercise_slide_id(
+            tx.as_mut(),
+            user,
+            exercise.id,
+            Some(instance.id),
+            None,
+            Some(slide_1),
+        )
+        .await
+        .unwrap();
+        let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise.id,
+            Some(instance.id),
+            None,
+        )
+        .await
+        .unwrap();
+        let original_grading_1 = headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results(
+            tx.as_mut(),
+            &exercise,
+            user_exercise_state,
+            StudentExerciseSlideSubmission {
+                exercise_slide_id: slide_1,
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
+                    exercise_task_id: task_1,
+                    data_json: Value::Null,
+                }],
+            },
+            HashMap::from([(
+                task_1,
+                grading_result.clone(),
+            )]),
+        )
+        .await
+        .unwrap();
+        let task_submission_result_1 = original_grading_1
+            .exercise_task_submission_results
+            .first()
+            .unwrap();
+
+        let slide_2 = models::exercise_slides::insert(tx.as_mut(), exercise.id, 1)
             .await
             .unwrap();
         let task_2 = models::exercise_tasks::insert(
@@ -597,65 +606,62 @@ mod test {
         )
         .await
         .unwrap();
-        let slide_submission_1 =
-            models::exercise_slide_submissions::insert_exercise_slide_submission(
-                tx.as_mut(),
-                NewExerciseSlideSubmission {
-                    exercise_slide_id: slide_1,
-                    course_id: Some(course),
-                    course_instance_id: Some(instance.id),
-                    exam_id: None,
-                    exercise_id: exercise,
-                    user_id: user,
-                    user_points_update_strategy:
-                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
-                },
-            )
+        user_exercise_states::upsert_selected_exercise_slide_id(
+            tx.as_mut(),
+            user,
+            exercise.id,
+            Some(instance.id),
+            None,
+            Some(slide_2),
+        )
+        .await
+        .unwrap();
+        let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise.id,
+            Some(instance.id),
+            None,
+        )
+        .await
+        .unwrap();
+        let original_grading_2 = headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results(
+            tx.as_mut(),
+            &exercise,
+            user_exercise_state,
+            StudentExerciseSlideSubmission {
+                exercise_slide_id: slide_2,
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
+                    exercise_task_id: task_2,
+                    data_json: Value::Null,
+                }],
+            },
+            HashMap::from([(
+                task_2,
+                grading_result.clone(),
+            )]),
+        )
+        .await
+        .unwrap();
+        let task_submission_result_2 = original_grading_2
+            .exercise_task_submission_results
+            .first()
+            .unwrap();
+
+        let _m = mockito::mock("POST", Matcher::Any)
+            .with_body(serde_json::to_string(&grading_result).unwrap())
+            .create();
+        let service_1 = create_mock_service(tx.as_mut(), "test-exercise-1".to_string(), 1)
             .await
             .unwrap();
-        let task_submission_1 = models::exercise_task_submissions::insert(
-            tx.as_mut(),
-            slide_submission_1.id,
-            slide_1,
-            task_1,
-            Value::Null,
-        )
-        .await
-        .unwrap();
-        let slide_submission_2 =
-            models::exercise_slide_submissions::insert_exercise_slide_submission(
-                tx.as_mut(),
-                NewExerciseSlideSubmission {
-                    exercise_slide_id: slide_2,
-                    course_id: Some(course),
-                    course_instance_id: Some(instance.id),
-                    exam_id: None,
-                    exercise_id: exercise,
-                    user_id: user,
-                    user_points_update_strategy:
-                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
-                },
-            )
+        let service_2 = create_mock_service(tx.as_mut(), "test-exercise-2".to_string(), 0)
             .await
             .unwrap();
-        let task_submission_2 = models::exercise_task_submissions::insert(
-            tx.as_mut(),
-            slide_submission_2.id,
-            slide_2,
-            task_2,
-            Value::Null,
-        )
-        .await
-        .unwrap();
-        let grading = models::exercise_task_gradings::insert(
-            tx.as_mut(),
-            task_submission_1,
-            course,
-            exercise,
-            task_1,
-        )
-        .await
-        .unwrap();
+        let services = HashMap::from([
+            ("test-exercise-1".to_string(), service_1),
+            ("test-exercise-2".to_string(), service_2),
+        ]);
+
         let regrading = models::regradings::insert(
             tx.as_mut(),
             UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
@@ -665,71 +671,19 @@ mod test {
         let _regrading_submission_1 = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
             regrading,
-            task_submission_1,
-            grading,
+            task_submission_result_1.submission.id,
+            task_submission_result_1.grading.as_ref().unwrap().id,
         )
         .await
         .unwrap();
         let _regrading_submission_2 = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
             regrading,
-            task_submission_2,
-            grading,
+            task_submission_result_2.submission.id,
+            task_submission_result_2.grading.as_ref().unwrap().id,
         )
         .await
         .unwrap();
-
-        let exercise_service_1 = models::exercise_services::insert_exercise_service(
-            tx.as_mut(),
-            &exercise_services::ExerciseServiceNewOrUpdate {
-                name: "".to_string(),
-                slug: "test-exercise-1".to_string(),
-                public_url: "".to_string(),
-                internal_url: Some(mockito::server_url()),
-                max_reprocessing_submissions_at_once: 1,
-            },
-        )
-        .await
-        .unwrap();
-        let info_1 = models::exercise_service_info::insert(
-            tx.as_mut(),
-            &models::exercise_service_info::PathInfo {
-                exercise_service_id: exercise_service_1.id,
-                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
-                grade_endpoint_path: "/grade".to_string(),
-                public_spec_endpoint_path: "/public-spec".to_string(),
-                model_solution_path: "/model-solution".to_string(),
-            },
-        )
-        .await
-        .unwrap();
-        let exercise_service_2 = models::exercise_services::insert_exercise_service(
-            tx.as_mut(),
-            &exercise_services::ExerciseServiceNewOrUpdate {
-                name: "".to_string(),
-                slug: "test-exercise-2".to_string(),
-                public_url: "".to_string(),
-                internal_url: Some(mockito::server_url()),
-                max_reprocessing_submissions_at_once: 0,
-            },
-        )
-        .await
-        .unwrap();
-        let info_2 = models::exercise_service_info::insert(
-            tx.as_mut(),
-            &models::exercise_service_info::PathInfo {
-                exercise_service_id: exercise_service_2.id,
-                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
-                grade_endpoint_path: "/grade".to_string(),
-                public_spec_endpoint_path: "/public-spec".to_string(),
-                model_solution_path: "/model-solution".to_string(),
-            },
-        )
-        .await
-        .unwrap();
-        let mut services = HashMap::new();
-        services.insert("test-exercise-1".to_string(), (exercise_service_1, info_1));
-        services.insert("test-exercise-2".to_string(), (exercise_service_2, info_2));
 
         let regrading_2 = models::regradings::get_by_id(tx.as_mut(), regrading)
             .await
@@ -753,52 +707,67 @@ mod test {
     #[tokio::test]
     async fn fail_on_missing_service() {
         insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
+        let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
+        let grading_result = ExerciseTaskGradingResult {
+            grading_progress: models::exercises::GradingProgress::FullyGraded,
+            score_given: 0.0,
+            score_maximum: 100,
+            feedback_text: None,
+            feedback_json: None,
+        };
+        user_exercise_states::upsert_selected_exercise_slide_id(
+            tx.as_mut(),
+            user,
+            exercise.id,
+            Some(instance.id),
+            None,
+            Some(slide),
+        )
+        .await
+        .unwrap();
+        let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise.id,
+            Some(instance.id),
+            None,
+        )
+        .await
+        .unwrap();
+        let original_grading = headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results(
+            tx.as_mut(),
+            &exercise,
+            user_exercise_state,
+            StudentExerciseSlideSubmission {
+                exercise_slide_id: slide,
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
+                    exercise_task_id: task,
+                    data_json: Value::Null,
+                }],
+            },
+            HashMap::from([(
+                task,
+                grading_result.clone(),
+            )]),
+        )
+        .await
+        .unwrap();
 
-        let slide_submission =
-            models::exercise_slide_submissions::insert_exercise_slide_submission(
-                tx.as_mut(),
-                NewExerciseSlideSubmission {
-                    exercise_slide_id: slide,
-                    course_id: Some(course),
-                    course_instance_id: Some(instance.id),
-                    exam_id: None,
-                    exercise_id: exercise,
-                    user_id: user,
-                    user_points_update_strategy:
-                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
-                },
-            )
-            .await
-            .unwrap();
-        let task_submission = models::exercise_task_submissions::insert(
-            tx.as_mut(),
-            slide_submission.id,
-            slide,
-            task,
-            Value::Null,
-        )
-        .await
-        .unwrap();
-        let grading = models::exercise_task_gradings::insert(
-            tx.as_mut(),
-            task_submission,
-            course,
-            exercise,
-            task,
-        )
-        .await
-        .unwrap();
         let regrading = models::regradings::insert(
             tx.as_mut(),
             UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
         )
         .await
         .unwrap();
-        let _regrading_submission = models::exercise_task_regrading_submissions::insert(
+        let exercise_task_submission_result = original_grading
+            .exercise_task_submission_results
+            .first()
+            .unwrap();
+        let _regrading_submission_id = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
             regrading,
-            task_submission,
-            grading,
+            exercise_task_submission_result.submission.id,
+            exercise_task_submission_result.grading.as_ref().unwrap().id,
         )
         .await
         .unwrap();
@@ -810,5 +779,38 @@ mod test {
             .await
             .unwrap();
         assert_eq!(regrading.total_grading_progress, GradingProgress::Failed);
+    }
+
+    async fn create_mock_service(
+        conn: &mut PgConnection,
+        service_slug: String,
+        max_reprocessing_submissions_at_once: i32,
+    ) -> Result<(ExerciseService, ExerciseServiceInfo)> {
+        let exercise_service = models::exercise_services::insert_exercise_service(
+            conn,
+            &exercise_services::ExerciseServiceNewOrUpdate {
+                name: "".to_string(),
+                slug: service_slug,
+                public_url: "".to_string(),
+                internal_url: Some(mockito::server_url()),
+                max_reprocessing_submissions_at_once,
+            },
+        )
+        .await
+        .unwrap();
+        let info = models::exercise_service_info::insert(
+            conn,
+            &models::exercise_service_info::PathInfo {
+                exercise_service_id: exercise_service.id,
+                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
+                grade_endpoint_path: "/grade".to_string(),
+                public_spec_endpoint_path: "/public-spec".to_string(),
+                model_solution_path: "/model-solution".to_string(),
+            },
+        )
+        .await
+        .unwrap();
+
+        Ok((exercise_service, info))
     }
 }

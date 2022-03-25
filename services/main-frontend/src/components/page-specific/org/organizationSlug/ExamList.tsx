@@ -1,21 +1,14 @@
 import { css } from "@emotion/css"
-import { Dialog, DialogContentText, DialogTitle } from "@mui/material"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import {
-  createExam,
-  createExamDuplicate,
-  fetchOrganizationExams,
-} from "../../../../services/backend/exams"
-import { NewExam } from "../../../../shared-module/bindings"
+import { fetchOrganizationExams } from "../../../../services/backend/exams"
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import NewExamForm from "../../../forms/NewExamForm"
+import NewExamDialog from "../../manage/courses/id/exams/NewExamDialog"
 
 interface Props {
   organizationId: string
@@ -24,6 +17,8 @@ interface Props {
 
 const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
   const { t } = useTranslation()
+
+  const [newExamFormOpen, setNewExamFormOpen] = useState(false)
 
   const getOrgExams = useQuery(
     "organization-exams",
@@ -37,29 +32,7 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
     { enabled: !!organizationId },
   )
 
-  const createExamMutation = useToastMutation(
-    (exam: NewExam) => createExam(organizationId, exam),
-    {
-      notify: true,
-      successMessage: t("exam-created-succesfully"),
-      method: "POST",
-    },
-    { onSuccess: () => getOrgExams.refetch() },
-  )
-
-  const duplicateExamMutation = useToastMutation(
-    (data: { examId: string; newExam: NewExam }) => createExamDuplicate(data.examId, data.newExam),
-    {
-      notify: true,
-      successMessage: t("exam-duplicated-succesfully"),
-      method: "POST",
-    },
-    { onSuccess: () => getOrgExams.refetch() },
-  )
-
   const loginStateContext = useContext(LoginStateContext)
-
-  const [newExamFormOpen, setNewExamFormOpen] = useState(false)
 
   if (getOrgExams.isError) {
     return <ErrorBanner variant={"readOnly"} error={getOrgExams.error} />
@@ -87,40 +60,12 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
           margin-bottom: 1rem;
         `}
       >
-        <Dialog
+        <NewExamDialog
+          organizationId={organizationId}
+          getOrgExams={getOrgExams}
           open={newExamFormOpen}
-          onClose={() => setNewExamFormOpen(!newExamFormOpen)}
-          // eslint-disable-next-line i18next/no-literal-string
-          aria-label={t("new-exam-dialog")}
-          role="dialog"
-        >
-          <div
-            className={css`
-              padding: 1rem;
-            `}
-          >
-            <h2 aria-label={t("new-exam")}>{t("new-exam")}</h2>
-            <DialogContentText role="main" id="alert-dialog-description">
-              <Button
-                size="medium"
-                variant="secondary"
-                onClick={() => setNewExamFormOpen(!newExamFormOpen)}
-              >
-                {t("button-text-close")}
-              </Button>
-              <NewExamForm
-                exams={getOrgExams.data}
-                initialData={null}
-                organization={organizationId}
-                onCancel={() => setNewExamFormOpen(!newExamFormOpen)}
-                onCreateNewExam={(newExam) => createExamMutation.mutate(newExam)}
-                onDuplicateExam={(parentId: string, newExam: NewExam) =>
-                  duplicateExamMutation.mutate({ examId: parentId, newExam: newExam })
-                }
-              />
-            </DialogContentText>
-          </div>
-        </Dialog>
+          close={() => setNewExamFormOpen(!setNewExamFormOpen)}
+        />
       </div>
       <br />
       {loginStateContext.signedIn && (

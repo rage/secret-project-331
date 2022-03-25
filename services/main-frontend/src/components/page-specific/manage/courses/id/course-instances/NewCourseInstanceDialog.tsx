@@ -47,12 +47,12 @@ const NewCourseInstanceDialog: React.FC<NewCourseLanguageVersionDialogProps> = (
         }
         onClose()
       }}
+      role="dialog"
+      aria-labelledby="label"
+      title={t("new-course-instance-dialog")}
       className={css`
         z-index: 10000;
       `}
-      // eslint-disable-next-line i18next/no-literal-string
-      aria-label={t("new-course-instance-dialog")}
-      role="dialog"
     >
       <div
         className={css`
@@ -61,8 +61,14 @@ const NewCourseInstanceDialog: React.FC<NewCourseLanguageVersionDialogProps> = (
           max-width: 500px;
         `}
       >
-        {/* <DialogTitle id="alert-dialog-title">{t("new-course-instance")}</DialogTitle> */}
-        <h2 aria-label={t("new-course-instance")}>{t("new-course-instance")}</h2>
+        <h1
+          id="label"
+          className={css`
+            font-size: 32px;
+          `}
+        >
+          {t("new-course-instance")}
+        </h1>
         <DialogContentText role="main" id="alert-dialog-description">
           {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
           <NewCourseInstanceForm

@@ -34,6 +34,7 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
   exams,
   onCreateNewExam,
   onDuplicateExam,
+  onCancel,
 }) => {
   const { t } = useTranslation()
 
@@ -144,6 +145,9 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
         <br />
         <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
           {t("button-text-submit")}
+        </Button>
+        <Button variant="secondary" size="medium" type="button" onClick={onCancel}>
+          {t("button-text-close")}
         </Button>
       </form>
     </div>

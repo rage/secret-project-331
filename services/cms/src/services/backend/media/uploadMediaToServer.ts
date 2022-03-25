@@ -50,7 +50,7 @@ export async function uploadMedia({
         }
       } catch (error: unknown) {
         // @ts-ignore: null checked
-        const detail = error?.data?.detail
+        const detail = error?.data?.message
         onError(`${file.name}: ${detail || "Upload failed"}`)
       } finally {
         // Upload has either succeeded or failed so we can remove the placeholder that is being used as a upload indicator.

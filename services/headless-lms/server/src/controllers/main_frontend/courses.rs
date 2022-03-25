@@ -183,7 +183,13 @@ async fn get_course_structure(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<CourseStructure>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
     let course_structure = models::courses::get_course_structure(
         &mut conn,
         *course_id,
@@ -266,8 +272,10 @@ Content-Type: application/json
 async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let language_versions =
         models::courses::get_all_language_versions_of_course(&mut conn, &course).await?;
@@ -364,7 +372,13 @@ async fn get_daily_submission_counts(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmissionCount>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let res =
         exercise_slide_submissions::get_course_daily_slide_submission_counts(&mut conn, &course)
@@ -383,7 +397,13 @@ async fn get_weekday_hour_submission_counts(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmissionCountByWeekAndHour>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let res = exercise_slide_submissions::get_course_exercise_slide_submission_counts_by_weekday_and_hour(
         &mut conn, &course,
@@ -403,7 +423,13 @@ async fn get_submission_counts_by_exercise(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmissionCountByExercise>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let res = exercise_slide_submissions::get_course_exercise_slide_submission_counts_by_exercise(
         &mut conn, &course,
@@ -423,7 +449,13 @@ async fn get_course_instances(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
     let course_instances =
         models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
     Ok(web::Json(course_instances))
@@ -446,9 +478,16 @@ pub async fn get_feedback(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     read: web::Query<GetFeedbackQuery>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Feedback>>> {
     let mut conn = pool.acquire().await?;
-
+    authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
     let feedback =
         feedback::get_feedback_for_course(&mut conn, *course_id, read.read, read.pagination)
             .await?;
@@ -466,7 +505,13 @@ pub async fn get_feedback_count(
     user: AuthUser,
 ) -> ControllerResult<web::Json<FeedbackCount>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
     let feedback_count = feedback::get_feedback_count_for_course(&mut conn, *course_id).await?;
     Ok(web::Json(feedback_count))
@@ -506,8 +551,10 @@ async fn new_course_instance(
 async fn glossary(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Term>>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
     Ok(web::Json(glossary))
 }
@@ -517,8 +564,10 @@ async fn glossary(
 async fn new_term(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Term>>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
     Ok(web::Json(glossary))
 }
@@ -529,8 +578,10 @@ async fn new_glossary_term(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     new_term: web::Json<TermUpdate>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let TermUpdate { term, definition } = new_term.into_inner();
     let term = models::glossary::insert(&mut conn, &term, &definition, *course_id).await?;
     Ok(web::Json(term))

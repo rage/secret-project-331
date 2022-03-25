@@ -86,7 +86,7 @@ async fn history(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<PageHistory>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, Some(user.id), Res::Page(*page_id)).await?;
+    authorize(&mut conn, Act::Teach, Some(user.id), Res::Page(*page_id)).await?;
 
     let res = models::page_history::history(&mut conn, *page_id, *pagination).await?;
     Ok(web::Json(res))
@@ -103,7 +103,7 @@ async fn history_count(
     user: AuthUser,
 ) -> ControllerResult<web::Json<i64>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, Some(user.id), Res::Page(*page_id)).await?;
+    authorize(&mut conn, Act::Teach, Some(user.id), Res::Page(*page_id)).await?;
 
     let res = models::page_history::history_count(&mut conn, *page_id).await?;
     Ok(web::Json(res))

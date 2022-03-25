@@ -15,7 +15,7 @@ async fn get_submission_info(
     let mut conn = pool.acquire().await?;
     authorize(
         &mut conn,
-        Act::View,
+        Act::Teach,
         Some(user.id),
         Res::ExerciseTaskSubmission(*submission_id),
     )

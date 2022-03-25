@@ -21,9 +21,17 @@ GET /course-instances/:id
 #[instrument(skip(pool))]
 async fn get_course_instance(
     course_instance_id: web::Path<Uuid>,
+    user: AuthUser,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<CourseInstance>> {
     let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
     let course_instance =
         models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
     Ok(web::Json(course_instance))
@@ -38,6 +46,13 @@ async fn post_new_email_template(
     user: AuthUser,
 ) -> ControllerResult<web::Json<EmailTemplate>> {
     let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
     let new_email_template = payload.0;
     let email_template = models::email_templates::insert_email_template(
         &mut conn,
@@ -57,6 +72,13 @@ async fn get_email_templates_by_course_instance_id(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<EmailTemplate>>> {
     let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
 
     let email_templates =
         models::email_templates::get_email_templates(&mut conn, *course_instance_id).await?;
@@ -70,6 +92,13 @@ pub async fn point_export(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
     let course_instance_id = *course_instance_id;
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
 
@@ -111,8 +140,16 @@ async fn points(
     course_instance_id: web::Path<Uuid>,
     pagination: web::Query<Pagination>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Points>> {
     let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
     let points = course_instances::get_points(&mut conn, *course_instance_id, *pagination).await?;
     Ok(web::Json(points))
 }
@@ -125,8 +162,16 @@ pub async fn edit(
     update: web::Json<CourseInstanceForm>,
     course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
     course_instances::edit(&mut conn, *course_instance_id, update.into_inner()).await?;
     Ok(HttpResponse::Ok().finish())
 }
@@ -135,8 +180,19 @@ pub async fn edit(
 POST /course-instances/:id/delete
 */
 #[instrument(skip(pool))]
-async fn delete(id: web::Path<Uuid>, pool: web::Data<PgPool>) -> ControllerResult<HttpResponse> {
+async fn delete(
+    id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*id),
+    )
+    .await?;
     models::course_instances::delete(&mut conn, *id).await?;
     Ok(HttpResponse::Ok().finish())
 }

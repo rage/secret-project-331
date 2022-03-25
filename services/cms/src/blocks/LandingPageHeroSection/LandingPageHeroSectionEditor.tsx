@@ -9,7 +9,7 @@ import {
   RichText,
 } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
-import { PanelBody } from "@wordpress/components"
+import { PanelBody, Placeholder } from "@wordpress/components"
 import { cover as icon } from "@wordpress/icons"
 import React from "react"
 
@@ -33,6 +33,11 @@ const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
   ],
 ]
 
+const placeHolderFixHeightStyles = css`
+  min-height: unset !important;
+  margin-bottom: 1rem !important;
+`
+
 const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSectionAttributes>> = ({
   clientId,
   attributes,
@@ -43,39 +48,51 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">
         <PanelBody title="Background" initialOpen={false}>
-          <MediaPlaceholder
+          {attributes.backgroundImage ? (
+            <Placeholder
+              className={placeHolderFixHeightStyles}
+              icon={<BlockIcon icon={icon} />}
+              label="Background image"
+            >
+              Remove
+            </Placeholder>
+          ) : (
+            <MediaPlaceholder
+              icon={<BlockIcon icon={icon} />}
+              labels={{
+                title: "Background image",
+                instructions:
+                  "Drag and drop onto this block, upload, or select existing media from your library.",
+              }}
+              onSelect={(media) => {
+                setAttributes({ backgroundImage: media.url })
+                console.log({ media })
+              }}
+              accept="image/svg+xml"
+              allowedTypes={["image/svg+xml"]}
+              onError={(error) => {
+                console.error({ error })
+              }}
+              className={placeHolderFixHeightStyles}
+            ></MediaPlaceholder>
+          )}
+          <Placeholder
+            className={placeHolderFixHeightStyles}
             icon={<BlockIcon icon={icon} />}
-            labels={{
-              title: "Background image",
-              instructions:
-                "Drag and drop onto this block, upload, or select existing media from your library.",
-            }}
-            onSelect={(media) => {
-              setAttributes({ backgroundImage: media.url })
-              console.log({ media })
-            }}
-            accept="image/svg+xml"
-            allowedTypes={["image/svg+xml"]}
-            onError={(error) => {
-              console.error({ error })
-            }}
-            className={css`
-              min-height: unset !important;
-              margin-bottom: 1rem !important;
-            `}
-            mediaPreview={() => <div>Mediapreview</div>}
-          ></MediaPlaceholder>
-          <ColorPalette
-            disableCustomColors={false}
-            value={attributes.backgroundColor ?? "#FFFFFF"}
-            onChange={(backgroundColor) => setAttributes({ backgroundColor })}
-            clearable={false}
-            colors={[
-              { color: "#FFFFFF", name: "white" },
-              { color: "#663399", name: "rebeccapurple" },
-              { color: baseTheme.colors.blue[100], name: "lightblue" },
-            ]}
-          />
+            label="Background color"
+          >
+            <ColorPalette
+              disableCustomColors={false}
+              value={attributes.backgroundColor ?? "#FFFFFF"}
+              onChange={(backgroundColor) => setAttributes({ backgroundColor })}
+              clearable={false}
+              colors={[
+                { color: "#FFFFFF", name: "white" },
+                { color: "#663399", name: "rebeccapurple" },
+                { color: baseTheme.colors.blue[100], name: "lightblue" },
+              ]}
+            />
+          </Placeholder>
         </PanelBody>
       </InspectorControls>
       <BreakFromCentered

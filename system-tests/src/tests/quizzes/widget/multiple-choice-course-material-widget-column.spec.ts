@@ -14,24 +14,29 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
     page.locator("text=University of Helsinki, Department of Computer Science").click(),
   ])
-  // Click text=Advanced course instance managementNo description available
+  // Click text=Introduction to Course Material
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-course-instance-management' }*/),
-    page.locator("text=Advanced course instance managementNo description available").click(),
+    page.locator("text=Introduction to Course Material").click(),
   ])
-  // Click text=Default >> nth=0
-  await page.locator("text=Default").first().click()
   // Click button:has-text("Continue")
-  await page.locator('button:has-text("Continue")').click()
-  // Click text=The Basics
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-course-instance-management/chapter-1' }*/),
-    page.locator("text=The Basics").click(),
-  ])
-  // Click text=Page 7 >> nth=0
-  await page.locator("text=Page 7").first().click()
+  await page.click('button:has-text("Continue")')
+
+  await page.evaluate(() => {
+    window.scrollBy(0, 1800)
+  })
+  // Click text=Chapter 2: User Experience
+  await page.locator("text=User Experience").click()
   await expect(page).toHaveURL(
-    "http://project-331.local/org/uh-cs/courses/advanced-course-instance-management/chapter-1/page-7",
+    "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2",
+  )
+  await page.evaluate(() => {
+    window.scrollBy(0, 500)
+  })
+  // Click text=Page 3 >> nth=0
+  await page.locator("text=Page 3").first().click()
+  await expect(page).toHaveURL(
+    "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-3",
   )
 
   const frame = await waitForFunction(page, () =>
@@ -88,10 +93,10 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     frame,
   })
 
-  // Click text=Page 8
-  await page.locator("text=Page 8").click()
+  // Click text=Page 4
+  await page.locator("text=Page 4").click()
   await expect(page).toHaveURL(
-    "http://project-331.local/org/uh-cs/courses/advanced-course-instance-management/chapter-1/page-8",
+    "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-4",
   )
 
   const frame2 = await waitForFunction(page, () =>
@@ -116,6 +121,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
   await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["color-contrast"],
     headless,
     snapshotName: "course-material-multiple-choice-after-success-click-column-multi",
     waitForThisToBeVisibleAndStable: `text="Correct! This is indeed the first answer"`,

@@ -17,25 +17,26 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
   // Click text=Advanced course instance managementNo description available
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-course-instance-management' }*/),
-    page.locator("text=Advanced course instance managementNo description available").click(),
+    page.locator("text=Introduction to Course Material").click(),
   ])
-  // Click text=Default >> nth=0
-  await page.locator("text=non-default instance").first().click()
   // Click button:has-text("Continue")
-  await page.locator('button:has-text("Continue")').click()
-  // Click text=The Basics
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-course-instance-management/chapter-1' }*/),
-    page.locator("text=The Basics").click(),
-  ])
+  //await page.click('button:has-text("Continue")')
+  // Click text=Chapter 2: User Experience
+  await page.evaluate(() => {
+    window.scrollBy(0, 1800)
+  })
+  await page.locator("text=User Experience").click()
+  await expect(page).toHaveURL(
+    "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2",
+  )
 
   await page.evaluate(() => {
-    window.scrollBy(0, 1000)
+    window.scrollBy(0, 500)
   })
   // Click text=Page 8
-  await page.locator("text=Page 9").first().click()
+  await page.locator("text=Page 5").first().click()
   await expect(page).toHaveURL(
-    "http://project-331.local/org/uh-cs/courses/advanced-course-instance-management/chapter-1/page-9",
+    "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-5",
   )
 
   const frame3 = await waitForFunction(page, () =>
@@ -93,10 +94,10 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
     frame: frame3,
   })
 
-  // Click text=Page 8
-  await page.locator("text=Page 10").click()
+  // Click text=Page 6
+  await page.locator("text=Page 6").click()
   await expect(page).toHaveURL(
-    "http://project-331.local/org/uh-cs/courses/advanced-course-instance-management/chapter-1/page-10",
+    "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-6",
   )
 
   const frame4 = await waitForFunction(page, () =>

@@ -262,6 +262,30 @@
 <span id="260">260</span>
 <span id="261">261</span>
 <span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/login`.
 */</span>
@@ -280,7 +304,11 @@ Handlers for HTTP requests to `/api/v0/login`.
 <span class="kw">use</span> <span class="ident">reqwest::Client</span>;
 <span class="kw">use</span> <span class="ident">url::form_urlencoded::Target</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">controllers::prelude</span>::<span class="kw-2">*</span>, <span class="ident">domain::authorization</span>, <span class="ident">OAuthClient</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">controllers::prelude</span>::<span class="kw-2">*</span>,
+    <span class="ident">domain::authorization</span>::{<span class="self">self</span>, <span class="ident">ActionOnResource</span>},
+    <span class="ident">OAuthClient</span>,
+};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
@@ -312,6 +340,25 @@ Handlers for HTTP requests to `/api/v0/login`.
     <span class="kw">pub</span> <span class="ident">last_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">upstream_id</span>: <span class="ident">i32</span>,
+}
+
+<span class="doccomment">/**
+POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
+**/</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">payload</span>,))]</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">authorize_action_on_resource</span>(
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ActionOnResource</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
+
+    <span class="kw">return</span> <span class="kw">match</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">data</span>.<span class="ident">action</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">data</span>.<span class="ident">resource</span>).<span class="kw">await</span> {
+        <span class="prelude-val">Ok</span>(()) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="bool-val">true</span>)),
+        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="bool-val">false</span>)),
+    };
 }
 
 <span class="doccomment">/**
@@ -522,7 +569,8 @@ GET `/api/v0/auth/logged-in` Returns the current user&#39;s login status.
             .<span class="ident">to</span>(<span class="ident">login</span>),
     )
     .<span class="ident">route</span>(<span class="string">&quot;/logout&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">logout</span>))
-    .<span class="ident">route</span>(<span class="string">&quot;/logged-in&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">logged_in</span>));
+    .<span class="ident">route</span>(<span class="string">&quot;/logged-in&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">logged_in</span>))
+    .<span class="ident">route</span>(<span class="string">&quot;/authorize&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">authorize_action_on_resource</span>));
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_actix" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>

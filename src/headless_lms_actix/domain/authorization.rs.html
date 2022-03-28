@@ -419,6 +419,23 @@
 <span id="417">417</span>
 <span id="418">418</span>
 <span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">actix_http::Payload</span>;
 <span class="kw">use</span> <span class="ident">actix_session</span>::{<span class="ident">Session</span>, <span class="ident">UserSession</span>};
 <span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">FromRequest</span>, <span class="ident">HttpRequest</span>};
@@ -427,8 +444,11 @@
 <span class="kw">use</span> <span class="ident">futures::future</span>::{<span class="ident">err</span>, <span class="ident">ok</span>, <span class="ident">Ready</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{<span class="self">self</span> <span class="kw">as</span> <span class="ident">models</span>, <span class="ident">roles::UserRole</span>};
 <span class="kw">use</span> <span class="ident">models</span>::{<span class="ident">roles::Role</span>, <span class="ident">CourseOrExamId</span>};
+
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers</span>::{<span class="ident">ControllerError</span>, <span class="ident">ControllerResult</span>};
@@ -445,6 +465,14 @@
     <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">upstream_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ActionOnResource</span> {
+    <span class="kw">pub</span> <span class="ident">action</span>: <span class="ident">Action</span>,
+    <span class="kw">pub</span> <span class="ident">resource</span>: <span class="ident">Resource</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">AuthUser</span> {
@@ -498,6 +526,8 @@
 
 <span class="doccomment">/// Describes an action that a user can take on some resource.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>, <span class="ident">tag</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>, <span class="ident">content</span> <span class="op">=</span> <span class="string">&quot;variant&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Action</span> {
     <span class="ident">View</span>,
     <span class="ident">Edit</span>,
@@ -507,10 +537,13 @@
     <span class="ident">Duplicate</span>,
     <span class="ident">DeleteAnswer</span>,
     <span class="ident">EditRole</span>(<span class="ident">UserRole</span>),
+    <span class="ident">CreateCoursesOrExams</span>,
 }
 
 <span class="doccomment">/// The target of an action.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>, <span class="ident">tag</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>, <span class="ident">content</span> <span class="op">=</span> <span class="string">&quot;id&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Resource</span> {
     <span class="ident">GlobalPermissions</span>,
     <span class="ident">Chapter</span>(<span class="ident">Uuid</span>),
@@ -741,6 +774,7 @@
                 <span class="op">|</span> <span class="ident">Duplicate</span>
                 <span class="op">|</span> <span class="ident">DeleteAnswer</span>
                 <span class="op">|</span> <span class="ident">EditRole</span>(<span class="ident">Teacher</span> <span class="op">|</span> <span class="ident">Assistant</span> <span class="op">|</span> <span class="ident">Reviewer</span>)
+                <span class="op">|</span> <span class="ident">CreateCoursesOrExams</span>
         ),
         <span class="ident">Assistant</span> =&gt; <span class="macro">matches!</span>(
             <span class="ident">action</span>,

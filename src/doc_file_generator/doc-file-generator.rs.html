@@ -830,6 +830,19 @@
 <span id="828">828</span>
 <span id="829">829</span>
 <span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -852,7 +865,7 @@
     <span class="ident">course_instances</span>::{<span class="ident">ChapterScore</span>, <span class="ident">CourseInstance</span>, <span class="ident">Points</span>},
     <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseCount</span>, <span class="ident">CourseStructure</span>},
     <span class="ident">email_templates::EmailTemplate</span>,
-    <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">Exam</span>, <span class="ident">ExamEnrollment</span>, <span class="ident">ExamInstructions</span>},
+    <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">Exam</span>, <span class="ident">ExamEnrollment</span>, <span class="ident">ExamInstructions</span>, <span class="ident">OrgExam</span>},
     <span class="ident">exercise_services::ExerciseService</span>,
     <span class="ident">exercise_slide_submissions</span>::{
         <span class="ident">ExerciseSlideSubmission</span>, <span class="ident">ExerciseSlideSubmissionCount</span>,
@@ -1490,6 +1503,18 @@
             <span class="ident">name</span>: <span class="string">&quot;Course exam&quot;</span>.<span class="ident">to_string</span>()
         }]
     );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OrgExam</span><span class="op">&gt;</span>,
+        <span class="macro">vec!</span>[<span class="ident">OrgExam</span> {
+            <span class="ident">id</span>,
+            <span class="ident">organization_id</span>: <span class="ident">id</span>,
+            <span class="ident">name</span>: <span class="string">&quot;Org exam&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">instructions</span>: <span class="ident">page</span>.<span class="ident">content</span>.<span class="ident">clone</span>(),
+            <span class="ident">time_minutes</span>: <span class="number">120</span>,
+            <span class="ident">starts_at</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>),
+            <span class="ident">ends_at</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>)
+        }]
+    );
     <span class="macro">write_docs!</span>(<span class="ident">Page</span>, <span class="ident">page</span>.<span class="ident">clone</span>());
     <span class="macro">write_docs!</span>(
         <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageHistory</span><span class="op">&gt;</span>,
@@ -1634,6 +1659,7 @@
             <span class="ident">instructions</span>: <span class="ident">page</span>.<span class="ident">content</span>.<span class="ident">clone</span>()
         }
     );
+    <span class="macro">write_docs!</span>(<span class="ident">bool</span>, <span class="bool-val">false</span>);
     <span class="macro">write_docs!</span>(
         <span class="ident">OEmbedResponse</span>,
         <span class="ident">OEmbedResponse</span> {

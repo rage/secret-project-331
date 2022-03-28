@@ -274,14 +274,90 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/organizations`.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">path::PathBuf</span>, <span class="ident">str::FromStr</span>};
 
 <span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseCount</span>},
-    <span class="ident">exams::CourseExam</span>,
+    <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">NewExam</span>, <span class="ident">OrgExam</span>},
     <span class="ident">organizations::Organization</span>,
+    <span class="ident">pages</span>::{<span class="self">self</span>, <span class="ident">NewPage</span>},
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers</span>::{<span class="ident">helpers::media::upload_image_for_organization</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
@@ -499,17 +575,86 @@ GET `/api/v0/main-frontend/organizations/{organization_id}` - Returns an organiz
 }
 
 <span class="doccomment">/**
-GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations with id.
+GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
 */</span>
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exams</span>(
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_exams</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">organization</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseExam</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exams</span> <span class="op">=</span> <span class="ident">models::exams::get_course_exams_for_organization</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">organization</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">exams</span>))
+}
+
+<span class="doccomment">/**
+GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations exams in Exam form.
+*/</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_org_exams</span>(
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">organization</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OrgExam</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">exams</span> <span class="op">=</span> <span class="ident">models::exams::get_exams_for_organization</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">organization</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">exams</span>))
+}
+
+<span class="doccomment">/**
+POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new exam for the organization.
+*/</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_exam</span>(
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewExam</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">new_exam</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
+    <span class="ident">authorize</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+        <span class="ident">Act::CreateCoursesOrExams</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
+        <span class="ident">Res::Organization</span>(<span class="ident">new_exam</span>.<span class="ident">organization_id</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">models::exams::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">new_exam</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">pages::insert_exam_page</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+        <span class="ident">new_exam</span>.<span class="ident">id</span>,
+        <span class="ident">NewPage</span> {
+            <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">course_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">exam_id</span>: <span class="prelude-val">Some</span>(<span class="ident">new_exam</span>.<span class="ident">id</span>),
+            <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">content</span>: <span class="ident">serde_json::Value::Array</span>(<span class="macro">vec!</span>[]),
+            <span class="ident">content_search_language</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;simple&quot;</span>.<span class="ident">to_string</span>()),
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+            <span class="ident">title</span>: <span class="string">&quot;exam page&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">url_path</span>: <span class="string">&quot;/&quot;</span>.<span class="ident">to_string</span>(),
+        },
+        <span class="ident">user</span>.<span class="ident">id</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">models::roles::insert</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+        <span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="ident">models::roles::UserRole::Teacher</span>,
+        <span class="ident">models::roles::RoleDomain::Exam</span>(<span class="ident">new_exam</span>.<span class="ident">id</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(()))
 }
 
 <span class="doccomment">/**
@@ -546,7 +691,12 @@ We add the routes by calling the route method instead of using the route annotat
             <span class="string">&quot;/{organization_id}/image&quot;</span>,
             <span class="ident">web::delete</span>().<span class="ident">to</span>(<span class="ident">remove_organization_image</span>),
         )
-        .<span class="ident">route</span>(<span class="string">&quot;/{organization_id}/exams&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_exams</span>));
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{organization_id}/course_exams&quot;</span>,
+            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course_exams</span>),
+        )
+        .<span class="ident">route</span>(<span class="string">&quot;/{organization_id}/org_exams&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_org_exams</span>))
+        .<span class="ident">route</span>(<span class="string">&quot;/{organization_id}/exams&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">create_exam</span>));
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>

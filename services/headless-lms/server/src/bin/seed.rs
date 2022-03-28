@@ -2652,8 +2652,7 @@ async fn submit_and_grade(
             user_points_update_strategy: UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
         },
     )
-    .await
-    .unwrap();
+    .await?;
     let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
         conn,
         user_id,
@@ -2661,16 +2660,13 @@ async fn submit_and_grade(
         Some(course_instance_id),
         None,
     )
-    .await
-    .unwrap();
-    let user_exercise_slide_state_id = user_exercise_slide_states::insert_with_id(
+    .await?;
+    let user_exercise_slide_state = user_exercise_slide_states::get_or_insert_by_unique_index(
         conn,
-        Uuid::new_v4(),
         user_exercise_state.id,
         exercise_slide_id,
     )
-    .await
-    .unwrap();
+    .await?;
     let task_submission_id = exercise_task_submissions::insert_with_id(
         conn,
         &exercise_task_submissions::SubmissionData {
@@ -2699,7 +2695,7 @@ async fn submit_and_grade(
     };
     let grading =
         exercise_task_gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
-    user_exercise_task_states::upsert_with_grading(conn, user_exercise_slide_state_id, &grading)
+    user_exercise_task_states::upsert_with_grading(conn, user_exercise_slide_state.id, &grading)
         .await
         .unwrap();
     exercise_task_submissions::set_grading_id(conn, grading.id, task_submission.id).await?;

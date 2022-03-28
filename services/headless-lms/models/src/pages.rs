@@ -196,7 +196,7 @@ pub struct HistoryRestoreData {
     pub history_id: Uuid,
 }
 
-pub async fn insert(
+pub async fn insert_course_page(
     conn: &mut PgConnection,
     course_id: Uuid,
     url_path: &str,
@@ -229,6 +229,53 @@ RETURNING id
         &mut tx,
         page_res.id,
         title,
+        &PageHistoryContent {
+            content: serde_json::Value::Array(vec![]),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+        },
+        HistoryChangeReason::PageSaved,
+        author,
+        None,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok((page_res.id, history_id))
+}
+
+pub async fn insert_exam_page(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    page: NewPage,
+    author: Uuid,
+) -> ModelResult<(Uuid, Uuid)> {
+    let mut tx = conn.begin().await?;
+    let page_res = sqlx::query!(
+        "
+INSERT INTO pages (
+    exam_id,
+    content,
+    url_path,
+    title,
+    order_number
+  )
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id
+",
+        exam_id,
+        serde_json::Value::Array(vec![]),
+        page.url_path,
+        page.title,
+        0
+    )
+    .fetch_one(&mut tx)
+    .await?;
+
+    let history_id = crate::page_history::insert(
+        &mut tx,
+        page_res.id,
+        page.title.as_str(),
         &PageHistoryContent {
             content: serde_json::Value::Array(vec![]),
             exercises: vec![],
@@ -2082,10 +2129,9 @@ mod test {
         let exam = Uuid::new_v4();
         crate::exams::insert(
             tx.as_mut(),
-            NewExam {
+            &NewExam {
                 id: exam,
-                name: "name",
-                instructions: serde_json::json!([]),
+                name: "name".to_string(),
                 starts_at: None,
                 ends_at: None,
                 time_minutes: 120,

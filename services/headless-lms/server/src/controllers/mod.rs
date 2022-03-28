@@ -14,7 +14,7 @@ pub mod course_material;
 pub mod files;
 pub mod helpers;
 pub mod main_frontend;
-mod prelude;
+pub mod prelude;
 
 use std::error::Error;
 

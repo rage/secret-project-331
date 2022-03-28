@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React from "react"
 import { FieldError, FieldPath, FieldValues, UseFormRegister } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -9,6 +10,8 @@ interface Props<T extends FieldValues> {
   placeholder: string
   register: UseFormRegister<T>
   required?: boolean
+  type?: string
+  value?: string
 }
 
 const FormField = <T extends FieldValues>({
@@ -18,6 +21,7 @@ const FormField = <T extends FieldValues>({
   register,
   required,
   placeholder,
+  ...rest
 }: Props<T>): React.ReactElement => {
   const { t } = useTranslation()
   return (
@@ -35,6 +39,11 @@ const FormField = <T extends FieldValues>({
         placeholder={placeholder}
         defaultValue={defaultValue || ""}
         {...register(id, { required: required })}
+        {...rest}
+        className={css`
+          width: 100%;
+          margin-bottom: 0.5rem;
+        `}
       ></input>
       <br />
     </>

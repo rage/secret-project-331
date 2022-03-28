@@ -15,6 +15,10 @@ use crate::controllers::{
     },
     ErrorData, ErrorResponse, UploadResult,
 };
+
+#[cfg(feature = "ts_rs")]
+use crate::domain::*;
+
 #[cfg(feature = "ts_rs")]
 use headless_lms_models::*;
 #[cfg(feature = "ts_rs")]
@@ -45,6 +49,10 @@ fn ts_binding_generator() {
     let mut target = std::fs::File::create("../../../shared-module/src/bindings.ts").unwrap();
     let res = export! {
         &mut target,
+
+        authorization::ActionOnResource,
+        authorization::Action,
+        authorization::Resource,
 
         glossary::Term,
         glossary::TermUpdate,
@@ -78,6 +86,8 @@ fn ts_binding_generator() {
         exams::CourseExam,
         exams::Exam,
         exams::ExamEnrollment,
+        exams::NewExam,
+        exams::OrgExam,
         exams::ExamInstructions,
         exams::ExamInstructionsUpdate,
 

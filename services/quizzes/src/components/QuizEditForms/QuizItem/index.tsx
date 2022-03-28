@@ -13,12 +13,10 @@ import { setAdvancedEditing } from "../../../store/editor/itemVariables/itemVari
 import { decreasedItemOrder, increasedItemOrder } from "../../../store/editor/items/itemAction"
 
 import CheckBoxContent from "./CheckBoxContent"
-import ClickableMultipleChoiceContent from "./ClickableMultipleChoiceContent"
 import CustomFrontend from "./CustomFrontend"
 import EssayContent from "./EssayContent"
 import MatrixContent from "./MatrixContent"
 import MultipleChoiceContent from "./MultipleChoiceContent"
-import MultipleChoiceDropdownContent from "./MultipleChoiceDropdownContent"
 import OpenContent from "./OpenContent"
 import ScaleContent from "./ScaleContent"
 
@@ -84,7 +82,9 @@ const QuizItem: React.FC<QuizItemProps> = ({ item }) => {
 
 const contentBasedOnType = (type: string, item: NormalizedQuizItem, t: TFunction) => {
   switch (type) {
-    case "multiple-choice": {
+    case "multiple-choice":
+    case "multiple-choice-dropdown":
+    case "clickable-multiple-choice": {
       return <MultipleChoiceContent item={item} />
     }
     case "checkbox": {
@@ -104,12 +104,6 @@ const contentBasedOnType = (type: string, item: NormalizedQuizItem, t: TFunction
     }
     case "custom-frontend-accept-data": {
       return <CustomFrontend item={item} />
-    }
-    case "multiple-choice-dropdown": {
-      return <MultipleChoiceDropdownContent item={item} />
-    }
-    case "clickable-multiple-choice": {
-      return <ClickableMultipleChoiceContent item={item} />
     }
     default: {
       return <div>{t("unsupported")}</div>

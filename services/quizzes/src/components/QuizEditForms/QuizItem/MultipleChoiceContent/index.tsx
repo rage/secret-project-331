@@ -15,7 +15,7 @@ import { editedQuizItemTitle } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
 import MarkdownEditor from "../../../MarkdownEditor"
 
-import MultipleChoiceButton from "./MultiplChoiceButton"
+import MultipleChoiceButton from "./MultipleChoiceButton"
 import MultipleChoiceModalContent from "./MultipleChoiceModalContent"
 
 const QuizContent = styled.div`

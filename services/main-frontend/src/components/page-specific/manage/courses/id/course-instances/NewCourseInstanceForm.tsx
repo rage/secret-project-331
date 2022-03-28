@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -80,17 +81,20 @@ const NewCourseInstanceForm: React.FC<FormProps> = ({ initialData, onSubmit, onC
           placeholder={t("teacher-in-charge-email")}
           register={register}
         />
-        <br />
         <TimePicker
           label={t("opening-time")}
           onChange={(time) => setNewOpeningTime(new Date(time))}
+          className={css`
+            margin-bottom: 0.5rem;
+          `}
         />
         <TimePicker
           label={t("closing-time")}
           onChange={(time) => setNewClosingTime(new Date(time))}
+          className={css`
+            margin-bottom: 0.5rem;
+          `}
         />
-        <br />
-        <br />
         <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
           {t("button-text-submit")}
         </Button>

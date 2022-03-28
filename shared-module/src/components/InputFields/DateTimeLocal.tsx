@@ -97,14 +97,16 @@ const DateTimeLocal = ({
         />
       </label>
 
-      <small
-        className={css`
-          display: block;
-          height: 18px;
-        `}
-      >
-        {value && dateToString(new Date(value))}
-      </small>
+      {value && (
+        <small
+          className={css`
+            display: block;
+            height: 18px;
+          `}
+        >
+          {dateToString(new Date(value))}
+        </small>
+      )}
 
       {rest.error && (
         <span className={cx(error)} id={`${rest.label}_error`} role="alert">

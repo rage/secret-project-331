@@ -12,4 +12,5 @@ type Vec<Course> = Array<{
   content_search_language: string | null
   course_language_group_id: string
   is_draft: boolean
+  is_test: boolean
 }>

@@ -59,7 +59,8 @@ RETURNING id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft;
+  is_draft,
+  is_test;
     ",
         new_course.name,
         new_course.organization_id,

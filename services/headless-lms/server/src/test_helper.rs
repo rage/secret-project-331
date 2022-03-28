@@ -153,6 +153,7 @@ macro_rules! insert_data {
                 teacher_in_charge_email: format!("{rs}@example.com"),
                 description: "description".to_string(),
                 is_draft: false,
+                is_test: false,
             },
             $user
         )

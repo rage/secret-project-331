@@ -79,6 +79,7 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
             courseId={course.id}
             courseName={course.name}
             isDraft={course.is_draft}
+            isTest={course.is_test}
             onSubmitForm={handleOnUpdateCourse}
           />
         </div>

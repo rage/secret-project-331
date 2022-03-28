@@ -16,6 +16,7 @@ interface UpdateCourseFormProps {
   courseId: string
   courseName: string
   isDraft: boolean
+  isTest: boolean
   onSubmitForm: () => void
 }
 
@@ -23,16 +24,19 @@ const UpdateCourseForm: React.FC<UpdateCourseFormProps> = ({
   courseId,
   courseName,
   isDraft,
+  isTest,
   onSubmitForm,
 }) => {
   const { t } = useTranslation()
   const [name, setName] = useState(courseName)
   const [draftStatus, setDraftStatus] = useState(isDraft)
+  const [testStatus, setTestStatus] = useState(isTest)
 
   const onUpdateCourseForm = async () => {
     await updateCourse(courseId, {
       name,
       is_draft: draftStatus,
+      is_test: testStatus,
     })
     onSubmitForm()
   }
@@ -62,6 +66,15 @@ const UpdateCourseForm: React.FC<UpdateCourseFormProps> = ({
               setDraftStatus(!draftStatus)
             }}
             checked={draftStatus}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <CheckBox
+            label={t("test")}
+            onChange={() => {
+              setTestStatus(!testStatus)
+            }}
+            checked={testStatus}
           />
         </FieldContainer>
       </div>

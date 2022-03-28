@@ -38,7 +38,10 @@ export default function useHeadingData() {
   useEffect(() => {
     // eslint-disable-next-line i18next/no-literal-string
     const headingElements = Array.from(document.querySelectorAll<HTMLElement>("h2, h3"))
-
+    headingElements.forEach((heading, idx) => {
+      // eslint-disable-next-line i18next/no-literal-string
+      heading.id = `course-page-heading-${idx}`
+    })
     const result = getNestedHeadings(headingElements)
     setHeadings(result)
   }, [])

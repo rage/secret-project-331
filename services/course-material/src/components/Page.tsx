@@ -4,6 +4,7 @@ import PageContext from "../contexts/PageContext"
 import useSelectedBlockId from "../hooks/useSelectedBlockId"
 import { Block } from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
+import TopicNavigation from "../shared-module/components/TopicNavigation"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
@@ -55,6 +56,7 @@ const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
           edits={edits}
         />
       )}
+      {pageContext.pageData?.content && <TopicNavigation />}
       {/* TODO: Better type for Page.content in bindings. */}
       <div id="content" className={inlineColorStyles}>
         <ContentRenderer

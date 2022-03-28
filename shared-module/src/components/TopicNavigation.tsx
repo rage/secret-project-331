@@ -6,7 +6,8 @@ import useHeadingData from "../hooks/useHeadingData"
 
 const StlyedWrapper = styled.div`
   display: block;
-  position: sticky;
+  position: fixed;
+  left: 0px;
   top: 24px;
   max-width: 500px;
   max-height: calc(100vh - 40px);

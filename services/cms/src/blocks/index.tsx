@@ -1,6 +1,8 @@
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration } from "@wordpress/blocks"
 
+import InfoBox from "../shared-module/components/InfoBox"
+
 import Aside from "./Aside"
 import ChapterProgress from "./ChapterProgress"
 import CourseChapterGrid from "./CourseChapterGrid"
@@ -34,6 +36,7 @@ export const blockTypeMapForPages = [
   ["moocfi/hero-section", HeroSection],
   ["moocfi/glossary", Glossary],
   ["moocfi/aside", Aside],
+  ["moocfi/infobox", InfoBox],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

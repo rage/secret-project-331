@@ -86,6 +86,7 @@ import {
   Page,
   PageChapterAndCourseInformation,
   PageHistory,
+  PageInfo,
   PageProposal,
   PageRoutingDataWithChapterStatus,
   PageSearchRequest,
@@ -830,6 +831,16 @@ export function isPage(obj: any, _argumentName?: string): obj is Page {
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.order_number === "number" &&
     (obj.copied_from === null || typeof obj.copied_from === "string")
+  )
+}
+
+export function isPageInfo(obj: any, _argumentName?: string): obj is PageInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.page_id === "string" &&
+    typeof obj.page_title === "string" &&
+    typeof obj.course_id === "string" &&
+    typeof obj.course_name === "string"
   )
 }
 

@@ -11,6 +11,8 @@ import Navbar from "../shared-module/components/Navigation"
 import SkipLink from "../shared-module/components/SkipLink"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 
+import EditorBreadcrumbs from "./breadcrumbs/EditorBreadcrumbs"
+
 export const SIDEBAR_WIDTH_PX = 350
 
 type LayoutProps = {
@@ -79,7 +81,10 @@ const Layout: React.FC<LayoutProps> = ({
           `}
           id="maincontent"
         >
-          <Centered variant="narrow">{children}</Centered>
+          <Centered variant="narrow">
+            <EditorBreadcrumbs />
+            {children}
+          </Centered>
         </main>
       </div>
       <DynamicToaster />

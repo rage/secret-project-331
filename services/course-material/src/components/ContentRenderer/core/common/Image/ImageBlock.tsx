@@ -41,8 +41,13 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
         `margin-left: auto;
         margin-right: auto;
         text-align: center;`}
-        ${align === "right" && `margin-left: auto;`}
-        ${align === "left" && `margin-right: auto;`}
+        ${align === "right" &&
+        `
+        float: ${align};`}
+        ${align === "left" &&
+        `
+        float: ${align};
+        margin-right: 1em;`}
       `}
     >
       <Zoom>

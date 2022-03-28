@@ -9,7 +9,10 @@ import fs from "fs"
 import { compile } from "json-schema-to-typescript"
 import { JSONSchema, JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
 
-import { modifyBlockAttributes } from "../src/utils/Gutenberg/modifyBlockAttributes"
+import {
+  modifyEmbedBlockAttributes,
+  modifyImageBlockAttributes,
+} from "../src/utils/Gutenberg/modifyBlockAttributes"
 
 const jsdom = require("jsdom")
 const { JSDOM } = jsdom
@@ -45,7 +48,8 @@ global.CSS = {}
 const blockLibrary = require("@wordpress/block-library")
 const blocks = require("@wordpress/blocks")
 
-addFilter("blocks.registerBlockType", "moocfi/cms/modify-blockAttributes", modifyBlockAttributes)
+addFilter("blocks.registerBlockType", "moocfi/modifyImageAttributes", modifyImageBlockAttributes)
+addFilter("blocks.registerBlockType", "moocfi/modifyEmbedAttributes", modifyEmbedBlockAttributes)
 const { supportedCoreBlocks } = require("../src/blocks/supportedGutenbergBlocks")
 
 async function main() {

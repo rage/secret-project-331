@@ -20,11 +20,13 @@ jobs:
       - name: Run npm ci
         run: npm ci && git config --unset core.hooksPath
 
-      - name: Install and build
+      - name: Generate doc files
         run: |
-          cargo run --bin doc-file-generator
-          cargo doc --document-private-items
+          bin/generate-doc-files
           npm run eslint:format-generated-docs
+
+      - name: Generate documentaion
+        run: cargo doc --document-private-items
         working-directory: services/headless-lms
 
       - name: Deploy

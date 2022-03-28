@@ -1,3 +1,4 @@
+#[cfg(feature = "ts_rs")]
 use crate::controllers::{
     auth::Login,
     course_material::{
@@ -14,15 +15,21 @@ use crate::controllers::{
     },
     ErrorData, ErrorResponse, UploadResult,
 };
+#[cfg(feature = "ts_rs")]
 use headless_lms_models::*;
+#[cfg(feature = "ts_rs")]
 use headless_lms_utils::pagination::Pagination;
+#[cfg(feature = "ts_rs")]
+use headless_lms_utils::url_to_oembed_endpoint::OEmbedResponse;
 
+#[cfg(feature = "ts_rs")]
 macro_rules! export {
     ($target:expr, $($types:ty),*) => {
         {
             let target = $target;
             fn _export(target: &mut impl ::std::io::Write) -> ::std::result::Result<(), ::std::io::Error> {
                 $(
+                    #[cfg(feature = "ts_rs")]
                     writeln!(target, "export {}\n", <$types as ::ts_rs::TS>::decl())?;
                 )*
                 Ok(())
@@ -33,6 +40,7 @@ macro_rules! export {
 }
 
 #[test]
+#[cfg(feature = "ts_rs")]
 fn ts_binding_generator() {
     let mut target = std::fs::File::create("../../../shared-module/src/bindings.ts").unwrap();
     let res = export! {
@@ -110,6 +118,7 @@ fn ts_binding_generator() {
         pages::ExerciseWithExerciseTasks,
         pages::HistoryRestoreData,
         pages::Page,
+        pages::PageInfo,
         pages::PageRoutingDataWithChapterStatus,
         pages::PageSearchRequest,
         pages::PageSearchResult,
@@ -173,7 +182,8 @@ fn ts_binding_generator() {
         GetEditProposalsQuery,
         ErrorResponse,
         ErrorData,
-        Pagination
+        Pagination,
+        OEmbedResponse
     };
     res.unwrap();
 }

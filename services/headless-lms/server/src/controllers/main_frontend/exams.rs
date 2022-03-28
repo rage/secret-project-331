@@ -19,13 +19,14 @@ pub async fn get_exam(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Exam>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
+    authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
 
     let exam = exams::get(&mut conn, *exam_id).await?;
     Ok(web::Json(exam))
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExamCourseInfo {
     course_id: Uuid,
 }

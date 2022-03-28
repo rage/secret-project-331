@@ -52,8 +52,10 @@ use headless_lms_models::{
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
     users::User,
 };
+use headless_lms_utils::url_to_oembed_endpoint::OEmbedResponse;
 use serde::Serialize;
 use serde_json::{ser::PrettyFormatter, Serializer, Value};
+#[cfg(feature = "ts_rs")]
 use ts_rs::TS;
 use uuid::Uuid;
 
@@ -66,6 +68,7 @@ macro_rules! write_docs {
             stringify!($t),
             ".json"
         );
+        #[cfg(feature = "ts_rs")]
         let ts_path = concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/generated-docs/",
@@ -73,6 +76,7 @@ macro_rules! write_docs {
             ".ts"
         );
         write_json(json_path, t);
+        #[cfg(feature = "ts_rs")]
         write_ts::<$t>(ts_path, stringify!($t));
     }};
 }
@@ -798,6 +802,18 @@ fn main() {
             instructions: page.content.clone()
         }
     );
+    write_docs!(
+        OEmbedResponse,
+        OEmbedResponse {
+            author_name: "Mooc.fi".to_string(),
+            author_url: "http://project-331.local".to_string(),
+            html: "<iframe src='http://project-331.local/oembed' style='width: 99%;' height='500' title='OEmbed iFrame'></iframe>".to_string(),
+            provider_name: "project".to_string(),
+            provider_url: "http://project-331.local".to_string(),
+            title: "OEmbed".to_string(),
+            version: "1.0".to_string(),
+        }
+    );
 }
 
 fn write_json<T: Serialize>(path: &str, value: T) {
@@ -807,6 +823,7 @@ fn write_json<T: Serialize>(path: &str, value: T) {
     serde::Serialize::serialize(&value, &mut serializer).unwrap();
 }
 
+#[cfg(feature = "ts_rs")]
 fn write_ts<T: TS>(path: &str, type_name: &str) {
     let contents = format!("type {} = {}", type_name, T::inline());
     std::fs::write(path, contents).unwrap();

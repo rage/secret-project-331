@@ -10,7 +10,8 @@ use crate::{
 };
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Exercise {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -29,14 +30,15 @@ pub struct Exercise {
     pub limit_number_of_tries: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, TS)]
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
     pub can_post_submission: bool,
     pub current_exercise_slide: CourseMaterialExerciseSlide,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
-    #[ts(type = "Record<string, number>")]
+    #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, number>"))]
     pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
 }
 
@@ -67,7 +69,8 @@ Indicates what is the user's completion status for a exercise.
 
 As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "activity_progress", rename_all = "snake_case")]
 pub enum ActivityProgress {
     /// The user has not started the activity, or the activity has been reset for that student.
@@ -88,7 +91,8 @@ Tells what's the status of the grading progress for a user and exercise.
 
 As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]
 pub enum GradingProgress {
     /// The grading process is completed; the score value, if any, represents the current Final Grade;
@@ -109,7 +113,8 @@ impl GradingProgress {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseStatus {
     // None when grading has not completed yet. Max score can be found from the associated exercise.
     pub score_given: Option<f32>,

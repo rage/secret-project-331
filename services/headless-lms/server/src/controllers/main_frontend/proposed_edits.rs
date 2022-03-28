@@ -2,7 +2,8 @@ use models::proposed_page_edits::{self, EditProposalInfo, PageProposal, Proposal
 
 use crate::controllers::prelude::*;
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct GetEditProposalsQuery {
     pending: bool,
     #[serde(flatten)]
@@ -21,7 +22,13 @@ pub async fn get_edit_proposals(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<PageProposal>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
     let feedback = proposed_page_edits::get_proposals_for_course(
         &mut conn,
@@ -44,7 +51,13 @@ pub async fn get_edit_proposal_count(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ProposalCount>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
     let edit_proposal_count =
         proposed_page_edits::get_proposal_count_for_course(&mut conn, *course_id).await?;

@@ -25,7 +25,8 @@ use crate::{
     CourseOrExamId,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Page {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -42,13 +43,23 @@ pub struct Page {
     pub copied_from: Option<Uuid>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PageInfo {
+    pub page_id: Uuid,
+    pub page_title: String,
+    pub course_id: Uuid,
+    pub course_name: String,
+}
+
 impl Page {
     pub fn blocks_cloned(&self) -> ModelResult<Vec<GutenbergBlock>> {
         serde_json::from_value(self.content.clone()).map_err(Into::into)
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CoursePageWithUserData {
     pub page: Page,
     pub instance: Option<CourseInstance>,
@@ -57,7 +68,8 @@ pub struct CoursePageWithUserData {
     pub was_redirected: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageWithExercises {
     #[serde(flatten)]
     pub page: Page,
@@ -65,7 +77,8 @@ pub struct PageWithExercises {
 }
 
 // Represents the subset of page fields that are required to create a new page.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewPage {
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
@@ -83,7 +96,8 @@ pub struct NewPage {
     pub content_search_language: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NormalizedCmsExerciseTask {
     pub id: Uuid,
     pub exercise_type: String,
@@ -101,7 +115,8 @@ pub struct PageRoutingData {
     pub chapter_front_page_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageRoutingDataWithChapterStatus {
     pub url_path: String,
     pub title: String,
@@ -122,7 +137,8 @@ pub struct PageMetadata {
     exam_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageChapterAndCourseInformation {
     pub chapter_name: Option<String>,
     pub chapter_number: Option<i32>,
@@ -133,7 +149,8 @@ pub struct PageChapterAndCourseInformation {
     pub organization_slug: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageSearchResult {
     pub id: Uuid,
     pub title_headline: Option<String>,
@@ -142,7 +159,8 @@ pub struct PageSearchResult {
     pub url_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ContentManagementPage {
     pub page: Page,
     pub exercises: Vec<CmsPageExercise>,
@@ -151,12 +169,14 @@ pub struct ContentManagementPage {
     pub organization_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageSearchRequest {
     query: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseWithExerciseTasks {
     id: Uuid,
     created_at: DateTime<Utc>,
@@ -170,7 +190,8 @@ pub struct ExerciseWithExerciseTasks {
     score_maximum: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, TS)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct HistoryRestoreData {
     pub history_id: Uuid,
 }
@@ -334,6 +355,33 @@ WHERE id = $1;
     .fetch_one(conn)
     .await?;
     Ok(pages)
+}
+
+pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<PageInfo> {
+    let res = sqlx::query_as!(
+        PageInfo,
+        "
+    SELECT
+        p.id as page_id,
+        p.title as page_title,
+        c.id as course_id,
+        c.name as course_name
+    FROM pages p
+    JOIN courses c
+        on c.id = p.course_id
+    WHERE p.id = $1;
+        ",
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(PageInfo {
+        page_id: res.page_id,
+        page_title: res.page_title,
+        course_id: res.course_id,
+        course_name: res.course_name,
+    })
 }
 
 async fn get_page_by_path(
@@ -535,7 +583,8 @@ AND pages.deleted_at IS NULL
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageExercise {
     pub id: Uuid,
     pub name: String,
@@ -558,7 +607,8 @@ impl From<Exercise> for CmsPageExercise {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageExerciseSlide {
     pub id: Uuid,
     pub exercise_id: Uuid,
@@ -575,7 +625,8 @@ impl From<ExerciseSlide> for CmsPageExerciseSlide {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageExerciseTask {
     pub id: Uuid,
     pub exercise_slide_id: Uuid,
@@ -596,7 +647,8 @@ impl From<ExerciseTask> for CmsPageExerciseTask {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageUpdate {
     pub content: serde_json::Value,
     pub exercises: Vec<CmsPageExercise>,

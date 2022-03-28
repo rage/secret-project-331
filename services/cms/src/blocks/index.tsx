@@ -1,8 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration } from "@wordpress/blocks"
 
-import InfoBox from "../shared-module/components/InfoBox"
-
 import Aside from "./Aside"
 import ChapterProgress from "./ChapterProgress"
 import CourseChapterGrid from "./CourseChapterGrid"
@@ -14,6 +12,7 @@ import ExerciseSlide from "./ExerciseSlide"
 import ExerciseTask from "./ExerciseTask"
 import Glossary from "./Glossary"
 import HeroSection from "./HeroSection"
+import InfoBox from "./InfoBox"
 import LandingPageHeroSection from "./LandingPageHeroSection"
 import Latex from "./Latex"
 import PagesInChapter from "./PagesInChapter"

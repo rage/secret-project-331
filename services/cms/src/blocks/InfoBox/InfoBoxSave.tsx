@@ -1,6 +1,6 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 
-const AsideSave: React.FC = () => {
+const InfoBoxSave: React.FC = () => {
   return (
     <div>
       <InnerBlocks.Content />
@@ -8,4 +8,4 @@ const AsideSave: React.FC = () => {
   )
 }
 
-export default AsideSave
+export default InfoBoxSave

@@ -9,10 +9,9 @@ const openAnimation = keyframes`
 0% { opacity: 0; }
 100% { opacity: 1; }
 `
-
-const fadeIn = keyframes`
-from { opacity: 0;  }
-to { opacity: 1; }
+const slideDown = keyframes`
+from { opacity: 0; height: 0; padding: 0;}
+to { opacity: 1; height: 100%; padding: 10px;}
 `
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -31,7 +30,7 @@ const TextWrapper = styled.div`
   }
 
   details[open] > div {
-    animation-name: ${fadeIn};
+    animation-name: ${slideDown};
     animation-duration: 0.3s;
     animation-fill-mode: forwards;
     padding: 1rem 1rem 1rem 2rem;

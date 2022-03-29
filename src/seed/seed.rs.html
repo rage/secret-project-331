@@ -2755,6 +2755,11 @@
 <span id="2753">2753</span>
 <span id="2754">2754</span>
 <span id="2755">2755</span>
+<span id="2756">2756</span>
+<span id="2757">2757</span>
+<span id="2758">2758</span>
+<span id="2759">2759</span>
+<span id="2760">2760</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -3149,6 +3154,7 @@
         <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">is_draft</span>: <span class="bool-val">false</span>,
+        <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
     };
     <span class="kw">let</span> (<span class="ident">cs_course</span>, <span class="ident">_cs_front_page</span>, <span class="ident">_cs_default_course_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
@@ -3193,6 +3199,7 @@
         <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">is_draft</span>: <span class="bool-val">false</span>,
+        <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
     };
     <span class="kw">let</span> (<span class="ident">statistics_course</span>, <span class="ident">_statistics_front_page</span>, <span class="ident">_statistics_default_course_instance</span>) <span class="op">=</span>
         <span class="ident">courses::insert_course</span>(
@@ -3228,6 +3235,7 @@
         <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">is_draft</span>: <span class="bool-val">true</span>,
+        <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
     };
     <span class="ident">courses::insert_course</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
@@ -4016,6 +4024,7 @@
         <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">is_draft</span>: <span class="bool-val">false</span>,
+        <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
     };
     <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">_front_page</span>, <span class="ident">default_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
         <span class="ident">conn</span>,
@@ -4932,6 +4941,7 @@
         <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">is_draft</span>: <span class="bool-val">false</span>,
+        <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
     };
     <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">front_page</span>, <span class="ident">_default_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
         <span class="ident">conn</span>,

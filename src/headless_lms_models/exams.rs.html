@@ -403,6 +403,7 @@
 <span id="401">401</span>
 <span id="402">402</span>
 <span id="403">403</span>
+<span id="404">404</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono::Duration</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">courses::Course</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
@@ -467,7 +468,8 @@ SELECT id,
   copied_from,
   content_search_language::text,
   course_language_group_id,
-  is_draft
+  is_draft,
+  is_test_mode
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1

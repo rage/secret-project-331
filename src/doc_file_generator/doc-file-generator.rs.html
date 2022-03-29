@@ -843,6 +843,8 @@
 <span id="841">841</span>
 <span id="842">842</span>
 <span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1078,6 +1080,7 @@
         <span class="ident">course_language_group_id</span>: <span class="ident">id</span>,
         <span class="ident">description</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>.<span class="ident">to_string</span>()),
         <span class="ident">is_draft</span>: <span class="bool-val">true</span>,
+        <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
     };
     <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="ident">Chapter</span> {
         <span class="ident">id</span>,
@@ -1275,7 +1278,8 @@
             <span class="ident">page</span>: <span class="ident">page</span>.<span class="ident">clone</span>(),
             <span class="ident">instance</span>: <span class="prelude-val">Some</span>(<span class="ident">course_instance</span>.<span class="ident">clone</span>()),
             <span class="ident">settings</span>: <span class="prelude-val">Some</span>(<span class="ident">user_course_settings</span>.<span class="ident">clone</span>()),
-            <span class="ident">was_redirected</span>: <span class="bool-val">false</span>
+            <span class="ident">was_redirected</span>: <span class="bool-val">false</span>,
+            <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>
         }
     );
     <span class="macro">write_docs!</span>(<span class="ident">CourseInstance</span>, <span class="ident">course_instance</span>.<span class="ident">clone</span>());

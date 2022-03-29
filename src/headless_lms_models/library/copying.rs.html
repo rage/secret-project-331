@@ -569,6 +569,7 @@
 <span id="567">567</span>
 <span id="568">568</span>
 <span id="569">569</span>
+<span id="570">570</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -630,7 +631,8 @@ RETURNING id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft;
+  is_draft,
+  is_test_mode;
     &quot;</span>,
         <span class="ident">new_course</span>.<span class="ident">name</span>,
         <span class="ident">new_course</span>.<span class="ident">organization_id</span>,

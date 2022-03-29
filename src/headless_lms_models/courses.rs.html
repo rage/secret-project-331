@@ -1127,6 +1127,32 @@
 <span id="1125">1125</span>
 <span id="1126">1126</span>
 <span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
+<span id="1136">1136</span>
+<span id="1137">1137</span>
+<span id="1138">1138</span>
+<span id="1139">1139</span>
+<span id="1140">1140</span>
+<span id="1141">1141</span>
+<span id="1142">1142</span>
+<span id="1143">1143</span>
+<span id="1144">1144</span>
+<span id="1145">1145</span>
+<span id="1146">1146</span>
+<span id="1147">1147</span>
+<span id="1148">1148</span>
+<span id="1149">1149</span>
+<span id="1150">1150</span>
+<span id="1151">1151</span>
+<span id="1152">1152</span>
+<span id="1153">1153</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
@@ -1154,6 +1180,11 @@
     <span class="kw">pub</span> <span class="ident">count</span>: <span class="ident">u32</span>,
 }
 
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseContextData</span> {
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">is_test_mode</span>: <span class="ident">bool</span>,
+}
+
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Course</span> {
@@ -1170,6 +1201,7 @@
     <span class="kw">pub</span> <span class="ident">content_search_language</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">course_language_group_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">is_draft</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">is_test_mode</span>: <span class="ident">bool</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -1196,7 +1228,8 @@ SELECT id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft
+  is_draft,
+  is_test_mode
 FROM courses
 WHERE deleted_at IS NULL;
 &quot;#</span>
@@ -1225,7 +1258,8 @@ SELECT id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft
+  is_draft,
+  is_test_mode
 FROM courses
 WHERE course_language_group_id = $1;
         &quot;</span>,
@@ -1257,7 +1291,8 @@ SELECT
     c.copied_from,
     c.course_language_group_id,
     c.description,
-    c.is_draft
+    c.is_draft,
+    c.is_test_mode
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -1343,9 +1378,10 @@ INSERT INTO courses (
     language_code,
     copied_from,
     course_language_group_id,
-    is_draft
+    is_draft,
+    is_test_mode
   )
-VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8, $9)
 RETURNING id,
   name,
   created_at,
@@ -1358,7 +1394,8 @@ RETURNING id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft;
+  is_draft,
+  is_test_mode;
     &quot;</span>,
         <span class="ident">new_course</span>.<span class="ident">name</span>,
         <span class="ident">new_course</span>.<span class="ident">organization_id</span>,
@@ -1367,7 +1404,8 @@ RETURNING id,
         <span class="ident">new_course</span>.<span class="ident">language_code</span>,
         <span class="ident">parent_course</span>.<span class="ident">id</span>,
         <span class="ident">course_language_group_id</span>,
-        <span class="ident">new_course</span>.<span class="ident">is_draft</span>
+        <span class="ident">new_course</span>.<span class="ident">is_draft</span>,
+        <span class="ident">new_course</span>.<span class="ident">is_test_mode</span>
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1621,7 +1659,8 @@ SELECT id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft
+  is_draft,
+  is_test_mode
 FROM courses
 WHERE id = $1;
     &quot;#</span>,
@@ -1635,15 +1674,15 @@ WHERE id = $1;
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_nondeleted_course_id_by_slug</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">slug</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;SELECT id FROM courses WHERE slug = $1 AND deleted_at IS NULL&quot;</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseContextData</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">CourseContextData</span>,
+        <span class="string">&quot;SELECT id, is_test_mode FROM courses WHERE slug = $1 AND deleted_at IS NULL&quot;</span>,
         <span class="ident">slug</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">id</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">id</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">data</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
@@ -1695,7 +1734,8 @@ SELECT courses.id,
   courses.copied_from,
   courses.course_language_group_id,
   courses.description,
-  courses.is_draft
+  courses.is_draft,
+  courses.is_test_mode
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -1758,6 +1798,7 @@ WHERE organization_id = $1
     <span class="kw">pub</span> <span class="ident">teacher_in_charge_email</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">description</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">is_draft</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">is_test_mode</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_course</span>(
@@ -1773,8 +1814,8 @@ WHERE organization_id = $1
     <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">Course</span>,
         <span class="string">r#&quot;
-INSERT INTO courses(id, name, slug, organization_id, language_code, course_language_group_id, is_draft)
-VALUES($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO courses(id, name, slug, organization_id, language_code, course_language_group_id, is_draft, is_test_mode)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id,
   name,
   created_at,
@@ -1787,7 +1828,8 @@ RETURNING id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft;
+  is_draft,
+  is_test_mode;
             &quot;#</span>,
         <span class="ident">id</span>,
         <span class="ident">new_course</span>.<span class="ident">name</span>,
@@ -1795,7 +1837,8 @@ RETURNING id,
         <span class="ident">new_course</span>.<span class="ident">organization_id</span>,
         <span class="ident">new_course</span>.<span class="ident">language_code</span>,
         <span class="ident">course_language_group_id</span>,
-        <span class="ident">new_course</span>.<span class="ident">is_draft</span>
+        <span class="ident">new_course</span>.<span class="ident">is_draft</span>,
+        <span class="ident">new_course</span>.<span class="ident">is_test_mode</span>
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1849,6 +1892,7 @@ RETURNING id,
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseUpdate</span> {
     <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="ident">is_draft</span>: <span class="ident">bool</span>,
+    <span class="ident">is_test_mode</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_course</span>(
@@ -1861,8 +1905,9 @@ RETURNING id,
         <span class="string">r#&quot;
 UPDATE courses
 SET name = $1,
-  is_draft = $2
-WHERE id = $3
+  is_draft = $2,
+  is_test_mode = $3
+WHERE id = $4
 RETURNING id,
   name,
   created_at,
@@ -1875,10 +1920,12 @@ RETURNING id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft
+  is_draft,
+  is_test_mode
     &quot;#</span>,
         <span class="ident">course_update</span>.<span class="ident">name</span>,
         <span class="ident">course_update</span>.<span class="ident">is_draft</span>,
+        <span class="ident">course_update</span>.<span class="ident">is_test_mode</span>,
         <span class="ident">course_id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
@@ -1905,7 +1952,8 @@ RETURNING id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft
+  is_draft,
+  is_test_mode
     &quot;#</span>,
         <span class="ident">course_id</span>
     )
@@ -1931,7 +1979,8 @@ SELECT id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft
+  is_draft,
+  is_test_mode
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -2013,6 +2062,7 @@ WHERE id = $1
             <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;teacher@example.com&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">is_draft</span>: <span class="bool-val">false</span>,
+            <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
         };
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx2</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
         <span class="ident">courses::insert_course</span>(
@@ -2100,6 +2150,7 @@ WHERE id = $1
                 <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.org&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_draft</span>: <span class="bool-val">false</span>,
+                <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
             },
             <span class="ident">user_id</span>,
         )
@@ -2178,6 +2229,7 @@ WHERE id = $1
                 <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.org&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_draft</span>: <span class="bool-val">false</span>,
+                <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
             },
         )
         .<span class="kw">await</span>

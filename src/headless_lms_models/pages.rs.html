@@ -2233,6 +2233,19 @@
 <span id="2231">2231</span>
 <span id="2232">2232</span>
 <span id="2233">2233</span>
+<span id="2234">2234</span>
+<span id="2235">2235</span>
+<span id="2236">2236</span>
+<span id="2237">2237</span>
+<span id="2238">2238</span>
+<span id="2239">2239</span>
+<span id="2240">2240</span>
+<span id="2241">2241</span>
+<span id="2242">2242</span>
+<span id="2243">2243</span>
+<span id="2244">2244</span>
+<span id="2245">2245</span>
+<span id="2246">2246</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -2301,6 +2314,7 @@
     <span class="kw">pub</span> <span class="ident">settings</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserCourseSettings</span><span class="op">&gt;</span>,
     <span class="doccomment">/// If true, the frontend needs to update the url in the browser to match the path in the page object without reloading the page.</span>
     <span class="kw">pub</span> <span class="ident">was_redirected</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">is_test_mode</span>: <span class="ident">bool</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -2705,19 +2719,28 @@ WHERE pages.course_id = $1
     <span class="ident">course_slug</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
     <span class="ident">url_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CoursePageWithUserData</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">get_nondeleted_course_id_by_slug</span>(<span class="ident">conn</span>, <span class="ident">course_slug</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">page_option</span> <span class="op">=</span> <span class="ident">get_page_by_path</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>, <span class="ident">url_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course_data</span> <span class="op">=</span> <span class="ident">get_nondeleted_course_id_by_slug</span>(<span class="ident">conn</span>, <span class="ident">course_slug</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">page_option</span> <span class="op">=</span> <span class="ident">get_page_by_path</span>(<span class="ident">conn</span>, <span class="ident">course_data</span>.<span class="ident">id</span>, <span class="ident">url_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">page</span>) <span class="op">=</span> <span class="ident">page_option</span> {
-        <span class="kw">return</span> <span class="ident">get_course_page_with_user_data_from_selected_page</span>(<span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">page</span>, <span class="bool-val">false</span>).<span class="kw">await</span>;
+        <span class="kw">return</span> <span class="ident">get_course_page_with_user_data_from_selected_page</span>(
+            <span class="ident">conn</span>,
+            <span class="ident">user_id</span>,
+            <span class="ident">page</span>,
+            <span class="bool-val">false</span>,
+            <span class="ident">course_data</span>.<span class="ident">is_test_mode</span>,
+        )
+        .<span class="kw">await</span>;
     } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">potential_redirect</span> <span class="op">=</span> <span class="ident">try_to_find_redirected_page</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>, <span class="ident">url_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">potential_redirect</span> <span class="op">=</span>
+            <span class="ident">try_to_find_redirected_page</span>(<span class="ident">conn</span>, <span class="ident">course_data</span>.<span class="ident">id</span>, <span class="ident">url_path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">redirected_page</span>) <span class="op">=</span> <span class="ident">potential_redirect</span> {
             <span class="kw">return</span> <span class="ident">get_course_page_with_user_data_from_selected_page</span>(
                 <span class="ident">conn</span>,
                 <span class="ident">user_id</span>,
                 <span class="ident">redirected_page</span>,
                 <span class="bool-val">true</span>,
+                <span class="ident">course_data</span>.<span class="ident">is_test_mode</span>,
             )
             .<span class="kw">await</span>;
         }
@@ -2766,6 +2789,7 @@ WHERE url_redirections.course_id = $1
     <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">page</span>: <span class="ident">Page</span>,
     <span class="ident">was_redirected</span>: <span class="ident">bool</span>,
+    <span class="ident">is_test_mode</span>: <span class="ident">bool</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CoursePageWithUserData</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chapter_id</span>) <span class="op">=</span> <span class="ident">page</span>.<span class="ident">chapter_id</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident"><span class="kw">crate</span>::chapters::is_open</span>(<span class="ident">conn</span>, <span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
@@ -2788,6 +2812,7 @@ WHERE url_redirections.course_id = $1
                 <span class="ident">instance</span>,
                 <span class="ident">settings</span>,
                 <span class="ident">was_redirected</span>,
+                <span class="ident">is_test_mode</span>,
             });
         }
     }
@@ -2796,6 +2821,7 @@ WHERE url_redirections.course_id = $1
         <span class="ident">instance</span>: <span class="prelude-val">None</span>,
         <span class="ident">settings</span>: <span class="prelude-val">None</span>,
         <span class="ident">was_redirected</span>,
+        <span class="ident">is_test_mode</span>,
     })
 }
 

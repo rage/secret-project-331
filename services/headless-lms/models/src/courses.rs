@@ -25,6 +25,11 @@ pub struct CourseCount {
     pub count: u32,
 }
 
+pub struct CourseContextData {
+    pub id: Uuid,
+    pub is_test_mode: bool,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Course {
@@ -41,6 +46,7 @@ pub struct Course {
     pub content_search_language: Option<String>,
     pub course_language_group_id: Uuid,
     pub is_draft: bool,
+    pub is_test_mode: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -67,7 +73,8 @@ SELECT id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft
+  is_draft,
+  is_test_mode
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -96,7 +103,8 @@ SELECT id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft
+  is_draft,
+  is_test_mode
 FROM courses
 WHERE course_language_group_id = $1;
         ",
@@ -128,7 +136,8 @@ SELECT
     c.copied_from,
     c.course_language_group_id,
     c.description,
-    c.is_draft
+    c.is_draft,
+    c.is_test_mode
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -214,9 +223,10 @@ INSERT INTO courses (
     language_code,
     copied_from,
     course_language_group_id,
-    is_draft
+    is_draft,
+    is_test_mode
   )
-VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8, $9)
 RETURNING id,
   name,
   created_at,
@@ -229,7 +239,8 @@ RETURNING id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft;
+  is_draft,
+  is_test_mode;
     ",
         new_course.name,
         new_course.organization_id,
@@ -238,7 +249,8 @@ RETURNING id,
         new_course.language_code,
         parent_course.id,
         course_language_group_id,
-        new_course.is_draft
+        new_course.is_draft,
+        new_course.is_test_mode
     )
     .fetch_one(&mut tx)
     .await?;
@@ -492,7 +504,8 @@ SELECT id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft
+  is_draft,
+  is_test_mode
 FROM courses
 WHERE id = $1;
     "#,
@@ -506,15 +519,15 @@ WHERE id = $1;
 pub async fn get_nondeleted_course_id_by_slug(
     conn: &mut PgConnection,
     slug: &str,
-) -> ModelResult<Uuid> {
-    let id = sqlx::query!(
-        "SELECT id FROM courses WHERE slug = $1 AND deleted_at IS NULL",
+) -> ModelResult<CourseContextData> {
+    let data = sqlx::query_as!(
+        CourseContextData,
+        "SELECT id, is_test_mode FROM courses WHERE slug = $1 AND deleted_at IS NULL",
         slug
     )
     .fetch_one(conn)
-    .await?
-    .id;
-    Ok(id)
+    .await?;
+    Ok(data)
 }
 
 pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
@@ -566,7 +579,8 @@ SELECT courses.id,
   courses.copied_from,
   courses.course_language_group_id,
   courses.description,
-  courses.is_draft
+  courses.is_draft,
+  courses.is_test_mode
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -629,6 +643,7 @@ pub struct NewCourse {
     pub teacher_in_charge_email: String,
     pub description: String,
     pub is_draft: bool,
+    pub is_test_mode: bool,
 }
 
 pub async fn insert_course(
@@ -644,8 +659,8 @@ pub async fn insert_course(
     let course = sqlx::query_as!(
         Course,
         r#"
-INSERT INTO courses(id, name, slug, organization_id, language_code, course_language_group_id, is_draft)
-VALUES($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO courses(id, name, slug, organization_id, language_code, course_language_group_id, is_draft, is_test_mode)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id,
   name,
   created_at,
@@ -658,7 +673,8 @@ RETURNING id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft;
+  is_draft,
+  is_test_mode;
             "#,
         id,
         new_course.name,
@@ -666,7 +682,8 @@ RETURNING id,
         new_course.organization_id,
         new_course.language_code,
         course_language_group_id,
-        new_course.is_draft
+        new_course.is_draft,
+        new_course.is_test_mode
     )
     .fetch_one(&mut tx)
     .await?;
@@ -720,6 +737,7 @@ RETURNING id,
 pub struct CourseUpdate {
     name: String,
     is_draft: bool,
+    is_test_mode: bool,
 }
 
 pub async fn update_course(
@@ -732,8 +750,9 @@ pub async fn update_course(
         r#"
 UPDATE courses
 SET name = $1,
-  is_draft = $2
-WHERE id = $3
+  is_draft = $2,
+  is_test_mode = $3
+WHERE id = $4
 RETURNING id,
   name,
   created_at,
@@ -746,10 +765,12 @@ RETURNING id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft
+  is_draft,
+  is_test_mode
     "#,
         course_update.name,
         course_update.is_draft,
+        course_update.is_test_mode,
         course_id
     )
     .fetch_one(conn)
@@ -776,7 +797,8 @@ RETURNING id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft
+  is_draft,
+  is_test_mode
     "#,
         course_id
     )
@@ -802,7 +824,8 @@ SELECT id,
   copied_from,
   course_language_group_id,
   description,
-  is_draft
+  is_draft,
+  is_test_mode
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -884,6 +907,7 @@ mod test {
             teacher_in_charge_email: "teacher@example.com".to_string(),
             description: "description".to_string(),
             is_draft: false,
+            is_test_mode: false,
         };
         let mut tx2 = tx.begin().await;
         courses::insert_course(
@@ -971,6 +995,7 @@ mod test {
                 teacher_in_charge_email: "admin@example.org".to_string(),
                 description: "description".to_string(),
                 is_draft: false,
+                is_test_mode: false,
             },
             user_id,
         )
@@ -1049,6 +1074,7 @@ mod test {
                 teacher_in_charge_email: "admin@example.org".to_string(),
                 description: "description".to_string(),
                 is_draft: false,
+                is_test_mode: false,
             },
         )
         .await

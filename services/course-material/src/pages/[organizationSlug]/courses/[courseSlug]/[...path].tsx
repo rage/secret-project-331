@@ -6,6 +6,7 @@ import CourseMaterialPageBreadcrumbs from "../../../../components/CourseMaterial
 import Layout from "../../../../components/Layout"
 import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
+import CourseTestModeNotification from "../../../../components/notifications/CourseTestModeNotification"
 import PageContext, { CoursePageDispatch, defaultPageState } from "../../../../contexts/PageContext"
 import pageStateReducer from "../../../../reducers/pageStateReducer"
 import { fetchCoursePageByPath } from "../../../../services/backend"
@@ -51,6 +52,7 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
           instance: getCoursePageByPath.data.instance ?? null,
           settings: getCoursePageByPath.data.settings ?? null,
           exam: null,
+          isTest: getCoursePageByPath.data.is_test_mode,
         },
       })
     }
@@ -132,6 +134,7 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
           courseSlug={courseSlug}
         >
           <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
+          {<CourseTestModeNotification isTestMode={pageState.isTest} />}
           <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
         </Layout>
       </PageContext.Provider>

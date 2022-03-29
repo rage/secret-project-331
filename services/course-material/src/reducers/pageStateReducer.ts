@@ -6,6 +6,7 @@ interface PageStateLoading {
   settings: null
   instance: null
   exam: null
+  isTest: boolean
   error: null
 }
 
@@ -15,6 +16,7 @@ interface PageStateReady {
   settings: UserCourseSettings | null
   instance: CourseInstance | null
   exam: ExamData | null
+  isTest: boolean
   error: null
 }
 
@@ -24,6 +26,7 @@ interface PageStateError {
   settings: null
   instance: null
   exam: null
+  isTest: boolean
   error: unknown
 }
 
@@ -41,6 +44,7 @@ interface SetDataAction {
     instance: CourseInstance | null
     settings: UserCourseSettings | null
     exam: ExamData | null
+    isTest: boolean
   }
 }
 
@@ -60,9 +64,9 @@ export default function pageStateReducer(prev: PageState, action: PageStateActio
     case "rawSetState":
       return action.payload
     case "setData": {
-      const { instance, pageData, settings, exam } = action.payload
+      const { instance, pageData, settings, exam, isTest } = action.payload
       // eslint-disable-next-line i18next/no-literal-string
-      return { ...prev, state: "ready", instance, pageData, settings, exam, error: null }
+      return { ...prev, state: "ready", instance, pageData, settings, exam, isTest, error: null }
     }
     case "setError":
       return {
@@ -74,6 +78,7 @@ export default function pageStateReducer(prev: PageState, action: PageStateActio
         pageData: null,
         settings: null,
         exam: null,
+        isTest: false,
       }
     case "setLoading":
       return {
@@ -85,6 +90,7 @@ export default function pageStateReducer(prev: PageState, action: PageStateActio
         pageData: null,
         settings: null,
         exam: null,
+        isTest: false,
       }
   }
 }

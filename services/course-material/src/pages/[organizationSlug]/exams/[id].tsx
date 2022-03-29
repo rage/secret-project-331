@@ -50,6 +50,7 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
           instance: null,
           settings: null,
           exam: exam.data,
+          isTest: false,
         },
       })
     } else {

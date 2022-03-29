@@ -3,5 +3,5 @@ type CoursePageWithUserData = {
   instance: CourseInstance | null
   settings: UserCourseSettings | null
   was_redirected: boolean
-  is_test: boolean
+  is_test_mode: boolean
 }

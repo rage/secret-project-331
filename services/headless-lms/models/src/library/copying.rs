@@ -60,7 +60,7 @@ RETURNING id,
   course_language_group_id,
   description,
   is_draft,
-  is_test;
+  is_test_mode;
     ",
         new_course.name,
         new_course.organization_id,

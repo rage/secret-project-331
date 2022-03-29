@@ -66,7 +66,7 @@ pub struct CoursePageWithUserData {
     pub settings: Option<UserCourseSettings>,
     /// If true, the frontend needs to update the url in the browser to match the path in the page object without reloading the page.
     pub was_redirected: bool,
-    pub is_test: bool,
+    pub is_test_mode: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -480,7 +480,7 @@ pub async fn get_page_with_user_data_by_path(
             user_id,
             page,
             false,
-            course_data.is_test,
+            course_data.is_test_mode,
         )
         .await;
     } else {
@@ -492,7 +492,7 @@ pub async fn get_page_with_user_data_by_path(
                 user_id,
                 redirected_page,
                 true,
-                course_data.is_test,
+                course_data.is_test_mode,
             )
             .await;
         }
@@ -541,7 +541,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     user_id: Option<Uuid>,
     page: Page,
     was_redirected: bool,
-    is_test: bool,
+    is_test_mode: bool,
 ) -> ModelResult<CoursePageWithUserData> {
     if let Some(chapter_id) = page.chapter_id {
         if !crate::chapters::is_open(conn, chapter_id).await? {
@@ -564,7 +564,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
                 instance,
                 settings,
                 was_redirected,
-                is_test,
+                is_test_mode,
             });
         }
     }
@@ -573,7 +573,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
         instance: None,
         settings: None,
         was_redirected,
-        is_test,
+        is_test_mode,
     })
 }
 

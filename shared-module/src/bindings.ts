@@ -191,7 +191,7 @@ export interface Course {
   content_search_language: string | null
   course_language_group_id: string
   is_draft: boolean
-  is_test: boolean
+  is_test_mode: boolean
 }
 
 export interface CourseStructure {
@@ -203,7 +203,7 @@ export interface CourseStructure {
 export interface CourseUpdate {
   name: string
   is_draft: boolean
-  is_test: boolean
+  is_test_mode: boolean
 }
 
 export interface NewCourse {
@@ -215,7 +215,7 @@ export interface NewCourse {
   teacher_in_charge_email: string
   description: string
   is_draft: boolean
-  is_test: boolean
+  is_test_mode: boolean
 }
 
 export interface CourseCount {
@@ -508,7 +508,7 @@ export interface CoursePageWithUserData {
   instance: CourseInstance | null
   settings: UserCourseSettings | null
   was_redirected: boolean
-  is_test: boolean
+  is_test_mode: boolean
 }
 
 export interface ExerciseWithExerciseTasks {

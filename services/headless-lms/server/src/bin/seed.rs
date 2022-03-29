@@ -392,7 +392,7 @@ async fn main() -> Result<()> {
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: false,
-        is_test: false,
+        is_test_mode: false,
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance) = courses::insert_course(
         &mut conn,
@@ -437,7 +437,7 @@ async fn main() -> Result<()> {
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: false,
-        is_test: false,
+        is_test_mode: false,
     };
     let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
         courses::insert_course(
@@ -473,7 +473,7 @@ async fn main() -> Result<()> {
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: true,
-        is_test: false,
+        is_test_mode: false,
     };
     courses::insert_course(
         &mut conn,
@@ -1262,7 +1262,7 @@ async fn seed_sample_course(
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: false,
-        is_test: false,
+        is_test_mode: false,
     };
     let (course, _front_page, default_instance) = courses::insert_course(
         conn,
@@ -2179,7 +2179,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: false,
-        is_test: false,
+        is_test_mode: false,
     };
     let (course, front_page, _default_instance) = courses::insert_course(
         conn,

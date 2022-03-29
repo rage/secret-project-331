@@ -81,7 +81,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
         teacher_in_charge_email: teacherInChargeEmail,
         teacher_in_charge_name: teacherInChargeName,
         is_draft: isDraft,
-        is_test: isTest,
+        is_test_mode: isTest,
       }
       if (courseId) {
         await onSubmitDuplicateCourseForm(courseId, newCourse)
@@ -114,7 +114,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
         teacher_in_charge_email: teacherInChargeEmail,
         description,
         is_draft: isDraft,
-        is_test: isTest,
+        is_test_mode: isTest,
       })
       setName("")
       setSlug("")

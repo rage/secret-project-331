@@ -36,7 +36,7 @@ const UpdateCourseForm: React.FC<UpdateCourseFormProps> = ({
     await updateCourse(courseId, {
       name,
       is_draft: draftStatus,
-      is_test: testStatus,
+      is_test_mode: testStatus,
     })
     onSubmitForm()
   }

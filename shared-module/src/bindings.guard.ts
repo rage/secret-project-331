@@ -418,7 +418,8 @@ export function isCourse(obj: any, _argumentName?: string): obj is Course {
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
     (obj.content_search_language === null || typeof obj.content_search_language === "string") &&
     typeof obj.course_language_group_id === "string" &&
-    typeof obj.is_draft === "boolean"
+    typeof obj.is_draft === "boolean" &&
+    typeof obj.is_test_mode === "boolean"
   )
 }
 
@@ -437,7 +438,8 @@ export function isCourseUpdate(obj: any, _argumentName?: string): obj is CourseU
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.name === "string" &&
-    typeof obj.is_draft === "boolean"
+    typeof obj.is_draft === "boolean" &&
+    typeof obj.is_test_mode === "boolean"
   )
 }
 
@@ -451,7 +453,8 @@ export function isNewCourse(obj: any, _argumentName?: string): obj is NewCourse 
     typeof obj.teacher_in_charge_name === "string" &&
     typeof obj.teacher_in_charge_email === "string" &&
     typeof obj.description === "string" &&
-    typeof obj.is_draft === "boolean"
+    typeof obj.is_draft === "boolean" &&
+    typeof obj.is_test_mode === "boolean"
   )
 }
 
@@ -897,7 +900,8 @@ export function isCoursePageWithUserData(
     (isPage(obj.page) as boolean) &&
     (obj.instance === null || (isCourseInstance(obj.instance) as boolean)) &&
     (obj.settings === null || (isUserCourseSettings(obj.settings) as boolean)) &&
-    typeof obj.was_redirected === "boolean"
+    typeof obj.was_redirected === "boolean" &&
+    typeof obj.is_test_mode === "boolean"
   )
 }
 

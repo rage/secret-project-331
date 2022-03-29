@@ -15,10 +15,16 @@ use crate::controllers::{
     },
     ErrorData, ErrorResponse, UploadResult,
 };
+
+#[cfg(feature = "ts_rs")]
+use crate::domain::*;
+
 #[cfg(feature = "ts_rs")]
 use headless_lms_models::*;
 #[cfg(feature = "ts_rs")]
 use headless_lms_utils::pagination::Pagination;
+#[cfg(feature = "ts_rs")]
+use headless_lms_utils::url_to_oembed_endpoint::OEmbedResponse;
 
 #[cfg(feature = "ts_rs")]
 macro_rules! export {
@@ -43,6 +49,10 @@ fn ts_binding_generator() {
     let mut target = std::fs::File::create("../../../shared-module/src/bindings.ts").unwrap();
     let res = export! {
         &mut target,
+
+        authorization::ActionOnResource,
+        authorization::Action,
+        authorization::Resource,
 
         glossary::Term,
         glossary::TermUpdate,
@@ -76,6 +86,8 @@ fn ts_binding_generator() {
         exams::CourseExam,
         exams::Exam,
         exams::ExamEnrollment,
+        exams::NewExam,
+        exams::OrgExam,
         exams::ExamInstructions,
         exams::ExamInstructionsUpdate,
 
@@ -116,6 +128,7 @@ fn ts_binding_generator() {
         pages::ExerciseWithExerciseTasks,
         pages::HistoryRestoreData,
         pages::Page,
+        pages::PageInfo,
         pages::PageRoutingDataWithChapterStatus,
         pages::PageSearchRequest,
         pages::PageSearchResult,
@@ -179,7 +192,8 @@ fn ts_binding_generator() {
         GetEditProposalsQuery,
         ErrorResponse,
         ErrorData,
-        Pagination
+        Pagination,
+        OEmbedResponse
     };
     res.unwrap();
 }

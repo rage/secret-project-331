@@ -38,6 +38,7 @@ export const allowedBlockVariants: Record<string, string[]> = {
     // "slideshare",
     // "ted",
     // "tumblr",
+    "mentimeter",
   ],
 }
 

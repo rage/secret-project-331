@@ -52,7 +52,7 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
           instance: getCoursePageByPath.data.instance ?? null,
           settings: getCoursePageByPath.data.settings ?? null,
           exam: null,
-          isTest: getCoursePageByPath.data.is_test,
+          isTest: getCoursePageByPath.data.is_test_mode,
         },
       })
     }

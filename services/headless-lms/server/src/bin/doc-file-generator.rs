@@ -233,6 +233,7 @@ fn main() {
         course_language_group_id: id,
         description: Some("Example".to_string()),
         is_draft: true,
+        is_test_mode: false,
     };
     let chapter = Chapter {
         id,
@@ -430,7 +431,8 @@ fn main() {
             page: page.clone(),
             instance: Some(course_instance.clone()),
             settings: Some(user_course_settings.clone()),
-            was_redirected: false
+            was_redirected: false,
+            is_test_mode: false
         }
     );
     write_docs!(CourseInstance, course_instance.clone());

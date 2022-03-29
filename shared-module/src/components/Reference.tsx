@@ -43,7 +43,6 @@ const TextWrapper = styled.div`
     font-weight: 400;
     font-family: "Josefin Sans", sans-serif;
     list-style: none;
-    height: 100px;
     outline: 0;
     height: auto;
     color: ${baseTheme.colors.grey[700]};

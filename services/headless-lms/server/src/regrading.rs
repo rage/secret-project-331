@@ -119,7 +119,7 @@ pub async fn regrade(
                 continue;
             }
         };
-        models::exercise_task_gradings::update_grading(
+        let grading = models::exercise_task_gradings::update_grading(
             &mut *conn,
             &grading,
             &grading_result,
@@ -130,6 +130,46 @@ pub async fn regrade(
             &mut *conn,
             grading.id,
             regrading_submission.exercise_task_submission_id,
+        )
+        .await?;
+        let task_submission = models::exercise_task_submissions::get_by_id(
+            &mut *conn,
+            regrading_submission.exercise_task_submission_id,
+        )
+        .await?;
+        let slide_submission = models::exercise_slide_submissions::get_by_id(
+            &mut *conn,
+            task_submission.exercise_slide_submission_id,
+        )
+        .await?
+        .ok_or_else(|| anyhow::anyhow!("No slide submission"))?;
+        let user_exercise_state = models::user_exercise_states::get_or_create_user_exercise_state(
+            conn,
+            slide_submission.user_id,
+            exercise.id,
+            slide_submission.course_instance_id,
+            slide_submission.exam_id,
+        )
+        .await?;
+        let user_exercise_slide_state =
+            models::user_exercise_slide_states::get_or_insert_by_unique_index(
+                &mut *conn,
+                user_exercise_state.id,
+                slide_submission.exercise_slide_id,
+            )
+            .await?;
+        models::user_exercise_task_states::upsert_with_grading(
+            &mut *conn,
+            user_exercise_slide_state.id,
+            &grading,
+        )
+        .await?;
+        let regrading =
+            models::regradings::get_by_id(&mut *conn, regrading_submission.regrading_id).await?;
+        models::library::grading::update_points_for_user_exercise_state(
+            &mut *conn,
+            user_exercise_state,
+            regrading.user_points_update_strategy,
         )
         .await?;
     }
@@ -631,7 +671,6 @@ mod test {
     }
 
     #[tokio::test]
-    #[ignore]
     async fn updates_exercise_state() {
         insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
@@ -718,7 +757,12 @@ mod test {
         )
         .await
         .unwrap();
-        assert!(f32_approx_eq(user_exercise_state.score_given.unwrap(), 0.0));
+        assert!(
+            f32_approx_eq(user_exercise_state.score_given.unwrap(), 0.0),
+            "{} != {}",
+            user_exercise_state.score_given.unwrap(),
+            0.0
+        );
 
         regrade(tx.as_mut(), &services).await.unwrap();
 
@@ -731,10 +775,12 @@ mod test {
         )
         .await
         .unwrap();
-        assert!(f32_approx_eq(
+        assert!(
+            f32_approx_eq(user_exercise_state.score_given.unwrap(), 1.0),
+            "{} != {}",
             user_exercise_state.score_given.unwrap(),
-            100.0
-        ));
+            1.0
+        );
     }
 
     #[tokio::test]

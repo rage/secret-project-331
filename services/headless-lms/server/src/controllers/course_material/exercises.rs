@@ -9,6 +9,8 @@ use models::{
     user_exercise_states::CourseInstanceOrExamId,
 };
 
+use chrono::Utc;
+
 use crate::controllers::prelude::*;
 
 /**
@@ -96,6 +98,15 @@ async fn post_submission(
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
 
+    // Checking if exercise has a deadline and if so whether it is passed
+    if let Some(deadline) = exercise.deadline {
+        if Utc::now() >= deadline {
+            return Err(ControllerError::BadRequest(
+                "exercise deadline passed".to_string(),
+            ));
+        }
+    }
+
     let (course_instance_or_exam_id, last_try) =
         resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             &mut conn,
@@ -123,6 +134,7 @@ async fn post_submission(
             payload.0,
         )
         .await?;
+
     if exercise.exam_id.is_some() {
         // If exam, we don't want to expose model any grading details.
         result.clear_grading_information();

@@ -116,6 +116,7 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
               <div
                 className={css`
                   padding: 1rem 0;
+                  max-width: 50ch;
                 `}
               >
                 <MarkdownText text={qo.title || qo.body || ""} />

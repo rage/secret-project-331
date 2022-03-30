@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import HelpIcon from "@mui/icons-material/Help"
 import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -27,6 +28,10 @@ import ExerciseTask from "./ExerciseTask"
 interface ExerciseBlockAttributes {
   id: string
 }
+
+const DeadlineText = styled.p`
+  font-size: 24px;
+`
 
 // Special care taken here to ensure exercise content can have full width of
 // the page.
@@ -132,7 +137,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 width: 5rem !important;
                 margin-right: 1rem;
               `}
-            />
+            />{" "}
             <h2
               className={css`
                 font-size: 2rem;
@@ -157,6 +162,11 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
             </div>
           </div>
+          {getCourseMaterialExercise.data.exercise.deadline && (
+            <DeadlineText>
+              {t("deadline")} {getCourseMaterialExercise.data.exercise.deadline.toUTCString()}
+            </DeadlineText>
+          )}
           {getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
             <ExerciseTask
               key={task.id}

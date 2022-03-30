@@ -1556,7 +1556,7 @@ async fn seed_sample_course(
             "points": 2,
             "section": 0,
             "courseId": "1dbd4a71-5f4c-49c9-b8a0-2e65fb8c4e0c",
-            "deadline": "2021-12-17T07:15:33.479Z",
+            "deadline": "2025-12-17T07:15:33.479Z",
             "createdAt": "2021-12-17T07:15:33.479Z",
             "updatedAt": "2021-12-17T07:15:33.479Z",
             "autoReject": false,

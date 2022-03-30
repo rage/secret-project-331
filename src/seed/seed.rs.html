@@ -2760,6 +2760,71 @@
 <span id="2758">2758</span>
 <span id="2759">2759</span>
 <span id="2760">2760</span>
+<span id="2761">2761</span>
+<span id="2762">2762</span>
+<span id="2763">2763</span>
+<span id="2764">2764</span>
+<span id="2765">2765</span>
+<span id="2766">2766</span>
+<span id="2767">2767</span>
+<span id="2768">2768</span>
+<span id="2769">2769</span>
+<span id="2770">2770</span>
+<span id="2771">2771</span>
+<span id="2772">2772</span>
+<span id="2773">2773</span>
+<span id="2774">2774</span>
+<span id="2775">2775</span>
+<span id="2776">2776</span>
+<span id="2777">2777</span>
+<span id="2778">2778</span>
+<span id="2779">2779</span>
+<span id="2780">2780</span>
+<span id="2781">2781</span>
+<span id="2782">2782</span>
+<span id="2783">2783</span>
+<span id="2784">2784</span>
+<span id="2785">2785</span>
+<span id="2786">2786</span>
+<span id="2787">2787</span>
+<span id="2788">2788</span>
+<span id="2789">2789</span>
+<span id="2790">2790</span>
+<span id="2791">2791</span>
+<span id="2792">2792</span>
+<span id="2793">2793</span>
+<span id="2794">2794</span>
+<span id="2795">2795</span>
+<span id="2796">2796</span>
+<span id="2797">2797</span>
+<span id="2798">2798</span>
+<span id="2799">2799</span>
+<span id="2800">2800</span>
+<span id="2801">2801</span>
+<span id="2802">2802</span>
+<span id="2803">2803</span>
+<span id="2804">2804</span>
+<span id="2805">2805</span>
+<span id="2806">2806</span>
+<span id="2807">2807</span>
+<span id="2808">2808</span>
+<span id="2809">2809</span>
+<span id="2810">2810</span>
+<span id="2811">2811</span>
+<span id="2812">2812</span>
+<span id="2813">2813</span>
+<span id="2814">2814</span>
+<span id="2815">2815</span>
+<span id="2816">2816</span>
+<span id="2817">2817</span>
+<span id="2818">2818</span>
+<span id="2819">2819</span>
+<span id="2820">2820</span>
+<span id="2821">2821</span>
+<span id="2822">2822</span>
+<span id="2823">2823</span>
+<span id="2824">2824</span>
+<span id="2825">2825</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -3506,6 +3571,71 @@
                 ]
               }
             ),
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">playground_examples::insert_playground_example</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">PlaygroundExampleData</span> {
+            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, multiple-choice, long text&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">width</span>: <span class="number">500</span>,
+            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>(
+            {
+              <span class="string">&quot;id&quot;</span>: <span class="string">&quot;fd0221d1-a205-42d0-b187-3ead6a1a0e6e&quot;</span>,
+              <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;5209f752-9db9-4daf-a7bc-64e21987b719&quot;</span>,
+              <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Short questions, long answers&quot;</span>,
+              <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+              <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+              <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
+              <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
+              <span class="string">&quot;title&quot;</span>: <span class="string">&quot;General questions&quot;</span>,
+              <span class="string">&quot;tries&quot;</span>: <span class="number">1</span>,
+              <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">false</span>,
+              <span class="string">&quot;items&quot;</span>: [
+                  {
+                      <span class="string">&quot;id&quot;</span>: <span class="string">&quot;88ff824f-8aa2-4629-b727-86f98092ab22&quot;</span>,
+                      <span class="string">&quot;body&quot;</span>: <span class="string">&quot;select shortest answer&quot;</span>,
+                      <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
+                      <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;maxLabel&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;minLabel&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
+                      <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
+                      <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;6160b703-0c27-448b-84aa-1f0d23a037a7&quot;</span>,
+                      <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Choose the short answer&quot;</span>,
+                      <span class="string">&quot;type&quot;</span>: <span class="string">&quot;multiple-choice&quot;</span>,
+                      <span class="string">&quot;options&quot;</span>: [
+                          {
+                              <span class="string">&quot;id&quot;</span>: <span class="string">&quot;d174aecf-bb77-467f-b1e7-92a0e54af29f&quot;</span>,
+                              <span class="string">&quot;body&quot;</span>: <span class="string">&quot;short answer&quot;</span>,
+                              <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
+                              <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                              <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
+                          },
+                          {
+                              <span class="string">&quot;id&quot;</span>: <span class="string">&quot;45a3c513-5dd9-4239-96f1-3dd1f53379cc&quot;</span>,
+                              <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long answer&quot;</span>,
+                              <span class="string">&quot;order&quot;</span>: <span class="number">2</span>,
+                              <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                              <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
+                          },
+                          {
+                              <span class="string">&quot;id&quot;</span>: <span class="string">&quot;2176ea44-46c6-48d6-a2be-1f8188b06545&quot;</span>,
+                              <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long answer&quot;</span>,
+                              <span class="string">&quot;order&quot;</span>: <span class="number">3</span>,
+                              <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                              <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
+                          },
+                          ]
+                      }
+                  ]
+                }
+              ),
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

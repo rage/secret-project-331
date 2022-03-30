@@ -413,7 +413,7 @@ mod tests {
             insert_data!(tx: tx; :user, :org, :course, :instance);
             let chapter_id = chapters::insert(tx.as_mut(), "chapter", course, 1).await?;
             let (page_id, _history) =
-                pages::insert(tx.as_mut(), course, "/test", "test", 1, user).await?;
+                pages::insert_course_page(tx.as_mut(), course, "/test", "test", 1, user).await?;
             let exercise_id =
                 exercises::insert(tx.as_mut(), course, "course", page_id, chapter_id, 1).await?;
             let slide_id = exercise_slides::insert(tx.as_mut(), exercise_id, 1).await?;

@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use chrono::Utc;
-use models::exams::{self, Exam};
+use models::exams::{self, Exam, NewExam};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
@@ -19,7 +19,7 @@ pub async fn get_exam(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Exam>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
+    authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
 
     let exam = exams::get(&mut conn, *exam_id).await?;
     Ok(web::Json(exam))
@@ -29,6 +29,23 @@ pub async fn get_exam(
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExamCourseInfo {
     course_id: Uuid,
+}
+
+/**
+POST `/api/v0/main-frontend/exams`
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+pub async fn create_exam(
+    pool: web::Data<PgPool>,
+    exam: web::Json<exams::NewExam>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(exam.id)).await?;
+
+    let exam = exams::insert(&mut conn, &exam.0).await?;
+    Ok(web::Json(exam))
 }
 
 /**
@@ -153,6 +170,31 @@ pub async fn export_submissions(
 }
 
 /**
+ * POST `/api/v0/cms/exams/:exam_id/duplicate` - duplicates existing exam.
+ */
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn duplicate_exam(
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    new_exam: web::Json<NewExam>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    authorize(
+        &mut conn,
+        Act::Duplicate,
+        Some(user.id),
+        Res::Exam(*exam_id),
+    )
+    .await?;
+
+    models::library::copying::copy_exam(&mut conn, &exam_id, &new_exam).await?;
+
+    Ok(web::Json(()))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -167,5 +209,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{id}/export-submissions",
             web::get().to(export_submissions),
-        );
+        )
+        .route("/{id}/duplicate", web::post().to(duplicate_exam));
 }

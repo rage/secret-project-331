@@ -335,7 +335,7 @@ async fn main() -> Result<()> {
     info!("inserting sample exams");
     create_exam(
         &mut conn,
-        "Ongoing ends soon",
+        "Ongoing ends soon".to_string(),
         Some(Utc::now()),
         Some(Utc::now() + Duration::minutes(1)),
         120,
@@ -347,7 +347,7 @@ async fn main() -> Result<()> {
     .await?;
     create_exam(
         &mut conn,
-        "Ongoing short timer",
+        "Ongoing short timer".to_string(),
         Some(Utc::now()),
         Some(Utc::now() + Duration::minutes(120)),
         1,
@@ -359,7 +359,7 @@ async fn main() -> Result<()> {
     .await?;
     create_exam(
         &mut conn,
-        "Starting soon",
+        "Starting soon".to_string(),
         Some(Utc::now() + Duration::minutes(5)),
         Some(Utc::now() + Duration::days(30)),
         1,
@@ -371,7 +371,7 @@ async fn main() -> Result<()> {
     .await?;
     create_exam(
         &mut conn,
-        "Over",
+        "Over".to_string(),
         Some(Utc::now() - Duration::days(7)),
         Some(Utc::now() - Duration::minutes(30)),
         1,
@@ -393,6 +393,7 @@ async fn main() -> Result<()> {
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: false,
+        is_test_mode: false,
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance) = courses::insert_course(
         &mut conn,
@@ -437,6 +438,7 @@ async fn main() -> Result<()> {
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: false,
+        is_test_mode: false,
     };
     let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
         courses::insert_course(
@@ -472,6 +474,7 @@ async fn main() -> Result<()> {
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: true,
+        is_test_mode: false,
     };
     courses::insert_course(
         &mut conn,
@@ -1260,6 +1263,7 @@ async fn seed_sample_course(
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: false,
+        is_test_mode: false,
     };
     let (course, _front_page, default_instance) = courses::insert_course(
         conn,
@@ -1343,7 +1347,7 @@ async fn seed_sample_course(
     )
     .await?;
 
-    let (_page, _) = pages::insert(
+    let (_page, _) = pages::insert_course_page(
         conn,
         course.id,
         "/welcome",
@@ -2176,6 +2180,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: false,
+        is_test_mode: false,
     };
     let (course, front_page, _default_instance) = courses::insert_course(
         conn,
@@ -2215,7 +2220,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
-    let (_page, _history) = pages::insert(conn, course.id, "/faq", "FAQ", 1, admin).await?;
+    let (_page, _history) =
+        pages::insert_course_page(conn, course.id, "/faq", "FAQ", 1, admin).await?;
 
     // Chapter-1
     let new_chapter = NewChapter {
@@ -2711,7 +2717,7 @@ async fn submit_and_grade(
 
 async fn create_exam(
     conn: &mut PgConnection,
-    name: &str,
+    name: String,
     starts_at: Option<DateTime<Utc>>,
     ends_at: Option<DateTime<Utc>>,
     time_minutes: i32,
@@ -2722,16 +2728,9 @@ async fn create_exam(
 ) -> Result<()> {
     exams::insert(
         conn,
-        NewExam {
+        &NewExam {
             id: exam_id,
             name,
-            instructions: serde_json::json!([GutenbergBlock::block_with_name_and_attributes(
-                "core/paragraph",
-                attributes!{
-                  "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum felis nisi, vitae commodo mi venenatis in. Mauris hendrerit lacinia augue ut hendrerit. Vestibulum non tellus mattis, convallis magna vel, semper mauris. Maecenas porta, arcu eget porttitor sagittis, nulla magna auctor dolor, sed tempus sem lacus eu tortor. Ut id diam quam. Etiam quis sagittis justo. Quisque sagittis dolor vitae felis facilisis, ut suscipit ipsum malesuada. Nulla tempor ultricies erat ut venenatis. Ut pulvinar lectus non mollis efficitur.",
-                  "dropCap": false
-                },
-            )]),
             starts_at,
             ends_at,
             time_minutes,

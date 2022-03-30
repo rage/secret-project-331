@@ -69,6 +69,13 @@ impl CourseOrExamId {
             )),
         }
     }
+
+    pub fn to_course_and_exam_ids(&self) -> (Option<Uuid>, Option<Uuid>) {
+        match self {
+            Self::Course(instance_id) => (Some(*instance_id), None),
+            Self::Exam(exam_id) => (None, Some(*exam_id)),
+        }
+    }
     pub fn exam_id(&self) -> Option<&Uuid> {
         if let CourseOrExamId::Exam(id) = self {
             Some(id)

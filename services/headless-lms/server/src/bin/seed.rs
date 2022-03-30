@@ -747,6 +747,71 @@ async fn main() -> Result<()> {
         },
     )
     .await?;
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice, long text".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
+            width: 500,
+            data: serde_json::json!(
+            {
+              "id": "fd0221d1-a205-42d0-b187-3ead6a1a0e6e",
+              "courseId": "5209f752-9db9-4daf-a7bc-64e21987b719",
+              "body": "Short questions, long answers",
+              "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+              "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+              "part": 1,
+              "section": 1,
+              "title": "General questions",
+              "tries": 1,
+              "triesLimited": false,
+              "items": [
+                  {
+                      "id": "88ff824f-8aa2-4629-b727-86f98092ab22",
+                      "body": "select shortest answer",
+                      "direction": "row",
+                      "formatRegex": null,
+                      "maxLabel": null,
+                      "maxValue": null,
+                      "maxWords": null,
+                      "minLabel": null,
+                      "minValue": null,
+                      "minWords": null,
+                      "multi": false,
+                      "order": 1,
+                      "quizId": "6160b703-0c27-448b-84aa-1f0d23a037a7",
+                      "title": "Choose the short answer",
+                      "type": "multiple-choice",
+                      "options": [
+                          {
+                              "id": "d174aecf-bb77-467f-b1e7-92a0e54af29f",
+                              "body": "short answer",
+                              "order": 1,
+                              "title": null,
+                              "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                          },
+                          {
+                              "id": "45a3c513-5dd9-4239-96f1-3dd1f53379cc",
+                              "body": "very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long answer",
+                              "order": 2,
+                              "title": null,
+                              "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                          },
+                          {
+                              "id": "2176ea44-46c6-48d6-a2be-1f8188b06545",
+                              "body": "very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long answer",
+                              "order": 3,
+                              "title": null,
+                              "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                          },
+                          ]
+                      }
+                  ]
+                }
+              ),
+        },
+    )
+    .await?;
 
     playground_examples::insert_playground_example(
         &mut conn,

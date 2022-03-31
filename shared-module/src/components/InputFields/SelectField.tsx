@@ -14,7 +14,7 @@ interface SelectMenuExtraProps<T extends string> {
   defaultValue?: T
   options: SelectOption<T>[]
   onBlur: (event: React.FocusEvent<HTMLSelectElement>) => void
-  onChange: (value: T, name?: string) => void
+  onChange: (value: T, name?: string, event?: React.ChangeEvent<HTMLSelectElement>) => void
   className?: string
 }
 
@@ -50,6 +50,7 @@ const SelectMenu = <T extends string>({
             line-height: inherit;
             z-index: 1;
             outline: none;
+            padding-right: 40px;
           }
 
           select,

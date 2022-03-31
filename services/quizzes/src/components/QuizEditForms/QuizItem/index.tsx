@@ -69,7 +69,15 @@ const QuizItem: React.FC<QuizItemProps> = ({ item }) => {
           `}
         />
         <ControlButton
-          onClick={() => dispatch(setAdvancedEditing(item.id, true))}
+          onClick={(event) =>
+            dispatch(
+              setAdvancedEditing({
+                itemId: item.id,
+                editing: true,
+                mouseClickYPosition: event.pageY,
+              }),
+            )
+          }
           title={t("edit-item")}
         >
           <ControlIcon icon={faPen} />

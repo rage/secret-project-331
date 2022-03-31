@@ -1,7 +1,9 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
 
+use actix_http::header;
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
+use isbot::Bots;
 use models::{
     chapters::{ChapterStatus, ChapterWithStatus},
     course_instances::CourseInstance,
@@ -46,8 +48,25 @@ async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
+    req: HttpRequest,
 ) -> ControllerResult<web::Json<CoursePageWithUserData>> {
     let mut conn = pool.acquire().await?;
+    let user_agent = req.headers().get(header::USER_AGENT);
+    let bots = Bots::default();
+    let is_bot = user_agent
+        .map(|ua| ua.to_str().ok())
+        .flatten()
+        .map(|ua| bots.is_bot(ua))
+        .unwrap_or(true);
+    dbg!(is_bot);
+
+    let user_agent_parser = woothee::parser::Parser::new();
+    let parsed_user_agent = user_agent
+        .map(|ua| ua.to_str().ok())
+        .flatten()
+        .map(|ua| user_agent_parser.parse(ua))
+        .flatten();
+    dbg!(parsed_user_agent);
     let (course_slug, raw_page_path) = params.into_inner();
     let path = if raw_page_path.starts_with('/') {
         raw_page_path

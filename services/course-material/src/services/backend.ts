@@ -1,3 +1,5 @@
+import { AxiosRequestHeaders } from "axios"
+
 import {
   ChaptersWithStatus,
   Course,
@@ -92,8 +94,14 @@ export const fetchCoursePageByPath = async (
   courseSlug: string,
   path: string,
 ): Promise<CoursePageWithUserData> => {
+  const headers: AxiosRequestHeaders = {}
+  if (document.referrer && document.referrer !== "") {
+    headers["Orignal-Referrer"] = document.referrer
+  }
+
   const response = await courseMaterialClient.get(`/courses/${courseSlug}/page-by-path${path}`, {
     responseType: "json",
+    headers: headers,
   })
   return validateResponse(response, isCoursePageWithUserData)
 }

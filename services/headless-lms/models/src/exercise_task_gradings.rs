@@ -335,6 +335,11 @@ pub fn send_grading_request(
         let res = req.send().await?;
         let status = res.status();
         if !status.is_success() {
+            let response_body = res.text().await;
+            error!(
+                ?response_body,
+                "Grading request returned an unsuccesful status code"
+            );
             return Err(ModelError::Generic("Grading failed".to_string()));
         }
         let obj = res.json::<ExerciseTaskGradingResult>().await?;

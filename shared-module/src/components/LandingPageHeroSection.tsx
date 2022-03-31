@@ -51,13 +51,18 @@ const TextBox = styled.div`
 `
 export interface LandingPageHeroSectionProps {
   title: string
-  bg?: string
   backgroundImage?: string
+  backgroundColor?: string
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & LandingPageHeroSectionProps
 
-const LandingPageHeroSection: React.FC<CardProps> = ({ title, children, backgroundImage }) => {
+const LandingPageHeroSection: React.FC<CardProps> = ({
+  title,
+  children,
+  backgroundImage,
+  backgroundColor,
+}) => {
   const { t } = useTranslation()
   return (
     <div
@@ -66,9 +71,11 @@ const LandingPageHeroSection: React.FC<CardProps> = ({ title, children, backgrou
         border-radius: 1px;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 7.5em 1em;
-        ${backgroundImage && `background-image: url(${backgroundImage})`};
+        ${backgroundColor && `background-color: ${backgroundColor}`};
+        ${backgroundImage &&
+        `background-image: url(${backgroundImage});
         background-repeat: no-repeat;
-        background-position: center;
+        background-position: center center;`}
       `}
     >
       <TextBox>

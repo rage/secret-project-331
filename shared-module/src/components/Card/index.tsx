@@ -26,6 +26,7 @@ export interface CardExtraProps {
   time?: string
   description?: string
   languages?: string
+  backgroundImage?: string
 }
 
 export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraProps

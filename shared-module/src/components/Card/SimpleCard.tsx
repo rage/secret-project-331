@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import CardSVG from "../../img/cardNext.svg"
 import { headingFont, typography } from "../../styles"
-import { cardHeight, cardMaxWidth } from "../../styles/constants"
+import { cardMaxWidth } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 
 import { CardExtraProps } from "."
@@ -16,7 +16,7 @@ export interface BackgroundProps {
 
 export const BackgroundStyles = ({ bg }: BackgroundProps) => {
   const CARD_BACKGROUND_STYLES = `
-    background: ${bg ? bg : "#fff"};
+    background-color: ${bg ? bg : "#fff"};
   `
   return CARD_BACKGROUND_STYLES
 }
@@ -115,15 +115,11 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, tim
     <div
       className={css`
         max-width: ${cardMaxWidth}em;
-        height: ${cardHeight * 0.75}em;
         border-radius: 1px;
         position: relative;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         background: #48cfad;
-
-        ${respondToOrLarger.sm} {
-          height: ${cardHeight}em;
-        }
+        aspect-ratio: 1/1;
       `}
     >
       <CardContentWrapper bg={bg}>

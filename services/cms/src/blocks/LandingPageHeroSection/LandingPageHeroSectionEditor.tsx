@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import {
   BlockIcon,
@@ -20,7 +19,6 @@ import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
 } from "../../shared-module/utils/constants"
-import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 import BlockWrapper from "../BlockWrapper"
 
 import { LandingPageHeroSectionAttributes } from "."
@@ -38,6 +36,14 @@ const placeHolderFixHeightStyles = css`
   margin-bottom: 1rem !important;
 `
 
+const DEFAULT_BACKGROUND_COLORS = [
+  { color: "#FFFFFF", name: "white" },
+  { color: "#663399", name: "rebeccapurple" },
+  { color: baseTheme.colors.blue[100], name: "lightblue" },
+]
+
+const WHITE = "#FFFFFF"
+
 const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSectionAttributes>> = ({
   clientId,
   attributes,
@@ -54,7 +60,15 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
               icon={<BlockIcon icon={icon} />}
               label="Background image"
             >
-              Remove
+              <Button
+                variant="tertiary"
+                size="medium"
+                onClick={() => {
+                  setAttributes({ backgroundImage: undefined })
+                }}
+              >
+                Remove
+              </Button>
             </Placeholder>
           ) : (
             <MediaPlaceholder
@@ -83,14 +97,10 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
           >
             <ColorPalette
               disableCustomColors={false}
-              value={attributes.backgroundColor ?? "#FFFFFF"}
+              value={attributes.backgroundColor ?? WHITE}
               onChange={(backgroundColor) => setAttributes({ backgroundColor })}
               clearable={false}
-              colors={[
-                { color: "#FFFFFF", name: "white" },
-                { color: "#663399", name: "rebeccapurple" },
-                { color: baseTheme.colors.blue[100], name: "lightblue" },
-              ]}
+              colors={DEFAULT_BACKGROUND_COLORS}
             />
           </Placeholder>
         </PanelBody>
@@ -107,7 +117,7 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
             ${attributes.backgroundImage &&
             `background-image: url("${attributes.backgroundImage}");
             background-repeat: no-repeat;
-            background-position: center;`}
+            background-position: center center;`}
             width: 100%;
             border-radius: 1px;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);

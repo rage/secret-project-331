@@ -10,6 +10,7 @@ import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } 
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { cardMaxWidth } from "../../../../shared-module/styles/constants"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { stringToRandomNumber } from "../../../../shared-module/utils/strings"
 import { withMultipleClassNames } from "../../../../shared-module/utils/styles"
@@ -73,21 +74,17 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
           className={css`
             @supports (display: grid) {
               display: grid;
-              grid-gap: 75px;
+              grid-gap: 50px;
               max-width: 1075px;
               margin: 0 auto;
-
-              align-content: space-around;
-              /* On small screens allow the cards to be really narrow */
               grid-template-columns: 1fr;
-              grid-auto-rows: 1fr;
-              /*
-            Automatically place the cards on the grid so that they resize based on content,
-            are all the same height, and don't get narrower than 500px.
-            */
-              @media only screen and (min-width: 500px) {
-                grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-                grid-auto-rows: 1fr;
+
+              ${respondToOrLarger.md} {
+                grid-template-columns: 1fr 1fr;
+                grid-gap: 40px;
+              }
+              ${respondToOrLarger.lg} {
+                grid-gap: 75px;
               }
             }
           `}
@@ -100,8 +97,12 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
               return (
                 <div
                   className={css`
+                    max-width: calc(${cardMaxWidth}rem / 1.1);
+                    ${respondToOrLarger.md} {
+                      max-width: ${cardMaxWidth}rem;
+                    }
+
                     width: 100%;
-                    max-width: ${cardMaxWidth}em;
                     /* Basic styles for browsers without css grid support */
                     margin: 0 auto;
                     margin-bottom: 1rem;
@@ -112,6 +113,9 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                   key={chapter.id}
                 >
                   <ChapterGridCard
+                    backgroundImage={
+                      "http://project-331.local/api/v0/files/course/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/images/xblEKRBdiD5b5PVizOnxvw8X7qzrJD.svg"
+                    }
                     bg={randomizedColor}
                     now={now}
                     chapter={chapter}

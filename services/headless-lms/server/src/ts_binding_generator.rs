@@ -114,6 +114,11 @@ fn ts_binding_generator() {
         feedback::FeedbackCount,
         feedback::NewFeedback,
 
+        library::grading::StudentExerciseSlideSubmission,
+        library::grading::StudentExerciseSlideSubmissionResult,
+        library::grading::StudentExerciseTaskSubmission,
+        library::grading::StudentExerciseTaskSubmissionResult,
+
         organizations::Organization,
 
         page_history::PageHistory,
@@ -154,16 +159,12 @@ fn ts_binding_generator() {
         exercise_slide_submissions::ExerciseSlideSubmissionCount,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByWeekAndHour,
-        exercise_slide_submissions::StudentExerciseSlideSubmission,
-        exercise_slide_submissions::StudentExerciseSlideSubmissionResult,
 
         exercise_task_gradings::ExerciseTaskGrading,
         exercise_task_gradings::ExerciseTaskGradingResult,
         exercise_task_gradings::UserPointsUpdateStrategy,
 
         exercise_task_submissions::ExerciseTaskSubmission,
-        exercise_task_submissions::StudentExerciseTaskSubmission,
-        exercise_task_submissions::StudentExerciseTaskSubmissionResult,
         exercise_task_submissions::SubmissionInfo,
 
         roles::RoleUser,

@@ -843,8 +843,6 @@
 <span id="841">841</span>
 <span id="842">842</span>
 <span id="843">843</span>
-<span id="844">844</span>
-<span id="845">845</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -872,19 +870,17 @@
     <span class="ident">exercise_slide_submissions</span>::{
         <span class="ident">ExerciseSlideSubmission</span>, <span class="ident">ExerciseSlideSubmissionCount</span>,
         <span class="ident">ExerciseSlideSubmissionCountByExercise</span>, <span class="ident">ExerciseSlideSubmissionCountByWeekAndHour</span>,
-        <span class="ident">StudentExerciseSlideSubmissionResult</span>,
     },
     <span class="ident">exercise_slides::CourseMaterialExerciseSlide</span>,
     <span class="ident">exercise_task_gradings</span>::{<span class="ident">ExerciseTaskGrading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
-    <span class="ident">exercise_task_submissions</span>::{
-        <span class="ident">ExerciseTaskSubmission</span>, <span class="ident">StudentExerciseTaskSubmissionResult</span>, <span class="ident">SubmissionInfo</span>,
-    },
+    <span class="ident">exercise_task_submissions</span>::{<span class="ident">ExerciseTaskSubmission</span>, <span class="ident">SubmissionInfo</span>},
     <span class="ident">exercise_tasks</span>::{<span class="ident">CourseMaterialExerciseTask</span>, <span class="ident">ExerciseTask</span>},
     <span class="ident">exercises</span>::{
         <span class="ident">ActivityProgress</span>, <span class="ident">CourseMaterialExercise</span>, <span class="ident">Exercise</span>, <span class="ident">ExerciseStatus</span>, <span class="ident">GradingProgress</span>,
     },
     <span class="ident">feedback</span>::{<span class="ident">Feedback</span>, <span class="ident">FeedbackBlock</span>, <span class="ident">FeedbackCount</span>},
     <span class="ident">glossary::Term</span>,
+    <span class="ident">library::grading</span>::{<span class="ident">StudentExerciseSlideSubmissionResult</span>, <span class="ident">StudentExerciseTaskSubmissionResult</span>},
     <span class="ident">organizations::Organization</span>,
     <span class="ident">page_history</span>::{<span class="ident">HistoryChangeReason</span>, <span class="ident">PageHistory</span>},
     <span class="ident">pages</span>::{
@@ -1020,6 +1016,7 @@
         <span class="ident">exercise_id</span>: <span class="ident">id</span>,
         <span class="ident">user_id</span>: <span class="ident">id</span>,
         <span class="ident">exercise_slide_id</span>: <span class="ident">id</span>,
+        <span class="ident">user_points_update_strategy</span>: <span class="ident">UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints</span>,
     };
     <span class="kw">let</span> <span class="ident">exercise_task_submission</span> <span class="op">=</span> <span class="ident">ExerciseTaskSubmission</span> {
         <span class="ident">id</span>,
@@ -1045,7 +1042,6 @@
         <span class="ident">grading_priority</span>: <span class="number">1</span>,
         <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">80.0</span>),
         <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
-        <span class="ident">user_points_update_strategy</span>: <span class="ident">UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints</span>,
         <span class="ident">unscaled_score_given</span>: <span class="prelude-val">Some</span>(<span class="number">80.0</span>),
         <span class="ident">unscaled_score_maximum</span>: <span class="prelude-val">Some</span>(<span class="number">100</span>),
         <span class="ident">grading_started_at</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>),

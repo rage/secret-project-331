@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["copying",""]]});
+initSidebarItems({"mod":[["copying",""],["grading",""]]});

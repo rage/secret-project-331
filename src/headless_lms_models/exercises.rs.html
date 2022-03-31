@@ -622,6 +622,14 @@
 <span id="620">620</span>
 <span id="621">621</span>
 <span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">course_instances</span>, <span class="ident">exams</span>,
     <span class="ident">exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user</span>,
@@ -709,26 +717,34 @@ As close as possible to LTI&#39;s activity progress for compatibility: &lt;https
     <span class="ident">Completed</span>,
 }
 
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ActivityProgress</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident">ActivityProgress::Initialized</span>
+    }
+}
+
 <span class="doccomment">/**
 
 Tells what&#39;s the status of the grading progress for a user and exercise.
 
 As close as possible LTI&#39;s grading progress for compatibility: &lt;https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress&gt;
 */</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">sqlx::Type</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(
+    <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Ord</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">sqlx::Type</span>,
+)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;grading_progress&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;kebab-case&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GradingProgress</span> {
-    <span class="doccomment">/// The grading process is completed; the score value, if any, represents the current Final Grade;</span>
-    <span class="ident">FullyGraded</span>,
-    <span class="doccomment">/// Final Grade is pending, but does not require manual intervention; if a Score value is present, it indicates the current value is partial and may be updated.</span>
-    <span class="ident">Pending</span>,
-    <span class="doccomment">/// Final Grade is pending, and it does require human intervention; if a Score value is present, it indicates the current value is partial and may be updated during the manual grading.</span>
-    <span class="ident">PendingManual</span>,
     <span class="doccomment">/// The grading could not complete.</span>
     <span class="ident">Failed</span>,
     <span class="doccomment">/// There is no grading process occurring; for example, the student has not yet made any submission.</span>
     <span class="ident">NotReady</span>,
+    <span class="doccomment">/// Final Grade is pending, and it does require human intervention; if a Score value is present, it indicates the current value is partial and may be updated during the manual grading.</span>
+    <span class="ident">PendingManual</span>,
+    <span class="doccomment">/// Final Grade is pending, but does not require manual intervention; if a Score value is present, it indicates the current value is partial and may be updated.</span>
+    <span class="ident">Pending</span>,
+    <span class="doccomment">/// The grading process is completed; the score value, if any, represents the current Final Grade;</span>
+    <span class="ident">FullyGraded</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">GradingProgress</span> {

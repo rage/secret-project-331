@@ -154,9 +154,6 @@ test("create quizzes test", async ({ page }) => {
   await frame.fill(`label:has-text("Failure message") input`, `no`)
   await closeModal(page, frame)
   await frame.click(`[aria-label="Option 2"]`)
-  // await page.evaluate(() => {
-  //   window.scrollBy(0, -300)
-  // })
   await frame.check(`input[type="checkbox"]`)
   await frame.fill(`label:has-text("Option title") input`, `correct`)
   await frame.fill(`label:has-text("Success message") input`, `yes`)
@@ -193,6 +190,10 @@ test("create quizzes test", async ({ page }) => {
   await closeModal(page, frame2)
   await frame2.click(`[aria-label="Option 2"]`)
   await frame2.check(`input[type="checkbox"]`)
+  // TODO: Figure out why clicking the option makes screen jump upwards
+  await page.evaluate(() => {
+    window.scrollBy(0, 300)
+  })
   await frame2.fill(`label:has-text("Option title") input`, `correct`)
   await frame2.fill(`label:has-text("Success message") input`, `yes`)
   await closeModal(page, frame2)
@@ -218,6 +219,10 @@ test("create quizzes test", async ({ page }) => {
   await closeModal(page, frame3)
   await frame3.click(`[aria-label="Option 2"]`)
   await frame3.check(`input[type="checkbox"]`)
+  // TODO: Figure out why clicking the option makes screen jump upwards
+  await page.evaluate(() => {
+    window.scrollBy(0, 300)
+  })
   await frame3.fill(`label:has-text("Option title") input`, `correct`)
   await frame3.fill(`label:has-text("Success message") input`, `yes`)
   await closeModal(page, frame3)

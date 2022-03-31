@@ -10,7 +10,7 @@ If you are having problems with git opening some things to be edited with vim, y
 
 The repo includes helper scripts to help with common tasks.
 
-- `bin/merge-origin-master`: Allows you to merge the master to your current branch from GitHub without the requirement to switch branches.
+- `bin/git-merge-origin-master`: Allows you to merge the master to your current branch from GitHub without the requirement to switch branches.
 - `bin/git-new-feature-branch <branch-name>`: Creates a new feature branch from the master branch on GitHub
 - `bin/git-checkout-branch-from-github <branch-name>`: Checkouts a branch from GitHub. The branch name needs to exactly match the branch name on GitHub.
 - `bin/git-push-new-branch-to-github`: Pushes the current branch to GitHub and configures it so that you can next time push the branch with just `git push`.

@@ -334,7 +334,7 @@ async fn main() -> Result<()> {
     info!("inserting sample exams");
     create_exam(
         &mut conn,
-        "Ongoing ends soon",
+        "Ongoing ends soon".to_string(),
         Some(Utc::now()),
         Some(Utc::now() + Duration::minutes(1)),
         120,
@@ -346,7 +346,7 @@ async fn main() -> Result<()> {
     .await?;
     create_exam(
         &mut conn,
-        "Ongoing short timer",
+        "Ongoing short timer".to_string(),
         Some(Utc::now()),
         Some(Utc::now() + Duration::minutes(120)),
         1,
@@ -358,7 +358,7 @@ async fn main() -> Result<()> {
     .await?;
     create_exam(
         &mut conn,
-        "Starting soon",
+        "Starting soon".to_string(),
         Some(Utc::now() + Duration::minutes(5)),
         Some(Utc::now() + Duration::days(30)),
         1,
@@ -370,7 +370,7 @@ async fn main() -> Result<()> {
     .await?;
     create_exam(
         &mut conn,
-        "Over",
+        "Over".to_string(),
         Some(Utc::now() - Duration::days(7)),
         Some(Utc::now() - Duration::minutes(30)),
         1,
@@ -392,6 +392,7 @@ async fn main() -> Result<()> {
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: false,
+        is_test_mode: false,
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance) = courses::insert_course(
         &mut conn,
@@ -436,6 +437,7 @@ async fn main() -> Result<()> {
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: false,
+        is_test_mode: false,
     };
     let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
         courses::insert_course(
@@ -471,6 +473,7 @@ async fn main() -> Result<()> {
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: true,
+        is_test_mode: false,
     };
     courses::insert_course(
         &mut conn,
@@ -741,6 +744,71 @@ async fn main() -> Result<()> {
                 ]
               }
             ),
+        },
+    )
+    .await?;
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice, long text".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
+            width: 500,
+            data: serde_json::json!(
+            {
+              "id": "fd0221d1-a205-42d0-b187-3ead6a1a0e6e",
+              "courseId": "5209f752-9db9-4daf-a7bc-64e21987b719",
+              "body": "Short questions, long answers",
+              "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+              "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+              "part": 1,
+              "section": 1,
+              "title": "General questions",
+              "tries": 1,
+              "triesLimited": false,
+              "items": [
+                  {
+                      "id": "88ff824f-8aa2-4629-b727-86f98092ab22",
+                      "body": "select shortest answer",
+                      "direction": "row",
+                      "formatRegex": null,
+                      "maxLabel": null,
+                      "maxValue": null,
+                      "maxWords": null,
+                      "minLabel": null,
+                      "minValue": null,
+                      "minWords": null,
+                      "multi": false,
+                      "order": 1,
+                      "quizId": "6160b703-0c27-448b-84aa-1f0d23a037a7",
+                      "title": "Choose the short answer",
+                      "type": "multiple-choice",
+                      "options": [
+                          {
+                              "id": "d174aecf-bb77-467f-b1e7-92a0e54af29f",
+                              "body": "short answer",
+                              "order": 1,
+                              "title": null,
+                              "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                          },
+                          {
+                              "id": "45a3c513-5dd9-4239-96f1-3dd1f53379cc",
+                              "body": "very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long answer",
+                              "order": 2,
+                              "title": null,
+                              "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                          },
+                          {
+                              "id": "2176ea44-46c6-48d6-a2be-1f8188b06545",
+                              "body": "very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long answer",
+                              "order": 3,
+                              "title": null,
+                              "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                          },
+                          ]
+                      }
+                  ]
+                }
+              ),
         },
     )
     .await?;
@@ -1259,6 +1327,7 @@ async fn seed_sample_course(
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: false,
+        is_test_mode: false,
     };
     let (course, _front_page, default_instance) = courses::insert_course(
         conn,
@@ -1342,7 +1411,7 @@ async fn seed_sample_course(
     )
     .await?;
 
-    let (_page, _) = pages::insert(
+    let (_page, _) = pages::insert_course_page(
         conn,
         course.id,
         "/welcome",
@@ -2175,6 +2244,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         teacher_in_charge_email: "admin@example.com".to_string(),
         description: "description".to_string(),
         is_draft: false,
+        is_test_mode: false,
     };
     let (course, front_page, _default_instance) = courses::insert_course(
         conn,
@@ -2214,7 +2284,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
-    let (_page, _history) = pages::insert(conn, course.id, "/faq", "FAQ", 1, admin).await?;
+    let (_page, _history) =
+        pages::insert_course_page(conn, course.id, "/faq", "FAQ", 1, admin).await?;
 
     // Chapter-1
     let new_chapter = NewChapter {
@@ -2688,7 +2759,7 @@ async fn submit_and_grade(
 
 async fn create_exam(
     conn: &mut PgConnection,
-    name: &str,
+    name: String,
     starts_at: Option<DateTime<Utc>>,
     ends_at: Option<DateTime<Utc>>,
     time_minutes: i32,
@@ -2699,16 +2770,9 @@ async fn create_exam(
 ) -> Result<()> {
     exams::insert(
         conn,
-        NewExam {
+        &NewExam {
             id: exam_id,
             name,
-            instructions: serde_json::json!([GutenbergBlock::block_with_name_and_attributes(
-                "core/paragraph",
-                attributes!{
-                  "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum felis nisi, vitae commodo mi venenatis in. Mauris hendrerit lacinia augue ut hendrerit. Vestibulum non tellus mattis, convallis magna vel, semper mauris. Maecenas porta, arcu eget porttitor sagittis, nulla magna auctor dolor, sed tempus sem lacus eu tortor. Ut id diam quam. Etiam quis sagittis justo. Quisque sagittis dolor vitae felis facilisis, ut suscipit ipsum malesuada. Nulla tempor ultricies erat ut venenatis. Ut pulvinar lectus non mollis efficitur.",
-                  "dropCap": false
-                },
-            )]),
             starts_at,
             ends_at,
             time_minutes,

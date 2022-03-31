@@ -206,6 +206,7 @@
   "swedish": "Swedish",
   "teacher-in-charge-email": "Teacher in charge email",
   "teacher-in-charge-name": "Teacher in charge name",
+  "test": "Test course",
   "text-field-label-chapter-number": "Chapter number",
   "text-field-label-description": "Description",
   "text-field-label-name": "Name",
@@ -258,5 +259,15 @@
   "label-url-path": "URL path",
   "label-actions": "Actions",
   "label-opens-at": "Opens at",
-  "label-deadline": "Deadline"
+  "label-deadline": "Deadline",
+  "label-starts-at": "Starts at",
+  "label-ends-at": "Ends at",
+  "label-time-minutes": "Time in minutes",
+  "label-name": "Name",
+  "duplicate": "duplicate",
+  "exam-created-succesfully": "exam created succesfully",
+  "exam-duplicated-succesfully": "exam duplicated succesfully",
+  "new-exam": "New Exam",
+  "new-course-instance-dialog": "New Course Instance dialog",
+  "new-exam-dialog": "New Exam dialog"
 }

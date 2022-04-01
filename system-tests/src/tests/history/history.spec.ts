@@ -168,7 +168,7 @@ test("history test", async ({ page, headless }) => {
   await Promise.all([page.waitForNavigation(), page.click(`a:has-text("History")`)])
 
   const stableElement = await page.waitForSelector("text=core/paragraph")
-/*
+  /*
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
@@ -245,7 +245,7 @@ test("history test", async ({ page, headless }) => {
   await page.click("text=Page edit history") // deselect restore
   await page.waitForSelector("[aria-label='page 1'][aria-current='true']")
   await page.waitForTimeout(100)
-/*
+  /*
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,

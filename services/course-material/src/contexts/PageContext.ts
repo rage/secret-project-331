@@ -10,6 +10,7 @@ export const defaultPageState: PageState = {
   pageData: null,
   settings: null,
   exam: null,
+  isTest: false,
 }
 
 const PageContext = React.createContext<PageState>(defaultPageState)

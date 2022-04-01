@@ -40,6 +40,7 @@ export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVa
           scaleMin: item.minValue ?? 0,
           array: array,
           advancedEditing: false,
+          advancedEditingYAxisLocation: undefined,
           testingRegex: false,
           testingFormatRegex: false,
           regex: item.validityRegex ?? "",
@@ -57,6 +58,8 @@ export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVa
   .handleAction(setAdvancedEditing, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.itemId].advancedEditing = action.payload.editing
+      draftState[action.payload.itemId].advancedEditingYAxisLocation =
+        action.payload.mouseClickYPosition
     })
   })
 
@@ -124,6 +127,7 @@ export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVa
     return produce(state, (draftState) => {
       draftState[action.payload.itemId] = {
         advancedEditing: false,
+        advancedEditingYAxisLocation: undefined,
         regex: "",
         formatRegex: "",
         validityRegexTestAnswer: "",

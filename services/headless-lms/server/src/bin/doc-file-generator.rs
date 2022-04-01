@@ -20,24 +20,22 @@ use headless_lms_models::{
     course_instances::{ChapterScore, CourseInstance, Points},
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
-    exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions},
+    exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions, OrgExam},
     exercise_services::ExerciseService,
     exercise_slide_submissions::{
         ExerciseSlideSubmission, ExerciseSlideSubmissionCount,
         ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
-        StudentExerciseSlideSubmissionResult,
     },
     exercise_slides::CourseMaterialExerciseSlide,
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
-    exercise_task_submissions::{
-        ExerciseTaskSubmission, StudentExerciseTaskSubmissionResult, SubmissionInfo,
-    },
+    exercise_task_submissions::{ExerciseTaskSubmission, SubmissionInfo},
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     exercises::{
         ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
     },
     feedback::{Feedback, FeedbackBlock, FeedbackCount},
     glossary::Term,
+    library::grading::{StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult},
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
@@ -173,6 +171,7 @@ fn main() {
         exercise_id: id,
         user_id: id,
         exercise_slide_id: id,
+        user_points_update_strategy: UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
     };
     let exercise_task_submission = ExerciseTaskSubmission {
         id,
@@ -198,7 +197,6 @@ fn main() {
         grading_priority: 1,
         score_given: Some(80.0),
         grading_progress: GradingProgress::FullyGraded,
-        user_points_update_strategy: UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
         unscaled_score_given: Some(80.0),
         unscaled_score_maximum: Some(100),
         grading_started_at: Some(date_time),
@@ -233,6 +231,7 @@ fn main() {
         course_language_group_id: id,
         description: Some("Example".to_string()),
         is_draft: true,
+        is_test_mode: false,
     };
     let chapter = Chapter {
         id,
@@ -430,7 +429,8 @@ fn main() {
             page: page.clone(),
             instance: Some(course_instance.clone()),
             settings: Some(user_course_settings.clone()),
-            was_redirected: false
+            was_redirected: false,
+            is_test_mode: false
         }
     );
     write_docs!(CourseInstance, course_instance.clone());
@@ -658,6 +658,18 @@ fn main() {
             name: "Course exam".to_string()
         }]
     );
+    write_docs!(
+        Vec<OrgExam>,
+        vec![OrgExam {
+            id,
+            organization_id: id,
+            name: "Org exam".to_string(),
+            instructions: page.content.clone(),
+            time_minutes: 120,
+            starts_at: Some(date_time),
+            ends_at: Some(date_time)
+        }]
+    );
     write_docs!(Page, page.clone());
     write_docs!(
         Vec<PageHistory>,
@@ -802,6 +814,7 @@ fn main() {
             instructions: page.content.clone()
         }
     );
+    write_docs!(bool, false);
     write_docs!(
         OEmbedResponse,
         OEmbedResponse {

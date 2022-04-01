@@ -1,4 +1,3 @@
-import styled from "@emotion/styled"
 import { Checkbox, FormControl, FormControlLabel } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -13,11 +12,7 @@ import {
 } from "../../../../store/editor/options/optionActions"
 import { useTypedSelector } from "../../../../store/store"
 import MarkdownEditor from "../../../MarkdownEditor"
-
-const ModalContent = styled.div`
-  padding: 1rem;
-  display: flex;
-`
+import { ModalContent } from "../../../Shared/Modal"
 
 interface OptionEditorProps {
   option: NormalizedQuizItemOption

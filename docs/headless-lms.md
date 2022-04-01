@@ -277,3 +277,15 @@ Usually this is because the base image for the headless-lms container has been u
 ## Logging
 
 Use these `trace!, debug!, info!, warn!, and error!` to log, see format from https://tracing.rs/tracing/index.html#recording-fields
+
+To log a variable with its debug formatting:
+
+```rust
+error!(?response_body, "Grading request returned an unsuccesful status code");
+```
+
+To log a variable with its display formatting:
+
+```rust
+error!(%response_body, "Grading request returned an unsuccesful status code");
+```

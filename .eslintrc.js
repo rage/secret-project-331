@@ -199,6 +199,7 @@ module.exports = {
           "setValue",
           "getValues",
         ],
+        ignoreProperty: ["type"],
       },
     ],
     curly: "error",

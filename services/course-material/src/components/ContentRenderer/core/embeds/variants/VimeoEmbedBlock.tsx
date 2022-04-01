@@ -7,6 +7,7 @@ import { EmbedAttributes } from "../../../../../../types/GutenbergBlockAttribute
 import BreakFromCentered from "../../../../../shared-module/components/Centering/BreakFromCentered"
 import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../shared-module/components/Spinner"
+import { baseTheme } from "../../../../../shared-module/styles/theme"
 import aspectRatioFromClassName from "../../../../../utils/aspectRatioFromClassName"
 
 export const VimeoEmbedBlock: React.FC<EmbedAttributes> = (props) => {
@@ -39,17 +40,33 @@ export const VimeoEmbedBlock: React.FC<EmbedAttributes> = (props) => {
         <BreakFromCentered sidebar={false}>
           <div
             className={css`
-              iframe {
-                display: block;
-                width: 100%;
-                aspect-ratio: ${aspectRatioFromClassName(props.className)};
-                margin: 4rem 0;
-              }
+              margin: 4rem 0;
             `}
-            dangerouslySetInnerHTML={{
-              __html: embedHtml,
-            }}
-          ></div>
+          >
+            <div
+              className={css`
+                iframe {
+                  display: block;
+                  width: 100%;
+                  aspect-ratio: ${aspectRatioFromClassName(props.className)};
+                }
+              `}
+              dangerouslySetInnerHTML={{
+                __html: embedHtml,
+              }}
+            ></div>
+            <figcaption
+              className={css`
+                text-align: center;
+                font-size: ${baseTheme.fontSizes[0]}px;
+                margin-top: 0.5em;
+                margin-bottom: 1em;
+                color: ${baseTheme.colors.grey[400]};
+              `}
+            >
+              {props.caption}
+            </figcaption>
+          </div>
         </BreakFromCentered>
       )}
       {!embedHtml && !fetching && (

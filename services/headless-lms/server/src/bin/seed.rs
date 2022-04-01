@@ -2751,7 +2751,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             content: serde_json::json!([
                 paragraph(
                     "Second chapters third page",
-                    Uuid::new_v5(&course.id, b"d6b52ddc-6c34-4a59-9a59-7e8594441007")
+                    Uuid::new_v5(&course.id, b"4ebd0208-8328-5d69-8c44-ec50939c0967")
                 ),
                 quizzes_exercise_block_5,
             ]),
@@ -2774,7 +2774,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             content: serde_json::json!([
                 paragraph(
                     "Second chapters fourth page",
-                    Uuid::new_v5(&course.id, b"d6b52ddc-6c34-4a59-9a59-7e8594441007")
+                    Uuid::new_v5(&course.id, b"4841cabb-77a0-53cf-b539-39fbd060e73b")
                 ),
                 quizzes_exercise_block_6,
             ]),
@@ -2797,7 +2797,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             content: serde_json::json!([
                 paragraph(
                     "Second chapters fifth page",
-                    Uuid::new_v5(&course.id, b"d6b52ddc-6c34-4a59-9a59-7e8594441007")
+                    Uuid::new_v5(&course.id, b"9a614406-e1b4-5920-8e0d-54d1a3ead5f3")
                 ),
                 quizzes_exercise_block_7,
             ]),
@@ -2820,7 +2820,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             content: serde_json::json!([
                 paragraph(
                     "Second chapters sixth page",
-                    Uuid::new_v5(&course.id, b"771b9c61-dbc9-4266-a980-dadc853455c9")
+                    Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27")
                 ),
                 quizzes_exercise_block_8,
             ]),

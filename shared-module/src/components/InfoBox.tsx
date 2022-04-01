@@ -1,30 +1,30 @@
 import styled from "@emotion/styled"
 import React from "react"
 
+import { respondToOrLarger } from "../styles/respond"
+
 const Wrapper = styled.aside`
-  @media (min-width: 711px) {
+  ${respondToOrLarger.md} {
     width: 100vw;
   }
 
-  @media (min-width: 425px) {
+  ${respondToOrLarger.xxs} {
     width: 100vw;
   }
 
-  @media (min-width: 1px) {
-    width: 100vw;
-    position: relative;
-    left: calc(-50vw + 50%);
-    padding: 1rem;
-    margin-bottom: 5rem;
-    margin-top: 4rem;
-    background: rgba(246, 235, 232, 0.5) none repeat scroll 0% 0%;
-    padding-left: 1rem;
-    padding-top: 3rem;
-    padding-bottom: 3rem;
-    min-height: 17em;
-    ul {
-      padding-inline-start: 40px;
-    }
+  width: 100vw;
+  position: relative;
+  left: calc(-50vw + 50%);
+  padding: 1rem;
+  margin-bottom: 5rem;
+  margin-top: 4rem;
+  background: rgba(246, 235, 232, 0.5) none repeat scroll 0% 0%;
+  padding-left: 1rem;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  min-height: 17em;
+  ul {
+    padding-inline-start: 40px;
   }
 `
 const Container = styled.div`
@@ -35,24 +35,24 @@ const Container = styled.div`
 `
 
 const Body = styled.div`
-  @media (min-width: 1px) {
-    padding-bottom: 0.5rem;
-    width: auto;
-    margin-left: 2em;
-  }
-  @media (min-width: 425px) {
-    padding-bottom: 0.5rem;
-    width: auto;
-    margin-left: 8em;
-  }
-  @media (min-width: 900px) {
-    padding-bottom: 0.5rem;
-    width: auto;
-    margin-left: 15em;
-  }
+  padding-bottom: 0.5rem;
+  width: auto;
   p {
     font-size: 1.125rem;
     line-height: 1.89;
+  }
+  ${respondToOrLarger.xxs} {
+    margin-left: 1.5em;
+    margin-right: 1.5em;
+  }
+  ${respondToOrLarger.xs} {
+    margin-left: 1em;
+    margin-right: 1em;
+  }
+  ${respondToOrLarger.md} {
+    padding-bottom: 0.5rem;
+    width: auto;
+    margin-left: 3em;
   }
 `
 export interface InfoBoxComponentProps {
@@ -66,7 +66,7 @@ const InfoBox: React.FC<InfoBoxComponentProps> = ({ title, bodyText }) => {
       <Container>
         <Body>
           <h3> {title}</h3>
-          {bodyText}
+          <p> {bodyText}</p>
         </Body>
         {/*Icon block here*/}
       </Container>

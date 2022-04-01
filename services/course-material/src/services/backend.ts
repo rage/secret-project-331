@@ -108,7 +108,7 @@ export const fetchCoursePageByPath = async (
     }
   })
   if (Object.keys(utmTags).length > 0) {
-    headers["UTM-Tags"] = JSON.stringify(utmTags)
+    headers["utm-tags"] = JSON.stringify(utmTags)
   }
 
   // Detect a browser controlled by automation (like headless chrome).
@@ -117,7 +117,7 @@ export const fetchCoursePageByPath = async (
   const browserControlledByAutomation = !!navigator.webdriver
   if (!browserControlledByAutomation) {
     // eslint-disable-next-line i18next/no-literal-string
-    headers["TOTALLY-NOT-A-BOT"] = "true"
+    headers["totally-not-a-bot"] = "true"
   }
 
   const response = await courseMaterialClient.get(`/courses/${courseSlug}/page-by-path${path}`, {

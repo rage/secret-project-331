@@ -70,7 +70,17 @@ ON CONFLICT (valid_for_date) DO NOTHING
     ",
         valid_for_date
     )
-    .execute(conn)
+    .execute(&mut *conn)
+    .await?;
+
+    // We no longer need the keys from the previous days, so lets delete them.
+    sqlx::query!(
+        "
+DELETE FROM page_visit_datum_daily_visit_hashing_keys WHERE valid_for_date < $1
+    ",
+        valid_for_date
+    )
+    .execute(&mut *conn)
     .await?;
     Ok(())
 }

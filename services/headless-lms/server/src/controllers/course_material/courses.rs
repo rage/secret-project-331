@@ -59,40 +59,6 @@ async fn get_course_page_by_path(
     req: HttpRequest,
 ) -> ControllerResult<web::Json<CoursePageWithUserData>> {
     let mut conn = pool.acquire().await?;
-    let headers = req.headers();
-    let user_agent = headers.get(header::USER_AGENT);
-    let bots = Bots::default();
-    let has_bot_user_agent = user_agent
-        .and_then(|ua| ua.to_str().ok())
-        .map(|ua| bots.is_bot(ua))
-        .unwrap_or(true);
-    // If this header is not set, the requester is considered a bot
-    let header_totally_not_a_bot = headers.get("TOTALLY-NOT-A-BOT");
-    let browser_admits_its_a_bot = header_totally_not_a_bot.is_none();
-    if has_bot_user_agent || browser_admits_its_a_bot {
-        warn!(
-            ?has_bot_user_agent,
-            ?browser_admits_its_a_bot,
-            ?user_agent,
-            ?header_totally_not_a_bot,
-            "The requester is a bot"
-        )
-    }
-
-    let user_agent_parser = woothee::parser::Parser::new();
-    let parsed_user_agent = user_agent
-        .and_then(|ua| ua.to_str().ok())
-        .and_then(|ua| user_agent_parser.parse(ua));
-
-    let ip: Option<IpAddr> = req
-        .connection_info()
-        .realip_remote_addr()
-        .and_then(|ip| ip.parse::<IpAddr>().ok());
-
-    let country = ip.and_then(|ip| ip_to_country_mapper.map_ip_to_country(&ip));
-
-    let utms = headers.get("UTM-Tags");
-    let referrer = headers.get("Orignal-Referrer");
 
     let (course_slug, raw_page_path) = params.into_inner();
     let path = if raw_page_path.starts_with('/') {
@@ -117,6 +83,21 @@ async fn get_course_page_by_path(
     )
     .await?;
 
+    let RequestInformation {
+        ip,
+        referrer,
+        utm_tags,
+        country,
+        user_agent,
+        has_bot_user_agent,
+        browser_admits_its_a_bot,
+        browser,
+        browser_version,
+        operating_system,
+        operating_system_version,
+        device_type,
+    } = derive_information_from_requester(req, ip_to_country_mapper)?;
+
     let course_or_exam_id = page_with_user_data
         .page
         .course_id
@@ -124,10 +105,7 @@ async fn get_course_page_by_path(
     let anonymous_identifier = generate_anonymous_identifier(
         &mut conn,
         GenerateAnonymousIdentifierInput {
-            user_agent: user_agent
-                .and_then(|ua| ua.to_str().ok())
-                .unwrap_or_default()
-                .to_string(),
+            user_agent,
             ip_address: ip.map(|ip| ip.to_string()).unwrap_or_default(),
             course_id: course_or_exam_id,
         },
@@ -139,21 +117,15 @@ async fn get_course_page_by_path(
         NewPageVisitDatum {
             course_id: page_with_user_data.page.course_id,
             page_id: page_with_user_data.page.id,
-            country: country.map(|c| c.to_string()),
-            browser: parsed_user_agent.as_ref().map(|ua| ua.name.to_string()),
-            browser_version: parsed_user_agent.as_ref().map(|ua| ua.version.to_string()),
-            operating_system: parsed_user_agent.as_ref().map(|ua| ua.os.to_string()),
-            operating_system_version: parsed_user_agent
-                .as_ref()
-                .map(|ua| ua.os_version.to_string()),
-            device_type: parsed_user_agent.as_ref().map(|ua| ua.category.to_string()),
-            referrer: referrer
-                .and_then(|r| r.to_str().ok())
-                .map(|r| r.to_string()),
+            country,
+            browser,
+            browser_version,
+            operating_system,
+            operating_system_version,
+            device_type,
+            referrer,
             is_bot: has_bot_user_agent || browser_admits_its_a_bot,
-            utm_tags: utms
-                .and_then(|utms| utms.to_str().ok())
-                .and_then(|utms| serde_json::to_value(utms).ok()),
+            utm_tags,
             anonymous_identifier,
             exam_id: page_with_user_data.page.exam_id,
         },
@@ -161,6 +133,95 @@ async fn get_course_page_by_path(
     .await?;
 
     Ok(web::Json(page_with_user_data))
+}
+
+struct RequestInformation {
+    ip: Option<IpAddr>,
+    user_agent: String,
+    referrer: Option<String>,
+    utm_tags: Option<serde_json::Value>,
+    country: Option<String>,
+    has_bot_user_agent: bool,
+    browser_admits_its_a_bot: bool,
+    browser: Option<String>,
+    browser_version: Option<String>,
+    operating_system: Option<String>,
+    operating_system_version: Option<String>,
+    device_type: Option<String>,
+}
+
+/// Used in get_course_page_by_path for path for anonymous visitor counts
+fn derive_information_from_requester(
+    req: HttpRequest,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
+) -> ControllerResult<RequestInformation> {
+    let headers = req.headers();
+    let user_agent = headers.get(header::USER_AGENT);
+    let bots = Bots::default();
+    let has_bot_user_agent = user_agent
+        .and_then(|ua| ua.to_str().ok())
+        .map(|ua| bots.is_bot(ua))
+        .unwrap_or(true);
+    // If this header is not set, the requester is considered a bot
+    let header_totally_not_a_bot = headers.get("totally-not-a-bot");
+    let browser_admits_its_a_bot = header_totally_not_a_bot.is_none();
+    if has_bot_user_agent || browser_admits_its_a_bot {
+        warn!(
+            ?has_bot_user_agent,
+            ?browser_admits_its_a_bot,
+            ?user_agent,
+            ?header_totally_not_a_bot,
+            "The requester is a bot"
+        )
+    }
+
+    let user_agent_parser = woothee::parser::Parser::new();
+    let parsed_user_agent = user_agent
+        .and_then(|ua| ua.to_str().ok())
+        .and_then(|ua| user_agent_parser.parse(ua));
+
+    let ip: Option<IpAddr> = req
+        .connection_info()
+        .realip_remote_addr()
+        .and_then(|ip| ip.parse::<IpAddr>().ok());
+
+    let country = ip
+        .and_then(|ip| ip_to_country_mapper.map_ip_to_country(&ip))
+        .map(|c| c.to_string());
+
+    let utm_tags = headers
+        .get("utm-tags")
+        .and_then(|utms| utms.to_str().ok())
+        .and_then(|utms| serde_json::to_value(utms).ok());
+    let referrer = headers
+        .get("Orignal-Referrer")
+        .and_then(|r| r.to_str().ok())
+        .map(|r| r.to_string());
+
+    let browser = parsed_user_agent.as_ref().map(|ua| ua.name.to_string());
+    let browser_version = parsed_user_agent.as_ref().map(|ua| ua.version.to_string());
+    let operating_system = parsed_user_agent.as_ref().map(|ua| ua.os.to_string());
+    let operating_system_version = parsed_user_agent
+        .as_ref()
+        .map(|ua| ua.os_version.to_string());
+    let device_type = parsed_user_agent.as_ref().map(|ua| ua.category.to_string());
+    Ok(RequestInformation {
+        ip,
+        user_agent: user_agent
+            .and_then(|ua| ua.to_str().ok())
+            .unwrap_or_default()
+            .to_string(),
+        referrer,
+        utm_tags,
+        country,
+        has_bot_user_agent,
+        browser_admits_its_a_bot,
+        browser,
+        browser_version,
+        operating_system,
+        operating_system_version,
+        device_type,
+    })
 }
 
 /**

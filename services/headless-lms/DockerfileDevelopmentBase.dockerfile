@@ -12,6 +12,7 @@ RUN git clone https://github.com/rui314/mold.git \
   && git checkout v1.0.0 \
   && make -j$(nproc)
 
+# Provides a mapping from ip to country
 RUN curl https://packages.ipfire.org/79842AA7CDBA7AE3-pub.asc | apt-key add - \
   && echo "deb     https://packages.ipfire.org/location bullseye/" > /etc/apt/sources.list.d/location.list \
   && apt-get update \

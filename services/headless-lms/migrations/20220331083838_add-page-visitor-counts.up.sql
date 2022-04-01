@@ -9,7 +9,7 @@ CREATE TABLE page_visit_datum_daily_visit_hashing_keys (
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON page_visit_datum_daily_visit_hashing_keys FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-COMMENT ON TABLE page_visit_datum_daily_visit_hashing_keys IS 'Stores daily rotated keys used for hashing the anonymous identifiers in page_visit_datum.';
+COMMENT ON TABLE page_visit_datum_daily_visit_hashing_keys IS 'Stores daily rotated keys used for hashing the anonymous identifiers in page_visit_datum. The key for the day is permanently deleted the next day.';
 COMMENT ON COLUMN page_visit_datum_daily_visit_hashing_keys.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN page_visit_datum_daily_visit_hashing_keys.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN page_visit_datum_daily_visit_hashing_keys.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';

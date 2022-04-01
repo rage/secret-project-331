@@ -1,4 +1,4 @@
-use std::{collections::HashMap, io::Read, net::IpAddr, path::Path};
+use std::{collections::HashMap, io::Read, net::IpAddr, path::Path, time::Instant};
 
 use std::env;
 
@@ -22,6 +22,7 @@ impl IpToCountryMapper {
         let mut lists = HashMap::new();
         if let Ok(ip_to_country_mapping_directory) = env::var("IP_TO_COUNTRY_MAPPING_DIRECTORY") {
             info!("Loading country to ip mapping");
+            let start = Instant::now();
             let path = Path::new(&ip_to_country_mapping_directory);
             if !path.exists() {
                 bail!("The folder specified in IP_TO_COUNTRY_MAPPING_DIRECTORY does not exist.");
@@ -58,6 +59,10 @@ impl IpToCountryMapper {
                         }
                     }
                 }
+                info!(
+                    elapsed_time = ?start.elapsed(),
+                    "Loaded country to ip mapping"
+                );
             }
         } else {
             warn!(
@@ -65,6 +70,7 @@ impl IpToCountryMapper {
             );
             // Not failing to allow running the backend without the lists
         }
+
         Ok(Self { lists })
     }
 

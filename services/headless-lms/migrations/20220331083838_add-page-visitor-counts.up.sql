@@ -5,7 +5,7 @@ CREATE TABLE page_visit_datum_daily_visit_hashing_keys (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   hashing_key BYTEA NOT NULL DEFAULT gen_random_bytes(255),
-  date DATE NOT NULL,
+  date DATE NOT NULL UNIQUE
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON page_visit_datum_daily_visit_hashing_keys FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -18,7 +18,8 @@ CREATE TABLE page_visit_datum (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  course_id UUID NOT NULL REFERENCES course(id),
+  course_id UUID REFERENCES courses(id),
+  exam_id UUID REFERENCES exams(id),
   page_id UUID NOT NULL REFERENCES pages(id),
   country VARCHAR(255),
   browser VARCHAR(255),
@@ -29,6 +30,7 @@ CREATE TABLE page_visit_datum (
   referrer VARCHAR(1024),
   is_bot BOOLEAN NOT NULL DEFAULT false,
   anonymous_identifier VARCHAR(255),
+  utm_tags JSONB
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON page_visit_datum FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

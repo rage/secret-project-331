@@ -1,8 +1,11 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
 
+use std::net::IpAddr;
+
 use actix_http::header;
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
+use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use isbot::Bots;
 use models::{
     chapters::{ChapterStatus, ChapterWithStatus},
@@ -12,6 +15,10 @@ use models::{
     feedback,
     feedback::NewFeedback,
     glossary::Term,
+    page_visit_datum::NewPageVisitDatum,
+    page_visit_datum_daily_visit_hashing_keys::{
+        generate_anonymous_identifier, GenerateAnonymousIdentifierInput,
+    },
     pages::{CoursePageWithUserData, Page, PageSearchRequest, PageSearchResult},
     proposed_page_edits::{self, NewProposedPageEdits},
     user_course_settings::UserCourseSettings,
@@ -43,22 +50,35 @@ If the page has moved and there's a redirection, this will still return the move
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 */
 #[generated_doc]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, ip_to_country_mapper))]
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
     req: HttpRequest,
 ) -> ControllerResult<web::Json<CoursePageWithUserData>> {
     let mut conn = pool.acquire().await?;
-    let user_agent = req.headers().get(header::USER_AGENT);
+    let headers = req.headers();
+    let user_agent = headers.get(header::USER_AGENT);
     let bots = Bots::default();
-    let is_bot = user_agent
+    let has_bot_user_agent = user_agent
         .map(|ua| ua.to_str().ok())
         .flatten()
         .map(|ua| bots.is_bot(ua))
         .unwrap_or(true);
-    dbg!(is_bot);
+    // If this header is not set, the requester is considered a bot
+    let header_totally_not_a_bot = headers.get("TOTALLY-NOT-A-BOT");
+    let browser_admits_its_a_bot = header_totally_not_a_bot.is_none();
+    if has_bot_user_agent || browser_admits_its_a_bot {
+        warn!(
+            ?has_bot_user_agent,
+            ?browser_admits_its_a_bot,
+            ?user_agent,
+            ?header_totally_not_a_bot,
+            "The requester is a bot"
+        )
+    }
 
     let user_agent_parser = woothee::parser::Parser::new();
     let parsed_user_agent = user_agent
@@ -66,7 +86,24 @@ async fn get_course_page_by_path(
         .flatten()
         .map(|ua| user_agent_parser.parse(ua))
         .flatten();
-    dbg!(parsed_user_agent);
+    dbg!(&parsed_user_agent);
+    let ip: Option<IpAddr> = req
+        .connection_info()
+        .realip_remote_addr()
+        .map(|ip| ip.parse::<IpAddr>().ok())
+        .flatten();
+
+    let country = ip
+        .map(|ip| ip_to_country_mapper.map_ip_to_country(&ip))
+        .flatten();
+
+    dbg!(&ip, country);
+
+    let utms = headers.get("UTM-Tags");
+    let referrer = headers.get("Orignal-Referrer");
+
+    dbg!(utms, referrer);
+
     let (course_slug, raw_page_path) = params.into_inner();
     let path = if raw_page_path.starts_with('/') {
         raw_page_path
@@ -87,6 +124,55 @@ async fn get_course_page_by_path(
         Act::View,
         user.map(|u| u.id),
         Res::Page(page_with_user_data.page.id),
+    )
+    .await?;
+
+    let course_or_exam_id = page_with_user_data.page.course_id.unwrap_or_else(|| {
+        return page_with_user_data
+            .page
+            .exam_id
+            .unwrap_or_else(|| Uuid::nil());
+    });
+    let anonymous_identifier = generate_anonymous_identifier(
+        &mut conn,
+        GenerateAnonymousIdentifierInput {
+            user_agent: user_agent
+                .map(|ua| ua.to_str().ok())
+                .flatten()
+                .unwrap_or_default()
+                .to_string(),
+            ip_address: ip.map(|ip| ip.to_string()).unwrap_or_default(),
+            course_id: course_or_exam_id,
+        },
+    )
+    .await?;
+
+    models::page_visit_datum::insert(
+        &mut conn,
+        NewPageVisitDatum {
+            course_id: page_with_user_data.page.course_id,
+            page_id: page_with_user_data.page.id,
+            country: country.map(|c| c.to_string()),
+            browser: parsed_user_agent.as_ref().map(|ua| ua.name.to_string()),
+            browser_version: parsed_user_agent.as_ref().map(|ua| ua.version.to_string()),
+            operating_system: parsed_user_agent.as_ref().map(|ua| ua.os.to_string()),
+            operating_system_version: parsed_user_agent
+                .as_ref()
+                .map(|ua| ua.os_version.to_string()),
+            device_type: parsed_user_agent.as_ref().map(|ua| ua.category.to_string()),
+            referrer: referrer
+                .map(|r| r.to_str().ok())
+                .flatten()
+                .map(|r| r.to_string()),
+            is_bot: has_bot_user_agent || browser_admits_its_a_bot,
+            utm_tags: utms
+                .map(|utms| utms.to_str().ok())
+                .flatten()
+                .map(|utms| serde_json::to_value(utms).ok())
+                .flatten(),
+            anonymous_identifier,
+            exam_id: page_with_user_data.page.exam_id,
+        },
     )
     .await?;
 

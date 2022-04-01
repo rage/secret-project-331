@@ -59,11 +59,11 @@ impl IpToCountryMapper {
                         }
                     }
                 }
-                info!(
-                    elapsed_time = ?start.elapsed(),
-                    "Loaded country to ip mapping"
-                );
             }
+            info!(
+                elapsed_time = ?start.elapsed(),
+                "Loaded country to ip mapping"
+            );
         } else {
             warn!(
                 "IP_TO_COUNTRY_MAPPING_DIRECTORY not specified, not loading ip to country mappings."

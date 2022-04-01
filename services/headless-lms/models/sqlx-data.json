@@ -551,16 +551,6 @@
       "nullable": []
     }
   },
-  "0b8c4705a77d9ac8cca192ce62f98cddf054bcb9b067715f25ded813bddaf3c9": {
-    "query": "\nINSERT INTO chapters (\n    id,\n    name,\n    course_id,\n    chapter_number,\n    front_page_id,\n    opens_at,\n    chapter_image_path,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  name,\n  $1,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  chapter_image_path,\n  id\nFROM chapters\nWHERE (course_id = $2);\n    ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "0c395da11ae62743051ec6f45ac48e2a1a450c36bd37fbecf8ccb71a9fefdd7b": {
     "query": "\nSELECT *\nFROM user_course_settings\nWHERE user_id = $1\n  AND course_language_group_id = $2\n  AND deleted_at IS NULL;\n        ",
     "describe": {
@@ -1937,117 +1927,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
-    }
-  },
-  "238075963ee05a9a4189edfea582c923ab42bd8ba6eac494447ec5d57d3d5d55": {
-    "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    is_test_mode\n  )\nVALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8, $9)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode;\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "organization_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "slug",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "content_search_language",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 8,
-          "name": "language_code",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 9,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 10,
-          "name": "course_language_group_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 11,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 12,
-          "name": "is_draft",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 13,
-          "name": "is_test_mode",
-          "type_info": "Bool"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Varchar",
-          "Uuid",
-          "Varchar",
-          {
-            "Custom": {
-              "name": "regconfig",
-              "kind": "Simple"
-            }
-          },
-          "Varchar",
-          "Uuid",
-          "Uuid",
-          "Bool",
-          "Bool"
-        ]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        null,
-        false,
-        true,
-        false,
-        true,
-        false,
-        false
-      ]
     }
   },
   "2593cfb3820c00b89eef7987b9f14e510916882e68abbd691e970b001e7d5329": {
@@ -3935,27 +3814,6 @@
       "nullable": [false]
     }
   },
-  "53e26910f60193f83389cea5ba2197fb520a0733034ed9fb423dd1f1edccdc90": {
-    "query": "\nINSERT INTO exercises (\n    id,\n    course_id,\n    name,\n    deadline,\n    page_id,\n    score_maximum,\n    order_number,\n    chapter_id,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  name,\n  deadline,\n  uuid_generate_v5($1, page_id::text),\n  score_maximum,\n  order_number,\n  chapter_id,\n  id\nFROM exercises\nWHERE course_id = $2\nRETURNING id,\n  copied_from;\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": [false, true]
-    }
-  },
   "55d2baac7d8ce3670047a6388219d46faaac72bb6f7f6769b28fa320d601652c": {
     "query": "\nINSERT INTO exercise_service_info (\n    exercise_service_id,\n    exercise_type_specific_user_interface_iframe,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_path\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n",
     "describe": {
@@ -5722,27 +5580,6 @@
       ]
     }
   },
-  "80f7868413d8874e45915bf980f553f4e9e09b8a17f9043bbdbe7d81f85c817c": {
-    "query": "\nINSERT INTO pages (\n    id,\n    course_id,\n    content,\n    url_path,\n    title,\n    chapter_id,\n    order_number,\n    copied_from,\n    content_search_language\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  content,\n  url_path,\n  title,\n  uuid_generate_v5($1, chapter_id::text),\n  order_number,\n  id,\n  content_search_language\nFROM pages\nWHERE (course_id = $2)\nRETURNING id,\n  content;\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "content",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": [false, false]
-    }
-  },
   "814b64d8d02dc308fe81f4d5608f698d8dfb5ea72049fd321754feb1c1104626": {
     "query": "\nUPDATE exercise_services\n    SET deleted_at = now()\nWHERE id = $1\n    RETURNING *\n        ",
     "describe": {
@@ -7291,16 +7128,6 @@
       ]
     }
   },
-  "9c8fb5ab7c565479f38ffde751dee85049da24ee2de7f71f2690c4fe454e68e4": {
-    "query": "\nINSERT INTO exercise_slides (\n    id, exercise_id, order_number\n)\nSELECT uuid_generate_v5($1, id::text),\n    uuid_generate_v5($1, exercise_id::text),\n    order_number\nFROM exercise_slides\nWHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2);\n        ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "9e77b192694c3af4cf6ab696e5b43a1e1f28dab7af08beb2e38eccbe0282b01a": {
     "query": "\nSELECT *\nFROM exercise_services\nWHERE slug = $1\n  ",
     "describe": {
@@ -7626,26 +7453,6 @@
       "columns": [],
       "parameters": {
         "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
-  "a3752e5a87b4ce3da83996bee95c34a6addfed46a69b54112655e4e8d4734314": {
-    "query": "\nINSERT INTO exercise_tasks (\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    spec_file_id,\n    public_spec,\n    model_solution_spec,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  uuid_generate_v5($1, exercise_slide_id::text),\n  exercise_type,\n  assignment,\n  private_spec,\n  spec_file_id,\n  public_spec,\n  model_solution_spec,\n  id\nFROM exercise_tasks\nWHERE exercise_slide_id IN (\n    SELECT s.id\n    FROM exercise_slides s\n      JOIN exercises e ON (e.id = s.exercise_id)\n    WHERE e.course_id = $2\n  );\n    ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
-  "a564b4d932be98839ba4902d318c21812fbf46b9e97c8e097a3a28fc4d10d682": {
-    "query": "\nUPDATE chapters\nSET front_page_id = uuid_generate_v5(course_id, front_page_id::text)\nWHERE course_id = $1\n    AND front_page_id IS NOT NULL;\n        ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid"]
       },
       "nullable": []
     }

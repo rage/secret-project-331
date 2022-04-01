@@ -2354,27 +2354,6 @@
       "nullable": []
     }
   },
-  "2c44e4720cee0531728b1919710aecdfb9d910929d6a8f7cbde3c142fc394e47": {
-    "query": "\n        INSERT INTO exercises (\n            id,\n            exam_id,\n            name,\n            deadline,\n            page_id,\n            score_maximum,\n            order_number,\n            chapter_id,\n            copied_from\n          )\n        SELECT uuid_generate_v5($1, id::text),\n          $1,\n          name,\n          deadline,\n          uuid_generate_v5($1, page_id::text),\n          score_maximum,\n          order_number,\n          chapter_id,\n          id\n        FROM exercises\n        WHERE exam_id = $2\n        RETURNING id,\n          copied_from;\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": [false, true]
-    }
-  },
   "2dc3330b399fb3d204887cd2ef29a72cc7df6b66b8ff9ba7872044c8da00bba1": {
     "query": "\nINSERT INTO roles (user_id, role, course_id)\nVALUES ($1, $2, $3)\nRETURNING id\n",
     "describe": {
@@ -2840,27 +2819,6 @@
         "Left": ["Uuid", "Int8", "Int8"]
       },
       "nullable": [false, false, false, true, false, true, true, true, false, false, false]
-    }
-  },
-  "374b3dbc3de1cd99ad57a60ce6c6a22b34c291b77b95006d50fbae7949dc5a81": {
-    "query": "\n    INSERT INTO pages (\n        id,\n        course_id,\n        content,\n        url_path,\n        title,\n        chapter_id,\n        order_number,\n        copied_from,\n        content_search_language\n      )\n    SELECT uuid_generate_v5($1, id::text),\n      $1,\n      content,\n      url_path,\n      title,\n      uuid_generate_v5($1, chapter_id::text),\n      order_number,\n      id,\n      content_search_language\n    FROM pages\n    WHERE (course_id = $2)\n    RETURNING id,\n      content;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "content",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": [false, false]
     }
   },
   "375b467ba026680d07ba6fa844de91afd942e86b2715431e41b6788df0d2b3c0": {
@@ -4685,6 +4643,16 @@
       "nullable": [null]
     }
   },
+  "6614cce685d4ef479b4006c4f7256843a2485627072b3e6b82a7deb731e43c72": {
+    "query": "\n    INSERT INTO exercise_slides (\n        id, exercise_id, order_number\n    )\n    SELECT uuid_generate_v5($1, id::text),\n        uuid_generate_v5($1, exercise_id::text),\n        order_number\n    FROM exercise_slides\n    WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2 AND deleted_at IS NULL)\n    AND deleted_at IS NULL;\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "680c5eed3c49d67d404af7d0a2df7dc8f9391db14848e8aff877a8a117335be2": {
     "query": "SELECT * FROM exercises WHERE id = $1;",
     "describe": {
@@ -5591,6 +5559,27 @@
       "nullable": [false]
     }
   },
+  "7afc90f9381a04e4c0390b627468f4e98af77da0570168747ef9fb7cc3c86042": {
+    "query": "\n        INSERT INTO exercises (\n            id,\n            course_id,\n            name,\n            deadline,\n            page_id,\n            score_maximum,\n            order_number,\n            chapter_id,\n            copied_from\n          )\n        SELECT uuid_generate_v5($1, id::text),\n          $1,\n          name,\n          deadline,\n          uuid_generate_v5($1, page_id::text),\n          score_maximum,\n          order_number,\n          chapter_id,\n          id\n        FROM exercises\n        WHERE course_id = $2\n        AND deleted_at IS NULL\n        RETURNING id,\n          copied_from;\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [false, true]
+    }
+  },
   "7b20a0607bcc9030593d45c58002b5adf794d5956f57c4262ef3868b443e2a35": {
     "query": "\nUPDATE exercise_task_regrading_submissions\nSET grading_after_regrading = $1\nWHERE id = $2\n",
     "describe": {
@@ -5731,27 +5720,6 @@
         false,
         false
       ]
-    }
-  },
-  "809b33b329ee730d5ae24494c9fda8cff94e1e6fe8a9de5a585f8ac05c6119d7": {
-    "query": "\n    INSERT INTO pages (\n        id,\n        exam_id,\n        content,\n        url_path,\n        title,\n        chapter_id,\n        order_number,\n        copied_from,\n        content_search_language\n      )\n    SELECT uuid_generate_v5($1, id::text),\n      $1,\n      content,\n      url_path,\n      title,\n      uuid_generate_v5($1, chapter_id::text),\n      order_number,\n      id,\n      content_search_language\n    FROM pages\n    WHERE (exam_id = $2)\n    RETURNING id,\n      content;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "content",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": [false, false]
     }
   },
   "80f7868413d8874e45915bf980f553f4e9e09b8a17f9043bbdbe7d81f85c817c": {
@@ -6550,16 +6518,6 @@
           },
           "Uuid"
         ]
-      },
-      "nullable": []
-    }
-  },
-  "8ffb37dd4b5c472eb626c543ede5fd5a495095d9fb9b4d8a5f2861e3fe3af7f8": {
-    "query": "\n    INSERT INTO exercise_slides (\n        id, exercise_id, order_number\n    )\n    SELECT uuid_generate_v5($1, id::text),\n        uuid_generate_v5($1, exercise_id::text),\n        order_number\n    FROM exercise_slides\n    WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2);\n            ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
       },
       "nullable": []
     }
@@ -7670,27 +7628,6 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": []
-    }
-  },
-  "a32cb420d68dfadde2c823ba68434462107d7845a9c90e0ce8e1dd15f2a24487": {
-    "query": "\n        INSERT INTO exercises (\n            id,\n            course_id,\n            name,\n            deadline,\n            page_id,\n            score_maximum,\n            order_number,\n            chapter_id,\n            copied_from\n          )\n        SELECT uuid_generate_v5($1, id::text),\n          $1,\n          name,\n          deadline,\n          uuid_generate_v5($1, page_id::text),\n          score_maximum,\n          order_number,\n          chapter_id,\n          id\n        FROM exercises\n        WHERE course_id = $2\n        RETURNING id,\n          copied_from;\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": [false, true]
     }
   },
   "a3752e5a87b4ce3da83996bee95c34a6addfed46a69b54112655e4e8d4734314": {
@@ -9608,6 +9545,27 @@
       "nullable": [false, false, false, false, false, true, true]
     }
   },
+  "cbe5322e580b9612ae14b75c27f8012cea260ba0bc542c3f2dc6eb2ea7b2cff4": {
+    "query": "\n    INSERT INTO pages (\n        id,\n        exam_id,\n        content,\n        url_path,\n        title,\n        chapter_id,\n        order_number,\n        copied_from,\n        content_search_language\n      )\n    SELECT uuid_generate_v5($1, id::text),\n      $1,\n      content,\n      url_path,\n      title,\n      uuid_generate_v5($1, chapter_id::text),\n      order_number,\n      id,\n      content_search_language\n    FROM pages\n    WHERE (exam_id = $2)\n    AND deleted_at IS NULL\n    RETURNING id,\n      content;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "content",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [false, false]
+    }
+  },
   "ccdcf7ce3537744686b4a00dc74692d8c5b333e058fcf54fed5891ec2c527d60": {
     "query": "\nUPDATE exercise_services\n    SET name=$1, slug=$2, public_url=$3, internal_url=$4, max_reprocessing_submissions_at_once=$5\nWHERE id=$6\n    RETURNING *\n        ",
     "describe": {
@@ -10758,6 +10716,27 @@
       "nullable": [false, false, false, false, false, false, false]
     }
   },
+  "e5c1c53b9d9439e3f552f486c3a9916ea8e8a5bce4678d7515a6e24cd9d0f19e": {
+    "query": "\n    INSERT INTO pages (\n        id,\n        course_id,\n        content,\n        url_path,\n        title,\n        chapter_id,\n        order_number,\n        copied_from,\n        content_search_language\n      )\n    SELECT uuid_generate_v5($1, id::text),\n      $1,\n      content,\n      url_path,\n      title,\n      uuid_generate_v5($1, chapter_id::text),\n      order_number,\n      id,\n      content_search_language\n    FROM pages\n    WHERE (course_id = $2)\n    AND deleted_at IS NULL\n    RETURNING id,\n      content;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "content",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [false, false]
+    }
+  },
   "e5db6a3bd6793923334f9a040d99b022099caf632357702ffb1be47602ec4820": {
     "query": "\nINSERT INTO exercise_slides (id, exercise_id, order_number)\nVALUES ($1, $2, $3) ON CONFLICT (id) DO\nUPDATE\nSET exercise_id = $2,\n  order_number = $3,\n  deleted_at = NULL\nRETURNING id,\n  exercise_id,\n  order_number;\n            ",
     "describe": {
@@ -11119,6 +11098,16 @@
       "nullable": [false, false, false, true, false, false, true, false]
     }
   },
+  "efeab6137f99e6bde7a9136acfd3a23efdf389f38764ad58d022e720a1d88459": {
+    "query": "\nINSERT INTO exercise_tasks (\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    spec_file_id,\n    public_spec,\n    model_solution_spec,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  uuid_generate_v5($1, exercise_slide_id::text),\n  exercise_type,\n  assignment,\n  private_spec,\n  spec_file_id,\n  public_spec,\n  model_solution_spec,\n  id\nFROM exercise_tasks\nWHERE exercise_slide_id IN (\n    SELECT s.id\n    FROM exercise_slides s\n      JOIN exercises e ON (e.id = s.exercise_id)\n    WHERE e.course_id = $2\n    AND e.deleted_at IS NULL\n    AND s.deleted_at IS NULL\n  )\nAND deleted_at IS NULL;\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "f0f97d1ed0cb831152deb37dc09cd70dba84aae7b211e181d1225e14a01047d5": {
     "query": "\nDELETE FROM roles\nWHERE user_id = $1\n  AND role = $2\n  AND organization_id = $3\n",
     "describe": {
@@ -11138,6 +11127,27 @@
         ]
       },
       "nullable": []
+    }
+  },
+  "f21c96c64d0bf9550cd3cd8b51a1090200ead72843ce423169401549eadb5790": {
+    "query": "\n        INSERT INTO exercises (\n            id,\n            exam_id,\n            name,\n            deadline,\n            page_id,\n            score_maximum,\n            order_number,\n            chapter_id,\n            copied_from\n          )\n        SELECT uuid_generate_v5($1, id::text),\n          $1,\n          name,\n          deadline,\n          uuid_generate_v5($1, page_id::text),\n          score_maximum,\n          order_number,\n          chapter_id,\n          id\n        FROM exercises\n        WHERE exam_id = $2\n        AND deleted_at IS NULL\n        RETURNING id,\n          copied_from;\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [false, true]
     }
   },
   "f2beb11b5e6318b712b0af9bd4fde454472ce8eda3612295b788958148a376b5": {
@@ -11711,6 +11721,16 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, false, false, false, true, false]
+    }
+  },
+  "fa86ecf363520f40b143c5d7ce8241c6be435676f6b4b34e253b8d64983ccd59": {
+    "query": "\nINSERT INTO chapters (\n    id,\n    name,\n    course_id,\n    chapter_number,\n    front_page_id,\n    opens_at,\n    chapter_image_path,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  name,\n  $1,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  chapter_image_path,\n  id\nFROM chapters\nWHERE (course_id = $2)\nAND deleted_at IS NULL;\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "fb18b61c85778ef2bffb9dc1d388e1f5d1a7f53af4ffbe102a731c39a353afe8": {

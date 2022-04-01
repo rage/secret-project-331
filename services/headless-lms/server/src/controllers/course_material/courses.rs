@@ -63,8 +63,7 @@ async fn get_course_page_by_path(
     let user_agent = headers.get(header::USER_AGENT);
     let bots = Bots::default();
     let has_bot_user_agent = user_agent
-        .map(|ua| ua.to_str().ok())
-        .flatten()
+        .and_then(|ua| ua.to_str().ok())
         .map(|ua| bots.is_bot(ua))
         .unwrap_or(true);
     // If this header is not set, the requester is considered a bot
@@ -82,20 +81,15 @@ async fn get_course_page_by_path(
 
     let user_agent_parser = woothee::parser::Parser::new();
     let parsed_user_agent = user_agent
-        .map(|ua| ua.to_str().ok())
-        .flatten()
-        .map(|ua| user_agent_parser.parse(ua))
-        .flatten();
+        .and_then(|ua| ua.to_str().ok())
+        .and_then(|ua| user_agent_parser.parse(ua));
 
     let ip: Option<IpAddr> = req
         .connection_info()
         .realip_remote_addr()
-        .map(|ip| ip.parse::<IpAddr>().ok())
-        .flatten();
+        .and_then(|ip| ip.parse::<IpAddr>().ok());
 
-    let country = ip
-        .map(|ip| ip_to_country_mapper.map_ip_to_country(&ip))
-        .flatten();
+    let country = ip.and_then(|ip| ip_to_country_mapper.map_ip_to_country(&ip));
 
     let utms = headers.get("UTM-Tags");
     let referrer = headers.get("Orignal-Referrer");
@@ -131,8 +125,7 @@ async fn get_course_page_by_path(
         &mut conn,
         GenerateAnonymousIdentifierInput {
             user_agent: user_agent
-                .map(|ua| ua.to_str().ok())
-                .flatten()
+                .and_then(|ua| ua.to_str().ok())
                 .unwrap_or_default()
                 .to_string(),
             ip_address: ip.map(|ip| ip.to_string()).unwrap_or_default(),
@@ -155,15 +148,12 @@ async fn get_course_page_by_path(
                 .map(|ua| ua.os_version.to_string()),
             device_type: parsed_user_agent.as_ref().map(|ua| ua.category.to_string()),
             referrer: referrer
-                .map(|r| r.to_str().ok())
-                .flatten()
+                .and_then(|r| r.to_str().ok())
                 .map(|r| r.to_string()),
             is_bot: has_bot_user_agent || browser_admits_its_a_bot,
             utm_tags: utms
-                .map(|utms| utms.to_str().ok())
-                .flatten()
-                .map(|utms| serde_json::to_value(utms).ok())
-                .flatten(),
+                .and_then(|utms| utms.to_str().ok())
+                .and_then(|utms| serde_json::to_value(utms).ok()),
             anonymous_identifier,
             exam_id: page_with_user_data.page.exam_id,
         },

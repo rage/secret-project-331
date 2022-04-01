@@ -604,8 +604,7 @@ mod test {
             exercise
                 .current_exercise_slide
                 .exercise_tasks
-                .iter()
-                .next()
+                .get(0)
                 .unwrap()
                 .id,
             exercise_task_id

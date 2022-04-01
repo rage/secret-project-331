@@ -50,7 +50,7 @@ If the page has moved and there's a redirection, this will still return the move
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 */
 #[generated_doc]
-#[instrument(skip(pool, ip_to_country_mapper))]
+#[instrument(skip(pool, ip_to_country_mapper, req))]
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
@@ -123,12 +123,10 @@ async fn get_course_page_by_path(
     )
     .await?;
 
-    let course_or_exam_id = page_with_user_data.page.course_id.unwrap_or_else(|| {
-        return page_with_user_data
-            .page
-            .exam_id
-            .unwrap_or_else(|| Uuid::nil());
-    });
+    let course_or_exam_id = page_with_user_data
+        .page
+        .course_id
+        .unwrap_or_else(|| page_with_user_data.page.exam_id.unwrap_or_else(Uuid::nil));
     let anonymous_identifier = generate_anonymous_identifier(
         &mut conn,
         GenerateAnonymousIdentifierInput {

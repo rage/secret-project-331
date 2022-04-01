@@ -45,7 +45,7 @@ impl IpToCountryMapper {
                 if let Some(country_code) = parts.next() {
                     let list = lists
                         .entry(country_code.to_lowercase())
-                        .or_insert(Vec::new());
+                        .or_insert_with(Vec::new);
                     let path = entry.path();
                     let bytes = std::fs::read(path)?;
                     // The file is gzipped in the dockerfile to save space.

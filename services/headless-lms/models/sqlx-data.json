@@ -640,6 +640,22 @@
       "nullable": [false, true, true, false, false]
     }
   },
+  "0cad1ed88151ce17ea1b859b43de22620aaf28c6a0149937d7f865da67c19797": {
+    "query": "\nSELECT hashing_key FROM page_visit_datum_daily_visit_hashing_keys\nWHERE valid_for_date = $1\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "hashing_key",
+          "type_info": "Bytea"
+        }
+      ],
+      "parameters": {
+        "Left": ["Date"]
+      },
+      "nullable": [false]
+    }
+  },
   "0cb6f9e6d5c8bc8f0196ec503ba5654ac5af8fc3e61746ddcadc30668bca65eb": {
     "query": "\nINSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id)\nVALUES ($1, $2, $3)\nON CONFLICT (user_id, course_instance_id)\nDO UPDATE SET deleted_at = NULL\nRETURNING *;\n",
     "describe": {
@@ -3503,22 +3519,6 @@
         "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false, false, false, true, false, true, true, true, false, false]
-    }
-  },
-  "48372531895bc5341158dc259ca1f91110ec8c657eb41ca1634b9782559b152b": {
-    "query": "\nINSERT INTO page_visit_datum_daily_visit_hashing_keys(valid_for_date)\nVALUES ($1)\nON CONFLICT (valid_for_date) DO NOTHING\nRETURNING hashing_key\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "hashing_key",
-          "type_info": "Bytea"
-        }
-      ],
-      "parameters": {
-        "Left": ["Date"]
-      },
-      "nullable": [false]
     }
   },
   "4bcf93034b7f1e2a30d12f895c2e8c394094dd5b057cbbd89a5715ad9518ef9d": {
@@ -10612,6 +10612,16 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, true, true, false, false]
+    }
+  },
+  "f0c80207c86e95e0dcd70759a548490be39fa00c3221c45ed27b1e00b5721624": {
+    "query": "\nINSERT INTO page_visit_datum_daily_visit_hashing_keys(valid_for_date)\nVALUES ($1)\nON CONFLICT (valid_for_date) DO NOTHING\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Date"]
+      },
+      "nullable": []
     }
   },
   "f0f97d1ed0cb831152deb37dc09cd70dba84aae7b211e181d1225e14a01047d5": {

@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use headless_lms_utils::page_visit_hasher::hash_anonymous_identifier;
 
 use crate::prelude::*;
@@ -25,16 +26,51 @@ pub async fn generate_anonymous_identifier(
 pub async fn get_key_for_the_day(conn: &mut PgConnection) -> ModelResult<Vec<u8>> {
     let now = Utc::now();
     let valid_for_date = now.date().naive_utc();
+    let res = try_get_key_for_the_day_internal(conn, valid_for_date).await?;
+    match res {
+        Some(hashing_key) => Ok(hashing_key),
+        None => {
+            try_insert_key_for_the_day_internal(conn, valid_for_date).await?;
+            let second_try = try_get_key_for_the_day_internal(conn, valid_for_date).await?;
+            match second_try {
+                Some(hashing_key) => Ok(hashing_key),
+                None => Err(ModelError::Generic(
+                    "Failed to get hashing key for the day".to_string(),
+                )),
+            }
+        }
+    }
+}
+
+async fn try_get_key_for_the_day_internal(
+    conn: &mut PgConnection,
+    valid_for_date: NaiveDate,
+) -> ModelResult<Option<Vec<u8>>> {
     let res = sqlx::query!(
+        "
+SELECT hashing_key FROM page_visit_datum_daily_visit_hashing_keys
+WHERE valid_for_date = $1
+    ",
+        valid_for_date
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res.map(|r| r.hashing_key))
+}
+
+async fn try_insert_key_for_the_day_internal(
+    conn: &mut PgConnection,
+    valid_for_date: NaiveDate,
+) -> ModelResult<()> {
+    sqlx::query!(
         "
 INSERT INTO page_visit_datum_daily_visit_hashing_keys(valid_for_date)
 VALUES ($1)
 ON CONFLICT (valid_for_date) DO NOTHING
-RETURNING hashing_key
     ",
         valid_for_date
     )
-    .fetch_one(conn)
+    .execute(conn)
     .await?;
-    Ok(res.hashing_key)
+    Ok(())
 }

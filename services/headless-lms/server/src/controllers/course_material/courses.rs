@@ -86,7 +86,7 @@ async fn get_course_page_by_path(
         .flatten()
         .map(|ua| user_agent_parser.parse(ua))
         .flatten();
-    dbg!(&parsed_user_agent);
+
     let ip: Option<IpAddr> = req
         .connection_info()
         .realip_remote_addr()
@@ -97,12 +97,8 @@ async fn get_course_page_by_path(
         .map(|ip| ip_to_country_mapper.map_ip_to_country(&ip))
         .flatten();
 
-    dbg!(&ip, country);
-
     let utms = headers.get("UTM-Tags");
     let referrer = headers.get("Orignal-Referrer");
-
-    dbg!(utms, referrer);
 
     let (course_slug, raw_page_path) = params.into_inner();
     let path = if raw_page_path.starts_with('/') {

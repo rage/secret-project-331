@@ -48,10 +48,6 @@ const handlePost = (req: NextApiRequest, res: NextApiResponse<ExerciseTaskGradin
     assessedAnswers,
   )
 
-  // eslint-disable-next-line no-constant-condition
-  if (1 === 1) {
-    throw new Error("Test error")
-  }
   return res.status(200).json({
     feedback_json: feedbacks,
     feedback_text: exercise_spec.submitMessage,

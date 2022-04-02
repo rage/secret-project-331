@@ -24,7 +24,9 @@ use actix_web::{
 use anyhow::Result;
 use oauth2::basic::BasicClient;
 // use tracing_actix_web::TracingLogger;
-use headless_lms_utils::{file_store::FileStore, ApplicationConfiguration};
+use headless_lms_utils::{
+    file_store::FileStore, ip_to_country::IpToCountryMapper, ApplicationConfiguration,
+};
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
@@ -36,6 +38,8 @@ pub fn configure(
     file_store: Arc<dyn FileStore>,
     app_conf: ApplicationConfiguration,
 ) {
+    let ip_to_country_mapper =
+        IpToCountryMapper::new().expect("Could not load ip to country mapper");
     let json_config =
         web::JsonConfig::default()
             .limit(1048576)
@@ -55,7 +59,8 @@ pub fn configure(
         )
         // Not using Data::new for file_store to avoid double wrapping it in a arc
         .app_data(Data::from(file_store))
-        .app_data(Data::new(app_conf));
+        .app_data(Data::new(app_conf))
+        .app_data(Data::new(ip_to_country_mapper));
 }
 
 /**

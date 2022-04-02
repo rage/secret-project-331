@@ -472,7 +472,7 @@ mod test {
             opening_time: None,
             closing_time: None,
         };
-        insert(tx1.as_mut(), instance.clone()).await.unwrap_err();
+        insert(tx1.as_mut(), instance).await.unwrap_err();
         tx1.rollback().await;
 
         let mut tx2 = tx.begin().await;

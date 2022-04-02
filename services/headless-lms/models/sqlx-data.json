@@ -640,6 +640,22 @@
       "nullable": [false, true, true, false, false]
     }
   },
+  "0cad1ed88151ce17ea1b859b43de22620aaf28c6a0149937d7f865da67c19797": {
+    "query": "\nSELECT hashing_key FROM page_visit_datum_daily_visit_hashing_keys\nWHERE valid_for_date = $1\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "hashing_key",
+          "type_info": "Bytea"
+        }
+      ],
+      "parameters": {
+        "Left": ["Date"]
+      },
+      "nullable": [false]
+    }
+  },
   "0cb6f9e6d5c8bc8f0196ec503ba5654ac5af8fc3e61746ddcadc30668bca65eb": {
     "query": "\nINSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id)\nVALUES ($1, $2, $3)\nON CONFLICT (user_id, course_instance_id)\nDO UPDATE SET deleted_at = NULL\nRETURNING *;\n",
     "describe": {
@@ -4860,6 +4876,36 @@
         "Left": ["Uuid"]
       },
       "nullable": [true, true]
+    }
+  },
+  "6eb06f9e457be39ce3a14caba6aaadf8bcf4590ff5c1df048d7ace1aa4087e0d": {
+    "query": "\nINSERT INTO page_visit_datum (course_id, exam_id, page_id, country, browser, browser_version, operating_system, operating_system_version, device_type, referrer, is_bot, utm_tags, anonymous_identifier)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Bool",
+          "Jsonb",
+          "Varchar"
+        ]
+      },
+      "nullable": [false]
     }
   },
   "6ec055f71048c1e451d31c648ccff19d8001aaca71fa3acf0786afb30a8f3a69": {
@@ -9352,6 +9398,16 @@
       "nullable": [false, false, false, false, false, true, true]
     }
   },
+  "cb67a9dfb5be8ec9ba7cf67b4dd511093fc64f0556f4ffdae15c3286ba70d83d": {
+    "query": "\nDELETE FROM page_visit_datum_daily_visit_hashing_keys WHERE valid_for_date < $1\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Date"]
+      },
+      "nullable": []
+    }
+  },
   "cbe5322e580b9612ae14b75c27f8012cea260ba0bc542c3f2dc6eb2ea7b2cff4": {
     "query": "\n    INSERT INTO pages (\n        id,\n        exam_id,\n        content,\n        url_path,\n        title,\n        chapter_id,\n        order_number,\n        copied_from,\n        content_search_language\n      )\n    SELECT uuid_generate_v5($1, id::text),\n      $1,\n      content,\n      url_path,\n      title,\n      uuid_generate_v5($1, chapter_id::text),\n      order_number,\n      id,\n      content_search_language\n    FROM pages\n    WHERE (exam_id = $2)\n    AND deleted_at IS NULL\n    RETURNING id,\n      content;\n        ",
     "describe": {
@@ -10911,6 +10967,16 @@
       "columns": [],
       "parameters": {
         "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
+  "f0c80207c86e95e0dcd70759a548490be39fa00c3221c45ed27b1e00b5721624": {
+    "query": "\nINSERT INTO page_visit_datum_daily_visit_hashing_keys(valid_for_date)\nVALUES ($1)\nON CONFLICT (valid_for_date) DO NOTHING\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Date"]
       },
       "nullable": []
     }

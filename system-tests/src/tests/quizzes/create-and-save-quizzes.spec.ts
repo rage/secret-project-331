@@ -155,7 +155,7 @@ test("create quizzes test", async ({ page }) => {
   await closeModal(page, frame)
   await frame.click(`[aria-label="Option 2"]`)
   await page.evaluate(() => {
-    window.scrollBy(0, 500)
+    window.scrollBy(0, 200)
   })
   await frame.check(`input[type="checkbox"]`)
   await frame.fill(`label:has-text("Option title") input`, `correct`)

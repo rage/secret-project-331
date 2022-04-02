@@ -2242,10 +2242,6 @@
 <span id="2240">2240</span>
 <span id="2241">2241</span>
 <span id="2242">2242</span>
-<span id="2243">2243</span>
-<span id="2244">2244</span>
-<span id="2245">2245</span>
-<span id="2246">2246</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -4462,18 +4458,14 @@ WHERE pages.order_number = $1
         .<span class="ident">is_ok</span>());
 
         <span class="comment">// Fails with missing slide</span>
-        <span class="macro">assert!</span>(
-            <span class="ident">create_update</span>(<span class="macro">vec!</span>[<span class="ident">e1</span>.<span class="ident">clone</span>()], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[<span class="ident">e1_s1_t1</span>.<span class="ident">clone</span>()],)
-                .<span class="ident">validate_exercise_data</span>()
-                .<span class="ident">is_err</span>()
-        );
+        <span class="macro">assert!</span>(<span class="ident">create_update</span>(<span class="macro">vec!</span>[<span class="ident">e1</span>.<span class="ident">clone</span>()], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[<span class="ident">e1_s1_t1</span>],)
+            .<span class="ident">validate_exercise_data</span>()
+            .<span class="ident">is_err</span>());
 
         <span class="comment">// Fails with missing task</span>
-        <span class="macro">assert!</span>(
-            <span class="ident">create_update</span>(<span class="macro">vec!</span>[<span class="ident">e1</span>.<span class="ident">clone</span>()], <span class="macro">vec!</span>[<span class="ident">e1_s1</span>.<span class="ident">clone</span>()], <span class="macro">vec!</span>[],)
-                .<span class="ident">validate_exercise_data</span>()
-                .<span class="ident">is_err</span>()
-        );
+        <span class="macro">assert!</span>(<span class="ident">create_update</span>(<span class="macro">vec!</span>[<span class="ident">e1</span>], <span class="macro">vec!</span>[<span class="ident">e1_s1</span>], <span class="macro">vec!</span>[],)
+            .<span class="ident">validate_exercise_data</span>()
+            .<span class="ident">is_err</span>());
     }
 
     <span class="kw">fn</span> <span class="ident">create_update</span>(

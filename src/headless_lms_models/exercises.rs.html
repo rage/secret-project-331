@@ -629,7 +629,6 @@
 <span id="627">627</span>
 <span id="628">628</span>
 <span id="629">629</span>
-<span id="630">630</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">course_instances</span>, <span class="ident">exams</span>,
     <span class="ident">exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user</span>,
@@ -1236,8 +1235,7 @@ RETURNING id;
             <span class="ident">exercise</span>
                 .<span class="ident">current_exercise_slide</span>
                 .<span class="ident">exercise_tasks</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">next</span>()
+                .<span class="ident">get</span>(<span class="number">0</span>)
                 .<span class="ident">unwrap</span>()
                 .<span class="ident">id</span>,
             <span class="ident">exercise_task_id</span>

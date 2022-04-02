@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Bots","A collection of user-agent patterns used to detect known bots."]]});

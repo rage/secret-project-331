@@ -9,7 +9,7 @@ use crate::{
     exercise_service_info::get_service_info_by_exercise_type,
     exercise_services::{get_exercise_service_by_exercise_type, get_internal_grade_url},
     exercise_task_submissions::ExerciseTaskSubmission,
-    exercise_tasks::ExerciseTask,
+    exercise_tasks::{self, ExerciseTask},
     exercises::{Exercise, GradingProgress},
     prelude::*,
     CourseOrExamId,
@@ -354,12 +354,19 @@ pub async fn update_grading(
     } else {
         None
     };
+    let exercise_slide_id = exercise_tasks::get_exercise_task_by_id(conn, grading.exercise_task_id)
+        .await?
+        .exercise_slide_id;
+    let exercise_task_count =
+        exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(conn, &[exercise_slide_id])
+            .await?
+            .len() as f32;
     let correctness_coefficient =
         grading_result.score_given / (grading_result.score_maximum as f32);
     // ensure the score doesn't go over the maximum
     let score_given_with_all_decimals = f32::min(
-        (exercise.score_maximum as f32) * correctness_coefficient,
-        exercise.score_maximum as f32,
+        (exercise.score_maximum as f32) * correctness_coefficient / exercise_task_count,
+        exercise.score_maximum as f32 / exercise_task_count,
     );
     // Scores are rounded to two decimals
     let score_given_rounded = f32_to_two_decimals(score_given_with_all_decimals);

@@ -1297,6 +1297,7 @@ dependencies = [
  "headless-lms-models",
  "headless-lms-utils",
  "indexmap",
+ "isbot",
  "itertools",
  "lettre",
  "listenfd",
@@ -1323,6 +1324,7 @@ dependencies = [
  "url",
  "uuid",
  "walkdir",
+ "woothee",
 ]
 
 [[package]]
@@ -1359,14 +1361,17 @@ name = "headless-lms-utils"
 version = "0.1.0"
 dependencies = [
  "actix-multipart",
+ "anyhow",
  "async-trait",
  "blake3",
  "bytes",
  "chrono",
  "cloud-storage",
  "diff",
+ "flate2",
  "futures",
  "indexmap",
+ "ipnet",
  "once_cell",
  "percent-encoding",
  "pretty_assertions",
@@ -1577,9 +1582,9 @@ dependencies = [
 
 [[package]]
 name = "ipnet"
-version = "2.3.1"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "68f2d64f2edebec4ce84ad108148e67e1064789bee435edc5b60ad398714a3a9"
+checksum = "35e70ee094dc02fd9c13fdad4940090f22dbd6ac7c9e7094a46cf0232a50bc7c"
 
 [[package]]
 name = "is-macro"
@@ -1592,6 +1597,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "isbot"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3255cc6765737319e028a27bc1ed927834f49cba609fb6ae7ce4451d9ba53fb0"
+dependencies = [
+ "regex",
 ]
 
 [[package]]
@@ -3817,6 +3831,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0120db82e8a1e0b9fb3345a539c478767c0048d842860994d96113d5b667bd69"
 dependencies = [
  "winapi",
+]
+
+[[package]]
+name = "woothee"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "896174c6a4779d4d7d4523dd27aef7d46609eda2497e370f6c998325c6bf6971"
+dependencies = [
+ "lazy_static",
+ "regex",
 ]
 
 [[package]]

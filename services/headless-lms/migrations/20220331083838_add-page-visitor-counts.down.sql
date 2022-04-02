@@ -1,0 +1,2 @@
+DROP TABLE page_visit_datum;
+DROP TABLE page_visit_datum_daily_visit_hashing_keys;

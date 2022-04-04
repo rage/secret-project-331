@@ -123,6 +123,7 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                   <div
                     className={css`
                       padding: 1rem 0;
+                      max-width: 50ch;
                     `}
                   >
                     <MarkdownText text={qo.title || qo.body || ""} />
@@ -172,7 +173,7 @@ const RowSubmissionFeedback: React.FC<MultipleChoiceDirectionProps> = ({
         {selectedAnswer ? (
           <div
             className={css`
-              margin-left: 2em;
+              margin-left: 0.5em;
               display: flex;
               border-left: ${submissionFeedback.correct
                 ? `6px solid #1F6964`
@@ -194,7 +195,7 @@ const RowSubmissionFeedback: React.FC<MultipleChoiceDirectionProps> = ({
     {feedbackDisplayPolicy === "DisplayFeedbackOnAllOptions" && submissionFeedback ? (
       <div
         className={css`
-          margin-left: 2em;
+          margin-left: 0.5em;
           display: flex;
           border-left: ${submissionFeedback.correct ? `6px solid #1F6964` : `6px solid #A84835`};
           box-sizing: border-box;

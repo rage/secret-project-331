@@ -17,7 +17,7 @@ use headless_lms_models::{
     exams,
     exams::NewExam,
     exercise_services, exercise_slide_submissions,
-    exercise_task_gradings::{self, ExerciseTaskGradingResult},
+    exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
     exercise_task_submissions, exercises,
     exercises::GradingProgress,
     feedback,
@@ -33,7 +33,8 @@ use headless_lms_models::{
     proposed_page_edits::NewProposedPageEdits,
     roles::UserRole,
     roles::{self, RoleDomain},
-    url_redirections, user_exercise_states, users,
+    url_redirections, user_exercise_slide_states, user_exercise_states, user_exercise_task_states,
+    users,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::Value;
@@ -744,6 +745,71 @@ async fn main() -> Result<()> {
                 ]
               }
             ),
+        },
+    )
+    .await?;
+    playground_examples::insert_playground_example(
+        &mut conn,
+        PlaygroundExampleData {
+            name: "Quizzes example, multiple-choice, long text".to_string(),
+            url: "http://project-331.local/quizzes/iframe".to_string(),
+            width: 500,
+            data: serde_json::json!(
+            {
+              "id": "fd0221d1-a205-42d0-b187-3ead6a1a0e6e",
+              "courseId": "5209f752-9db9-4daf-a7bc-64e21987b719",
+              "body": "Short questions, long answers",
+              "deadline": Utc.ymd(2121, 9, 1).and_hms(23, 59, 59).to_string(),
+              "open": Utc.ymd(2021, 9, 1).and_hms(23, 59, 59).to_string(),
+              "part": 1,
+              "section": 1,
+              "title": "General questions",
+              "tries": 1,
+              "triesLimited": false,
+              "items": [
+                  {
+                      "id": "88ff824f-8aa2-4629-b727-86f98092ab22",
+                      "body": "select shortest answer",
+                      "direction": "row",
+                      "formatRegex": null,
+                      "maxLabel": null,
+                      "maxValue": null,
+                      "maxWords": null,
+                      "minLabel": null,
+                      "minValue": null,
+                      "minWords": null,
+                      "multi": false,
+                      "order": 1,
+                      "quizId": "6160b703-0c27-448b-84aa-1f0d23a037a7",
+                      "title": "Choose the short answer",
+                      "type": "multiple-choice",
+                      "options": [
+                          {
+                              "id": "d174aecf-bb77-467f-b1e7-92a0e54af29f",
+                              "body": "short answer",
+                              "order": 1,
+                              "title": null,
+                              "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                          },
+                          {
+                              "id": "45a3c513-5dd9-4239-96f1-3dd1f53379cc",
+                              "body": "very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long answer",
+                              "order": 2,
+                              "title": null,
+                              "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                          },
+                          {
+                              "id": "2176ea44-46c6-48d6-a2be-1f8188b06545",
+                              "body": "very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long answer",
+                              "order": 3,
+                              "title": null,
+                              "quizItemId": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
+                          },
+                          ]
+                      }
+                  ]
+                }
+              ),
         },
     )
     .await?;
@@ -3044,10 +3110,24 @@ async fn submit_and_grade(
             exam_id: None,
             exercise_id,
             user_id,
+            user_points_update_strategy: UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
         },
     )
-    .await
-    .unwrap();
+    .await?;
+    let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+        conn,
+        user_id,
+        exercise_id,
+        Some(course_instance_id),
+        None,
+    )
+    .await?;
+    let user_exercise_slide_state = user_exercise_slide_states::get_or_insert_by_unique_index(
+        conn,
+        user_exercise_state.id,
+        exercise_slide_id,
+    )
+    .await?;
     let task_submission_id = exercise_task_submissions::insert_with_id(
         conn,
         &exercise_task_submissions::SubmissionData {
@@ -3076,9 +3156,17 @@ async fn submit_and_grade(
     };
     let grading =
         exercise_task_gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
+    user_exercise_task_states::upsert_with_grading(conn, user_exercise_slide_state.id, &grading)
+        .await
+        .unwrap();
     exercise_task_submissions::set_grading_id(conn, grading.id, task_submission.id).await?;
-    user_exercise_states::update_user_exercise_state_after_submission(conn, &slide_submission)
-        .await?;
+    headless_lms_models::library::grading::update_points_for_user_exercise_state(
+        conn,
+        user_exercise_state,
+        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
+    )
+    .await
+    .unwrap();
     Ok(())
 }
 

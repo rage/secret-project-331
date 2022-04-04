@@ -3,13 +3,15 @@ import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
 import React, { ComponentType, useEffect } from "react"
 import { v4 } from "uuid"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+
 import ExerciseSlideEditor, { ExerciseSlideAttributes } from "./ExerciseSlideEditor"
 import ExerciseSlideSave from "./ExerciseSlideSave"
 
 const ExerciseSlideConfiguration: BlockConfiguration<ExerciseSlideAttributes> = {
   title: "ExerciseSlide",
   description: "An exercise slide",
-  category: "embed",
+  category: MOOCFI_CATEGORY_SLUG,
   parent: ["moocfi/exercise"],
   attributes: {
     id: {

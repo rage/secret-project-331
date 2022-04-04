@@ -34,6 +34,7 @@ import {
   getBlockType,
   getBlockTypes,
   registerBlockType,
+  setCategories,
   unregisterBlockType,
   /* @ts-ignore: type signature incorrect */
   unregisterBlockVariation,
@@ -54,6 +55,7 @@ import {
   modifyImageBlockAttributes,
 } from "../../utils/Gutenberg/modifyBlockAttributes"
 import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
+import { modifyGutenbergCategories } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
 
@@ -100,6 +102,9 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
     // eslint-disable-next-line i18next/no-literal-string
     "block-props",
   )
+  useEffect(() => {
+    setCategories(modifyGutenbergCategories())
+  }, [])
 
   useEffect(() => {
     // Register all core blocks

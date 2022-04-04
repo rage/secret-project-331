@@ -3,6 +3,8 @@ import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
 import { ComponentType, useEffect } from "react"
 import { v4 } from "uuid"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+
 import ExerciseEditor from "./ExerciseEditor"
 import ExerciseSave from "./ExerciseSave"
 
@@ -19,7 +21,7 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
   description: "Exercise",
   // Enforce exercise can't be InnerBlock - https://github.com/WordPress/gutenberg/issues/7845
   parent: ["core/post-content"],
-  category: "embed",
+  category: MOOCFI_CATEGORY_SLUG,
   attributes: {
     id: {
       type: "string",

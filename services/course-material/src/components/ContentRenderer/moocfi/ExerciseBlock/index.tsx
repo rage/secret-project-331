@@ -157,7 +157,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
             </div>
           </div>
-          {getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
+          {getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task, i) => (
             <ExerciseTask
               key={task.id}
               exerciseTask={task}
@@ -173,6 +173,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 (x) => x.exercise_task_id === task.id,
               )}
               canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
+              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
+              taskNumber={i}
             />
           ))}
           <div

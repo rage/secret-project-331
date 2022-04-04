@@ -3,12 +3,9 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 
-import SelectField from "../components/InputFields/SelectField"
-import { baseTheme } from "../styles"
+import SelectField from "../components/TimelineSelect"
 
-/* export interface TimelineExtraProps {} */
-
-export type TimelineProps = React.HTMLAttributes<HTMLDivElement> /* & TimelineExtraProps */
+export type TimelineProps = React.HTMLAttributes<HTMLDivElement>
 
 const options = [
   {
@@ -55,23 +52,25 @@ const TimelineWrapper = styled.section<TimelineProps>`
     content: "";
     position: absolute;
     width: 2px;
-    background: #333333;
+    background: #e2e4e6;
     top: 0;
     bottom: 0;
     left: 50%;
     margin-left: -1px;
+    @media (max-width: 767.98px) {
+      left: 80px;
+    }
   }
 `
 const container = css`
   padding: 15px 30px;
   position: relative;
-  background: inherit;
   width: 50%;
 
   .date {
     position: absolute;
     display: inline-block;
-    top: calc(50% - 8px);
+    top: calc(50% - 15px);
     text-align: center;
     font-size: 14px;
     font-weight: bold;
@@ -84,7 +83,12 @@ const container = css`
   .content {
     padding: 30px 30px 30px 30px;
     position: relative;
-    border-radius: 0 500px 500px 0;
+  }
+
+  @media (max-width: 767.98px) {
+    width: 100%;
+    padding-left: 120px;
+    padding-right: 0px;
   }
 `
 const left = css`
@@ -92,22 +96,51 @@ const left = css`
 
   .date {
     right: -75px;
+    @media (max-width: 767.98px) {
+      right: auto;
+      left: 15px;
+    }
+  }
+
+  &::after {
+    @media (max-width: 767.98px) {
+      left: 65px;
+    }
+  }
+
+  .content {
+    @media (max-width: 767.98px) {
+      padding: 30px 0px 30px 0px;
+    }
   }
 `
 const right = css`
   left: 50%;
 
+  @media (max-width: 767.98px) {
+    left: 0%;
+  }
+
   .date {
     left: -75px;
+    @media (max-width: 767.98px) {
+      right: auto;
+      left: 15px;
+    }
   }
 
   .content {
     padding: 30px 30px 30px 30px;
-    border-radius: 500px 0 0 500px;
+    @media (max-width: 767.98px) {
+      padding: 30px 0px 30px 0px;
+    }
   }
 
   &::after {
     left: -15px;
+    @media (max-width: 767.98px) {
+      left: 65px;
+    }
   }
 `
 const StyledTime = styled.div`
@@ -152,7 +185,7 @@ const Timeline: React.FC<TimelineProps> = (props) => {
     {
       id: "1",
       date: "1920",
-      text: "The UN Conference on Environment and Development (UNCED), Rio de Janeiro",
+      text: "",
     },
     { id: "2", date: "1921", text: "" },
     { id: "3", date: "1922", text: "" },
@@ -160,7 +193,7 @@ const Timeline: React.FC<TimelineProps> = (props) => {
   ]
   const [state, setState] = useState<Time[]>(defaultState)
 
-  const handleOnBlur = (e) => {
+  const handleChange = (e: any) => {
     e.preventDefault()
     const targetId = e.target.id
     const content = e.target.value
@@ -169,10 +202,10 @@ const Timeline: React.FC<TimelineProps> = (props) => {
       return prevState.map((item) => (item.id === targetId ? { ...item, text: content } : item))
     })
   }
-  const handleClick = (e) => {
-    e.preventDefault()
-    console.log("I am here", e)
-    const targetId = e.target.parentElement.id
+  const handleClick = (event: React.MouseEvent<HTMLInputElement>) => {
+    event.preventDefault()
+    const target = event.target as HTMLInputElement
+    const targetId = target.parentElement?.id
 
     setState((prevState) => {
       return prevState.map((item) => (item.id === targetId ? { ...item, text: "" } : item))
@@ -194,23 +227,19 @@ const Timeline: React.FC<TimelineProps> = (props) => {
                 top: calc(50% - 20px);
                 right: -15px;
                 background: ${text ? "#32BEA6" : "#EBEDEE"};
-                border: 2px solid ${text ? "#EBEDEE" : "#767B85"};
-                border-style: ${text ? "none" : "dashed"};
+                border: ${text ? "4px solid #EBEDEE" : "2px solid #767B85"};
+                border-style: ${text ? "solid" : "dashed"};
                 border-radius: 16px;
+                transition: all 200ms linear;
                 z-index: 1;
               }
             `}`}
-            /* {cx(container, align)} */ key={id}
+            key={id}
           >
             <div className="date">{date}</div>
             <div className="content">
               {text === "" && (
-                <SelectField
-                  id={id}
-                  options={options}
-                  onChange={() => null}
-                  onBlur={(event) => handleOnBlur(event)}
-                />
+                <SelectField id={id} options={options} onChange={(event) => handleChange(event)} />
               )}
               {text && (
                 <StyledTime id={id}>

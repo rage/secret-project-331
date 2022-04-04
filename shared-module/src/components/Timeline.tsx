@@ -123,14 +123,6 @@ const right = css`
     }
   }
 `
-const StyledTime = styled.div`
-  background-color: #e5e0f1;
-  border: none;
-  margin: 0;
-  width: 100%;
-  display: flex;
-  justisty-content: space-between;
-`
 const StyledButton = styled.div`
   background-color: #b1a2d4;
   width: 80px;
@@ -226,7 +218,7 @@ const Timeline: React.FC<TimelineProps> = (props) => {
                 />
               )}
               {text && (
-                <StyledTime id={id}>
+                <div id={id}>
                   <p
                     className={css`
                       padding: 8px 2px 8px 8px;
@@ -236,7 +228,7 @@ const Timeline: React.FC<TimelineProps> = (props) => {
                     {text}
                   </p>
                   <StyledButton onClick={handleClick}></StyledButton>
-                </StyledTime>
+                </div>
               )}
             </div>
           </div>

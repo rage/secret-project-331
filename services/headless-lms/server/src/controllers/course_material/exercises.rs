@@ -9,7 +9,7 @@ use models::{
     user_exercise_states::CourseInstanceOrExamId,
 };
 
-use chrono::Utc;
+use chrono::{Duration, Utc};
 
 use crate::controllers::prelude::*;
 
@@ -98,9 +98,23 @@ async fn post_submission(
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
 
+    let chapter = models::chapters::get_chapter(&mut conn, exercise.chapter_id.unwrap()).await?;
+
+    // If deadline has been set to exercise first check that. Otherwise check chapter deadline
+
     // Checking if exercise has a deadline and if so whether it is passed
     if let Some(deadline) = exercise.deadline {
-        if Utc::now() >= deadline {
+        // current date added 1 second gracetime to account for clock drift
+        if Utc::now() + Duration::seconds(1) >= deadline {
+            return Err(ControllerError::BadRequest(
+                "exercise deadline passed".to_string(),
+            ));
+        }
+    }
+    // Checking if chapter of the exercise has a deadline and if so whether it is passed
+    if let Some(deadline) = chapter.deadline {
+        // current date added 1 second gracetime to account for clock drift
+        if Utc::now() + Duration::seconds(1) >= deadline {
             return Err(ControllerError::BadRequest(
                 "exercise deadline passed".to_string(),
             ));

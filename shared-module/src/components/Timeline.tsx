@@ -173,7 +173,7 @@ const Timeline: React.FC<TimelineProps> = (props) => {
   ]
   const [state, setState] = useState<Time[]>(defaultState)
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault()
     const targetId = e.target.id
     const content = e.target.value

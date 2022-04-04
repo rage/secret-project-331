@@ -1,5 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
+use futures::future::OptionFuture;
 use models::{
     exercise_slide_submissions::{
         get_exercise_slide_submission_counts_for_exercise_user, StudentExerciseSlideSubmission,
@@ -98,26 +99,35 @@ async fn post_submission(
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
 
-    let chapter = models::chapters::get_chapter(&mut conn, exercise.chapter_id.unwrap()).await?;
+    let chapter_option_future: OptionFuture<_> = exercise
+        .chapter_id
+        .map(|id| models::chapters::get_chapter(&mut conn, id))
+        .into();
 
-    // If deadline has been set to exercise first check that. Otherwise check chapter deadline
+    let chapter = chapter_option_future.await.transpose()?;
 
-    // Checking if exercise has a deadline and if so whether it is passed
-    if let Some(deadline) = exercise.deadline {
-        // current date added 1 second gracetime to account for clock drift
-        if Utc::now() + Duration::seconds(1) >= deadline {
-            return Err(ControllerError::BadRequest(
-                "exercise deadline passed".to_string(),
-            ));
+    // Exercise deadlines takes precedence to chapter deadlines
+    // If deadline has been set to exercise check that first. Otherwise check chapter deadline
+    match exercise.deadline {
+        Some(deadline) => {
+            if Utc::now() + Duration::seconds(1) >= deadline {
+                return Err(ControllerError::BadRequest(
+                    "exercise deadline passed".to_string(),
+                ));
+            }
         }
-    }
-    // Checking if chapter of the exercise has a deadline and if so whether it is passed
-    if let Some(deadline) = chapter.deadline {
-        // current date added 1 second gracetime to account for clock drift
-        if Utc::now() + Duration::seconds(1) >= deadline {
-            return Err(ControllerError::BadRequest(
-                "exercise deadline passed".to_string(),
-            ));
+        None => {
+            // Checking if exercise is related to any chapter, checking if chapter of the exercise has a deadline and if so whether it is passed
+            if let Some(chapter) = chapter {
+                if let Some(deadline) = chapter.deadline {
+                    // current date added 1 second gracetime to account for clock drift
+                    if Utc::now() + Duration::seconds(1) >= deadline {
+                        return Err(ControllerError::BadRequest(
+                            "exercise deadline passed".to_string(),
+                        ));
+                    }
+                }
+            }
         }
     }
 

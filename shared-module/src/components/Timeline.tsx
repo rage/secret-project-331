@@ -1,39 +1,19 @@
-/* eslint-disable i18next/no-literal-string */
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 
 import SelectField from "../components/TimelineSelect"
 
-export type TimelineProps = React.HTMLAttributes<HTMLDivElement>
+interface T {
+  value: string
+  label: string
+}
 
-const options = [
-  {
-    value: "The UN Conference on Environment and Development (UNCED), Rio de Janeiro",
-    label: "The UN Conference on Environment and Development (UNCED), Rio de Janeiro",
-  },
-  {
-    value: "The establishment of the UN Commission on Sustainable Development",
-    label: "The establishment of the UN Commission on Sustainable Development",
-  },
-  {
-    value: "The World Summit on Sustainable Development (WSSD), Johannesburg",
-    label: "The World Summit on Sustainable Development (WSSD), Johannesburg",
-  },
-  { value: "Rio +5 conference, New York", label: "Rio +5 conference, New York" },
-  {
-    value:
-      "UN 2030 Agenda for Sustainable Development is accepted & Sustainable Development Goals introducede",
-    label:
-      "UN 2030 Agenda for Sustainable Development is accepted & Sustainable Development Goals introduced",
-  },
-  { value: "The New York Summit", label: "The New York Summit" },
-  { value: "Our Common Future report published", label: "Our Common Future report published" },
-  {
-    value: "The establishment of the United Nations Environment Programme (UNEP)",
-    label: "The establishment of the United Nations Environment Programme (UNEP)",
-  },
-]
+export interface TimelineExtraProps {
+  data: T[]
+}
+
+export type TimelineProps = React.HTMLAttributes<HTMLDivElement> & TimelineExtraProps
 
 const TimelineWrapper = styled.section<TimelineProps>`
   *,
@@ -239,7 +219,11 @@ const Timeline: React.FC<TimelineProps> = (props) => {
             <div className="date">{date}</div>
             <div className="content">
               {text === "" && (
-                <SelectField id={id} options={options} onChange={(event) => handleChange(event)} />
+                <SelectField
+                  id={id}
+                  options={props.data}
+                  onChange={(event) => handleChange(event)}
+                />
               )}
               {text && (
                 <StyledTime id={id}>

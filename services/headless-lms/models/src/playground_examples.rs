@@ -150,8 +150,8 @@ mod test {
         .await
         .unwrap();
 
-        assert!(inserted_data.name == "test".to_string());
-        assert!(inserted_data.url == "https:\\test.com".to_string());
+        assert!(inserted_data.name == *"test");
+        assert!(inserted_data.url == *"https:\\test.com");
         assert!(inserted_data.width == 500);
         assert!(inserted_data.data == serde_json::json!({"data":"test"}));
 
@@ -180,8 +180,8 @@ mod test {
         .await
         .unwrap();
 
-        assert!(inserted_data.name == "test".to_string());
-        assert!(inserted_data.url == "https:\\test.com".to_string());
+        assert!(inserted_data.name == *"test");
+        assert!(inserted_data.url == *"https:\\test.com");
         assert!(inserted_data.width == 500);
         assert!(inserted_data.data == serde_json::json!({"data":"test"}));
 
@@ -216,8 +216,8 @@ mod test {
         .await
         .unwrap();
 
-        assert!(inserted_data.name == "test".to_string());
-        assert!(inserted_data.url == "https:\\test.com".to_string());
+        assert!(inserted_data.name == *"test");
+        assert!(inserted_data.url == *"https:\\test.com");
         assert!(inserted_data.width == 500);
         assert!(inserted_data.data == serde_json::json!({"data":"test"}));
 
@@ -233,8 +233,8 @@ mod test {
             .await
             .unwrap();
 
-        assert!(res.name == "updated name".to_string());
-        assert!(res.url == "https:\\updated-url.com".to_string());
+        assert!(res.name == *"updated name");
+        assert!(res.url == *"https:\\updated-url.com");
         assert!(res.width == 600);
         assert!(res.data == serde_json::json!({"data":"updated data"}));
 

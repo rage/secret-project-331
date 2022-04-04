@@ -139,18 +139,19 @@ const StyledButton = styled.div`
   position: relative;
   border: none;
 
-  /* &:after {
+  &:after {
     content: "+";
-    color: #333;
+    width: 40%;
+    color: #51309f;
     position: absolute;
-    font-size: 3rem;
+    font-size: 2.8rem;
     line-height: 0.5;
-    top: 18px;
-    left: 15px;
+    top: calc(50% - 14px);
+    right: 30%;
     font-weight: 200;
     padding-bottom: 5px;
     transform: rotate(45deg);
-  } */
+  }
 `
 
 export interface Time {

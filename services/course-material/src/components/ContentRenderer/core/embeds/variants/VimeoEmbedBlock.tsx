@@ -10,6 +10,8 @@ import Spinner from "../../../../../shared-module/components/Spinner"
 import { baseTheme } from "../../../../../shared-module/styles/theme"
 import aspectRatioFromClassName from "../../../../../utils/aspectRatioFromClassName"
 
+const VIMEO_MAX_WIDTH = 780
+
 export const VimeoEmbedBlock: React.FC<EmbedAttributes> = (props) => {
   const [embedHtml, setEmbedHtml] = useState(undefined)
   const [fetching, setFetching] = useState(true)
@@ -21,7 +23,7 @@ export const VimeoEmbedBlock: React.FC<EmbedAttributes> = (props) => {
         const response = await axios.get(
           `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(
             props.url,
-          )}&maxwidth=780&maxheight=440`,
+          )}&maxwidth=${VIMEO_MAX_WIDTH}&maxheight=440`,
         )
         const data = await response.data
         if (data.html) {
@@ -38,9 +40,11 @@ export const VimeoEmbedBlock: React.FC<EmbedAttributes> = (props) => {
       {fetching && <Spinner variant="medium" />}
       {embedHtml && !fetching && (
         <BreakFromCentered sidebar={false}>
-          <div
+          <figure
             className={css`
-              margin: 4rem 0;
+              width: 100%;
+              max-width: ${VIMEO_MAX_WIDTH}px;
+              margin: 4rem auto;
             `}
           >
             <div
@@ -66,7 +70,7 @@ export const VimeoEmbedBlock: React.FC<EmbedAttributes> = (props) => {
             >
               {props.caption}
             </figcaption>
-          </div>
+          </figure>
         </BreakFromCentered>
       )}
       {!embedHtml && !fetching && (

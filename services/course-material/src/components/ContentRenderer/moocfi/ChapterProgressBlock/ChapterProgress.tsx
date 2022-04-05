@@ -32,9 +32,8 @@ const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInst
         <div
           className={css`
             width: 100%;
-            margin: 0 auto;
             text-align: center;
-            padding: 2em 0;
+            margin: 7.5em auto;
           `}
         >
           {/* TODO: Verify how it looks when score_given is a floating number */}
@@ -44,6 +43,12 @@ const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInst
             given={getUserChapterProgress.data.score_given}
             point={50}
             label={t("chapter-progress")}
+          />
+          <Progress
+            variant={"bar"}
+            showAsPercentage={true}
+            exercisesDone={getUserChapterProgress.data.completed_exercises}
+            exercisesTotal={getUserChapterProgress.data.total_exercises}
           />
         </div>
       )}

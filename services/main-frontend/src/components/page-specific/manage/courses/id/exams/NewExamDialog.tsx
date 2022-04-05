@@ -51,6 +51,7 @@ const NewExamDialog: React.FC<ExamDialogProps> = ({ organizationId, getOrgExams,
         title={t("new-exam-dialog")}
       >
         <div
+          id="new-exam-dialog"
           className={css`
             padding: 1rem;
           `}

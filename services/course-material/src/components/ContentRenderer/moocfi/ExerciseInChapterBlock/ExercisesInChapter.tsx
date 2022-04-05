@@ -31,9 +31,9 @@ const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string
       <h2
         className={css`
           text-align: center;
-          margin-bottom: 1rem;
+          margin-bottom: 2rem;
           text-transform: uppercase;
-          font-size: 1.25rem;
+          font-size: 2rem;
         `}
       >
         {t("exercises-in-this-chapter")}

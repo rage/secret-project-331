@@ -49,7 +49,7 @@ const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPag
             <>
               <PageBox pageTitle={page.title} />
               <div>
-                {page.exercises.map((e) => (
+                {page.exercises.map((e, index) => (
                   <div key={e.id}>
                     <ExerciseBox
                       url={coursePageSectionRoute(
@@ -58,6 +58,7 @@ const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPag
                         page.url_path,
                         e.id,
                       )}
+                      bg={index % 2 !== 0 ? "#DAE3EB" : "#B5C7D7"}
                       exerciseIndex={e.order_number}
                       exerciseTitle={e.name}
                       scoreMaximum={e.score_maximum}

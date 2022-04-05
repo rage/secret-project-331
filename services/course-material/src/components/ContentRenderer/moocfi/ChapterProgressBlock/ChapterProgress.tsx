@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchUserChapterInstanceChapterProgress } from "../../../../services/backend"
-import CircularProgress from "../../../../shared-module/components/CourseProgress/CircularProgress"
+import Progress from "../../../../shared-module/components/CourseProgress"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 
@@ -38,7 +38,8 @@ const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInst
           `}
         >
           {/* TODO: Verify how it looks when score_given is a floating number */}
-          <CircularProgress
+          <Progress
+            variant="circle"
             max={getUserChapterProgress.data.score_maximum}
             given={getUserChapterProgress.data.score_given}
             point={50}

@@ -36,6 +36,7 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "create-exam-dialog",
+    elementId: "#new-exam-dialog",
     waitForThisToBeVisibleAndStable: [
       "text=Name",
       "text=Starts at",
@@ -61,6 +62,7 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "create-exam-dialog-filled",
+    elementId: "#new-exam-dialog",
     waitForThisToBeVisibleAndStable: [
       "text=Name",
       "text=Starts at",

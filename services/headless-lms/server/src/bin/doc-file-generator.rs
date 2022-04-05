@@ -388,7 +388,9 @@ fn main() {
         UserCourseInstanceChapterProgress,
         UserCourseInstanceChapterProgress {
             score_given: 1.0,
-            score_maximum: 4
+            score_maximum: 4,
+            total_exercises: Some(4),
+            completed_exercises: Some(2)
         }
     );
     write_docs!(

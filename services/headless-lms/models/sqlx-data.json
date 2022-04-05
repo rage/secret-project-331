@@ -1,21 +1,5 @@
 {
   "db": "PostgreSQL",
-  "003aaa33eabe8108221375d0a45b87f1e908134d5a2a011623383fb8c8b3a90a": {
-    "query": "\nSELECT COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.deleted_at IS NULL\n  AND ues.user_id = $2\n  AND ues.course_instance_id = $3;\n                ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "score_given",
-          "type_info": "Float4"
-        }
-      ],
-      "parameters": {
-        "Left": ["UuidArray", "Uuid", "Uuid"]
-      },
-      "nullable": [null]
-    }
-  },
   "0055908a21541dffbe74d4708d5b660afb71c3fee70dfa3fca0bf2a05cac4765": {
     "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode\nFROM courses\nWHERE slug = $1\n  AND deleted_at IS NULL\n",
     "describe": {
@@ -9350,6 +9334,27 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, true, true, false, false]
+    }
+  },
+  "c9186c9ef5687f63ff4041bbd095cc6be20a89bfe7817c66b7e9e2eea9c58abf": {
+    "query": "\nSELECT COUNT(ues.exercise_id) AS completed_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.deleted_at IS NULL\n  AND ues.user_id = $2\n  AND ues.course_instance_id = $3;\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "completed_exercises",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "score_given",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": ["UuidArray", "Uuid", "Uuid"]
+      },
+      "nullable": [null, null]
     }
   },
   "cb4274ae34447c4c5f7629ca692a91b49faea0db90cc160062b393fca15537b1": {

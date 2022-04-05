@@ -94,6 +94,7 @@ pub struct DatabaseUserCourseInstanceChapterExerciseProgress {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct UserChapterMetrics {
     pub score_given: Option<f32>,
+    pub completed_exercises: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -177,7 +178,8 @@ pub async fn get_user_course_instance_chapter_metrics(
     let res = sqlx::query_as!(
         UserChapterMetrics,
         r#"
-SELECT COALESCE(SUM(ues.score_given), 0) AS score_given
+SELECT COUNT(ues.exercise_id) AS completed_exercises,
+  COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
 WHERE ues.exercise_id IN (
     SELECT UNNEST($1::uuid [])

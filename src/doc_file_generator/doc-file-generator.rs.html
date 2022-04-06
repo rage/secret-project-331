@@ -843,6 +843,8 @@
 <span id="841">841</span>
 <span id="842">842</span>
 <span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1226,14 +1228,16 @@
             <span class="ident">score_given</span>: <span class="number">3.0</span>,
             <span class="ident">score_maximum</span>: <span class="prelude-val">Some</span>(<span class="number">10</span>),
             <span class="ident">total_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">66</span>),
-            <span class="ident">completed_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">13</span>)
+            <span class="ident">attempted_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">13</span>)
         }
     );
     <span class="macro">write_docs!</span>(
         <span class="ident">UserCourseInstanceChapterProgress</span>,
         <span class="ident">UserCourseInstanceChapterProgress</span> {
             <span class="ident">score_given</span>: <span class="number">1.0</span>,
-            <span class="ident">score_maximum</span>: <span class="number">4</span>
+            <span class="ident">score_maximum</span>: <span class="number">4</span>,
+            <span class="ident">total_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">4</span>),
+            <span class="ident">attempted_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">2</span>)
         }
     );
     <span class="macro">write_docs!</span>(

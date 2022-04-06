@@ -603,6 +603,8 @@
 <span id="601">601</span>
 <span id="602">602</span>
 <span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">futures::Stream</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals</span>;
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -680,7 +682,7 @@
     <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="ident">f32</span>,
     <span class="kw">pub</span> <span class="ident">score_maximum</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">total_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">completed_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">attempted_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
@@ -699,12 +701,13 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserChapterMetrics</span> {
     <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">attempted_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserCourseInstanceMetrics</span> {
     <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="ident">completed_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="ident">attempted_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
@@ -758,7 +761,7 @@ WHERE e.deleted_at IS NULL
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">UserCourseInstanceMetrics</span>,
         <span class="string">r#&quot;
-SELECT COUNT(ues.exercise_id) AS completed_exercises,
+SELECT COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
 WHERE ues.course_instance_id = $1
@@ -782,7 +785,8 @@ WHERE ues.course_instance_id = $1
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">UserChapterMetrics</span>,
         <span class="string">r#&quot;
-SELECT COALESCE(SUM(ues.score_given), 0) AS score_given
+SELECT COUNT(ues.exercise_id) AS attempted_exercises,
+  COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
 WHERE ues.exercise_id IN (
     SELECT UNNEST($1::uuid [])
@@ -810,8 +814,8 @@ WHERE ues.exercise_id IN (
 
     <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">UserCourseInstanceProgress</span> {
         <span class="ident">score_given</span>: <span class="ident">option_f32_to_f32_two_decimals</span>(<span class="ident">user_metrics</span>.<span class="ident">score_given</span>),
-        <span class="ident">completed_exercises</span>: <span class="ident">user_metrics</span>
-            .<span class="ident">completed_exercises</span>
+        <span class="ident">attempted_exercises</span>: <span class="ident">user_metrics</span>
+            .<span class="ident">attempted_exercises</span>
             .<span class="ident">map</span>(<span class="ident">TryInto::try_into</span>)
             .<span class="ident">transpose</span>()<span class="question-mark">?</span>,
         <span class="ident">score_maximum</span>: <span class="ident">course_metrics</span>

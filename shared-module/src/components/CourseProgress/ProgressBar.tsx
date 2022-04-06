@@ -70,11 +70,11 @@ const Label = styled.div`
 
 const ProgresssBar: React.FC<ProgressBarExtraProps> = ({
   showAsPercentage = false,
-  exercisesDone = 10,
+  exercisesAttempted = 10,
   exercisesTotal = 30,
 }) => {
   const { t } = useTranslation()
-  const done = exercisesDone ?? 0
+  const done = exercisesAttempted ?? 0
   const total = exercisesTotal ?? 0
   const exerciseScaled = showAsPercentage && done !== 0 && total !== 0 ? (done / total) * 100 : 0
   const percentage = Math.floor(exerciseScaled)

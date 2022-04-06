@@ -381,7 +381,7 @@ fn main() {
             score_given: 3.0,
             score_maximum: Some(10),
             total_exercises: Some(66),
-            completed_exercises: Some(13)
+            attempted_exercises: Some(13)
         }
     );
     write_docs!(
@@ -390,7 +390,7 @@ fn main() {
             score_given: 1.0,
             score_maximum: 4,
             total_exercises: Some(4),
-            completed_exercises: Some(2)
+            attempted_exercises: Some(2)
         }
     );
     write_docs!(

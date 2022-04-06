@@ -117,7 +117,7 @@ export interface UserCourseInstanceChapterProgress {
   score_given: number
   score_maximum: number
   total_exercises: number | null
-  completed_exercises: number | null
+  attempted_exercises: number | null
 }
 
 export interface CourseInstanceEnrollment {
@@ -826,7 +826,7 @@ export interface UserCourseInstanceProgress {
   score_given: number
   score_maximum: number | null
   total_exercises: number | null
-  completed_exercises: number | null
+  attempted_exercises: number | null
 }
 
 export interface ExerciseUserCounts {

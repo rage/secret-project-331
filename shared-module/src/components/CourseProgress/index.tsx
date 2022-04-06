@@ -13,7 +13,7 @@ export interface CircularProgressExtraProps {
 export interface ProgressBarExtraProps {
   variant: "bar"
   showAsPercentage?: boolean
-  exercisesDone: number | null
+  exercisesAttempted: number | null
   exercisesTotal: number | null
 }
 

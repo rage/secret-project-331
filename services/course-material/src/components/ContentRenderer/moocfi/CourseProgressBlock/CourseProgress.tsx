@@ -47,7 +47,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
             <Progress
               variant={"bar"}
               showAsPercentage={true}
-              exercisesDone={getUserCourseProgress.data.completed_exercises}
+              exercisesAttempted={getUserCourseProgress.data.attempted_exercises}
               exercisesTotal={getUserCourseProgress.data.total_exercises}
             />
           </div>

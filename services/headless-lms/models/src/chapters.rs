@@ -275,7 +275,7 @@ pub struct UserCourseInstanceChapterProgress {
     pub score_given: f32,
     pub score_maximum: i32,
     pub total_exercises: Option<u32>,
-    pub completed_exercises: Option<u32>,
+    pub attempted_exercises: Option<u32>,
 }
 
 pub async fn course_chapters(
@@ -451,8 +451,8 @@ pub async fn get_user_course_instance_chapter_progress(
         total_exercises: Some(exercise_ids.len())
             .map(TryInto::try_into)
             .transpose()?,
-        completed_exercises: user_chapter_metrics
-            .completed_exercises
+        attempted_exercises: user_chapter_metrics
+            .attempted_exercises
             .map(TryInto::try_into)
             .transpose()?,
     };

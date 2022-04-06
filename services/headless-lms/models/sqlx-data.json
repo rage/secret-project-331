@@ -6486,6 +6486,27 @@
       "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
+  "947bd392c2be82541ffefbc8c7bd3880c17fd6358bff07309cde1e22bdd0621c": {
+    "query": "\nSELECT COUNT(ues.exercise_id) AS attempted_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.course_instance_id = $1\n  AND ues.user_id = $2\n  AND ues.deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "attempted_exercises",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "score_given",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [null, null]
+    }
+  },
   "953a7a6c530a84cb10466c75502f14177a8e2bc1dfefded26185e0802115bd77": {
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  name,\n  course_id,\n  deleted_at,\n  chapter_image_path,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  copied_from,\n  deadline\nFROM chapters\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n",
     "describe": {
@@ -8134,27 +8155,6 @@
       "nullable": [false, false, false, false, false, true, true, true, true, true, true, false]
     }
   },
-  "b4d12f09eb6fa6d8b9381f1f2c0bc7451683f3695eb0b4329ed8984adcb345c4": {
-    "query": "\nSELECT COUNT(ues.exercise_id) AS completed_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.course_instance_id = $1\n  AND ues.user_id = $2\n  AND ues.deleted_at IS NULL;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "completed_exercises",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 1,
-          "name": "score_given",
-          "type_info": "Float4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": [null, null]
-    }
-  },
   "b52cac8cc5563abf837991f96ecda33e14de41999b3b6fbb78203634035162e1": {
     "query": "\nSELECT fb.*,\n  pages.title as \"page_title\",\n  pages.url_path as \"page_url_path\"\nFROM (\n    SELECT feedback.id as \"id!\",\n      feedback.user_id,\n      feedback.course_id as \"course_id!\",\n      feedback.page_id,\n      feedback.feedback_given as \"feedback_given!\",\n      feedback.selected_text,\n      feedback.marked_as_read as \"marked_as_read!\",\n      feedback.created_at as \"created_at!\",\n      array_agg(block_feedback.block_id) filter (\n        where block_feedback.block_id IS NOT NULL\n      ) AS \"block_ids: Vec<Uuid>\",\n      array_agg(block_feedback.block_text) filter (\n        where block_feedback.block_id IS NOT NULL\n      ) AS \"block_texts: Vec<Option<String>>\",\n      array_agg(block_feedback.order_number) filter (\n        where block_feedback.block_id IS NOT NULL\n      ) AS \"block_order_numbers: Vec<Option<i32>>\"\n    FROM feedback\n      LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id\n    WHERE course_id = $1\n      AND feedback.marked_as_read = $2\n      AND feedback.deleted_at IS NULL\n      AND block_feedback.deleted_at IS NULL\n    GROUP BY feedback.id,\n      feedback.user_id,\n      feedback.course_id,\n      feedback.feedback_given,\n      feedback.marked_as_read,\n      feedback.created_at\n    ORDER BY feedback.created_at DESC,\n      feedback.id\n    LIMIT $3 OFFSET $4\n  ) fb\n  JOIN pages on pages.id = fb.page_id\n",
     "describe": {
@@ -9336,27 +9336,6 @@
       "nullable": [false, true, true, false, false]
     }
   },
-  "c9186c9ef5687f63ff4041bbd095cc6be20a89bfe7817c66b7e9e2eea9c58abf": {
-    "query": "\nSELECT COUNT(ues.exercise_id) AS completed_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.deleted_at IS NULL\n  AND ues.user_id = $2\n  AND ues.course_instance_id = $3;\n                ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "completed_exercises",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 1,
-          "name": "score_given",
-          "type_info": "Float4"
-        }
-      ],
-      "parameters": {
-        "Left": ["UuidArray", "Uuid", "Uuid"]
-      },
-      "nullable": [null, null]
-    }
-  },
   "cb4274ae34447c4c5f7629ca692a91b49faea0db90cc160062b393fca15537b1": {
     "query": "\nSELECT exercise_task_submissions.id,\n  user_id,\n  exercise_task_submissions.created_at,\n  exercise_slide_submissions.exercise_id,\n  exercise_task_submissions.exercise_task_id,\n  exercise_task_gradings.score_given,\n  exercise_task_submissions.data_json\nFROM exercise_task_submissions\n  JOIN exercise_slide_submissions ON exercise_task_submissions.exercise_slide_submission_id = exercise_slide_submissions.id\n  JOIN exercise_task_gradings on exercise_task_submissions.exercise_task_grading_id = exercise_task_gradings.id\n  JOIN exercises on exercise_slide_submissions.exercise_id = exercises.id\nWHERE exercise_slide_submissions.exam_id = $1\n  AND exercise_task_submissions.deleted_at IS NULL\n  AND exercise_task_gradings.deleted_at IS NULL\n  AND exercises.deleted_at IS NULL;\n        ",
     "describe": {
@@ -10157,6 +10136,27 @@
         "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Int4"]
       },
       "nullable": [false]
+    }
+  },
+  "db89e6f5451c6a64ee5e95ccb4da5cebd7901bcfd0cd2660926f91a4bf2d4bd6": {
+    "query": "\nSELECT COUNT(ues.exercise_id) AS attempted_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.deleted_at IS NULL\n  AND ues.user_id = $2\n  AND ues.course_instance_id = $3;\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "attempted_exercises",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "score_given",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": ["UuidArray", "Uuid", "Uuid"]
+      },
+      "nullable": [null, null]
     }
   },
   "dc6a94949ce20d11fa55e247dc706fdc88018bf1ba528487fcd0ef02f5c40ca7": {

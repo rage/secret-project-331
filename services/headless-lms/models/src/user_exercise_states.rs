@@ -75,7 +75,7 @@ pub struct UserCourseInstanceProgress {
     pub score_given: f32,
     pub score_maximum: Option<u32>,
     pub total_exercises: Option<u32>,
-    pub completed_exercises: Option<u32>,
+    pub attempted_exercises: Option<u32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -94,13 +94,13 @@ pub struct DatabaseUserCourseInstanceChapterExerciseProgress {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct UserChapterMetrics {
     pub score_given: Option<f32>,
-    pub completed_exercises: Option<i64>,
+    pub attempted_exercises: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct UserCourseInstanceMetrics {
     score_given: Option<f32>,
-    completed_exercises: Option<i64>,
+    attempted_exercises: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -154,7 +154,7 @@ pub async fn get_user_course_instance_metrics(
     let res = sqlx::query_as!(
         UserCourseInstanceMetrics,
         r#"
-SELECT COUNT(ues.exercise_id) AS completed_exercises,
+SELECT COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
 WHERE ues.course_instance_id = $1
@@ -178,7 +178,7 @@ pub async fn get_user_course_instance_chapter_metrics(
     let res = sqlx::query_as!(
         UserChapterMetrics,
         r#"
-SELECT COUNT(ues.exercise_id) AS completed_exercises,
+SELECT COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
 WHERE ues.exercise_id IN (
@@ -207,8 +207,8 @@ pub async fn get_user_course_instance_progress(
 
     let result = UserCourseInstanceProgress {
         score_given: option_f32_to_f32_two_decimals(user_metrics.score_given),
-        completed_exercises: user_metrics
-            .completed_exercises
+        attempted_exercises: user_metrics
+            .attempted_exercises
             .map(TryInto::try_into)
             .transpose()?,
         score_maximum: course_metrics

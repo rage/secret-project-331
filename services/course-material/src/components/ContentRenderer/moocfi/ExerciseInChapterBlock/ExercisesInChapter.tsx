@@ -25,7 +25,7 @@ const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string
   return (
     <div
       className={css`
-        padding: 0em 1em 5em 1em;
+        margin: 5em 1em;
       `}
     >
       <h2

@@ -50,6 +50,8 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     snapshotName: "course-material-multiple-choice-before-success-click-column-single",
     waitForThisToBeVisibleAndStable: `text="This is first option"`,
     frame,
+    page,
+    clearNotifications: true,
   })
   // Click button[role="radio"]:has-text("This is first option")
   await page
@@ -65,6 +67,8 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     snapshotName: "course-material-multiple-choice-after-success-click-column-single",
     waitForThisToBeVisibleAndStable: `text="Correct! This is indeed the first answer"`,
     frame,
+    page,
+    clearNotifications: true,
   })
 
   // Click text=try again
@@ -77,6 +81,8 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     snapshotName: "course-material-multiple-choice-before-failure-click-column-single",
     waitForThisToBeVisibleAndStable: `text="This is second option"`,
     frame,
+    page,
+    clearNotifications: true,
   })
 
   await page
@@ -91,6 +97,8 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     snapshotName: "course-material-multiple-choice-after-failure-click-column-single",
     waitForThisToBeVisibleAndStable: `text="Incorrect. This is not the first answer"`,
     frame,
+    page,
+    clearNotifications: true,
   })
 
   // Click text=Page 4
@@ -110,6 +118,8 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     snapshotName: "course-material-multiple-choice-before-success-click-column-multi",
     waitForThisToBeVisibleAndStable: `text="This is first option"`,
     frame: frame2,
+    page,
+    clearNotifications: true,
   })
   // Click button[role="radio"]:has-text("This is first option")
   await page
@@ -126,6 +136,8 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     snapshotName: "course-material-multiple-choice-after-success-click-column-multi",
     waitForThisToBeVisibleAndStable: `text="Correct! This is indeed the first answer"`,
     frame: frame2,
+    page,
+    clearNotifications: true,
   })
 
   // Click text=try again
@@ -138,6 +150,8 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     snapshotName: "course-material-multiple-choice-before-failure-click-column-multi",
     waitForThisToBeVisibleAndStable: `text="This is second option"`,
     frame: frame2,
+    page,
+    clearNotifications: true,
   })
 
   await page
@@ -152,5 +166,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     snapshotName: "course-material-multiple-choice-after-failure-click-column-multi",
     waitForThisToBeVisibleAndStable: `text="Incorrect. This is not the first answer"`,
     frame: frame2,
+    page,
+    clearNotifications: true,
   })
 })

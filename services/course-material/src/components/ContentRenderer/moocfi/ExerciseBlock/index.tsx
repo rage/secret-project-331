@@ -21,6 +21,7 @@ import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import { baseTheme } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
@@ -29,8 +30,15 @@ interface ExerciseBlockAttributes {
   id: string
 }
 
-const DeadlineText = styled.p`
-  font-size: 24px;
+const DeadlineText = styled.div`
+  border: 1px solid;
+  border-radius: 12px;
+  padding: 1rem;
+  ${respondToOrLarger.sm} {
+    width: 75%;
+  }
+  border-color: red;
+  background: ${baseTheme.colors.red["100"]};
 `
 
 // Special care taken here to ensure exercise content can have full width of

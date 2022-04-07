@@ -158,6 +158,7 @@ SELECT COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
 WHERE ues.course_instance_id = $1
+  AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
   AND ues.deleted_at IS NULL;
         "#,
@@ -185,6 +186,7 @@ WHERE ues.exercise_id IN (
     SELECT UNNEST($1::uuid [])
   )
   AND ues.deleted_at IS NULL
+  AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
   AND ues.course_instance_id = $3;
                 "#,

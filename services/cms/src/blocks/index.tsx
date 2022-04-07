@@ -12,6 +12,7 @@ import ExerciseSlide from "./ExerciseSlide"
 import ExerciseTask from "./ExerciseTask"
 import Glossary from "./Glossary"
 import HeroSection from "./HeroSection"
+import InfoBox from "./InfoBox"
 import LandingPageHeroSection from "./LandingPageHeroSection"
 import Latex from "./Latex"
 import PagesInChapter from "./PagesInChapter"
@@ -34,6 +35,7 @@ export const blockTypeMapForPages = [
   ["moocfi/hero-section", HeroSection],
   ["moocfi/glossary", Glossary],
   ["moocfi/aside", Aside],
+  ["moocfi/infobox", InfoBox],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

@@ -861,6 +861,16 @@
     "innerBlocks": []
   },
   {
+    "clientId": "c0c3bc7a-c3f2-46ae-aaff-e54a2b169857",
+    "name": "moocfi/infobox",
+    "isValid": true,
+    "attributes": {
+      "title": "What is inside this infobox?",
+      "bodyText": "<strong>Lorem ipsum logic</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus<br><strong>Lorem ipsum summary</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus"
+    },
+    "innerBlocks": []
+  },
+  {
     "clientId": "44b434c7-be41-4eb4-850f-cd8922246062",
     "isValid": true,
     "name": "core/table",

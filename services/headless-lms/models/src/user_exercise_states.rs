@@ -495,7 +495,7 @@ FROM (
     SELECT u.email,
       u.id AS user_id,
       c.chapter_number,
-      SUM(ues.score_given) AS points_for_chapter
+      COALESCE(SUM(ues.score_given), 0) AS points_for_chapter
     FROM user_exercise_states ues
       JOIN users u ON u.id = ues.user_id
       JOIN exercises e ON e.id = ues.exercise_id

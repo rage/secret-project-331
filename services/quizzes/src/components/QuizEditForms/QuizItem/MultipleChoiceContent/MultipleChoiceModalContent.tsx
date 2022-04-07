@@ -36,7 +36,7 @@ import { useTypedSelector } from "../../../../store/store"
 import MarkdownEditor from "../../../MarkdownEditor"
 import { ModalWrapper } from "../../../Shared/Modal"
 
-import MultipleChoiceButton from "./MultiplChoiceButton"
+import MultipleChoiceButton from "./MultipleChoiceButton"
 
 const ModalContent = styled.div`
   display: flex;

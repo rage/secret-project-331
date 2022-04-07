@@ -39,7 +39,7 @@
   "open-menu": "Avaa valikko",
   "opens-in": "Avautuu",
   "opens-now": "Avautuu nyt!",
-  "percent-done": "{{percentage}}% tehty",
+  "exercises-attempted": "tehtävistä yritetty",
   "please-sign-in-to-view-this-page": "Kirjaudu sisään katsoaksesi tätä sivua",
   "privacy": "Yksityisyys",
   "project-description": "Secret Project on Helsingin yliopiston MOOC-keskuksen kehittämä järjestelmä, joka antaa mahdollisuuden luoda verkkokursseja ilmaiseksi kaikkien instituutioiden opettajille.",
@@ -50,5 +50,6 @@
   "start-course": "Aloita kurssi",
   "title-debug-view": "Debuggaa näkymä",
   "translate": "Käännä",
-  "university-of-helsinki": "Helsingin yliopisto"
+  "university-of-helsinki": "Helsingin yliopisto",
+  "points": "Pistettä"
 }

@@ -309,7 +309,9 @@ export function isUserCourseInstanceChapterProgress(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.score_given === "number" &&
-    typeof obj.score_maximum === "number"
+    typeof obj.score_maximum === "number" &&
+    (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
+    (obj.attempted_exercises === null || typeof obj.attempted_exercises === "number")
   )
 }
 
@@ -1414,7 +1416,7 @@ export function isUserCourseInstanceProgress(
     typeof obj.score_given === "number" &&
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
-    (obj.completed_exercises === null || typeof obj.completed_exercises === "number")
+    (obj.attempted_exercises === null || typeof obj.attempted_exercises === "number")
   )
 }
 

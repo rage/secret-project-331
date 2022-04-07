@@ -873,7 +873,7 @@ mod test {
         .await?;
         let grading = headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results(
             conn,
-            &exercise,
+            exercise,
             user_exercise_state,
             submission,
             mock_results,

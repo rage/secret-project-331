@@ -64,7 +64,7 @@ const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
           justify-content: center;
         `}
       >
-        {item_feedback && (
+        {item_feedback && item_feedback.trim() !== "" && (
           <div className={cx(correct ? correctAnswer : incorrectAnswer)}>
             <p>{item_feedback}</p>
           </div>

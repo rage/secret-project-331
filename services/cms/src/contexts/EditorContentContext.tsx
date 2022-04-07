@@ -6,7 +6,6 @@ import { v4 } from "uuid"
 
 import { ExerciseSlideAttributes } from "../blocks/ExerciseSlide/ExerciseSlideEditor"
 import { ExerciseTaskAttributes } from "../blocks/ExerciseTask/ExerciseTaskEditor"
-import { UnnormalizedDocument } from "../utils/documentSchemaProcessor"
 
 // Context
 
@@ -84,6 +83,7 @@ export const editorContentReducer = (
             exercise_type: "",
             private_spec: null,
             show_editor: false,
+            order_number: 0,
           },
           innerBlocks: [],
         }

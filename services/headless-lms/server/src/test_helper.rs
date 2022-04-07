@@ -236,6 +236,7 @@ macro_rules! insert_data {
             ::serde_json::Value::Null,
             ::serde_json::Value::Null,
             ::serde_json::Value::Null,
+            1
         )
         .await
         .unwrap();

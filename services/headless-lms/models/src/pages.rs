@@ -693,6 +693,7 @@ pub struct CmsPageExerciseTask {
     pub assignment: serde_json::Value,
     pub exercise_type: String,
     pub private_spec: Option<serde_json::Value>,
+    pub order_number: i32,
 }
 
 impl From<ExerciseTask> for CmsPageExerciseTask {
@@ -703,6 +704,7 @@ impl From<ExerciseTask> for CmsPageExerciseTask {
             assignment: task.assignment,
             exercise_type: task.exercise_type,
             private_spec: task.private_spec,
+            order_number: task.order_number,
         }
     }
 }
@@ -1147,9 +1149,10 @@ INSERT INTO exercise_tasks(
     assignment,
     public_spec,
     private_spec,
-    model_solution_spec
+    model_solution_spec,
+    order_number
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id) DO
 UPDATE
 SET exercise_slide_id = $2,
   exercise_type = $3,
@@ -1157,12 +1160,14 @@ SET exercise_slide_id = $2,
   public_spec = $5,
   private_spec = $6,
   model_solution_spec = $7,
+  order_number = $8,
   deleted_at = NULL
 RETURNING id,
   exercise_slide_id,
   assignment,
   exercise_type,
-  private_spec;
+  private_spec,
+  order_number
                 ",
             safe_for_db_exercise_task_id,
             safe_for_db_exercise_slide_id,
@@ -1171,6 +1176,7 @@ RETURNING id,
             public_spec,
             task_update.private_spec,
             model_solution_spec,
+            task_update.order_number,
         )
         .fetch_one(&mut *conn)
         .await?;
@@ -2197,6 +2203,7 @@ mod test {
             assignment: serde_json::json!([]),
             exercise_type: "exercise".to_string(),
             private_spec: None,
+            order_number: 1,
         };
 
         // Works without exercises

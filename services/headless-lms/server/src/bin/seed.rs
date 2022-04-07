@@ -1558,6 +1558,7 @@ async fn seed_sample_course(
         exercise_4_slide_1_task_2_spec_1_id,
         exercise_4_slide_1_task_2_spec_2_id,
         exercise_4_slide_1_task_2_spec_3_id,
+        1,
     );
 
     let page2_id = create_page(
@@ -2724,6 +2725,7 @@ fn example_exercise(
         spec_1,
         spec_2,
         spec_3,
+        0,
     );
     (block, exercise, exercise_slide, exercise_task)
 }
@@ -2762,19 +2764,29 @@ fn example_exercise_flexible(
     let tasks: Vec<CmsPageExerciseTask> = exercise_slides
         .into_iter()
         .flat_map(|(slide_id, tasks)| {
-            tasks
-                .into_iter()
-                .map(move |(task_id, task_type, assignment, spec)| {
-                    (slide_id, task_id, task_type, assignment, spec)
-                })
+            tasks.into_iter().enumerate().map(
+                move |(order_number, (task_id, task_type, assignment, spec))| {
+                    (
+                        slide_id,
+                        task_id,
+                        task_type,
+                        assignment,
+                        spec,
+                        order_number as i32,
+                    )
+                },
+            )
         })
         .map(
-            |(slide_id, task_id, exercise_type, assignment, spec)| CmsPageExerciseTask {
-                id: task_id,
-                exercise_slide_id: slide_id,
-                assignment,
-                exercise_type,
-                private_spec: Some(spec),
+            |(slide_id, task_id, exercise_type, assignment, spec, order_number)| {
+                CmsPageExerciseTask {
+                    id: task_id,
+                    exercise_slide_id: slide_id,
+                    assignment,
+                    exercise_type,
+                    private_spec: Some(spec),
+                    order_number,
+                }
             },
         )
         .collect();
@@ -2796,12 +2808,14 @@ fn example_exercise_task(
     spec_1: Uuid,
     spec_2: Uuid,
     spec_3: Uuid,
+    order_number: i32,
 ) -> CmsPageExerciseTask {
     CmsPageExerciseTask {
         id: exercise_task_id,
         exercise_slide_id,
         assignment: serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
         exercise_type: "example-exercise".to_string(),
+        order_number,
         private_spec: Some(serde_json::json!([
             {
                 "name": "a",
@@ -2866,6 +2880,7 @@ fn quizzes_exercise(
         assignment: serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
         exercise_type: "quizzes".to_string(),
         private_spec: Some(serde_json::json!(private_spec)),
+        order_number: 0,
     };
     (block, exercise, exercise_slide, exercise_task)
 }

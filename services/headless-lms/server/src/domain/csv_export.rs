@@ -291,6 +291,7 @@ mod test {
             Value::Null,
             Value::Null,
             Value::Null,
+            1,
         )
         .await
         .unwrap();
@@ -306,6 +307,7 @@ mod test {
             Value::Null,
             Value::Null,
             Value::Null,
+            1,
         )
         .await
         .unwrap();

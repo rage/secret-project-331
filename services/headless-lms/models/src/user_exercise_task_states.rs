@@ -425,6 +425,7 @@ mod tests {
                 Value::Null,
                 Value::Null,
                 Value::Null,
+                1,
             )
             .await?;
             let task_2 = exercise_tasks::insert(
@@ -435,6 +436,7 @@ mod tests {
                 Value::Null,
                 Value::Null,
                 Value::Null,
+                2,
             )
             .await?;
             let task_3 = exercise_tasks::insert(
@@ -445,6 +447,7 @@ mod tests {
                 Value::Null,
                 Value::Null,
                 Value::Null,
+                3,
             )
             .await?;
             let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(

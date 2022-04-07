@@ -72,6 +72,7 @@ export interface ExerciseTaskAttributes {
   exercise_type: string
   private_spec: unknown
   show_editor: boolean
+  order_number: number
 }
 
 const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({

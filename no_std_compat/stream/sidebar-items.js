@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["from_iter","Converts an iterator into a stream."]],"struct":[["FromIter","A stream that was created from iterator."]],"trait":[["Stream","An interface for dealing with asynchronous iterators."]]});

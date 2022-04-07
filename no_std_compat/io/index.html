@@ -1,11 +1,15 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Traits, helpers, and type definitions for core I&#x2F;O functionality."><meta name="keywords" content="rust, rustlang, rust-lang, io"><title>no_std_compat::io - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a class="sidebar-logo" href="../../no_std_compat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.png" alt="logo"></div>
-        </a><h2 class="location">Module io</h2><div class="sidebar-elems"><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="io" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../no_std_compat/index.html"><img class="rust-logo" src="../../rust-logo.png" alt="logo"></a><nav class="sub"><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">no_std_compat</a>::<wbr><a class="mod" href="#">io</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="https://doc.rust-lang.org/1.59.0/src/std/lib.rs.html#506" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Traits, helpers, and type definitions for core I/O functionality.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Traits, helpers, and type definitions for core I/O functionality."><meta name="keywords" content="rust, rustlang, rust-lang, io"><title>no_std_compat::io - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../no_std_compat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../no_std_compat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"><a href="#">Module io</a></h2><div class="sidebar-elems"><section><div class="block"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div></section><div id="sidebar-vars" data-name="io" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../no_std_compat/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
+    <h1 class="fqn"><span class="in-band">Module <a href="../index.html">no_std_compat</a>::<wbr><a class="mod" href="#">io</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="srclink" href="https://doc.rust-lang.org/1.60.0/src/std/lib.rs.html#494">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Traits, helpers, and type definitions for core I/O functionality.</p>
 <p>The <code>std::io</code> module contains a number of common things you’ll need
 when doing input and output. The most core part of this module is
 the <a href="trait.Read.html" title="Read"><code>Read</code></a> and <a href="trait.Write.html" title="Write"><code>Write</code></a> traits, which provide the
 most general interface for reading and writing input and output.</p>
-<h2 id="read-and-write" class="section-header"><a href="#read-and-write">Read and Write</a></h2>
+<h2 id="read-and-write"><a href="#read-and-write">Read and Write</a></h2>
 <p>Because they are traits, <a href="trait.Read.html" title="Read"><code>Read</code></a> and <a href="trait.Write.html" title="Write"><code>Write</code></a> are implemented by a number
 of other types, and you can implement them for your types too. As such,
 you’ll see a few different types of I/O throughout the documentation in
@@ -30,7 +34,7 @@ example, <a href="trait.Read.html" title="Read"><code>Read</code></a> adds a <a 
 <p><a href="trait.Read.html" title="Read"><code>Read</code></a> and <a href="trait.Write.html" title="Write"><code>Write</code></a> are so important, implementors of the two traits have a
 nickname: readers and writers. So you’ll sometimes see ‘a reader’ instead
 of ‘a type that implements the <a href="trait.Read.html" title="Read"><code>Read</code></a> trait’. Much easier!</p>
-<h3 id="seek-and-bufread" class="section-header"><a href="#seek-and-bufread">Seek and BufRead</a></h3>
+<h3 id="seek-and-bufread"><a href="#seek-and-bufread">Seek and BufRead</a></h3>
 <p>Beyond that, there are two important traits that are provided: <a href="trait.Seek.html" title="Seek"><code>Seek</code></a>
 and <a href="trait.BufRead.html" title="BufRead"><code>BufRead</code></a>. Both of these build on top of a reader to control
 how the reading happens. <a href="trait.Seek.html" title="Seek"><code>Seek</code></a> lets you control where the next byte is
@@ -56,7 +60,7 @@ coming from:</p>
 }</code></pre></div>
 <p><a href="trait.BufRead.html" title="BufRead"><code>BufRead</code></a> uses an internal buffer to provide a number of other ways to read, but
 to show it off, we’ll need to talk about buffers in general. Keep reading!</p>
-<h3 id="bufreader-and-bufwriter" class="section-header"><a href="#bufreader-and-bufwriter">BufReader and BufWriter</a></h3>
+<h3 id="bufreader-and-bufwriter"><a href="#bufreader-and-bufwriter">BufReader and BufWriter</a></h3>
 <p>Byte-based interfaces are unwieldy and can be inefficient, as we’d need to be
 making near-constant calls to the operating system. To help with this,
 <code>std::io</code> comes with two structs, <a href="struct.BufReader.html" title="BufReader"><code>BufReader</code></a> and <a href="struct.BufWriter.html" title="BufWriter"><code>BufWriter</code></a>, which wrap
@@ -101,7 +105,7 @@ to <a href="trait.Write.html#tymethod.write" title="Write::write"><code>write</c
 
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
-<h3 id="standard-input-and-output" class="section-header"><a href="#standard-input-and-output">Standard input and output</a></h3>
+<h3 id="standard-input-and-output"><a href="#standard-input-and-output">Standard input and output</a></h3>
 <p>A very common source of input is standard input:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::io</span>;
@@ -133,8 +137,8 @@ or <code>match</code> on the return value to catch any possible errors:</p>
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
 <p>Of course, using <a href="fn.stdout.html"><code>io::stdout</code></a> directly is less common than something like
-<a href="../macro.println.html" title="println!"><code>println!</code></a>.</p>
-<h3 id="iterator-types" class="section-header"><a href="#iterator-types">Iterator types</a></h3>
+[<code>println!</code>].</p>
+<h3 id="iterator-types"><a href="#iterator-types">Iterator types</a></h3>
 <p>A large number of the structures provided by <code>std::io</code> are for various
 ways of iterating over I/O. For example, <a href="struct.Lines.html" title="Lines"><code>Lines</code></a> is used to split over
 lines:</p>
@@ -153,7 +157,7 @@ lines:</p>
     }
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
-<h3 id="functions" class="section-header"><a href="#functions">Functions</a></h3>
+<h3 id="functions"><a href="#functions">Functions</a></h3>
 <p>There are a number of <a href="#functions-1">functions</a> that offer access to various
 features. For example, we can use three of these functions to copy everything
 from standard input to standard output:</p>
@@ -164,7 +168,7 @@ from standard input to standard output:</p>
     <span class="ident">io::copy</span>(<span class="kw-2">&amp;mut</span> <span class="ident">io::stdin</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">io::stdout</span>())<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }</code></pre></div>
-<h3 id="ioresult" class="section-header"><a href="#ioresult">io::Result</a></h3>
+<h3 id="ioresult"><a href="#ioresult">io::Result</a></h3>
 <p>Last, but certainly not least, is <a href="type.Result.html"><code>io::Result</code></a>. This type is used
 as the return type of many <code>std::io</code> functions that can cause an error, and
 can be returned from your own functions as well. Many of the examples in this
@@ -185,7 +189,7 @@ module use the <a href="../../book/appendix-02-operators.html"><code>?</code> op
 common type for functions which don’t have a ‘real’ return value, but do want to
 return errors if they happen. In this case, the only purpose of this function is
 to read the line and print it, so we use <code>()</code>.</p>
-<h3 id="platform-specific-behavior" class="section-header"><a href="#platform-specific-behavior">Platform-specific behavior</a></h3>
+<h3 id="platform-specific-behavior"><a href="#platform-specific-behavior">Platform-specific behavior</a></h3>
 <p>Many I/O functions throughout the standard library are documented to indicate
 what various library or syscalls they are delegated to. This is done to help
 applications both understand what’s happening under the hood as well as investigate
@@ -253,5 +257,5 @@ process.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.stdout.html" title="no_std_compat::io::stdout fn">stdout</a></div><div class="item-right docblock-short"><p>Constructs a new handle to the standard output of the current process.</p>
 </div></div></div><h2 id="types" class="small-section-header"><a href="#types">Type Definitions</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="type" href="type.Result.html" title="no_std_compat::io::Result type">Result</a></div><div class="item-right docblock-short"><p>A specialized <a href="../result/enum.Result.html"><code>Result</code></a> type for I/O operations.</p>
-</div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="no_std_compat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>
+</div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="no_std_compat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
 </body></html>

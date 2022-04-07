@@ -72,6 +72,9 @@ export default async function expectScreenshotsToMatchSnapshots({
 
   if (clearNotifications) {
     await page.evaluate(() => {
+      for (const notif of document.querySelectorAll("#give-feedback-button")) {
+        notif.remove()
+      }
       for (const notif of document.querySelectorAll(".toast-notification")) {
         notif.remove()
       }

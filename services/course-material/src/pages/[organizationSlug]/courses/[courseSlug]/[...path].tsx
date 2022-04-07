@@ -90,19 +90,19 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
 
   useEffect(() => {
     if (typeof window != "undefined" && window.location.hash) {
-      const selector = window.location.hash
-      setTimeout(() => {
-        tryToScrollToSelector(selector)
-      }, 100)
-      setTimeout(() => {
-        tryToScrollToSelector(selector)
-      }, 500)
-      setTimeout(() => {
-        tryToScrollToSelector(selector)
-      }, 1000)
-      setTimeout(() => {
-        tryToScrollToSelector(selector)
-      }, 2000)
+      const selector = window.location.hash.substring(1)
+      const scrollSuccessful = false
+      const setScrollTimeout = (timeout: number) => {
+        setTimeout(() => {
+          if (!scrollSuccessful) {
+            tryToScrollToSelector(selector)
+          }
+        }, timeout)
+      }
+      setScrollTimeout(100)
+      setScrollTimeout(500)
+      setScrollTimeout(1000)
+      setScrollTimeout(2000)
     }
   }, [path])
 

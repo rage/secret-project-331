@@ -181,7 +181,6 @@ test("history test", async ({ page, headless }) => {
     },
   })
 */
-
   // Click [aria-label="Go to page 4"]
   await page.click('[aria-label="Go to page 4"]')
   expectPath(page, "/manage/pages/[id]/history?page=4")
@@ -250,7 +249,6 @@ test("history test", async ({ page, headless }) => {
   await page.click("text=Page edit history") // deselect restore
   await page.waitForSelector("[aria-label='page 1'][aria-current='true']")
   await page.waitForTimeout(100)
-
   /*
   await expectScreenshotsToMatchSnapshots({
     page,
@@ -264,7 +262,6 @@ test("history test", async ({ page, headless }) => {
     },
   })
 */
-
   // Click text=Home
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/' }*/),
@@ -302,6 +299,7 @@ test("history test", async ({ page, headless }) => {
   })
 })
 
+/*
 async function replaceIdsAndTimesFromHistoryView(page: Page) {
   await page.evaluate(() => {
     const uuidRegex = new RegExp(
@@ -324,3 +322,4 @@ async function replaceIdsAndTimesFromHistoryView(page: Page) {
   await page.dispatchEvent("body", "testing-mode-replace-content-for-screenshot")
   await page.waitForTimeout(100)
 }
+*/

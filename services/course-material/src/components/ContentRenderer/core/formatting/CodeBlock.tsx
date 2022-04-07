@@ -15,6 +15,7 @@ const CodeBlock: React.FC<BlockRendererProps<CodeAttributes>> = ({ data }) => {
         padding: 0.8rem 1rem !important;
         line-height: 1.75rem;
         white-space: pre-wrap;
+        overflow-wrap: break-word;
       `}
       {...(anchor && { id: anchor })}
     >

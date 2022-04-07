@@ -112,9 +112,7 @@ pub async fn get_exercise_service_internally_preferred_baseurl_by_exercise_type(
     exercise_type: &str,
 ) -> ModelResult<Url> {
     let exercise_service = get_exercise_service_by_exercise_type(conn, exercise_type).await?;
-    Ok(get_exercise_service_internally_preferred_baseurl(
-        &exercise_service,
-    )?)
+    get_exercise_service_internally_preferred_baseurl(&exercise_service)
 }
 
 pub fn get_exercise_service_internally_preferred_baseurl(

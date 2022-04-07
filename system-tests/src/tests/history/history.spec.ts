@@ -167,8 +167,8 @@ test("history test", async ({ page, headless }) => {
 
   await Promise.all([page.waitForNavigation(), page.click(`a:has-text("History")`)])
 
-  const stableElement = await page.waitForSelector("text=core/paragraph")
   /*
+  const stableElement = await page.waitForSelector("text=core/paragraph")
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
@@ -299,6 +299,7 @@ test("history test", async ({ page, headless }) => {
   })
 })
 
+/*
 async function replaceIdsAndTimesFromHistoryView(page: Page) {
   await page.evaluate(() => {
     const uuidRegex = new RegExp(
@@ -321,3 +322,4 @@ async function replaceIdsAndTimesFromHistoryView(page: Page) {
   await page.dispatchEvent("body", "testing-mode-replace-content-for-screenshot")
   await page.waitForTimeout(100)
 }
+*/

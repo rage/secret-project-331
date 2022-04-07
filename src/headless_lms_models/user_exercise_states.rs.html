@@ -608,6 +608,8 @@
 <span id="603">603</span>
 <span id="604">604</span>
 <span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">futures::Stream</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals</span>;
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -768,6 +770,7 @@ SELECT COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
 WHERE ues.course_instance_id = $1
+  AND ues.activity_progress IN (&#39;completed&#39;, &#39;submitted&#39;)
   AND ues.user_id = $2
   AND ues.deleted_at IS NULL;
         &quot;#</span>,
@@ -795,6 +798,7 @@ WHERE ues.exercise_id IN (
     SELECT UNNEST($1::uuid [])
   )
   AND ues.deleted_at IS NULL
+  AND ues.activity_progress IN (&#39;completed&#39;, &#39;submitted&#39;)
   AND ues.user_id = $2
   AND ues.course_instance_id = $3;
                 &quot;#</span>,

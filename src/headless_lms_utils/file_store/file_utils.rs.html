@@ -45,9 +45,9 @@
     <span class="kw">let</span> <span class="ident">mime_type</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">to_string</span>();
     <span class="kw">let</span> <span class="ident">correct_type</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">into</span>());
 
-    <span class="prelude-val">Ok</span>(<span class="ident">file_store</span>
+    <span class="ident">file_store</span>
         .<span class="ident">upload_stream</span>(<span class="ident">path</span>, <span class="ident">Box::pin</span>(<span class="ident">correct_type</span>), <span class="kw-2">&amp;</span><span class="ident">mime_type</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>)
+        .<span class="kw">await</span>
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>

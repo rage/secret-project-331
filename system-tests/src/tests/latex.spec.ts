@@ -97,7 +97,7 @@ test("latex-block renders", async ({ headless, page }) => {
   // Fill [placeholder="Search"]
   await page.fill('[placeholder="Search"]', "latex")
   // Click button[role="option"]:has-text("Latex Block")
-  await page.click('button[role="option"]:has-text("Latex Block")')
+  await page.click('button[role="option"]:has-text("Latex")')
   // Fill textarea
   await page.fill("textarea", "\\int^\\infty_{-\\infty} e^{-x^2} dx = \\sqrt{\\pi}")
 

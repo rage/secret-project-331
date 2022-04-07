@@ -55,7 +55,7 @@ const ImageBox = styled.div`
   }
 `
 
-const ExercisePart = styled.div`
+const ExercisePart = styled.div<StyledProps>`
   position: relative;
   margin-left: 0em;
   padding: 0.6em 1em;
@@ -63,12 +63,12 @@ const ExercisePart = styled.div`
   color: ${baseTheme.colors.grey[700]};
   text-decoration: none;
   border-radius: 2px;
-  background: ${baseTheme.colors.grey[200]};
+  background: ${({ bg }) => bg && bg};
   display: flex;
   align-items: center;
 
   :hover {
-    background-color: ${baseTheme.colors.grey[300]};
+    background-color: ${baseTheme.colors.blue[300]};
   }
 
   span {
@@ -97,6 +97,10 @@ export interface ExerciseBoxExtraProps {
   url: string
   scoreMaximum: number
   userPoints: number
+  bg?: string
+}
+export interface StyledProps {
+  bg?: string
 }
 
 export type ExerciseBox = React.HTMLAttributes<HTMLDivElement> & ExerciseBoxExtraProps
@@ -107,6 +111,7 @@ const ExerciseBox: React.FC<ExerciseBox> = ({
   url,
   scoreMaximum,
   userPoints,
+  bg = "#DDDEE0",
 }) => {
   return (
     <Wrapper>
@@ -124,7 +129,7 @@ const ExerciseBox: React.FC<ExerciseBox> = ({
             `}
             href="replace"
           >
-            <ExercisePart>
+            <ExercisePart bg={bg}>
               <ImageBox>
                 <div>
                   <p>{exerciseIndex}</p>

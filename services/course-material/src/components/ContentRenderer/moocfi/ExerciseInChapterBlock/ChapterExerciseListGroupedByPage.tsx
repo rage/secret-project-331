@@ -6,6 +6,7 @@ import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import ExerciseBox from "../../../../shared-module/components/ExerciseList/ExerciseBox"
 import PageBox from "../../../../shared-module/components/ExerciseList/PageBox"
 import Spinner from "../../../../shared-module/components/Spinner"
+import { baseTheme } from "../../../../shared-module/styles"
 import { coursePageSectionRoute } from "../../../../utils/routing"
 
 export interface ChapterExerciseListGroupedByPageProps {
@@ -49,7 +50,7 @@ const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPag
             <>
               <PageBox pageTitle={page.title} />
               <div>
-                {page.exercises.map((e) => (
+                {page.exercises.map((e, index) => (
                   <div key={e.id}>
                     <ExerciseBox
                       url={coursePageSectionRoute(
@@ -58,6 +59,7 @@ const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPag
                         page.url_path,
                         e.id,
                       )}
+                      bg={index % 2 !== 0 ? baseTheme.colors.blue[100] : baseTheme.colors.blue[200]}
                       exerciseIndex={e.order_number}
                       exerciseTitle={e.name}
                       scoreMaximum={e.score_maximum}

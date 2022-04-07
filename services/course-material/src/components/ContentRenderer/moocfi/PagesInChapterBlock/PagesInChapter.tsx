@@ -31,7 +31,7 @@ const PagesInChapter: React.FC<PagesInChapterProps> = ({
       <div>
         <div
           className={css`
-            padding: 7.5em 1em;
+            margin: 7.5em 1em;
           `}
         >
           <h2

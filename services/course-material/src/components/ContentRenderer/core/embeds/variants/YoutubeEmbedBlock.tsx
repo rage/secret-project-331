@@ -25,43 +25,37 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
 
   return (
     <BreakFromCentered sidebar={false}>
-      <div
+      <figure
         className={css`
           width: 100%;
           max-width: 1000px;
-          margin: 0 auto;
+          margin: 4rem auto;
         `}
       >
-        <div
+        <iframe
           className={css`
-            margin: 4rem 0;
+            display: block;
+            width: 100%;
+            aspect-ratio: ${aspectRatioFromClassName(props.className)};
+          `}
+          src={`https://www.youtube-nocookie.com/embed/${video}`}
+          title={t("title-youtube-video-player")}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+        <figcaption
+          className={css`
+            text-align: center;
+            font-size: ${baseTheme.fontSizes[0]}px;
+            margin-top: 0.5em;
+            margin-bottom: 1em;
+            color: ${baseTheme.colors.grey[400]};
           `}
         >
-          <iframe
-            className={css`
-              display: block;
-              width: 100%;
-              aspect-ratio: ${aspectRatioFromClassName(props.className)};
-            `}
-            src={`https://www.youtube-nocookie.com/embed/${video}`}
-            title={t("title-youtube-video-player")}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          ></iframe>
-          <figcaption
-            className={css`
-              text-align: center;
-              font-size: ${baseTheme.fontSizes[0]}px;
-              margin-top: 0.5em;
-              margin-bottom: 1em;
-              color: ${baseTheme.colors.grey[400]};
-            `}
-          >
-            {props.caption}
-          </figcaption>
-        </div>
-      </div>
+          {props.caption}
+        </figcaption>
+      </figure>
     </BreakFromCentered>
   )
 }

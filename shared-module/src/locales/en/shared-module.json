@@ -39,7 +39,7 @@
   "open-menu": "Open menu",
   "opens-in": "Opens in",
   "opens-now": "Opens now!",
-  "percent-done": "{{percentage}}% done",
+  "exercises-attempted": "exercises attempted",
   "please-sign-in-to-view-this-page": "Please sign in to view this page",
   "privacy": "Privacy",
   "project-description": "Secret Project is a system developed by the MOOC centre of University of Helsinki that enables teachers in all institutions to create online courses for free.",
@@ -58,5 +58,6 @@
   "show": "show",
   "hide": "hide",
   "submit": "Submit",
-  "set-field-value": "Set {{name}}"
+  "set-field-value": "Set {{name}}",
+  "points": "Points"
 }

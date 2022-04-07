@@ -8,6 +8,7 @@ import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
 import CourseTestModeNotification from "../../../../components/notifications/CourseTestModeNotification"
 import PageContext, { CoursePageDispatch, defaultPageState } from "../../../../contexts/PageContext"
+import useScrollToSelector from "../../../../hooks/useScrollToSelector"
 import pageStateReducer from "../../../../reducers/pageStateReducer"
 import { fetchCoursePageByPath } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -18,7 +19,6 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import { tryToScrollToSelector } from "../../../../utils/dom"
 import { courseFaqPageRoute } from "../../../../utils/routing"
 
 interface PagePageProps {
@@ -88,23 +88,8 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
     }
   }, [courseSlug, getCoursePageByPath.data, router])
 
-  useEffect(() => {
-    if (typeof window != "undefined" && window.location.hash) {
-      const selector = window.location.hash.substring(1)
-      const scrollSuccessful = false
-      const setScrollTimeout = (timeout: number) => {
-        setTimeout(() => {
-          if (!scrollSuccessful) {
-            tryToScrollToSelector(selector)
-          }
-        }, timeout)
-      }
-      setScrollTimeout(100)
-      setScrollTimeout(500)
-      setScrollTimeout(1000)
-      setScrollTimeout(2000)
-    }
-  }, [path])
+  // Handle scrolling to selector if window has anchor
+  useScrollToSelector(path)
 
   const handleRefresh = useCallback(async () => {
     await getCoursePageByPath.refetch()

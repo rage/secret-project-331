@@ -1,6 +1,6 @@
-export function tryToScrollToSelector(selector: string): boolean {
+export function tryToScrollToSelector(selector: string): Element | null {
   if (typeof window === "undefined") {
-    return false
+    return null
   }
   try {
     // eslint-disable-next-line i18next/no-literal-string
@@ -8,13 +8,13 @@ export function tryToScrollToSelector(selector: string): boolean {
     if (!element) {
       // eslint-disable-next-line i18next/no-literal-string
       console.warn("Could not find the element to scroll to.")
-      return false
+      return null
     }
     element.scrollIntoView()
-    return true
+    return element
   } catch (e) {
     // eslint-disable-next-line i18next/no-literal-string
     console.warn("Could not scroll element into view", e)
-    return false
+    return null
   }
 }

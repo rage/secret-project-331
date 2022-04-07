@@ -25,15 +25,15 @@ const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string
   return (
     <div
       className={css`
-        padding: 0em 1em 5em 1em;
+        margin: 5em 1em;
       `}
     >
       <h2
         className={css`
           text-align: center;
-          margin-bottom: 1rem;
+          margin-bottom: 2rem;
           text-transform: uppercase;
-          font-size: 1.25rem;
+          font-size: 2rem;
         `}
       >
         {t("exercises-in-this-chapter")}

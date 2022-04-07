@@ -37,12 +37,12 @@ const CircleBox = styled.div`
 
   .progress-circle-bg {
     fill: none;
-    stroke: #d2d2d2;
+    stroke: #fff;
     stroke-width: 4px;
   }
   .progress-circle-value {
     fill: none;
-    stroke: ${baseTheme.colors.green[200]};
+    stroke: ${baseTheme.colors.blue[600]};
     stroke-width: 4px;
     stroke-dasharray: 100 100;
     stroke-dashoffset: ${({ point }: CircleBoxProps) => 100 - point * 100};

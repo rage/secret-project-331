@@ -1,5 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration } from "@wordpress/blocks"
+import { formatLtr } from "@wordpress/icons"
 
 import LatexEditor from "./LatexEditor"
 import LatexSave from "./LatexSave"
@@ -9,7 +10,7 @@ export interface TextAttributes {
 }
 
 const LatexBlockConfiguration: BlockConfiguration<TextAttributes> = {
-  title: "Latex Block",
+  title: "Latex",
   description: "Block for writing LaTex",
   category: "text",
   attributes: {
@@ -18,6 +19,7 @@ const LatexBlockConfiguration: BlockConfiguration<TextAttributes> = {
       default: "",
     },
   },
+  icon: formatLtr,
   edit: LatexEditor,
   save: LatexSave,
 }

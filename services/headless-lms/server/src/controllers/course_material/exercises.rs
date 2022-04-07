@@ -107,27 +107,14 @@ async fn post_submission(
     let chapter = chapter_option_future.await.transpose()?;
 
     // Exercise deadlines takes precedence to chapter deadlines
-    // If deadline has been set to exercise check that first. Otherwise check chapter deadline
-    match exercise.deadline {
-        Some(deadline) => {
-            if Utc::now() + Duration::seconds(1) >= deadline {
-                return Err(ControllerError::BadRequest(
-                    "exercise deadline passed".to_string(),
-                ));
-            }
-        }
-        None => {
-            // Checking if exercise is related to any chapter, checking if chapter of the exercise has a deadline and if so whether it is passed
-            if let Some(chapter) = chapter {
-                if let Some(deadline) = chapter.deadline {
-                    // current date added 1 second gracetime to account for clock drift
-                    if Utc::now() + Duration::seconds(1) >= deadline {
-                        return Err(ControllerError::BadRequest(
-                            "exercise deadline passed".to_string(),
-                        ));
-                    }
-                }
-            }
+    if let Some(deadline) = exercise
+        .deadline
+        .or_else(|| chapter.and_then(|c| c.deadline))
+    {
+        if Utc::now() + Duration::seconds(1) >= deadline {
+            return Err(ControllerError::BadRequest(
+                "exercise deadline passed".to_string(),
+            ));
         }
     }
 

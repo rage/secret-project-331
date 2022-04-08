@@ -54,7 +54,8 @@ pub async fn init_actix() -> (
     PgPool,
 ) {
     let db = init_db().await;
-    let private_cookie_key = "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=";
+    let private_cookie_key =
+        "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
     let pool = PgPool::connect(&db)
         .await
         .expect("failed to connect to test db");

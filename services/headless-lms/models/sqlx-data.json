@@ -361,27 +361,6 @@
       "nullable": [false, false, false, true, true, false, true, true]
     }
   },
-  "054314b5158a6e88f7dd504aad96ca35c0efd3f4bca8d874071bd40415927b8e": {
-    "query": "\nSELECT user_id,\n  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_each_chapter\nFROM (\n    SELECT u.email,\n      u.id AS user_id,\n      c.chapter_number,\n      SUM(ues.score_given) AS points_for_chapter\n    FROM user_exercise_states ues\n      JOIN users u ON u.id = ues.user_id\n      JOIN exercises e ON e.id = ues.exercise_id\n      JOIN chapters c on e.chapter_id = c.id\n    WHERE ues.course_instance_id = $1\n      AND ues.deleted_at IS NULL\n      AND c.deleted_at IS NULL\n      AND u.deleted_at IS NULL\n      AND e.deleted_at IS NULL\n    GROUP BY u.email,\n      u.id,\n      c.chapter_number\n  ) as uue\nGROUP BY user_id\n\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "points_for_each_chapter",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, null]
-    }
-  },
   "06518b02100124d605ae4cd2b84008fe94e46360284a701d60f79c7dcb117ea6": {
     "query": "\nSELECT exams.id,\n  exams.name,\n  exams.instructions,\n  pages.id AS page_id,\n  exams.starts_at,\n  exams.ends_at,\n  exams.time_minutes\nFROM exams\n  JOIN pages ON pages.exam_id = exams.id\nWHERE exams.id = $1\n",
     "describe": {
@@ -2019,6 +1998,27 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+    }
+  },
+  "261b050648c959dca1d48033d8415f25076bb225aaa1d9c8d7b9adf96f17046b": {
+    "query": "\nSELECT user_id,\n  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_each_chapter\nFROM (\n    SELECT u.email,\n      u.id AS user_id,\n      c.chapter_number,\n      COALESCE(SUM(ues.score_given), 0) AS points_for_chapter\n    FROM user_exercise_states ues\n      JOIN users u ON u.id = ues.user_id\n      JOIN exercises e ON e.id = ues.exercise_id\n      JOIN chapters c on e.chapter_id = c.id\n    WHERE ues.course_instance_id = $1\n      AND ues.deleted_at IS NULL\n      AND c.deleted_at IS NULL\n      AND u.deleted_at IS NULL\n      AND e.deleted_at IS NULL\n    GROUP BY u.email,\n      u.id,\n      c.chapter_number\n  ) as uue\nGROUP BY user_id\n\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "points_for_each_chapter",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, null]
     }
   },
   "267c9d76696bc99642ad6a55744d7effbef43cdc34d12e1ad786385bad6f6a62": {

@@ -274,8 +274,9 @@ mod tests {
         use serde_json::Value;
 
         use crate::{
-            chapters, exercise_slides, exercise_tasks, exercises, pages,
-            user_exercise_slide_states, user_exercise_states,
+            chapters, exercise_slides,
+            exercise_tasks::{self, NewExerciseTask},
+            exercises, pages, user_exercise_slide_states, user_exercise_states,
         };
 
         use super::*;
@@ -419,35 +420,44 @@ mod tests {
             let slide_id = exercise_slides::insert(tx.as_mut(), exercise_id, 1).await?;
             let task_1 = exercise_tasks::insert(
                 tx.as_mut(),
-                slide_id,
-                "test-exercise",
-                vec![],
-                Value::Null,
-                Value::Null,
-                Value::Null,
-                1,
+                NewExerciseTask {
+                    exercise_slide_id: slide_id,
+                    exercise_type: "test-exercise".to_string(),
+                    assignment: vec![],
+                    public_spec: Some(Value::Null),
+                    private_spec: Some(Value::Null),
+                    spec_file_id: None,
+                    model_solution_spec: Some(Value::Null),
+                    order_number: 1,
+                },
             )
             .await?;
             let task_2 = exercise_tasks::insert(
                 tx.as_mut(),
-                slide_id,
-                "test-exercise",
-                vec![],
-                Value::Null,
-                Value::Null,
-                Value::Null,
-                2,
+                NewExerciseTask {
+                    exercise_slide_id: slide_id,
+                    exercise_type: "test-exercise".to_string(),
+                    assignment: vec![],
+                    public_spec: Some(Value::Null),
+                    private_spec: Some(Value::Null),
+                    spec_file_id: None,
+                    model_solution_spec: Some(Value::Null),
+                    order_number: 2,
+                },
             )
             .await?;
             let task_3 = exercise_tasks::insert(
                 tx.as_mut(),
-                slide_id,
-                "test-exercise",
-                vec![],
-                Value::Null,
-                Value::Null,
-                Value::Null,
-                3,
+                NewExerciseTask {
+                    exercise_slide_id: slide_id,
+                    exercise_type: "test-exercise".to_string(),
+                    assignment: vec![],
+                    public_spec: Some(Value::Null),
+                    private_spec: Some(Value::Null),
+                    spec_file_id: None,
+                    model_solution_spec: Some(Value::Null),
+                    order_number: 3,
+                },
             )
             .await?;
             let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(

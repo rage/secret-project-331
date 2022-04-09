@@ -230,13 +230,16 @@ macro_rules! insert_data {
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident, slide: $exercise_slide:ident; task: $exercise_task:ident) => {
         let $exercise_task = headless_lms_models::exercise_tasks::insert(
             $tx.as_mut(),
-            $exercise_slide,
-            "exercise_type",
-            vec![],
-            ::serde_json::Value::Null,
-            ::serde_json::Value::Null,
-            ::serde_json::Value::Null,
-            1
+            headless_lms_models::exercise_tasks::NewExerciseTask {
+                exercise_slide_id: $exercise_slide,
+                exercise_type: "exercise_type".to_string(),
+                assignment: vec![],
+                public_spec: Some(serde_json::Value::Null),
+                private_spec: Some(serde_json::Value::Null),
+                spec_file_id: None,
+                model_solution_spec: Some(serde_json::Value::Null),
+                order_number: 0,
+            }
         )
         .await
         .unwrap();

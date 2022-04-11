@@ -77,6 +77,7 @@ const FeedbackHandler: React.FC<Props> = ({
     <>
       {!feedbackDialogOpen && !editProposalDialogOpen && (
         <div
+          id="give-feedback-button"
           className={css`
             position: fixed;
             bottom: 10px;
@@ -109,6 +110,7 @@ const FeedbackHandler: React.FC<Props> = ({
             </MenuItem>
           </Menu>
           <Button
+            className="give-feedback-button"
             variant={"primary"}
             size={"medium"}
             onClick={(ev) => setFeedbackMenuAnchor(ev.currentTarget)}

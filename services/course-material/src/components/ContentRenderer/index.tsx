@@ -40,6 +40,7 @@ import ExerciseBlock from "./moocfi/ExerciseBlock"
 import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
 import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
+import InfoBox from "./moocfi/InfoBox"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
 export interface ContentRendererProps {
@@ -109,6 +110,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/course-objective-section": CourseObjectiveSectionBlock,
   "moocfi/chapter-progress": ChapterProgressBlock,
   "moocfi/glossary": GlossaryBlock,
+  "moocfi/infobox": InfoBox,
 }
 
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {

@@ -3,10 +3,14 @@ extern crate tracing;
 
 use std::{env, sync::Arc};
 
-use actix_session::CookieSession;
-use actix_web::{cookie::SameSite, middleware::Logger, web::Data, App, HttpServer};
+use actix_session::{storage::CookieSessionStore, SessionMiddleware};
+use actix_web::{
+    cookie::{Key, SameSite},
+    middleware::Logger,
+    web::Data,
+    App, HttpServer,
+};
 use anyhow::Result;
-use chrono::Duration;
 use dotenv::dotenv;
 use headless_lms_actix::{setup_tracing, OAuthClient};
 use headless_lms_utils::{
@@ -73,13 +77,21 @@ async fn main() -> Result<()> {
         App::new()
             .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
             .wrap(
-                CookieSession::private(private_cookie_key.as_bytes())
-                    .name("session")
-                    .secure(!allow_no_https_for_development)
-                    .same_site(SameSite::Strict) // Default api can only be accessed from the main website. Public api will be less strict on this.
-                    .http_only(true) // Cookie is inaccessible from javascript for security
-                    .path("/api") // browser won't send the cookie unless this path exists in the request url
-                    .expires_in(Duration::days(730).num_seconds()),
+                SessionMiddleware::builder(
+                    CookieSessionStore::default(),
+                    Key::from(private_cookie_key.as_bytes()),
+                )
+                .cookie_name("session".to_string())
+                .cookie_secure(!allow_no_https_for_development)
+                .cookie_same_site(SameSite::Strict) // Default api can only be accessed from the main website. Public api will be less strict on this.
+                .cookie_http_only(true) // Cookie is inaccessible from javascript for security
+                .cookie_path("/api".to_string()) // browser won't send the cookie unless this path exists in the request url
+                .cookie_content_security(actix_session::CookieContentSecurity::Private)
+                // TODO: the session length should be made to auto-prolong once this is fixed: https://github.com/actix/actix-extras/issues/231
+                .session_length(actix_session::SessionLength::Predetermined {
+                    max_session_length: Some(actix_web::cookie::time::Duration::days(730)),
+                })
+                .build(),
             )
             .wrap(Logger::new("%r %s %b bytes - %D ms"))
             .app_data(Data::new(db_clone.clone())) // pass app_databData::new(ase pool to application so we can access it inside handlers

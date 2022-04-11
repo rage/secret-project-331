@@ -85,7 +85,8 @@
     "usernamehw.errorlens",
     "jebbs.plantuml",
     "wix.vscode-import-cost",
-    "serayuzgur.crates"
+    "serayuzgur.crates",
+    "ms-playwright.playwright"
   ],
   "launch": {
     "configurations": [],

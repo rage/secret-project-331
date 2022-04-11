@@ -103,20 +103,20 @@ const REPLY = "reply"
 const SUBMIT = "submit"
 
 const Thread: React.FC<ThreadProps> = (props) => {
-  const { t } = useTranslation()
   const {
     state: { items },
   } = props
 
   return (
     <Fragment>
-      {getThread(props, t)}
-      {items?.map((item) => getNestedThread(item, t))}
+      {GetThread(props)}
+      {items?.map((item) => GetNestedThread(item))}
     </Fragment>
   )
 }
 
-const getThread = (props: ThreadProps, t: any) => {
+const GetThread = (props: ThreadProps) => {
+  const { t } = useTranslation()
   const { state, author, handleReply, handleClick, clicked, selectedId } = props
 
   const { id, text, time } = state
@@ -163,7 +163,8 @@ const getThread = (props: ThreadProps, t: any) => {
   )
 }
 
-const getNestedThread = (item: Item, t: any) => {
+const GetNestedThread = (item: Item) => {
+  const { t } = useTranslation()
   const { text, time, author } = item
   return (
     text && (

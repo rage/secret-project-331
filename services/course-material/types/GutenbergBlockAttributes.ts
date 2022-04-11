@@ -835,6 +835,9 @@ export interface ColumnAttributes {
   style?: {
     [k: string]: unknown
   }
+  layout?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -1129,13 +1132,31 @@ export interface BlockAttributes {
 }
 
 export interface SeparatorAttributes {
-  color?: string
-  customColor?: string
+  opacity: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
+  className?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
+  style?: {
+    [k: string]: unknown
+  }
+}
+
+/**
+ * @deprecated This is an older version of SeparatorAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface SeparatorDeprecated1Attributes {
+  color?: string
+  customColor?: string
+  lock?: {
+    [k: string]: unknown
+  }
   className?: string
 }
 

@@ -87,9 +87,11 @@ jobs:
         run: npm run test
         working-directory: ./system-tests/
 
-      - name: Run system tests again to make sure they're stable
+      # To prevent accidentally introducing flaky tests in a pr. Skipped on master in order to not slow down deploys.
+      - name: Run system tests again to make sure they're stable (if not master)
         run: npm run test
         working-directory: ./system-tests/
+        if: ${{ github.ref != 'refs/heads/master' }}
 
       - uses: actions/upload-artifact@v2
         if: failure()

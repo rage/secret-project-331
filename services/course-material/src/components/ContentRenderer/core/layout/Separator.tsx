@@ -6,13 +6,13 @@ import { SeparatorAttributes } from "../../../../../types/GutenbergBlockAttribut
 import colorMapper from "../../../../styles/colorMapper"
 
 const SeparatorBlock: React.FC<BlockRendererProps<SeparatorAttributes>> = ({ data }) => {
-  const { anchor, className, color } = data.attributes
+  const { anchor, className, textColor, backgroundColor } = data.attributes
   return (
     <div>
       <hr
         className={css`
-          ${color && `background-color: ${colorMapper(color)};`}
-          ${color && `color: ${colorMapper(color)};`}
+          ${backgroundColor && `background-color: ${colorMapper(textColor)};`}
+          ${textColor && `color: ${colorMapper(backgroundColor)};`}
           ${
             (!className || className === "is-style-default") &&
             "width: 6.25rem; text-align: center;" /* Is not style-wide or dots */

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.9/src/async_impl/client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.10/src/async_impl/client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -1958,6 +1958,25 @@
 <span id="1953">1953</span>
 <span id="1954">1954</span>
 <span id="1955">1955</span>
+<span id="1956">1956</span>
+<span id="1957">1957</span>
+<span id="1958">1958</span>
+<span id="1959">1959</span>
+<span id="1960">1960</span>
+<span id="1961">1961</span>
+<span id="1962">1962</span>
+<span id="1963">1963</span>
+<span id="1964">1964</span>
+<span id="1965">1965</span>
+<span id="1966">1966</span>
+<span id="1967">1967</span>
+<span id="1968">1968</span>
+<span id="1969">1969</span>
+<span id="1970">1970</span>
+<span id="1971">1971</span>
+<span id="1972">1972</span>
+<span id="1973">1973</span>
+<span id="1974">1974</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__rustls&quot;</span>,))]</span>
 <span class="kw">use</span> <span class="ident">std::any::Any</span>;
 <span class="kw">use</span> <span class="ident">std::net::IpAddr</span>;
@@ -2306,12 +2325,31 @@
 
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls-native-roots&quot;</span>)]</span>
                     <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">tls_built_in_root_certs</span> {
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">valid_count</span> <span class="op">=</span> <span class="number">0</span>;
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">invalid_count</span> <span class="op">=</span> <span class="number">0</span>;
                         <span class="kw">for</span> <span class="ident">cert</span> <span class="kw">in</span> <span class="ident">rustls_native_certs::load_native_certs</span>()
                             .<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>)<span class="question-mark">?</span>
                         {
-                            <span class="ident">root_cert_store</span>
-                                .<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="ident">rustls::Certificate</span>(<span class="ident">cert</span>.<span class="number">0</span>))
-                                .<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>)<span class="question-mark">?</span>
+                            <span class="kw">let</span> <span class="ident">cert</span> <span class="op">=</span> <span class="ident">rustls::Certificate</span>(<span class="ident">cert</span>.<span class="number">0</span>);
+                            <span class="comment">// Continue on parsing errors, as native stores often include ancient or syntactically</span>
+                            <span class="comment">// invalid certificates, like root certificates without any X509 extensions.</span>
+                            <span class="comment">// Inspiration: https://github.com/rustls/rustls/blob/633bf4ba9d9521a95f68766d04c22e2b01e68318/rustls/src/anchors.rs#L105-L112</span>
+                            <span class="kw">match</span> <span class="ident">root_cert_store</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="ident">cert</span>) {
+                                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="ident">valid_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>,
+                                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                                    <span class="ident">invalid_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                                    <span class="macro">log::warn!</span>(
+                                        <span class="string">&quot;rustls failed to parse DER certificate {:?} {:?}&quot;</span>,
+                                        <span class="kw-2">&amp;</span><span class="ident">err</span>,
+                                        <span class="kw-2">&amp;</span><span class="ident">cert</span>
+                                    );
+                                }
+                            }
+                        }
+                        <span class="kw">if</span> <span class="ident">valid_count</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">invalid_count</span> <span class="op">&gt;</span> <span class="number">0</span> {
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>(
+                                <span class="string">&quot;zero valid certificates found in native root store&quot;</span>,
+                            ));
                         }
                     }
 
@@ -3214,7 +3252,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This method panics if a TLS backend cannot initialized, or the resolver</span>
+    <span class="doccomment">/// This method panics if a TLS backend cannot be initialized, or the resolver</span>
     <span class="doccomment">/// cannot load the system configuration.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Use `Client::builder()` if you wish to handle the failure as an `Error`</span>

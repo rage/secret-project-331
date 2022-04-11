@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["smtp","The SMTP transport sends emails using the SMTP protocol."],["stub","The stub transport only logs message envelope and drops the content. It can be useful for testing purposes."]],"trait":[["Transport","Blocking Transport method for emails"]]});
+initSidebarItems({"mod":[["smtp","The SMTP transport sends emails using the SMTP protocol."],["stub","The stub transport logs message envelopes as well as contents. It can be useful for testing purposes."]],"trait":[["Transport","Blocking Transport method for emails"]]});

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.0-rc.4/src/message/header/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.0-rc.5/src/message/header/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="shortcut icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -826,6 +826,27 @@
 <span id="819">819</span>
 <span id="820">820</span>
 <span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Headers widely used in email messages</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{
@@ -862,13 +883,13 @@
 
     <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxError</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">display</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">display</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HeaderValue</span>;
 }
 
 <span class="doccomment">/// A set of email headers</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Headers</span> {
-    <span class="ident">headers</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">HeaderName</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
+    <span class="ident">headers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Headers</span> {
@@ -896,13 +917,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` if `Header` isn&#39;t present in `Headers`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">get_raw</span>(<span class="kw-2">&amp;</span><span class="ident">H::name</span>()).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">raw</span><span class="op">|</span> <span class="ident">H::parse</span>(<span class="ident">raw</span>).<span class="ident">ok</span>())
+        <span class="self">self</span>.<span class="ident">get_raw</span>(<span class="kw-2">&amp;</span><span class="ident">H::name</span>())
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">raw_value</span><span class="op">|</span> <span class="ident">H::parse</span>(<span class="ident">raw_value</span>).<span class="ident">ok</span>())
     }
 
     <span class="doccomment">/// Sets `Header` into `Headers`, overriding `Header` if it</span>
     <span class="doccomment">/// was already present in `Headers`</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) {
-        <span class="self">self</span>.<span class="ident">insert_raw</span>(<span class="ident">H::name</span>(), <span class="ident">header</span>.<span class="ident">display</span>());
+        <span class="self">self</span>.<span class="ident">insert_raw</span>(<span class="ident">header</span>.<span class="ident">display</span>());
     }
 
     <span class="doccomment">/// Remove `Header` from `Headers`, returning it</span>
@@ -910,7 +932,7 @@
     <span class="doccomment">/// Returns `None` if `Header` isn&#39;t in `Headers`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">remove_raw</span>(<span class="kw-2">&amp;</span><span class="ident">H::name</span>())
-            .<span class="ident">and_then</span>(<span class="op">|</span>(<span class="ident">_name</span>, <span class="ident">raw</span>)<span class="op">|</span> <span class="ident">H::parse</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>).<span class="ident">ok</span>())
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">H::parse</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">raw_value</span>).<span class="ident">ok</span>())
     }
 
     <span class="doccomment">/// Clears `Headers`, removing all headers from it</span>
@@ -925,62 +947,46 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` if `name` isn&#39;t present in `Headers`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">find_header</span>(<span class="ident">name</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">_name</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="ident">value</span>)
+        <span class="self">self</span>.<span class="ident">find_header</span>(<span class="ident">name</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">raw_value</span>.<span class="ident">as_str</span>())
     }
 
     <span class="doccomment">/// Inserts a raw header into `Headers`, overriding `value` if it</span>
     <span class="doccomment">/// was already present in `Headers`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_raw</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">HeaderName</span>, <span class="ident">value</span>: <span class="ident">String</span>) {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">find_header_mut</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>) {
-            <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">current_value</span>)) =&gt; {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_raw</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">HeaderValue</span>) {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">find_header_mut</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">name</span>) {
+            <span class="prelude-val">Some</span>(<span class="ident">current_value</span>) =&gt; {
                 <span class="kw-2">*</span><span class="ident">current_value</span> <span class="op">=</span> <span class="ident">value</span>;
             }
             <span class="prelude-val">None</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">push</span>((<span class="ident">name</span>, <span class="ident">value</span>));
+                <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">push</span>(<span class="ident">value</span>);
             }
-        }
-    }
-
-    <span class="doccomment">/// Appends a raw header into `Headers`</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If a header with a name of `name` is already present,</span>
-    <span class="doccomment">/// appends `, ` + `value` to it&#39;s current value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_raw</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">HeaderName</span>, <span class="ident">value</span>: <span class="ident">String</span>) {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">find_header_mut</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>) {
-            <span class="prelude-val">Some</span>((<span class="ident">_name</span>, <span class="ident">prev_value</span>)) =&gt; {
-                <span class="ident">prev_value</span>.<span class="ident">push_str</span>(<span class="string">&quot;, &quot;</span>);
-                <span class="ident">prev_value</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>);
-            }
-            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">push</span>((<span class="ident">name</span>, <span class="ident">value</span>)),
         }
     }
 
     <span class="doccomment">/// Remove a raw header from `Headers`, returning it</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` if `name` isn&#39;t present in `Headers`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_raw</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">HeaderName</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_raw</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">find_header_index</span>(<span class="ident">name</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">remove</span>(<span class="ident">i</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">find_header</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">HeaderName</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">find_header</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">headers</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">find</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="ident">name_</span>, <span class="ident">_value</span>)<span class="op">|</span> <span class="ident">name</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="ident">name_</span>))
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> (<span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="number">0</span>, <span class="ident">t</span>.<span class="number">1</span>.<span class="ident">as_str</span>()))
+            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">name</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">find_header_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">HeaderName</span>, <span class="kw-2">&amp;mut</span> <span class="ident">String</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">find_header_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">HeaderValue</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">headers</span>
             .<span class="ident">iter_mut</span>()
-            .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">name_</span>, <span class="ident">_value</span>)<span class="op">|</span> <span class="ident">name</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="ident">name_</span>))
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> (<span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="number">0</span>, <span class="kw-2">&amp;mut</span> <span class="ident">t</span>.<span class="number">1</span>))
+            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">name</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">find_header_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">headers</span>
             .<span class="ident">iter</span>()
             .<span class="ident">enumerate</span>()
-            .<span class="ident">find</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="ident">_i</span>, (<span class="ident">name_</span>, <span class="ident">_value</span>))<span class="op">|</span> <span class="ident">name</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="ident">name_</span>))
+            .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">_i</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="ident">name</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">name</span>))
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">i</span>)
     }
 }
@@ -988,10 +994,10 @@
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Headers</span> {
     <span class="doccomment">/// Formats `Headers`, ready to put them into an email</span>
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">headers</span> {
-            <span class="ident">Display::fmt</span>(<span class="ident">name</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+        <span class="kw">for</span> <span class="ident">value</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">headers</span> {
+            <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">name</span>)<span class="question-mark">?</span>;
             <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;: &quot;</span>)<span class="question-mark">?</span>;
-            <span class="ident">HeaderValueEncoder::encode</span>(<span class="ident">name</span>, <span class="ident">value</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+            <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">encoded_value</span>)<span class="question-mark">?</span>;
             <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;\r\n&quot;</span>)<span class="question-mark">?</span>;
         }
 
@@ -1118,6 +1124,38 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HeaderValue</span> {
+    <span class="ident">name</span>: <span class="ident">HeaderName</span>,
+    <span class="ident">raw_value</span>: <span class="ident">String</span>,
+    <span class="ident">encoded_value</span>: <span class="ident">String</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">HeaderValue</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="ident">HeaderName</span>, <span class="ident">raw_value</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoded_value</span> <span class="op">=</span> <span class="ident">String::with_capacity</span>(<span class="ident">raw_value</span>.<span class="ident">len</span>());
+        <span class="ident">HeaderValueEncoder::encode</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">raw_value</span>, <span class="kw-2">&amp;mut</span> <span class="ident">encoded_value</span>).<span class="ident">unwrap</span>();
+
+        <span class="self">Self</span> {
+            <span class="ident">name</span>,
+            <span class="ident">raw_value</span>,
+            <span class="ident">encoded_value</span>,
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dangerous_new_pre_encoded</span>(
+        <span class="ident">name</span>: <span class="ident">HeaderName</span>,
+        <span class="ident">raw_value</span>: <span class="ident">String</span>,
+        <span class="ident">encoded_value</span>: <span class="ident">String</span>,
+    ) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">name</span>,
+            <span class="ident">raw_value</span>,
+            <span class="ident">encoded_value</span>,
+        }
+    }
+}
+
 <span class="kw">const</span> <span class="ident">ENCODING_START_PREFIX</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;=?utf-8?b?&quot;</span>;
 <span class="kw">const</span> <span class="ident">ENCODING_END_SUFFIX</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;?=&quot;</span>;
 <span class="kw">const</span> <span class="ident">MAX_LINE_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">76</span>;
@@ -1129,7 +1167,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">HeaderValueEncoder</span> {
-    <span class="kw">fn</span> <span class="ident">encode</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">encode</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> (<span class="ident">words_iter</span>, <span class="ident">encoder</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">name</span>, <span class="ident">value</span>);
         <span class="ident">encoder</span>.<span class="ident">format</span>(<span class="ident">words_iter</span>, <span class="ident">f</span>)
     }
@@ -1147,7 +1185,7 @@
     <span class="kw">fn</span> <span class="ident">format</span>(
         <span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">words_iter</span>: <span class="ident">WordsPlusFillIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">fmt::Write</span>,
     ) -&gt; <span class="ident">fmt::Result</span> {
         <span class="doccomment">/// Estimate if an encoded string of `len` would fix in an empty line</span>
         <span class="kw">fn</span> <span class="ident">would_fit_new_line</span>(<span class="ident">len</span>: <span class="ident">usize</span>) -&gt; <span class="ident">bool</span> {
@@ -1276,11 +1314,9 @@
 
     <span class="kw">fn</span> <span class="ident">flush_encode_buf</span>(
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">fmt::Write</span>,
         <span class="ident">switching_to_allowed</span>: <span class="ident">bool</span>,
     ) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
-
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">is_empty</span>() {
             <span class="comment">// nothing to encode</span>
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
@@ -1305,7 +1341,7 @@
             <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">as_bytes</span>(),
             <span class="ident">base64::STANDARD</span>,
         );
-        <span class="ident">Display::fmt</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">encoded</span>)<span class="question-mark">?</span>;
         <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="ident">ENCODING_END_SUFFIX</span>)<span class="question-mark">?</span>;
 
         <span class="self">self</span>.<span class="ident">line_len</span> <span class="op">+</span><span class="op">=</span> <span class="ident">ENCODING_START_PREFIX</span>.<span class="ident">len</span>();
@@ -1321,7 +1357,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">new_line</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">new_line</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;\r\n &quot;</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">line_len</span> <span class="op">=</span> <span class="number">1</span>;
 
@@ -1351,7 +1387,7 @@
             .<span class="ident">find</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="ident">_i</span>, <span class="ident">c</span>)<span class="op">|</span> <span class="op">!</span><span class="ident">is_space_like</span>(<span class="ident">c</span>))
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">i</span>);
 
-        <span class="kw">let</span> <span class="ident">word</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">s</span>[..<span class="ident">next_word</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">s</span>.<span class="ident">len</span>())];
+        <span class="kw">let</span> <span class="ident">word</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">s</span>[..<span class="ident">next_word</span>.<span class="ident">unwrap_or</span>(<span class="self">self</span>.<span class="ident">s</span>.<span class="ident">len</span>())];
         <span class="self">self</span>.<span class="ident">s</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">s</span>[<span class="ident">word</span>.<span class="ident">len</span>()..];
         <span class="prelude-val">Some</span>(<span class="ident">word</span>)
     }
@@ -1374,7 +1410,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">HeaderName</span>, <span class="ident">Headers</span>};
+    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">Headers</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">valid_headername</span>() {
@@ -1435,10 +1471,10 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">format_ascii</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;To&quot;</span>),
             <span class="string">&quot;John Doe &lt;example@example.com&gt;, Jean Dupont &lt;jean@example.com&gt;&quot;</span>.<span class="ident">to_string</span>(),
-        );
+        ));
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
@@ -1449,10 +1485,10 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">format_ascii_with_folding</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;To&quot;</span>),
             <span class="string">&quot;Ascii &lt;example@example.com&gt;, John Doe &lt;johndoe@example.com, John Smith &lt;johnsmith@example.com&gt;, Pinco Pallino &lt;pincopallino@example.com&gt;, Jemand &lt;jemand@example.com&gt;, Jean Dupont &lt;jean@example.com&gt;&quot;</span>.<span class="ident">to_string</span>(),
-        );
+        ));
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
@@ -1467,10 +1503,10 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">format_ascii_with_folding_long_line</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;Subject&quot;</span>),
             <span class="string">&quot;Hello! This is lettre, and this IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I guess that&#39;s it!&quot;</span>.<span class="ident">to_string</span>()
-        );
+        ));
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
@@ -1486,9 +1522,10 @@
     <span class="kw">fn</span> <span class="ident">format_ascii_with_folding_very_long_line</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
         <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+            <span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;Subject&quot;</span>),
             <span class="string">&quot;Hello! IGuessTheLastLineWasntLongEnoughSoLetsTryAgainShallWeWhatDoYouThinkItsGoingToHappenIGuessWereAboutToFindOut! I don&#39;t know&quot;</span>.<span class="ident">to_string</span>()
-        );
+        ));
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
@@ -1502,10 +1539,10 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">format_ascii_with_folding_giant_word</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;Subject&quot;</span>),
             <span class="string">&quot;1abcdefghijklmnopqrstuvwxyz2abcdefghijklmnopqrstuvwxyz3abcdefghijklmnopqrstuvwxyz4abcdefghijklmnopqrstuvwxyz5abcdefghijklmnopqrstuvwxyz6abcdefghijklmnopqrstuvwxyz&quot;</span>.<span class="ident">to_string</span>()
-        );
+        ));
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
@@ -1520,10 +1557,10 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">format_special</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;To&quot;</span>),
             <span class="string">&quot;Seán &lt;sean@example.com&gt;&quot;</span>.<span class="ident">to_string</span>(),
-        );
+        ));
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
@@ -1534,10 +1571,10 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">format_special_emoji</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;To&quot;</span>),
             <span class="string">&quot;🌎 &lt;world@example.com&gt;&quot;</span>.<span class="ident">to_string</span>(),
-        );
+        ));
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
@@ -1548,10 +1585,10 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">format_special_with_folding</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;To&quot;</span>),
             <span class="string">&quot;🌍 &lt;world@example.com&gt;, 🦆 Everywhere &lt;ducks@example.com&gt;, Иванов Иван Иванович &lt;ivanov@example.com&gt;, Jānis Bērziņš &lt;janis@example.com&gt;, Seán Ó Rudaí &lt;sean@example.com&gt;&quot;</span>.<span class="ident">to_string</span>(),
-        );
+         ) );
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
@@ -1569,8 +1606,9 @@
     <span class="kw">fn</span> <span class="ident">format_slice_on_char_boundary_bug</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
         <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+            <span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;Subject&quot;</span>),
-            <span class="string">&quot;🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="string">&quot;🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳&quot;</span>.<span class="ident">to_string</span>(),)
         );
 
         <span class="macro">assert_eq!</span>(
@@ -1582,10 +1620,10 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">format_bad_stuff</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;Subject&quot;</span>),
             <span class="string">&quot;Hello! \r\n This is \&quot; bad \0. 👋&quot;</span>.<span class="ident">to_string</span>(),
-        );
+        ));
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
@@ -1597,21 +1635,25 @@
     <span class="kw">fn</span> <span class="ident">format_everything</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
         <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+            <span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;Subject&quot;</span>),
             <span class="string">&quot;Hello! This is lettre, and this IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I guess that&#39;s it!&quot;</span>.<span class="ident">to_string</span>()
+            )
         );
         <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+            <span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;To&quot;</span>),
             <span class="string">&quot;🌍 &lt;world@example.com&gt;, 🦆 Everywhere &lt;ducks@example.com&gt;, Иванов Иван Иванович &lt;ivanov@example.com&gt;, Jānis Bērziņš &lt;janis@example.com&gt;, Seán Ó Rudaí &lt;sean@example.com&gt;&quot;</span>.<span class="ident">to_string</span>(),
+            )
         );
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;From&quot;</span>),
             <span class="string">&quot;Someone &lt;somewhere@example.com&gt;&quot;</span>.<span class="ident">to_string</span>(),
-        );
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+        ));
+        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;Content-Transfer-Encoding&quot;</span>),
             <span class="string">&quot;quoted-printable&quot;</span>.<span class="ident">to_string</span>(),
-        );
+        ));
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
@@ -1633,10 +1675,10 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">issue_653</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(
+        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
             <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;Subject&quot;</span>),
             <span class="string">&quot;＋仮名 :a;go; ;;;;;s;;;;;;;;;;;;;;;;fffeinmjgggggggggｆっ&quot;</span>.<span class="ident">to_string</span>(),
-        );
+        ));
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),

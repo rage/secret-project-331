@@ -14,7 +14,7 @@ with the chosen <code>filename</code> appearing as the file name.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::fs</span>;
 
-<span class="kw">use</span> <span class="ident">lettre::message</span>::{<span class="ident">Attachment</span>, <span class="ident">header::ContentType</span>};
+<span class="kw">use</span> <span class="ident">lettre::message</span>::{<span class="ident">header::ContentType</span>, <span class="ident">Attachment</span>};
 
 <span class="kw">let</span> <span class="ident">filename</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;invoice.pdf&quot;</span>);
 <span class="kw">let</span> <span class="ident">filebody</span> <span class="op">=</span> <span class="ident">fs::read</span>(<span class="string">&quot;invoice.pdf&quot;</span>)<span class="question-mark">?</span>;
@@ -28,7 +28,7 @@ body:</p>
 <div class="example-wrap"><pre class="language-html"><code>&lt;img src=&quot;cid:123&quot;&gt;</code></pre></div>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::fs</span>;
 
-<span class="kw">use</span> <span class="ident">lettre::message</span>::{<span class="ident">Attachment</span>, <span class="ident">header::ContentType</span>};
+<span class="kw">use</span> <span class="ident">lettre::message</span>::{<span class="ident">header::ContentType</span>, <span class="ident">Attachment</span>};
 
 <span class="kw">let</span> <span class="ident">content_id</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;123&quot;</span>);
 <span class="kw">let</span> <span class="ident">filebody</span> <span class="op">=</span> <span class="ident">fs::read</span>(<span class="string">&quot;image.jpg&quot;</span>)<span class="question-mark">?</span>;

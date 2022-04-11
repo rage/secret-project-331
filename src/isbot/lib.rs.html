@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/isbot-0.1.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/isbot-0.1.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../isbot/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -327,45 +327,65 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">regex::Regex</span>;
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+</pre><pre class="rust"><code><span class="doccomment">//! [![github]](https://github.com/BryanMorgan/isbot)&amp;ensp;[![crates-io]](https://crates.io/crates/isbot)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [github]: &lt;https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github&gt;</span>
+<span class="doccomment">//! [crates-io]: &lt;https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Detect bots or crawlers identified by matching a user-agent to a collection of known bot patterns.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! User-agent patterns are maintained as a single regular expression for fast validation.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The default list of user-agent patterns balances a large set of known bots</span>
+<span class="doccomment">//! while ensuring real browsers are not falsely identified as bots.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Examples</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! use isbot::Bots;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let bots = Bots::default();</span>
+<span class="doccomment">//! assert_eq!(bots.is_bot(&quot;Googlebot-Image/1.0&quot;), true);</span>
+<span class="doccomment">//! assert_eq!(bots.is_bot(&quot;Opera/9.60 (Windows NT 6.0; U; en) Presto/2.1.1&quot;), false);</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! User-agent regular expressions can be added or removed for specific use cases.</span>
+<span class="doccomment">//! For example, you could remove the Chrome Lighthouse bot from the list of known bots:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! let mut bots = isbot::Bots::default();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // By default Chrome Lighthouse is considered a bot</span>
+<span class="doccomment">//! assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;), true);</span>
+<span class="doccomment">//! // Remove the Chrome Lighthouse regular expression pattern to indicate it is not a bot</span>
+<span class="doccomment">//! bots.remove(&amp;[&quot;Chrome-Lighthouse&quot;]);</span>
+<span class="doccomment">//! assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;), false);</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Or append a new user-agent to detect a custom bot:</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! let mut bots = isbot::Bots::default();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Append a new custom bot user-agent regular expression</span>
+<span class="doccomment">//! assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;), false);</span>
+<span class="doccomment">//! bots.append(&amp;[r&quot;CustomNewTestB0T\s/\d\.\d&quot;]);</span>
+<span class="doccomment">//! assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;), true);</span>
+<span class="doccomment">//! ```</span>
+
+<span class="kw">use</span> <span class="ident">regex::Regex</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashSet</span>, <span class="ident">fmt::Debug</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-
-<span class="doccomment">/// A collection of user-agent patterns used to detect known bots.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// User-agent patterns are maintained as a single regular expression for fast validation.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The default list of user-agent patterns balances a large set of known bots/crawlers</span>
-<span class="doccomment">/// while ensuring real browsers are not falsely identified as bots.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use isbot::Bots;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let bots = Bots::default();</span>
-<span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Googlebot-Image/1.0&quot;), true);</span>
-<span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Opera/9.60 (Windows NT 6.0; U; en) Presto/2.1.1&quot;), false);</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// User-agent regular expressions can be added or removed for specific use cases.</span>
-<span class="doccomment">/// For example, you could remove the Chrome Lighthouse bot from the list of known bots:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// let mut bots = isbot::Bots::default();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // By default Chrome Lighthouse is considered a bot</span>
-<span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;), true);</span>
-<span class="doccomment">/// // Remove the Chrome Lighthouse regular expression pattern to indicate it is not a bot</span>
-<span class="doccomment">/// bots.remove(&amp;[&quot;Chrome-Lighthouse&quot;]);</span>
-<span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;), false);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Append a new custom bot user-agent regular expression</span>
-<span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;), false);</span>
-<span class="doccomment">/// bots.append(&amp;[r&quot;CustomNewTestB0T\s/\d\.\d&quot;]);</span>
-<span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;), true);</span>
-<span class="doccomment">///</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Bots</span> {
     <span class="ident">user_agent_patterns</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">user_agents_regex</span>: <span class="ident">Regex</span>,

@@ -439,8 +439,10 @@
 <span id="434">434</span>
 <span id="435">435</span>
 <span id="436">436</span>
+<span id="437">437</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">actix_http::Payload</span>;
-<span class="kw">use</span> <span class="ident">actix_session</span>::{<span class="ident">Session</span>, <span class="ident">UserSession</span>};
+<span class="kw">use</span> <span class="ident">actix_session::Session</span>;
+<span class="kw">use</span> <span class="ident">actix_session::SessionExt</span>;
 <span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">FromRequest</span>, <span class="ident">HttpRequest</span>};
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};

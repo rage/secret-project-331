@@ -6,7 +6,7 @@
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div>
         </a><h2 class="location"><a href="#">Module smtp</a></h2><div class="sidebar-elems"><section><div class="block"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#constants">Constants</a></li></ul></div></section><div id="sidebar-vars" data-name="smtp" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Module <a href="../../index.html">lettre</a>::<wbr><a href="../index.html">transport</a>::<wbr><a class="mod" href="#">smtp</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../../../src/lettre/transport/smtp/mod.rs.html#1-198">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The SMTP transport sends emails using the SMTP protocol.</p>
+    <h1 class="fqn"><span class="in-band">Module <a href="../../index.html">lettre</a>::<wbr><a href="../index.html">transport</a>::<wbr><a class="mod" href="#">smtp</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../../../src/lettre/transport/smtp/mod.rs.html#1-212">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The SMTP transport sends emails using the SMTP protocol.</p>
 <p>This SMTP client follows <a href="https://tools.ietf.org/html/rfc5321">RFC
 5321</a>, and is designed to efficiently send emails from an
 application to a relay email server, as it relies as much as possible on the relay server
@@ -31,7 +31,7 @@ emails directly to the destination server.</p>
 <h5 id="simple-example"><a href="#simple-example">Simple example</a></h5>
 <p>This is the most basic example of usage:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">lettre</span>::{<span class="ident">Message</span>, <span class="ident">Transport</span>, <span class="ident">SmtpTransport</span>};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">lettre</span>::{<span class="ident">Message</span>, <span class="ident">SmtpTransport</span>, <span class="ident">Transport</span>};
 
 <span class="kw">let</span> <span class="ident">email</span> <span class="op">=</span> <span class="ident">Message::builder</span>()
     .<span class="ident">from</span>(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>)
@@ -41,15 +41,20 @@ emails directly to the destination server.</p>
     .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Be happy!&quot;</span>))<span class="question-mark">?</span>;
 
 <span class="comment">// Create TLS transport on port 465</span>
-<span class="kw">let</span> <span class="ident">sender</span> <span class="op">=</span> <span class="ident">SmtpTransport::relay</span>(<span class="string">&quot;smtp.example.com&quot;</span>)<span class="question-mark">?</span>
-    .<span class="ident">build</span>();
+<span class="kw">let</span> <span class="ident">sender</span> <span class="op">=</span> <span class="ident">SmtpTransport::relay</span>(<span class="string">&quot;smtp.example.com&quot;</span>)<span class="question-mark">?</span>.<span class="ident">build</span>();
 <span class="comment">// Send the email via remote relay</span>
 <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">sender</span>.<span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="ident">email</span>);
 <span class="macro">assert!</span>(<span class="ident">result</span>.<span class="ident">is_ok</span>());</code></pre></div>
 <h5 id="authentication"><a href="#authentication">Authentication</a></h5>
 <p>Example with authentication and connection pool:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">lettre</span>::{<span class="ident">Message</span>, <span class="ident">Transport</span>, <span class="ident">SmtpTransport</span>, <span class="ident">transport::smtp</span>::{<span class="ident">PoolConfig</span>, <span class="ident">authentication</span>::{<span class="ident">Credentials</span>, <span class="ident">Mechanism</span>}}};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">lettre</span>::{
+    <span class="ident">transport::smtp</span>::{
+        <span class="ident">authentication</span>::{<span class="ident">Credentials</span>, <span class="ident">Mechanism</span>},
+        <span class="ident">PoolConfig</span>,
+    },
+    <span class="ident">Message</span>, <span class="ident">SmtpTransport</span>, <span class="ident">Transport</span>,
+};
 
 <span class="kw">let</span> <span class="ident">email</span> <span class="op">=</span> <span class="ident">Message::builder</span>()
     .<span class="ident">from</span>(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>)
@@ -61,11 +66,14 @@ emails directly to the destination server.</p>
 <span class="comment">// Create TLS transport on port 587 with STARTTLS</span>
 <span class="kw">let</span> <span class="ident">sender</span> <span class="op">=</span> <span class="ident">SmtpTransport::starttls_relay</span>(<span class="string">&quot;smtp.example.com&quot;</span>)<span class="question-mark">?</span>
     <span class="comment">// Add credentials for authentication</span>
-    .<span class="ident">credentials</span>(<span class="ident">Credentials::new</span>(<span class="string">&quot;username&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;password&quot;</span>.<span class="ident">to_string</span>()))
+    .<span class="ident">credentials</span>(<span class="ident">Credentials::new</span>(
+        <span class="string">&quot;username&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="string">&quot;password&quot;</span>.<span class="ident">to_string</span>(),
+    ))
     <span class="comment">// Configure expected authentication mechanism</span>
     .<span class="ident">authentication</span>(<span class="macro">vec!</span>[<span class="ident">Mechanism::Plain</span>])
     <span class="comment">// Connection pool settings</span>
-    .<span class="ident">pool_config</span>( <span class="ident">PoolConfig::new</span>().<span class="ident">max_size</span>(<span class="number">20</span>))
+    .<span class="ident">pool_config</span>(<span class="ident">PoolConfig::new</span>().<span class="ident">max_size</span>(<span class="number">20</span>))
     .<span class="ident">build</span>();
 
 <span class="comment">// Send the email via remote relay</span>
@@ -73,7 +81,10 @@ emails directly to the destination server.</p>
 <span class="macro">assert!</span>(<span class="ident">result</span>.<span class="ident">is_ok</span>());</code></pre></div>
 <p>You can specify custom TLS settings:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">lettre</span>::{<span class="ident">Message</span>, <span class="ident">Transport</span>, <span class="ident">SmtpTransport</span>, <span class="ident">transport::smtp::client</span>::{<span class="ident">TlsParameters</span>, <span class="ident">Tls</span>}};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">lettre</span>::{
+    <span class="ident">transport::smtp::client</span>::{<span class="ident">Tls</span>, <span class="ident">TlsParameters</span>},
+    <span class="ident">Message</span>, <span class="ident">SmtpTransport</span>, <span class="ident">Transport</span>,
+};
 
 <span class="kw">let</span> <span class="ident">email</span> <span class="op">=</span> <span class="ident">Message::builder</span>()
     .<span class="ident">from</span>(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>)
@@ -84,7 +95,8 @@ emails directly to the destination server.</p>
 
 <span class="comment">// Custom TLS configuration</span>
 <span class="kw">let</span> <span class="ident">tls</span> <span class="op">=</span> <span class="ident">TlsParameters::builder</span>(<span class="string">&quot;smtp.example.com&quot;</span>.<span class="ident">to_string</span>())
-          .<span class="ident">dangerous_accept_invalid_certs</span>(<span class="bool-val">true</span>).<span class="ident">build</span>()<span class="question-mark">?</span>;
+    .<span class="ident">dangerous_accept_invalid_certs</span>(<span class="bool-val">true</span>)
+    .<span class="ident">build</span>()<span class="question-mark">?</span>;
 
 <span class="comment">// Create TLS transport on port 465</span>
 <span class="kw">let</span> <span class="ident">sender</span> <span class="op">=</span> <span class="ident">SmtpTransport::relay</span>(<span class="string">&quot;smtp.example.com&quot;</span>)<span class="question-mark">?</span>

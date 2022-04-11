@@ -21,7 +21,7 @@ import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import { baseTheme } from "../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
@@ -30,15 +30,20 @@ interface ExerciseBlockAttributes {
   id: string
 }
 
-const DeadlineText = styled.div`
-  border: 1px solid;
-  border-radius: 12px;
+interface DeadlineProps {
+  closingSoon: boolean
+}
+
+// eslint-disable-next-line i18next/no-literal-string
+const DeadlineText = styled.div<DeadlineProps>`
+  display: flex;
+  justify-content: center;
+  font-size: 16px;
   padding: 1rem;
-  ${respondToOrLarger.sm} {
-    width: 75%;
-  }
-  border-color: red;
-  background: ${baseTheme.colors.red["100"]};
+  background: ${(DeadlineProps) =>
+    DeadlineProps.closingSoon ? baseTheme.colors.red["100"] : baseTheme.colors.clear["300"]};
+  color: ${(DeadlineProps) =>
+    DeadlineProps.closingSoon ? baseTheme.colors.red["700"] : baseTheme.colors.green["600"]};
 `
 
 // Special care taken here to ensure exercise content can have full width of
@@ -119,6 +124,11 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const ranOutOfTries =
     limit_number_of_tries && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
 
+  const deadline = getCourseMaterialExercise.data.exercise.deadline
+
+  const dateInTwoDays = new Date()
+  dateInTwoDays.setDate(dateInTwoDays.getDate() + 2)
+
   return (
     <BreakFromCentered sidebar={false}>
       <div
@@ -170,11 +180,16 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
             </div>
           </div>
-          {getCourseMaterialExercise.data.exercise.deadline && (
-            <DeadlineText>
-              {t("deadline")} {getCourseMaterialExercise.data.exercise.deadline.toUTCString()}
-            </DeadlineText>
-          )}
+          {deadline &&
+            (Date.now() < deadline.getTime() ? (
+              <DeadlineText closingSoon={dateInTwoDays.getTime() >= deadline.getTime()}>
+                {t("deadline")} {deadline.toUTCString()}
+              </DeadlineText>
+            ) : (
+              <DeadlineText closingSoon={true}>
+                {t("Deadline-passed-n-days-ago", { days: dateDiffInDays(deadline) })}
+              </DeadlineText>
+            ))}
           {getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
             <ExerciseTask
               key={task.id}

@@ -6,6 +6,13 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
+const gutenbergAxeSkip = [
+  "aria-allowed-attr", // gutenberg blocks use disallowed attributes that we can't control
+  "aria-allowed-role", // the editor contains elements that are not supposed to be editable (e.g. h1 with textbox role)
+  "color-contrast", // the gutenberg block lists don't have a high enough constrast
+  "aria-hidden-focus", // Gutengerg draggable thing does not have a tabindex -1
+]
+
 test("test", async ({ page, headless }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
@@ -44,11 +51,7 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "block-properties",
     waitForThisToBeVisibleAndStable: "text=Landing page hero section",
-    axeSkip: [
-      "aria-allowed-attr", // gutenberg blocks use disallowed attributes that we can't control
-      "aria-allowed-role", // the editor contains elements that are not supposed to be editable (e.g. h1 with textbox role)
-      "color-contrast", // the gutenberg block lists don't have a high enough constrast
-    ],
+    axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })
 
@@ -60,11 +63,7 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "block-list",
     waitForThisToBeVisibleAndStable: "text=Course Objective Section",
-    axeSkip: [
-      "aria-allowed-attr", // gutenberg blocks use disallowed attributes that we can't control
-      "aria-allowed-role", // the editor contains elements that are not supposed to be editable (e.g. h1 with textbox role)
-      "color-contrast", // the gutenberg block lists don't have a high enough constrast
-    ],
+    axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })
 
@@ -76,11 +75,7 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "block-menu",
     waitForThisToBeVisibleAndStable: "text=Pullquote",
-    axeSkip: [
-      "aria-allowed-attr", // gutenberg blocks use disallowed attributes that we can't control
-      "aria-allowed-role", // the editor contains elements that are not supposed to be editable (e.g. h1 with textbox role)
-      "color-contrast", // the gutenberg block lists don't have a high enough constrast
-    ],
+    axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })
 })

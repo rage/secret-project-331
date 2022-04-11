@@ -1,4 +1,6 @@
 import { chromium } from "@playwright/test"
+import { spawnSync } from "child_process"
+import path from "path"
 
 import playWrightPackageJson from "../../node_modules/playwright/package.json"
 import systemTestsPackageLockJson from "../../package-lock.json"
@@ -6,6 +8,7 @@ import { login } from "../utils/login"
 
 async function globalSetup(): Promise<void> {
   await makeSureNpmCiHasBeenRan()
+  await setupSystemTestDb()
   await createLoginStates()
 }
 
@@ -31,6 +34,20 @@ async function createLoginStates() {
   await login("language.teacher@example.com", "language.teacher", page)
   await login("user@example.com", "user", page)
   await login("assistant@example.com", "assistant", page)
+}
+
+// The setup system test db called by playwright to make the playwright vscode extension to work.
+async function setupSystemTestDb() {
+  const setupSystemTestDbScriptPath = path.join(__dirname, "../../../bin/setup-system-test-db")
+  console.log("Setting up system test db.")
+  // spawnSync is the easiest way to wait for the script to finish while inheriting stdio.
+  // Using a sync method hare shoud not be a problem since this is a setup script
+  const res = spawnSync(setupSystemTestDbScriptPath, { stdio: "inherit" })
+  if (res.error) {
+    console.error("Error: Could not setup system test db.")
+    throw res.error
+  }
+  console.log("System test db setup complete.")
 }
 
 export default globalSetup

@@ -9,6 +9,7 @@ function envToNumber(env: string, defaultNumber: number) {
 }
 
 const config: PlaywrightTestConfig = {
+  forbidOnly: !!process.env.CI,
   globalSetup: require.resolve("./src/setup/globalSetup.ts"),
   globalTeardown: require.resolve("./src/setup/globalTeardown.ts"),
   reporter: [["line"]],

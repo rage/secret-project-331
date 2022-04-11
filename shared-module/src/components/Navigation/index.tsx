@@ -4,9 +4,10 @@ import ComplexNav from "./ComplexNav"
 import SimpleNav from "./SimpleNav"
 
 export interface NavigationProps {
-  variant: "simple" | "complex" | "breadcrumbs"
+  variant: "simple" | "complex"
   frontPageUrl?: string
   faqUrl?: string
+  SearchDialogComponent?: React.ReactNode
   returnToPath?: string
 }
 

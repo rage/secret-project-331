@@ -13,6 +13,7 @@ import SkipLink from "../shared-module/components/SkipLink"
 
 import ScrollIndicator from "./ScrollIndicator"
 import SearchDialog from "./SearchDialog"
+import UserNavigationControls from "./navigation/UserNavigationControls"
 
 interface LayoutProps {
   children: ReactNode
@@ -66,25 +67,24 @@ const Layout: React.FC<LayoutProps> = ({
         `}
       >
         <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
-        <nav role="navigation" aria-label={t("navigation-menu")}>
-          <ScrollIndicator />
-          <Navbar
-            faqUrl={faqUrl}
-            variant={navVariant ?? "simple"}
-            // Return to path can be override per page
-            returnToPath={returnToPath ?? returnPath}
-          >
-            {courseId && courseSlug && (
-              <li>
-                <SearchDialog
-                  courseId={courseId}
-                  courseSlug={courseSlug}
-                  organizationSlug={organizationSlug}
-                />
-              </li>
-            )}
-          </Navbar>
-        </nav>
+        <ScrollIndicator />
+        <Navbar
+          faqUrl={faqUrl}
+          variant={navVariant ?? "simple"}
+          SearchDialogComponent={
+            courseId &&
+            courseSlug && (
+              <SearchDialog
+                courseId={courseId}
+                courseSlug={courseSlug}
+                organizationSlug={organizationSlug}
+              />
+            )
+          }
+        >
+          <UserNavigationControls returnToPath={returnToPath ?? returnPath} courseId={courseId} />
+        </Navbar>
+
         {/* Do not touch flex */}
         <main
           className={css`

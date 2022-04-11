@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 import { baseTheme } from "../../styles"
 import { runCallbackIfEnterPressed } from "../../utils/accessibility"
 import Hamburger from "../Hamburger"
-import LoginControls from "../LoginControls"
 
 import { NavigationProps } from "."
 
@@ -60,50 +59,50 @@ const NavMenu = css`
     margin-left: 20px;
   }
 `
-// eslint-disable-next-line i18next/no-literal-string
-const NavLink = css`
-  color: ${baseTheme.colors.grey[700]};
-  font-weight: 600;
-  text-decoration: none;
-  display: inline-block;
-  position: relative;
-  font-size: 1.2rem;
-  line-height: 1.5rem;
-  /* margin: 0.5rem 1.5rem; */
+// // eslint-disable-next-line i18next/no-literal-string
+// const NavLink = css`
+//   color: ${baseTheme.colors.grey[700]};
+//   font-weight: 600;
+//   text-decoration: none;
+//   display: inline-block;
+//   position: relative;
+//   font-size: 1.2rem;
+//   line-height: 1.5rem;
+//   /* margin: 0.5rem 1.5rem; */
 
-  outline: none;
-  &:focus-visible {
-    outline: 2px solid ${baseTheme.colors.green[500]};
-    outline-offset: 2px;
-  }
+//   outline: none;
+//   &:focus-visible {
+//     outline: 2px solid ${baseTheme.colors.green[500]};
+//     outline-offset: 2px;
+//   }
 
-  /*
+//   /*
 
-  &:after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    transform: scaleX(0);
-    height: 2px;
-    bottom: 0;
-    left: 0;
-    background-color: ${baseTheme.colors.grey[700]};
-    transform-origin: bottom right;
-    transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
-  }
+//   &:after {
+//     content: "";
+//     position: absolute;
+//     width: 100%;
+//     transform: scaleX(0);
+//     height: 2px;
+//     bottom: 0;
+//     left: 0;
+//     background-color: ${baseTheme.colors.grey[700]};
+//     transform-origin: bottom right;
+//     transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
+//   }
 
-  &:hover::after {
-    transform: scaleX(1);
-    transform-origin: bottom le;
-  }
+//   &:hover::after {
+//     transform: scaleX(1);
+//     transform-origin: bottom le;
+//   }
 
-  */
+//   */
 
-  &:hover {
-    transform: scaleX(1);
-    transform-origin: bottom left;
-  }
-`
+//   &:hover {
+//     transform: scaleX(1);
+//     transform-origin: bottom left;
+//   }
+// `
 const MenuIcon = css`
   display: flex;
   &:focus-visible {
@@ -176,7 +175,11 @@ const Hide = css`
   display: none;
 `
 
-const Navigation: React.FC<NavigationProps> = ({ faqUrl, returnToPath, children }) => {
+const Navigation: React.FC<NavigationProps> = ({
+  // faqUrl,
+  SearchDialogComponent,
+  children,
+}) => {
   const { t } = useTranslation()
   const [clicked, setClicked] = useState(false)
 
@@ -185,7 +188,7 @@ const Navigation: React.FC<NavigationProps> = ({ faqUrl, returnToPath, children 
   }
 
   return (
-    <nav role="navigation" className={cx(NavbarItems)}>
+    <nav role="navigation" className={cx(NavbarItems)} aria-label={t("navigation-menu")}>
       <div className={cx(NavbarLogo)}>
         <a href="/" aria-label="Home page" role="button">
           <FontAwesomeIcon
@@ -193,20 +196,18 @@ const Navigation: React.FC<NavigationProps> = ({ faqUrl, returnToPath, children 
             icon={faFingerprint}
             aria-label={t("home-page")}
             aria-hidden="true"
-          ></FontAwesomeIcon>
+          />
         </a>
       </div>
       <ul className={cx(NavMenu)}>
-        {faqUrl && (
+        {/* {faqUrl && (
           <li>
             <a className={cx(NavLink)} href={`${faqUrl}`} aria-label={t("faq")} role="button">
               {t("faq")}
             </a>
           </li>
-        )}
-
-        {children}
-
+        )} */}
+        <li>{SearchDialogComponent}</li>
         <li>
           <div
             className={cx(MenuIcon)}
@@ -228,9 +229,7 @@ const Navigation: React.FC<NavigationProps> = ({ faqUrl, returnToPath, children 
             `,
           )}
         >
-          <li className={clicked ? cx(ToolTip) : cx(Hide)}>
-            <LoginControls returnToPath={returnToPath} />
-          </li>
+          <li className={clicked ? cx(ToolTip) : cx(Hide)}>{children}</li>
         </li>
       </ul>
     </nav>

@@ -159,6 +159,7 @@ SELECT COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
 WHERE ues.course_instance_id = $1
+  AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
   AND ues.deleted_at IS NULL;
         "#,
@@ -186,6 +187,7 @@ WHERE ues.exercise_id IN (
     SELECT UNNEST($1::uuid [])
   )
   AND ues.deleted_at IS NULL
+  AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
   AND ues.course_instance_id = $3;
                 "#,
@@ -619,7 +621,7 @@ FROM (
     SELECT u.email,
       u.id AS user_id,
       c.chapter_number,
-      SUM(ues.score_given) AS points_for_chapter
+      COALESCE(SUM(ues.score_given), 0) AS points_for_chapter
     FROM user_exercise_states ues
       JOIN users u ON u.id = ues.user_id
       JOIN exercises e ON e.id = ues.exercise_id

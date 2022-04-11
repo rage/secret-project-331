@@ -2,6 +2,7 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { QuizItemOption } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { quizTheme } from "../../styles/QuizStyles"
 import MarkdownText from "../MarkdownText"
@@ -54,6 +55,7 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
   const direction: "row" | "column" =
     public_quiz_item.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
 
+  const feedbackDisplayPolicy = quiz_item_model_solution?.feedbackDisplayPolicy
   return (
     <div
       className={css`
@@ -89,6 +91,9 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
       >
         {public_quiz_item.options.map((qo) => {
           const selectedAnswer = user_quiz_item_answer.optionAnswers?.includes(qo.id) ?? false
+          const submissionFeedback = quiz_item_model_solution?.options.find(
+            (option) => option.id === qo.id,
+          )
           const modelSolutionForThisOption =
             quiz_item_model_solution?.options.find((x) => x.id === qo.id) ?? null
           // If correctAnswer is null we don't know whether this option was correct or not
@@ -104,37 +109,108 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
             }
           }
           return (
-            <div
-              key={qo.id}
-              className={cx(
-                gradingOption,
-                selectedAnswer && gradingOptionSelected,
-                selectedAnswer && correctAnswer === false && gradingOptionWrongAndSelected,
-                selectedAnswer && correctAnswer === true && gradingOptionCorrectAndSelected,
-              )}
-            >
-              <div
-                className={css`
-                  padding: 1rem 0;
-                `}
-              >
-                <MarkdownText text={qo.title || qo.body || ""} />
+            <>
+              <div>
+                <div
+                  key={qo.id}
+                  className={cx(
+                    gradingOption,
+                    selectedAnswer && gradingOptionSelected,
+                    selectedAnswer && correctAnswer === false && gradingOptionWrongAndSelected,
+                    selectedAnswer && correctAnswer === true && gradingOptionCorrectAndSelected,
+                  )}
+                >
+                  <div
+                    className={css`
+                      padding: 1rem 0;
+                      max-width: 50ch;
+                    `}
+                  >
+                    <MarkdownText text={qo.title || qo.body || ""} />
+                  </div>
+                  <div>
+                    <div
+                      className={css`
+                        display: flex;
+                        flex-direction: ${public_quiz_item.direction === "column"
+                          ? "row"
+                          : "column"};
+                      `}
+                    >
+                      <div>{correctAnswer == true && t("correct-option")}</div>
+                      <div>{correctAnswer == false && t("incorrect-option")}</div>
+                    </div>
+                  </div>
+                </div>
+                <RowSubmissionFeedback
+                  submissionFeedback={submissionFeedback}
+                  selectedAnswer={selectedAnswer}
+                  feedbackDisplayPolicy={feedbackDisplayPolicy}
+                ></RowSubmissionFeedback>
               </div>
-              <div
-                className={css`
-                  display: flex;
-                  flex-direction: column;
-                `}
-              >
-                <div>{correctAnswer == true && t("correct-option")}</div>
-                <div>{correctAnswer == false && t("incorrect-option")}</div>
-              </div>
-            </div>
+            </>
           )
         })}
       </div>
     </div>
   )
 }
+
+interface MultipleChoiceDirectionProps {
+  submissionFeedback: QuizItemOption | undefined
+  selectedAnswer: boolean
+  feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions" | undefined
+}
+
+const RowSubmissionFeedback: React.FC<MultipleChoiceDirectionProps> = ({
+  submissionFeedback,
+  selectedAnswer,
+  feedbackDisplayPolicy,
+}) => (
+  <div>
+    {feedbackDisplayPolicy === "DisplayFeedbackOnQuizItem" && submissionFeedback ? (
+      <>
+        {selectedAnswer ? (
+          <div
+            className={css`
+              margin-left: 0.5em;
+              display: flex;
+              border-left: ${submissionFeedback.correct
+                ? `6px solid #1F6964`
+                : `6px solid #A84835`};
+              box-sizing: border-box;
+              padding: 0.5rem 0px 0.5rem 0.5rem;
+              margin-bottom: 5px !important;
+            `}
+          >
+            <p>
+              {submissionFeedback.correct
+                ? submissionFeedback.successMessage
+                : submissionFeedback.failureMessage}
+            </p>
+          </div>
+        ) : null}
+      </>
+    ) : null}
+    {feedbackDisplayPolicy === "DisplayFeedbackOnAllOptions" && submissionFeedback ? (
+      <div
+        className={css`
+          margin-left: 0.5em;
+          display: flex;
+          border-left: ${submissionFeedback.correct ? `6px solid #1F6964` : `6px solid #A84835`};
+          box-sizing: border-box;
+          padding: 0.5rem 0px 0.5rem 0.5rem;
+          margin-bottom: 5px !important;
+        `}
+      >
+        <p>
+          {submissionFeedback.correct
+            ? submissionFeedback.successMessage
+            : submissionFeedback.failureMessage}
+        </p>
+      </div>
+    ) : null}
+  </div>
+)
 
 export default MultipleChoiceSubmission

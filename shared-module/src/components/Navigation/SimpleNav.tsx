@@ -220,7 +220,7 @@ const Navigation: React.FC<NavigationProps> = ({
             <Hamburger />
           </div>
         </li>
-        <li
+        <div
           className={cx(
             "container",
             css`
@@ -229,8 +229,8 @@ const Navigation: React.FC<NavigationProps> = ({
             `,
           )}
         >
-          <li className={clicked ? cx(ToolTip) : cx(Hide)}>{children}</li>
-        </li>
+          <div className={clicked ? cx(ToolTip) : cx(Hide)}>{children}</div>
+        </div>
       </ul>
     </nav>
   )

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use futures::TryStreamExt;
+use futures::{Stream, TryStreamExt};
 use serde_json::Value;
 
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
@@ -47,22 +47,6 @@ pub struct ExerciseTask {
     pub spec_file_id: Option<Uuid>,
     pub model_solution_spec: Option<serde_json::Value>,
     pub copied_from: Option<Uuid>,
-}
-
-impl FromIterator<ExerciseTask> for HashMap<Uuid, ExerciseTask> {
-    fn from_iter<I: IntoIterator<Item = ExerciseTask>>(iter: I) -> Self {
-        let mut map = HashMap::new();
-        map.extend(iter);
-        map
-    }
-}
-
-impl Extend<ExerciseTask> for HashMap<Uuid, ExerciseTask> {
-    fn extend<T: IntoIterator<Item = ExerciseTask>>(&mut self, iter: T) {
-        for exercise_task in iter {
-            self.insert(exercise_task.id, exercise_task);
-        }
-    }
 }
 
 pub async fn insert(
@@ -145,7 +129,7 @@ pub async fn get_course_material_exercise_tasks(
     user_id: Option<&Uuid>,
 ) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
     let exercise_tasks: Vec<ExerciseTask> =
-        get_exercise_tasks_by_exercise_slide_id(conn, exercise_slide_id).await?;
+        get_exercise_tasks_by_exercise_slide_id(conn, *exercise_slide_id).await?;
     let mut latest_submissions_by_task_id = if let Some(user_id) = user_id {
         exercise_task_submissions::get_users_latest_exercise_task_submissions_for_exercise_slide(
             conn,
@@ -191,14 +175,34 @@ pub async fn get_course_material_exercise_tasks(
     Ok(material_tasks)
 }
 
-pub async fn get_exercise_tasks_by_exercise_slide_id<T>(
+#[inline]
+pub async fn get_exercise_tasks_by_exercise_slide_id(
     conn: &mut PgConnection,
-    exercise_slide_id: &Uuid,
-) -> ModelResult<T>
-where
-    T: Default + Extend<ExerciseTask> + FromIterator<ExerciseTask>,
-{
-    let res = sqlx::query_as!(
+    exercise_slide_id: Uuid,
+) -> ModelResult<Vec<ExerciseTask>> {
+    let res = stream_exercise_tasks_by_exercise_slide_id(conn, exercise_slide_id)
+        .try_collect()
+        .await?;
+    Ok(res)
+}
+
+#[inline]
+pub async fn get_exercise_tasks_by_exercise_slide_id_as_map(
+    conn: &mut PgConnection,
+    exercise_slide_id: Uuid,
+) -> ModelResult<HashMap<Uuid, ExerciseTask>> {
+    let res = stream_exercise_tasks_by_exercise_slide_id(conn, exercise_slide_id)
+        .map_ok(|task| (task.id, task))
+        .try_collect()
+        .await?;
+    Ok(res)
+}
+
+fn stream_exercise_tasks_by_exercise_slide_id(
+    conn: &mut PgConnection,
+    exercise_slide_id: Uuid,
+) -> impl Stream<Item = sqlx::Result<ExerciseTask>> + '_ {
+    sqlx::query_as!(
         ExerciseTask,
         "
 SELECT *
@@ -209,9 +213,6 @@ WHERE exercise_slide_id = $1
         exercise_slide_id,
     )
     .fetch(conn)
-    .try_collect()
-    .await?;
-    Ok(res)
 }
 
 pub async fn get_exercise_tasks_by_exercise_slide_ids(

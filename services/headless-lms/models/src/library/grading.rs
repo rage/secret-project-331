@@ -6,7 +6,7 @@ use crate::{
         self, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy,
     },
     exercise_task_submissions::{self, ExerciseTaskSubmission},
-    exercise_tasks::{self, ExerciseTask},
+    exercise_tasks,
     exercises::{ActivityProgress, Exercise, ExerciseStatus},
     prelude::*,
     user_exercise_slide_states::{self, UserExerciseSlideState},
@@ -86,9 +86,11 @@ pub async fn create_user_exercise_slide_submission(
                     "Exercise slide not selected for the student.".to_string(),
                 )
             })?;
-    let exercise_tasks: HashMap<Uuid, ExerciseTask> =
-        exercise_tasks::get_exercise_tasks_by_exercise_slide_id(conn, &selected_exercise_slide_id)
-            .await?;
+    let exercise_tasks = exercise_tasks::get_exercise_tasks_by_exercise_slide_id_as_map(
+        conn,
+        selected_exercise_slide_id,
+    )
+    .await?;
     let user_points_update_strategy = if exercise.exam_id.is_some() {
         UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
     } else {

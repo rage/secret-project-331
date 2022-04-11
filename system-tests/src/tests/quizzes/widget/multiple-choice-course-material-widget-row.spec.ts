@@ -21,7 +21,7 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
   ])
 
   // Click button:has-text("Continue")
-  await page.locator('button:has-text("Continue")').click()
+  // await page.locator('button:has-text("Continue")').click()
 
   await page.locator("text=User Experience").scrollIntoViewIfNeeded()
   await page.locator("text=User Experience").click()

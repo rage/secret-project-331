@@ -15,6 +15,8 @@ export interface ProgressBarExtraProps {
   showAsPercentage?: boolean
   exercisesAttempted: number | null
   exercisesTotal: number | null
+  height: string
+  label: boolean
 }
 
 type ProgressExtraProps = CircularProgressExtraProps | ProgressBarExtraProps

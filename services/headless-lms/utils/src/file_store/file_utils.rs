@@ -17,7 +17,7 @@ pub async fn upload_media_to_storage(
     let mime_type = field.content_type().to_string();
     let correct_type = field.map_err(|o| o.into());
 
-    Ok(file_store
+    file_store
         .upload_stream(path, Box::pin(correct_type), &mime_type)
-        .await?)
+        .await
 }

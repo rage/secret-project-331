@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Dialog, DialogContentText, DialogTitle } from "@mui/material"
+import { Dialog, DialogContentText } from "@mui/material"
 import { useTranslation } from "react-i18next"
 
 import { newCourseInstance } from "../../../../../../services/backend/courses"
@@ -46,26 +46,39 @@ const NewCourseInstanceDialog: React.FC<NewCourseLanguageVersionDialogProps> = (
         }
         onClose()
       }}
+      role="dialog"
+      aria-labelledby="label"
+      title={t("new-course-instance-dialog")}
       className={css`
         z-index: 10000;
       `}
-      // eslint-disable-next-line i18next/no-literal-string
-      aria-label="New Course Instance dialog"
-      role="dialog"
     >
-      <DialogTitle id="alert-dialog-title">
-        <h1>{t("new-course-instance")}</h1>
-      </DialogTitle>
-      <DialogContentText role="main" id="alert-dialog-description">
-        {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
-        <NewCourseInstanceForm
-          initialData={null}
-          onSubmit={(data) => {
-            mutation.mutate(data)
-          }}
-          onCancel={onClose}
-        />
-      </DialogContentText>
+      <div
+        className={css`
+          padding: 1rem;
+          width: 80vw;
+          max-width: 500px;
+        `}
+      >
+        <h1
+          id="label"
+          className={css`
+            font-size: 32px;
+          `}
+        >
+          {t("new-course-instance")}
+        </h1>
+        <DialogContentText role="main" id="alert-dialog-description">
+          {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
+          <NewCourseInstanceForm
+            initialData={null}
+            onSubmit={(data) => {
+              mutation.mutate(data)
+            }}
+            onCancel={onClose}
+          />
+        </DialogContentText>
+      </div>
     </Dialog>
   )
 }

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { EmbedAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import BreakFromCentered from "../../../../../shared-module/components/Centering/BreakFromCentered"
+import { baseTheme } from "../../../../../shared-module/styles/theme"
 import aspectRatioFromClassName from "../../../../../utils/aspectRatioFromClassName"
 
 export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
@@ -24,11 +25,11 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
 
   return (
     <BreakFromCentered sidebar={false}>
-      <div
+      <figure
         className={css`
           width: 100%;
           max-width: 1000px;
-          margin: 0 auto;
+          margin: 4rem auto;
         `}
       >
         <iframe
@@ -36,15 +37,25 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
             display: block;
             width: 100%;
             aspect-ratio: ${aspectRatioFromClassName(props.className)};
-            margin: 4rem 0;
           `}
           src={`https://www.youtube-nocookie.com/embed/${video}`}
           title={t("title-youtube-video-player")}
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
-        ></iframe>
-      </div>
+        />
+        <figcaption
+          className={css`
+            text-align: center;
+            font-size: ${baseTheme.fontSizes[0]}px;
+            margin-top: 0.5em;
+            margin-bottom: 1em;
+            color: ${baseTheme.colors.grey[400]};
+          `}
+        >
+          {props.caption}
+        </figcaption>
+      </figure>
     </BreakFromCentered>
   )
 }

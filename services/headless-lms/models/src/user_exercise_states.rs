@@ -3,14 +3,13 @@ use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use serde_json::Value;
 
 use crate::{
-    exercise_slide_submissions::ExerciseSlideSubmission,
-    exercise_task_gradings::{self, UserPointsUpdateStrategy},
     exercises::{ActivityProgress, GradingProgress},
     prelude::*,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct UserExerciseState {
+    pub id: Uuid,
     pub user_id: Uuid,
     pub exercise_id: Uuid,
     pub course_instance_id: Option<Uuid>,
@@ -76,7 +75,7 @@ pub struct UserCourseInstanceProgress {
     pub score_given: f32,
     pub score_maximum: Option<u32>,
     pub total_exercises: Option<u32>,
-    pub completed_exercises: Option<u32>,
+    pub attempted_exercises: Option<u32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -95,12 +94,13 @@ pub struct DatabaseUserCourseInstanceChapterExerciseProgress {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct UserChapterMetrics {
     pub score_given: Option<f32>,
+    pub attempted_exercises: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct UserCourseInstanceMetrics {
     score_given: Option<f32>,
-    completed_exercises: Option<i64>,
+    attempted_exercises: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -154,10 +154,11 @@ pub async fn get_user_course_instance_metrics(
     let res = sqlx::query_as!(
         UserCourseInstanceMetrics,
         r#"
-SELECT COUNT(ues.exercise_id) AS completed_exercises,
+SELECT COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
 WHERE ues.course_instance_id = $1
+  AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
   AND ues.deleted_at IS NULL;
         "#,
@@ -178,12 +179,14 @@ pub async fn get_user_course_instance_chapter_metrics(
     let res = sqlx::query_as!(
         UserChapterMetrics,
         r#"
-SELECT COALESCE(SUM(ues.score_given), 0) AS score_given
+SELECT COUNT(ues.exercise_id) AS attempted_exercises,
+  COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
 WHERE ues.exercise_id IN (
     SELECT UNNEST($1::uuid [])
   )
   AND ues.deleted_at IS NULL
+  AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
   AND ues.course_instance_id = $3;
                 "#,
@@ -206,8 +209,8 @@ pub async fn get_user_course_instance_progress(
 
     let result = UserCourseInstanceProgress {
         score_given: option_f32_to_f32_two_decimals(user_metrics.score_given),
-        completed_exercises: user_metrics
-            .completed_exercises
+        attempted_exercises: user_metrics
+            .attempted_exercises
             .map(TryInto::try_into)
             .transpose()?,
         score_maximum: course_metrics
@@ -260,7 +263,8 @@ pub async fn get_or_create_user_exercise_state(
     let existing = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT user_id,
+SELECT id,
+  user_id,
   exercise_id,
   course_instance_id,
   exam_id,
@@ -292,7 +296,8 @@ WHERE user_id = $1
             r#"
     INSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id, exam_id)
     VALUES ($1, $2, $3, $4)
-    RETURNING user_id,
+    RETURNING id,
+      user_id,
       exercise_id,
       course_instance_id,
       exam_id,
@@ -325,7 +330,8 @@ pub async fn get_user_exercise_state_if_exists(
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT user_id,
+SELECT id,
+  user_id,
   exercise_id,
   course_instance_id,
   exam_id,
@@ -415,147 +421,24 @@ WHERE user_id = $1
     Ok(())
 }
 
-fn figure_out_new_score_given(
-    current_score_given: Option<f32>,
-    grading_score_given: Option<f32>,
-    user_points_update_strategy: UserPointsUpdateStrategy,
-) -> Option<f32> {
-    let current_score_given = if let Some(current_score_given) = current_score_given {
-        current_score_given
-    } else {
-        info!(
-            "Current state has no score, using score from grading ({:?})",
-            grading_score_given
-        );
-        return grading_score_given;
-    };
-    let grading_score_given = if let Some(grading_score_given) = grading_score_given {
-        grading_score_given
-    } else {
-        info!(
-            "Grading has no score, using score from current state ({:?})",
-            current_score_given
-        );
-        return Some(current_score_given);
-    };
-
-    let new_score = match user_points_update_strategy {
-        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints => {
-            if current_score_given >= grading_score_given {
-                info!(
-                    "Not updating score ({:?} >= {:?})",
-                    current_score_given, grading_score_given
-                );
-                current_score_given
-            } else {
-                info!(
-                    "Updating score from {:?} to {:?}",
-                    current_score_given, grading_score_given
-                );
-                grading_score_given
-            }
-        }
-        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints => {
-            info!(
-                "Updating score from {:?} to {:?}",
-                current_score_given, grading_score_given
-            );
-            grading_score_given
-        }
-    };
-    Some(new_score)
-}
-
-/**
-Returns a new state for the grading progress.
-
-The new grading progress is always the grading progress from the new grading
-unless the current grading progress is already finished. If the current grading
-progress is finished, we don't change it to anything else so that a new worse
-submission won't take the user's progress away.
-
-In the future this function will be extended to support peer reviews. When
-there's a peer review associated with the exercise, it is part of the overall
-grading progress.
-*/
-fn figure_out_new_grading_progress(
-    current_grading_progress: GradingProgress,
-    grading_grading_progress: GradingProgress,
-) -> GradingProgress {
-    match current_grading_progress {
-        GradingProgress::FullyGraded => GradingProgress::FullyGraded,
-        _ => grading_grading_progress,
-    }
-}
-
-/**
-Returns a new state for the activity progress.
-
-In the future this function will be extended to support peer reviews. When
-there's a peer review associated with the exercise, the activity is not complete
-before the user has given the peer reviews that they're required to give.
-*/
-fn figure_out_new_activity_progress(
-    current_activity_progress: ActivityProgress,
-) -> ActivityProgress {
-    if current_activity_progress == ActivityProgress::Completed {
-        return ActivityProgress::Completed;
-    }
-
-    // The case where activity is not completed when the user needs to give peer
-    // reviews
-    ActivityProgress::Completed
-}
-
-pub async fn update_user_exercise_state_after_submission(
+pub async fn update_grading_state(
     conn: &mut PgConnection,
-    exercise_slide_submission: &ExerciseSlideSubmission,
+    id: Uuid,
+    score_given: Option<f32>,
+    grading_progress: GradingProgress,
+    activity_progress: ActivityProgress,
 ) -> ModelResult<UserExerciseState> {
-    let current_state = get_or_create_user_exercise_state(
-        conn,
-        exercise_slide_submission.user_id,
-        exercise_slide_submission.exercise_id,
-        exercise_slide_submission.course_instance_id,
-        exercise_slide_submission.exam_id,
-    )
-    .await?;
-
-    // There used to be only one task per exercise. For now this data is summarized from a set of
-    // submissions belonging to a slide submission.
-    let score_given = exercise_task_gradings::get_total_score_given_for_exercise_slide_submission(
-        conn,
-        &exercise_slide_submission.id,
-    )
-    .await?;
-    let (grading_progress, points_update_strategy) =
-        exercise_task_gradings::get_point_update_strategy_from_gradings(
-            conn,
-            &exercise_slide_submission.id,
-        )
-        .await?;
-    info!(
-        "Using user points updating strategy {:?}",
-        points_update_strategy
-    );
-    let new_score_given = figure_out_new_score_given(
-        current_state.score_given,
-        score_given,
-        points_update_strategy,
-    );
-
-    let new_grading_progress =
-        figure_out_new_grading_progress(current_state.grading_progress, grading_progress);
-    let new_activity_progress = figure_out_new_activity_progress(current_state.activity_progress);
-
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
 UPDATE user_exercise_states
-SET score_given = $4, grading_progress = $5, activity_progress = $6
-WHERE user_id = $1
-AND exercise_id = $2
-AND (course_instance_id = $3 OR exam_id = $7)
-RETURNING user_id,
+SET score_given = $1,
+  grading_progress = $2,
+  activity_progress = $3
+WHERE id = $4
+  AND deleted_at IS NULL
+RETURNING id,
+  user_id,
   exercise_id,
   course_instance_id,
   exam_id,
@@ -565,15 +448,12 @@ RETURNING user_id,
   score_given,
   grading_progress as "grading_progress: _",
   activity_progress as "activity_progress: _",
-  selected_exercise_slide_id;
-    "#,
-        exercise_slide_submission.user_id,
-        exercise_slide_submission.exercise_id,
-        exercise_slide_submission.course_instance_id,
-        new_score_given,
-        new_grading_progress as GradingProgress,
-        new_activity_progress as ActivityProgress,
-        exercise_slide_submission.exam_id
+  selected_exercise_slide_id
+        "#,
+        score_given,
+        grading_progress as GradingProgress,
+        activity_progress as ActivityProgress,
+        id,
     )
     .fetch_one(conn)
     .await?;
@@ -617,7 +497,7 @@ FROM (
     SELECT u.email,
       u.id AS user_id,
       c.chapter_number,
-      SUM(ues.score_given) AS points_for_chapter
+      COALESCE(SUM(ues.score_given), 0) AS points_for_chapter
     FROM user_exercise_states ues
       JOIN users u ON u.id = ues.user_id
       JOIN exercises e ON e.id = ues.exercise_id
@@ -724,289 +604,4 @@ SELECT exercises.name as exercise_name,
     .fetch_all(conn)
     .await?;
     Ok(res)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::{
-        exercise_slide_submissions::{self, NewExerciseSlideSubmission},
-        exercise_task_gradings::{self, ExerciseTaskGradingResult},
-        exercise_task_submissions::{self, SubmissionData},
-        exercises,
-        test_helper::*,
-    };
-
-    mod figure_out_new_score_given {
-        use headless_lms_utils::numbers::f32_approx_eq;
-
-        use crate::{
-            exercise_task_gradings::UserPointsUpdateStrategy,
-            user_exercise_states::figure_out_new_score_given,
-        };
-
-        #[test]
-        fn strategy_can_add_points_and_can_remove_points_works() {
-            assert_eq!(
-                f32_approx_eq(
-                    figure_out_new_score_given(
-                        Some(1.1),
-                        Some(1.1),
-                        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
-                    )
-                    .unwrap(),
-                    1.1,
-                ),
-                true
-            );
-            assert_eq!(
-                f32_approx_eq(
-                    figure_out_new_score_given(
-                        Some(1.1),
-                        Some(20.9),
-                        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
-                    )
-                    .unwrap(),
-                    20.9,
-                ),
-                true
-            );
-            assert_eq!(
-                f32_approx_eq(
-                    figure_out_new_score_given(
-                        Some(20.9),
-                        Some(1.1),
-                        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
-                    )
-                    .unwrap(),
-                    1.1,
-                ),
-                true
-            );
-        }
-
-        #[test]
-        fn strategy_can_add_points_but_cannot_remove_points_works() {
-            assert_eq!(
-                f32_approx_eq(
-                    figure_out_new_score_given(
-                        Some(1.1),
-                        Some(1.1),
-                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
-                    )
-                    .unwrap(),
-                    1.1,
-                ),
-                true
-            );
-            assert_eq!(
-                f32_approx_eq(
-                    figure_out_new_score_given(
-                        Some(1.1),
-                        Some(20.9),
-                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
-                    )
-                    .unwrap(),
-                    20.9,
-                ),
-                true
-            );
-            assert_eq!(
-                f32_approx_eq(
-                    figure_out_new_score_given(
-                        Some(20.9),
-                        Some(1.1),
-                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
-                    )
-                    .unwrap(),
-                    20.9,
-                ),
-                true
-            );
-        }
-
-        #[test]
-        fn it_handles_nones() {
-            assert_eq!(
-                f32_approx_eq(
-                    figure_out_new_score_given(
-                        None,
-                        Some(1.1),
-                        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
-                    )
-                    .unwrap(),
-                    1.1,
-                ),
-                true
-            );
-            assert_eq!(
-                f32_approx_eq(
-                    figure_out_new_score_given(
-                        None,
-                        Some(1.1),
-                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
-                    )
-                    .unwrap(),
-                    1.1,
-                ),
-                true
-            );
-            assert_eq!(
-                f32_approx_eq(
-                    figure_out_new_score_given(
-                        Some(1.1),
-                        None,
-                        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
-                    )
-                    .unwrap(),
-                    1.1,
-                ),
-                true
-            );
-            assert_eq!(
-                f32_approx_eq(
-                    figure_out_new_score_given(
-                        Some(1.1),
-                        None,
-                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
-                    )
-                    .unwrap(),
-                    1.1,
-                ),
-                true
-            );
-            assert_eq!(
-                figure_out_new_score_given(
-                    None,
-                    None,
-                    UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
-                ),
-                None
-            );
-            assert_eq!(
-                figure_out_new_score_given(
-                    None,
-                    None,
-                    UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
-                ),
-                None
-            );
-        }
-    }
-
-    mod figure_out_new_grading_progress {
-        use crate::{
-            exercises::GradingProgress, user_exercise_states::figure_out_new_grading_progress,
-        };
-
-        #[test]
-        fn it_works() {
-            assert_eq!(
-                figure_out_new_grading_progress(
-                    GradingProgress::Failed,
-                    GradingProgress::FullyGraded
-                ),
-                GradingProgress::FullyGraded
-            );
-            assert_eq!(
-                figure_out_new_grading_progress(
-                    GradingProgress::FullyGraded,
-                    GradingProgress::Failed
-                ),
-                GradingProgress::FullyGraded
-            );
-            assert_eq!(
-                figure_out_new_grading_progress(GradingProgress::Failed, GradingProgress::Pending),
-                GradingProgress::Pending
-            );
-        }
-    }
-
-    mod figure_out_new_activity_progress {
-        use crate::{
-            exercises::ActivityProgress, user_exercise_states::figure_out_new_activity_progress,
-        };
-
-        #[test]
-        fn it_works() {
-            assert_eq!(
-                figure_out_new_activity_progress(ActivityProgress::Initialized),
-                ActivityProgress::Completed
-            );
-        }
-    }
-
-    #[tokio::test]
-    async fn updates_exercise_states() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
-        let slide_submission =
-            exercise_slide_submissions::insert_exercise_slide_submission_with_id(
-                tx.as_mut(),
-                Uuid::new_v4(),
-                &NewExerciseSlideSubmission {
-                    course_id: Some(course),
-                    course_instance_id: Some(instance.id),
-                    exam_id: None,
-                    exercise_id: exercise,
-                    user_id: user,
-                    exercise_slide_id: slide,
-                },
-            )
-            .await
-            .unwrap();
-        let task_submission_id = exercise_task_submissions::insert_with_id(
-            tx.as_mut(),
-            &SubmissionData {
-                exercise_id: exercise,
-                course_id: course,
-                exercise_task_id: task,
-                user_id: user,
-                course_instance_id: instance.id,
-                exercise_slide_id: slide,
-                data_json: serde_json::json! {"abcd"},
-                id: Uuid::new_v4(),
-                exercise_slide_submission_id: slide_submission.id,
-            },
-        )
-        .await
-        .unwrap();
-        let task_submission = exercise_task_submissions::get_by_id(tx.as_mut(), task_submission_id)
-            .await
-            .unwrap();
-        let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
-        let task_grading =
-            exercise_task_gradings::new_grading(tx.as_mut(), &exercise, &task_submission)
-                .await
-                .unwrap();
-        exercise_task_gradings::update_grading(
-            tx.as_mut(),
-            &task_grading,
-            &ExerciseTaskGradingResult {
-                feedback_json: None,
-                feedback_text: None,
-                grading_progress: GradingProgress::FullyGraded,
-                score_given: 100.0,
-                score_maximum: 100,
-            },
-            &exercise,
-        )
-        .await
-        .unwrap();
-        exercise_task_submissions::set_grading_id(tx.as_mut(), task_grading.id, task_submission.id)
-            .await
-            .unwrap();
-        update_user_exercise_state_after_submission(tx.as_mut(), &slide_submission)
-            .await
-            .unwrap();
-        let state = get_or_create_user_exercise_state(
-            tx.as_mut(),
-            user,
-            exercise.id,
-            Some(instance.id),
-            None,
-        )
-        .await
-        .unwrap();
-        assert!(state.score_given.is_some());
-    }
 }

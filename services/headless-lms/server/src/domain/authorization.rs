@@ -1,13 +1,17 @@
 use actix_http::Payload;
-use actix_session::{Session, UserSession};
+use actix_session::Session;
+use actix_session::SessionExt;
 use actix_web::{FromRequest, HttpRequest};
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use futures::future::{err, ok, Ready};
 use headless_lms_models::{self as models, roles::UserRole};
 use models::{roles::Role, CourseOrExamId};
+
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
+#[cfg(feature = "ts_rs")]
+pub use ts_rs::TS;
 use uuid::Uuid;
 
 use crate::controllers::{ControllerError, ControllerResult};
@@ -24,6 +28,14 @@ pub struct AuthUser {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     upstream_id: Option<i32>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[serde(rename_all = "snake_case")]
+pub struct ActionOnResource {
+    pub action: Action,
+    pub resource: Resource,
 }
 
 impl AuthUser {
@@ -77,6 +89,8 @@ pub fn forget(session: &Session) {
 
 /// Describes an action that a user can take on some resource.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[serde(rename_all = "snake_case", tag = "type", content = "variant")]
 pub enum Action {
     View,
     Edit,
@@ -86,10 +100,13 @@ pub enum Action {
     Duplicate,
     DeleteAnswer,
     EditRole(UserRole),
+    CreateCoursesOrExams,
 }
 
 /// The target of an action.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[serde(rename_all = "snake_case", tag = "type", content = "id")]
 pub enum Resource {
     GlobalPermissions,
     Chapter(Uuid),
@@ -320,6 +337,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | Duplicate
                 | DeleteAnswer
                 | EditRole(Teacher | Assistant | Reviewer)
+                | CreateCoursesOrExams
         ),
         Assistant => matches!(
             action,

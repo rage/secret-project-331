@@ -1,3 +1,6 @@
+import { AxiosRequestHeaders } from "axios"
+import { Dictionary } from "lodash"
+
 import {
   ChaptersWithStatus,
   Course,
@@ -8,6 +11,7 @@ import {
   ExamEnrollment,
   NewFeedback,
   NewProposedPageEdits,
+  OEmbedResponse,
   Page,
   PageChapterAndCourseInformation,
   PageRoutingDataWithChapterStatus,
@@ -30,6 +34,7 @@ import {
   isCourseMaterialExercise,
   isCoursePageWithUserData,
   isExamData,
+  isOEmbedResponse,
   isPage,
   isPageChapterAndCourseInformation,
   isPageRoutingDataWithChapterStatus,
@@ -90,8 +95,34 @@ export const fetchCoursePageByPath = async (
   courseSlug: string,
   path: string,
 ): Promise<CoursePageWithUserData> => {
+  const headers: AxiosRequestHeaders = {}
+  if (document.referrer && document.referrer !== "") {
+    headers["Orignal-Referrer"] = document.referrer
+  }
+
+  const currentUrl = new URL(document.location.href)
+  const utmTags: Dictionary<string> = {}
+  Array.from(currentUrl.searchParams.entries()).forEach(([key, value]) => {
+    if (key.startsWith("utm_")) {
+      utmTags[key] = value
+    }
+  })
+  if (Object.keys(utmTags).length > 0) {
+    headers["utm-tags"] = JSON.stringify(utmTags)
+  }
+
+  // Detect a browser controlled by automation (like headless chrome).
+  // The detection is done just to exclude the browser from the page visitor counts.
+  // There is no benefit from bypassing this.
+  const browserControlledByAutomation = !!navigator.webdriver
+  if (!browserControlledByAutomation) {
+    // eslint-disable-next-line i18next/no-literal-string
+    headers["totally-not-a-bot"] = "true"
+  }
+
   const response = await courseMaterialClient.get(`/courses/${courseSlug}/page-by-path${path}`, {
     responseType: "json",
+    headers: headers,
   })
   return validateResponse(response, isCoursePageWithUserData)
 }
@@ -288,4 +319,12 @@ export const newGlossaryTerm = async (
   newAcronym: TermUpdate,
 ): Promise<void> => {
   await courseMaterialClient.post(`/courses/${courseSlug}/acronyms`, newAcronym)
+}
+
+export const fetchMentimeterEmbed = async (url: string): Promise<OEmbedResponse> => {
+  const response = await courseMaterialClient.get(
+    `/oembed/mentimeter?url=${encodeURIComponent(url)}`,
+    { responseType: "json" },
+  )
+  return validateResponse(response, isOEmbedResponse)
 }

@@ -6,7 +6,9 @@ import CourseMaterialPageBreadcrumbs from "../../../../components/CourseMaterial
 import Layout from "../../../../components/Layout"
 import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
+import CourseTestModeNotification from "../../../../components/notifications/CourseTestModeNotification"
 import PageContext, { CoursePageDispatch, defaultPageState } from "../../../../contexts/PageContext"
+import useScrollToSelector from "../../../../hooks/useScrollToSelector"
 import pageStateReducer from "../../../../reducers/pageStateReducer"
 import { fetchCoursePageByPath } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -17,7 +19,6 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import { tryToScrollToSelector } from "../../../../utils/dom"
 import { courseFaqPageRoute } from "../../../../utils/routing"
 
 interface PagePageProps {
@@ -51,6 +52,7 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
           instance: getCoursePageByPath.data.instance ?? null,
           settings: getCoursePageByPath.data.settings ?? null,
           exam: null,
+          isTest: getCoursePageByPath.data.is_test_mode,
         },
       })
     }
@@ -86,23 +88,8 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
     }
   }, [courseSlug, getCoursePageByPath.data, router])
 
-  useEffect(() => {
-    if (typeof window != "undefined" && window.location.hash) {
-      const selector = window.location.hash
-      setTimeout(() => {
-        tryToScrollToSelector(selector)
-      }, 100)
-      setTimeout(() => {
-        tryToScrollToSelector(selector)
-      }, 500)
-      setTimeout(() => {
-        tryToScrollToSelector(selector)
-      }, 1000)
-      setTimeout(() => {
-        tryToScrollToSelector(selector)
-      }, 2000)
-    }
-  }, [path])
+  // Handle scrolling to selector if window has anchor
+  useScrollToSelector(path)
 
   const handleRefresh = useCallback(async () => {
     await getCoursePageByPath.refetch()
@@ -132,6 +119,7 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
           courseSlug={courseSlug}
         >
           <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
+          {<CourseTestModeNotification isTestMode={pageState.isTest} />}
           <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
         </Layout>
       </PageContext.Provider>

@@ -15,10 +15,16 @@ use crate::controllers::{
     },
     ErrorData, ErrorResponse, UploadResult,
 };
+
+#[cfg(feature = "ts_rs")]
+use crate::domain::*;
+
 #[cfg(feature = "ts_rs")]
 use headless_lms_models::*;
 #[cfg(feature = "ts_rs")]
 use headless_lms_utils::pagination::Pagination;
+#[cfg(feature = "ts_rs")]
+use headless_lms_utils::url_to_oembed_endpoint::OEmbedResponse;
 
 #[cfg(feature = "ts_rs")]
 macro_rules! export {
@@ -43,6 +49,10 @@ fn ts_binding_generator() {
     let mut target = std::fs::File::create("../../../shared-module/src/bindings.ts").unwrap();
     let res = export! {
         &mut target,
+
+        authorization::ActionOnResource,
+        authorization::Action,
+        authorization::Resource,
 
         glossary::Term,
         glossary::TermUpdate,
@@ -76,6 +86,8 @@ fn ts_binding_generator() {
         exams::CourseExam,
         exams::Exam,
         exams::ExamEnrollment,
+        exams::NewExam,
+        exams::OrgExam,
         exams::ExamInstructions,
         exams::ExamInstructionsUpdate,
 
@@ -102,6 +114,11 @@ fn ts_binding_generator() {
         feedback::FeedbackCount,
         feedback::NewFeedback,
 
+        library::grading::StudentExerciseSlideSubmission,
+        library::grading::StudentExerciseSlideSubmissionResult,
+        library::grading::StudentExerciseTaskSubmission,
+        library::grading::StudentExerciseTaskSubmissionResult,
+
         organizations::Organization,
 
         page_history::PageHistory,
@@ -116,6 +133,7 @@ fn ts_binding_generator() {
         pages::ExerciseWithExerciseTasks,
         pages::HistoryRestoreData,
         pages::Page,
+        pages::PageInfo,
         pages::PageRoutingDataWithChapterStatus,
         pages::PageSearchRequest,
         pages::PageSearchResult,
@@ -141,16 +159,12 @@ fn ts_binding_generator() {
         exercise_slide_submissions::ExerciseSlideSubmissionCount,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByWeekAndHour,
-        exercise_slide_submissions::StudentExerciseSlideSubmission,
-        exercise_slide_submissions::StudentExerciseSlideSubmissionResult,
 
         exercise_task_gradings::ExerciseTaskGrading,
         exercise_task_gradings::ExerciseTaskGradingResult,
         exercise_task_gradings::UserPointsUpdateStrategy,
 
         exercise_task_submissions::ExerciseTaskSubmission,
-        exercise_task_submissions::StudentExerciseTaskSubmission,
-        exercise_task_submissions::StudentExerciseTaskSubmissionResult,
         exercise_task_submissions::SubmissionInfo,
 
         roles::RoleUser,
@@ -179,7 +193,8 @@ fn ts_binding_generator() {
         GetEditProposalsQuery,
         ErrorResponse,
         ErrorData,
-        Pagination
+        Pagination,
+        OEmbedResponse
     };
     res.unwrap();
 }

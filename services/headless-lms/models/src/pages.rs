@@ -43,6 +43,15 @@ pub struct Page {
     pub copied_from: Option<Uuid>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PageInfo {
+    pub page_id: Uuid,
+    pub page_title: String,
+    pub course_id: Uuid,
+    pub course_name: String,
+}
+
 impl Page {
     pub fn blocks_cloned(&self) -> ModelResult<Vec<GutenbergBlock>> {
         serde_json::from_value(self.content.clone()).map_err(Into::into)
@@ -57,6 +66,7 @@ pub struct CoursePageWithUserData {
     pub settings: Option<UserCourseSettings>,
     /// If true, the frontend needs to update the url in the browser to match the path in the page object without reloading the page.
     pub was_redirected: bool,
+    pub is_test_mode: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -187,7 +197,7 @@ pub struct HistoryRestoreData {
     pub history_id: Uuid,
 }
 
-pub async fn insert(
+pub async fn insert_course_page(
     conn: &mut PgConnection,
     course_id: Uuid,
     url_path: &str,
@@ -220,6 +230,53 @@ RETURNING id
         &mut tx,
         page_res.id,
         title,
+        &PageHistoryContent {
+            content: serde_json::Value::Array(vec![]),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+        },
+        HistoryChangeReason::PageSaved,
+        author,
+        None,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok((page_res.id, history_id))
+}
+
+pub async fn insert_exam_page(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    page: NewPage,
+    author: Uuid,
+) -> ModelResult<(Uuid, Uuid)> {
+    let mut tx = conn.begin().await?;
+    let page_res = sqlx::query!(
+        "
+INSERT INTO pages (
+    exam_id,
+    content,
+    url_path,
+    title,
+    order_number
+  )
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id
+",
+        exam_id,
+        serde_json::Value::Array(vec![]),
+        page.url_path,
+        page.title,
+        0
+    )
+    .fetch_one(&mut tx)
+    .await?;
+
+    let history_id = crate::page_history::insert(
+        &mut tx,
+        page_res.id,
+        page.title.as_str(),
         &PageHistoryContent {
             content: serde_json::Value::Array(vec![]),
             exercises: vec![],
@@ -348,6 +405,33 @@ WHERE id = $1;
     Ok(pages)
 }
 
+pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<PageInfo> {
+    let res = sqlx::query_as!(
+        PageInfo,
+        "
+    SELECT
+        p.id as page_id,
+        p.title as page_title,
+        c.id as course_id,
+        c.name as course_name
+    FROM pages p
+    JOIN courses c
+        on c.id = p.course_id
+    WHERE p.id = $1;
+        ",
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(PageInfo {
+        page_id: res.page_id,
+        page_title: res.page_title,
+        course_id: res.course_id,
+        course_name: res.course_name,
+    })
+}
+
 async fn get_page_by_path(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -387,19 +471,28 @@ pub async fn get_page_with_user_data_by_path(
     course_slug: &str,
     url_path: &str,
 ) -> ModelResult<CoursePageWithUserData> {
-    let course_id = get_nondeleted_course_id_by_slug(conn, course_slug).await?;
-    let page_option = get_page_by_path(conn, course_id, url_path).await?;
+    let course_data = get_nondeleted_course_id_by_slug(conn, course_slug).await?;
+    let page_option = get_page_by_path(conn, course_data.id, url_path).await?;
 
     if let Some(page) = page_option {
-        return get_course_page_with_user_data_from_selected_page(conn, user_id, page, false).await;
+        return get_course_page_with_user_data_from_selected_page(
+            conn,
+            user_id,
+            page,
+            false,
+            course_data.is_test_mode,
+        )
+        .await;
     } else {
-        let potential_redirect = try_to_find_redirected_page(conn, course_id, url_path).await?;
+        let potential_redirect =
+            try_to_find_redirected_page(conn, course_data.id, url_path).await?;
         if let Some(redirected_page) = potential_redirect {
             return get_course_page_with_user_data_from_selected_page(
                 conn,
                 user_id,
                 redirected_page,
                 true,
+                course_data.is_test_mode,
             )
             .await;
         }
@@ -448,6 +541,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     user_id: Option<Uuid>,
     page: Page,
     was_redirected: bool,
+    is_test_mode: bool,
 ) -> ModelResult<CoursePageWithUserData> {
     if let Some(chapter_id) = page.chapter_id {
         if !crate::chapters::is_open(conn, chapter_id).await? {
@@ -470,6 +564,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
                 instance,
                 settings,
                 was_redirected,
+                is_test_mode,
             });
         }
     }
@@ -478,6 +573,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
         instance: None,
         settings: None,
         was_redirected,
+        is_test_mode,
     })
 }
 
@@ -2046,10 +2142,9 @@ mod test {
         let exam = Uuid::new_v4();
         crate::exams::insert(
             tx.as_mut(),
-            NewExam {
+            &NewExam {
                 id: exam,
-                name: "name",
-                instructions: serde_json::json!([]),
+                name: "name".to_string(),
                 starts_at: None,
                 ends_at: None,
                 time_minutes: 120,
@@ -2119,18 +2214,14 @@ mod test {
         .is_ok());
 
         // Fails with missing slide
-        assert!(
-            create_update(vec![e1.clone()], vec![], vec![e1_s1_t1.clone()],)
-                .validate_exercise_data()
-                .is_err()
-        );
+        assert!(create_update(vec![e1.clone()], vec![], vec![e1_s1_t1],)
+            .validate_exercise_data()
+            .is_err());
 
         // Fails with missing task
-        assert!(
-            create_update(vec![e1.clone()], vec![e1_s1.clone()], vec![],)
-                .validate_exercise_data()
-                .is_err()
-        );
+        assert!(create_update(vec![e1], vec![e1_s1], vec![],)
+            .validate_exercise_data()
+            .is_err());
     }
 
     fn create_update(

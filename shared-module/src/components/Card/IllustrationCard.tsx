@@ -49,15 +49,7 @@ const CardContentWrapper = styled.div`
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const IllustrationCard: React.FC<CardProps> = ({
-  title,
-  chapterNumber,
-  open,
-  date,
-  time,
-  bg,
-  backgroundImage,
-}) => {
+const IllustrationCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, time, bg }) => {
   const { t } = useTranslation()
 
   const fetchOpensText = () => {
@@ -142,7 +134,7 @@ const IllustrationCard: React.FC<CardProps> = ({
         </div>
         <div
           className={css`
-            // IMPORTANT: the height of this needs to be hardcoded because the cover images assume this area to be of certain size. If you change this, these course card images will no longer look right.
+            /** IMPORTANT: the height of this needs to be hardcoded because the cover images assume this area to be of certain size. If you change this, these course card images will no longer look right. **/
             height: 250px;
             background: ${bg};
             padding: 3rem 2.5rem 3rem 2.5rem;
@@ -155,7 +147,7 @@ const IllustrationCard: React.FC<CardProps> = ({
               height: 100%;
             `}
           >
-            <div className={css``}>
+            <div>
               <span
                 className={css`
                   text-transform: uppercase;

@@ -50,5 +50,7 @@
   "block-props": "Block properties",
   "block-list": "Current blocks",
   "block-menu": "Add block / All available blocks",
-  "editor-select-sidebar-view": "Toggle view"
+  "editor-select-sidebar-view": "Toggle view",
+  "are-you-sure-you-want-to-discard-changes": "Are you sure you want to discard unsaved changes?",
+  "open-saved-page-in-new-tab": "Open saved page in a new tab"
 }

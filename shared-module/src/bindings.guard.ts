@@ -1004,7 +1004,9 @@ export function isPageInfo(obj: any, _argumentName?: string): obj is PageInfo {
     typeof obj.page_id === "string" &&
     typeof obj.page_title === "string" &&
     typeof obj.course_id === "string" &&
-    typeof obj.course_name === "string"
+    typeof obj.course_name === "string" &&
+    typeof obj.course_slug === "string" &&
+    typeof obj.organization_slug === "string"
   )
 }
 

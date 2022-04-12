@@ -29,7 +29,7 @@ export interface ReviewExtraProps {
 
 export type ReviewComponentProps = React.HTMLAttributes<HTMLDivElement> & ReviewExtraProps
 
-const Review: React.FC<ReviewComponentProps> = ({ total, attempt }) => {
+const PeerReviewProgress: React.FC<ReviewComponentProps> = ({ total, attempt }) => {
   return (
     <Wrapper>
       <Progress
@@ -47,4 +47,4 @@ const Review: React.FC<ReviewComponentProps> = ({ total, attempt }) => {
   )
 }
 
-export default Review
+export default PeerReviewProgress

@@ -111,7 +111,7 @@ const LinkertScale: React.FC<LinkertScaleComponentProps> = () => {
           </Linkert>
         ))}
       </Linkerts>
-      <PeerReviewProgress />
+      <PeerReviewProgress total={10} attempt={2} />
     </Wrapper>
   )
 }

@@ -33,8 +33,8 @@ test("mange course structure works", async ({ headless, page }) => {
   await page.click('text=Page 6/chapter-1/page-6Edit page >> [aria-label="Dropdown\\ menu"]')
   // Click text=Move up
   await page.click("text=Move up")
-  // Click button:has-text("Save")
-  await page.click('button:has-text("Save")')
+  // Click button:text-is("Save")
+  await page.click('button:text-is("Save")')
   // Click text=Operation successful!
   await page.waitForSelector("text=Operation successful!")
   // Check that the order is now right
@@ -48,14 +48,14 @@ test("mange course structure works", async ({ headless, page }) => {
     dialog.accept()
   })
   await page.click("text=Delete")
-  // Click button:has-text("Save")
-  await page.click('button:has-text("Save")')
+  // Click button:text-is("Save")
+  await page.click('button:text-is("Save")')
   // Click text=Chapter 2: The intermediariesChapter front pageTitleURL pathThe intermediaries/c >> [aria-label="Dropdown\ menu"]
   await page.click(
     'text=Chapter 2: The intermediariesChapter front pageTitleURL pathThe intermediaries/c >> [aria-label="Dropdown\\ menu"]',
   )
   // Click text=EditDelete >> button
-  await page.click("text=EditDelete >> button")
+  await page.locator(`button:text-is("Edit")`).click()
   // Click [placeholder="Name"]
   await page.click('[placeholder="Name"]')
   // Click [placeholder="Name"]
@@ -87,8 +87,8 @@ test("mange course structure works", async ({ headless, page }) => {
   await page.click("text=Delete")
   // Click text=Successfully deleted
   await page.waitForSelector("text=Successfully deleted")
-  // Click button:has-text("Save")
-  await page.click('button:has-text("Save")')
+  // Click button:text-is("Save")
+  await page.click('button:text-is("Save")')
   // Click text=Operation successful!
   await page.waitForSelector("text=Operation successful!")
 

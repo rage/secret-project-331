@@ -15,8 +15,8 @@ test("test", async ({ page, headless }) => {
     page.click(`button:text("Edit page"):right-of(:text("In the second chapter..."))`),
   ])
   await page.fill('input[label="Title"]', "New title")
-  // Click text=Save
-  await page.click("text=Save >> visible=true")
+  // Click button:text-is("Save")
+  await page.click(`button:text-is("Save") >> visible=true`)
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,

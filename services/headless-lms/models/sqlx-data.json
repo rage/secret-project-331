@@ -9009,37 +9009,6 @@
       "nullable": [null, null]
     }
   },
-  "c0af1afc813cd738fc9578365ecf4e067153b041981be376ffc74b5764a58fd1": {
-    "query": "\n    SELECT\n        p.id as page_id,\n        p.title as page_title,\n        c.id as course_id,\n        c.name as course_name\n    FROM pages p\n    JOIN courses c\n        on c.id = p.course_id\n    WHERE p.id = $1;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "page_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "page_title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_name",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false]
-    }
-  },
   "c0e77b688094cd88143669d7562d1412e2cb9c49374c1a95c75419f3ff7ac8cc": {
     "query": "\nDELETE FROM roles\nWHERE user_id = $1\n  AND role = $2\n  AND course_id = $3\n",
     "describe": {
@@ -10397,6 +10366,47 @@
         "Left": ["Uuid"]
       },
       "nullable": [true, true]
+    }
+  },
+  "e0b4500a82c00392858356fa3059ce8c827c665abcbe5e703b8350ec39965df7": {
+    "query": "\n    SELECT\n        p.id as page_id,\n        p.title as page_title,\n        c.id as course_id,\n        c.name as course_name,\n        c.slug as course_slug,\n        o.slug as organization_slug\n    FROM pages p\n    JOIN courses c\n        on c.id = p.course_id\n    JOIN organizations o\n        on o.id = c.organization_id\n    WHERE p.id = $1;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "page_title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "organization_slug",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, false, false]
     }
   },
   "e2fe96906db5d05fa1a8b0aabc25e9027c386b349f11d4c26bcf7db1864af6cf": {

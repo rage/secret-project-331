@@ -92,7 +92,7 @@
   "start-studying": "Start stydying...",
   "start-the-exam": "Start the exam!",
   "started-at-time": "Started: {{time}}",
-  "student-progress": "Student progress",
+  "course-progress": "Course progress",
   "submit-button": "Submit",
   "table-of-contents": "Table of contents",
   "template-exercise-instructions": "You can submit your answer to each question to save their state before submitting the exam. You will see the results after you submit the exam or the timer runs out.",

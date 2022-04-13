@@ -1,4 +1,4 @@
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
@@ -14,7 +14,7 @@ import {
   NavContainer,
   NavItem,
   NavItems,
-  NavLink,
+  // NavLink,
 } from "../shared-module/components/Navigation/NavBar"
 import SkipLink from "../shared-module/components/SkipLink"
 

@@ -38,7 +38,7 @@ interface DeadlineProps {
 const DeadlineText = styled.div<DeadlineProps>`
   display: flex;
   justify-content: center;
-  font-size: 16px;
+  font-size: clamp(10px, 2.5vw, 16px);
   padding: 1rem;
   background: ${(DeadlineProps) =>
     DeadlineProps.closingSoon ? baseTheme.colors.red["100"] : baseTheme.colors.clear["300"]};
@@ -52,7 +52,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const pageContext = useContext(PageContext)
   const showExercise = props.isExam || (loginState.signedIn ? !!pageContext.settings : true)
@@ -124,10 +124,46 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const ranOutOfTries =
     limit_number_of_tries && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
 
-  const deadline = getCourseMaterialExercise.data.exercise.deadline
+  const exerciseDeadline = getCourseMaterialExercise.data.exercise.deadline
 
   const dateInTwoDays = new Date()
   dateInTwoDays.setDate(dateInTwoDays.getDate() + 2)
+
+  const lang = i18n.language
+
+  let deadlineAsString = ""
+  const DATESTYLE = "long"
+  const TIMESTYLE = "short"
+
+  if (exerciseDeadline) {
+    // eslint-disable-next-line i18next/no-literal-string
+    // deadlineAsString = `${exerciseDeadline.toLocaleString(lang, {
+    //   dateStyle: DATESTYLE,
+    //   timeStyle: TIMESTYLE,
+    // })} (UTC${sign}${-(exerciseDeadline.getTimezoneOffset() / 60).toString().replace(".", ":")})`
+
+    const sign = exerciseDeadline.getTimezoneOffset() > 0 ? "-" : "+"
+
+    deadlineAsString = exerciseDeadline.toLocaleString(lang, {
+      dateStyle: DATESTYLE,
+      timeStyle: TIMESTYLE,
+    })
+
+    console.log(exerciseDeadline)
+
+    const timezoneOffsetParts = (-exerciseDeadline.getTimezoneOffset() / 60).toString().split(".")
+    const start = timezoneOffsetParts[0].padStart(2, "0")
+    let end = ""
+    if (timezoneOffsetParts[1]) {
+      end = timezoneOffsetParts[1].padEnd(2, "0")
+    } else {
+      end = end.padEnd(2, "0")
+    }
+
+    // eslint-disable-next-line i18next/no-literal-string
+    const timezoneOffset = `(UTC${sign}${start}:${end})`
+    deadlineAsString = deadlineAsString + ` ${timezoneOffset}`
+  }
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -180,14 +216,15 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
             </div>
           </div>
-          {deadline &&
-            (Date.now() < deadline.getTime() ? (
-              <DeadlineText closingSoon={dateInTwoDays.getTime() >= deadline.getTime()}>
-                {t("deadline")} {deadline.toUTCString()}
+          {exerciseDeadline &&
+            (Date.now() < exerciseDeadline.getTime() ? (
+              <DeadlineText closingSoon={dateInTwoDays.getTime() >= exerciseDeadline.getTime()}>
+                {t("deadline")}
+                {deadlineAsString}
               </DeadlineText>
             ) : (
               <DeadlineText closingSoon={true}>
-                {t("Deadline-passed-n-days-ago", { days: dateDiffInDays(deadline) })}
+                {t("Deadline-passed-n-days-ago", { days: dateDiffInDays(exerciseDeadline) })}
               </DeadlineText>
             ))}
           {getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (

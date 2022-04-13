@@ -848,6 +848,19 @@
 <span id="843">843</span>
 <span id="844">844</span>
 <span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -890,7 +903,7 @@
     <span class="ident">page_history</span>::{<span class="ident">HistoryChangeReason</span>, <span class="ident">PageHistory</span>},
     <span class="ident">pages</span>::{
         <span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">ContentManagementPage</span>,
-        <span class="ident">CoursePageWithUserData</span>, <span class="ident">Page</span>, <span class="ident">PageChapterAndCourseInformation</span>,
+        <span class="ident">CoursePageWithUserData</span>, <span class="ident">Page</span>, <span class="ident">PageChapterAndCourseInformation</span>, <span class="ident">PageInfo</span>,
         <span class="ident">PageRoutingDataWithChapterStatus</span>, <span class="ident">PageSearchResult</span>, <span class="ident">PageWithExercises</span>,
     },
     <span class="ident">playground_examples::PlaygroundExample</span>,
@@ -932,6 +945,7 @@
 <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="comment">// reusable variables</span>
     <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;</span>).<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="ident">id2</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3c6ca496-17ac-445c-88c0-4ded2f2dbe58&quot;</span>).<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="ident">date_time</span> <span class="op">=</span> <span class="ident">Utc</span>.<span class="ident">timestamp</span>(<span class="number">1640988000</span>, <span class="number">0</span>);
     <span class="kw">let</span> <span class="ident">created_at</span> <span class="op">=</span> <span class="ident">date_time</span>;
     <span class="kw">let</span> <span class="ident">updated_at</span> <span class="op">=</span> <span class="ident">date_time</span>;
@@ -975,7 +989,7 @@
         <span class="ident">created_at</span>,
         <span class="ident">updated_at</span>,
         <span class="ident">deleted_at</span>,
-        <span class="ident">course_id</span>: <span class="ident">id</span>,
+        <span class="ident">course_id</span>: <span class="ident">id2</span>,
         <span class="ident">starts_at</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>),
         <span class="ident">ends_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Instance&quot;</span>.<span class="ident">to_string</span>()),
@@ -990,7 +1004,7 @@
         <span class="ident">created_at</span>,
         <span class="ident">updated_at</span>,
         <span class="ident">deleted_at</span>,
-        <span class="ident">current_course_id</span>: <span class="ident">id</span>,
+        <span class="ident">current_course_id</span>: <span class="ident">id2</span>,
         <span class="ident">current_course_instance_id</span>: <span class="ident">id</span>,
     };
     <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">Exercise</span> {
@@ -1089,7 +1103,7 @@
         <span class="ident">updated_at</span>,
         <span class="ident">deleted_at</span>,
         <span class="ident">name</span>: <span class="string">&quot;The Basics&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">course_id</span>: <span class="ident">id</span>,
+        <span class="ident">course_id</span>: <span class="ident">id2</span>,
         <span class="ident">chapter_image_url</span>: <span class="prelude-val">None</span>,
         <span class="ident">chapter_number</span>: <span class="number">1</span>,
         <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
@@ -1267,7 +1281,7 @@
         <span class="ident">CourseInstanceEnrollment</span>,
         <span class="ident">CourseInstanceEnrollment</span> {
             <span class="ident">user_id</span>: <span class="ident">id</span>,
-            <span class="ident">course_id</span>: <span class="ident">id</span>,
+            <span class="ident">course_id</span>: <span class="ident">id2</span>,
             <span class="ident">course_instance_id</span>: <span class="ident">id</span>,
             <span class="ident">created_at</span>,
             <span class="ident">updated_at</span>,
@@ -1408,7 +1422,7 @@
                     <span class="ident">updated_at</span>,
                     <span class="ident">deleted_at</span>,
                     <span class="ident">name</span>: <span class="string">&quot;The Basics&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">course_id</span>: <span class="ident">id</span>,
+                    <span class="ident">course_id</span>: <span class="ident">id2</span>,
                     <span class="ident">chapter_image_path</span>: <span class="prelude-val">None</span>,
                     <span class="ident">chapter_number</span>: <span class="number">1</span>,
                     <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
@@ -1460,7 +1474,7 @@
         <span class="macro">vec!</span>[<span class="ident">Feedback</span> {
             <span class="ident">id</span>,
             <span class="ident">user_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
-            <span class="ident">course_id</span>: <span class="ident">id</span>,
+            <span class="ident">course_id</span>: <span class="ident">id2</span>,
             <span class="ident">feedback_given</span>: <span class="string">&quot;Unclear&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">selected_text</span>: <span class="prelude-val">None</span>,
             <span class="ident">marked_as_read</span>: <span class="bool-val">false</span>,
@@ -1505,7 +1519,7 @@
         <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseExam</span><span class="op">&gt;</span>,
         <span class="macro">vec!</span>[<span class="ident">CourseExam</span> {
             <span class="ident">id</span>,
-            <span class="ident">course_id</span>: <span class="ident">id</span>,
+            <span class="ident">course_id</span>: <span class="ident">id2</span>,
             <span class="ident">course_name</span>: <span class="string">&quot;Example course&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">name</span>: <span class="string">&quot;Course exam&quot;</span>.<span class="ident">to_string</span>()
         }]
@@ -1650,12 +1664,13 @@
                 <span class="ident">created_at</span>,
                 <span class="ident">updated_at</span>,
                 <span class="ident">name</span>: <span class="string">&quot;The Basics&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">course_id</span>: <span class="ident">id</span>,
+                <span class="ident">course_id</span>: <span class="ident">id2</span>,
                 <span class="ident">deleted_at</span>,
                 <span class="ident">chapter_number</span>: <span class="number">1</span>,
                 <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
                 <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
-                <span class="ident">status</span>: <span class="ident">ChapterStatus::Open</span>
+                <span class="ident">status</span>: <span class="ident">ChapterStatus::Open</span>,
+                <span class="ident">chapter_image_url</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg&quot;</span>.<span class="ident">to_string</span>()),
             }]
         }
     );
@@ -1677,6 +1692,17 @@
             <span class="ident">provider_url</span>: <span class="string">&quot;http://project-331.local&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">title</span>: <span class="string">&quot;OEmbed&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">version</span>: <span class="string">&quot;1.0&quot;</span>.<span class="ident">to_string</span>(),
+        }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">PageInfo</span>,
+        <span class="ident">PageInfo</span> {
+            <span class="ident">page_id</span>: <span class="ident">id</span>,
+            <span class="ident">page_title</span>: <span class="string">&quot;The basics&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">course_id</span>: <span class="ident">id2</span>,
+            <span class="ident">course_name</span>: <span class="string">&quot;Introduction to everything&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">course_slug</span>: <span class="string">&quot;introduction-to-everything&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">organization_slug</span>: <span class="string">&quot;uh-cs&quot;</span>.<span class="ident">to_string</span>()
         }
     );
 }

@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "../.."
 import { Block } from "../../../../services/backend"
 import { CourseMaterialExerciseTask } from "../../../../shared-module/bindings"
+import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import { IframeState } from "../../../../shared-module/iframe-protocol-types"
 import { narrowContainerWidthPx } from "../../../../shared-module/styles/constants"
 
@@ -27,6 +28,7 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
   setAnswer,
   exerciseNumber,
 }) => {
+  const { signedIn } = useContext(LoginStateContext)
   const { t } = useTranslation()
   const currentExerciseTaskAssignment = exerciseTask.assignment as Block<unknown>[]
   const url = exerciseTask.exercise_iframe_url
@@ -39,7 +41,8 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
     postThisStateToIFrame.view_type === "view-submission"
       ? postThisStateToIFrame.data.grading?.feedback_text ?? null
       : null
-  const cannotAnswerButNoSubmission = !canPostSubmission && !exerciseTask.previous_submission
+  const cannotAnswerButNoSubmission =
+    !canPostSubmission && !exerciseTask.previous_submission && signedIn
 
   return (
     <div>

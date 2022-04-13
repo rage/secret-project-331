@@ -26,7 +26,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   breakFromCenteredProps,
   title,
 }) => {
-  const [showBorders, _] = useState(false)
+  const [showBorders] = useState(false)
   const { t } = useTranslation()
   const iframeRef = useRef<HTMLIFrameElement>(null)
 

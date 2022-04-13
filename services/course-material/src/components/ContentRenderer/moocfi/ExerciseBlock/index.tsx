@@ -268,6 +268,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 {t("tries-remaining-n", { n: triesRemaining })}
               </div>
             )}
+            {!loginState.isLoading && !loginState.signedIn && (
+              <div>{t("please-log-in-to-answer-exercise")}</div>
+            )}
           </div>
         </Centered>
       </div>

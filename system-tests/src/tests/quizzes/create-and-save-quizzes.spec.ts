@@ -230,8 +230,8 @@ test("create quizzes test", async ({ page }) => {
   await frame3.fill(`label:has-text("Success message") input`, `yes`)
   await closeModal(page, frame3)
 
-  // Click text=Save
-  await page.click("text=Save >> visible=true")
+  // Click button:text-is("Save")
+  await page.click(`button:text-is("Save") >> visible=true`)
 })
 
 async function closeModal(page: Page, frame: Frame) {

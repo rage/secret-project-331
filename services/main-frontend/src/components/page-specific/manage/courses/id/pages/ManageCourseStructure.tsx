@@ -21,6 +21,7 @@ import DropdownMenu from "../../../../../../shared-module/components/DropdownMen
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, typography } from "../../../../../../shared-module/styles"
 
+import ChapterImageWidget from "./ChapterImageWidget"
 import NewChapterForm from "./NewChapterForm"
 import FrontPage from "./PageList/FrontPage"
 import PageList from "./PageList/PageList"
@@ -45,6 +46,7 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
   )
   const { t } = useTranslation()
   const [showEditChapterForm, setShowEditChapterForm] = useState<boolean>(false)
+  const [showEditImageModal, setShowEditImageModal] = useState<boolean>(false)
   const [chapterBeingEdited, setChapterBeingEdited] = useState<Chapter | null>(null)
   const [pageOrderState, pageOrderDispatch] = useReducer(
     managePageOrderReducer,
@@ -123,6 +125,13 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
                           onClick: () => {
                             setChapterBeingEdited(chapter)
                             setShowEditChapterForm(true)
+                          },
+                        },
+                        {
+                          label: t("button-text-edit-image"),
+                          onClick: () => {
+                            setChapterBeingEdited(chapter)
+                            setShowEditImageModal(true)
                           },
                         },
                         {
@@ -208,6 +217,34 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
               initialData={chapterBeingEdited}
               newRecord={!chapterBeingEdited}
             />
+          </div>
+        </Dialog>
+
+        <Dialog
+          open={!!showEditImageModal}
+          onClose={() => {
+            setChapterBeingEdited(null)
+            setShowEditImageModal(false)
+          }}
+        >
+          <div
+            className={css`
+              margin: 1rem;
+            `}
+          >
+            <Button
+              variant="primary"
+              size="medium"
+              onClick={() => {
+                setChapterBeingEdited(null)
+                setShowEditImageModal(false)
+              }}
+            >
+              {t("button-text-close")}
+            </Button>
+            {chapterBeingEdited && (
+              <ChapterImageWidget chapter={chapterBeingEdited} onChapterUpdated={() => refetch()} />
+            )}
           </div>
         </Dialog>
       </div>

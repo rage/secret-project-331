@@ -42,7 +42,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
               max={getUserCourseProgress.data.score_maximum}
               given={getUserCourseProgress.data.score_given}
               point={50}
-              label={t("student-progress")}
+              label={t("course-progress")}
             />
             <Progress
               variant={"bar"}

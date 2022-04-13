@@ -1,9 +1,10 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import { RichText } from "@wordpress/block-editor"
+import { InspectorControls, RichText } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
 
+import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import { baseTheme } from "../../shared-module/styles"
 import {
@@ -22,6 +23,9 @@ const HeroSectionEditor: React.FC<BlockEditProps<HeroSectionAttributes>> = ({
   const { title, subtitle } = attributes
   return (
     <BlockWrapper id={clientId}>
+      <InspectorControls key="settings">
+        <BackgroundAndColorCustomizer attributes={attributes} setAttributes={setAttributes} />
+      </InspectorControls>
       <BreakFromCentered
         sidebar
         sidebarPosition="right"
@@ -31,6 +35,11 @@ const HeroSectionEditor: React.FC<BlockEditProps<HeroSectionAttributes>> = ({
         <div
           className={css`
             background: ${baseTheme.colors.green[200]};
+            background-color: ${attributes.backgroundColor};
+            ${attributes.backgroundImage &&
+            `background-image: url("${attributes.backgroundImage}");
+            background-repeat: no-repeat;
+            background-position: center center;`}
             width: 100%;
             border-radius: 1px;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);

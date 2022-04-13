@@ -35,7 +35,7 @@ const UploadImageForm: React.FC<UploadImageFormProps> = ({ onSubmit }) => {
     >
       <FieldContainer>
         {/* eslint-disable-next-line i18next/no-literal-string */}
-        <LabelButton htmlFor="image-upload">{t("header-upload-image")}</LabelButton>
+        <LabelButton htmlFor="image-upload">{t("button-text-select-image")}</LabelButton>
         <input
           className={css`
             opacity: 0;

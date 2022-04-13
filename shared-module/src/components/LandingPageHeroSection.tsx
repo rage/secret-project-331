@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -8,12 +9,7 @@ export const CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLIN
   "chapter-grid-scrolling-destination"
 
 // eslint-disable-next-line i18next/no-literal-string
-const HeroWrapper = styled.div`
-  width: 100%;
-  border-radius: 1px;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  padding: 7.5em 1em;
-`
+//const HeroWrapper = styled.div``
 
 const TextBox = styled.div`
   display: flex;
@@ -55,15 +51,33 @@ const TextBox = styled.div`
 `
 export interface LandingPageHeroSectionProps {
   title: string
-  bg?: string
+  backgroundImage?: string
+  backgroundColor?: string
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & LandingPageHeroSectionProps
 
-const LandingPageHeroSection: React.FC<CardProps> = ({ title, children }) => {
+const LandingPageHeroSection: React.FC<CardProps> = ({
+  title,
+  children,
+  backgroundImage,
+  backgroundColor,
+}) => {
   const { t } = useTranslation()
   return (
-    <HeroWrapper>
+    <div
+      className={css`
+        width: 100%;
+        border-radius: 1px;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        padding: 7.5em 1em;
+        ${backgroundColor && `background-color: ${backgroundColor};`}
+        ${backgroundImage &&
+        `background-image: url(${backgroundImage});
+        background-repeat: no-repeat;
+        background-position: center center;`}
+      `}
+    >
       <TextBox>
         <h1>{title}</h1>
         {children}
@@ -87,7 +101,7 @@ const LandingPageHeroSection: React.FC<CardProps> = ({ title, children }) => {
           {t("start-course")}
         </Button>
       </TextBox>
-    </HeroWrapper>
+    </div>
   )
 }
 

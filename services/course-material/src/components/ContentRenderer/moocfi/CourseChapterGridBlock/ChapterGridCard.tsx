@@ -16,6 +16,7 @@ interface ChapterProps {
   bg: string
   organizationSlug: string
   previewable: boolean
+  backgroundImage?: string | null
 }
 
 const NUMERIC = "numeric"
@@ -29,6 +30,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({
   bg,
   organizationSlug,
   previewable,
+  backgroundImage,
 }) => {
   const { i18n } = useTranslation()
   const getChapterPageUrl = useQuery(`chapter-grid-chapter-${chapter.id}`, () => {
@@ -82,7 +84,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({
       : undefined
   return (
     <Card
-      variant="simple"
+      variant={backgroundImage ? "illustration" : "simple"}
       title={chapter.name}
       chapterNumber={chapter.chapter_number}
       key={chapter.id}
@@ -91,6 +93,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({
       time={time}
       url={url}
       bg={bg}
+      backgroundImage={backgroundImage}
     />
   )
 }

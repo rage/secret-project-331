@@ -25,8 +25,9 @@ export const TwitterEmbedBlock: React.FC<EmbedAttributes> = (props) => {
       frameBorder="0"
       className={css`
         display: block;
-        width: 768px;
-        height: 576px;
+        width: 602px;
+        height: 737px;
+        margin: 1rem auto;
       `}
     />
   )

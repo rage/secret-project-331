@@ -50,6 +50,8 @@ pub struct PageInfo {
     pub page_title: String,
     pub course_id: Uuid,
     pub course_name: String,
+    pub course_slug: String,
+    pub organization_slug: String,
 }
 
 impl Page {
@@ -413,10 +415,14 @@ pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
         p.id as page_id,
         p.title as page_title,
         c.id as course_id,
-        c.name as course_name
+        c.name as course_name,
+        c.slug as course_slug,
+        o.slug as organization_slug
     FROM pages p
     JOIN courses c
         on c.id = p.course_id
+    JOIN organizations o
+        on o.id = c.organization_id
     WHERE p.id = $1;
         ",
         page_id
@@ -424,12 +430,7 @@ pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
     .fetch_one(conn)
     .await?;
 
-    Ok(PageInfo {
-        page_id: res.page_id,
-        page_title: res.page_title,
-        course_id: res.course_id,
-        course_name: res.course_name,
-    })
+    Ok(res)
 }
 
 async fn get_page_by_path(

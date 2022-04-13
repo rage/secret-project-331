@@ -7,7 +7,8 @@ import { useTranslation } from "react-i18next"
 
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
-import Navbar from "../shared-module/components/Navigation"
+import LoginControls from "../shared-module/components/LoginControls"
+import { Menu, NavBar } from "../shared-module/components/Navigation/NavBar"
 import SkipLink from "../shared-module/components/SkipLink"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 
@@ -62,12 +63,16 @@ const Layout: React.FC<LayoutProps> = ({
         `}
       >
         <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
-        <Navbar
+        <NavBar
           faqUrl={faqUrl}
           variant={navVariant ?? "complex"}
           // Return to path can be override per page
           returnToPath={returnToPath ?? returnPath}
-        ></Navbar>
+        >
+          <Menu>
+            <LoginControls returnToPath={returnToPath} />
+          </Menu>
+        </NavBar>
         {/* Do not touch flex */}
         <main
           className={css`

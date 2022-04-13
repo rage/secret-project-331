@@ -1,4 +1,4 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
@@ -8,7 +8,14 @@ import { useTranslation } from "react-i18next"
 import PageContext from "../contexts/PageContext"
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
-import Navbar from "../shared-module/components/Navigation"
+import {
+  Menu,
+  NavBar,
+  NavContainer,
+  NavItem,
+  NavItems,
+  NavLink,
+} from "../shared-module/components/Navigation/NavBar"
 import SkipLink from "../shared-module/components/SkipLink"
 
 import ScrollIndicator from "./ScrollIndicator"
@@ -35,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({
   children,
   title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
   navVariant,
-  faqUrl,
+  // faqUrl,
   licenseUrl,
   returnToPath,
   courseSlug,
@@ -68,22 +75,25 @@ const Layout: React.FC<LayoutProps> = ({
       >
         <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
         <ScrollIndicator />
-        <Navbar
-          faqUrl={faqUrl}
-          variant={navVariant ?? "simple"}
-          SearchDialogComponent={
-            courseId &&
-            courseSlug && (
-              <SearchDialog
-                courseId={courseId}
-                courseSlug={courseSlug}
-                organizationSlug={organizationSlug}
-              />
-            )
-          }
-        >
-          <UserNavigationControls returnToPath={returnToPath ?? returnPath} courseId={courseId} />
-        </Navbar>
+        <NavBar variant={navVariant ?? "simple"}>
+          <NavContainer>
+            <NavItems>
+              {/* <NavLink href="/FAQ">FAQ</NavLink> */}
+              {courseId && courseSlug && (
+                <NavItem>
+                  <SearchDialog
+                    courseId={courseId}
+                    courseSlug={courseSlug}
+                    organizationSlug={organizationSlug}
+                  />
+                </NavItem>
+              )}
+            </NavItems>
+          </NavContainer>
+          <Menu>
+            <UserNavigationControls returnToPath={returnToPath ?? returnPath} courseId={courseId} />
+          </Menu>
+        </NavBar>
 
         {/* Do not touch flex */}
         <main

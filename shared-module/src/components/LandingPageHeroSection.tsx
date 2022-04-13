@@ -71,7 +71,7 @@ const LandingPageHeroSection: React.FC<CardProps> = ({
         border-radius: 1px;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 7.5em 1em;
-        ${backgroundColor && `background-color: ${backgroundColor}`};
+        ${backgroundColor && `background-color: ${backgroundColor};`}
         ${backgroundImage &&
         `background-image: url(${backgroundImage});
         background-repeat: no-repeat;

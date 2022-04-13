@@ -71,7 +71,14 @@
     },
     "eslint.alwaysShowStatus": true,
     "eslint.lintTask.enable": true,
-    "eslint.format.enable": true
+    "eslint.format.enable": true,
+    "stylelint.validate": [
+      "css",
+      "less",
+      "postcss",
+      "typescriptreact",
+      "javascriptreact"
+    ]
   },
   "recommendations": [
     "stylelint.vscode-stylelint",

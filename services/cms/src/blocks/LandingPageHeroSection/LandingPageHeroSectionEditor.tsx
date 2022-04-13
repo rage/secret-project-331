@@ -1,20 +1,12 @@
 import { css } from "@emotion/css"
-import {
-  BlockIcon,
-  ColorPalette,
-  InnerBlocks,
-  InspectorControls,
-  MediaPlaceholder,
-  RichText,
-} from "@wordpress/block-editor"
+import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
-import { PanelBody, Placeholder } from "@wordpress/components"
-import { cover as icon } from "@wordpress/icons"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
+import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
 import Button from "../../shared-module/components/Button"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import { baseTheme } from "../../shared-module/styles"
 import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
@@ -31,79 +23,17 @@ const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
   ],
 ]
 
-const placeHolderFixHeightStyles = css`
-  min-height: unset !important;
-  margin-bottom: 1rem !important;
-`
-
-const DEFAULT_BACKGROUND_COLORS = [
-  { color: "#FFFFFF", name: "white" },
-  { color: "#663399", name: "rebeccapurple" },
-  { color: baseTheme.colors.blue[100], name: "lightblue" },
-]
-
-const WHITE = "#FFFFFF"
-
 const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSectionAttributes>> = ({
   clientId,
   attributes,
   setAttributes,
 }) => {
   const { title } = attributes
+  const { t } = useTranslation()
   return (
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">
-        <PanelBody title="Background" initialOpen={false}>
-          {attributes.backgroundImage ? (
-            <Placeholder
-              className={placeHolderFixHeightStyles}
-              icon={<BlockIcon icon={icon} />}
-              label="Background image"
-            >
-              <Button
-                variant="tertiary"
-                size="medium"
-                onClick={() => {
-                  setAttributes({ backgroundImage: undefined })
-                }}
-              >
-                Remove
-              </Button>
-            </Placeholder>
-          ) : (
-            <MediaPlaceholder
-              icon={<BlockIcon icon={icon} />}
-              labels={{
-                title: "Background image",
-                instructions:
-                  "Drag and drop onto this block, upload, or select existing media from your library.",
-              }}
-              onSelect={(media) => {
-                setAttributes({ backgroundImage: media.url })
-                console.log({ media })
-              }}
-              accept="image/svg+xml"
-              allowedTypes={["image/svg+xml"]}
-              onError={(error) => {
-                console.error({ error })
-              }}
-              className={placeHolderFixHeightStyles}
-            ></MediaPlaceholder>
-          )}
-          <Placeholder
-            className={placeHolderFixHeightStyles}
-            icon={<BlockIcon icon={icon} />}
-            label="Background color"
-          >
-            <ColorPalette
-              disableCustomColors={false}
-              value={attributes.backgroundColor ?? WHITE}
-              onChange={(backgroundColor) => setAttributes({ backgroundColor })}
-              clearable={false}
-              colors={DEFAULT_BACKGROUND_COLORS}
-            />
-          </Placeholder>
-        </PanelBody>
+        <BackgroundAndColorCustomizer attributes={attributes} setAttributes={setAttributes} />
       </InspectorControls>
       <BreakFromCentered
         sidebar
@@ -126,10 +56,11 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
         >
           <RichText
             className="has-text-align-center wp-block-heading"
+            // eslint-disable-next-line i18next/no-literal-string
             tagName="h1"
             value={title}
             onChange={(value: string) => setAttributes({ title: value })}
-            placeholder={"Welcome message for course..."}
+            placeholder={t("welcome-message-for-course")}
           />
           <InnerBlocks
             template={LANDING_PAGE_HERO_SECTION_TEMPLATE}
@@ -143,7 +74,7 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
             `}
           >
             <Button variant="primary" size="large">
-              Start
+              {t("start")}
             </Button>
           </div>
         </div>

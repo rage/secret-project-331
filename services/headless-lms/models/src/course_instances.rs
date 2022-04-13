@@ -135,7 +135,7 @@ WHERE course_instances.id = $1
     Ok(res.organization_id)
 }
 
-pub async fn current_course_instance_of_user(
+pub async fn try_to_get_current_course_instance_of_user(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
@@ -169,7 +169,7 @@ WHERE ucs.user_id = $1
     Ok(course_instance_enrollment)
 }
 
-pub async fn course_instance_by_users_latest_enrollment(
+pub async fn try_to_course_instance_by_users_latest_enrollment(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,

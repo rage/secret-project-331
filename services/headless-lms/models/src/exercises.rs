@@ -307,13 +307,14 @@ pub async fn get_course_material_exercise(
 
     let user_exercise_state = match (user_id, instance_or_exam_id) {
         (Some(user_id), Some(course_instance_or_exam_id)) => {
-            user_exercise_states::get_user_exercise_state_if_exists(
+            user_exercise_states::get_user_exercise_state(
                 conn,
                 user_id,
                 exercise.id,
                 course_instance_or_exam_id,
             )
-            .await?
+            .await
+            .optional()?
         }
         _ => None,
     };
@@ -382,10 +383,11 @@ async fn get_or_select_exercise_slide(
         }
         (Some(user_id), Some(course_id), None) => {
             // signed in, course exercise
-            let user_course_settings = user_course_settings::get_user_course_settings_by_course_id(
-                conn, user_id, course_id,
-            )
-            .await?;
+            let user_course_settings =
+                user_course_settings::try_to_get_user_course_settings_by_course_id(
+                    conn, user_id, course_id,
+                )
+                .await?;
             match user_course_settings {
                 Some(settings) if settings.current_course_id == course_id => {
                     // User is enrolled on an instance of the given course.
@@ -409,7 +411,7 @@ async fn get_or_select_exercise_slide(
                     // User is enrolled on a different language version of the course. Show exercise
                     // slide based on their latest enrollment or a random one.
                     let latest_instance =
-                        course_instances::course_instance_by_users_latest_enrollment(
+                        course_instances::try_to_course_instance_by_users_latest_enrollment(
                             conn, user_id, course_id,
                         )
                         .await?;
@@ -587,13 +589,14 @@ mod test {
         .await
         .unwrap();
 
-        let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
+        let user_exercise_state = user_exercise_states::get_user_exercise_state(
             tx.as_mut(),
             user_id,
             exercise_id,
             CourseInstanceOrExamId::Instance(course_instance.id),
         )
         .await
+        .optional()
         .unwrap();
         assert!(user_exercise_state.is_none());
 
@@ -610,7 +613,7 @@ mod test {
             exercise_task_id
         );
 
-        let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
+        let user_exercise_state = user_exercise_states::get_user_exercise_state(
             tx.as_mut(),
             user_id,
             exercise_id,
@@ -619,10 +622,7 @@ mod test {
         .await
         .unwrap();
         assert_eq!(
-            user_exercise_state
-                .unwrap()
-                .selected_exercise_slide_id
-                .unwrap(),
+            user_exercise_state.selected_exercise_slide_id.unwrap(),
             exercise_slide_id
         );
     }

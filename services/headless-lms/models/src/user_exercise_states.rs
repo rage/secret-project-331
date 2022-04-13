@@ -320,12 +320,12 @@ WHERE user_id = $1
     Ok(res)
 }
 
-pub async fn get_user_exercise_state_if_exists(
+pub async fn get_user_exercise_state(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
     course_instance_or_exam_id: CourseInstanceOrExamId,
-) -> ModelResult<Option<UserExerciseState>> {
+) -> ModelResult<UserExerciseState> {
     let (course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
     let res = sqlx::query_as!(
         UserExerciseState,
@@ -352,7 +352,7 @@ WHERE user_id = $1
         course_instance_id,
         exam_id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }

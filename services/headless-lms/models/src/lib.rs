@@ -47,7 +47,7 @@ pub mod test_helper;
 
 use uuid::Uuid;
 
-pub use self::error::{ModelError, ModelResult};
+pub use self::error::{ModelError, ModelResult, TryToOptional};
 
 #[macro_use]
 extern crate tracing;

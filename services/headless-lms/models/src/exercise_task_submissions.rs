@@ -170,7 +170,7 @@ pub async fn get_users_latest_exercise_task_submissions_for_exercise_slide(
     user_id: &Uuid,
 ) -> ModelResult<Option<Vec<ExerciseTaskSubmission>>> {
     let exercise_slide_submission =
-        exercise_slide_submissions::get_users_latest_exercise_slide_submission(
+        exercise_slide_submissions::try_to_get_users_latest_exercise_slide_submission(
             conn,
             exercise_slide_id,
             user_id,

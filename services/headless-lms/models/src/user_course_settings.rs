@@ -69,7 +69,7 @@ WHERE user_id = $1
     Ok(user_course_settings)
 }
 
-pub async fn get_user_course_settings_by_course_id(
+pub async fn try_to_get_user_course_settings_by_course_id(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,

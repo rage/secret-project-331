@@ -143,10 +143,7 @@ WHERE exercise_id = ANY($1)
     Ok(res)
 }
 
-pub async fn get_exercise_slide(
-    conn: &mut PgConnection,
-    id: Uuid,
-) -> ModelResult<Option<ExerciseSlide>> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExerciseSlide> {
     let res = sqlx::query_as!(
         ExerciseSlide,
         "
@@ -157,7 +154,7 @@ WHERE id = $1
     ",
         id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
@@ -179,27 +176,6 @@ LIMIT 1;
         exercise_id
     )
     .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn get_exercise_slide_by_exercise_task_id(
-    conn: &mut PgConnection,
-    exercise_task_id: Uuid,
-) -> ModelResult<Option<ExerciseSlide>> {
-    let res = sqlx::query_as!(
-        ExerciseSlide,
-        "
-SELECT s.*
-FROM exercise_slides s
-  JOIN exercise_tasks t ON (s.id = t.exercise_slide_id)
-WHERE t.id = $1
-  AND t.deleted_at IS NULL
-  AND s.deleted_at IS NULL;
-    ",
-        exercise_task_id,
-    )
-    .fetch_optional(conn)
     .await?;
     Ok(res)
 }

@@ -26,12 +26,12 @@ pub async fn generate_anonymous_identifier(
 pub async fn get_key_for_the_day(conn: &mut PgConnection) -> ModelResult<Vec<u8>> {
     let now = Utc::now();
     let valid_for_date = now.date().naive_utc();
-    let res = try_get_key_for_the_day_internal(conn, valid_for_date).await?;
+    let res = try_to_get_key_for_the_day_internal(conn, valid_for_date).await?;
     match res {
         Some(hashing_key) => Ok(hashing_key),
         None => {
-            try_insert_key_for_the_day_internal(conn, valid_for_date).await?;
-            let second_try = try_get_key_for_the_day_internal(conn, valid_for_date).await?;
+            try_to_insert_key_for_the_day_internal(conn, valid_for_date).await?;
+            let second_try = try_to_get_key_for_the_day_internal(conn, valid_for_date).await?;
             match second_try {
                 Some(hashing_key) => Ok(hashing_key),
                 None => Err(ModelError::Generic(
@@ -42,7 +42,7 @@ pub async fn get_key_for_the_day(conn: &mut PgConnection) -> ModelResult<Vec<u8>
     }
 }
 
-async fn try_get_key_for_the_day_internal(
+async fn try_to_get_key_for_the_day_internal(
     conn: &mut PgConnection,
     valid_for_date: NaiveDate,
 ) -> ModelResult<Option<Vec<u8>>> {
@@ -58,7 +58,7 @@ WHERE valid_for_date = $1
     Ok(res.map(|r| r.hashing_key))
 }
 
-async fn try_insert_key_for_the_day_internal(
+async fn try_to_insert_key_for_the_day_internal(
     conn: &mut PgConnection,
     valid_for_date: NaiveDate,
 ) -> ModelResult<()> {

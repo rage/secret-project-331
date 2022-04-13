@@ -157,7 +157,8 @@ pub async fn get_course_material_exercise_tasks(
         let model_solution_spec = exercise_task.model_solution_spec;
         let previous_submission = latest_submissions_by_task_id.remove(&exercise_task.id);
         let previous_submission_grading = if let Some(submission) = previous_submission.as_ref() {
-            exercise_task_gradings::get_by_exercise_task_submission_id(conn, &submission.id).await?
+            exercise_task_gradings::try_to_get_by_exercise_task_submission_id(conn, &submission.id)
+                .await?
         } else {
             None
         };
@@ -241,13 +242,14 @@ pub async fn get_existing_users_exercise_slide_for_course_instance(
     exercise_id: Uuid,
     course_instance_id: Uuid,
 ) -> ModelResult<Option<CourseMaterialExerciseSlide>> {
-    let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
+    let user_exercise_state = user_exercise_states::get_user_exercise_state(
         conn,
         user_id,
         exercise_id,
         CourseInstanceOrExamId::Instance(course_instance_id),
     )
-    .await?;
+    .await
+    .optional()?;
     let exercise_tasks = if let Some(user_exercise_state) = user_exercise_state {
         if let Some(selected_exercise_slide_id) = user_exercise_state.selected_exercise_slide_id {
             let exercise_tasks = get_course_material_exercise_tasks(

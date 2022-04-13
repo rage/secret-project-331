@@ -122,7 +122,7 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn get_by_exercise_task_submission_id(
+pub async fn try_to_get_by_exercise_task_submission_id(
     conn: &mut PgConnection,
     exercise_task_submission_id: &Uuid,
 ) -> ModelResult<Option<ExerciseTaskGrading>> {
@@ -424,11 +424,7 @@ pub async fn get_for_student(
     let grading = get_by_id(conn, grading_id).await?;
     if let Some(exam_id) = grading.exam_id {
         let exam = exams::get(conn, exam_id).await?;
-        let enrollment = exams::get_enrollment(conn, exam_id, user_id)
-            .await?
-            .ok_or_else(|| {
-                ModelError::Generic("User has grading for exam but no enrollment".to_string())
-            })?;
+        let enrollment = exams::get_enrollment(conn, exam_id, user_id).await?;
         if Utc::now() > enrollment.started_at + chrono::Duration::minutes(exam.time_minutes.into())
             || exam.ends_at.map(|ea| Utc::now() > ea).unwrap_or_default()
         {

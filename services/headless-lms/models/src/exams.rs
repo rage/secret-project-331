@@ -303,11 +303,7 @@ pub async fn verify_exam_submission_can_be_made(
     user_id: Uuid,
 ) -> ModelResult<bool> {
     let exam = get(conn, exam_id).await?;
-    let enrollment = get_enrollment(conn, exam_id, user_id)
-        .await?
-        .ok_or_else(|| {
-            ModelError::PreconditionFailed("User has no enrollment for the exam".to_string())
-        })?;
+    let enrollment = get_enrollment(conn, exam_id, user_id).await?;
     let student_has_time =
         Utc::now() <= enrollment.started_at + Duration::minutes(exam.time_minutes.into());
     let exam_is_ongoing = exam.ends_at.map(|ea| Utc::now() < ea).unwrap_or_default();
@@ -326,7 +322,7 @@ pub async fn get_enrollment(
     conn: &mut PgConnection,
     exam_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<Option<ExamEnrollment>> {
+) -> ModelResult<ExamEnrollment> {
     let res = sqlx::query_as!(
         ExamEnrollment,
         "
@@ -340,7 +336,7 @@ WHERE exam_id = $1
         exam_id,
         user_id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }

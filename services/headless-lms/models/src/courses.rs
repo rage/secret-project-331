@@ -541,7 +541,7 @@ WHERE slug = $1
     Ok(course)
 }
 
-pub async fn get_cfgname_by_tag(
+pub async fn try_to_get_cfgname_by_tag(
     conn: &mut PgConnection,
     ietf_language_tag: String,
 ) -> ModelResult<String> {

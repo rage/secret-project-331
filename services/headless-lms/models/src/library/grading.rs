@@ -207,7 +207,7 @@ async fn grade_user_submission_internal(
         for task_submission in exercise_slide_submission_tasks {
             let mock_result = mock_results
                 .get(&task_submission.exercise_task_id)
-                .ok_or_else(|| ModelError::Generic("".to_string()))?
+                .ok_or_else(|| ModelError::Generic("Missing mock result".to_string()))?
                 .clone();
             let submission = create_fixed_grading_for_submission_task(
                 &mut tx,

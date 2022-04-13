@@ -432,7 +432,7 @@ pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
     })
 }
 
-async fn get_page_by_path(
+async fn try_to_get_page_by_path(
     conn: &mut PgConnection,
     course_id: Uuid,
     url_path: &str,
@@ -472,7 +472,7 @@ pub async fn get_page_with_user_data_by_path(
     url_path: &str,
 ) -> ModelResult<CoursePageWithUserData> {
     let course_data = get_nondeleted_course_id_by_slug(conn, course_slug).await?;
-    let page_option = get_page_by_path(conn, course_data.id, url_path).await?;
+    let page_option = try_to_get_page_by_path(conn, course_data.id, url_path).await?;
 
     if let Some(page) = page_option {
         return get_course_page_with_user_data_from_selected_page(
@@ -553,9 +553,11 @@ pub async fn get_course_page_with_user_data_from_selected_page(
 
     if let Some(course_id) = page.course_id {
         if let Some(user_id) = user_id {
-            let instance =
-                course_instances::current_course_instance_of_user(conn, user_id, course_id).await?;
-            let settings = user_course_settings::get_user_course_settings_by_course_id(
+            let instance = course_instances::try_to_get_current_course_instance_of_user(
+                conn, user_id, course_id,
+            )
+            .await?;
+            let settings = user_course_settings::try_to_get_user_course_settings_by_course_id(
                 conn, user_id, course_id,
             )
             .await?;
@@ -1540,12 +1542,12 @@ pub async fn get_next_page(
     pages_id: Uuid,
 ) -> ModelResult<Option<PageRoutingData>> {
     let page_metadata = get_current_page_metadata(conn, pages_id).await?;
-    let next_page = get_next_page_by_order_number(conn, &page_metadata).await?;
+    let next_page = try_to_get_next_page_by_order_number(conn, &page_metadata).await?;
 
     match next_page {
         Some(next_page) => Ok(Some(next_page)),
         None => {
-            let first_page = get_next_page_by_chapter_number(conn, &page_metadata).await?;
+            let first_page = try_to_get_first_page_by_chapter_number(conn, &page_metadata).await?;
             Ok(first_page)
         }
     }
@@ -1610,7 +1612,7 @@ WHERE p.id = $1;
     Ok(page_metadata)
 }
 
-async fn get_next_page_by_order_number(
+async fn try_to_get_next_page_by_order_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,
 ) -> ModelResult<Option<PageRoutingData>> {
@@ -1645,7 +1647,7 @@ WHERE p.order_number = (
     Ok(next_page)
 }
 
-async fn get_next_page_by_chapter_number(
+async fn try_to_get_first_page_by_chapter_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,
 ) -> ModelResult<Option<PageRoutingData>> {

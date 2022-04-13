@@ -236,7 +236,7 @@ async fn get_current_course_instance(
 ) -> ControllerResult<web::Json<Option<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
     if let Some(user) = user {
-        let instance = models::course_instances::current_course_instance_of_user(
+        let instance = models::course_instances::try_to_get_current_course_instance_of_user(
             &mut conn, user.id, *course_id,
         )
         .await?;
@@ -340,7 +340,7 @@ async fn get_user_course_settings(
 ) -> ControllerResult<web::Json<Option<UserCourseSettings>>> {
     let mut conn = pool.acquire().await?;
     if let Some(user) = user {
-        let settings = models::user_course_settings::get_user_course_settings_by_course_id(
+        let settings = models::user_course_settings::try_to_get_user_course_settings_by_course_id(
             &mut conn, user.id, *course_id,
         )
         .await?;

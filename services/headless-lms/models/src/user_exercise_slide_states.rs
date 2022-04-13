@@ -87,7 +87,7 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn get_by_unique_index(
+pub async fn try_to_get_by_user_exercise_state_and_exercise_slide_ids(
     conn: &mut PgConnection,
     user_exercise_state_id: Uuid,
     exercise_slide_id: Uuid,
@@ -147,8 +147,12 @@ pub async fn get_or_insert_by_unique_index(
     user_exercise_state_id: Uuid,
     exercise_slide_id: Uuid,
 ) -> ModelResult<UserExerciseSlideState> {
-    let user_exercise_slide_state =
-        get_by_unique_index(conn, user_exercise_state_id, exercise_slide_id).await?;
+    let user_exercise_slide_state = try_to_get_by_user_exercise_state_and_exercise_slide_ids(
+        conn,
+        user_exercise_state_id,
+        exercise_slide_id,
+    )
+    .await?;
     if let Some(user_exercise_slide_state) = user_exercise_slide_state {
         Ok(user_exercise_slide_state)
     } else {

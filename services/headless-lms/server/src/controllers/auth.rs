@@ -235,7 +235,7 @@ pub async fn get_user_from_moocfi(
         } = current_user_response.data.current_user;
 
         // fetch existing user or create new one
-        let user = match models::users::find_by_upstream_id(conn, upstream_id)
+        let user = match models::users::try_to_find_by_upstream_id(conn, upstream_id)
             .await
             .context("Error while trying to find user")?
         {

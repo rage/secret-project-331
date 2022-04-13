@@ -101,7 +101,10 @@ WHERE email = $1
     Ok(user)
 }
 
-pub async fn try_get_by_email(conn: &mut PgConnection, email: &str) -> ModelResult<Option<User>> {
+pub async fn try_to_get_by_email(
+    conn: &mut PgConnection,
+    email: &str,
+) -> ModelResult<Option<User>> {
     let user = sqlx::query_as!(
         User,
         "
@@ -131,7 +134,7 @@ WHERE id = $1
     Ok(user)
 }
 
-pub async fn find_by_upstream_id(
+pub async fn try_to_find_by_upstream_id(
     conn: &mut PgConnection,
     upstream_id: i32,
 ) -> ModelResult<Option<User>> {

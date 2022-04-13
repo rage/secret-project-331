@@ -6,6 +6,8 @@ use uuid::Uuid;
 pub type ModelResult<T> = Result<T, ModelError>;
 
 pub trait TryToOptional<T, E> {
+    /// Filters out a `NotFound` type error and maps the ok value to an `Option`. Other forms of
+    /// errors are preserved as-is.
     fn optional(self) -> Result<Option<T>, E>
     where
         Self: Sized;

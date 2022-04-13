@@ -17,7 +17,9 @@ pub async fn enrollment(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Option<ExamEnrollment>>> {
     let mut conn = pool.acquire().await?;
-    let enrollment = exams::get_enrollment(&mut conn, *exam_id, user.id).await?;
+    let enrollment = exams::get_enrollment(&mut conn, *exam_id, user.id)
+        .await
+        .optional()?;
     Ok(web::Json(enrollment))
 }
 
@@ -126,27 +128,15 @@ pub async fn fetch_exam_for_user(
         }));
     }
 
-    let enrollment =
-        if let Some(enrollment) = exams::get_enrollment(&mut conn, *exam_id, user.id).await? {
-            // user has started the exam
-            if Utc::now() < ends_at
-                && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
-            {
-                // exam is still open but the student's time has expired
-                return Ok(web::Json(ExamData {
-                    id: exam.id,
-                    name: exam.name,
-                    instructions: exam.instructions,
-                    starts_at,
-                    ends_at,
-                    ended,
-                    time_minutes: exam.time_minutes,
-                    enrollment_data: ExamEnrollmentData::StudentTimeUp,
-                }));
-            }
-            enrollment
-        } else {
-            // user has not started the exam
+    let enrollment = if let Some(enrollment) = exams::get_enrollment(&mut conn, *exam_id, user.id)
+        .await
+        .optional()?
+    {
+        // user has started the exam
+        if Utc::now() < ends_at
+            && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
+        {
+            // exam is still open but the student's time has expired
             return Ok(web::Json(ExamData {
                 id: exam.id,
                 name: exam.name,
@@ -155,9 +145,23 @@ pub async fn fetch_exam_for_user(
                 ends_at,
                 ended,
                 time_minutes: exam.time_minutes,
-                enrollment_data: ExamEnrollmentData::NotEnrolled,
+                enrollment_data: ExamEnrollmentData::StudentTimeUp,
             }));
-        };
+        }
+        enrollment
+    } else {
+        // user has not started the exam
+        return Ok(web::Json(ExamData {
+            id: exam.id,
+            name: exam.name,
+            instructions: exam.instructions,
+            starts_at,
+            ends_at,
+            ended,
+            time_minutes: exam.time_minutes,
+            enrollment_data: ExamEnrollmentData::NotEnrolled,
+        }));
+    };
 
     let page = pages::get_page(&mut conn, exam.page_id).await?;
 

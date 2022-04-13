@@ -103,15 +103,16 @@ async fn post_submission(
         )
         .await?;
 
-    // TODO: Should this be an upsert?
-    let user_exercise_state = models::user_exercise_states::get_user_exercise_state_if_exists(
+    // Exercise state must exist for the user before submitting, because it contains the information
+    // for current selected exercise slide.
+    let user_exercise_state = models::user_exercise_states::get_user_exercise_state(
         &mut conn,
         user.id,
         exercise.id,
         course_instance_or_exam_id,
     )
-    .await?
-    .ok_or_else(|| ControllerError::Unauthorized("Missing exercise state.".to_string()))?;
+    .await
+    .map_err(|_| ControllerError::Forbidden("Exercise state missing for the user.".to_string()))?;
 
     let mut result = models::library::grading::grade_user_submission(
         &mut conn,
@@ -150,38 +151,39 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
     slide_id: Uuid,
 ) -> ControllerResult<(CourseInstanceOrExamId, bool)> {
     let mut last_try = false;
-    let course_instance_id_or_exam_id: CourseInstanceOrExamId =
-        if let Some(course_id) = exercise.course_id {
-            // If submitting for a course, there should be existing course settings that dictate which
-            // instance the user is on.
-            let settings = models::user_course_settings::get_user_course_settings_by_course_id(
-                conn, user_id, course_id,
-            )
-            .await?;
-            if let Some(settings) = settings {
-                Ok(CourseInstanceOrExamId::Instance(
-                    settings.current_course_instance_id,
-                ))
-            } else {
-                Err(ControllerError::Unauthorized(
-                    "User is not enrolled on this course.".to_string(),
-                ))
-            }
-        } else if let Some(exam_id) = exercise.exam_id {
-            // If submitting for an exam, make sure that user's time is not up.
-            if models::exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await? {
-                Ok(CourseInstanceOrExamId::Exam(exam_id))
-            } else {
-                Err(ControllerError::Unauthorized(
-                    "Submissions for this exam are no longer accepted.".to_string(),
-                ))
-            }
-        } else {
-            // On database level this scenario is impossible.
-            Err(ControllerError::InternalServerError(
-                "Exam doesn't belong to either a course nor exam.".to_string(),
+    let course_instance_id_or_exam_id: CourseInstanceOrExamId = if let Some(course_id) =
+        exercise.course_id
+    {
+        // If submitting for a course, there should be existing course settings that dictate which
+        // instance the user is on.
+        let settings = models::user_course_settings::try_to_get_user_course_settings_by_course_id(
+            conn, user_id, course_id,
+        )
+        .await?;
+        if let Some(settings) = settings {
+            Ok(CourseInstanceOrExamId::Instance(
+                settings.current_course_instance_id,
             ))
-        }?;
+        } else {
+            Err(ControllerError::Unauthorized(
+                "User is not enrolled on this course.".to_string(),
+            ))
+        }
+    } else if let Some(exam_id) = exercise.exam_id {
+        // If submitting for an exam, make sure that user's time is not up.
+        if models::exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await? {
+            Ok(CourseInstanceOrExamId::Exam(exam_id))
+        } else {
+            Err(ControllerError::Unauthorized(
+                "Submissions for this exam are no longer accepted.".to_string(),
+            ))
+        }
+    } else {
+        // On database level this scenario is impossible.
+        Err(ControllerError::InternalServerError(
+            "Exam doesn't belong to either a course nor exam.".to_string(),
+        ))
+    }?;
     if exercise.limit_number_of_tries {
         if let Some(max_tries_per_slide) = exercise.max_tries_per_slide {
             // check if the user has attempts remaining

@@ -141,8 +141,7 @@ pub async fn regrade(
             &mut *conn,
             task_submission.exercise_slide_submission_id,
         )
-        .await?
-        .ok_or_else(|| anyhow::anyhow!("No slide submission"))?;
+        .await?;
         let user_exercise_state = models::user_exercise_states::get_or_create_user_exercise_state(
             conn,
             slide_submission.user_id,
@@ -230,9 +229,7 @@ async fn do_single_regrading(
         )
         .await?;
         let exercise_slide =
-            models::exercise_slides::get_exercise_slide(&mut *conn, submission.exercise_slide_id)
-                .await?
-                .unwrap();
+            models::exercise_slides::get_by_id(&mut *conn, submission.exercise_slide_id).await?;
         let exercise = models::exercises::get_by_id(&mut *conn, exercise_slide.exercise_id).await?;
         let not_ready_grading =
             models::exercise_task_gradings::new_grading(&mut *conn, &exercise, &submission).await?;

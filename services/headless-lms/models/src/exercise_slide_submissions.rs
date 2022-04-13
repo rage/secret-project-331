@@ -145,10 +145,7 @@ RETURNING id,
     Ok(res)
 }
 
-pub async fn get_by_id(
-    conn: &mut PgConnection,
-    id: Uuid,
-) -> ModelResult<Option<ExerciseSlideSubmission>> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExerciseSlideSubmission> {
     let exercise_slide_submission = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
@@ -169,7 +166,7 @@ WHERE id = $1
         "#,
         id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(exercise_slide_submission)
 }
@@ -207,7 +204,7 @@ LIMIT $2 OFFSET $3;
     Ok(submissions)
 }
 
-pub async fn get_users_latest_exercise_slide_submission(
+pub async fn try_to_get_users_latest_exercise_slide_submission(
     conn: &mut PgConnection,
     exercise_slide_id: &Uuid,
     user_id: &Uuid,

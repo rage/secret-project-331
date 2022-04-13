@@ -113,9 +113,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                   key={chapter.id}
                 >
                   <ChapterGridCard
-                    backgroundImage={
-                      "http://project-331.local/api/v0/files/course/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/images/xblEKRBdiD5b5PVizOnxvw8X7qzrJD.svg"
-                    }
+                    backgroundImage={chapter.chapter_image_url}
                     bg={randomizedColor}
                     now={now}
                     chapter={chapter}

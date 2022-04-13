@@ -102,6 +102,7 @@ export interface ChapterWithStatus {
   front_page_id: string | null
   opens_at: Date | null
   status: ChapterStatus
+  chapter_image_url: string | null
 }
 
 export interface NewChapter {

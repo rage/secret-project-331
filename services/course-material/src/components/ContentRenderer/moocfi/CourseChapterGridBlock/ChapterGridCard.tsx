@@ -16,7 +16,7 @@ interface ChapterProps {
   bg: string
   organizationSlug: string
   previewable: boolean
-  backgroundImage?: string
+  backgroundImage?: string | null
 }
 
 const NUMERIC = "numeric"
@@ -84,7 +84,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({
       : undefined
   return (
     <Card
-      variant="simple"
+      variant={backgroundImage ? "illustration" : "simple"}
       title={chapter.name}
       chapterNumber={chapter.chapter_number}
       key={chapter.id}

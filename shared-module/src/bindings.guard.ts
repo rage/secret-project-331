@@ -286,7 +286,8 @@ export function isChapterWithStatus(obj: any, _argumentName?: string): obj is Ch
     typeof obj.chapter_number === "number" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (isChapterStatus(obj.status) as boolean)
+    (isChapterStatus(obj.status) as boolean) &&
+    (obj.chapter_image_url === null || typeof obj.chapter_image_url === "string")
   )
 }
 

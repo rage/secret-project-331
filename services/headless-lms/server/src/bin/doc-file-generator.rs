@@ -805,7 +805,8 @@ fn main() {
                 chapter_number: 1,
                 front_page_id: None,
                 opens_at: None,
-                status: ChapterStatus::Open
+                status: ChapterStatus::Open,
+                chapter_image_url: Some("http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg".to_string()),
             }]
         }
     );

@@ -4,7 +4,6 @@ import React from "react"
 import { baseTheme } from "../../styles"
 import basePath from "../../utils/base-path"
 
-// import CourseCard from "./CourseCard"
 import IllustrationCard from "./IllustrationCard"
 import SimpleCard from "./SimpleCard"
 
@@ -26,7 +25,7 @@ export interface CardExtraProps {
   time?: string
   description?: string
   languages?: string
-  backgroundImage?: string
+  backgroundImage?: string | null
 }
 
 export type CardProps = React.ButtonHTMLAttributes<HTMLDivElement> & CardExtraProps
@@ -40,7 +39,7 @@ const variantToComponent = {
 const Card: React.FC<CardProps> = (props) => {
   const Component = variantToComponent[props.variant]
 
-  if (props.url) {
+  if (props.url && (props.open || props.allowedToPreview)) {
     return (
       // This should be a next/link but there's a weird problem in firefox if you this when it's next/link
       // and navigate back straight away, if you click this the click won't register but will just scroll the

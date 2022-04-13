@@ -8,6 +8,8 @@ import { headingFont, typography } from "../../styles"
 import { cardMaxWidth } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 
+import CardOpensTextOverlay from "./CardOpenTextOverlay"
+
 import { CardExtraProps } from "."
 
 export interface BackgroundProps {
@@ -62,59 +64,10 @@ export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, time, bg }) => {
   const { t } = useTranslation()
 
-  const fetchOpensText = () => {
-    if (date && time) {
-      return (
-        <>
-          <div
-            className={css`
-              text-transform: uppercase;
-            `}
-          >
-            {t("available")}
-          </div>
-          <div>{t("on-date-at-time", { date, time })}</div>
-        </>
-      )
-    } else if (time) {
-      return (
-        <>
-          <div
-            className={css`
-              text-transform: uppercase;
-            `}
-          >
-            {t("opens-in")}
-          </div>
-          <div>{time}</div>
-        </>
-      )
-    } else if (open) {
-      return (
-        <span
-          className={css`
-            text-transform: uppercase;
-          `}
-        >
-          {t("opens-now")}
-        </span>
-      )
-    } else {
-      return (
-        <span
-          className={css`
-            text-transform: uppercase;
-          `}
-        >
-          {t("closed")}
-        </span>
-      )
-    }
-  }
   return (
     <div
       className={css`
-        max-width: ${cardMaxWidth}em;
+        max-width: ${cardMaxWidth}rem;
         border-radius: 1px;
         position: relative;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -123,31 +76,33 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, tim
       `}
     >
       <CardContentWrapper bg={bg}>
-        {open ? (
+        <CardOpensTextOverlay open={open} date={date} time={time} />
+        {open && (
           <div
             className={css`
-              flex: 0 1 auto;
-              padding: 2rem 2.5rem 0 2.5rem;
+              padding: 2rem;
+              ${respondToOrLarger.lg} {
+                padding: 3rem;
+              }
             `}
           >
             <StCardSvg />
           </div>
-        ) : (
-          <div
-            className={css`
-              flex: 0 1 auto;
-              text-align: center;
-              background: #cac9c9;
-              padding: 2rem;
-            `}
-          >
-            {fetchOpensText()}
-          </div>
         )}
+
+        <div
+          className={css`
+            flex: 1;
+          `}
+        ></div>
+
         <div
           className={css`
             flex: 1 1 auto;
-            padding: 0em 2.5rem 3rem 2.5rem;
+            padding: 2rem;
+            ${respondToOrLarger.lg} {
+              padding: 3rem;
+            }
           `}
         >
           <div

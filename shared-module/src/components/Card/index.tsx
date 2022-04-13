@@ -53,6 +53,11 @@ const Card: React.FC<CardProps> = (props) => {
             outline: 4px solid ${baseTheme.colors.green[500]};
             outline-offset: 2px;
           }
+          transition: filter 0.2s;
+          filter: brightness(1) contrast(1);
+          &:hover {
+            filter: brightness(1.1) contrast(0.9);
+          }
         `}
       >
         <Component {...props} />

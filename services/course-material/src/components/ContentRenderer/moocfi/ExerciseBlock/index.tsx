@@ -136,20 +136,12 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const TIMESTYLE = "short"
 
   if (exerciseDeadline) {
-    // eslint-disable-next-line i18next/no-literal-string
-    // deadlineAsString = `${exerciseDeadline.toLocaleString(lang, {
-    //   dateStyle: DATESTYLE,
-    //   timeStyle: TIMESTYLE,
-    // })} (UTC${sign}${-(exerciseDeadline.getTimezoneOffset() / 60).toString().replace(".", ":")})`
-
     const sign = exerciseDeadline.getTimezoneOffset() > 0 ? "-" : "+"
 
     deadlineAsString = exerciseDeadline.toLocaleString(lang, {
       dateStyle: DATESTYLE,
       timeStyle: TIMESTYLE,
     })
-
-    console.log(exerciseDeadline)
 
     const timezoneOffsetParts = (-exerciseDeadline.getTimezoneOffset() / 60).toString().split(".")
     const start = timezoneOffsetParts[0].padStart(2, "0")

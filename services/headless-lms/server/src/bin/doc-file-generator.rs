@@ -700,6 +700,7 @@ fn main() {
             block_proposals: vec![BlockProposal {
                 id,
                 block_id: id,
+                original_text: "Hello,, world!".to_string(),
                 current_text: "Hello,, world!".to_string(),
                 changed_text: "Hello, world!".to_string(),
                 status: ProposalStatus::Accepted,

@@ -661,6 +661,7 @@ export interface BlockProposal {
   block_id: string
   current_text: string
   changed_text: string
+  original_text: string
   status: ProposalStatus
   accept_preview: string | null
 }

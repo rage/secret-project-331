@@ -23,7 +23,7 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
   // wait for 2 secs
   await new Promise((r) => setTimeout(r, 2000))
 
-  if (page.isVisible('button:has-text("Continue")')) {
+  if (await page.locator('button:has-text("Continue")').isVisible()) {
     // Click button:has-text("Continue")
     await page.locator('button:has-text("Continue")').click()
   }

@@ -493,6 +493,7 @@ export interface CmsPageExercise {
   score_maximum: number
   max_tries_per_slide: number | null
   limit_number_of_tries: boolean
+  deadline: Date | null
 }
 
 export interface CmsPageExerciseSlide {

@@ -881,7 +881,8 @@ export function isCmsPageExercise(obj: any, _argumentName?: string): obj is CmsP
     typeof obj.order_number === "number" &&
     typeof obj.score_maximum === "number" &&
     (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
-    typeof obj.limit_number_of_tries === "boolean"
+    typeof obj.limit_number_of_tries === "boolean" &&
+    (obj.deadline === null || obj.deadline instanceof Date)
   )
 }
 

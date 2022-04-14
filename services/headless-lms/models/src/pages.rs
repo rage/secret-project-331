@@ -653,6 +653,7 @@ pub struct CmsPageExercise {
     pub score_maximum: i32,
     pub max_tries_per_slide: Option<i32>,
     pub limit_number_of_tries: bool,
+    pub deadline: Option<DateTime<Utc>>,
 }
 
 impl From<Exercise> for CmsPageExercise {
@@ -664,6 +665,7 @@ impl From<Exercise> for CmsPageExercise {
             score_maximum: exercise.score_maximum,
             max_tries_per_slide: exercise.max_tries_per_slide,
             limit_number_of_tries: exercise.limit_number_of_tries,
+            deadline: exercise.deadline,
         }
     }
 }
@@ -971,9 +973,10 @@ INSERT INTO exercises(
     exam_id,
     score_maximum,
     max_tries_per_slide,
-    limit_number_of_tries
+    limit_number_of_tries,
+    deadline
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT (id) DO
 UPDATE
 SET course_id = $2,
   name = $3,
@@ -984,13 +987,15 @@ SET course_id = $2,
   score_maximum = $8,
   max_tries_per_slide = $9,
   limit_number_of_tries = $10,
+  deadline = $11,
   deleted_at = NULL
 RETURNING id,
   name,
   order_number,
   score_maximum,
   max_tries_per_slide,
-  limit_number_of_tries;
+  limit_number_of_tries,
+  deadline;
             ",
             safe_for_db_exercise_id,
             page.course_id,
@@ -1001,7 +1006,8 @@ RETURNING id,
             page.exam_id,
             exercise_update.score_maximum,
             exercise_update.max_tries_per_slide,
-            exercise_update.limit_number_of_tries
+            exercise_update.limit_number_of_tries,
+            exercise_update.deadline
         )
         .fetch_one(&mut *conn)
         .await?;
@@ -2130,6 +2136,8 @@ WHERE pages.order_number = $1
 
 #[cfg(test)]
 mod test {
+    use chrono::TimeZone;
+
     use super::*;
     use crate::{exams::NewExam, test_helper::*};
 
@@ -2186,6 +2194,7 @@ mod test {
             score_maximum: 1,
             max_tries_per_slide: None,
             limit_number_of_tries: false,
+            deadline: Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
         };
         let e1_s1 = CmsPageExerciseSlide {
             id: Uuid::parse_str("43380e81-6ff2-4f46-9f38-af0ac6a8421a").unwrap(),
@@ -2215,14 +2224,18 @@ mod test {
         .is_ok());
 
         // Fails with missing slide
-        assert!(create_update(vec![e1.clone()], vec![], vec![e1_s1_t1],)
-            .validate_exercise_data()
-            .is_err());
+        assert!(
+            create_update(vec![e1.clone()], vec![], vec![e1_s1_t1.clone()],)
+                .validate_exercise_data()
+                .is_err()
+        );
 
         // Fails with missing task
-        assert!(create_update(vec![e1], vec![e1_s1], vec![],)
-            .validate_exercise_data()
-            .is_err());
+        assert!(
+            create_update(vec![e1.clone()], vec![e1_s1.clone()], vec![],)
+                .validate_exercise_data()
+                .is_err()
+        );
     }
 
     fn create_update(

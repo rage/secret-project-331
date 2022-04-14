@@ -332,7 +332,8 @@ fn main() {
                 order_number: 123,
                 score_maximum: 1,
                 max_tries_per_slide: Some(17),
-                limit_number_of_tries: true
+                limit_number_of_tries: true,
+                deadline: None
             }],
             exercise_slides: vec![CmsPageExerciseSlide {
                 id,

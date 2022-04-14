@@ -2246,6 +2246,19 @@
 <span id="2241">2241</span>
 <span id="2242">2242</span>
 <span id="2243">2243</span>
+<span id="2244">2244</span>
+<span id="2245">2245</span>
+<span id="2246">2246</span>
+<span id="2247">2247</span>
+<span id="2248">2248</span>
+<span id="2249">2249</span>
+<span id="2250">2250</span>
+<span id="2251">2251</span>
+<span id="2252">2252</span>
+<span id="2253">2253</span>
+<span id="2254">2254</span>
+<span id="2255">2255</span>
+<span id="2256">2256</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -2901,6 +2914,7 @@ AND pages.deleted_at IS NULL
     <span class="kw">pub</span> <span class="ident">score_maximum</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">max_tries_per_slide</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">limit_number_of_tries</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CmsPageExercise</span> {
@@ -2912,6 +2926,7 @@ AND pages.deleted_at IS NULL
             <span class="ident">score_maximum</span>: <span class="ident">exercise</span>.<span class="ident">score_maximum</span>,
             <span class="ident">max_tries_per_slide</span>: <span class="ident">exercise</span>.<span class="ident">max_tries_per_slide</span>,
             <span class="ident">limit_number_of_tries</span>: <span class="ident">exercise</span>.<span class="ident">limit_number_of_tries</span>,
+            <span class="ident">deadline</span>: <span class="ident">exercise</span>.<span class="ident">deadline</span>,
         }
     }
 }
@@ -3219,9 +3234,10 @@ INSERT INTO exercises(
     exam_id,
     score_maximum,
     max_tries_per_slide,
-    limit_number_of_tries
+    limit_number_of_tries,
+    deadline
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT (id) DO
 UPDATE
 SET course_id = $2,
   name = $3,
@@ -3232,13 +3248,15 @@ SET course_id = $2,
   score_maximum = $8,
   max_tries_per_slide = $9,
   limit_number_of_tries = $10,
+  deadline = $11,
   deleted_at = NULL
 RETURNING id,
   name,
   order_number,
   score_maximum,
   max_tries_per_slide,
-  limit_number_of_tries;
+  limit_number_of_tries,
+  deadline;
             &quot;</span>,
             <span class="ident">safe_for_db_exercise_id</span>,
             <span class="ident">page</span>.<span class="ident">course_id</span>,
@@ -3249,7 +3267,8 @@ RETURNING id,
             <span class="ident">page</span>.<span class="ident">exam_id</span>,
             <span class="ident">exercise_update</span>.<span class="ident">score_maximum</span>,
             <span class="ident">exercise_update</span>.<span class="ident">max_tries_per_slide</span>,
-            <span class="ident">exercise_update</span>.<span class="ident">limit_number_of_tries</span>
+            <span class="ident">exercise_update</span>.<span class="ident">limit_number_of_tries</span>,
+            <span class="ident">exercise_update</span>.<span class="ident">deadline</span>
         )
         .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -4378,6 +4397,8 @@ WHERE pages.order_number = $1
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
+    <span class="kw">use</span> <span class="ident">chrono::TimeZone</span>;
+
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exams::NewExam</span>, <span class="ident">test_helper</span>::<span class="kw-2">*</span>};
 
@@ -4434,6 +4455,7 @@ WHERE pages.order_number = $1
             <span class="ident">score_maximum</span>: <span class="number">1</span>,
             <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">None</span>,
             <span class="ident">limit_number_of_tries</span>: <span class="bool-val">false</span>,
+            <span class="ident">deadline</span>: <span class="prelude-val">Some</span>(<span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
         };
         <span class="kw">let</span> <span class="ident">e1_s1</span> <span class="op">=</span> <span class="ident">CmsPageExerciseSlide</span> {
             <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;43380e81-6ff2-4f46-9f38-af0ac6a8421a&quot;</span>).<span class="ident">unwrap</span>(),
@@ -4463,14 +4485,18 @@ WHERE pages.order_number = $1
         .<span class="ident">is_ok</span>());
 
         <span class="comment">// Fails with missing slide</span>
-        <span class="macro">assert!</span>(<span class="ident">create_update</span>(<span class="macro">vec!</span>[<span class="ident">e1</span>.<span class="ident">clone</span>()], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[<span class="ident">e1_s1_t1</span>],)
-            .<span class="ident">validate_exercise_data</span>()
-            .<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(
+            <span class="ident">create_update</span>(<span class="macro">vec!</span>[<span class="ident">e1</span>.<span class="ident">clone</span>()], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[<span class="ident">e1_s1_t1</span>.<span class="ident">clone</span>()],)
+                .<span class="ident">validate_exercise_data</span>()
+                .<span class="ident">is_err</span>()
+        );
 
         <span class="comment">// Fails with missing task</span>
-        <span class="macro">assert!</span>(<span class="ident">create_update</span>(<span class="macro">vec!</span>[<span class="ident">e1</span>], <span class="macro">vec!</span>[<span class="ident">e1_s1</span>], <span class="macro">vec!</span>[],)
-            .<span class="ident">validate_exercise_data</span>()
-            .<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(
+            <span class="ident">create_update</span>(<span class="macro">vec!</span>[<span class="ident">e1</span>.<span class="ident">clone</span>()], <span class="macro">vec!</span>[<span class="ident">e1_s1</span>.<span class="ident">clone</span>()], <span class="macro">vec!</span>[],)
+                .<span class="ident">validate_exercise_data</span>()
+                .<span class="ident">is_err</span>()
+        );
     }
 
     <span class="kw">fn</span> <span class="ident">create_update</span>(

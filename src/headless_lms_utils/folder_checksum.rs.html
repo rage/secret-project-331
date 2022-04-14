@@ -327,7 +327,7 @@ might take a while since reading a lot of data from disk is not fast.
             .<span class="ident">set_permissions</span>(<span class="ident">Permissions::from_mode</span>(<span class="number">0o755</span>))
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">first_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">first_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">first_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
             <span class="string">&quot;01444ae9678097d0214e449568b68eb351c4743b2697bfc3d517b5c601535823&quot;</span>
@@ -338,7 +338,7 @@ might take a while since reading a lot of data from disk is not fast.
             .<span class="ident">unwrap</span>();
         <span class="ident">file</span>.<span class="ident">write_all</span>(<span class="string">b&quot;Test file&quot;</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">second_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">second_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">second_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
@@ -349,7 +349,7 @@ might take a while since reading a lot of data from disk is not fast.
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">third_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">third_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">third_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
@@ -365,7 +365,7 @@ might take a while since reading a lot of data from disk is not fast.
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">fourth_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">fourth_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">fourth_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
@@ -374,7 +374,7 @@ might take a while since reading a lot of data from disk is not fast.
 
         <span class="ident">remove_dir</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;directory&quot;</span>)).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">fifth_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">fifth_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">fifth_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
@@ -386,7 +386,7 @@ might take a while since reading a lot of data from disk is not fast.
         <span class="ident">file</span>.<span class="ident">set_permissions</span>(<span class="ident">Permissions::from_mode</span>(<span class="number">0o755</span>))
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">sixth_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">sixth_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
         <span class="comment">// Tells if we can tell folders apart from files</span>
         <span class="macro">assert_ne!</span>(
@@ -408,7 +408,7 @@ might take a while since reading a lot of data from disk is not fast.
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">seventh_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">seventh_hash</span> <span class="op">=</span> <span class="ident">hash_folder</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">path</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">seventh_hash</span>.<span class="ident">to_hex</span>().<span class="ident">to_string</span>(),
             <span class="string">&quot;5144015ff90807ec6448a0b6bfcc470de495182441e0af019c6483da8edaa05c&quot;</span>

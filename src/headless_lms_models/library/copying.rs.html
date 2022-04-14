@@ -573,15 +573,6 @@
 <span id="568">568</span>
 <span id="569">569</span>
 <span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -859,7 +850,6 @@ WHERE id = $2;
       content_search_language
     FROM pages
     WHERE (course_id = $2)
-    AND deleted_at IS NULL
     RETURNING id,
       content;
         &quot;</span>,
@@ -904,7 +894,6 @@ WHERE id = $2;
       content_search_language
     FROM pages
     WHERE (exam_id = $2)
-    AND deleted_at IS NULL
     RETURNING id,
       content;
         &quot;</span>,
@@ -966,8 +955,7 @@ SELECT uuid_generate_v5($1, id::text),
   chapter_image_path,
   id
 FROM chapters
-WHERE (course_id = $2)
-AND deleted_at IS NULL;
+WHERE (course_id = $2);
     &quot;</span>,
         <span class="ident">namespace_id</span>,
         <span class="ident">parent_course_id</span>
@@ -1007,7 +995,6 @@ AND deleted_at IS NULL;
           id
         FROM exercises
         WHERE course_id = $2
-        AND deleted_at IS NULL
         RETURNING id,
           copied_from;
             &quot;</span>,
@@ -1062,7 +1049,6 @@ AND deleted_at IS NULL;
           id
         FROM exercises
         WHERE exam_id = $2
-        AND deleted_at IS NULL
         RETURNING id,
           copied_from;
             &quot;</span>,
@@ -1103,8 +1089,7 @@ AND deleted_at IS NULL;
         uuid_generate_v5($1, exercise_id::text),
         order_number
     FROM exercise_slides
-    WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2 AND deleted_at IS NULL)
-    AND deleted_at IS NULL;
+    WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2);
             &quot;</span>,
         <span class="ident">namespace_id</span>,
         <span class="ident">parent_id</span>
@@ -1149,10 +1134,7 @@ WHERE exercise_slide_id IN (
     FROM exercise_slides s
       JOIN exercises e ON (e.id = s.exercise_id)
     WHERE e.course_id = $2
-    AND e.deleted_at IS NULL
-    AND s.deleted_at IS NULL
-  )
-AND deleted_at IS NULL;
+  );
     &quot;</span>,
         <span class="ident">namespace_id</span>,
         <span class="ident">parent_id</span>,

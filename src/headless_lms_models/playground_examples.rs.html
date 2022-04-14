@@ -400,8 +400,8 @@ RETURNING *;
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
 
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">name</span> <span class="op">==</span> <span class="kw-2">*</span><span class="string">&quot;test&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">url</span> <span class="op">==</span> <span class="kw-2">*</span><span class="string">&quot;https:\\test.com&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">url</span> <span class="op">==</span> <span class="string">&quot;https:\\test.com&quot;</span>.<span class="ident">to_string</span>());
         <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">width</span> <span class="op">==</span> <span class="number">500</span>);
         <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">data</span> <span class="op">==</span> <span class="macro">serde_json::json!</span>({<span class="string">&quot;data&quot;</span>:<span class="string">&quot;test&quot;</span>}));
 
@@ -430,8 +430,8 @@ RETURNING *;
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
 
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">name</span> <span class="op">==</span> <span class="kw-2">*</span><span class="string">&quot;test&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">url</span> <span class="op">==</span> <span class="kw-2">*</span><span class="string">&quot;https:\\test.com&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">url</span> <span class="op">==</span> <span class="string">&quot;https:\\test.com&quot;</span>.<span class="ident">to_string</span>());
         <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">width</span> <span class="op">==</span> <span class="number">500</span>);
         <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">data</span> <span class="op">==</span> <span class="macro">serde_json::json!</span>({<span class="string">&quot;data&quot;</span>:<span class="string">&quot;test&quot;</span>}));
 
@@ -466,8 +466,8 @@ RETURNING *;
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
 
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">name</span> <span class="op">==</span> <span class="kw-2">*</span><span class="string">&quot;test&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">url</span> <span class="op">==</span> <span class="kw-2">*</span><span class="string">&quot;https:\\test.com&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">url</span> <span class="op">==</span> <span class="string">&quot;https:\\test.com&quot;</span>.<span class="ident">to_string</span>());
         <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">width</span> <span class="op">==</span> <span class="number">500</span>);
         <span class="macro">assert!</span>(<span class="ident">inserted_data</span>.<span class="ident">data</span> <span class="op">==</span> <span class="macro">serde_json::json!</span>({<span class="string">&quot;data&quot;</span>:<span class="string">&quot;test&quot;</span>}));
 
@@ -483,8 +483,8 @@ RETURNING *;
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
 
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">name</span> <span class="op">==</span> <span class="kw-2">*</span><span class="string">&quot;updated name&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">url</span> <span class="op">==</span> <span class="kw-2">*</span><span class="string">&quot;https:\\updated-url.com&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;updated name&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">url</span> <span class="op">==</span> <span class="string">&quot;https:\\updated-url.com&quot;</span>.<span class="ident">to_string</span>());
         <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">width</span> <span class="op">==</span> <span class="number">600</span>);
         <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">data</span> <span class="op">==</span> <span class="macro">serde_json::json!</span>({<span class="string">&quot;data&quot;</span>:<span class="string">&quot;updated data&quot;</span>}));
 

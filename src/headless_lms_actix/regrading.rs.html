@@ -785,135 +785,6 @@
 <span id="780">780</span>
 <span id="781">781</span>
 <span id="782">782</span>
-<span id="783">783</span>
-<span id="784">784</span>
-<span id="785">785</span>
-<span id="786">786</span>
-<span id="787">787</span>
-<span id="788">788</span>
-<span id="789">789</span>
-<span id="790">790</span>
-<span id="791">791</span>
-<span id="792">792</span>
-<span id="793">793</span>
-<span id="794">794</span>
-<span id="795">795</span>
-<span id="796">796</span>
-<span id="797">797</span>
-<span id="798">798</span>
-<span id="799">799</span>
-<span id="800">800</span>
-<span id="801">801</span>
-<span id="802">802</span>
-<span id="803">803</span>
-<span id="804">804</span>
-<span id="805">805</span>
-<span id="806">806</span>
-<span id="807">807</span>
-<span id="808">808</span>
-<span id="809">809</span>
-<span id="810">810</span>
-<span id="811">811</span>
-<span id="812">812</span>
-<span id="813">813</span>
-<span id="814">814</span>
-<span id="815">815</span>
-<span id="816">816</span>
-<span id="817">817</span>
-<span id="818">818</span>
-<span id="819">819</span>
-<span id="820">820</span>
-<span id="821">821</span>
-<span id="822">822</span>
-<span id="823">823</span>
-<span id="824">824</span>
-<span id="825">825</span>
-<span id="826">826</span>
-<span id="827">827</span>
-<span id="828">828</span>
-<span id="829">829</span>
-<span id="830">830</span>
-<span id="831">831</span>
-<span id="832">832</span>
-<span id="833">833</span>
-<span id="834">834</span>
-<span id="835">835</span>
-<span id="836">836</span>
-<span id="837">837</span>
-<span id="838">838</span>
-<span id="839">839</span>
-<span id="840">840</span>
-<span id="841">841</span>
-<span id="842">842</span>
-<span id="843">843</span>
-<span id="844">844</span>
-<span id="845">845</span>
-<span id="846">846</span>
-<span id="847">847</span>
-<span id="848">848</span>
-<span id="849">849</span>
-<span id="850">850</span>
-<span id="851">851</span>
-<span id="852">852</span>
-<span id="853">853</span>
-<span id="854">854</span>
-<span id="855">855</span>
-<span id="856">856</span>
-<span id="857">857</span>
-<span id="858">858</span>
-<span id="859">859</span>
-<span id="860">860</span>
-<span id="861">861</span>
-<span id="862">862</span>
-<span id="863">863</span>
-<span id="864">864</span>
-<span id="865">865</span>
-<span id="866">866</span>
-<span id="867">867</span>
-<span id="868">868</span>
-<span id="869">869</span>
-<span id="870">870</span>
-<span id="871">871</span>
-<span id="872">872</span>
-<span id="873">873</span>
-<span id="874">874</span>
-<span id="875">875</span>
-<span id="876">876</span>
-<span id="877">877</span>
-<span id="878">878</span>
-<span id="879">879</span>
-<span id="880">880</span>
-<span id="881">881</span>
-<span id="882">882</span>
-<span id="883">883</span>
-<span id="884">884</span>
-<span id="885">885</span>
-<span id="886">886</span>
-<span id="887">887</span>
-<span id="888">888</span>
-<span id="889">889</span>
-<span id="890">890</span>
-<span id="891">891</span>
-<span id="892">892</span>
-<span id="893">893</span>
-<span id="894">894</span>
-<span id="895">895</span>
-<span id="896">896</span>
-<span id="897">897</span>
-<span id="898">898</span>
-<span id="899">899</span>
-<span id="900">900</span>
-<span id="901">901</span>
-<span id="902">902</span>
-<span id="903">903</span>
-<span id="904">904</span>
-<span id="905">905</span>
-<span id="906">906</span>
-<span id="907">907</span>
-<span id="908">908</span>
-<span id="909">909</span>
-<span id="910">910</span>
-<span id="911">911</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>},
     <span class="ident">convert::TryFrom</span>,
@@ -1035,7 +906,7 @@
                 <span class="kw">continue</span>;
             }
         };
-        <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">models::exercise_task_gradings::update_grading</span>(
+        <span class="ident">models::exercise_task_gradings::update_grading</span>(
             <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
             <span class="kw-2">&amp;</span><span class="ident">grading</span>,
             <span class="kw-2">&amp;</span><span class="ident">grading_result</span>,
@@ -1045,47 +916,7 @@
         <span class="ident">models::exercise_task_submissions::set_grading_id</span>(
             <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
             <span class="ident">grading</span>.<span class="ident">id</span>,
-            <span class="ident">regrading_submission</span>.<span class="ident">exercise_task_submission_id</span>,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">task_submission</span> <span class="op">=</span> <span class="ident">models::exercise_task_submissions::get_by_id</span>(
-            <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
-            <span class="ident">regrading_submission</span>.<span class="ident">exercise_task_submission_id</span>,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">slide_submission</span> <span class="op">=</span> <span class="ident">models::exercise_slide_submissions::get_by_id</span>(
-            <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
-            <span class="ident">task_submission</span>.<span class="ident">exercise_slide_submission_id</span>,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;No slide submission&quot;</span>))<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">models::user_exercise_states::get_or_create_user_exercise_state</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">slide_submission</span>.<span class="ident">user_id</span>,
-            <span class="ident">exercise</span>.<span class="ident">id</span>,
-            <span class="ident">slide_submission</span>.<span class="ident">course_instance_id</span>,
-            <span class="ident">slide_submission</span>.<span class="ident">exam_id</span>,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">user_exercise_slide_state</span> <span class="op">=</span>
-            <span class="ident">models::user_exercise_slide_states::get_or_insert_by_unique_index</span>(
-                <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
-                <span class="ident">user_exercise_state</span>.<span class="ident">id</span>,
-                <span class="ident">slide_submission</span>.<span class="ident">exercise_slide_id</span>,
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">models::user_exercise_task_states::upsert_with_grading</span>(
-            <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
-            <span class="ident">user_exercise_slide_state</span>.<span class="ident">id</span>,
-            <span class="kw-2">&amp;</span><span class="ident">grading</span>,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">regrading</span> <span class="op">=</span>
-            <span class="ident">models::regradings::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">regrading_submission</span>.<span class="ident">regrading_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">models::library::grading::update_points_for_user_exercise_state</span>(
-            <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
-            <span class="ident">user_exercise_state</span>,
-            <span class="ident">regrading</span>.<span class="ident">user_points_update_strategy</span>,
+            <span class="ident">regrading_submission</span>.<span class="ident">id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }
@@ -1145,10 +976,18 @@
             <span class="ident">regrading_submission</span>.<span class="ident">exercise_task_submission_id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">exercise_slide</span> <span class="op">=</span>
-            <span class="ident">models::exercise_slides::get_exercise_slide</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">submission</span>.<span class="ident">exercise_slide_id</span>)
-                .<span class="kw">await</span><span class="question-mark">?</span>
-                .<span class="ident">unwrap</span>();
+        <span class="comment">// Need to rethink this but just please compile for now</span>
+        <span class="kw">let</span> <span class="ident">exercise_task</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::get_exercise_task_by_id</span>(
+            <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
+            <span class="ident">submission</span>.<span class="ident">exercise_task_id</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">exercise_slide</span> <span class="op">=</span> <span class="ident">models::exercise_slides::get_exercise_slide</span>(
+            <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
+            <span class="ident">exercise_task</span>.<span class="ident">exercise_slide_id</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">models::exercises::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">exercise_slide</span>.<span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">not_ready_grading</span> <span class="op">=</span>
             <span class="ident">models::exercise_task_gradings::new_grading</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>, <span class="kw-2">&amp;</span><span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1158,6 +997,7 @@
             <span class="ident">not_ready_grading</span>.<span class="ident">id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
+
         <span class="comment">// get the corresponding exercise service</span>
         <span class="kw">let</span> <span class="ident">exercise_task</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::get_exercise_task_by_id</span>(
             <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
@@ -1243,17 +1083,10 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::f32_approx_eq</span>;
     <span class="kw">use</span> <span class="ident">mockito::Matcher</span>;
     <span class="kw">use</span> <span class="ident">models</span>::{
-        <span class="ident">exercise_services</span>,
-        <span class="ident">exercise_task_gradings</span>::{<span class="ident">ExerciseTaskGradingResult</span>, <span class="ident">UserPointsUpdateStrategy</span>},
-        <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">GradingProgress</span>},
-        <span class="ident">library::grading</span>::{
-            <span class="ident">StudentExerciseSlideSubmission</span>, <span class="ident">StudentExerciseSlideSubmissionResult</span>,
-            <span class="ident">StudentExerciseTaskSubmission</span>,
-        },
-        <span class="ident">user_exercise_states</span>,
+        <span class="ident">exercise_services</span>, <span class="ident">exercise_slide_submissions::NewExerciseSlideSubmission</span>,
+        <span class="ident">exercise_task_gradings::ExerciseTaskGradingResult</span>, <span class="ident">exercises::GradingProgress</span>,
     };
     <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
 
@@ -1263,7 +1096,7 @@
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">regrades_submission</span>() {
         <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>, :<span class="ident">slide</span>);
-        <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
         <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">slide</span>,
@@ -1282,50 +1115,78 @@
             <span class="ident">feedback_text</span>: <span class="prelude-val">None</span>,
             <span class="ident">feedback_json</span>: <span class="prelude-val">None</span>,
         };
-        <span class="kw">let</span> <span class="ident">original_grading</span> <span class="op">=</span> <span class="ident">create_initial_submission</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">user</span>,
-            <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
-            <span class="ident">instance</span>.<span class="ident">id</span>,
-            <span class="ident">slide</span>,
-            <span class="ident">StudentExerciseSlideSubmission</span> {
-                <span class="ident">exercise_slide_id</span>: <span class="ident">slide</span>,
-                <span class="ident">exercise_task_submissions</span>: <span class="macro">vec!</span>[<span class="ident">StudentExerciseTaskSubmission</span> {
-                    <span class="ident">exercise_task_id</span>: <span class="ident">task</span>,
-                    <span class="ident">data_json</span>: <span class="ident">Value::Null</span>,
-                }],
-            },
-            <span class="ident">HashMap::from</span>([(<span class="ident">task</span>, <span class="ident">grading_result</span>.<span class="ident">clone</span>())]),
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-
-        <span class="kw">let</span> <span class="ident">regrading</span> <span class="op">=</span> <span class="ident">models::regradings::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints</span>,
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">exercise_task_submission_result</span> <span class="op">=</span> <span class="ident">original_grading</span>
-            .<span class="ident">exercise_task_submission_results</span>
-            .<span class="ident">first</span>()
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">regrading_submission_id</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">regrading</span>,
-            <span class="ident">exercise_task_submission_result</span>.<span class="ident">submission</span>.<span class="ident">id</span>,
-            <span class="ident">exercise_task_submission_result</span>.<span class="ident">grading</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>,
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-
         <span class="kw">let</span> <span class="ident">_m</span> <span class="op">=</span> <span class="ident">mockito::mock</span>(<span class="string">&quot;POST&quot;</span>, <span class="ident">Matcher::Any</span>)
             .<span class="ident">with_body</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">grading_result</span>).<span class="ident">unwrap</span>())
             .<span class="ident">create</span>();
-        <span class="kw">let</span> <span class="ident">service</span> <span class="op">=</span> <span class="ident">create_mock_service</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(), <span class="number">1</span>)
+
+        <span class="kw">let</span> <span class="ident">slide_submission</span> <span class="op">=</span>
+            <span class="ident">models::exercise_slide_submissions::insert_exercise_slide_submission</span>(
+                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+                <span class="ident">NewExerciseSlideSubmission</span> {
+                    <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course</span>),
+                    <span class="ident">course_instance_id</span>: <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
+                    <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">exercise_id</span>: <span class="ident">exercise</span>,
+                    <span class="ident">user_id</span>: <span class="ident">user</span>,
+                    <span class="ident">exercise_slide_id</span>: <span class="ident">slide</span>,
+                },
+            )
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">services</span> <span class="op">=</span> <span class="ident">HashMap::from</span>([(<span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">service</span>)]);
+        <span class="kw">let</span> <span class="ident">task_submission</span> <span class="op">=</span> <span class="ident">models::exercise_task_submissions::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">slide_submission</span>.<span class="ident">id</span>,
+            <span class="ident">slide</span>,
+            <span class="ident">task</span>,
+            <span class="ident">Value::Null</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">models::exercise_task_gradings::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">task_submission</span>,
+            <span class="ident">course</span>,
+            <span class="ident">exercise</span>,
+            <span class="ident">task</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">regrading</span> <span class="op">=</span> <span class="ident">models::regradings::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">regrading_submission_id</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">regrading</span>,
+            <span class="ident">task_submission</span>,
+            <span class="ident">grading</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">exercise_service</span> <span class="op">=</span> <span class="ident">models::exercise_services::insert_exercise_service</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">exercise_services::ExerciseServiceNewOrUpdate</span> {
+                <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">slug</span>: <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">public_url</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">internal_url</span>: <span class="prelude-val">Some</span>(<span class="ident">mockito::server_url</span>()),
+                <span class="ident">max_reprocessing_submissions_at_once</span>: <span class="number">1</span>,
+            },
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">models::exercise_service_info::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">models::exercise_service_info::PathInfo</span> {
+                <span class="ident">exercise_service_id</span>: <span class="ident">exercise_service</span>.<span class="ident">id</span>,
+                <span class="ident">exercise_type_specific_user_interface_iframe</span>: <span class="string">&quot;/iframe&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">grade_endpoint_path</span>: <span class="string">&quot;/grade&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">public_spec_endpoint_path</span>: <span class="string">&quot;/public-spec&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">model_solution_path</span>: <span class="string">&quot;/model-solution&quot;</span>.<span class="ident">to_string</span>(),
+            },
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">services</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+        <span class="ident">services</span>.<span class="ident">insert</span>(<span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(), (<span class="ident">exercise_service</span>, <span class="ident">info</span>));
 
         <span class="kw">let</span> <span class="ident">regrading_submission</span> <span class="op">=</span>
             <span class="ident">models::exercise_task_regrading_submissions::get_regrading_submission</span>(
@@ -1355,11 +1216,11 @@
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">regrades_complete</span>() {
         <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>, :<span class="ident">slide</span>);
-        <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
         <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">slide</span>,
-            <span class="string">&quot;test-exercise&quot;</span>,
+            <span class="string">&quot;test-exercise-1&quot;</span>,
             <span class="macro">vec!</span>[],
             <span class="ident">Value::Null</span>,
             <span class="ident">Value::Null</span>,
@@ -1374,50 +1235,78 @@
             <span class="ident">feedback_text</span>: <span class="prelude-val">None</span>,
             <span class="ident">feedback_json</span>: <span class="prelude-val">None</span>,
         };
-        <span class="kw">let</span> <span class="ident">original_grading</span> <span class="op">=</span> <span class="ident">create_initial_submission</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">user</span>,
-            <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
-            <span class="ident">instance</span>.<span class="ident">id</span>,
-            <span class="ident">slide</span>,
-            <span class="ident">StudentExerciseSlideSubmission</span> {
-                <span class="ident">exercise_slide_id</span>: <span class="ident">slide</span>,
-                <span class="ident">exercise_task_submissions</span>: <span class="macro">vec!</span>[<span class="ident">StudentExerciseTaskSubmission</span> {
-                    <span class="ident">exercise_task_id</span>: <span class="ident">task</span>,
-                    <span class="ident">data_json</span>: <span class="ident">Value::Null</span>,
-                }],
-            },
-            <span class="ident">HashMap::from</span>([(<span class="ident">task</span>, <span class="ident">grading_result</span>.<span class="ident">clone</span>())]),
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-
         <span class="kw">let</span> <span class="ident">_m</span> <span class="op">=</span> <span class="ident">mockito::mock</span>(<span class="string">&quot;POST&quot;</span>, <span class="ident">Matcher::Any</span>)
             .<span class="ident">with_body</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">grading_result</span>).<span class="ident">unwrap</span>())
             .<span class="ident">create</span>();
-        <span class="kw">let</span> <span class="ident">service</span> <span class="op">=</span> <span class="ident">create_mock_service</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(), <span class="number">1</span>)
+
+        <span class="kw">let</span> <span class="ident">slide_submission</span> <span class="op">=</span>
+            <span class="ident">models::exercise_slide_submissions::insert_exercise_slide_submission</span>(
+                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+                <span class="ident">NewExerciseSlideSubmission</span> {
+                    <span class="ident">exercise_slide_id</span>: <span class="ident">slide</span>,
+                    <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course</span>),
+                    <span class="ident">course_instance_id</span>: <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
+                    <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">exercise_id</span>: <span class="ident">exercise</span>,
+                    <span class="ident">user_id</span>: <span class="ident">user</span>,
+                },
+            )
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">services</span> <span class="op">=</span> <span class="ident">HashMap::from</span>([(<span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">service</span>)]);
-
-        <span class="kw">let</span> <span class="ident">regrading</span> <span class="op">=</span> <span class="ident">models::regradings::insert</span>(
+        <span class="kw">let</span> <span class="ident">task_submission</span> <span class="op">=</span> <span class="ident">models::exercise_task_submissions::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints</span>,
+            <span class="ident">slide_submission</span>.<span class="ident">id</span>,
+            <span class="ident">slide</span>,
+            <span class="ident">task</span>,
+            <span class="ident">Value::Null</span>,
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">exercise_task_submission_result</span> <span class="op">=</span> <span class="ident">original_grading</span>
-            .<span class="ident">exercise_task_submission_results</span>
-            .<span class="ident">first</span>()
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">models::exercise_task_gradings::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">task_submission</span>,
+            <span class="ident">course</span>,
+            <span class="ident">exercise</span>,
+            <span class="ident">task</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">regrading</span> <span class="op">=</span> <span class="ident">models::regradings::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">_regrading_submission_id</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">regrading</span>,
-            <span class="ident">exercise_task_submission_result</span>.<span class="ident">submission</span>.<span class="ident">id</span>,
-            <span class="ident">exercise_task_submission_result</span>.<span class="ident">grading</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>,
+            <span class="ident">task_submission</span>,
+            <span class="ident">grading</span>,
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">exercise_service</span> <span class="op">=</span> <span class="ident">models::exercise_services::insert_exercise_service</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">exercise_services::ExerciseServiceNewOrUpdate</span> {
+                <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">slug</span>: <span class="string">&quot;test-exercise-3&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">public_url</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">internal_url</span>: <span class="prelude-val">Some</span>(<span class="ident">mockito::server_url</span>()),
+                <span class="ident">max_reprocessing_submissions_at_once</span>: <span class="number">1</span>,
+            },
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">models::exercise_service_info::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">models::exercise_service_info::PathInfo</span> {
+                <span class="ident">exercise_service_id</span>: <span class="ident">exercise_service</span>.<span class="ident">id</span>,
+                <span class="ident">exercise_type_specific_user_interface_iframe</span>: <span class="string">&quot;/iframe&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">grade_endpoint_path</span>: <span class="string">&quot;/grade&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">public_spec_endpoint_path</span>: <span class="string">&quot;/public-spec&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">model_solution_path</span>: <span class="string">&quot;/model-solution&quot;</span>.<span class="ident">to_string</span>(),
+            },
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">services</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+        <span class="ident">services</span>.<span class="ident">insert</span>(<span class="string">&quot;test-exercise-1&quot;</span>.<span class="ident">to_string</span>(), (<span class="ident">exercise_service</span>, <span class="ident">info</span>));
 
         <span class="kw">let</span> <span class="ident">regrading</span> <span class="op">=</span> <span class="ident">models::regradings::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">regrading</span>)
             .<span class="kw">await</span>
@@ -1442,7 +1331,7 @@
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">regrades_partial</span>() {
         <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>, <span class="ident">slide</span>: <span class="ident">slide_1</span>);
-        <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
         <span class="kw">let</span> <span class="ident">grading_result</span> <span class="op">=</span> <span class="ident">ExerciseTaskGradingResult</span> {
             <span class="ident">grading_progress</span>: <span class="ident">models::exercises::GradingProgress::FullyGraded</span>,
             <span class="ident">score_given</span>: <span class="number">0.0</span>,
@@ -1450,6 +1339,9 @@
             <span class="ident">feedback_text</span>: <span class="prelude-val">None</span>,
             <span class="ident">feedback_json</span>: <span class="prelude-val">None</span>,
         };
+        <span class="kw">let</span> <span class="ident">_m</span> <span class="op">=</span> <span class="ident">mockito::mock</span>(<span class="string">&quot;POST&quot;</span>, <span class="ident">Matcher::Any</span>)
+            .<span class="ident">with_body</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">grading_result</span>).<span class="ident">unwrap</span>())
+            .<span class="ident">create</span>();
 
         <span class="kw">let</span> <span class="ident">task_1</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
@@ -1462,29 +1354,7 @@
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">original_grading_1</span> <span class="op">=</span> <span class="ident">create_initial_submission</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">user</span>,
-            <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
-            <span class="ident">instance</span>.<span class="ident">id</span>,
-            <span class="ident">slide_1</span>,
-            <span class="ident">StudentExerciseSlideSubmission</span> {
-                <span class="ident">exercise_slide_id</span>: <span class="ident">slide_1</span>,
-                <span class="ident">exercise_task_submissions</span>: <span class="macro">vec!</span>[<span class="ident">StudentExerciseTaskSubmission</span> {
-                    <span class="ident">exercise_task_id</span>: <span class="ident">task_1</span>,
-                    <span class="ident">data_json</span>: <span class="ident">Value::Null</span>,
-                }],
-            },
-            <span class="ident">HashMap::from</span>([(<span class="ident">task_1</span>, <span class="ident">grading_result</span>.<span class="ident">clone</span>())]),
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">task_submission_result_1</span> <span class="op">=</span> <span class="ident">original_grading_1</span>
-            .<span class="ident">exercise_task_submission_results</span>
-            .<span class="ident">first</span>()
-            .<span class="ident">unwrap</span>();
-
-        <span class="kw">let</span> <span class="ident">slide_2</span> <span class="op">=</span> <span class="ident">models::exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>.<span class="ident">id</span>, <span class="number">1</span>)
+        <span class="kw">let</span> <span class="ident">slide_2</span> <span class="op">=</span> <span class="ident">models::exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>, <span class="number">1</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">task_2</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::insert</span>(
@@ -1498,74 +1368,130 @@
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">original_grading_2</span> <span class="op">=</span> <span class="ident">create_initial_submission</span>(
+        <span class="kw">let</span> <span class="ident">slide_submission_1</span> <span class="op">=</span>
+            <span class="ident">models::exercise_slide_submissions::insert_exercise_slide_submission</span>(
+                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+                <span class="ident">NewExerciseSlideSubmission</span> {
+                    <span class="ident">exercise_slide_id</span>: <span class="ident">slide_1</span>,
+                    <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course</span>),
+                    <span class="ident">course_instance_id</span>: <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
+                    <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">exercise_id</span>: <span class="ident">exercise</span>,
+                    <span class="ident">user_id</span>: <span class="ident">user</span>,
+                },
+            )
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">task_submission_1</span> <span class="op">=</span> <span class="ident">models::exercise_task_submissions::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">user</span>,
-            <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
-            <span class="ident">instance</span>.<span class="ident">id</span>,
+            <span class="ident">slide_submission_1</span>.<span class="ident">id</span>,
+            <span class="ident">slide_1</span>,
+            <span class="ident">task_1</span>,
+            <span class="ident">Value::Null</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">slide_submission_2</span> <span class="op">=</span>
+            <span class="ident">models::exercise_slide_submissions::insert_exercise_slide_submission</span>(
+                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+                <span class="ident">NewExerciseSlideSubmission</span> {
+                    <span class="ident">exercise_slide_id</span>: <span class="ident">slide_2</span>,
+                    <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course</span>),
+                    <span class="ident">course_instance_id</span>: <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
+                    <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">exercise_id</span>: <span class="ident">exercise</span>,
+                    <span class="ident">user_id</span>: <span class="ident">user</span>,
+                },
+            )
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">task_submission_2</span> <span class="op">=</span> <span class="ident">models::exercise_task_submissions::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">slide_submission_2</span>.<span class="ident">id</span>,
             <span class="ident">slide_2</span>,
-            <span class="ident">StudentExerciseSlideSubmission</span> {
-                <span class="ident">exercise_slide_id</span>: <span class="ident">slide_2</span>,
-                <span class="ident">exercise_task_submissions</span>: <span class="macro">vec!</span>[<span class="ident">StudentExerciseTaskSubmission</span> {
-                    <span class="ident">exercise_task_id</span>: <span class="ident">task_2</span>,
-                    <span class="ident">data_json</span>: <span class="ident">Value::Null</span>,
-                }],
-            },
-            <span class="ident">HashMap::from</span>([(<span class="ident">task_2</span>, <span class="ident">grading_result</span>.<span class="ident">clone</span>())]),
+            <span class="ident">task_2</span>,
+            <span class="ident">Value::Null</span>,
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="ident">user_exercise_states::upsert_selected_exercise_slide_id</span>(
+        <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">models::exercise_task_gradings::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">user</span>,
-            <span class="ident">exercise</span>.<span class="ident">id</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
-            <span class="prelude-val">None</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">slide_2</span>),
+            <span class="ident">task_submission_1</span>,
+            <span class="ident">course</span>,
+            <span class="ident">exercise</span>,
+            <span class="ident">task_1</span>,
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">task_submission_result_2</span> <span class="op">=</span> <span class="ident">original_grading_2</span>
-            .<span class="ident">exercise_task_submission_results</span>
-            .<span class="ident">first</span>()
-            .<span class="ident">unwrap</span>();
-
-        <span class="kw">let</span> <span class="ident">_m</span> <span class="op">=</span> <span class="ident">mockito::mock</span>(<span class="string">&quot;POST&quot;</span>, <span class="ident">Matcher::Any</span>)
-            .<span class="ident">with_body</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">grading_result</span>).<span class="ident">unwrap</span>())
-            .<span class="ident">create</span>();
-        <span class="kw">let</span> <span class="ident">service_1</span> <span class="op">=</span> <span class="ident">create_mock_service</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;test-exercise-1&quot;</span>.<span class="ident">to_string</span>(), <span class="number">1</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">service_2</span> <span class="op">=</span> <span class="ident">create_mock_service</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;test-exercise-2&quot;</span>.<span class="ident">to_string</span>(), <span class="number">0</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">services</span> <span class="op">=</span> <span class="ident">HashMap::from</span>([
-            (<span class="string">&quot;test-exercise-1&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">service_1</span>),
-            (<span class="string">&quot;test-exercise-2&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">service_2</span>),
-        ]);
-
-        <span class="kw">let</span> <span class="ident">regrading</span> <span class="op">=</span> <span class="ident">models::regradings::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints</span>,
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">regrading</span> <span class="op">=</span> <span class="ident">models::regradings::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">_regrading_submission_1</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">regrading</span>,
-            <span class="ident">task_submission_result_1</span>.<span class="ident">submission</span>.<span class="ident">id</span>,
-            <span class="ident">task_submission_result_1</span>.<span class="ident">grading</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>,
+            <span class="ident">task_submission_1</span>,
+            <span class="ident">grading</span>,
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">_regrading_submission_2</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">regrading</span>,
-            <span class="ident">task_submission_result_2</span>.<span class="ident">submission</span>.<span class="ident">id</span>,
-            <span class="ident">task_submission_result_2</span>.<span class="ident">grading</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>,
+            <span class="ident">task_submission_2</span>,
+            <span class="ident">grading</span>,
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">exercise_service_1</span> <span class="op">=</span> <span class="ident">models::exercise_services::insert_exercise_service</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">exercise_services::ExerciseServiceNewOrUpdate</span> {
+                <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">slug</span>: <span class="string">&quot;test-exercise-1&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">public_url</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">internal_url</span>: <span class="prelude-val">Some</span>(<span class="ident">mockito::server_url</span>()),
+                <span class="ident">max_reprocessing_submissions_at_once</span>: <span class="number">1</span>,
+            },
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">info_1</span> <span class="op">=</span> <span class="ident">models::exercise_service_info::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">models::exercise_service_info::PathInfo</span> {
+                <span class="ident">exercise_service_id</span>: <span class="ident">exercise_service_1</span>.<span class="ident">id</span>,
+                <span class="ident">exercise_type_specific_user_interface_iframe</span>: <span class="string">&quot;/iframe&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">grade_endpoint_path</span>: <span class="string">&quot;/grade&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">public_spec_endpoint_path</span>: <span class="string">&quot;/public-spec&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">model_solution_path</span>: <span class="string">&quot;/model-solution&quot;</span>.<span class="ident">to_string</span>(),
+            },
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">exercise_service_2</span> <span class="op">=</span> <span class="ident">models::exercise_services::insert_exercise_service</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">exercise_services::ExerciseServiceNewOrUpdate</span> {
+                <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">slug</span>: <span class="string">&quot;test-exercise-2&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">public_url</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">internal_url</span>: <span class="prelude-val">Some</span>(<span class="ident">mockito::server_url</span>()),
+                <span class="ident">max_reprocessing_submissions_at_once</span>: <span class="number">0</span>,
+            },
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">info_2</span> <span class="op">=</span> <span class="ident">models::exercise_service_info::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">models::exercise_service_info::PathInfo</span> {
+                <span class="ident">exercise_service_id</span>: <span class="ident">exercise_service_2</span>.<span class="ident">id</span>,
+                <span class="ident">exercise_type_specific_user_interface_iframe</span>: <span class="string">&quot;/iframe&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">grade_endpoint_path</span>: <span class="string">&quot;/grade&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">public_spec_endpoint_path</span>: <span class="string">&quot;/public-spec&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">model_solution_path</span>: <span class="string">&quot;/model-solution&quot;</span>.<span class="ident">to_string</span>(),
+            },
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">services</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+        <span class="ident">services</span>.<span class="ident">insert</span>(<span class="string">&quot;test-exercise-1&quot;</span>.<span class="ident">to_string</span>(), (<span class="ident">exercise_service_1</span>, <span class="ident">info_1</span>));
+        <span class="ident">services</span>.<span class="ident">insert</span>(<span class="string">&quot;test-exercise-2&quot;</span>.<span class="ident">to_string</span>(), (<span class="ident">exercise_service_2</span>, <span class="ident">info_2</span>));
 
         <span class="kw">let</span> <span class="ident">regrading_2</span> <span class="op">=</span> <span class="ident">models::regradings::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">regrading</span>)
             .<span class="kw">await</span>
@@ -1587,162 +1513,47 @@
     }
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">updates_exercise_state</span>() {
-        <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>, :<span class="ident">slide</span>);
-        <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">slide</span>,
-            <span class="string">&quot;test-exercise&quot;</span>,
-            <span class="macro">vec!</span>[],
-            <span class="ident">Value::Null</span>,
-            <span class="ident">Value::Null</span>,
-            <span class="ident">Value::Null</span>,
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">original_grading</span> <span class="op">=</span> <span class="ident">create_initial_submission</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">user</span>,
-            <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
-            <span class="ident">instance</span>.<span class="ident">id</span>,
-            <span class="ident">slide</span>,
-            <span class="ident">StudentExerciseSlideSubmission</span> {
-                <span class="ident">exercise_slide_id</span>: <span class="ident">slide</span>,
-                <span class="ident">exercise_task_submissions</span>: <span class="macro">vec!</span>[<span class="ident">StudentExerciseTaskSubmission</span> {
-                    <span class="ident">exercise_task_id</span>: <span class="ident">task</span>,
-                    <span class="ident">data_json</span>: <span class="ident">Value::Null</span>,
-                }],
-            },
-            <span class="ident">HashMap::from</span>([(
-                <span class="ident">task</span>,
-                <span class="ident">ExerciseTaskGradingResult</span> {
-                    <span class="ident">grading_progress</span>: <span class="ident">models::exercises::GradingProgress::FullyGraded</span>,
-                    <span class="ident">score_given</span>: <span class="number">0.0</span>,
-                    <span class="ident">score_maximum</span>: <span class="number">100</span>,
-                    <span class="ident">feedback_text</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">feedback_json</span>: <span class="prelude-val">None</span>,
-                },
-            )]),
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-
-        <span class="kw">let</span> <span class="ident">_m</span> <span class="op">=</span> <span class="ident">mockito::mock</span>(<span class="string">&quot;POST&quot;</span>, <span class="ident">Matcher::Any</span>)
-            .<span class="ident">with_body</span>(
-                <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">ExerciseTaskGradingResult</span> {
-                    <span class="ident">grading_progress</span>: <span class="ident">models::exercises::GradingProgress::FullyGraded</span>,
-                    <span class="ident">score_given</span>: <span class="number">100.0</span>,
-                    <span class="ident">score_maximum</span>: <span class="number">100</span>,
-                    <span class="ident">feedback_text</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">feedback_json</span>: <span class="prelude-val">None</span>,
-                })
-                .<span class="ident">unwrap</span>(),
-            )
-            .<span class="ident">create</span>();
-        <span class="kw">let</span> <span class="ident">service</span> <span class="op">=</span> <span class="ident">create_mock_service</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(), <span class="number">1</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">services</span> <span class="op">=</span> <span class="ident">HashMap::from</span>([(<span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">service</span>)]);
-
-        <span class="kw">let</span> <span class="ident">regrading</span> <span class="op">=</span> <span class="ident">models::regradings::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints</span>,
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">exercise_task_submission_result</span> <span class="op">=</span> <span class="ident">original_grading</span>
-            .<span class="ident">exercise_task_submission_results</span>
-            .<span class="ident">first</span>()
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">_regrading_submission_id</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">regrading</span>,
-            <span class="ident">exercise_task_submission_result</span>.<span class="ident">submission</span>.<span class="ident">id</span>,
-            <span class="ident">exercise_task_submission_result</span>.<span class="ident">grading</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>,
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-
-        <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_or_create_user_exercise_state</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">user</span>,
-            <span class="ident">exercise</span>.<span class="ident">id</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
-            <span class="prelude-val">None</span>,
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="macro">assert!</span>(
-            <span class="ident">f32_approx_eq</span>(<span class="ident">user_exercise_state</span>.<span class="ident">score_given</span>.<span class="ident">unwrap</span>(), <span class="number">0.0</span>),
-            <span class="string">&quot;{} != {}&quot;</span>,
-            <span class="ident">user_exercise_state</span>.<span class="ident">score_given</span>.<span class="ident">unwrap</span>(),
-            <span class="number">0.0</span>
-        );
-
-        <span class="ident">regrade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="kw-2">&amp;</span><span class="ident">services</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-
-        <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_or_create_user_exercise_state</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">user</span>,
-            <span class="ident">exercise</span>.<span class="ident">id</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
-            <span class="prelude-val">None</span>,
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="macro">assert!</span>(
-            <span class="ident">f32_approx_eq</span>(<span class="ident">user_exercise_state</span>.<span class="ident">score_given</span>.<span class="ident">unwrap</span>(), <span class="number">1.0</span>),
-            <span class="string">&quot;{} != {}&quot;</span>,
-            <span class="ident">user_exercise_state</span>.<span class="ident">score_given</span>.<span class="ident">unwrap</span>(),
-            <span class="number">1.0</span>
-        );
-    }
-
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fail_on_missing_service</span>() {
         <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>, :<span class="ident">slide</span>, :<span class="ident">task</span>);
-        <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">grading_result</span> <span class="op">=</span> <span class="ident">ExerciseTaskGradingResult</span> {
-            <span class="ident">grading_progress</span>: <span class="ident">models::exercises::GradingProgress::FullyGraded</span>,
-            <span class="ident">score_given</span>: <span class="number">0.0</span>,
-            <span class="ident">score_maximum</span>: <span class="number">100</span>,
-            <span class="ident">feedback_text</span>: <span class="prelude-val">None</span>,
-            <span class="ident">feedback_json</span>: <span class="prelude-val">None</span>,
-        };
-        <span class="kw">let</span> <span class="ident">original_grading</span> <span class="op">=</span> <span class="ident">create_initial_submission</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">user</span>,
-            <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
-            <span class="ident">instance</span>.<span class="ident">id</span>,
-            <span class="ident">slide</span>,
-            <span class="ident">StudentExerciseSlideSubmission</span> {
-                <span class="ident">exercise_slide_id</span>: <span class="ident">slide</span>,
-                <span class="ident">exercise_task_submissions</span>: <span class="macro">vec!</span>[<span class="ident">StudentExerciseTaskSubmission</span> {
-                    <span class="ident">exercise_task_id</span>: <span class="ident">task</span>,
-                    <span class="ident">data_json</span>: <span class="ident">Value::Null</span>,
-                }],
-            },
-            <span class="ident">HashMap::from</span>([(<span class="ident">task</span>, <span class="ident">grading_result</span>.<span class="ident">clone</span>())]),
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">exercise_task_submission_result</span> <span class="op">=</span> <span class="ident">original_grading</span>
-            .<span class="ident">exercise_task_submission_results</span>
-            .<span class="ident">first</span>()
-            .<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">regrading</span> <span class="op">=</span> <span class="ident">models::regradings::insert</span>(
+        <span class="kw">let</span> <span class="ident">slide_submission</span> <span class="op">=</span>
+            <span class="ident">models::exercise_slide_submissions::insert_exercise_slide_submission</span>(
+                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+                <span class="ident">NewExerciseSlideSubmission</span> {
+                    <span class="ident">exercise_slide_id</span>: <span class="ident">slide</span>,
+                    <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course</span>),
+                    <span class="ident">course_instance_id</span>: <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
+                    <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">exercise_id</span>: <span class="ident">exercise</span>,
+                    <span class="ident">user_id</span>: <span class="ident">user</span>,
+                },
+            )
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">task_submission</span> <span class="op">=</span> <span class="ident">models::exercise_task_submissions::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints</span>,
+            <span class="ident">slide_submission</span>.<span class="ident">id</span>,
+            <span class="ident">slide</span>,
+            <span class="ident">task</span>,
+            <span class="ident">Value::Null</span>,
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">_regrading_submission_id</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
+        <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">models::exercise_task_gradings::insert</span>(
+            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">task_submission</span>,
+            <span class="ident">course</span>,
+            <span class="ident">exercise</span>,
+            <span class="ident">task</span>,
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">regrading</span> <span class="op">=</span> <span class="ident">models::regradings::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">_regrading_submission</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="ident">regrading</span>,
-            <span class="ident">exercise_task_submission_result</span>.<span class="ident">submission</span>.<span class="ident">id</span>,
-            <span class="ident">exercise_task_submission_result</span>.<span class="ident">grading</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>,
+            <span class="ident">task_submission</span>,
+            <span class="ident">grading</span>,
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
@@ -1754,75 +1565,6 @@
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">regrading</span>.<span class="ident">total_grading_progress</span>, <span class="ident">GradingProgress::Failed</span>);
-    }
-
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_initial_submission</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-        <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-        <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-        <span class="ident">instance_id</span>: <span class="ident">Uuid</span>,
-        <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
-        <span class="ident">submission</span>: <span class="ident">StudentExerciseSlideSubmission</span>,
-        <span class="ident">mock_results</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">ExerciseTaskGradingResult</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">StudentExerciseSlideSubmissionResult</span><span class="op">&gt;</span> {
-        <span class="ident">user_exercise_states::upsert_selected_exercise_slide_id</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">user_id</span>,
-            <span class="ident">exercise</span>.<span class="ident">id</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">instance_id</span>),
-            <span class="prelude-val">None</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">exercise_slide_id</span>),
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_or_create_user_exercise_state</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">user_id</span>,
-            <span class="ident">exercise</span>.<span class="ident">id</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">instance_id</span>),
-            <span class="prelude-val">None</span>,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">exercise</span>,
-            <span class="ident">user_exercise_state</span>,
-            <span class="ident">submission</span>,
-            <span class="ident">mock_results</span>,
-        )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="prelude-val">Ok</span>(<span class="ident">grading</span>)
-    }
-
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_mock_service</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-        <span class="ident">service_slug</span>: <span class="ident">String</span>,
-        <span class="ident">max_reprocessing_submissions_at_once</span>: <span class="ident">i32</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">ExerciseService</span>, <span class="ident">ExerciseServiceInfo</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">exercise_service</span> <span class="op">=</span> <span class="ident">models::exercise_services::insert_exercise_service</span>(
-            <span class="ident">conn</span>,
-            <span class="kw-2">&amp;</span><span class="ident">exercise_services::ExerciseServiceNewOrUpdate</span> {
-                <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">slug</span>: <span class="ident">service_slug</span>,
-                <span class="ident">public_url</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">internal_url</span>: <span class="prelude-val">Some</span>(<span class="ident">mockito::server_url</span>()),
-                <span class="ident">max_reprocessing_submissions_at_once</span>,
-            },
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">models::exercise_service_info::insert</span>(
-            <span class="ident">conn</span>,
-            <span class="kw-2">&amp;</span><span class="ident">models::exercise_service_info::PathInfo</span> {
-                <span class="ident">exercise_service_id</span>: <span class="ident">exercise_service</span>.<span class="ident">id</span>,
-                <span class="ident">exercise_type_specific_user_interface_iframe</span>: <span class="string">&quot;/iframe&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">grade_endpoint_path</span>: <span class="string">&quot;/grade&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">public_spec_endpoint_path</span>: <span class="string">&quot;/public-spec&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">model_solution_path</span>: <span class="string">&quot;/model-solution&quot;</span>.<span class="ident">to_string</span>(),
-            },
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>((<span class="ident">exercise_service</span>, <span class="ident">info</span>))
     }
 }
 </code></pre></div>

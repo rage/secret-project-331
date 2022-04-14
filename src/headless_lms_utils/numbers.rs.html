@@ -31,25 +31,9 @@
 <span id="26">26</span>
 <span id="27">27</span>
 <span id="28">28</span>
-<span id="29">29</span>
-<span id="30">30</span>
-<span id="31">31</span>
-<span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
-<span id="35">35</span>
-<span id="36">36</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">f32_approx_eq</span>(<span class="ident">first</span>: <span class="ident">f32</span>, <span class="ident">second</span>: <span class="ident">f32</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">let</span> <span class="ident">diff</span> <span class="op">=</span> <span class="ident">first</span> <span class="op">-</span> <span class="ident">second</span>;
     <span class="ident">diff</span>.<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.000001</span>
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">f32_max</span>(<span class="ident">first</span>: <span class="ident">f32</span>, <span class="ident">second</span>: <span class="ident">f32</span>) -&gt; <span class="ident">f32</span> {
-    <span class="kw">if</span> <span class="ident">first</span> <span class="op">&gt;</span> <span class="ident">second</span> {
-        <span class="ident">first</span>
-    } <span class="kw">else</span> {
-        <span class="ident">second</span>
-    }
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">option_f32_to_f32_two_decimals</span>(<span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>) -&gt; <span class="ident">f32</span> {

@@ -112,11 +112,6 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">controllers</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">domain</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">regrading</span>;
@@ -143,9 +138,7 @@
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">oauth2::basic::BasicClient</span>;
 <span class="comment">// use tracing_actix_web::TracingLogger;</span>
-<span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
-    <span class="ident">file_store::FileStore</span>, <span class="ident">ip_to_country::IpToCountryMapper</span>, <span class="ident">ApplicationConfiguration</span>,
-};
+<span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{<span class="ident">file_store::FileStore</span>, <span class="ident">ApplicationConfiguration</span>};
 <span class="kw">use</span> <span class="ident">tracing_error::ErrorLayer</span>;
 <span class="kw">use</span> <span class="ident">tracing_log::LogTracer</span>;
 <span class="kw">use</span> <span class="ident">tracing_subscriber</span>::{<span class="ident">layer::SubscriberExt</span>, <span class="ident">EnvFilter</span>};
@@ -157,8 +150,6 @@
     <span class="ident">file_store</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
     <span class="ident">app_conf</span>: <span class="ident">ApplicationConfiguration</span>,
 ) {
-    <span class="kw">let</span> <span class="ident">ip_to_country_mapper</span> <span class="op">=</span>
-        <span class="ident">IpToCountryMapper::new</span>().<span class="ident">expect</span>(<span class="string">&quot;Could not load ip to country mapper&quot;</span>);
     <span class="kw">let</span> <span class="ident">json_config</span> <span class="op">=</span>
         <span class="ident">web::JsonConfig::default</span>()
             .<span class="ident">limit</span>(<span class="number">1048576</span>)
@@ -178,8 +169,7 @@
         )
         <span class="comment">// Not using Data::new for file_store to avoid double wrapping it in a arc</span>
         .<span class="ident">app_data</span>(<span class="ident">Data::from</span>(<span class="ident">file_store</span>))
-        .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">app_conf</span>))
-        .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">ip_to_country_mapper</span>));
+        .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">app_conf</span>));
 }
 
 <span class="doccomment">/**

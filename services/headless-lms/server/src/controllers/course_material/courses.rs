@@ -1,5 +1,7 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
 
+use std::path::Path;
+
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
 use models::{
@@ -135,11 +137,13 @@ pub struct ChaptersWithStatus {
 GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
 */
 #[generated_doc]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 async fn get_chapters(
     course_id: web::Path<Uuid>,
     user: Option<AuthUser>,
     pool: web::Data<PgPool>,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<ChaptersWithStatus>> {
     let mut conn = pool.acquire().await?;
 
@@ -169,6 +173,9 @@ async fn get_chapters(
                 front_page_id: chapter.front_page_id,
                 opens_at: chapter.opens_at,
                 status,
+                chapter_image_url: chapter
+                    .chapter_image_path
+                    .map(|path| file_store.get_download_url(Path::new(&path), &app_conf)),
             }
         })
         .collect();

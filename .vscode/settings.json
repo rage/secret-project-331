@@ -32,5 +32,6 @@
   "eslint.alwaysShowStatus": true,
   "eslint.lintTask.enable": true,
   "eslint.format.enable": true,
-  "shellcheck.customArgs": ["--external-sources"]
+  "shellcheck.customArgs": ["--external-sources"],
+  "stylelint.validate": ["css", "less", "postcss", "typescriptreact", "javascriptreact"]
 }

@@ -20,8 +20,13 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
     page.locator("text=Introduction to Course Material").click(),
   ])
 
-  // Click button:has-text("Continue")
-  await page.locator('button:has-text("Continue")').click()
+  // wait for 2 secs
+  await new Promise((r) => setTimeout(r, 2000))
+
+  if (page.isVisible('button:has-text("Continue")')) {
+    // Click button:has-text("Continue")
+    await page.locator('button:has-text("Continue")').click()
+  }
 
   await page.locator("text=User Experience").scrollIntoViewIfNeeded()
   await page.locator("text=User Experience").click()

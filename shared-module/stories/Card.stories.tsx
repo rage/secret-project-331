@@ -20,13 +20,16 @@ Simple.args = {
   children: "Card",
   variant: "simple",
   title: "Introduction to the role of AI",
+  bg: "#065853",
   chapterNumber: 1,
 }
-export const Course: Story<ComponentProps> = Template.bind({})
-Course.args = {
-  children: "Card",
-  variant: "course",
+export const IllustrationCard: Story<ComponentProps> = Template.bind({})
+IllustrationCard.args = {
+  variant: "illustration",
   title: "Introduction to the role of AI",
-  description:
-    "MOOC center is responsible for creating custom online courses for univeristy of Helsinki.",
+  bg: "#065853",
+  chapterNumber: 1,
+  open: true,
+  backgroundImage:
+    "http://project-331.local/api/v0/files/course/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/images/xblEKRBdiD5b5PVizOnxvw8X7qzrJD.svg",
 }

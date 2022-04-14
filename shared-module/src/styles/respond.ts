@@ -2,6 +2,7 @@
 const mediaQuery = (minWidth: number) => `@media (min-width: ${minWidth}rem)`
 
 export const respondToOrLarger = {
+  xxxs: mediaQuery(2), // 320px
   xxs: mediaQuery(25), // 400px
   xs: mediaQuery(30), // 480px
   sm: mediaQuery(36), // 576px

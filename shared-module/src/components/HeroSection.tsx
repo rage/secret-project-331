@@ -1,18 +1,9 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
 import { baseTheme, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
-
-// eslint-disable-next-line i18next/no-literal-string
-const HeroWrapper = styled.div`
-  background: ${baseTheme.colors.green[200]};
-  width: 100%;
-  border-radius: 1px;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  padding: 7.5em 1em;
-  margin-bottom: 3rem;
-`
 
 // eslint-disable-next-line i18next/no-literal-string
 const TextBox = styled.div`
@@ -48,18 +39,39 @@ export interface HeroSectionProps {
   subtitle: string
   title: string
   bg?: string
+  backgroundImage?: string
+  backgroundColor?: string
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
 
-const HeroSection: React.FC<CardProps> = ({ title, subtitle }) => {
+const HeroSection: React.FC<CardProps> = ({
+  title,
+  subtitle,
+  backgroundImage,
+  backgroundColor,
+}) => {
   return (
-    <HeroWrapper>
+    <div
+      className={css`
+        background: ${baseTheme.colors.green[200]};
+        width: 100%;
+        border-radius: 1px;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        padding: 7.5em 1em;
+        margin-bottom: 3rem;
+        ${backgroundColor && `background-color: ${backgroundColor}`}
+        ${backgroundImage &&
+        `background-image: url(${backgroundImage});
+        background-repeat: no-repeat;
+        background-position: center center;`}
+      `}
+    >
       <TextBox>
         <h1>{title}</h1>
         <span>{subtitle}</span>
       </TextBox>
-    </HeroWrapper>
+    </div>
   )
 }
 

@@ -20,6 +20,8 @@ export const SpotifyEmbedBlock: React.FC<EmbedAttributes> = (props) => {
         display: block;
         width: 768px;
         height: 576px;
+        border-radius: 4px;
+        margin: 1rem 0;
       `}
     ></iframe>
   )

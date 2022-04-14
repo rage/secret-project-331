@@ -7,6 +7,7 @@
   "chapters-grid-placeholder": "Chapters Grid Placeholder",
   "chapters-grid-placeholder-explanation": "This block is placed on the course material front page for navigating to different chapters easily.",
   "close": "Close",
+  "remove": "Remove",
   "course-progress-placeholder": "Chapter progress placeholder",
   "course-progress-placeholder-explanation": "This block is placed on the course material where you wish to show the course progress.",
   "delete": "Delete",
@@ -50,5 +51,13 @@
   "block-props": "Block properties",
   "block-list": "Current blocks",
   "block-menu": "Add block / All available blocks",
-  "editor-select-sidebar-view": "Toggle view"
+  "editor-select-sidebar-view": "Toggle view",
+  "are-you-sure-you-want-to-discard-changes": "Are you sure you want to discard unsaved changes?",
+  "open-saved-page-in-new-tab": "Open saved page in a new tab",
+  "background": "Background",
+  "background-image": "Background image",
+  "upload-or-drag-and-drop-onto-this-block": "Upload or drag and drop onto this block",
+  "background-color": "Background color",
+  "welcome-message-for-course": "Welcome message for course...",
+  "start": "Start"
 }

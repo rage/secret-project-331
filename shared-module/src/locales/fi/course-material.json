@@ -91,7 +91,7 @@
   "start-studying": "Aloita opiskelu...",
   "start-the-exam": "Aloita tentti!",
   "started-at-time": "Alkaa: {{time}}",
-  "student-progress": "Opiskelijan edistyminen",
+  "course-progress": "Kurssin edistyminen",
   "submit-button": "Lähetä",
   "table-of-contents": "Sisällysluettelo",
   "template-exercise-instructions": "Voit palauttaa vastauksen jokaiseen kysymykseen tallentaaksesi niiden tilan ennen kuin palautat tentin. Näät tulokset kun palautat tentin tai kun aika loppuu.",

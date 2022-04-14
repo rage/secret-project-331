@@ -13,7 +13,11 @@ const LandingPageHeroSectionBlock: React.FC<BlockRendererProps<LandingPageHeroSe
 ) => {
   return (
     <BreakFromCentered sidebar={false}>
-      <LandingPageHeroSection title={props.data.attributes.title}>
+      <LandingPageHeroSection
+        title={props.data.attributes.title}
+        backgroundImage={props.data.attributes.backgroundImage}
+        backgroundColor={props.data.attributes.backgroundColor}
+      >
         {props.data.innerBlocks.map((block) => {
           const Component = blockToRendererMap[block.name] ?? DefaultBlock
           return <Component key={block.clientId} data={block} />

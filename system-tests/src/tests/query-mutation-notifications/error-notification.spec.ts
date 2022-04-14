@@ -16,8 +16,8 @@ test("test", async ({ page, headless }) => {
   ])
   // Click text=Add task
   await page.click("text=Add task")
-  // Click text=Save
-  await page.click("text=Save >> visible=true")
+  // Click button:text-is("Save")
+  await page.click(`button:text-is("Save") >> visible=true`)
   await page.evaluate(() => {
     window.scrollTo(0, 0)
   })

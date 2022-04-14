@@ -11,8 +11,6 @@ use crate::controllers::prelude::*;
 /**
 GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id.
 
-# Example OUTDATED
-
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
 */
 #[generated_doc]
@@ -30,10 +28,11 @@ async fn get_page(
 }
 
 /**
-GET `/api/v0/cms/pages/:page_id/info` - Get a page and its courses ids an titles
+GET `/api/v0/cms/pages/:page_id/info` - Get a pages's course id, course name, organization slug
 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
 */
+#[generated_doc]
 async fn get_page_info(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

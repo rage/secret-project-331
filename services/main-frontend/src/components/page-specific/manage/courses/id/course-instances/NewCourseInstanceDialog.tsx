@@ -1,12 +1,11 @@
 import { css } from "@emotion/css"
-import { Dialog, DialogContentText, DialogTitle } from "@mui/material"
+import { Dialog, DialogContentText } from "@mui/material"
 import { useTranslation } from "react-i18next"
 
 import { newCourseInstance } from "../../../../../../services/backend/courses"
 import { CourseInstanceForm } from "../../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
-import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 
 import NewCourseInstanceForm from "./NewCourseInstanceForm"
 

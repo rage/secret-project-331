@@ -54,7 +54,6 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
       `text=Third question.`,
     ],
     toMatchSnapshotOptions: { threshold: 0.4 },
-    axeSkip: true,
     elementId: "#c1d545d7-c46b-5076-8f34-32374dd03310",
   })
 
@@ -77,7 +76,6 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
       `text=Third question.`,
     ],
     toMatchSnapshotOptions: { threshold: 0.4 },
-    axeSkip: true,
     elementId: "#c1d545d7-c46b-5076-8f34-32374dd03310",
   })
 
@@ -101,7 +99,6 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
       `text=Third question.`,
     ],
     toMatchSnapshotOptions: { threshold: 0.4 },
-    axeSkip: true,
     elementId: "#c1d545d7-c46b-5076-8f34-32374dd03310",
   })
 
@@ -125,7 +122,6 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
       `text=Third question.`,
     ],
     toMatchSnapshotOptions: { threshold: 0.4 },
-    axeSkip: true,
     elementId: "#c1d545d7-c46b-5076-8f34-32374dd03310",
   })
 })

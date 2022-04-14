@@ -13,3 +13,4 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=source /usr/local/cargo/bin/sqlx /usr/local/bin/sqlx
+COPY --from=source /ips-to-country /ips-to-country

@@ -59,6 +59,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
       score_maximum: exerciseAttributes.score_maximum,
       max_tries_per_slide: exerciseAttributes.max_tries_per_slide ?? null,
       limit_number_of_tries: exerciseAttributes.limit_number_of_tries,
+      deadline: null,
     })
     exerciseCount = exerciseCount + 1
     let exerciseSlideCount = 0

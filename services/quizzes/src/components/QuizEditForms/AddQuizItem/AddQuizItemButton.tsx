@@ -20,7 +20,7 @@ export const AddQuizItemButton: React.FC<ButtonProps> = ({ type }) => {
       <Button
         title={t("open")}
         variant="outlined"
-        transform="normal"
+        transform="capitalize"
         onClick={() => dispatch(createdNewItem(quizId, type))}
         size={"medium"}
         className={css`

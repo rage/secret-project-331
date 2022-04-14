@@ -39,8 +39,8 @@ test("Limited tries work", async ({ page }) => {
   await page.locator('[placeholder="Max\\ tries\\ per\\ slide"]').click()
   // Fill [placeholder="Max\ tries\ per\ slide"]
   await page.locator('[placeholder="Max\\ tries\\ per\\ slide"]').fill("2")
-  // Click text=Save >> nth=1
-  await page.locator("text=Save").nth(1).click()
+  // Click button:text-is("Save") >> nth=1
+  await page.locator(`button:text-is("Save")`).nth(1).click()
   // Click text=Operation successful!
   await page.locator("text=Operation successful!").waitFor()
   // Go to http://project-331.local/

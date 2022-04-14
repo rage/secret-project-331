@@ -1,26 +1,19 @@
-use crate::{
-    exercise_task_gradings::UserPointsUpdateStrategy, exercises::GradingProgress, prelude::*,
-};
+use crate::{exercises::GradingProgress, prelude::*};
 
 pub struct Regrading {
     pub id: Uuid,
     pub regrading_started_at: Option<DateTime<Utc>>,
     pub regrading_completed_at: Option<DateTime<Utc>>,
     pub total_grading_progress: GradingProgress,
-    pub user_points_update_strategy: UserPointsUpdateStrategy,
 }
 
-pub async fn insert(
-    conn: &mut PgConnection,
-    user_points_update_strategy: UserPointsUpdateStrategy,
-) -> ModelResult<Uuid> {
+pub async fn insert(conn: &mut PgConnection) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO regradings (user_points_update_strategy)
-VALUES ($1)
+INSERT INTO regradings DEFAULT
+VALUES
 RETURNING id
-        ",
-        user_points_update_strategy as UserPointsUpdateStrategy
+"
     )
     .fetch_one(conn)
     .await?;
@@ -34,8 +27,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Regradi
 SELECT id,
   regrading_started_at,
   regrading_completed_at,
-  total_grading_progress AS "total_grading_progress: _",
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  total_grading_progress AS "total_grading_progress: _"
 FROM regradings
 WHERE id = $1
 "#,

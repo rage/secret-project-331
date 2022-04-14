@@ -15,8 +15,8 @@ import { editedQuizItemTitle } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
 import MarkdownEditor from "../../../MarkdownEditor"
 
-import MultipleChoiceButton from "./MultiplChoiceButton"
-import MultipleChoiceModalContent from "./MultipleChoiceModalContent"
+import ClickableMultipleChoiceButton from "./ClickableMultiplChoiceButton"
+import MultipleChoiceModalContent from "./ClickableMultipleChoiceModalContent"
 
 const QuizContent = styled.div`
   padding: 1rem;
@@ -64,7 +64,7 @@ interface MultipleChoiceContentProps {
   item: NormalizedQuizItem
 }
 
-const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) => {
+const ClickableMultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) => {
   const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeOptions = useTypedSelector((state) => state.editor.options)
@@ -121,7 +121,7 @@ const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) =
       <QuizContentLineContainer>
         {storeItem.options.map((option, i) => (
           <QuizContent key={option}>
-            <MultipleChoiceButton index={i + 1} option={storeOptions[option]} />
+            <ClickableMultipleChoiceButton index={i + 1} option={storeOptions[option]} />
           </QuizContent>
         ))}
         <QuizContent>
@@ -139,4 +139,4 @@ const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) =
   )
 }
 
-export default MultipleChoiceContent
+export default ClickableMultipleChoiceContent

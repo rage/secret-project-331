@@ -166,7 +166,6 @@ export interface QuizItemVariables {
   scaleMax: number
   array: number[]
   advancedEditing: boolean
-  advancedEditingYAxisLocation: number | undefined
   testingRegex: boolean
   testingFormatRegex: boolean
   validityRegexTestAnswer: string

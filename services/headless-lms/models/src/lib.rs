@@ -25,8 +25,6 @@ pub mod glossary;
 pub mod library;
 pub mod organizations;
 pub mod page_history;
-pub mod page_visit_datum;
-pub mod page_visit_datum_daily_visit_hashing_keys;
 pub mod pages;
 pub mod playground_examples;
 pub mod proposed_block_edits;
@@ -35,9 +33,7 @@ pub mod regradings;
 pub mod roles;
 pub mod url_redirections;
 pub mod user_course_settings;
-pub mod user_exercise_slide_states;
 pub mod user_exercise_states;
-pub mod user_exercise_task_states;
 pub mod users;
 
 mod error;

@@ -1,26 +1,9 @@
 import { createAction } from "typesafe-actions"
 
-interface OpenAdvancedEditingModalAction {
-  itemId: string
-  editing: true
-  mouseClickYPosition: number
-}
-
-interface CloseAdvancedEditingModalAction {
-  itemId: string
-  editing: false
-}
-
-type AdvancedEditingOptions = OpenAdvancedEditingModalAction | CloseAdvancedEditingModalAction
-
 export const setAdvancedEditing = createAction(
   "SET_ADVANCED_EDITING",
-  (options: AdvancedEditingOptions) => ({
-    itemId: options.itemId,
-    editing: options.editing,
-    mouseClickYPosition: options.editing ? options.mouseClickYPosition : undefined,
-  }),
-)<{ itemId: string; editing: boolean; mouseClickYPosition: number | undefined }>()
+  (itemId: string, editing: boolean) => ({ itemId: itemId, editing: editing }),
+)<{ itemId: string; editing: boolean }>()
 
 export const setScaleMax = createAction("SET_SCALE_MAX", (itemId: string, newValue: number) => ({
   itemId: itemId,

@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Henrik Nygren <nygrenh@gmail.com>"]
 edition = "2021"
 default-run = "headless-lms-actix"
-rust-version = "1.56.0"  # minimum required Rust version, update if you use a new API
+rust-version = "1.56.0" # minimum required Rust version, update if you use a new API
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
@@ -13,7 +13,6 @@ rust-version = "1.56.0"  # minimum required Rust version, update if you use a ne
 headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
 doc-macro = { path = "../doc-macro" }
-
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
 actix-web = "4.0.1"
 # Static file serving for Actix Web
@@ -64,7 +63,7 @@ walkdir = "2.3.2"
 # higher level HTTP client library
 reqwest = { version = "0.11.10", features = ["brotli", "gzip", "json"] }
 # Sessions for Actix web
-actix-session = {version="0.6.2", features=["cookie-session"]}
+actix-session = { version = "0.6.2", features = ["cookie-session"] }
 # An extensible, strongly-typed implementation of OAuth2
 oauth2 = "4.1.0"
 # URL library for Rust, based on the WHATWG URL Standard
@@ -105,8 +104,6 @@ actix-governor = "0.3.0"
 isbot = "0.1.1"
 # user-agent strings parser
 woothee = "0.13.0"
-
-
 # Workaround for this issue: https://github.com/tkaitchuck/aHash/issues/95. Once the issue has been resolved, this dependency can be removed.
 indexmap = "1.8.1"
 

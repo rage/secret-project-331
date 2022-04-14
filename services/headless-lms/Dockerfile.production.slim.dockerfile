@@ -20,9 +20,6 @@ COPY --from=builder /app/wait-for-db-migrations.sh /app/
 # Used in the test mode
 RUN mkdir uploads && chown -R user uploads
 
-# Mappings from ips to coutry
-COPY --from=builder /ips-to-country /ips-to-country
-
 USER user
 
 CMD [ "./headless-lms-actix" ]

@@ -259,11 +259,11 @@ mod test {
 
     use bytes::Bytes;
     use headless_lms_models::{
+        exercise_slide_submissions::{self, NewExerciseSlideSubmission},
         exercise_slides,
-        exercise_task_gradings::ExerciseTaskGradingResult,
-        exercise_tasks,
+        exercise_task_gradings::{self, ExerciseTaskGradingResult},
+        exercise_task_submissions, exercise_tasks,
         exercises::{self, GradingProgress},
-        library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission},
         users,
     };
     use serde_json::Value;
@@ -309,10 +309,20 @@ mod test {
         )
         .await
         .unwrap();
-        submit_and_grade(tx.as_mut(), exercise, slide, task, user, instance.id, 12.34).await;
-        submit_and_grade(tx.as_mut(), e2, s2, et2, user, instance.id, 23.45).await;
-        submit_and_grade(tx.as_mut(), e2, s2, et2, u2, instance.id, 34.56).await;
-        submit_and_grade(tx.as_mut(), e3, s3, et3, u2, instance.id, 45.67).await;
+        submit_and_grade(
+            tx.as_mut(),
+            exercise,
+            slide,
+            course,
+            task,
+            user,
+            instance.id,
+            12.34,
+        )
+        .await;
+        submit_and_grade(tx.as_mut(), e2, s2, course, et2, user, instance.id, 23.45).await;
+        submit_and_grade(tx.as_mut(), e2, s2, course, et2, u2, instance.id, 34.56).await;
+        submit_and_grade(tx.as_mut(), e3, s3, course, et3, u2, instance.id, 45.67).await;
 
         let buf = vec![];
         let buf = export_course_instance_points(tx.as_mut(), instance.id, buf)
@@ -344,50 +354,58 @@ mod test {
         tx: &mut PgConnection,
         ex: Uuid,
         ex_slide: Uuid,
+        c: Uuid,
         et: Uuid,
         u: Uuid,
         ci: Uuid,
         score_given: f32,
     ) {
         let exercise = exercises::get_by_id(tx, ex).await.unwrap();
-        user_exercise_states::get_or_create_user_exercise_state(tx, u, ex, Some(ci), None)
+        let exercise_slide_submission =
+            exercise_slide_submissions::insert_exercise_slide_submission(
+                tx,
+                NewExerciseSlideSubmission {
+                    course_id: Some(c),
+                    course_instance_id: Some(ci),
+                    exam_id: None,
+                    exercise_id: ex,
+                    user_id: u,
+                    exercise_slide_id: ex_slide,
+                },
+            )
             .await
             .unwrap();
-        user_exercise_states::upsert_selected_exercise_slide_id(
+        let s = exercise_task_submissions::insert(
             tx,
-            u,
-            ex,
-            Some(ci),
-            None,
-            Some(ex_slide),
+            exercise_slide_submission.id,
+            ex_slide,
+            et,
+            Value::Null,
         )
         .await
         .unwrap();
-        let user_exercise_state =
-            user_exercise_states::get_or_create_user_exercise_state(tx, u, ex, Some(ci), None)
+        let submission = exercise_task_submissions::get_by_id(tx, s).await.unwrap();
+        let grading = exercise_task_gradings::new_grading(tx, &exercise, &submission)
+            .await
+            .unwrap();
+        let grading_result = ExerciseTaskGradingResult {
+            feedback_json: None,
+            feedback_text: None,
+            grading_progress: GradingProgress::FullyGraded,
+            score_given,
+            score_maximum: 100,
+        };
+        let exercise = exercises::get_by_id(tx, ex).await.unwrap();
+        let grading =
+            exercise_task_gradings::update_grading(tx, &grading, &grading_result, &exercise)
                 .await
                 .unwrap();
-        headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results(
+        exercise_task_submissions::set_grading_id(tx, grading.id, submission.id)
+            .await
+            .unwrap();
+        user_exercise_states::update_user_exercise_state_after_submission(
             tx,
-            &exercise,
-            user_exercise_state,
-            StudentExerciseSlideSubmission {
-                exercise_slide_id: ex_slide,
-                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
-                    exercise_task_id: et,
-                    data_json: Value::Null,
-                }],
-            },
-            HashMap::from([(
-                et,
-                ExerciseTaskGradingResult {
-                    feedback_json: None,
-                    feedback_text: None,
-                    grading_progress: GradingProgress::FullyGraded,
-                    score_given,
-                    score_maximum: 100,
-                },
-            )]),
+            &exercise_slide_submission,
         )
         .await
         .unwrap();

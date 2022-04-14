@@ -19,12 +19,16 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-course-instance-management' }*/),
     page.locator("text=Introduction to Course Material").click(),
   ])
-  // Click button:has-text("Continue")
-  //await page.click('button:has-text("Continue")')
-  // Click text=Chapter 2: User Experience
-  await page.evaluate(() => {
-    window.scrollBy(0, 1800)
-  })
+
+  // wait for 2 secs
+  await new Promise((r) => setTimeout(r, 2000))
+
+  if (await page.locator('button:has-text("Continue")').isVisible()) {
+    // Click button:has-text("Continue")
+    await page.locator('button:has-text("Continue")').click()
+  }
+
+  await page.locator("text=User Experience").scrollIntoViewIfNeeded()
   await page.locator("text=User Experience").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2",

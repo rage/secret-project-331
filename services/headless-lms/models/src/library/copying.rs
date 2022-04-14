@@ -275,7 +275,6 @@ async fn copy_course_pages_and_return_contents(
       content_search_language
     FROM pages
     WHERE (course_id = $2)
-    AND deleted_at IS NULL
     RETURNING id,
       content;
         ",
@@ -320,7 +319,6 @@ async fn copy_exam_pages_and_return_contents(
       content_search_language
     FROM pages
     WHERE (exam_id = $2)
-    AND deleted_at IS NULL
     RETURNING id,
       content;
         ",
@@ -382,8 +380,7 @@ SELECT uuid_generate_v5($1, id::text),
   chapter_image_path,
   id
 FROM chapters
-WHERE (course_id = $2)
-AND deleted_at IS NULL;
+WHERE (course_id = $2);
     ",
         namespace_id,
         parent_course_id
@@ -423,7 +420,6 @@ async fn map_old_exr_ids_to_new_exr_ids_for_courses(
           id
         FROM exercises
         WHERE course_id = $2
-        AND deleted_at IS NULL
         RETURNING id,
           copied_from;
             ",
@@ -478,7 +474,6 @@ async fn map_old_exr_ids_to_new_exr_ids_for_exams(
           id
         FROM exercises
         WHERE exam_id = $2
-        AND deleted_at IS NULL
         RETURNING id,
           copied_from;
             ",
@@ -519,8 +514,7 @@ async fn copy_exercise_slides(
         uuid_generate_v5($1, exercise_id::text),
         order_number
     FROM exercise_slides
-    WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2 AND deleted_at IS NULL)
-    AND deleted_at IS NULL;
+    WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2);
             ",
         namespace_id,
         parent_id
@@ -565,10 +559,7 @@ WHERE exercise_slide_id IN (
     FROM exercise_slides s
       JOIN exercises e ON (e.id = s.exercise_id)
     WHERE e.course_id = $2
-    AND e.deleted_at IS NULL
-    AND s.deleted_at IS NULL
-  )
-AND deleted_at IS NULL;
+  );
     ",
         namespace_id,
         parent_id,

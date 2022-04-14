@@ -140,22 +140,22 @@ mod tests {
         let test_file_contents = "Test file contents".as_bytes().to_vec();
         // Put content to storage and read it back
         local_file_store
-            .upload(path1, test_file_contents.clone(), "text/plain")
+            .upload(&path1, test_file_contents.clone(), "text/plain")
             .await
             .expect("Failed to put a file into local file storage.");
         let retrivied_file = local_file_store
-            .download(path1)
+            .download(&path1)
             .await
             .expect("Failed to retrieve a file from local file storage");
         assert_eq!(test_file_contents, retrivied_file);
 
         local_file_store
-            .delete(path1)
+            .delete(&path1)
             .await
             .expect("Failed to delete a file");
 
         // After deletion getting the file should fail
-        let retrivied_file2 = local_file_store.download(path1).await;
+        let retrivied_file2 = local_file_store.download(&path1).await;
         assert!(retrivied_file2.is_err());
     }
 
@@ -169,11 +169,11 @@ mod tests {
         let test_file_contents = "Test file contents 2".as_bytes().to_vec();
         let path1 = Path::new("file1");
         local_file_store
-            .upload(path1, test_file_contents.clone(), "text/plain")
+            .upload(&path1, test_file_contents.clone(), "text/plain")
             .await
             .expect("Failed to put a file into local file storage.");
         let url = local_file_store
-            .get_direct_download_url(path1)
+            .get_direct_download_url(&path1)
             .await
             .expect("Failed to get a download url");
         let expected_url = format!("http://localhost:3000/{}", path1.to_string_lossy());
@@ -181,7 +181,7 @@ mod tests {
 
         let nonexistant_file = Path::new("does-not-exist");
         let res = local_file_store
-            .get_direct_download_url(nonexistant_file)
+            .get_direct_download_url(&nonexistant_file)
             .await;
         assert!(res.is_err());
     }

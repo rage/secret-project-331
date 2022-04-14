@@ -3,14 +3,6 @@ pub fn f32_approx_eq(first: f32, second: f32) -> bool {
     diff.abs() < 0.000001
 }
 
-pub fn f32_max(first: f32, second: f32) -> f32 {
-    if first > second {
-        first
-    } else {
-        second
-    }
-}
-
 pub fn option_f32_to_f32_two_decimals(value: Option<f32>) -> f32 {
     match value {
         Some(float) => f32_to_two_decimals(float),

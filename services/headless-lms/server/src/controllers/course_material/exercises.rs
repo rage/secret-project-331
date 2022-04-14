@@ -1,11 +1,16 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
+use futures::future::OptionFuture;
 use models::{
-    exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
+    exercise_slide_submissions::{
+        get_exercise_slide_submission_counts_for_exercise_user, StudentExerciseSlideSubmission,
+        StudentExerciseSlideSubmissionResult,
+    },
     exercises::{CourseMaterialExercise, Exercise},
-    library::grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
     user_exercise_states::CourseInstanceOrExamId,
 };
+
+use chrono::{Duration, Utc};
 
 use crate::controllers::prelude::*;
 
@@ -94,6 +99,25 @@ async fn post_submission(
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
 
+    let chapter_option_future: OptionFuture<_> = exercise
+        .chapter_id
+        .map(|id| models::chapters::get_chapter(&mut conn, id))
+        .into();
+
+    let chapter = chapter_option_future.await.transpose()?;
+
+    // Exercise deadlines takes precedence to chapter deadlines
+    if let Some(deadline) = exercise
+        .deadline
+        .or_else(|| chapter.and_then(|c| c.deadline))
+    {
+        if Utc::now() + Duration::seconds(1) >= deadline {
+            return Err(ControllerError::BadRequest(
+                "exercise deadline passed".to_string(),
+            ));
+        }
+    }
+
     let (course_instance_or_exam_id, last_try) =
         resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             &mut conn,
@@ -113,13 +137,15 @@ async fn post_submission(
     .await?
     .ok_or_else(|| ControllerError::Unauthorized("Missing exercise state.".to_string()))?;
 
-    let mut result = models::library::grading::grade_user_submission(
-        &mut conn,
-        &exercise,
-        user_exercise_state,
-        payload.0,
-    )
-    .await?;
+    let mut result =
+        models::exercise_slide_submissions::create_exercise_slide_submission_for_exercise(
+            &mut conn,
+            &exercise,
+            &user_exercise_state,
+            payload.0,
+        )
+        .await?;
+
     if exercise.exam_id.is_some() {
         // If exam, we don't want to expose model any grading details.
         result.clear_grading_information();

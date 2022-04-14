@@ -408,7 +408,7 @@ export interface ExerciseStatus {
   grading_progress: GradingProgress
 }
 
-export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
+export type GradingProgress = "FullyGraded" | "Pending" | "PendingManual" | "Failed" | "NotReady"
 
 export interface Feedback {
   id: string
@@ -440,27 +440,6 @@ export interface NewFeedback {
   selected_text: string | null
   related_blocks: Array<FeedbackBlock>
   page_id: string
-}
-
-export interface StudentExerciseSlideSubmission {
-  exercise_slide_id: string
-  exercise_task_submissions: Array<StudentExerciseTaskSubmission>
-}
-
-export interface StudentExerciseSlideSubmissionResult {
-  exercise_status: ExerciseStatus | null
-  exercise_task_submission_results: Array<StudentExerciseTaskSubmissionResult>
-}
-
-export interface StudentExerciseTaskSubmission {
-  exercise_task_id: string
-  data_json: unknown
-}
-
-export interface StudentExerciseTaskSubmissionResult {
-  submission: ExerciseTaskSubmission
-  grading: ExerciseTaskGrading | null
-  model_solution_spec: unknown | null
 }
 
 export interface Organization {
@@ -719,7 +698,6 @@ export interface ExerciseSlideSubmission {
   exam_id: string | null
   exercise_id: string
   user_id: string
-  user_points_update_strategy: UserPointsUpdateStrategy
 }
 
 export interface ExerciseSlideSubmissionCount {
@@ -739,6 +717,16 @@ export interface ExerciseSlideSubmissionCountByWeekAndHour {
   count: number | null
 }
 
+export interface StudentExerciseSlideSubmission {
+  exercise_slide_id: string
+  exercise_task_submissions: Array<StudentExerciseTaskSubmission>
+}
+
+export interface StudentExerciseSlideSubmissionResult {
+  exercise_status: ExerciseStatus | null
+  exercise_task_submission_results: Array<StudentExerciseTaskSubmissionResult>
+}
+
 export interface ExerciseTaskGrading {
   id: string
   created_at: Date
@@ -751,6 +739,7 @@ export interface ExerciseTaskGrading {
   grading_priority: number
   score_given: number | null
   grading_progress: GradingProgress
+  user_points_update_strategy: UserPointsUpdateStrategy
   unscaled_score_given: number | null
   unscaled_score_maximum: number | null
   grading_started_at: Date | null
@@ -783,6 +772,17 @@ export interface ExerciseTaskSubmission {
   data_json: unknown | null
   exercise_task_grading_id: string | null
   metadata: unknown | null
+}
+
+export interface StudentExerciseTaskSubmission {
+  exercise_task_id: string
+  data_json: unknown
+}
+
+export interface StudentExerciseTaskSubmissionResult {
+  submission: ExerciseTaskSubmission
+  grading: ExerciseTaskGrading | null
+  model_solution_spec: unknown | null
 }
 
 export interface SubmissionInfo {

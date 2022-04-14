@@ -63,10 +63,10 @@ const Linkert = styled.div`
     }
   }
 
-  p {
+  .linkert-scale-text {
     margin-top: 6px;
     font-size: 17px;
-    font-weight: 600;
+    font-weight: 500;
     color: ${({ active }) => (active ? "#ffffff" : "#313947")};
     text-transform: capitalize;
   }
@@ -110,7 +110,7 @@ const LinkertScale: React.FC<LinkertScaleComponentProps> = () => {
         {arr.map(({ text }) => (
           <Linkert key={text} onClick={() => setActive(text)} active={active === text}>
             {SVGmatcher(text)}
-            <p>{text}</p>
+            <p className="linkert-scale-text">{text}</p>
           </Linkert>
         ))}
       </Linkerts>

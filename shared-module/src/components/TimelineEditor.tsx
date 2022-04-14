@@ -1,10 +1,8 @@
 /* eslint-disable i18next/no-literal-string */
-import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 
 import CrossIcon from "../img/exist-icon.svg"
-import { primaryFont } from "../styles/typography"
 
 import TextField from "./InputFields/TextField"
 
@@ -38,8 +36,8 @@ const StyledTextField = styled(TextField)`
   } */
 `
 const StyledBtn = styled.button`
-  width: 40px;
-  height: 34px;
+  width: 50px;
+  height: 49px;
   background: #dae3eb;
   border: none;
   outline: none;
@@ -57,7 +55,7 @@ const StyledBtn = styled.button`
   }
 `
 const DeleteBtn = styled.button`
-  width: 40px;
+  width: 50px;
   height: 100%;
   background: #e2c2bc;
   outline: none;

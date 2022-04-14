@@ -6,7 +6,6 @@ import { primaryFont } from "../../styles/typography"
 import TextArea from "../InputFields/TextAreaField"
 
 import LinkertScale from "./LinkertScale"
-import PeerReviewProgress from "./PeerReviewProgress"
 
 const Wrapper = styled.div`
   margin: 0 auto;
@@ -20,7 +19,7 @@ const Wrapper = styled.div`
   }
 `
 const StyledInstruction = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 3rem;
 
   .instruction {
     font-family: ${primaryFont};
@@ -52,7 +51,6 @@ const Review: React.FC<ReviewComponentProps> = () => {
       <span className="comment">General comment</span>
       <TextArea placeholder="Write a review" onChange={() => null}></TextArea>
       <LinkertScale />
-      <PeerReviewProgress total={10} attempt={2} />
     </Wrapper>
   )
 }

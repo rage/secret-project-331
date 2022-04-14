@@ -10,7 +10,7 @@ const Wrapper = styled.div`
   background: #e9efef;
   padding: 2rem 2rem;
   display: grid;
-  grid-template-columns: 1fr 230px;
+  grid-template-columns: 1fr 240px;
 `
 
 const Label = styled.div`

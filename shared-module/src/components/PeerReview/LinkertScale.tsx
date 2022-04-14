@@ -8,8 +8,6 @@ import Neutral from "../../img/linkert/neutral.svg"
 import StronglyAgree from "../../img/linkert/stronglyAgree.svg"
 import StronglyDisagree from "../../img/linkert/stronglyDisagree.svg"
 
-import PeerReviewProgress from "./PeerReviewProgress"
-
 const arr = [
   {
     text: "agree",
@@ -33,7 +31,12 @@ const Wrapper = styled.div`
   max-width: 1000px;
 `
 const Question = styled.span`
-  text-align: center;
+  /* text-align: center; */
+  font-size: 22px;
+  margin: 0 auto;
+  display: block;
+  color: #1a2333;
+  padding: 20px 0;
 `
 const Linkerts = styled.div`
   background: #f9f9f9;
@@ -111,7 +114,6 @@ const LinkertScale: React.FC<LinkertScaleComponentProps> = () => {
           </Linkert>
         ))}
       </Linkerts>
-      <PeerReviewProgress total={10} attempt={2} />
     </Wrapper>
   )
 }

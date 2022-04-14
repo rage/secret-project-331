@@ -93,6 +93,12 @@ npm run view-trace test-results/path_to/trace.zip
 
 This should open a window where you can see each step of test.
 
+### Debugging tests / selectors
+
+The recommended way to debug tests is to use the [playwright-vscode](https://github.com/microsoft/playwright-vscode) extension. It should be already installed since it's a recommended extension in the project's workspace. See the extension's README for more information.
+
+Alternatives: `npm run test-debug` or `npm run open`.
+
 ## Useful links
 
 - [Playwright](https://playwright.dev/docs/intro/)

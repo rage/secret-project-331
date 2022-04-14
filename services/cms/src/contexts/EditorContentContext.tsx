@@ -6,7 +6,6 @@ import { v4 } from "uuid"
 
 import { ExerciseSlideAttributes } from "../blocks/ExerciseSlide/ExerciseSlideEditor"
 import { ExerciseTaskAttributes } from "../blocks/ExerciseTask/ExerciseTaskEditor"
-import { UnnormalizedDocument } from "../utils/documentSchemaProcessor"
 
 // Context
 

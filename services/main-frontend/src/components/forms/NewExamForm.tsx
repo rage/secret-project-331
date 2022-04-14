@@ -8,7 +8,6 @@ import { NewExam, OrgExam } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import SelectMenu from "../../shared-module/components/InputFields/SelectField"
-import { dateToString } from "../../shared-module/utils/time"
 import FormField from "../FormField"
 
 interface NewExamFormProps {

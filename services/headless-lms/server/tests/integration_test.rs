@@ -1,11 +1,8 @@
 use std::{env, sync::Arc};
 
-use actix_http::{
-    body::{BoxBody, EitherBody},
-    Request,
-};
-use actix_session::CookieSession;
-use actix_web::{dev::ServiceResponse, test, web::Data, App};
+use actix_http::{body::BoxBody, Request};
+use actix_session::{storage::CookieSessionStore, SessionMiddleware};
+use actix_web::{cookie::Key, dev::ServiceResponse, test, web::Data, App};
 use headless_lms_actix::setup_tracing;
 use headless_lms_models::organizations::{self, Organization};
 use headless_lms_utils::{file_store::local_file_store::LocalFileStore, ApplicationConfiguration};
@@ -53,15 +50,12 @@ pub async fn init_db() -> String {
 
 /// Initialises the actix server for testing
 pub async fn init_actix() -> (
-    impl actix_web::dev::Service<
-        Request,
-        Response = ServiceResponse<EitherBody<BoxBody>>,
-        Error = actix_web::Error,
-    >,
+    impl actix_web::dev::Service<Request, Response = ServiceResponse<BoxBody>, Error = actix_web::Error>,
     PgPool,
 ) {
     let db = init_db().await;
-    let private_cookie_key = "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=";
+    let private_cookie_key =
+        "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
     let pool = PgPool::connect(&db)
         .await
         .expect("failed to connect to test db");
@@ -76,7 +70,15 @@ pub async fn init_actix() -> (
     };
     let app = App::new()
         .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
-        .wrap(CookieSession::private(private_cookie_key.as_bytes()).secure(false))
+        .wrap(
+            SessionMiddleware::builder(
+                CookieSessionStore::default(),
+                Key::from(private_cookie_key.as_bytes()),
+            )
+            .cookie_name("session".to_string())
+            .cookie_secure(false)
+            .build(),
+        )
         // .app_data(Data::new(oauth_client.clone()))
         .app_data(Data::new(pool.clone()));
     (actix_web::test::init_service(app).await, pool)

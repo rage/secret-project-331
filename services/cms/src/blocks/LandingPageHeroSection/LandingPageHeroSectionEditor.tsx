@@ -11,7 +11,6 @@ import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
 } from "../../shared-module/utils/constants"
-import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 import BlockWrapper from "../BlockWrapper"
 
 import { LandingPageHeroSectionAttributes } from "."

@@ -12,9 +12,12 @@ const viewPorts = {
   mobile: { width: 411, height: 731 },
 }
 
-interface ToMatchSnapshotOptions {
-  threshold: number
-}
+/**
+ * See https://playwright.dev/docs/test-assertions#screenshot-assertions-to-match-snapshot.
+ *
+ * The second argument passed to expect(screenshot).toMatchSnapshot(name[, options])
+ */
+type ToMatchSnapshotOptions = Parameters<ReturnType<typeof expect>["toMatchSnapshot"]>[1]
 
 interface ExpectScreenshotsToMatchSnapshotsProps {
   headless: boolean

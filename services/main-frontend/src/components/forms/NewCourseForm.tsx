@@ -51,7 +51,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
 
   const [createDuplicate, setCreateDuplicate] = useState<boolean>(false)
   const [isDraft, setIsDraft] = useState<boolean>(false)
-  const [isTest, setIsTest] = useState<boolean>(false)
+  const [isTest] = useState<boolean>(false)
   const [description, setDescription] = useState("")
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [error, setError] = useState<string | null>(null)

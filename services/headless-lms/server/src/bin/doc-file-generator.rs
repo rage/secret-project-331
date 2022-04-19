@@ -40,7 +40,7 @@ use headless_lms_models::{
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
         CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, ContentManagementPage,
-        CoursePageWithUserData, Page, PageChapterAndCourseInformation,
+        CoursePageWithUserData, Page, PageChapterAndCourseInformation, PageInfo,
         PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
     playground_examples::PlaygroundExample,
@@ -82,6 +82,7 @@ macro_rules! write_docs {
 fn main() {
     // reusable variables
     let id = Uuid::parse_str("307fa56f-9853-4f5c-afb9-a6736c232f32").unwrap();
+    let id2 = Uuid::parse_str("3c6ca496-17ac-445c-88c0-4ded2f2dbe58").unwrap();
     let date_time = Utc.timestamp(1640988000, 0);
     let created_at = date_time;
     let updated_at = date_time;
@@ -125,7 +126,7 @@ fn main() {
         created_at,
         updated_at,
         deleted_at,
-        course_id: id,
+        course_id: id2,
         starts_at: Some(date_time),
         ends_at: None,
         name: Some("Instance".to_string()),
@@ -140,7 +141,7 @@ fn main() {
         created_at,
         updated_at,
         deleted_at,
-        current_course_id: id,
+        current_course_id: id2,
         current_course_instance_id: id,
     };
     let exercise = Exercise {
@@ -239,7 +240,7 @@ fn main() {
         updated_at,
         deleted_at,
         name: "The Basics".to_string(),
-        course_id: id,
+        course_id: id2,
         chapter_image_url: None,
         chapter_number: 1,
         front_page_id: None,
@@ -331,7 +332,8 @@ fn main() {
                 order_number: 123,
                 score_maximum: 1,
                 max_tries_per_slide: Some(17),
-                limit_number_of_tries: true
+                limit_number_of_tries: true,
+                deadline: None
             }],
             exercise_slides: vec![CmsPageExerciseSlide {
                 id,
@@ -417,7 +419,7 @@ fn main() {
         CourseInstanceEnrollment,
         CourseInstanceEnrollment {
             user_id: id,
-            course_id: id,
+            course_id: id2,
             course_instance_id: id,
             created_at,
             updated_at,
@@ -558,7 +560,7 @@ fn main() {
                     updated_at,
                     deleted_at,
                     name: "The Basics".to_string(),
-                    course_id: id,
+                    course_id: id2,
                     chapter_image_path: None,
                     chapter_number: 1,
                     front_page_id: None,
@@ -610,7 +612,7 @@ fn main() {
         vec![Feedback {
             id,
             user_id: Some(id),
-            course_id: id,
+            course_id: id2,
             feedback_given: "Unclear".to_string(),
             selected_text: None,
             marked_as_read: false,
@@ -655,7 +657,7 @@ fn main() {
         Vec<CourseExam>,
         vec![CourseExam {
             id,
-            course_id: id,
+            course_id: id2,
             course_name: "Example course".to_string(),
             name: "Course exam".to_string()
         }]
@@ -800,12 +802,13 @@ fn main() {
                 created_at,
                 updated_at,
                 name: "The Basics".to_string(),
-                course_id: id,
+                course_id: id2,
                 deleted_at,
                 chapter_number: 1,
                 front_page_id: None,
                 opens_at: None,
-                status: ChapterStatus::Open
+                status: ChapterStatus::Open,
+                chapter_image_url: Some("http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg".to_string()),
             }]
         }
     );
@@ -827,6 +830,17 @@ fn main() {
             provider_url: "http://project-331.local".to_string(),
             title: "OEmbed".to_string(),
             version: "1.0".to_string(),
+        }
+    );
+    write_docs!(
+        PageInfo,
+        PageInfo {
+            page_id: id,
+            page_title: "The basics".to_string(),
+            course_id: id2,
+            course_name: "Introduction to everything".to_string(),
+            course_slug: "introduction-to-everything".to_string(),
+            organization_slug: "uh-cs".to_string()
         }
     );
 }

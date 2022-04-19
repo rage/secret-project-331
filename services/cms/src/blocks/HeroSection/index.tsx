@@ -9,6 +9,8 @@ import HeroSectionSave from "./HeroSectionSave"
 export interface HeroSectionAttributes {
   title: string
   subtitle: string
+  backgroundColor: string | undefined
+  backgroundImage: string | undefined
 }
 
 const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
@@ -27,6 +29,14 @@ const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
       source: "html",
       selector: "h3",
       default: "Hero section subtitle...",
+    },
+    backgroundColor: {
+      type: "string",
+      default: "#b4cdcb",
+    },
+    backgroundImage: {
+      type: "string",
+      default: undefined,
     },
   },
   edit: HeroSectionEditor,

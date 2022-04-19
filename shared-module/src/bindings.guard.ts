@@ -286,7 +286,8 @@ export function isChapterWithStatus(obj: any, _argumentName?: string): obj is Ch
     typeof obj.chapter_number === "number" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (isChapterStatus(obj.status) as boolean)
+    (isChapterStatus(obj.status) as boolean) &&
+    (obj.chapter_image_url === null || typeof obj.chapter_image_url === "string")
   )
 }
 
@@ -880,7 +881,8 @@ export function isCmsPageExercise(obj: any, _argumentName?: string): obj is CmsP
     typeof obj.order_number === "number" &&
     typeof obj.score_maximum === "number" &&
     (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
-    typeof obj.limit_number_of_tries === "boolean"
+    typeof obj.limit_number_of_tries === "boolean" &&
+    (obj.deadline === null || obj.deadline instanceof Date)
   )
 }
 
@@ -1004,7 +1006,9 @@ export function isPageInfo(obj: any, _argumentName?: string): obj is PageInfo {
     typeof obj.page_id === "string" &&
     typeof obj.page_title === "string" &&
     typeof obj.course_id === "string" &&
-    typeof obj.course_name === "string"
+    typeof obj.course_name === "string" &&
+    typeof obj.course_slug === "string" &&
+    typeof obj.organization_slug === "string"
   )
 }
 

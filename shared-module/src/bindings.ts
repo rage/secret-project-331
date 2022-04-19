@@ -102,6 +102,7 @@ export interface ChapterWithStatus {
   front_page_id: string | null
   opens_at: Date | null
   status: ChapterStatus
+  chapter_image_url: string | null
 }
 
 export interface NewChapter {
@@ -492,6 +493,7 @@ export interface CmsPageExercise {
   score_maximum: number
   max_tries_per_slide: number | null
   limit_number_of_tries: boolean
+  deadline: Date | null
 }
 
 export interface CmsPageExerciseSlide {
@@ -571,6 +573,8 @@ export interface PageInfo {
   page_title: string
   course_id: string
   course_name: string
+  course_slug: string
+  organization_slug: string
 }
 
 export interface PageRoutingDataWithChapterStatus {

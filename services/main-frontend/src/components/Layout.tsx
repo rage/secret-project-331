@@ -59,13 +59,13 @@ const Layout: React.FC<LayoutProps> = ({
         <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
 
         <NavBar
-          faqUrl={faqUrl}
+          // faqUrl={faqUrl}
           variant={navVariant ?? "simple"}
           // Return to path can be override per page
-          returnToPath={returnToPath ?? returnPath}
+          // returnToPath={returnToPath ?? returnPath}
         >
           <Menu>
-            <LoginControls returnToPath={returnToPath} />
+            <LoginControls returnToPath={returnToPath ?? returnPath} />
           </Menu>
         </NavBar>
 

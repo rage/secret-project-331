@@ -76,7 +76,7 @@ const Menu: React.FC = ({ children }) => {
     setClicked(!clicked)
   }
   return (
-    <ul className={cx(NavMenu)}>
+    <div className={cx(NavMenu)}>
       <div
         className={cx(MenuIcon)}
         onClick={onClickHandler}
@@ -87,8 +87,8 @@ const Menu: React.FC = ({ children }) => {
       >
         <Hamburger isActive={clicked} toggleButton={onClickHandler} />
       </div>
-      <div className={clicked ? cx(ToolTip) : cx(Hide)}>{children}</div>
-    </ul>
+      <ul className={clicked ? cx(ToolTip) : cx(Hide)}>{children}</ul>
+    </div>
   )
 }
 

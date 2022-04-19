@@ -6,6 +6,7 @@ import LockIcon from "../img/lock.svg"
 import { baseTheme, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
+import HideTextInSystemTests from "./HideTextInSystemTests"
 import LinkOrNoLink from "./LinkOrNoLink"
 
 export interface NextSectionLinkExtraProps {
@@ -90,7 +91,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
                 }
               `}
             >
-              {nextTitle}
+              <HideTextInSystemTests text={nextTitle} testPlaceholder={"Title of the next page"} />
             </div>
             <div
               className={css`

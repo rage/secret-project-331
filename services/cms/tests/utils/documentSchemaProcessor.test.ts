@@ -60,6 +60,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
       score_maximum: 5,
       max_tries_per_slide: 72,
       limit_number_of_tries: true,
+      deadline: null,
     },
   ],
   exercise_slides: [

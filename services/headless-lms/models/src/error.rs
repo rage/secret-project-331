@@ -5,6 +5,22 @@ use uuid::Uuid;
 
 pub type ModelResult<T> = Result<T, ModelError>;
 
+pub trait TryToOptional<T, E> {
+    fn optional(self) -> Result<Option<T>, E>
+    where
+        Self: Sized;
+}
+
+impl<T> TryToOptional<T, ModelError> for ModelResult<T> {
+    fn optional(self) -> Result<Option<T>, ModelError> {
+        match self {
+            Ok(val) => Ok(Some(val)),
+            Err(ModelError::RecordNotFound(_)) => Ok(None),
+            Err(err) => Err(err),
+        }
+    }
+}
+
 #[derive(Debug, Error)]
 pub enum ModelError {
     #[error(transparent)]

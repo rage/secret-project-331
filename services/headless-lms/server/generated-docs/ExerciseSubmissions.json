@@ -10,7 +10,8 @@
       "course_instance_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
       "exam_id": null,
       "exercise_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
-      "user_id": "307fa56f-9853-4f5c-afb9-a6736c232f32"
+      "user_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+      "user_points_update_strategy": "CanAddPointsAndCanRemovePoints"
     }
   ],
   "total_pages": 1

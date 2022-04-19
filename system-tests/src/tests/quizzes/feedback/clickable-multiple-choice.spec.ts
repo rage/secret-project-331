@@ -56,7 +56,6 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
     snapshotName: "clickable-multiple-choice-incorrect-answer",
     waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
     toMatchSnapshotOptions: { threshold: 0.4 },
-    beforeScreenshot: () => page.locator("text=Best quizzes exercise").scrollIntoViewIfNeeded(),
   })
 
   await page.click("text=Try again")
@@ -75,7 +74,6 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
     snapshotName: "clickable-multiple-choice-correct-answer",
     waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
     toMatchSnapshotOptions: { threshold: 0.4 },
-    beforeScreenshot: () => page.locator("text=Best quizzes exercise").scrollIntoViewIfNeeded(),
   })
 
   await page.click("text=Try again")
@@ -93,6 +91,5 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
     snapshotName: "clickable-multiple-choice-incorrect-answer-after-correct",
     waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
     toMatchSnapshotOptions: { threshold: 0.4 },
-    beforeScreenshot: () => page.locator("text=Best quizzes exercise").scrollIntoViewIfNeeded(),
   })
 })

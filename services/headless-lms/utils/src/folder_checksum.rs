@@ -116,7 +116,7 @@ mod tests {
             .set_permissions(Permissions::from_mode(0o755))
             .await
             .unwrap();
-        let first_hash = hash_folder(&dir.path()).await.unwrap();
+        let first_hash = hash_folder(dir.path()).await.unwrap();
         assert_eq!(
             first_hash.to_hex().to_string(),
             "01444ae9678097d0214e449568b68eb351c4743b2697bfc3d517b5c601535823"
@@ -127,7 +127,7 @@ mod tests {
             .unwrap();
         file.write_all(b"Test file").await.unwrap();
 
-        let second_hash = hash_folder(&dir.path()).await.unwrap();
+        let second_hash = hash_folder(dir.path()).await.unwrap();
 
         assert_eq!(
             second_hash.to_hex().to_string(),
@@ -138,7 +138,7 @@ mod tests {
             .await
             .unwrap();
 
-        let third_hash = hash_folder(&dir.path()).await.unwrap();
+        let third_hash = hash_folder(dir.path()).await.unwrap();
 
         assert_eq!(
             third_hash.to_hex().to_string(),
@@ -154,7 +154,7 @@ mod tests {
             .await
             .unwrap();
 
-        let fourth_hash = hash_folder(&dir.path()).await.unwrap();
+        let fourth_hash = hash_folder(dir.path()).await.unwrap();
 
         assert_eq!(
             fourth_hash.to_hex().to_string(),
@@ -163,7 +163,7 @@ mod tests {
 
         remove_dir(&dir.path().join("directory")).await.unwrap();
 
-        let fifth_hash = hash_folder(&dir.path()).await.unwrap();
+        let fifth_hash = hash_folder(dir.path()).await.unwrap();
 
         assert_eq!(
             fifth_hash.to_hex().to_string(),
@@ -175,7 +175,7 @@ mod tests {
         file.set_permissions(Permissions::from_mode(0o755))
             .await
             .unwrap();
-        let sixth_hash = hash_folder(&dir.path()).await.unwrap();
+        let sixth_hash = hash_folder(dir.path()).await.unwrap();
 
         // Tells if we can tell folders apart from files
         assert_ne!(
@@ -197,7 +197,7 @@ mod tests {
             .await
             .unwrap();
 
-        let seventh_hash = hash_folder(&dir.path()).await.unwrap();
+        let seventh_hash = hash_folder(dir.path()).await.unwrap();
         assert_eq!(
             seventh_hash.to_hex().to_string(),
             "5144015ff90807ec6448a0b6bfcc470de495182441e0af019c6483da8edaa05c"

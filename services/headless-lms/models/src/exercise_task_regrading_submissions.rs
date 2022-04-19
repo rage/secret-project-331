@@ -5,6 +5,7 @@ pub struct ExerciseTaskRegradingSubmission {
     pub exercise_task_submission_id: Uuid,
     pub grading_before_regrading: Uuid,
     pub grading_after_regrading: Option<Uuid>,
+    pub regrading_id: Uuid,
 }
 
 pub async fn insert(
@@ -42,7 +43,8 @@ pub async fn get_regrading_submission(
 SELECT id,
   exercise_task_submission_id,
   grading_before_regrading,
-  grading_after_regrading
+  grading_after_regrading,
+  regrading_id
 FROM exercise_task_regrading_submissions
 WHERE id = $1
 ",
@@ -63,7 +65,8 @@ pub async fn get_regrading_submissions(
 SELECT id,
   exercise_task_submission_id,
   grading_before_regrading,
-  grading_after_regrading
+  grading_after_regrading,
+  regrading_id
 FROM exercise_task_regrading_submissions
 WHERE regrading_id = $1
 ",

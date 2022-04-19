@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Box, Fade, Modal } from "@mui/material"
+import { Box, Fade } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
@@ -22,18 +22,18 @@ import {
 } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { editedFormatRegex, editedValidityRegex } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
+import {
+  AdvancedBox,
+  AdvancedBoxModalOpenClass,
+  CloseButton,
+  DeleteButton,
+  ModalButtonWrapper,
+  StyledModal,
+} from "../../../Shared/Modal"
 
 import FormatRegexTesterModalContent from "./FormatRegexTesterModalContent"
 import OpenModalContent from "./OpenModalContent"
 import ValidityRegexTesterModalContent from "./ValidityRegexTesterModalContent"
-
-const AdvancedBox = styled(Box)`
-  background-color: #fafafa !important;
-  min-width: 80% !important;
-  max-width: 80% !important;
-  max-height: 50% !important;
-  overflow-y: scroll !important;
-`
 
 const StyledButton = styled(Button)`
   display: flex;
@@ -46,28 +46,10 @@ const RegexContainer = styled.div`
   margin: 1rem 0;
 `
 
-const StyledModal = styled(Modal)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
-
 const StyledBox = styled(Box)`
   background-color: #fafafa;
   min-width: 300px;
   min-height: 300px;
-`
-const CloseButton = styled(Button)`
-  display: flex;
-`
-
-const DeleteButton = styled(Button)`
-  display: flex;
-`
-
-const ModalButtonWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end;
 `
 interface OpenContentProps {
   item: NormalizedQuizItem
@@ -102,16 +84,20 @@ const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
     <>
       <StyledModal
         open={variables.advancedEditing}
-        onClose={() => dispatch(setAdvancedEditing(storeItem.id, false))}
+        onClose={() => dispatch(setAdvancedEditing({ itemId: storeItem.id, editing: false }))}
       >
         <Fade in={variables.advancedEditing}>
-          <AdvancedBox>
+          <AdvancedBox
+            className={AdvancedBoxModalOpenClass(variables.advancedEditingYAxisLocation)}
+          >
             <ModalButtonWrapper>
               <CloseButton
                 aria-label={t("close")}
                 size="medium"
                 variant="outlined"
-                onClick={() => dispatch(setAdvancedEditing(storeItem.id, false))}
+                onClick={() =>
+                  dispatch(setAdvancedEditing({ itemId: storeItem.id, editing: false }))
+                }
               >
                 <FontAwesomeIcon icon={faWindowClose} size="2x" />
               </CloseButton>

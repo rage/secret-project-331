@@ -1,8 +1,9 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal } from "@mui/material"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
@@ -19,6 +20,30 @@ const StyledModal = styled(Modal)`
   justify-content: center;
 `
 
+const StyledEmotionBox = (heightOffset: number | undefined) => css`
+  ${heightOffset &&
+  // eslint-disable-next-line i18next/no-literal-string
+  `
+    position: fixed;
+    top: ${heightOffset + 15}px;
+    ::before {
+      content: "";
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0px 12px 15px 12px;
+      border-color: transparent transparent white transparent;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -15px;
+      bottom: 0;
+      margin: 0 auto;
+    }
+  `}
+  background-color: #fafafa;
+  min-width: 50% !important;
+`
 const StyledBox = styled(Box)`
   background-color: #fafafa;
   min-width: 50% !important;
@@ -64,8 +89,14 @@ const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option, ind
   const storeItem = useTypedSelector((state) => state.editor.items[option.quizItemId])
   const variables = useTypedSelector((state) => state.editor.optionVariables[option.id])
   const dispatch = useDispatch()
+  const [heightOffset, setHeightOffset] = useState<number | undefined>(undefined)
 
-  const ariaLablel = t("aria-label-option-index", { index })
+  const ariaLabel = t("aria-label-option-index", { index })
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    setHeightOffset(event.pageY)
+    dispatch(setOptionEditing(storeOption.id, true))
+  }
 
   return (
     <>
@@ -74,7 +105,7 @@ const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option, ind
         onClose={() => dispatch(setOptionEditing(storeOption.id, false))}
       >
         <Fade in={variables.optionEditing}>
-          <StyledBox>
+          <StyledBox className={StyledEmotionBox(heightOffset)}>
             <CloseButton
               aria-label={t("close")}
               onClick={() => dispatch(setOptionEditing(storeOption.id, false))}
@@ -95,11 +126,7 @@ const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option, ind
       </StyledModal>
       {storeItem.allAnswersCorrect ? (
         <>
-          <CorrectButton
-            aria-label={ariaLablel}
-            onClick={() => dispatch(setOptionEditing(storeOption.id, true))}
-            variant="outlined"
-          >
+          <CorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
             {storeOption.title}
           </CorrectButton>
         </>
@@ -107,21 +134,13 @@ const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option, ind
         <>
           {storeOption.correct ? (
             <>
-              <CorrectButton
-                aria-label={ariaLablel}
-                onClick={() => dispatch(setOptionEditing(storeOption.id, true))}
-                variant="outlined"
-              >
+              <CorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
                 {storeOption.title}
               </CorrectButton>
             </>
           ) : (
             <>
-              <IncorrectButton
-                aria-label={ariaLablel}
-                onClick={() => dispatch(setOptionEditing(storeOption.id, true))}
-                variant="outlined"
-              >
+              <IncorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
                 {storeOption.title}
               </IncorrectButton>
             </>

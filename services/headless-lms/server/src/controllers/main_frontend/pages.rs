@@ -2,7 +2,7 @@
 
 use models::{
     page_history::PageHistory,
-    pages::{HistoryRestoreData, NewPage, Page},
+    pages::{HistoryRestoreData, NewPage, Page, PageInfo},
 };
 
 use crate::controllers::prelude::*;
@@ -128,6 +128,24 @@ async fn restore(
 }
 
 /**
+GET `/api/v0/main-fronted/pages/:page_id/info` - Get a pages's course id, course name, organization slug
+
+Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
+*/
+#[generated_doc]
+async fn get_page_info(
+    page_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<PageInfo>> {
+    let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+
+    let page_info = models::pages::get_page_info(&mut conn, *page_id).await?;
+    Ok(web::Json(page_info))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -137,6 +155,7 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("", web::post().to(post_new_page))
         .route("/{page_id}", web::delete().to(delete_page))
+        .route("/{page_id}/info", web::get().to(get_page_info))
         .route("/{page_id}/history", web::get().to(history))
         .route("/{page_id}/history_count", web::get().to(history_count))
         .route("/{history_id}/restore", web::post().to(restore));

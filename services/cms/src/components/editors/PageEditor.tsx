@@ -18,6 +18,7 @@ import BreakFromCentered from "../../shared-module/components/Centering/BreakFro
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
+import { pageRoute } from "../../shared-module/utils/routes"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
@@ -113,7 +114,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
             display: block;
             margin-bottom: 1rem;
           `}
-          href={`/org/${pageInfo.data.organization_slug}/courses/${pageInfo.data.course_slug}${data.url_path}`}
+          href={pageRoute(pageInfo.data, data.url_path)}
           target="_blank"
           rel="noopener noreferrer"
         >

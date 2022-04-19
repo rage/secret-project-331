@@ -25,6 +25,7 @@ pub struct BlockProposal {
     pub block_id: Uuid,
     pub current_text: String,
     pub changed_text: String,
+    pub original_text: String,
     pub status: ProposalStatus,
     pub accept_preview: Option<String>,
 }

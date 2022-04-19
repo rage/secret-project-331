@@ -1373,7 +1373,7 @@ async fn seed_sample_course(
         front_page_id: None,
         name: "The Basics".to_string(),
         opens_at: None,
-        deadline: None,
+        deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
     };
     let (chapter_1, _front_page_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
@@ -1618,7 +1618,7 @@ async fn seed_sample_course(
             "points": 2,
             "section": 0,
             "courseId": "1dbd4a71-5f4c-49c9-b8a0-2e65fb8c4e0c",
-            "deadline": "2021-12-17T07:15:33.479Z",
+            "deadline": "2025-12-17T07:15:33.479Z",
             "createdAt": "2021-12-17T07:15:33.479Z",
             "updatedAt": "2021-12-17T07:15:33.479Z",
             "autoReject": false,
@@ -3173,6 +3173,7 @@ fn example_exercise_flexible(
         score_maximum: tasks.len() as i32,
         max_tries_per_slide: None,
         limit_number_of_tries: false,
+        deadline: None,
     };
     (block, exercise, slides, tasks)
 }
@@ -3209,6 +3210,7 @@ fn quizzes_exercise(
         score_maximum: 1,
         max_tries_per_slide: None,
         limit_number_of_tries: false,
+        deadline: Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     };
     let exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,

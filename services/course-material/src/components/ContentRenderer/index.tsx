@@ -1,5 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import DOMPurify from "dompurify"
 import dynamic from "next/dynamic"
 import React from "react"
@@ -7,6 +7,8 @@ import { useTranslation } from "react-i18next"
 
 import { Block } from "../../services/backend"
 import { NewProposedBlockEdit } from "../../shared-module/bindings"
+import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
+import { baseTheme } from "../../shared-module/styles"
 import { linkWithExtraIconClass } from "../../shared-module/styles/constants"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { courseMaterialBlockClass } from "../../utils/constants"
@@ -113,7 +115,15 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/infobox": InfoBox,
 }
 
+const highlightedBlockStyles = css`
+  outline: 2px solid ${baseTheme.colors.red[400]};
+  outline-offset: 10px;
+`
+
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
+  const highlightBlocks = useQueryParameter("highlight-blocks")
+    .split(",")
+    .filter((id) => id !== "")
   const { t } = useTranslation()
   if (props.data.constructor !== Array) {
     return (
@@ -169,8 +179,16 @@ const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
     >
       {props.data.map((block) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
+        const isHighlighted = highlightBlocks.includes(block.clientId)
         return (
-          <div key={block.clientId} id={block.clientId} className={courseMaterialBlockClass}>
+          <div
+            key={block.clientId}
+            id={block.clientId}
+            className={cx(
+              courseMaterialBlockClass,
+              (isHighlighted && highlightedBlockStyles) ?? undefined,
+            )}
+          >
             <Component
               id={block.clientId}
               data={block}

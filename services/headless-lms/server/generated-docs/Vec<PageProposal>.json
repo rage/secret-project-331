@@ -11,6 +11,7 @@
         "block_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
         "current_text": "Hello,, world!",
         "changed_text": "Hello, world!",
+        "original_text": "Hello,, world!",
         "status": "Accepted",
         "accept_preview": "Hello, world!!"
       }

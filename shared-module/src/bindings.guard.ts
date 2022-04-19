@@ -1133,6 +1133,7 @@ export function isBlockProposal(obj: any, _argumentName?: string): obj is BlockP
     typeof obj.block_id === "string" &&
     typeof obj.current_text === "string" &&
     typeof obj.changed_text === "string" &&
+    typeof obj.original_text === "string" &&
     (isProposalStatus(obj.status) as boolean) &&
     (obj.accept_preview === null || typeof obj.accept_preview === "string")
   )

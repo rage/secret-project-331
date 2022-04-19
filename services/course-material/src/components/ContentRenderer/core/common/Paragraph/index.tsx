@@ -3,12 +3,11 @@ import { diffChars } from "diff"
 import KaTex from "katex"
 import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
-import { useTranslation } from "react-i18next"
 import { useMemo } from "use-memo-one"
 
 import { BlockRendererProps } from "../../.."
 import { ParagraphAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { baseTheme } from "../../../../../shared-module/styles"
+import DiffFormatter from "../../../../../shared-module/components/DiffFormatter"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
@@ -77,7 +76,6 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
   // eslint-disable-next-line i18next/no-literal-string
   const bgColor = colorMapper(backgroundColor, "unset")
   const [editedContent, setEditedContent] = useState(data.attributes.content)
-  const { t } = useTranslation()
 
   // edited content should not persist between edit proposals
   // reset edited content when no longer editing
@@ -133,37 +131,8 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         </p>
       )
     } else {
-      const spans: JSX.Element[] = []
-      for (const diff of diffChars(data.attributes.content, editedContent)) {
-        // the diff spans should have the block id so the click handler can find it
-        if (diff.added) {
-          spans.push(
-            <mark
-              role="note"
-              aria-label={t("added-text")}
-              className={css`
-                background: ${baseTheme.colors.blue[300]};
-              `}
-            >
-              {diff.value}
-            </mark>,
-          )
-        } else if (diff.removed) {
-          spans.push(
-            <mark
-              role="note"
-              aria-label={t("removed-text")}
-              className={css`
-                background: ${baseTheme.colors.red[300]};
-              `}
-            >
-              {diff.value}
-            </mark>,
-          )
-        } else {
-          spans.push(<span>{diff.value}</span>)
-        }
-      }
+      const diffChanges = diffChars(data.attributes.content, editedContent)
+
       return (
         <p
           className={css`
@@ -175,7 +144,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
             ${backgroundColor && `padding: 1.25em 2.375em;`}
           `}
         >
-          {spans}
+          <DiffFormatter changes={diffChanges} />
         </p>
       )
     }

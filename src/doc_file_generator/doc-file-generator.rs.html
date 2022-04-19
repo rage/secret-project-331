@@ -862,6 +862,7 @@
 <span id="857">857</span>
 <span id="858">858</span>
 <span id="859">859</span>
+<span id="860">860</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1565,6 +1566,7 @@
             <span class="ident">block_proposals</span>: <span class="macro">vec!</span>[<span class="ident">BlockProposal</span> {
                 <span class="ident">id</span>,
                 <span class="ident">block_id</span>: <span class="ident">id</span>,
+                <span class="ident">original_text</span>: <span class="string">&quot;Hello,, world!&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">current_text</span>: <span class="string">&quot;Hello,, world!&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">changed_text</span>: <span class="string">&quot;Hello, world!&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">status</span>: <span class="ident">ProposalStatus::Accepted</span>,

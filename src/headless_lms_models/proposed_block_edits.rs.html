@@ -48,6 +48,7 @@
 <span id="43">43</span>
 <span id="44">44</span>
 <span id="45">45</span>
+<span id="46">46</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
@@ -75,6 +76,7 @@
     <span class="kw">pub</span> <span class="ident">block_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">current_text</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">changed_text</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">original_text</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">status</span>: <span class="ident">ProposalStatus</span>,
     <span class="kw">pub</span> <span class="ident">accept_preview</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }

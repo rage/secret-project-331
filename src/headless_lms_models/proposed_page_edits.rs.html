@@ -539,6 +539,7 @@
 <span id="534">534</span>
 <span id="535">535</span>
 <span id="536">536</span>
+<span id="537">537</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">hash_map::Entry</span>, <span class="ident">HashMap</span>};
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{<span class="ident">document_schema_processor::GutenbergBlock</span>, <span class="ident">merge_edits</span>};
@@ -754,6 +755,7 @@ WHERE proposed_block_edits.deleted_at IS NULL
             <span class="ident">current_text</span>: <span class="ident">content</span>.<span class="ident">to_string</span>(),
             <span class="ident">changed_text</span>: <span class="ident">changed_text</span>.<span class="ident">to_string</span>(),
             <span class="ident">status</span>: <span class="ident">block_proposal_status</span>,
+            <span class="ident">original_text</span>,
         });
     }
 

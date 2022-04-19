@@ -960,7 +960,7 @@ WHERE id = $1
             <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
             <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
         };
-        <span class="ident">insert</span>(<span class="ident">tx1</span>.<span class="ident">as_mut</span>(), <span class="ident">instance</span>.<span class="ident">clone</span>()).<span class="kw">await</span>.<span class="ident">unwrap_err</span>();
+        <span class="ident">insert</span>(<span class="ident">tx1</span>.<span class="ident">as_mut</span>(), <span class="ident">instance</span>).<span class="kw">await</span>.<span class="ident">unwrap_err</span>();
         <span class="ident">tx1</span>.<span class="ident">rollback</span>().<span class="kw">await</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx2</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">begin</span>().<span class="kw">await</span>;

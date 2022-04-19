@@ -391,12 +391,163 @@
 <span id="386">386</span>
 <span id="387">387</span>
 <span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.</span>
 
-<span class="kw">use</span> <span class="ident">std::path::Path</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">net::IpAddr</span>, <span class="ident">path::Path</span>};
 
+<span class="kw">use</span> <span class="ident">actix_http::header</span>;
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
 <span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">future::OptionFuture</span>, <span class="ident">FutureExt</span>};
+<span class="kw">use</span> <span class="ident">headless_lms_utils::ip_to_country::IpToCountryMapper</span>;
+<span class="kw">use</span> <span class="ident">isbot::Bots</span>;
 <span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">chapters</span>::{<span class="ident">ChapterStatus</span>, <span class="ident">ChapterWithStatus</span>},
     <span class="ident">course_instances::CourseInstance</span>,
@@ -405,6 +556,10 @@
     <span class="ident">feedback</span>,
     <span class="ident">feedback::NewFeedback</span>,
     <span class="ident">glossary::Term</span>,
+    <span class="ident">page_visit_datum::NewPageVisitDatum</span>,
+    <span class="ident">page_visit_datum_daily_visit_hashing_keys</span>::{
+        <span class="ident">generate_anonymous_identifier</span>, <span class="ident">GenerateAnonymousIdentifierInput</span>,
+    },
     <span class="ident">pages</span>::{<span class="ident">CoursePageWithUserData</span>, <span class="ident">Page</span>, <span class="ident">PageSearchRequest</span>, <span class="ident">PageSearchResult</span>},
     <span class="ident">proposed_page_edits</span>::{<span class="self">self</span>, <span class="ident">NewProposedPageEdits</span>},
     <span class="ident">user_course_settings::UserCourseSettings</span>,
@@ -436,13 +591,16 @@ If the page has moved and there&#39;s a redirection, this will still return the 
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 */</span>
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">ip_to_country_mapper</span>, <span class="ident">req</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_page_by_path</span>(
     <span class="ident">params</span>: <span class="ident">web::Path</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
+    <span class="ident">ip_to_country_mapper</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">IpToCountryMapper</span><span class="op">&gt;</span>,
+    <span class="ident">req</span>: <span class="ident">HttpRequest</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">CoursePageWithUserData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">let</span> (<span class="ident">course_slug</span>, <span class="ident">raw_page_path</span>) <span class="op">=</span> <span class="ident">params</span>.<span class="ident">into_inner</span>();
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">raw_page_path</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>) {
         <span class="ident">raw_page_path</span>
@@ -466,7 +624,145 @@ GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//par
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
+    <span class="kw">let</span> <span class="ident">RequestInformation</span> {
+        <span class="ident">ip</span>,
+        <span class="ident">referrer</span>,
+        <span class="ident">utm_tags</span>,
+        <span class="ident">country</span>,
+        <span class="ident">user_agent</span>,
+        <span class="ident">has_bot_user_agent</span>,
+        <span class="ident">browser_admits_its_a_bot</span>,
+        <span class="ident">browser</span>,
+        <span class="ident">browser_version</span>,
+        <span class="ident">operating_system</span>,
+        <span class="ident">operating_system_version</span>,
+        <span class="ident">device_type</span>,
+    } <span class="op">=</span> <span class="ident">derive_information_from_requester</span>(<span class="ident">req</span>, <span class="ident">ip_to_country_mapper</span>)<span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span> <span class="ident">page_with_user_data</span>
+        .<span class="ident">page</span>
+        .<span class="ident">course_id</span>
+        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">page_with_user_data</span>.<span class="ident">page</span>.<span class="ident">exam_id</span>.<span class="ident">unwrap_or_else</span>(<span class="ident">Uuid::nil</span>));
+    <span class="kw">let</span> <span class="ident">anonymous_identifier</span> <span class="op">=</span> <span class="ident">generate_anonymous_identifier</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">GenerateAnonymousIdentifierInput</span> {
+            <span class="ident">user_agent</span>,
+            <span class="ident">ip_address</span>: <span class="ident">ip</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ip</span><span class="op">|</span> <span class="ident">ip</span>.<span class="ident">to_string</span>()).<span class="ident">unwrap_or_default</span>(),
+            <span class="ident">course_id</span>: <span class="ident">course_or_exam_id</span>,
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">models::page_visit_datum::insert</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">NewPageVisitDatum</span> {
+            <span class="ident">course_id</span>: <span class="ident">page_with_user_data</span>.<span class="ident">page</span>.<span class="ident">course_id</span>,
+            <span class="ident">page_id</span>: <span class="ident">page_with_user_data</span>.<span class="ident">page</span>.<span class="ident">id</span>,
+            <span class="ident">country</span>,
+            <span class="ident">browser</span>,
+            <span class="ident">browser_version</span>,
+            <span class="ident">operating_system</span>,
+            <span class="ident">operating_system_version</span>,
+            <span class="ident">device_type</span>,
+            <span class="ident">referrer</span>,
+            <span class="ident">is_bot</span>: <span class="ident">has_bot_user_agent</span> <span class="op">|</span><span class="op">|</span> <span class="ident">browser_admits_its_a_bot</span>,
+            <span class="ident">utm_tags</span>,
+            <span class="ident">anonymous_identifier</span>,
+            <span class="ident">exam_id</span>: <span class="ident">page_with_user_data</span>.<span class="ident">page</span>.<span class="ident">exam_id</span>,
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">page_with_user_data</span>))
+}
+
+<span class="kw">struct</span> <span class="ident">RequestInformation</span> {
+    <span class="ident">ip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>,
+    <span class="ident">user_agent</span>: <span class="ident">String</span>,
+    <span class="ident">referrer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">utm_tags</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+    <span class="ident">country</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">has_bot_user_agent</span>: <span class="ident">bool</span>,
+    <span class="ident">browser_admits_its_a_bot</span>: <span class="ident">bool</span>,
+    <span class="ident">browser</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">browser_version</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">operating_system</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">operating_system_version</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">device_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+}
+
+<span class="doccomment">/// Used in get_course_page_by_path for path for anonymous visitor counts</span>
+<span class="kw">fn</span> <span class="ident">derive_information_from_requester</span>(
+    <span class="ident">req</span>: <span class="ident">HttpRequest</span>,
+    <span class="ident">ip_to_country_mapper</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">IpToCountryMapper</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">RequestInformation</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>();
+    <span class="kw">let</span> <span class="ident">user_agent</span> <span class="op">=</span> <span class="ident">headers</span>.<span class="ident">get</span>(<span class="ident">header::USER_AGENT</span>);
+    <span class="kw">let</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::default</span>();
+    <span class="kw">let</span> <span class="ident">has_bot_user_agent</span> <span class="op">=</span> <span class="ident">user_agent</span>
+        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ua</span><span class="op">|</span> <span class="ident">ua</span>.<span class="ident">to_str</span>().<span class="ident">ok</span>())
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">ua</span><span class="op">|</span> <span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="ident">ua</span>))
+        .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>);
+    <span class="comment">// If this header is not set, the requester is considered a bot</span>
+    <span class="kw">let</span> <span class="ident">header_totally_not_a_bot</span> <span class="op">=</span> <span class="ident">headers</span>.<span class="ident">get</span>(<span class="string">&quot;totally-not-a-bot&quot;</span>);
+    <span class="kw">let</span> <span class="ident">browser_admits_its_a_bot</span> <span class="op">=</span> <span class="ident">header_totally_not_a_bot</span>.<span class="ident">is_none</span>();
+    <span class="kw">if</span> <span class="ident">has_bot_user_agent</span> <span class="op">|</span><span class="op">|</span> <span class="ident">browser_admits_its_a_bot</span> {
+        <span class="macro">warn!</span>(
+            <span class="question-mark">?</span><span class="ident">has_bot_user_agent</span>,
+            <span class="question-mark">?</span><span class="ident">browser_admits_its_a_bot</span>,
+            <span class="question-mark">?</span><span class="ident">user_agent</span>,
+            <span class="question-mark">?</span><span class="ident">header_totally_not_a_bot</span>,
+            <span class="string">&quot;The requester is a bot&quot;</span>
+        )
+    }
+
+    <span class="kw">let</span> <span class="ident">user_agent_parser</span> <span class="op">=</span> <span class="ident">woothee::parser::Parser::new</span>();
+    <span class="kw">let</span> <span class="ident">parsed_user_agent</span> <span class="op">=</span> <span class="ident">user_agent</span>
+        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ua</span><span class="op">|</span> <span class="ident">ua</span>.<span class="ident">to_str</span>().<span class="ident">ok</span>())
+        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ua</span><span class="op">|</span> <span class="ident">user_agent_parser</span>.<span class="ident">parse</span>(<span class="ident">ua</span>));
+
+    <span class="kw">let</span> <span class="ident">ip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">req</span>
+        .<span class="ident">connection_info</span>()
+        .<span class="ident">realip_remote_addr</span>()
+        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ip</span><span class="op">|</span> <span class="ident">ip</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>().<span class="ident">ok</span>());
+
+    <span class="kw">let</span> <span class="ident">country</span> <span class="op">=</span> <span class="ident">ip</span>
+        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ip</span><span class="op">|</span> <span class="ident">ip_to_country_mapper</span>.<span class="ident">map_ip_to_country</span>(<span class="kw-2">&amp;</span><span class="ident">ip</span>))
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">to_string</span>());
+
+    <span class="kw">let</span> <span class="ident">utm_tags</span> <span class="op">=</span> <span class="ident">headers</span>
+        .<span class="ident">get</span>(<span class="string">&quot;utm-tags&quot;</span>)
+        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">utms</span><span class="op">|</span> <span class="ident">utms</span>.<span class="ident">to_str</span>().<span class="ident">ok</span>())
+        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">utms</span><span class="op">|</span> <span class="ident">serde_json::to_value</span>(<span class="ident">utms</span>).<span class="ident">ok</span>());
+    <span class="kw">let</span> <span class="ident">referrer</span> <span class="op">=</span> <span class="ident">headers</span>
+        .<span class="ident">get</span>(<span class="string">&quot;Orignal-Referrer&quot;</span>)
+        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">to_str</span>().<span class="ident">ok</span>())
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">to_string</span>());
+
+    <span class="kw">let</span> <span class="ident">browser</span> <span class="op">=</span> <span class="ident">parsed_user_agent</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">ua</span><span class="op">|</span> <span class="ident">ua</span>.<span class="ident">name</span>.<span class="ident">to_string</span>());
+    <span class="kw">let</span> <span class="ident">browser_version</span> <span class="op">=</span> <span class="ident">parsed_user_agent</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">ua</span><span class="op">|</span> <span class="ident">ua</span>.<span class="ident">version</span>.<span class="ident">to_string</span>());
+    <span class="kw">let</span> <span class="ident">operating_system</span> <span class="op">=</span> <span class="ident">parsed_user_agent</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">ua</span><span class="op">|</span> <span class="ident">ua</span>.<span class="ident">os</span>.<span class="ident">to_string</span>());
+    <span class="kw">let</span> <span class="ident">operating_system_version</span> <span class="op">=</span> <span class="ident">parsed_user_agent</span>
+        .<span class="ident">as_ref</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">ua</span><span class="op">|</span> <span class="ident">ua</span>.<span class="ident">os_version</span>.<span class="ident">to_string</span>());
+    <span class="kw">let</span> <span class="ident">device_type</span> <span class="op">=</span> <span class="ident">parsed_user_agent</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">ua</span><span class="op">|</span> <span class="ident">ua</span>.<span class="ident">category</span>.<span class="ident">to_string</span>());
+    <span class="prelude-val">Ok</span>(<span class="ident">RequestInformation</span> {
+        <span class="ident">ip</span>,
+        <span class="ident">user_agent</span>: <span class="ident">user_agent</span>
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ua</span><span class="op">|</span> <span class="ident">ua</span>.<span class="ident">to_str</span>().<span class="ident">ok</span>())
+            .<span class="ident">unwrap_or_default</span>()
+            .<span class="ident">to_string</span>(),
+        <span class="ident">referrer</span>,
+        <span class="ident">utm_tags</span>,
+        <span class="ident">country</span>,
+        <span class="ident">has_bot_user_agent</span>,
+        <span class="ident">browser_admits_its_a_bot</span>,
+        <span class="ident">browser</span>,
+        <span class="ident">browser_version</span>,
+        <span class="ident">operating_system</span>,
+        <span class="ident">operating_system_version</span>,
+        <span class="ident">device_type</span>,
+    })
 }
 
 <span class="doccomment">/**

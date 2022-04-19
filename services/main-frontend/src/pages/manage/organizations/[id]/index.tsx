@@ -43,7 +43,7 @@ const ManageOrganization: React.FC<Props> = ({ query }) => {
   }
 
   return (
-    <Layout navVariant={"complex"}>
+    <Layout navVariant={"simple"}>
       <div
         className={css`
           margin-bottom: 1rem;

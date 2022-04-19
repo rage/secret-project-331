@@ -26,27 +26,14 @@ const MenuIcon = css`
 const ToolTip = css`
   background: ${baseTheme.colors.clear[200]};
   border-color: #cacaca;
-  top: 80px;
+  top: 70px;
   right: 17px;
-  width: auto;
   padding: 0;
   border-radius: 4px;
   position: absolute;
   margin-bottom: 10px;
   margin-left: -95px;
   z-index: 901;
-
-  &:after {
-    bottom: 100%;
-    left: 50%;
-    border: solid transparent;
-    content: "";
-    position: absolute;
-    pointer-events: none;
-    border-bottom-color: ${baseTheme.colors.clear[200]};
-    border-width: 12px;
-    margin-left: -12px;
-  }
 
   li {
     text-decoration: none;

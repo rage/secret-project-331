@@ -21,6 +21,7 @@ const Navbar = css`
   align-items: center;
   font-size: 1rem;
   padding: 0 4rem;
+  margin-bottom: 2rem;
   border-bottom: 2px solid ${baseTheme.colors.grey[700]};
 
   &:focus-visible {

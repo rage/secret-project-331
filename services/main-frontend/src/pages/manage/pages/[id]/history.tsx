@@ -19,7 +19,7 @@ const History: React.FC<unknown> = () => {
   }
 
   return (
-    <Layout navVariant="complex">
+    <Layout navVariant="simple">
       <div>
         <h2>{t("title-page-edit-history")}</h2>
         <HistoryView pageId={id} />

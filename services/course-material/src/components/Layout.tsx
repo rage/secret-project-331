@@ -67,8 +67,6 @@ const Layout: React.FC<LayoutProps> = ({
       <div
         // Push footer to bottom of page, e.g. on empty body
         className={css`
-          display: flex;
-          flex-direction: column;
           height: 100%;
           min-height: 100vh;
         `}
@@ -96,12 +94,7 @@ const Layout: React.FC<LayoutProps> = ({
         </NavBar>
 
         {/* Do not touch flex */}
-        <main
-          className={css`
-            flex: 1;
-          `}
-          id="maincontent"
-        >
+        <main id="maincontent">
           <Centered variant="narrow">{children}</Centered>
         </main>
       </div>

@@ -56,8 +56,6 @@ const Layout: React.FC<LayoutProps> = ({
       <div
         // Push footer to bottom of page, e.g. on empty body
         className={css`
-          display: flex;
-          flex-direction: column;
           height: 100%;
           min-height: 100vh;
         `}
@@ -65,7 +63,7 @@ const Layout: React.FC<LayoutProps> = ({
         <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
         <NavBar
           faqUrl={faqUrl}
-          variant={navVariant ?? "complex"}
+          variant={navVariant ?? "simple"}
           // Return to path can be override per page
           returnToPath={returnToPath ?? returnPath}
         >
@@ -76,7 +74,6 @@ const Layout: React.FC<LayoutProps> = ({
         {/* Do not touch flex */}
         <main
           className={css`
-            flex: 1;
             /* Sidebar hidden on small screens */
             margin-right: 0;
             ${respondToOrLarger.xl} {

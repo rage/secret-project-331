@@ -63,6 +63,13 @@ diff = "0.1.12"
 thiserror = "1.0.30"
 # Percent encoding and decoding
 percent-encoding = "2.1.0"
+# Provides types and useful methods for working with IPv4 and IPv6 network addresses.
+ipnet = "2.4.0"
+# Flexible concrete Error type built on std::error::Error
+anyhow = "1.0.56"
+# DEFLATE compression and decompression exposed as Read/BufRead/Write streams.
+flate2 = "1.0.22"
+
 
 # Workaround for this issue: https://github.com/tkaitchuck/aHash/issues/95. Once the issue has been resolved, this dependency can be removed.
 indexmap = "1.8.1"

@@ -2,11 +2,9 @@
 
 use futures::future::OptionFuture;
 use models::{
-    exercise_slide_submissions::{
-        get_exercise_slide_submission_counts_for_exercise_user, StudentExerciseSlideSubmission,
-        StudentExerciseSlideSubmissionResult,
-    },
+    exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
     exercises::{CourseMaterialExercise, Exercise},
+    library::grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
     user_exercise_states::CourseInstanceOrExamId,
 };
 
@@ -137,14 +135,13 @@ async fn post_submission(
     .await?
     .ok_or_else(|| ControllerError::Unauthorized("Missing exercise state.".to_string()))?;
 
-    let mut result =
-        models::exercise_slide_submissions::create_exercise_slide_submission_for_exercise(
-            &mut conn,
-            &exercise,
-            &user_exercise_state,
-            payload.0,
-        )
-        .await?;
+    let mut result = models::library::grading::grade_user_submission(
+        &mut conn,
+        &exercise,
+        user_exercise_state,
+        payload.0,
+    )
+    .await?;
 
     if exercise.exam_id.is_some() {
         // If exam, we don't want to expose model any grading details.

@@ -4,11 +4,9 @@ import { useEffect, useState } from "react"
 
 import useHeadingData from "../hooks/useHeadingData"
 
-const StlyedWrapper = styled.div`
+const StyledWrapper = styled.div`
+  /* Styling */
   display: block;
-  position: fixed;
-  left: 0px;
-  top: 24px;
   max-width: 500px;
   max-height: calc(100vh - 40px);
   overflow: auto;
@@ -72,14 +70,32 @@ export interface Topic {
 }
 
 const PLACEHOLDER_TEXT = "TOPIC"
+const Y_OFFSET = 650
+const TOP_OFFSET = 50
 
 export type TopicNavigationProps = React.HTMLAttributes<HTMLDivElement>
 
 const TopicNavigation: React.FC<TopicNavigationProps> = () => {
   // eslint-disable-next-line i18next/no-literal-string
   const [isActive, setIsActive] = useState<string>("id-1")
+  const [offsetpx, setOffsetpx] = useState<number>(Y_OFFSET + TOP_OFFSET)
+  const [fixed, setFixed] = useState<boolean>(false)
 
   const { headings } = useHeadingData()
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (window.pageYOffset > Y_OFFSET) {
+        setFixed(true)
+        setOffsetpx(TOP_OFFSET)
+      } else {
+        setFixed(false)
+        setOffsetpx(TOP_OFFSET + Y_OFFSET)
+      }
+    }
+    window.addEventListener("scroll", onScroll)
+    return () => window.removeEventListener("scroll", onScroll)
+  })
 
   useEffect(() => {
     const eventHandler = () => {
@@ -101,7 +117,13 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
   }, [headings])
 
   return (
-    <StlyedWrapper>
+    <StyledWrapper
+      className={css`
+        position: ${fixed ? "fixed" : "absolute"};
+        left: 0px;
+        top: ${offsetpx}px;
+      `}
+    >
       <h3>{PLACEHOLDER_TEXT}</h3>
       <StyledTopics role="navigation">
         {headings &&
@@ -131,7 +153,7 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
             )
           })}
       </StyledTopics>
-    </StlyedWrapper>
+    </StyledWrapper>
   )
 }
 

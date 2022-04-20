@@ -54,7 +54,7 @@ export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
 
 const HeroSection: React.FC<CardProps> = ({ title, subtitle }) => {
   return (
-    <HeroWrapper>
+    <HeroWrapper id="hero-section">
       <TextBox>
         <h1>{title}</h1>
         <span>{subtitle}</span>

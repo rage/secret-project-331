@@ -2,10 +2,11 @@ import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useReducer } from "react"
 import { useQuery } from "react-query"
 
-import CourseMaterialPageBreadcrumbs from "../../../../components/CourseMaterialPageBreadcrumbs"
-import Layout from "../../../../components/Layout"
 import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
+import { CourseMaterialPageMarginOffset } from "../../../../components/layout/CourseMaterialPageMarginOffset"
+import Layout from "../../../../components/layout/Layout"
+import CourseMaterialPageBreadcrumbs from "../../../../components/navigation/CourseMaterialPageBreadcrumbs"
 import CourseTestModeNotification from "../../../../components/notifications/CourseTestModeNotification"
 import PageContext, { CoursePageDispatch, defaultPageState } from "../../../../contexts/PageContext"
 import useScrollToSelector from "../../../../hooks/useScrollToSelector"
@@ -118,8 +119,11 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
           organizationSlug={query.organizationSlug}
           courseSlug={courseSlug}
         >
-          <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
-          {<CourseTestModeNotification isTestMode={pageState.isTest} />}
+          {/* eslint-disable-next-line i18next/no-literal-string */}
+          <CourseMaterialPageMarginOffset marginTop={"-2rem"} marginBottom={"0rem"}>
+            <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
+            {<CourseTestModeNotification isTestMode={pageState.isTest} />}
+          </CourseMaterialPageMarginOffset>
           <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
         </Layout>
       </PageContext.Provider>

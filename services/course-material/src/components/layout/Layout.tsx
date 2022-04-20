@@ -5,9 +5,9 @@ import { useRouter } from "next/router"
 import React, { ReactNode, useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import PageContext from "../contexts/PageContext"
-import Centered from "../shared-module/components/Centering/Centered"
-import Footer from "../shared-module/components/Footer"
+import PageContext from "../../contexts/PageContext"
+import Centered from "../../shared-module/components/Centering/Centered"
+import Footer from "../../shared-module/components/Footer"
 import {
   Menu,
   NavBar,
@@ -15,12 +15,12 @@ import {
   NavItem,
   NavItems,
   // NavLink,
-} from "../shared-module/components/Navigation/NavBar"
-import SkipLink from "../shared-module/components/SkipLink"
+} from "../../shared-module/components/Navigation/NavBar"
+import SkipLink from "../../shared-module/components/SkipLink"
+import SearchDialog from "../SearchDialog"
+import UserNavigationControls from "../navigation/UserNavigationControls"
 
 import ScrollIndicator from "./ScrollIndicator"
-import SearchDialog from "./SearchDialog"
-import UserNavigationControls from "./navigation/UserNavigationControls"
 
 interface LayoutProps {
   children: ReactNode
@@ -34,7 +34,7 @@ interface LayoutProps {
 }
 
 const DynamicToaster = dynamic(
-  () => import("../shared-module/components/Notifications/ToasterNotifications"),
+  () => import("../../shared-module/components/Notifications/ToasterNotifications"),
   { ssr: false },
 )
 

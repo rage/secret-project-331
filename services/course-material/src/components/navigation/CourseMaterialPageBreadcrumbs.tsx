@@ -2,13 +2,13 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import { fetchPageChapterAndCourse } from "../services/backend"
-import { Page } from "../shared-module/bindings"
-import Breadcrumbs from "../shared-module/components/Breadcrumbs"
-import BreakFromCentered from "../shared-module/components/Centering/BreakFromCentered"
-import ErrorBanner from "../shared-module/components/ErrorBanner"
-import Spinner from "../shared-module/components/Spinner"
-import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
+import { fetchPageChapterAndCourse } from "../../services/backend"
+import { Page } from "../../shared-module/bindings"
+import Breadcrumbs from "../../shared-module/components/Breadcrumbs"
+import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
+import Spinner from "../../shared-module/components/Spinner"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 interface CourseMaterialPageBreadcrumbsProps {
   page: Page | null

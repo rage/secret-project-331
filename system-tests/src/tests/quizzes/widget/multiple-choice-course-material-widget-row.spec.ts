@@ -23,7 +23,7 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
   //await page.click('button:has-text("Continue")')
   // Click text=Chapter 2: User Experience
   await page.evaluate(() => {
-    window.scrollBy(0, 1800)
+    window.scrollBy(0, 1700)
   })
   await page.locator("text=User Experience").click()
   await expect(page).toHaveURL(

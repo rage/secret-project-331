@@ -56,7 +56,9 @@ const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
           edits={edits}
         />
       )}
-      {pageContext.pageData?.content && <TopicNavigation />}
+      {pageContext.pageData?.content && Boolean(pageContext.pageData?.chapter_id) && (
+        <TopicNavigation />
+      )}
       {/* TODO: Better type for Page.content in bindings. */}
       <div id="content" className={inlineColorStyles}>
         <ContentRenderer

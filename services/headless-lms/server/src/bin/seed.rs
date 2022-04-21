@@ -272,6 +272,17 @@ async fn main() -> Result<()> {
     seed_sample_course(
         &mut conn,
         uh_cs,
+        Uuid::parse_str("0cf67777-0edb-480c-bdb6-13f90c136fc3")?,
+        "Advanced exercise states",
+        "advanced-exercise-states",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
         Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,
         "Glossary course",
         "glossary-course",
@@ -1439,7 +1450,8 @@ async fn seed_sample_course(
         Uuid::new_v5(&course_id, b"c713bbfc-86bf-4877-bd39-53afaf4444b5");
     let exercise_1_slide_1_task_1_spec_3_id =
         Uuid::new_v5(&course_id, b"4027d508-4fad-422e-bb7f-15c613a02cc6");
-    let (exercise_block_1, exercise_1, slide_1, task_1) = example_exercise(
+
+    let (exercise_block_1, exercise_1, slide_1, task_1) = create_best_exercise(
         exercise_1_id,
         exercise_1_slide_1_id,
         exercise_1_slide_1_task_1_id,
@@ -1502,15 +1514,7 @@ async fn seed_sample_course(
         Uuid::new_v5(&course_id, b"c3f257c0-bdc2-4d81-99ff-a71c76fe670a");
     let exercise_4_slide_1_task_1_spec_3_id =
         Uuid::new_v5(&course_id, b"fca5a8ba-50e0-4375-8d4b-9d02762d908c");
-    let exercise_4_slide_1_task_2_id =
-        Uuid::new_v5(&course_id, b"59e3e118-ed98-45df-8b5b-2062f07e69b5");
-    let exercise_4_slide_1_task_2_spec_1_id =
-        Uuid::new_v5(&course_id, b"e4821fe5-3e10-4d13-a458-ca6cd101d8d3");
-    let exercise_4_slide_1_task_2_spec_2_id =
-        Uuid::new_v5(&course_id, b"c5ce9b85-9f11-444c-b96f-2a3f94215fb9");
-    let exercise_4_slide_1_task_2_spec_3_id =
-        Uuid::new_v5(&course_id, b"3119ae1c-b57f-4f51-b191-2860cbb1e5aa");
-    let (exercise_block_2, exercise_2, slide_2, task_2) = example_exercise(
+    let (exercise_block_2, exercise_2, slide_2, task_2) = create_best_exercise(
         exercise_2_id,
         exercise_2_slide_1_id,
         exercise_2_slide_1_task_1_id,
@@ -1520,7 +1524,7 @@ async fn seed_sample_course(
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
     );
-    let (exercise_block_3, exercise_3, slide_3, task_3) = example_exercise(
+    let (exercise_block_3, exercise_3, slide_3, task_3) = create_best_exercise(
         exercise_3_id,
         exercise_3_slide_1_id,
         exercise_3_slide_1_task_1_id,
@@ -1530,7 +1534,7 @@ async fn seed_sample_course(
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
     );
-    let (exercise_block_4, exercise_4, slide_4, task_4_1) = example_exercise(
+    let (exercise_block_4, exercise_4, slide_4, task_4_1) = create_best_exercise(
         exercise_4_id,
         exercise_4_slide_1_id,
         exercise_4_slide_1_task_1_id,
@@ -1539,14 +1543,6 @@ async fn seed_sample_course(
         exercise_4_slide_1_task_1_spec_1_id,
         exercise_4_slide_1_task_1_spec_2_id,
         exercise_4_slide_1_task_1_spec_3_id,
-    );
-    let task_4_2 = example_exercise_task(
-        exercise_4_slide_1_task_2_id,
-        exercise_4_slide_1_id,
-        Uuid::new_v5(&course_id, b"9b5c2d79-fa3f-47c0-86d6-fe85e2b03b59"),
-        exercise_4_slide_1_task_2_spec_1_id,
-        exercise_4_slide_1_task_2_spec_2_id,
-        exercise_4_slide_1_task_2_spec_3_id,
     );
 
     let page2_id = create_page(
@@ -1560,7 +1556,7 @@ async fn seed_sample_course(
             chapter_id: Some(chapter_1.id),
             exercises: vec![exercise_2, exercise_3, exercise_4],
             exercise_slides: vec![slide_2, slide_3, slide_4],
-            exercise_tasks: vec![task_2, task_3, task_4_1, task_4_2],
+            exercise_tasks: vec![task_2, task_3, task_4_1],
             content: serde_json::json!([
                 paragraph(
                     "First chapters second page.",
@@ -1959,6 +1955,109 @@ async fn seed_sample_course(
     )
     .await?;
 
+    let multi_exercise_1_id = Uuid::new_v5(&course_id, b"3abe8579-73f1-4cdf-aba0-3e123fcedaea");
+    let multi_exercise_1_slide_1_id =
+        Uuid::new_v5(&course_id, b"efc7663c-b0fd-4e21-893a-7b7891191e07");
+    let multi_exercise_1_slide_1_task_1_id =
+        Uuid::new_v5(&course_id, b"b8833157-aa58-4472-a09b-98406a82ef42");
+    let multi_exercise_1_slide_1_task_2_id =
+        Uuid::new_v5(&course_id, b"36921424-0a65-4de8-8f92-3be96d695463");
+    let multi_exercise_1_slide_1_task_3_id =
+        Uuid::new_v5(&course_id, b"4c4bc8e5-7108-4f0d-a3d9-54383aa57269");
+    let (multi_exercise_block_1, multi_exercise_1, multi_exercise_1_slides, multi_exercise_1_tasks) =
+        example_exercise_flexible(
+            multi_exercise_1_id,
+            "Multiple task exercise".to_string(),
+            vec![(
+                multi_exercise_1_slide_1_id,
+                vec![
+                    (
+                        multi_exercise_1_slide_1_task_1_id,
+                        "example-exercise".to_string(),
+                        serde_json::json!([paragraph(
+                            "First question.",
+                            Uuid::new_v5(&course_id, b"e972a22b-67ae-4971-b437-70effd5614d4")
+                        )]),
+                        serde_json::json!([
+                            {
+                                "name": "Correct",
+                                "correct": true,
+                                "id": Uuid::new_v5(&course_id, b"0a046287-6b49-405d-ad9e-12f6dc5f9b1d"),
+                            },
+                            {
+                                "name": "Incorrect",
+                                "correct": false,
+                                "id": Uuid::new_v5(&course_id, b"c202540e-9a3f-4ff4-9703-b9921e9eee8e"),
+                            },
+                        ]),
+                    ),
+                    (
+                        multi_exercise_1_slide_1_task_2_id,
+                        "example-exercise".to_string(),
+                        serde_json::json!([paragraph(
+                            "Second question.",
+                            Uuid::new_v5(&course_id, b"e4895ced-757c-401a-8836-b734b75dff54")
+                        )]),
+                        serde_json::json!([
+                            {
+                                "name": "Correct",
+                                "correct": true,
+                                "id": Uuid::new_v5(&course_id, b"e0c2efa8-ac15-4a3c-94bb-7d5e72e57671"),
+                            },
+                            {
+                                "name": "Incorrect",
+                                "correct": false,
+                                "id": Uuid::new_v5(&course_id, b"db5cf7d4-b5bb-43f7-931e-e329cc2e95b1"),
+                            },
+                        ]),
+                    ),
+                    (
+                        multi_exercise_1_slide_1_task_3_id,
+                        "example-exercise".to_string(),
+                        serde_json::json!([paragraph(
+                            "Third question.",
+                            Uuid::new_v5(&course_id, b"13b75f4e-b02d-41fa-b5bc-79adf22d9aef")
+                        )]),
+                        serde_json::json!([
+                            {
+                                "name": "Correct",
+                                "correct": true,
+                                "id": Uuid::new_v5(&course_id, b"856defd2-08dd-4632-aaef-ec71cdfd3bca"),
+                            },
+                            {
+                                "name": "Incorrect",
+                                "correct": false,
+                                "id": Uuid::new_v5(&course_id, b"95ffff70-7dbe-4e39-9480-2a3514e9ea1d"),
+                            },
+                        ]),
+                    ),
+                ],
+            )],
+            Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
+        );
+    create_page(
+        conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/complicated-exercise".to_string(),
+            title: "Complicated exercise page".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![multi_exercise_1],
+            exercise_slides: multi_exercise_1_slides,
+            exercise_tasks: multi_exercise_1_tasks,
+            content: serde_json::json!([
+                paragraph(
+                    "This page has a complicated exercise.",
+                    Uuid::new_v5(&course_id, b"86f1b595-ec82-43a6-954f-c1f8de3d53ac")
+                ),
+                multi_exercise_block_1
+            ]),
+        },
+    )
+    .await?;
+
     let exercise_5_id = Uuid::new_v5(&course_id, b"8bb4faf4-9a34-4df7-a166-89ade530d0f6");
     let exercise_5_slide_1_id = Uuid::new_v5(&course_id, b"b99d1041-7835-491e-a1c8-b47eee8e7ab4");
     let exercise_5_slide_1_task_1_id =
@@ -1969,7 +2068,7 @@ async fn seed_sample_course(
         Uuid::new_v5(&course_id, b"6633ffc7-c76e-4049-840e-90eefa6b49e8");
     let exercise_5_slide_1_task_1_spec_3_id =
         Uuid::new_v5(&course_id, b"d77fb97d-322c-4c5f-a405-8978a8cfb0a9");
-    let (exercise_block_5, exercise_5, exercise_slide_5, exercise_task_5) = example_exercise(
+    let (exercise_block_5, exercise_5, exercise_slide_5, exercise_task_5) = create_best_exercise(
         exercise_5_id,
         exercise_5_slide_1_id,
         exercise_5_slide_1_task_1_id,
@@ -2954,7 +3053,7 @@ fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
 }
 
 #[allow(clippy::too_many_arguments)]
-fn example_exercise(
+fn create_best_exercise(
     exercise_id: Uuid,
     exercise_slide_id: Uuid,
     exercise_task_id: Uuid,
@@ -2969,73 +3068,114 @@ fn example_exercise(
     CmsPageExerciseSlide,
     CmsPageExerciseTask,
 ) {
+    let (exercise_block, exercise, mut slides, mut tasks) = example_exercise_flexible(
+        exercise_id,
+        "Best exercise".to_string(),
+        vec![(
+            exercise_slide_id,
+            vec![(
+                exercise_task_id,
+                "example-exercise".to_string(),
+                serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
+                serde_json::json!([
+                    {
+                        "name": "a",
+                        "correct": false,
+                        "id": spec_1,
+                    },
+                    {
+                        "name": "b",
+                        "correct": true,
+                        "id": spec_2,
+                    },
+                    {
+                        "name": "c",
+                        "correct": true,
+                        "id": spec_3,
+                    },
+                ]),
+            )],
+        )],
+        block_id,
+    );
+    (
+        exercise_block,
+        exercise,
+        slides.swap_remove(0),
+        tasks.swap_remove(0),
+    )
+}
+
+#[allow(clippy::type_complexity)]
+fn example_exercise_flexible(
+    exercise_id: Uuid,
+    exercise_name: String,
+    exercise_slides: Vec<(Uuid, Vec<(Uuid, String, Value, Value)>)>,
+    client_id: Uuid,
+) -> (
+    GutenbergBlock,
+    CmsPageExercise,
+    Vec<CmsPageExerciseSlide>,
+    Vec<CmsPageExerciseTask>,
+) {
     let block = GutenbergBlock {
-        client_id: block_id,
+        client_id,
         name: "moocfi/exercise".to_string(),
         is_valid: true,
         attributes: attributes! {
             "id": exercise_id,
-            "name": "Best exercise".to_string(),
+            "name": exercise_name,
             "dropCap": false,
         },
         inner_blocks: vec![],
     };
+    let slides: Vec<CmsPageExerciseSlide> = exercise_slides
+        .iter()
+        .map(|(slide_id, _)| CmsPageExerciseSlide {
+            id: *slide_id,
+            exercise_id,
+            order_number: 1,
+        })
+        .collect();
+    let tasks: Vec<CmsPageExerciseTask> = exercise_slides
+        .into_iter()
+        .flat_map(|(slide_id, tasks)| {
+            tasks.into_iter().enumerate().map(
+                move |(order_number, (task_id, task_type, assignment, spec))| {
+                    (
+                        slide_id,
+                        task_id,
+                        task_type,
+                        assignment,
+                        spec,
+                        order_number as i32,
+                    )
+                },
+            )
+        })
+        .map(
+            |(slide_id, task_id, exercise_type, assignment, spec, order_number)| {
+                CmsPageExerciseTask {
+                    id: task_id,
+                    exercise_slide_id: slide_id,
+                    assignment,
+                    exercise_type,
+                    private_spec: Some(spec),
+                    order_number,
+                }
+            },
+        )
+        .collect();
     let exercise = CmsPageExercise {
         id: exercise_id,
-        name: "Best exercise".to_string(),
+        name: exercise_name,
         order_number: 1,
-        score_maximum: 1,
+        score_maximum: tasks.len() as i32,
         max_tries_per_slide: None,
         limit_number_of_tries: false,
         deadline: None,
     };
-    let exercise_slide = CmsPageExerciseSlide {
-        id: exercise_slide_id,
-        exercise_id,
-        order_number: 1,
-    };
-    let exercise_task = example_exercise_task(
-        exercise_task_id,
-        exercise_slide_id,
-        paragraph_id,
-        spec_1,
-        spec_2,
-        spec_3,
-    );
-    (block, exercise, exercise_slide, exercise_task)
-}
-
-fn example_exercise_task(
-    exercise_task_id: Uuid,
-    exercise_slide_id: Uuid,
-    paragraph_id: Uuid,
-    spec_1: Uuid,
-    spec_2: Uuid,
-    spec_3: Uuid,
-) -> CmsPageExerciseTask {
-    CmsPageExerciseTask {
-        id: exercise_task_id,
-        exercise_slide_id,
-        assignment: serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
-        exercise_type: "example-exercise".to_string(),
-        private_spec: Some(serde_json::json!([
-            {
-                "name": "a",
-                "correct": false,
-                "id": spec_1,
-            },
-            {
-                "name": "b",
-                "correct": true,
-                "id": spec_2,
-            },
-            {
-                "name": "c",
-                "correct": true,
-                "id": spec_3,
-            },
-        ])),
-    }
+    (block, exercise, slides, tasks)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -3083,6 +3223,7 @@ fn quizzes_exercise(
         assignment: serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
         exercise_type: "quizzes".to_string(),
         private_spec: Some(serde_json::json!(private_spec)),
+        order_number: 0,
     };
     (block, exercise, exercise_slide, exercise_task)
 }
@@ -3196,7 +3337,7 @@ async fn create_exam(
     )
     .await?;
     let (exam_exercise_block_1, exam_exercise_1, exam_exercise_slide_1, exam_exercise_task_1) =
-        example_exercise(
+        create_best_exercise(
             Uuid::new_v5(&course_id, b"b1b16970-60bc-426e-9537-b29bd2185db3"),
             Uuid::new_v5(&course_id, b"ea461a21-e0b4-4e09-a811-231f583b3dcb"),
             Uuid::new_v5(&course_id, b"9d8ccf47-3e83-4459-8f2f-8e546a75f372"),
@@ -3207,7 +3348,7 @@ async fn create_exam(
             Uuid::new_v5(&course_id, b"0b3098e1-c1f1-4b7b-87f8-ef38826cac79"),
         );
     let (exam_exercise_block_2, exam_exercise_2, exam_exercise_slide_2, exam_exercise_task_2) =
-        example_exercise(
+        create_best_exercise(
             Uuid::new_v5(&course_id, b"44f472e5-b726-4c50-89a1-93f4170673f5"),
             Uuid::new_v5(&course_id, b"23182b3d-fbf4-4c0d-93fa-e9ddc199cc52"),
             Uuid::new_v5(&course_id, b"ca105826-5007-439f-87be-c25f9c79506e"),

@@ -665,7 +665,8 @@ export function isCourseMaterialExerciseTask(
     (obj.previous_submission === null ||
       (isExerciseTaskSubmission(obj.previous_submission) as boolean)) &&
     (obj.previous_submission_grading === null ||
-      (isExerciseTaskGrading(obj.previous_submission_grading) as boolean))
+      (isExerciseTaskGrading(obj.previous_submission_grading) as boolean)) &&
+    typeof obj.order_number === "number"
   )
 }
 
@@ -679,7 +680,8 @@ export function isExerciseTask(obj: any, _argumentName?: string): obj is Exercis
     typeof obj.exercise_type === "string" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     (obj.spec_file_id === null || typeof obj.spec_file_id === "string") &&
-    (obj.copied_from === null || typeof obj.copied_from === "string")
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    typeof obj.order_number === "number"
   )
 }
 
@@ -906,7 +908,8 @@ export function isCmsPageExerciseTask(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.exercise_slide_id === "string" &&
-    typeof obj.exercise_type === "string"
+    typeof obj.exercise_type === "string" &&
+    typeof obj.order_number === "number"
   )
 }
 

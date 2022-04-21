@@ -45,6 +45,10 @@ const StTopic = styled.div`
     color: #333;
 
     a {
+      max-width: 30ch;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       text-decoration: none;
       color: #1a2333;
       font-size: 11px;
@@ -130,7 +134,7 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
           left: 0px;
           top: ${offsetpx}px;
           transition: transform 0.3s;
-          transform: ${hidden ? "translateX(-250px);" : "translateX(0px)"};
+          transform: ${hidden ? "translateX(-282px);" : "translateX(0px)"};
         `}
       >
         <h3

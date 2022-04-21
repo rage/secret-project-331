@@ -863,6 +863,9 @@
 <span id="858">858</span>
 <span id="859">859</span>
 <span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1211,6 +1214,7 @@
                 <span class="ident">assignment</span>: <span class="macro">serde_json::json!</span>({<span class="string">&quot;options&quot;</span>: [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]}),
                 <span class="ident">exercise_type</span>: <span class="string">&quot;quiz&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">private_spec</span>: <span class="prelude-val">None</span>,
+                <span class="ident">order_number</span>: <span class="number">1</span>,
             }],
             <span class="ident">organization_id</span>: <span class="ident">id</span>,
         }
@@ -1371,6 +1375,7 @@
                     <span class="ident">model_solution_spec</span>: <span class="prelude-val">None</span>,
                     <span class="ident">previous_submission</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise_task_submission</span>.<span class="ident">clone</span>()),
                     <span class="ident">previous_submission_grading</span>: <span class="prelude-val">Some</span>(<span class="ident">grading</span>.<span class="ident">clone</span>()),
+                    <span class="ident">order_number</span>: <span class="number">1</span>
                 }],
             },
             <span class="ident">exercise_status</span>: <span class="prelude-val">Some</span>(<span class="ident">ExerciseStatus</span> {
@@ -1624,7 +1629,8 @@
                 <span class="ident">private_spec</span>: <span class="prelude-val">None</span>,
                 <span class="ident">spec_file_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
                 <span class="ident">model_solution_spec</span>: <span class="prelude-val">None</span>,
-                <span class="ident">copied_from</span>: <span class="prelude-val">None</span>
+                <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
+                <span class="ident">order_number</span>: <span class="number">1</span>
             },
         }
     );

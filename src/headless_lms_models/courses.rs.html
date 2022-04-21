@@ -860,6 +860,10 @@
 <span id="855">855</span>
 <span id="856">856</span>
 <span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
     <span class="ident">document_schema_processor::GutenbergBlock</span>, <span class="ident">file_store::FileStore</span>,
     <span class="ident">language_tag_to_name::LANGUAGE_TAG_TO_NAME</span>, <span class="ident">ApplicationConfiguration</span>,
@@ -1452,7 +1456,7 @@ WHERE id = $1
     <span class="kw">use</span> <span class="kw">crate</span>::{
         <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">DatabaseChapter</span>, <span class="ident">NewChapter</span>},
         <span class="ident">courses</span>, <span class="ident">exercise_slides</span>,
-        <span class="ident">exercise_tasks</span>::{<span class="self">self</span>, <span class="ident">ExerciseTask</span>},
+        <span class="ident">exercise_tasks</span>::{<span class="self">self</span>, <span class="ident">ExerciseTask</span>, <span class="ident">NewExerciseTask</span>},
         <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">Exercise</span>},
         <span class="ident">organizations</span>, <span class="ident">pages</span>,
         <span class="ident">test_helper</span>::<span class="kw-2">*</span>,
@@ -1601,12 +1605,16 @@ WHERE id = $1
         .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">exercise_task_id</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">exercise_slide_id</span>,
-            <span class="string">&quot;Exercise&quot;</span>,
-            <span class="macro">vec!</span>[],
-            <span class="ident">Value::Null</span>,
-            <span class="ident">Value::Null</span>,
-            <span class="ident">Value::Null</span>,
+            <span class="ident">NewExerciseTask</span> {
+                <span class="ident">exercise_slide_id</span>,
+                <span class="ident">exercise_type</span>: <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">assignment</span>: <span class="macro">vec!</span>[],
+                <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                <span class="ident">spec_file_id</span>: <span class="prelude-val">None</span>,
+                <span class="ident">model_solution_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                <span class="ident">order_number</span>: <span class="number">1</span>,
+            },
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();

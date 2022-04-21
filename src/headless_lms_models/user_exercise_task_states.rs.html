@@ -588,6 +588,19 @@
 <span id="583">583</span>
 <span id="584">584</span>
 <span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exercise_task_gradings</span>::{<span class="ident">ExerciseTaskGrading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
     <span class="ident">exercises</span>::{<span class="ident">ActivityProgress</span>, <span class="ident">GradingProgress</span>},
@@ -864,8 +877,9 @@ grading progress.
         <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
 
         <span class="kw">use</span> <span class="kw">crate</span>::{
-            <span class="ident">chapters</span>, <span class="ident">exercise_slides</span>, <span class="ident">exercise_tasks</span>, <span class="ident">exercises</span>, <span class="ident">pages</span>,
-            <span class="ident">user_exercise_slide_states</span>, <span class="ident">user_exercise_states</span>,
+            <span class="ident">chapters</span>, <span class="ident">exercise_slides</span>,
+            <span class="ident">exercise_tasks</span>::{<span class="self">self</span>, <span class="ident">NewExerciseTask</span>},
+            <span class="ident">exercises</span>, <span class="ident">pages</span>, <span class="ident">user_exercise_slide_states</span>, <span class="ident">user_exercise_states</span>,
         };
 
         <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
@@ -1009,32 +1023,44 @@ grading progress.
             <span class="kw">let</span> <span class="ident">slide_id</span> <span class="op">=</span> <span class="ident">exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise_id</span>, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">task_1</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
                 <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">slide_id</span>,
-                <span class="string">&quot;test-exercise&quot;</span>,
-                <span class="macro">vec!</span>[],
-                <span class="ident">Value::Null</span>,
-                <span class="ident">Value::Null</span>,
-                <span class="ident">Value::Null</span>,
+                <span class="ident">NewExerciseTask</span> {
+                    <span class="ident">exercise_slide_id</span>: <span class="ident">slide_id</span>,
+                    <span class="ident">exercise_type</span>: <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="ident">assignment</span>: <span class="macro">vec!</span>[],
+                    <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                    <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                    <span class="ident">spec_file_id</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">model_solution_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                    <span class="ident">order_number</span>: <span class="number">1</span>,
+                },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">task_2</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
                 <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">slide_id</span>,
-                <span class="string">&quot;test-exercise&quot;</span>,
-                <span class="macro">vec!</span>[],
-                <span class="ident">Value::Null</span>,
-                <span class="ident">Value::Null</span>,
-                <span class="ident">Value::Null</span>,
+                <span class="ident">NewExerciseTask</span> {
+                    <span class="ident">exercise_slide_id</span>: <span class="ident">slide_id</span>,
+                    <span class="ident">exercise_type</span>: <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="ident">assignment</span>: <span class="macro">vec!</span>[],
+                    <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                    <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                    <span class="ident">spec_file_id</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">model_solution_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                    <span class="ident">order_number</span>: <span class="number">2</span>,
+                },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">task_3</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
                 <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">slide_id</span>,
-                <span class="string">&quot;test-exercise&quot;</span>,
-                <span class="macro">vec!</span>[],
-                <span class="ident">Value::Null</span>,
-                <span class="ident">Value::Null</span>,
-                <span class="ident">Value::Null</span>,
+                <span class="ident">NewExerciseTask</span> {
+                    <span class="ident">exercise_slide_id</span>: <span class="ident">slide_id</span>,
+                    <span class="ident">exercise_type</span>: <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="ident">assignment</span>: <span class="macro">vec!</span>[],
+                    <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                    <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                    <span class="ident">spec_file_id</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">model_solution_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                    <span class="ident">order_number</span>: <span class="number">3</span>,
+                },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_or_create_user_exercise_state</span>(

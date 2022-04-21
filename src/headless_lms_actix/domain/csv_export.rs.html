@@ -416,6 +416,14 @@
 <span id="411">411</span>
 <span id="412">412</span>
 <span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections::HashMap</span>,
     <span class="ident">io</span>,
@@ -679,7 +687,7 @@
     <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
         <span class="ident">exercise_slides</span>,
         <span class="ident">exercise_task_gradings::ExerciseTaskGradingResult</span>,
-        <span class="ident">exercise_tasks</span>,
+        <span class="ident">exercise_tasks</span>::{<span class="self">self</span>, <span class="ident">NewExerciseTask</span>},
         <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">GradingProgress</span>},
         <span class="ident">library::grading</span>::{<span class="ident">StudentExerciseSlideSubmission</span>, <span class="ident">StudentExerciseTaskSubmission</span>},
         <span class="ident">users</span>,
@@ -703,12 +711,16 @@
         <span class="kw">let</span> <span class="ident">s2</span> <span class="op">=</span> <span class="ident">exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e2</span>, <span class="number">0</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">et2</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">s2</span>,
-            <span class="string">&quot;&quot;</span>,
-            <span class="macro">vec!</span>[],
-            <span class="ident">Value::Null</span>,
-            <span class="ident">Value::Null</span>,
-            <span class="ident">Value::Null</span>,
+            <span class="ident">NewExerciseTask</span> {
+                <span class="ident">exercise_slide_id</span>: <span class="ident">s2</span>,
+                <span class="ident">exercise_type</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">assignment</span>: <span class="macro">vec!</span>[],
+                <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                <span class="ident">spec_file_id</span>: <span class="prelude-val">None</span>,
+                <span class="ident">model_solution_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                <span class="ident">order_number</span>: <span class="number">1</span>,
+            },
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
@@ -718,12 +730,16 @@
         <span class="kw">let</span> <span class="ident">s3</span> <span class="op">=</span> <span class="ident">exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e3</span>, <span class="number">0</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">et3</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">s3</span>,
-            <span class="string">&quot;&quot;</span>,
-            <span class="macro">vec!</span>[],
-            <span class="ident">Value::Null</span>,
-            <span class="ident">Value::Null</span>,
-            <span class="ident">Value::Null</span>,
+            <span class="ident">NewExerciseTask</span> {
+                <span class="ident">exercise_slide_id</span>: <span class="ident">s3</span>,
+                <span class="ident">exercise_type</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">assignment</span>: <span class="macro">vec!</span>[],
+                <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                <span class="ident">spec_file_id</span>: <span class="prelude-val">None</span>,
+                <span class="ident">model_solution_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
+                <span class="ident">order_number</span>: <span class="number">2</span>,
+            },
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();

@@ -2259,6 +2259,13 @@
 <span id="2254">2254</span>
 <span id="2255">2255</span>
 <span id="2256">2256</span>
+<span id="2257">2257</span>
+<span id="2258">2258</span>
+<span id="2259">2259</span>
+<span id="2260">2260</span>
+<span id="2261">2261</span>
+<span id="2262">2262</span>
+<span id="2263">2263</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -2957,6 +2964,7 @@ AND pages.deleted_at IS NULL
     <span class="kw">pub</span> <span class="ident">assignment</span>: <span class="ident">serde_json::Value</span>,
     <span class="kw">pub</span> <span class="ident">exercise_type</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ExerciseTask</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CmsPageExerciseTask</span> {
@@ -2967,6 +2975,7 @@ AND pages.deleted_at IS NULL
             <span class="ident">assignment</span>: <span class="ident">task</span>.<span class="ident">assignment</span>,
             <span class="ident">exercise_type</span>: <span class="ident">task</span>.<span class="ident">exercise_type</span>,
             <span class="ident">private_spec</span>: <span class="ident">task</span>.<span class="ident">private_spec</span>,
+            <span class="ident">order_number</span>: <span class="ident">task</span>.<span class="ident">order_number</span>,
         }
     }
 }
@@ -3415,9 +3424,10 @@ INSERT INTO exercise_tasks(
     assignment,
     public_spec,
     private_spec,
-    model_solution_spec
+    model_solution_spec,
+    order_number
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id) DO
 UPDATE
 SET exercise_slide_id = $2,
   exercise_type = $3,
@@ -3425,12 +3435,14 @@ SET exercise_slide_id = $2,
   public_spec = $5,
   private_spec = $6,
   model_solution_spec = $7,
+  order_number = $8,
   deleted_at = NULL
 RETURNING id,
   exercise_slide_id,
   assignment,
   exercise_type,
-  private_spec;
+  private_spec,
+  order_number
                 &quot;</span>,
             <span class="ident">safe_for_db_exercise_task_id</span>,
             <span class="ident">safe_for_db_exercise_slide_id</span>,
@@ -3439,6 +3451,7 @@ RETURNING id,
             <span class="ident">public_spec</span>,
             <span class="ident">task_update</span>.<span class="ident">private_spec</span>,
             <span class="ident">model_solution_spec</span>,
+            <span class="ident">task_update</span>.<span class="ident">order_number</span>,
         )
         .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -4468,6 +4481,7 @@ WHERE pages.order_number = $1
             <span class="ident">assignment</span>: <span class="macro">serde_json::json!</span>([]),
             <span class="ident">exercise_type</span>: <span class="string">&quot;exercise&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">private_spec</span>: <span class="prelude-val">None</span>,
+            <span class="ident">order_number</span>: <span class="number">1</span>,
         };
 
         <span class="comment">// Works without exercises</span>

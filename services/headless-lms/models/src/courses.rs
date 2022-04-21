@@ -590,7 +590,7 @@ mod test {
     use crate::{
         chapters::{self, DatabaseChapter, NewChapter},
         courses, exercise_slides,
-        exercise_tasks::{self, ExerciseTask},
+        exercise_tasks::{self, ExerciseTask, NewExerciseTask},
         exercises::{self, Exercise},
         organizations, pages,
         test_helper::*,
@@ -739,12 +739,16 @@ mod test {
         .unwrap();
         let exercise_task_id = exercise_tasks::insert(
             tx.as_mut(),
-            exercise_slide_id,
-            "Exercise",
-            vec![],
-            Value::Null,
-            Value::Null,
-            Value::Null,
+            NewExerciseTask {
+                exercise_slide_id,
+                exercise_type: "test-exercise".to_string(),
+                assignment: vec![],
+                public_spec: Some(Value::Null),
+                private_spec: Some(Value::Null),
+                spec_file_id: None,
+                model_solution_spec: Some(Value::Null),
+                order_number: 1,
+            },
         )
         .await
         .unwrap();

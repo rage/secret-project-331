@@ -9,12 +9,14 @@ interface ExerciseTaskIframeProps {
   url: string
   postThisStateToIFrame: IframeState | null
   setAnswer: (answer: { valid: boolean; data: unknown }) => void
+  title: string
 }
 
 const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({
   url,
   postThisStateToIFrame,
   setAnswer,
+  title,
 }) => {
   const { t } = useTranslation()
   if (!url || url.trim() === "") {
@@ -30,6 +32,7 @@ const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({
         const { data, valid } = messageContainer
         setAnswer({ data, valid })
       }}
+      title={title}
     />
   )
 }

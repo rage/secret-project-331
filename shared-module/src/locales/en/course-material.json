@@ -47,6 +47,7 @@
   "exam-time-to-complete": "You have {{ time-minutes }} minutes to complete the exam after starting",
   "exam-time-up": "Your time has run out and the exam is now closed. Come back to see the results after {{ ends-at }}.",
   "exam-timer-has-run-out": "Time has run out and the exam is now closed.",
+  "exercise-task-content": "Exercise {{ exercise-number }}, task {{ task-number }} content",
   "exercises-in-this-chapter": "Exercises in this chapter",
   "exit": "Exit",
   "failed-to-submit": "Failed to submit {{ error }}",

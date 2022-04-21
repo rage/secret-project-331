@@ -30,6 +30,10 @@ const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
       type: "boolean",
       default: false,
     },
+    order_number: {
+      type: "number",
+      default: 0,
+    },
   },
   edit: enforceExerciseTaskIdDefined(ExerciseTaskEditor),
   save: ExerciseTaskSave,

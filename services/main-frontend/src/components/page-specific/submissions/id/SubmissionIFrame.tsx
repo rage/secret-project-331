@@ -10,6 +10,8 @@ import {
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
 
 const VIEW_SUBMISSION = "view-submission"
+const TITLE = "VIEW SUBMISSION"
+
 interface SubmissionIFrameProps {
   url: string
   public_spec: unknown
@@ -64,6 +66,7 @@ const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
           grading: state.submission_result.grading,
         },
       }}
+      title={TITLE}
     />
   )
 }

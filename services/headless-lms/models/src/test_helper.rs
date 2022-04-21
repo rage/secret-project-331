@@ -248,12 +248,16 @@ macro_rules! insert_data {
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident, slide: $exercise_slide:ident; task: $exercise_task:ident) => {
         let $exercise_task = $crate::exercise_tasks::insert(
             $tx.as_mut(),
-            $exercise_slide,
-            TEST_HELPER_EXERCISE_SERVICE_NAME,
-            vec![],
-            ::serde_json::Value::Null,
-            ::serde_json::Value::Null,
-            ::serde_json::Value::Null,
+            $crate::exercise_tasks::NewExerciseTask {
+                exercise_slide_id: $exercise_slide,
+                exercise_type: TEST_HELPER_EXERCISE_SERVICE_NAME.to_string(),
+                assignment: vec![],
+                public_spec: Some(serde_json::Value::Null),
+                private_spec: Some(serde_json::Value::Null),
+                spec_file_id: None,
+                model_solution_spec: Some(serde_json::Value::Null),
+                order_number: 0,
+            }
         )
         .await
         .unwrap();

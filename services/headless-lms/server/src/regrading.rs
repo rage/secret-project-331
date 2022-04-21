@@ -332,6 +332,7 @@ mod test {
     use models::{
         exercise_services,
         exercise_task_gradings::{ExerciseTaskGradingResult, UserPointsUpdateStrategy},
+        exercise_tasks::NewExerciseTask,
         exercises::{self, GradingProgress},
         library::grading::{
             StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
@@ -350,12 +351,16 @@ mod test {
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
-            slide,
-            "test-exercise",
-            vec![],
-            Value::Null,
-            Value::Null,
-            Value::Null,
+            NewExerciseTask {
+                exercise_slide_id: slide,
+                exercise_type: "test-exercise".to_string(),
+                assignment: vec![],
+                public_spec: Some(Value::Null),
+                private_spec: Some(Value::Null),
+                spec_file_id: None,
+                model_solution_spec: Some(Value::Null),
+                order_number: 0,
+            },
         )
         .await
         .unwrap();
@@ -442,12 +447,16 @@ mod test {
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
-            slide,
-            "test-exercise",
-            vec![],
-            Value::Null,
-            Value::Null,
-            Value::Null,
+            NewExerciseTask {
+                exercise_slide_id: slide,
+                exercise_type: "test-exercise".to_string(),
+                assignment: vec![],
+                public_spec: Some(Value::Null),
+                private_spec: Some(Value::Null),
+                spec_file_id: None,
+                model_solution_spec: Some(Value::Null),
+                order_number: 0,
+            },
         )
         .await
         .unwrap();
@@ -537,12 +546,16 @@ mod test {
 
         let task_1 = models::exercise_tasks::insert(
             tx.as_mut(),
-            slide_1,
-            "test-exercise-1",
-            vec![],
-            Value::Null,
-            Value::Null,
-            Value::Null,
+            NewExerciseTask {
+                exercise_slide_id: slide_1,
+                exercise_type: "test-exercise-1".to_string(),
+                assignment: vec![],
+                public_spec: Some(Value::Null),
+                private_spec: Some(Value::Null),
+                spec_file_id: None,
+                model_solution_spec: Some(Value::Null),
+                order_number: 0,
+            },
         )
         .await
         .unwrap();
@@ -573,12 +586,16 @@ mod test {
             .unwrap();
         let task_2 = models::exercise_tasks::insert(
             tx.as_mut(),
-            slide_2,
-            "test-exercise-2",
-            vec![],
-            Value::Null,
-            Value::Null,
-            Value::Null,
+            NewExerciseTask {
+                exercise_slide_id: slide_2,
+                exercise_type: "test-exercise-2".to_string(),
+                assignment: vec![],
+                public_spec: Some(Value::Null),
+                private_spec: Some(Value::Null),
+                spec_file_id: None,
+                model_solution_spec: Some(Value::Null),
+                order_number: 0,
+            },
         )
         .await
         .unwrap();
@@ -676,12 +693,16 @@ mod test {
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
-            slide,
-            "test-exercise",
-            vec![],
-            Value::Null,
-            Value::Null,
-            Value::Null,
+            NewExerciseTask {
+                exercise_slide_id: slide,
+                exercise_type: "test-exercise".to_string(),
+                assignment: vec![],
+                public_spec: Some(Value::Null),
+                private_spec: Some(Value::Null),
+                spec_file_id: None,
+                model_solution_spec: Some(Value::Null),
+                order_number: 0,
+            },
         )
         .await
         .unwrap();

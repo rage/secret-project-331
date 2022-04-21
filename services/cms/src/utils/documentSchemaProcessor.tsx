@@ -73,6 +73,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
         order_number: exerciseSlideCount,
       })
       exerciseSlideCount = exerciseSlideCount + 1
+      let exerciseTaskCount = 0
       block2.innerBlocks.forEach((block3) => {
         if (block3.name !== "moocfi/exercise-task") {
           return
@@ -83,7 +84,9 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
           exercise_slide_id: block2.attributes.id,
           exercise_type: block3.attributes.exercise_type,
           private_spec: JSON.parse(block3.attributes.private_spec),
+          order_number: exerciseTaskCount,
         })
+        exerciseTaskCount = exerciseTaskCount + 1
       })
     })
     const newBlock: BlockInstance<NormalizedExerciseBlockAttributes> = {
@@ -138,22 +141,25 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
           order_number: slide.order_number,
         },
         isValid: true,
-        innerBlocks: tasks.map((task) => {
-          const denormalizedTask: BlockInstance<ExerciseTaskAttributes> = {
-            // Using task id in tests ensures that this operation is reversible
-            clientId: process.env.NODE_ENV === "test" ? task.id : v4(),
-            name: "moocfi/exercise-task",
-            attributes: {
-              id: task.id,
-              exercise_type: task.exercise_type,
-              private_spec: JSON.stringify(task.private_spec),
-              show_editor: false,
-            },
-            isValid: true,
-            innerBlocks: (task.assignment ?? []) as BlockInstance[],
-          }
-          return denormalizedTask
-        }),
+        innerBlocks: tasks
+          .sort((a, b) => a.order_number - b.order_number)
+          .map((task) => {
+            const denormalizedTask: BlockInstance<ExerciseTaskAttributes> = {
+              // Using task id in tests ensures that this operation is reversible
+              clientId: process.env.NODE_ENV === "test" ? task.id : v4(),
+              name: "moocfi/exercise-task",
+              attributes: {
+                id: task.id,
+                exercise_type: task.exercise_type,
+                private_spec: JSON.stringify(task.private_spec),
+                show_editor: false,
+                order_number: task.order_number,
+              },
+              isValid: true,
+              innerBlocks: (task.assignment ?? []) as BlockInstance[],
+            }
+            return denormalizedTask
+          }),
       }
       return denormalizedSlide
     })

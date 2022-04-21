@@ -548,6 +548,7 @@ INSERT INTO exercise_tasks (
     spec_file_id,
     public_spec,
     model_solution_spec,
+    order_number,
     copied_from
   )
 SELECT uuid_generate_v5($1, id::text),
@@ -558,6 +559,7 @@ SELECT uuid_generate_v5($1, id::text),
   spec_file_id,
   public_spec,
   model_solution_spec,
+  order_number,
   id
 FROM exercise_tasks
 WHERE exercise_slide_id IN (

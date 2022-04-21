@@ -34,10 +34,8 @@ const ExerciseBase: React.FC<Props> = ({
         const green = baseTheme.colors.green[400]
         const red = baseTheme.colors.red[300]
         // Background of the buttons
-        // eslint-disable-next-line i18next/no-literal-string
-        const color = "#6188ff"
-        // eslint-disable-next-line i18next/no-literal-string
-        const chosenColor = "#4210f5"
+        const color = baseTheme.colors.blue[300]
+        const chosenColor = baseTheme.colors.blue[700]
         // eslint-disable-next-line i18next/no-literal-string
         const border = model_solutions ? `4px solid ${correct ? green : red}` : `0`
         return (
@@ -51,7 +49,9 @@ const ExerciseBase: React.FC<Props> = ({
                     background-color: ${selected ? chosenColor : color};
                     border-radius: 1rem;
                     border: ${border};
-                    color: white;
+                    color: ${selected
+                      ? baseTheme.colors.primary[100]
+                      : baseTheme.colors.primary[200]};
                     transition: all 0.3s;
                     cursor: pointer;
                     margin-top: 0.5rem;

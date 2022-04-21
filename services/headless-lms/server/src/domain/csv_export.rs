@@ -261,7 +261,7 @@ mod test {
     use headless_lms_models::{
         exercise_slides,
         exercise_task_gradings::ExerciseTaskGradingResult,
-        exercise_tasks,
+        exercise_tasks::{self, NewExerciseTask},
         exercises::{self, GradingProgress},
         library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission},
         users,
@@ -285,12 +285,16 @@ mod test {
         let s2 = exercise_slides::insert(tx.as_mut(), e2, 0).await.unwrap();
         let et2 = exercise_tasks::insert(
             tx.as_mut(),
-            s2,
-            "",
-            vec![],
-            Value::Null,
-            Value::Null,
-            Value::Null,
+            NewExerciseTask {
+                exercise_slide_id: s2,
+                exercise_type: "".to_string(),
+                assignment: vec![],
+                public_spec: Some(Value::Null),
+                private_spec: Some(Value::Null),
+                spec_file_id: None,
+                model_solution_spec: Some(Value::Null),
+                order_number: 1,
+            },
         )
         .await
         .unwrap();
@@ -300,12 +304,16 @@ mod test {
         let s3 = exercise_slides::insert(tx.as_mut(), e3, 0).await.unwrap();
         let et3 = exercise_tasks::insert(
             tx.as_mut(),
-            s3,
-            "",
-            vec![],
-            Value::Null,
-            Value::Null,
-            Value::Null,
+            NewExerciseTask {
+                exercise_slide_id: s3,
+                exercise_type: "".to_string(),
+                assignment: vec![],
+                public_spec: Some(Value::Null),
+                private_spec: Some(Value::Null),
+                spec_file_id: None,
+                model_solution_spec: Some(Value::Null),
+                order_number: 2,
+            },
         )
         .await
         .unwrap();

@@ -21,8 +21,8 @@ const Submission: React.FC<SubmissionProps> = ({
   const GREEN = baseTheme.colors.green[300]
   const RED = baseTheme.colors.red[300]
 
-  const COLOR = "#6188ff"
-  const CHOSEN_COLOR = "#4210f5"
+  const COLOR = baseTheme.colors.blue[300]
+  const CHOSEN_COLOR = baseTheme.colors.blue[700]
   return (
     <div
       className={css`
@@ -40,7 +40,7 @@ const Submission: React.FC<SubmissionProps> = ({
         }
 
         // eslint-disable-next-line i18next/no-literal-string
-        const border = `4px solid ${color}`
+        const border = optionIsCorrect !== undefined ? `4px solid ${color}` : "none"
         return (
           <button
             role="checkbox"
@@ -49,7 +49,7 @@ const Submission: React.FC<SubmissionProps> = ({
               background-color: ${selected ? CHOSEN_COLOR : COLOR};
               border-radius: 1rem;
               border: ${border};
-              color: white;
+              color: ${selected ? baseTheme.colors.primary[100] : baseTheme.colors.primary[200]};
               margin-top: 0.5rem;
               margin-bottom: 0.5rem;
             `}

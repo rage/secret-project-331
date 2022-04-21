@@ -31,31 +31,33 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
 ): Array<IframeState> | null {
   switch (action.type) {
     case "exerciseDownloaded":
-      return action.payload.map<IframeState>((exerciseTask) => {
-        const prevExerciseTask = prev?.find((x) => x.exercise_task_id === exerciseTask.id)
-        if (prevExerciseTask && prevExerciseTask?.view_type === "view-submission") {
-          return prevExerciseTask
-        } else if (exerciseTask.previous_submission) {
+      return action.payload
+        .sort((a, b) => a.order_number - b.order_number)
+        .map<IframeState>((exerciseTask) => {
+          const prevExerciseTask = prev?.find((x) => x.exercise_task_id === exerciseTask.id)
+          if (prevExerciseTask && prevExerciseTask?.view_type === "view-submission") {
+            return prevExerciseTask
+          } else if (exerciseTask.previous_submission) {
+            return {
+              view_type: "view-submission",
+              exercise_task_id: exerciseTask.id,
+              data: {
+                public_spec: exerciseTask.public_spec,
+                model_solution_spec: exerciseTask.model_solution_spec,
+                grading: exerciseTask.previous_submission_grading,
+                user_answer: exerciseTask.previous_submission.data_json,
+              },
+            }
+          }
           return {
-            view_type: "view-submission",
+            view_type: "exercise",
             exercise_task_id: exerciseTask.id,
             data: {
               public_spec: exerciseTask.public_spec,
-              model_solution_spec: exerciseTask.model_solution_spec,
-              grading: exerciseTask.previous_submission_grading,
-              user_answer: exerciseTask.previous_submission.data_json,
+              previous_submission: exerciseTask.previous_submission,
             },
           }
-        }
-        return {
-          view_type: "exercise",
-          exercise_task_id: exerciseTask.id,
-          data: {
-            public_spec: exerciseTask.public_spec,
-            previous_submission: exerciseTask.previous_submission,
-          },
-        }
-      })
+        })
     case "submissionGraded": {
       return action.payload.exercise_task_submission_results.map((submissionResult) => {
         const prevTask = prev?.find(

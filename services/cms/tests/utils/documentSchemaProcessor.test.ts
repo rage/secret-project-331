@@ -87,6 +87,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
           innerBlocks: [],
         },
       ],
+      order_number: 0,
       exercise_type: "quiz",
       private_spec: {
         options: ["a", "b", "c"],
@@ -119,6 +120,7 @@ const exampleUnnormalizedDocumentExerciseTaskAttributes: ExerciseTaskAttributes 
   exercise_type: "quiz",
   private_spec: '{"options":["a","b","c"]}',
   show_editor: false,
+  order_number: 0,
 }
 
 const exampleUnnormalizedDocument: UnnormalizedDocument = {

@@ -17,6 +17,7 @@ interface ExerciseTaskProps {
   isExam: boolean
   postThisStateToIFrame: IframeState | undefined
   setAnswer: (answer: { valid: boolean; data: unknown }) => void
+  exerciseNumber: number
 }
 
 const ExerciseTask: React.FC<ExerciseTaskProps> = ({
@@ -25,6 +26,7 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
   isExam,
   postThisStateToIFrame,
   setAnswer,
+  exerciseNumber,
 }) => {
   const { signedIn } = useContext(LoginStateContext)
   const { t } = useTranslation()
@@ -60,6 +62,10 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
             postThisStateToIFrame={postThisStateToIFrame}
             url={`${url}?width=${narrowContainerWidthPx}`}
             setAnswer={setAnswer}
+            title={t("exercise-task-content", {
+              "exercise-number": exerciseNumber,
+              "task-number": exerciseTask.order_number,
+            })}
           />
         ) : (
           t("dont-know-how-to-render-this-assignment")

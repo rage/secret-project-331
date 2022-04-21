@@ -13,6 +13,7 @@ import withNoSsr from "../../shared-module/utils/withNoSsr"
 
 const VIEW_TYPE = "exercise-editor"
 const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."
+const IFRAME_EDITOR = "IFRAME EDITOR"
 
 interface ExerciseTaskIFrameEditorProps {
   exerciseTaskId: string
@@ -66,6 +67,7 @@ const ExerciseTaskIFrameEditor: React.FC<ExerciseTaskIFrameEditorProps> = ({
             }
           : undefined
       }
+      title={IFRAME_EDITOR}
     />
   )
 }

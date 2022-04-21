@@ -89,6 +89,7 @@ const Event = styled.div`
   word-break: break-all;
 `
 export interface Timeline {
+  id: string
   year: string
   content: string
 }
@@ -100,6 +101,27 @@ export type TimelineEditorProps =
 
 const TimelineEditor: React.FC<TimelineEditorProps> = () => {
   const [state, setState] = useState<Timeline[]>([])
+
+  const handleOnIput = (e: any) => {
+    const value = e.currentTarget.innerText
+    const name = e.currentTarget.dataset.name
+    const id = e.currentTarget.id
+    setState((prevState) => {
+      return prevState.map((item) => {
+        return item.id === id
+          ? name === "date"
+            ? {
+                ...item,
+                year: value,
+              }
+            : {
+                ...item,
+                content: value,
+              }
+          : item
+      })
+    })
+  }
   return (
     <Wrapper>
       <span>Timeline instruction</span>
@@ -108,9 +130,25 @@ const TimelineEditor: React.FC<TimelineEditorProps> = () => {
       <h2>Configure the correct time and event</h2>
       {state &&
         state.map((item) => (
-          <List key={item.year}>
-            <Date>{item.year}</Date>
-            <Event>{item.content}</Event>
+          <List key={item.id}>
+            <Date
+              contentEditable="true"
+              onBlur={handleOnIput}
+              id={item.id}
+              data-name="date"
+              suppressContentEditableWarning={true}
+            >
+              {item.year}
+            </Date>
+            <Event
+              id={item.id}
+              contentEditable="true"
+              onBlur={handleOnIput}
+              data-name="event"
+              suppressContentEditableWarning={true}
+            >
+              {item.content}
+            </Event>
             <DeleteBtn
               onClick={() => {
                 setState((prevState) => {
@@ -139,6 +177,7 @@ const TimelineEditor: React.FC<TimelineEditorProps> = () => {
             setState((state) => [
               ...state,
               {
+                id: `id-${year}`,
                 year: year,
                 content: event,
               },

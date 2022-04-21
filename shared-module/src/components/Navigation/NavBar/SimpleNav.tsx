@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../styles"
+import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../utils/constants"
 
 import { NavigationProps } from "."
 
@@ -21,7 +22,7 @@ const Navbar = css`
   align-items: center;
   font-size: 1rem;
   padding: 0 4rem;
-  margin-bottom: 2rem;
+  margin-bottom: ${MARGIN_BETWEEN_NAVBAR_AND_CONTENT};
   border-bottom: 2px solid ${baseTheme.colors.grey[700]};
 
   &:focus-visible {

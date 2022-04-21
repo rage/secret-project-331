@@ -10,7 +10,9 @@ import Footer from "../shared-module/components/Footer"
 import LoginControls from "../shared-module/components/LoginControls"
 import { Menu, NavBar } from "../shared-module/components/Navigation/NavBar"
 import SkipLink from "../shared-module/components/SkipLink"
+import { PageMarginOffset } from "../shared-module/components/layout/PageMarginOffset"
 import { respondToOrLarger } from "../shared-module/styles/respond"
+import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../shared-module/utils/constants"
 
 import EditorBreadcrumbs from "./breadcrumbs/EditorBreadcrumbs"
 
@@ -34,7 +36,7 @@ const Layout: React.FC<LayoutProps> = ({
   children,
   title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
   navVariant,
-  faqUrl,
+  // faqUrl,
   licenseUrl,
   returnToPath,
 }) => {
@@ -84,7 +86,12 @@ const Layout: React.FC<LayoutProps> = ({
           id="maincontent"
         >
           <Centered variant="narrow">
-            <EditorBreadcrumbs />
+            <PageMarginOffset
+              marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
+              marginBottom={MARGIN_BETWEEN_NAVBAR_AND_CONTENT}
+            >
+              <EditorBreadcrumbs />
+            </PageMarginOffset>
             {children}
           </Centered>
         </main>

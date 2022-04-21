@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
 
-interface CourseMaterialPageMarginOffsetProps {
+interface PageMarginOffsetProps {
   marginTop: string
   marginBottom: string
 }
 
-export const CourseMaterialPageMarginOffset: React.FC<CourseMaterialPageMarginOffsetProps> = ({
+export const PageMarginOffset: React.FC<PageMarginOffsetProps> = ({
   marginBottom,
   marginTop,
   children,

@@ -58,5 +58,6 @@
   "show": "show",
   "hide": "hide",
   "submit": "Submit",
-  "set-field-value": "Set {{name}}"
+  "set-field-value": "Set {{name}}",
+  "in-this-page": "In this page"
 }

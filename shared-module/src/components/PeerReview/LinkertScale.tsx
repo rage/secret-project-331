@@ -41,7 +41,8 @@ const Question = styled.span`
 const Linkerts = styled.div`
   background: #f9f9f9;
   min-height: 100px;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 `
 const Linkert = styled.div`
   width: 200px;

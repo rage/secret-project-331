@@ -34,10 +34,11 @@ const Wrapper = styled.div`
   }
 
   div:first-of-type {
-    margin-right: 0;
+    margin: 0 auto;
 
     ${respondToOrLarger.md} {
       padding-right: 20px;
+      margin-right: 0;
     }
   }
 `
@@ -105,10 +106,12 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
         <div
           className={css`
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             align-content: space-between;
             grid-gap: 1em;
-            width: 15rem;
+            ${respondToOrLarger.md} {
+              grid-template-columns: 1fr 1fr;
+            }
           `}
         >
           {/* eslint-disable-next-line i18next/no-literal-string */}

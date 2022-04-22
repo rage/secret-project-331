@@ -10,7 +10,7 @@ const GlobalPermissions: React.FC<unknown> = () => {
   const { t } = useTranslation()
 
   return (
-    <Layout navVariant="complex">
+    <Layout navVariant="simple">
       <div
         className={css`
           margin-top: 40px;

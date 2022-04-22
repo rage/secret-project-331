@@ -20,11 +20,11 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
     page.locator("text=Introduction to Course Material").click(),
   ])
   // Click button:has-text("Continue")
-  //await page.click('button:has-text("Continue")')
+  // await page.click('button:has-text("Continue")')
   // Click text=Chapter 2: User Experience
-  await page.evaluate(() => {
-    window.scrollBy(0, 1800)
-  })
+  // await page.evaluate(() => {
+  //   window.scrollBy(0, 1600)
+  // })
   await page.locator("text=User Experience").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2",

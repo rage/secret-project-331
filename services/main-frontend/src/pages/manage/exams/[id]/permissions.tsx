@@ -25,7 +25,7 @@ const ExamPermissions: React.FC<Props> = ({ query }) => {
   const exam = useQuery(`exam-${query.id}`, () => fetchExam(query.id))
 
   return (
-    <Layout navVariant="complex">
+    <Layout navVariant="simple">
       <div
         className={css`
           margin-top: 40px;

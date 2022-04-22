@@ -25,7 +25,7 @@ const OrganizationPermissions: React.FC<Props> = ({ query }) => {
   const organization = useQuery(`organization-${query.id}`, () => fetchOrganization(query.id))
 
   return (
-    <Layout navVariant="complex">
+    <Layout navVariant="simple">
       <div
         className={css`
           margin-top: 40px;

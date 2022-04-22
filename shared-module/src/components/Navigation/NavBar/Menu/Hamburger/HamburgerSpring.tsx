@@ -162,11 +162,17 @@ const Button: React.FC<ButtonProps> = (props) => {
     className,
     isActive = false,
     Lines = StyledLines,
+    toggleButton,
     ...rest
   } = props
 
   return (
-    <StyledButton {...{ buttonWidth, buttonColor, className }} {...rest} id="main-navigation-menu">
+    <StyledButton
+      onClick={toggleButton}
+      {...{ buttonWidth, buttonColor, className }}
+      {...rest}
+      id="main-navigation-menu"
+    >
       <Box {...{ buttonWidth }}>
         <Lines {...{ buttonWidth, barColor, isActive }} />
       </Box>

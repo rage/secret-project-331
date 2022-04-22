@@ -5,12 +5,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "../../styles"
-import { respondToOrLarger } from "../../styles/respond"
-import { runCallbackIfEnterPressed } from "../../utils/accessibility"
-import Button from "../Button"
-import Hamburger from "../Hamburger"
-import LoginControls from "../LoginControls"
+import { baseTheme } from "../../../styles"
+import { respondToOrLarger } from "../../../styles/respond"
+import { runCallbackIfEnterPressed } from "../../../utils/accessibility"
+import Button from "../../Button"
+import LoginControls from "../../LoginControls"
+
+import Hamburger from "./Menu/Hamburger/Hamburger"
 
 import { NavigationProps } from "."
 
@@ -242,7 +243,7 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
         role="button"
         aria-label={t("open-menu")}
       >
-        <Hamburger />
+        <Hamburger isActive={clicked} toggleButton={callback} />
       </div>
 
       <ol className={clicked ? cx(navMenu, active) : cx(navMenu)}>

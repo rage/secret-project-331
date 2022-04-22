@@ -7,9 +7,12 @@ import { useTranslation } from "react-i18next"
 
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
-import Navbar from "../shared-module/components/Navigation"
+import LoginControls from "../shared-module/components/LoginControls"
+import { Menu, NavBar } from "../shared-module/components/Navigation/NavBar"
 import SkipLink from "../shared-module/components/SkipLink"
+import { PageMarginOffset } from "../shared-module/components/layout/PageMarginOffset"
 import { respondToOrLarger } from "../shared-module/styles/respond"
+import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../shared-module/utils/constants"
 
 import EditorBreadcrumbs from "./breadcrumbs/EditorBreadcrumbs"
 
@@ -33,7 +36,7 @@ const Layout: React.FC<LayoutProps> = ({
   children,
   title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
   navVariant,
-  faqUrl,
+  // faqUrl,
   licenseUrl,
   returnToPath,
 }) => {
@@ -55,23 +58,24 @@ const Layout: React.FC<LayoutProps> = ({
       <div
         // Push footer to bottom of page, e.g. on empty body
         className={css`
-          display: flex;
-          flex-direction: column;
           height: 100%;
           min-height: 100vh;
         `}
       >
         <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
-        <Navbar
-          faqUrl={faqUrl}
-          variant={navVariant ?? "complex"}
+        <NavBar
+          // faqUrl={faqUrl}
+          variant={navVariant ?? "simple"}
           // Return to path can be override per page
-          returnToPath={returnToPath ?? returnPath}
-        ></Navbar>
+          // returnToPath={returnToPath ?? returnPath}
+        >
+          <Menu>
+            <LoginControls returnToPath={returnToPath ?? returnPath} />
+          </Menu>
+        </NavBar>
         {/* Do not touch flex */}
         <main
           className={css`
-            flex: 1;
             /* Sidebar hidden on small screens */
             margin-right: 0;
             ${respondToOrLarger.xl} {
@@ -82,7 +86,12 @@ const Layout: React.FC<LayoutProps> = ({
           id="maincontent"
         >
           <Centered variant="narrow">
-            <EditorBreadcrumbs />
+            <PageMarginOffset
+              marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
+              marginBottom={MARGIN_BETWEEN_NAVBAR_AND_CONTENT}
+            >
+              <EditorBreadcrumbs />
+            </PageMarginOffset>
             {children}
           </Centered>
         </main>

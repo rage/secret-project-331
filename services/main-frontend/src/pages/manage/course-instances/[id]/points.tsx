@@ -61,7 +61,7 @@ const CourseInstancePointsList: React.FC<CourseInstancePointsListProps> = ({ que
     : 0
 
   return (
-    <Layout navVariant="complex">
+    <Layout navVariant="simple">
       <div
         className={css`
           display: flex;

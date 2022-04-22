@@ -25,7 +25,7 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
   )
 
   return (
-    <Layout navVariant="complex">
+    <Layout navVariant="simple">
       <div>
         <h4>{t("header-submissions")}</h4>
         {getExerciseSubmissions.isError && (

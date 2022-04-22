@@ -21,7 +21,7 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
   const getSubmissionInfo = useQuery(`submission-${query.id}`, () => fetchSubmissionInfo(query.id))
 
   return (
-    <Layout navVariant="complex">
+    <Layout navVariant="simple">
       <div>
         {getSubmissionInfo.isError && (
           <ErrorBanner variant={"readOnly"} error={getSubmissionInfo.error} />

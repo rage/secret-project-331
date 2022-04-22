@@ -150,7 +150,7 @@ test("test", async ({ page, headless }) => {
   await page.click(':nth-match(:text("Accept"), 1)')
 
   await page.click(':nth-match(:text("Edit and accept"), 2)')
-  await page.fill('input[value="Like this!"]', "Like this!!!!!")
+  await page.fill('textarea:has-text("Like this!")', "Like this!!!!!")
   await page.click(':nth-match(:text("Reject"), 3)')
 
   await expectScreenshotsToMatchSnapshots({

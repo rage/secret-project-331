@@ -2,32 +2,27 @@
 import { Meta, Story } from "@storybook/react"
 import React from "react"
 
-import Navigation from "../src/components/Navigation/index"
+import { NavBar } from "../src/components/Navigation/NavBar"
 
 export default {
-  title: "Components/Navigation/Nav",
-  component: Navigation,
+  title: "Components/NavBar/Nav",
+  component: NavBar,
 } as Meta
 
-const Component = Navigation
+const Component = NavBar
 
-type ComponentProps = React.ComponentProps<typeof Navigation>
+type ComponentProps = React.ComponentProps<typeof NavBar>
 
 const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {...args} />
 
 export const Simple: Story<ComponentProps> = Template.bind({})
 Simple.args = {
-  children: "Navigation",
+  children: "NavBar",
   variant: "simple",
 }
 
 export const Complex: Story<ComponentProps> = Template.bind({})
 Complex.args = {
-  children: "Navigation",
+  children: "NavBar",
   variant: "complex",
-}
-export const Breadcrumbs: Story<ComponentProps> = Template.bind({})
-Breadcrumbs.args = {
-  children: "Navigation",
-  variant: "breadcrumbs",
 }

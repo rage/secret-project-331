@@ -21,6 +21,7 @@ export type Action =
   | { type: "delete_answer" }
   | { type: "edit_role"; variant: UserRole }
   | { type: "create_courses_or_exams" }
+  | { type: "usually_unacceptable_deletion" }
 
 export type Resource =
   | { type: "global_permissions" }

@@ -122,7 +122,13 @@ async fn delete_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    authorize(
+        &mut conn,
+        Act::UsuallyUnacceptableDeletion,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
     let course = models::courses::delete_course(&mut conn, *course_id).await?;
     Ok(web::Json(course))
 }

@@ -16,6 +16,7 @@ import {
 import Button from "../../../../../../shared-module/components/Button"
 import DiffFormatter from "../../../../../../shared-module/components/DiffFormatter"
 import HideTextInSystemTests from "../../../../../../shared-module/components/HideTextInSystemTests"
+import TextArea from "../../../../../../shared-module/components/InputFields/TextAreaField"
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
 import TimeComponent from "../../../../../../shared-module/components/TimeComponent"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
@@ -91,10 +92,11 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
         </div>
 
         {editingBlocks.has(block.id) && (
-          <TextField
+          <TextArea
             className={css`
               width: 100%;
             `}
+            autoResize
             label={t(`change-request-edited-result-label`)}
             defaultValue={block.accept_preview ?? undefined}
             onChange={(newValue) =>

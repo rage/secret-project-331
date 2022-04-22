@@ -96,7 +96,11 @@ export const fetchCoursePageByPath = async (
   path: string,
 ): Promise<CoursePageWithUserData> => {
   const headers: AxiosRequestHeaders = {}
-  if (document.referrer && document.referrer !== "") {
+  if (
+    document.referrer &&
+    document.referrer !== "" &&
+    !referrerIsTheCurrentSite(document.referrer)
+  ) {
     headers["Orignal-Referrer"] = document.referrer
   }
 
@@ -125,6 +129,16 @@ export const fetchCoursePageByPath = async (
     headers: headers,
   })
   return validateResponse(response, isCoursePageWithUserData)
+}
+
+const referrerIsTheCurrentSite = (referrer: string): boolean => {
+  try {
+    const referrerUrl = new URL(referrer)
+    return referrerUrl.hostname === window.location.hostname
+  } catch {
+    // If not a valid url
+    return false
+  }
 }
 
 export const fetchCourseInstance = async (courseId: string): Promise<CourseInstance | null> => {

@@ -70,7 +70,7 @@ const UpdateCourseForm: React.FC<UpdateCourseFormProps> = ({
         </FieldContainer>
         <FieldContainer>
           <CheckBox
-            label={t("test")}
+            label={t("test-course")}
             onChange={() => {
               setTestStatus(!testStatus)
             }}

@@ -400,6 +400,7 @@ export interface Exercise {
   copied_from: string | null
   max_tries_per_slide: number | null
   limit_number_of_tries: boolean
+  needs_peer_review: boolean
 }
 
 export interface ExerciseStatus {
@@ -638,6 +639,35 @@ export interface PageChapterAndCourseInformation {
   chapter_front_page_url_path: string | null
   organization_slug: string
 }
+
+export interface PeerReview {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_id: string
+  exercise_id: string | null
+}
+
+export interface NewPeerReviewQuestion {
+  peer_review_id: string
+  order_number: number
+  title: string
+  question_type: PeerReviewQuestionType
+}
+
+export interface PeerReviewQuestion {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  peer_review_id: string
+  order_number: number
+  title: string
+  question_type: PeerReviewQuestionType
+}
+
+export type PeerReviewQuestionType = "Essay" | "Scale"
 
 export interface PlaygroundExample {
   id: string

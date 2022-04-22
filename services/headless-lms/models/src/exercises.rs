@@ -28,6 +28,7 @@ pub struct Exercise {
     pub copied_from: Option<Uuid>,
     pub max_tries_per_slide: Option<i32>,
     pub limit_number_of_tries: bool,
+    pub needs_peer_review: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

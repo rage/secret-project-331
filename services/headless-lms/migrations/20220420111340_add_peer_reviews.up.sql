@@ -1,3 +1,7 @@
+-- Add peer review meta field to exercises
+ALTER TABLE exercises
+ADD COLUMN needs_peer_review BOOLEAN NOT NULL DEFAULT FALSE;
+COMMENT ON COLUMN exercises.needs_peer_review IS 'Does this exercise need to be peer reviewed before it can be marked as complete. The corresponding peer review can be found from the peer reviews table.';
 -- Add peer reviews table
 CREATE TABLE peer_reviews (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

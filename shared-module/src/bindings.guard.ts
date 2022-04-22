@@ -82,6 +82,7 @@ import {
   NewExam,
   NewFeedback,
   NewPage,
+  NewPeerReviewQuestion,
   NewProposedBlockEdit,
   NewProposedPageEdits,
   OEmbedResponse,
@@ -97,6 +98,9 @@ import {
   PageSearchResult,
   PageWithExercises,
   Pagination,
+  PeerReview,
+  PeerReviewQuestion,
+  PeerReviewQuestionType,
   PlaygroundExample,
   PlaygroundExampleData,
   PointMap,
@@ -724,7 +728,8 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     typeof obj.order_number === "number" &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
     (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
-    typeof obj.limit_number_of_tries === "boolean"
+    typeof obj.limit_number_of_tries === "boolean" &&
+    typeof obj.needs_peer_review === "boolean"
   )
 }
 
@@ -1099,6 +1104,52 @@ export function isPageChapterAndCourseInformation(
       typeof obj.chapter_front_page_url_path === "string") &&
     typeof obj.organization_slug === "string"
   )
+}
+
+export function isPeerReview(obj: any, _argumentName?: string): obj is PeerReview {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.course_id === "string" &&
+    (obj.exercise_id === null || typeof obj.exercise_id === "string")
+  )
+}
+
+export function isNewPeerReviewQuestion(
+  obj: any,
+  _argumentName?: string,
+): obj is NewPeerReviewQuestion {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.peer_review_id === "string" &&
+    typeof obj.order_number === "number" &&
+    typeof obj.title === "string" &&
+    (isPeerReviewQuestionType(obj.question_type) as boolean)
+  )
+}
+
+export function isPeerReviewQuestion(obj: any, _argumentName?: string): obj is PeerReviewQuestion {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.peer_review_id === "string" &&
+    typeof obj.order_number === "number" &&
+    typeof obj.title === "string" &&
+    (isPeerReviewQuestionType(obj.question_type) as boolean)
+  )
+}
+
+export function isPeerReviewQuestionType(
+  obj: any,
+  _argumentName?: string,
+): obj is PeerReviewQuestionType {
+  return obj === "Essay" || obj === "Scale"
 }
 
 export function isPlaygroundExample(obj: any, _argumentName?: string): obj is PlaygroundExample {

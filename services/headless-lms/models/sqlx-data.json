@@ -270,6 +270,11 @@
           "ordinal": 14,
           "name": "limit_number_of_tries",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 15,
+          "name": "needs_peer_review",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -290,6 +295,7 @@
         true,
         true,
         true,
+        false,
         false
       ]
     }
@@ -967,6 +973,47 @@
       "nullable": [false, false, false, false, false, true, false]
     }
   },
+  "134801b0115149b2e347824bdb18c56caa80d48f94198bb9d606fb492a3a5e51": {
+    "query": "\nSELECT *\nFROM peer_reviews\nWHERE course_id = $1\n  AND exercise_id IS NULL\n  AND deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, false, true]
+    }
+  },
   "13b0e10930d6dfb86d0ca5bf493c6741ec5faa14fd199a7c407197568f40f3f3": {
     "query": "\nSELECT t.*\nFROM exercise_tasks t\n  JOIN exercise_slides s ON (t.exercise_slide_id = s.id)\nWHERE s.exercise_id = $1\n  AND s.deleted_at IS NULL\n  AND t.deleted_at IS NULL;\n        ",
     "describe": {
@@ -1444,6 +1491,11 @@
           "ordinal": 14,
           "name": "limit_number_of_tries",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 15,
+          "name": "needs_peer_review",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -1464,6 +1516,7 @@
         true,
         true,
         true,
+        false,
         false
       ]
     }
@@ -2252,6 +2305,47 @@
       "nullable": [false]
     }
   },
+  "2b6ec39d00741b228750a6e106cb14d702a5e306217576030f8938b25a6f5b81": {
+    "query": "\nSELECT *\nFROM peer_reviews\nWHERE exercise_id = $1\n  AND deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, false, true]
+    }
+  },
   "2b8baf4e767a3e3d591a65f5b99bfe8f1a44e8dce3d446800c8ae7ae5a3717a5": {
     "query": "\nSELECT p.url_path as url_path,\n  p.title as title,\n  c.chapter_number as chapter_number,\n  c.id as chapter_id,\n  c.opens_at as chapter_opens_at,\n  c.front_page_id as chapter_front_page_id\nFROM chapters c\n  INNER JOIN pages p on c.id = p.chapter_id\nWHERE c.chapter_number = (\n    SELECT MIN(ca.chapter_number)\n    FROM chapters ca\n    WHERE ca.chapter_number > $1\n      AND ca.deleted_at IS NULL\n  )\n  AND c.course_id = $2\n  AND p.deleted_at IS NULL\nORDER BY p.order_number\nLIMIT 1;\n        ",
     "describe": {
@@ -2500,6 +2594,11 @@
           "ordinal": 14,
           "name": "limit_number_of_tries",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 15,
+          "name": "needs_peer_review",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -2520,6 +2619,7 @@
         true,
         true,
         true,
+        false,
         false
       ]
     }
@@ -4043,6 +4143,11 @@
           "ordinal": 14,
           "name": "limit_number_of_tries",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 15,
+          "name": "needs_peer_review",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -4063,6 +4168,7 @@
         true,
         true,
         true,
+        false,
         false
       ]
     }
@@ -4668,6 +4774,11 @@
           "ordinal": 14,
           "name": "limit_number_of_tries",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 15,
+          "name": "needs_peer_review",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -4688,6 +4799,7 @@
         true,
         true,
         true,
+        false,
         false
       ]
     }
@@ -7188,6 +7300,11 @@
           "ordinal": 14,
           "name": "limit_number_of_tries",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 15,
+          "name": "needs_peer_review",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -7208,6 +7325,7 @@
         true,
         true,
         true,
+        false,
         false
       ]
     }
@@ -8471,6 +8589,11 @@
           "ordinal": 14,
           "name": "limit_number_of_tries",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 15,
+          "name": "needs_peer_review",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -8491,6 +8614,7 @@
         true,
         true,
         true,
+        false,
         false
       ]
     }
@@ -9083,6 +9207,11 @@
           "ordinal": 14,
           "name": "limit_number_of_tries",
           "type_info": "Bool"
+        },
+        {
+          "ordinal": 15,
+          "name": "needs_peer_review",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -9103,6 +9232,7 @@
         true,
         true,
         true,
+        false,
         false
       ]
     }

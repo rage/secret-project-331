@@ -43,6 +43,8 @@ use headless_lms_models::{
         CoursePageWithUserData, Page, PageChapterAndCourseInformation, PageInfo,
         PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
+    peer_review_questions::{PeerReviewQuestion, PeerReviewQuestionType},
+    peer_reviews::PeerReview,
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
     proposed_page_edits::{PageProposal, ProposalCount},
@@ -160,6 +162,7 @@ fn main() {
         copied_from: None,
         max_tries_per_slide: Some(17),
         limit_number_of_tries: true,
+        needs_peer_review: false,
     };
     let exercise_slide_submission = ExerciseSlideSubmission {
         id,
@@ -269,6 +272,16 @@ fn main() {
         upstream_id: None,
         email: "email@example.com".to_string(),
     };
+    let peer_review_question = PeerReviewQuestion {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        peer_review_id: id,
+        order_number: 0,
+        title: "Was the answer well thought out?".to_string(),
+        question_type: PeerReviewQuestionType::Essay,
+    };
     let playground_example = PlaygroundExample {
         id,
         created_at,
@@ -370,6 +383,19 @@ fn main() {
             }
         ]
     );
+    write_docs!(
+        PeerReview,
+        PeerReview {
+            id,
+            created_at,
+            updated_at,
+            deleted_at,
+            course_id: course.id,
+            exercise_id: Some(exercise.id),
+        }
+    );
+    write_docs!(PeerReviewQuestion, peer_review_question.clone());
+    write_docs!(Vec<PeerReviewQuestion>, vec![peer_review_question]);
     write_docs!(
         Vec<PageWithExercises>,
         vec![PageWithExercises {

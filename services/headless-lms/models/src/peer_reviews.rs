@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{exercises::Exercise, prelude::*};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -63,6 +63,60 @@ WHERE id = $1
         id
     )
     .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn try_to_get_for_exercise(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+) -> ModelResult<Option<PeerReview>> {
+    let peer_review = try_to_get_by_exercise_id(conn, exercise.id).await?;
+    if peer_review.is_some() {
+        return Ok(peer_review);
+    }
+    let course_id = exercise.course_id.ok_or_else(|| {
+        ModelError::PreconditionFailed("Exercise is not part of a course.".to_string())
+    })?;
+    let peer_review = try_to_get_default_for_course_by_course_id(conn, course_id).await?;
+    Ok(peer_review)
+}
+
+pub async fn try_to_get_by_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<Option<PeerReview>> {
+    let res = sqlx::query_as!(
+        PeerReview,
+        "
+SELECT *
+FROM peer_reviews
+WHERE exercise_id = $1
+  AND deleted_at IS NULL;
+        ",
+        exercise_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn try_to_get_default_for_course_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Option<PeerReview>> {
+    let res = sqlx::query_as!(
+        PeerReview,
+        "
+SELECT *
+FROM peer_reviews
+WHERE course_id = $1
+  AND exercise_id IS NULL
+  AND deleted_at IS NULL;
+        ",
+        course_id
+    )
+    .fetch_optional(conn)
     .await?;
     Ok(res)
 }

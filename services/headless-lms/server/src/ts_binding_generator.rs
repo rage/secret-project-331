@@ -141,6 +141,12 @@ fn ts_binding_generator() {
         pages::NewPage,
         pages::PageChapterAndCourseInformation,
 
+        peer_reviews::PeerReview,
+
+        peer_review_questions::NewPeerReviewQuestion,
+        peer_review_questions::PeerReviewQuestion,
+        peer_review_questions::PeerReviewQuestionType,
+
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,
 

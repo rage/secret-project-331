@@ -12,6 +12,7 @@ import {
 import { deleteCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
 import { Course, NewCourse } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
+import OnlyRenderIfPermissions from "../../../../../../shared-module/components/OnlyRenderIfPermissions"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import NewCourseForm from "../../../../../forms/NewCourseForm"
 import CourseCourseInstances from "../course-instances/CourseCourseInstances"
@@ -70,21 +71,33 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
         {course.is_draft && ` (${t("draft")})`}
         {course.deleted_at && ` (${t("deleted")})`}
       </h1>
-      <Button
-        variant="secondary"
-        size="medium"
-        onClick={() => {
-          const confirmation = confirm(
-            // eslint-disable-next-line i18next/no-literal-string
-            `${t("delete-course-confirmation")}\n\n${t("delete-course-confirmation-explanation")}`,
-          )
-          if (confirmation) {
-            deleteCourseMutation.mutate()
-          }
+      <OnlyRenderIfPermissions
+        action={{
+          type: "usually_unacceptable_deletion",
+        }}
+        resource={{
+          type: "course",
+          id: course.id,
         }}
       >
-        {t("button-text-delete")}
-      </Button>
+        <Button
+          variant="secondary"
+          size="medium"
+          onClick={() => {
+            const confirmation = confirm(
+              // eslint-disable-next-line i18next/no-literal-string
+              `${t("delete-course-confirmation")}\n\n${t(
+                "delete-course-confirmation-explanation",
+              )}`,
+            )
+            if (confirmation) {
+              deleteCourseMutation.mutate()
+            }
+          }}
+        >
+          {t("button-text-delete")}
+        </Button>
+      </OnlyRenderIfPermissions>
       <Button variant="primary" size="medium" onClick={() => setShowForm(!showForm)}>
         {t("edit")}
       </Button>

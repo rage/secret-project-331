@@ -440,6 +440,8 @@
 <span id="435">435</span>
 <span id="436">436</span>
 <span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">actix_http::Payload</span>;
 <span class="kw">use</span> <span class="ident">actix_session::Session</span>;
 <span class="kw">use</span> <span class="ident">actix_session::SessionExt</span>;
@@ -543,6 +545,8 @@
     <span class="ident">DeleteAnswer</span>,
     <span class="ident">EditRole</span>(<span class="ident">UserRole</span>),
     <span class="ident">CreateCoursesOrExams</span>,
+    <span class="doccomment">/// Deletion that we usually don&#39;t want to allow.</span>
+    <span class="ident">UsuallyUnacceptableDeletion</span>,
 }
 
 <span class="doccomment">/// The target of an action.</span>

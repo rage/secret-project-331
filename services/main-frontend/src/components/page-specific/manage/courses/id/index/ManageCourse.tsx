@@ -12,6 +12,7 @@ import {
 import { deleteCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
 import { Course, NewCourse } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
+import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import NewCourseForm from "../../../../../forms/NewCourseForm"
 import CourseCourseInstances from "../course-instances/CourseCourseInstances"
 import ExerciseList from "../exercises/ExerciseList"
@@ -33,10 +34,22 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
-  const handleOnDelete = async (courseId: string) => {
-    await deleteCourse(courseId)
-    await refetch()
-  }
+  const deleteCourseMutation = useToastMutation(
+    async () => {
+      await deleteCourse(course.id)
+      await refetch()
+    },
+    {
+      notify: true,
+      // eslint-disable-next-line i18next/no-literal-string
+      method: "DELETE",
+    },
+    {
+      onSuccess: async () => {
+        await refetch()
+      },
+    },
+  )
 
   const handleOnUpdateCourse = async () => {
     setShowForm(!showForm)
@@ -55,11 +68,20 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
       <h1>
         {course.name}
         {course.is_draft && ` (${t("draft")})`}
+        {course.deleted_at && ` (${t("deleted")})`}
       </h1>
       <Button
         variant="secondary"
         size="medium"
-        onClick={async () => await handleOnDelete(course.id)}
+        onClick={() => {
+          const confirmation = confirm(
+            // eslint-disable-next-line i18next/no-literal-string
+            `${t("delete-course-confirmation")}\n\n${t("delete-course-confirmation-explanation")}`,
+          )
+          if (confirmation) {
+            deleteCourseMutation.mutate()
+          }
+        }}
       >
         {t("button-text-delete")}
       </Button>

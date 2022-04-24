@@ -1,9 +1,9 @@
-/* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 
 import CrossIcon from "../img/exist-icon.svg"
 
+import EditableComponent from "./EditableComponent"
 import TextField from "./InputFields/TextField"
 
 const Wrapper = styled.div`
@@ -77,6 +77,12 @@ const Date = styled.div`
   width: 280px;
   display: flex;
   padding: 0 1rem;
+
+  &[contenteditable]:focus {
+    background: #fff;
+    border: 1.5px solid #e2e4e6;
+    outline: none;
+  }
 `
 const Event = styled.div`
   background: #f5f6f7;
@@ -102,7 +108,24 @@ export type TimelineEditorProps =
 const TimelineEditor: React.FC<TimelineEditorProps> = () => {
   const [state, setState] = useState<Timeline[]>([])
 
-  const handleOnIput = (e: any) => {
+  const handleChange = (e: any) => {
+    const id = e.parentElement.id
+    const value = e.innerText
+    setState((prevState) => {
+      return prevState.map((item) => {
+        return item.id === id
+          ? {
+              ...item,
+              content: value,
+            }
+          : item
+      })
+    })
+  }
+
+  console.log("state", state)
+
+  /*   const handleOnIput = (e: any) => {
     const value = e.currentTarget.innerText
     const name = e.currentTarget.dataset.name
     const id = e.currentTarget.id
@@ -121,7 +144,7 @@ const TimelineEditor: React.FC<TimelineEditorProps> = () => {
           : item
       })
     })
-  }
+  } */
   return (
     <Wrapper>
       <span>Timeline instruction</span>
@@ -129,31 +152,23 @@ const TimelineEditor: React.FC<TimelineEditorProps> = () => {
 
       <h2>Configure the correct time and event</h2>
       {state &&
-        state.map((item) => (
-          <List key={item.id}>
-            <Date
-              contentEditable="true"
-              onBlur={handleOnIput}
-              id={item.id}
-              data-name="date"
-              suppressContentEditableWarning={true}
-            >
-              {item.year}
-            </Date>
-            <Event
-              id={item.id}
-              contentEditable="true"
-              onBlur={handleOnIput}
-              data-name="event"
-              suppressContentEditableWarning={true}
-            >
-              {item.content}
-            </Event>
+        state.map(({ id, content, year }) => (
+          <List key={id} id={id}>
+            <EditableComponent onChange={handleChange} id={id}>
+              <Date>
+                <p>{year}</p>
+              </Date>
+            </EditableComponent>
+            <EditableComponent onChange={handleChange} id={id}>
+              <Event>
+                <p>{content}</p>
+              </Event>
+            </EditableComponent>
             <DeleteBtn
               onClick={() => {
                 setState((prevState) => {
                   return prevState.filter((o) => {
-                    return item.year !== o.year
+                    return year !== o.year
                   })
                 })
               }}

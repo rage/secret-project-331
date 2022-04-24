@@ -1,6 +1,7 @@
-/* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
+import { t } from "i18next"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import Agree from "../../img/linkert/agree.svg"
 import Disagree from "../../img/linkert/disagree.svg"
@@ -10,19 +11,19 @@ import StronglyDisagree from "../../img/linkert/stronglyDisagree.svg"
 
 const arr = [
   {
-    text: "agree",
+    text: t("strongly-disagree"),
   },
   {
-    text: "strongly agree",
+    text: t("disagree"),
   },
   {
-    text: "neutral",
+    text: t("neutral"),
   },
   {
-    text: "disagree",
+    text: t("agree"),
   },
   {
-    text: "strongly disagree",
+    text: t("strongly agree"),
   },
 ]
 
@@ -44,6 +45,8 @@ const Linkerts = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 `
+
+/* eslint-disable i18next/no-literal-string */
 const Linkert = styled.div`
   width: 200px;
   display: flex;
@@ -68,11 +71,15 @@ const Linkert = styled.div`
     margin-top: 6px;
     font-size: 17px;
     font-weight: 500;
+    // eslint-disable-next-line i18next/no-literal-string
+    // eslint-disable-next-line i18next/no-literal-string
     color: ${({ active }) => (active ? "#ffffff" : "#313947")};
     text-transform: capitalize;
   }
 `
 /* export interface LinkertScaleExtraProps {} */
+
+const PLACEHOLDER = "Answer is thoughtful and rich?"
 
 export type LinkertScaleComponentProps = React.HTMLAttributes<HTMLDivElement> /* &
   LinkertScaleExtraProps */
@@ -83,6 +90,7 @@ interface StyledProps {
 
 const LinkertScale: React.FC<LinkertScaleComponentProps> = () => {
   const [active, setActive] = useState<string>("")
+  const { t } = useTranslation()
 
   const SVGmatcher = (identifier: string) => {
     switch (identifier) {
@@ -106,7 +114,7 @@ const LinkertScale: React.FC<LinkertScaleComponentProps> = () => {
 
   return (
     <Wrapper>
-      <Question>Answer is thoughtful and rich?</Question>
+      <Question>{PLACEHOLDER}</Question>
       <Linkerts>
         {arr.map(({ text }) => (
           <Linkert key={text} onClick={() => setActive(text)} active={active === text}>

@@ -1,5 +1,6 @@
 import styled from "@emotion/styled"
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import CrossIcon from "../img/exist-icon.svg"
 
@@ -100,6 +101,13 @@ export interface Timeline {
   content: string
 }
 
+const PLACEHOLDER = "Write the timeline instruction"
+const EVENT_PLACEHOLDER = "Write the event for the timeline"
+const YEAR_PLACEHOLDER = "1994"
+const HEADING_TEXT = "Configure the correct time and event"
+const EVENT = "event"
+const YEAR = "year"
+
 /* export interface TimelineEditorExtraProps {} */
 
 export type TimelineEditorProps =
@@ -107,6 +115,7 @@ export type TimelineEditorProps =
 
 const TimelineEditor: React.FC<TimelineEditorProps> = () => {
   const [state, setState] = useState<Timeline[]>([])
+  const { t } = useTranslation()
 
   const handleChange = (e: any) => {
     const id = e.parentElement.id
@@ -123,34 +132,12 @@ const TimelineEditor: React.FC<TimelineEditorProps> = () => {
     })
   }
 
-  console.log("state", state)
-
-  /*   const handleOnIput = (e: any) => {
-    const value = e.currentTarget.innerText
-    const name = e.currentTarget.dataset.name
-    const id = e.currentTarget.id
-    setState((prevState) => {
-      return prevState.map((item) => {
-        return item.id === id
-          ? name === "date"
-            ? {
-                ...item,
-                year: value,
-              }
-            : {
-                ...item,
-                content: value,
-              }
-          : item
-      })
-    })
-  } */
   return (
     <Wrapper>
-      <span>Timeline instruction</span>
-      <TextField placeholder="Write the timeline instruction " onChange={() => null}></TextField>
+      <span>{t("timeline-instruction")}</span>
+      <TextField placeholder={PLACEHOLDER} onChange={() => null}></TextField>
 
-      <h2>Configure the correct time and event</h2>
+      <h2>{HEADING_TEXT}</h2>
       {state &&
         state.map(({ id, content, year }) => (
           <List key={id} id={id}>
@@ -192,6 +179,7 @@ const TimelineEditor: React.FC<TimelineEditorProps> = () => {
             setState((state) => [
               ...state,
               {
+                // eslint-disable-next-line i18next/no-literal-string
                 id: `id-${year}`,
                 year: year,
                 content: event,
@@ -202,13 +190,9 @@ const TimelineEditor: React.FC<TimelineEditorProps> = () => {
           target.event.value = ""
         }}
       >
-        <StyledTextField name="year" placeholder="Year" onChange={() => null} />
-        <TextField
-          name="event"
-          placeholder="Write the timeline instruction "
-          onChange={() => null}
-        />
-        <StyledBtn type="submit" name="submit" value="submit">
+        <StyledTextField name={YEAR} placeholder={YEAR_PLACEHOLDER} onChange={() => null} />
+        <TextField name={EVENT} placeholder={EVENT_PLACEHOLDER} onChange={() => null} />
+        <StyledBtn type="submit" name={t("submit")} value={t("submit")}>
           <CrossIcon />
         </StyledBtn>
       </StyledForm>

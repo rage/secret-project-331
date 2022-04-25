@@ -11,7 +11,7 @@ export type EditableComponentProps = React.HTMLAttributes<HTMLDivElement> &
   EditableComponenExtratProp
 
 const EditableComponent: React.FC<EditableComponentProps> = ({ onChange, children }) => {
-  const el: any = useRef()
+  const el = useRef<HTMLInputElement>()
   let elements: any = React.Children.toArray(children)
   if (elements.length > 1) {
     throw Error(ERROR)

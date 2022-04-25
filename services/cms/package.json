@@ -35,7 +35,7 @@
     "@wordpress/block-library": "^7.2.0",
     "@wordpress/blocks": "^11.4.0",
     "@wordpress/components": "^19.7.0",
-    "@wordpress/compose": "^5.3.0",
+    "@wordpress/compose": "^5.5.0",
     "@wordpress/data": "^6.5.0",
     "@wordpress/deprecated": "^3.5.0",
     "@wordpress/format-library": "^3.3.0",

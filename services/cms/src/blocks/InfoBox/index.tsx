@@ -1,8 +1,10 @@
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
+import { BlockConfiguration, createBlock } from "@wordpress/blocks"
+import { omit } from "lodash"
 
 import InfoBoxEditor from "./InfoBoxEditor"
 import InfoBoxSave from "./InfoBoxSave"
+import { Deprecated1 } from "./deprecated"
 
 export interface InfoBoxComponentProps {
   backgroundColor: string
@@ -20,6 +22,8 @@ const InfoBoxConfiguration: BlockConfiguration<InfoBoxComponentProps> = {
   },
   edit: InfoBoxEditor,
   save: InfoBoxSave,
+  // @ts-ignore: Wrong type, the deprecations have a different interface for the previous attributes
+  deprecated: [Deprecated1],
 }
 
 export default InfoBoxConfiguration

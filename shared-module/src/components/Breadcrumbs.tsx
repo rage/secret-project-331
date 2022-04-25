@@ -75,13 +75,13 @@ const Breadcrumbs: React.FC<BreakcrumbProps> = ({ pieces }) => {
             {pieces.map((piece, index) => {
               const isLast = index === pieces.length - 1
               return isLast ? (
-                <li className="group">
+                <li key={piece.url} className="group">
                   <span className={cx(breadCrumbText)} aria-current="page">
                     {piece.text}
                   </span>
                 </li>
               ) : (
-                <li className="group">
+                <li key={piece.url} className="group">
                   {piece.externalLink ? (
                     <a href={piece.url} className={cx(breadCrumbText, link)}>
                       {piece.text}

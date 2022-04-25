@@ -235,6 +235,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 (x) => x.exercise_task_id === task.id,
               )}
               canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
+              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
             />
           ))}
           <div

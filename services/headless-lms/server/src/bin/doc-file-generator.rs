@@ -359,6 +359,7 @@ fn main() {
                 assignment: serde_json::json!({"options": ["a", "b", "c"]}),
                 exercise_type: "quiz".to_string(),
                 private_spec: None,
+                order_number: 1,
             }],
             organization_id: id,
         }
@@ -532,6 +533,7 @@ fn main() {
                     model_solution_spec: None,
                     previous_submission: Some(exercise_task_submission.clone()),
                     previous_submission_grading: Some(grading.clone()),
+                    order_number: 1
                 }],
             },
             exercise_status: Some(ExerciseStatus {
@@ -785,7 +787,8 @@ fn main() {
                 private_spec: None,
                 spec_file_id: Some(id),
                 model_solution_spec: None,
-                copied_from: None
+                copied_from: None,
+                order_number: 1
             },
         }
     );

@@ -13,9 +13,13 @@ import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
 export interface CourseInstanceSelectModalProps {
   onClose: () => void
+  manualOpen?: boolean
 }
 
-const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ onClose }) => {
+const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({
+  onClose,
+  manualOpen = false,
+}) => {
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const pageState = useContext(PageContext)
@@ -38,8 +42,8 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({ o
     const signedIn = !!loginState.signedIn
     const shouldChooseInstance =
       pageState.state === "ready" && pageState.instance === null && pageState.settings === null
-    setOpen(signedIn && shouldChooseInstance)
-  }, [loginState, pageState])
+    setOpen((signedIn && shouldChooseInstance) || (signedIn && manualOpen))
+  }, [loginState, pageState, manualOpen])
 
   const handleSubmitAndClose = useCallback(
     async (instanceId: string, reason?: string) => {

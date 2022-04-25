@@ -83,6 +83,7 @@ export const editorContentReducer = (
             exercise_type: "",
             private_spec: null,
             show_editor: false,
+            order_number: 0,
           },
           innerBlocks: [],
         }

@@ -7,7 +7,9 @@ import { useTranslation } from "react-i18next"
 
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
-import Navbar from "../shared-module/components/Navigation"
+import LoginControls from "../shared-module/components/LoginControls"
+import { NavBar } from "../shared-module/components/Navigation/NavBar"
+import Menu from "../shared-module/components/Navigation/NavBar/Menu/Menu"
 import SkipLink from "../shared-module/components/SkipLink"
 
 type LayoutProps = {
@@ -49,29 +51,25 @@ const Layout: React.FC<LayoutProps> = ({
       <div
         // Push footer to bottom of page, e.g. on empty body
         className={css`
-          display: flex;
-          flex-direction: column;
           height: 100%;
           min-height: 100vh;
         `}
       >
         {/* Skip to content*/}
         <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
-        <div>
-          <Navbar
-            faqUrl={faqUrl}
-            variant={navVariant ?? "simple"}
-            // Return to path can be override per page
-            returnToPath={returnToPath ?? returnPath}
-          ></Navbar>
-        </div>
-        {/* Do not touch flex */}
-        <main
-          className={css`
-            flex: 1;
-          `}
-          id="maincontent"
+
+        <NavBar
+          // faqUrl={faqUrl}
+          variant={navVariant ?? "simple"}
+          // Return to path can be override per page
+          // returnToPath={returnToPath ?? returnPath}
         >
+          <Menu>
+            <LoginControls returnToPath={returnToPath ?? returnPath} />
+          </Menu>
+        </NavBar>
+
+        <main id="maincontent">
           <Centered variant="default">{children}</Centered>
         </main>
       </div>

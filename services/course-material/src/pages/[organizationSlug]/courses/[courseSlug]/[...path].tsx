@@ -2,10 +2,10 @@ import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useReducer } from "react"
 import { useQuery } from "react-query"
 
-import CourseMaterialPageBreadcrumbs from "../../../../components/CourseMaterialPageBreadcrumbs"
-import Layout from "../../../../components/Layout"
 import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
+import Layout from "../../../../components/layout/Layout"
+import CourseMaterialPageBreadcrumbs from "../../../../components/navigation/CourseMaterialPageBreadcrumbs"
 import CourseTestModeNotification from "../../../../components/notifications/CourseTestModeNotification"
 import PageContext, { CoursePageDispatch, defaultPageState } from "../../../../contexts/PageContext"
 import useScrollToSelector from "../../../../hooks/useScrollToSelector"
@@ -13,8 +13,10 @@ import pageStateReducer from "../../../../reducers/pageStateReducer"
 import { fetchCoursePageByPath } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
+import { PageMarginOffset } from "../../../../shared-module/components/layout/PageMarginOffset"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import basePath from "../../../../shared-module/utils/base-path"
+import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../../shared-module/utils/constants"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -118,8 +120,14 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
           organizationSlug={query.organizationSlug}
           courseSlug={courseSlug}
         >
-          <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
-          {<CourseTestModeNotification isTestMode={pageState.isTest} />}
+          <PageMarginOffset
+            marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
+            // eslint-disable-next-line i18next/no-literal-string
+            marginBottom={"0rem"}
+          >
+            <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
+            {<CourseTestModeNotification isTestMode={pageState.isTest} />}
+          </PageMarginOffset>
           <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
         </Layout>
       </PageContext.Provider>

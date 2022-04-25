@@ -5,14 +5,22 @@ import { useRouter } from "next/router"
 import React, { ReactNode, useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import PageContext from "../contexts/PageContext"
-import Centered from "../shared-module/components/Centering/Centered"
-import Footer from "../shared-module/components/Footer"
-import Navbar from "../shared-module/components/Navigation"
-import SkipLink from "../shared-module/components/SkipLink"
+import PageContext from "../../contexts/PageContext"
+import Centered from "../../shared-module/components/Centering/Centered"
+import Footer from "../../shared-module/components/Footer"
+import {
+  Menu,
+  NavBar,
+  NavContainer,
+  NavItem,
+  NavItems,
+  // NavLink,
+} from "../../shared-module/components/Navigation/NavBar"
+import SkipLink from "../../shared-module/components/SkipLink"
+import SearchDialog from "../SearchDialog"
+import UserNavigationControls from "../navigation/UserNavigationControls"
 
 import ScrollIndicator from "./ScrollIndicator"
-import SearchDialog from "./SearchDialog"
 
 interface LayoutProps {
   children: ReactNode
@@ -26,7 +34,7 @@ interface LayoutProps {
 }
 
 const DynamicToaster = dynamic(
-  () => import("../shared-module/components/Notifications/ToasterNotifications"),
+  () => import("../../shared-module/components/Notifications/ToasterNotifications"),
   { ssr: false },
 )
 
@@ -34,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({
   children,
   title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
   navVariant,
-  faqUrl,
+  // faqUrl,
   licenseUrl,
   returnToPath,
   courseSlug,
@@ -59,39 +67,34 @@ const Layout: React.FC<LayoutProps> = ({
       <div
         // Push footer to bottom of page, e.g. on empty body
         className={css`
-          display: flex;
-          flex-direction: column;
           height: 100%;
           min-height: 100vh;
         `}
       >
         <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
-        <nav role="navigation" aria-label={t("navigation-menu")}>
-          <ScrollIndicator />
-          <Navbar
-            faqUrl={faqUrl}
-            variant={navVariant ?? "simple"}
-            // Return to path can be override per page
-            returnToPath={returnToPath ?? returnPath}
-          >
-            {courseId && courseSlug && (
-              <li>
-                <SearchDialog
-                  courseId={courseId}
-                  courseSlug={courseSlug}
-                  organizationSlug={organizationSlug}
-                />
-              </li>
-            )}
-          </Navbar>
-        </nav>
+        <ScrollIndicator />
+        <NavBar variant={navVariant ?? "simple"}>
+          <NavContainer>
+            <NavItems>
+              {/* <NavLink href="/FAQ">FAQ</NavLink> */}
+              {courseId && courseSlug && (
+                <NavItem>
+                  <SearchDialog
+                    courseId={courseId}
+                    courseSlug={courseSlug}
+                    organizationSlug={organizationSlug}
+                  />
+                </NavItem>
+              )}
+            </NavItems>
+          </NavContainer>
+          <Menu>
+            <UserNavigationControls returnToPath={returnToPath ?? returnPath} courseId={courseId} />
+          </Menu>
+        </NavBar>
+
         {/* Do not touch flex */}
-        <main
-          className={css`
-            flex: 1;
-          `}
-          id="maincontent"
-        >
+        <main id="maincontent">
           <Centered variant="narrow">{children}</Centered>
         </main>
       </div>

@@ -21,6 +21,7 @@ export type Action =
   | { type: "delete_answer" }
   | { type: "edit_role"; variant: UserRole }
   | { type: "create_courses_or_exams" }
+  | { type: "usually_unacceptable_deletion" }
 
 export type Resource =
   | { type: "global_permissions" }
@@ -357,6 +358,7 @@ export interface CourseMaterialExerciseTask {
   model_solution_spec: unknown | null
   previous_submission: ExerciseTaskSubmission | null
   previous_submission_grading: ExerciseTaskGrading | null
+  order_number: number
 }
 
 export interface ExerciseTask {
@@ -372,6 +374,7 @@ export interface ExerciseTask {
   spec_file_id: string | null
   model_solution_spec: unknown | null
   copied_from: string | null
+  order_number: number
 }
 
 export type ActivityProgress = "Initialized" | "Started" | "InProgress" | "Submitted" | "Completed"
@@ -509,6 +512,7 @@ export interface CmsPageExerciseTask {
   assignment: unknown
   exercise_type: string
   private_spec: unknown | null
+  order_number: number
 }
 
 export interface CmsPageUpdate {

@@ -98,7 +98,7 @@ spec:
               echo Waiting for postgres to be available
               timeout 120 ./wait-for-db.sh
               echo Running migrations
-              timeout 120 ./setup-database.sh
+              sqlx database setup
               echo Migrations complete
           envFrom:
             - secretRef:

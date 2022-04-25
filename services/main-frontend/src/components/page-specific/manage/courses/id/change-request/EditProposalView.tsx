@@ -1,9 +1,12 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { FormControl, FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material"
+import { FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material"
+import { diffChars } from "diff"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
+import { useQuery } from "react-query"
 
+import { fetchPageInfo } from "../../../../../../services/backend/pages"
 import {
   BlockProposal,
   BlockProposalAction,
@@ -11,10 +14,14 @@ import {
   PageProposal,
 } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
+import DiffFormatter from "../../../../../../shared-module/components/DiffFormatter"
 import HideTextInSystemTests from "../../../../../../shared-module/components/HideTextInSystemTests"
+import TextArea from "../../../../../../shared-module/components/InputFields/TextAreaField"
+import TextField from "../../../../../../shared-module/components/InputFields/TextField"
 import TimeComponent from "../../../../../../shared-module/components/TimeComponent"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import { primaryFont, typography } from "../../../../../../shared-module/styles"
+import { pageRoute } from "../../../../../../shared-module/utils/routes"
 
 const ImportantText = styled.div`
   white-space: pre-wrap;
@@ -38,6 +45,13 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
   const [blockActions, setBlockActions] = useState<Map<string, BlockProposalAction>>(new Map())
   const [editingBlocks, setEditingBlocks] = useState<Set<string>>(new Set())
 
+  const pageInfo = useQuery(`page-info-id-${proposal.page_id}`, () => {
+    if (!proposal.page_id) {
+      return null
+    }
+    return fetchPageInfo(proposal.page_id)
+  })
+
   const sendMutation = useToastMutation(
     () => {
       const blockInfo: Array<BlockProposalInfo> = Array.from(blockActions).map(([id, action]) => {
@@ -52,6 +66,7 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
   )
 
   const pendingBlock = (block: BlockProposal) => {
+    const diffChanges = diffChars(block.current_text, block.accept_preview ?? "")
     return (
       <div>
         <div>
@@ -61,40 +76,41 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
           />
         </div>
         <div>
-          {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
+          {t("label-current-text")}
+          <ImportantText>
+            <DiffFormatter dontShowAdded changes={diffChanges} />
+          </ImportantText>
         </div>
         <div>
           {t("label-proposed-text")} <ImportantText>{block.changed_text}</ImportantText>
         </div>
+        <div>
+          {t("label-result-after-merging")}
+          <ImportantText>
+            <DiffFormatter dontShowRemoved changes={diffChanges} />
+          </ImportantText>
+        </div>
+
         {editingBlocks.has(block.id) && (
-          <>
-            <TextField
-              className={css`
-                width: 100%;
-              `}
-              multiline
-              maxRows={4}
-              inputProps={{ "aria-label": t(`proposed-text-input-label`) }}
-              defaultValue={block.accept_preview}
-              onChange={(ev) =>
-                setBlockActions((ba) => {
-                  if (block.accept_preview !== null) {
-                    // eslint-disable-next-line i18next/no-literal-string
-                    ba.set(block.id, { tag: "Accept", data: ev.target.value })
-                  }
-                  return new Map(ba)
-                })
-              }
-            ></TextField>
-            <br />
-          </>
+          <TextArea
+            className={css`
+              width: 100%;
+            `}
+            autoResize
+            label={t(`change-request-edited-result-label`)}
+            defaultValue={block.accept_preview ?? undefined}
+            onChange={(newValue) =>
+              setBlockActions((ba) => {
+                if (block.accept_preview !== null) {
+                  // eslint-disable-next-line i18next/no-literal-string
+                  ba.set(block.id, { tag: "Accept", data: newValue })
+                }
+                return new Map(ba)
+              })
+            }
+          />
         )}
-        {!editingBlocks.has(block.id) && (
-          <div>
-            {t("label-result")}
-            <ImportantText>{block.accept_preview}</ImportantText>
-          </div>
-        )}
+
         {/* eslint-disable-next-line i18next/no-literal-string */}
         <FormControl component="fieldset">
           {/* eslint-disable-next-line i18next/no-literal-string */}
@@ -163,6 +179,7 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
   }
 
   const acceptedBlock = (block: BlockProposal) => {
+    const diffChanges = diffChars(block.original_text, block.changed_text ?? "")
     return (
       <>
         {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
@@ -176,7 +193,16 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
           {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
         </div>
         <div>
-          {t("label-proposed-text")} <ImportantText>{block.changed_text}</ImportantText>
+          {t("label-original-text")}
+          <ImportantText>
+            <DiffFormatter dontShowAdded changes={diffChanges} />
+          </ImportantText>
+        </div>
+        <div>
+          {t("label-proposed-text")}
+          <ImportantText>
+            <DiffFormatter dontShowRemoved changes={diffChanges} />
+          </ImportantText>
         </div>
       </>
     )
@@ -191,6 +217,24 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
         padding: 1rem;
       `}
     >
+      {proposal.page_url_path && pageInfo.data && (
+        <a
+          className={css`
+            display: block;
+            float: right;
+          `}
+          href={`${pageRoute(
+            pageInfo.data,
+            proposal.page_url_path,
+          )}?highlight-blocks=${proposal.block_proposals.map((bp) => bp.block_id).join(",")}`}
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          <Button variant="secondary" size="medium">
+            {t("open-page-in-new-tab")}
+          </Button>
+        </a>
+      )}
       <h2
         className={css`
           font-size: ${typography.h6};

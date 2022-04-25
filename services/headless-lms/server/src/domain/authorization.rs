@@ -1,5 +1,6 @@
 use actix_http::Payload;
-use actix_session::{Session, UserSession};
+use actix_session::Session;
+use actix_session::SessionExt;
 use actix_web::{FromRequest, HttpRequest};
 use anyhow::Result;
 use chrono::{DateTime, Utc};
@@ -100,6 +101,8 @@ pub enum Action {
     DeleteAnswer,
     EditRole(UserRole),
     CreateCoursesOrExams,
+    /// Deletion that we usually don't want to allow.
+    UsuallyUnacceptableDeletion,
 }
 
 /// The target of an action.

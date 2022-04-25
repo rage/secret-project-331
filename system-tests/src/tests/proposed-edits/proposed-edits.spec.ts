@@ -184,34 +184,20 @@ test("test", async ({ page, headless }) => {
     waitForThisToBeVisibleAndStable: "text=Accepted",
   })
 
-  // Go to http://project-331.local/
-  await page.goto("http://project-331.local/")
-
-  await Promise.all([
-    page.waitForNavigation(),
-    page.click("text=University of Helsinki, Department of Computer Science"),
+  await page.locator("text=Pending 2").click()
+  await expect(page).toHaveURL(
+    "http://project-331.local/manage/courses/cae7da38-9486-47da-9106-bff9b6a280f2/change-requests?pending=true",
+  )
+  // Click text=Open page in new tab >> nth=0
+  const [page1] = await Promise.all([
+    page.waitForEvent("popup"),
+    page.locator("text=Open page in new tab").first().click(),
   ])
 
-  // Click text=Introduction to edit proposals
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-edit-proposals' }*/),
-    page.click("text=Introduction to edit proposals"),
-  ])
-
-  // Click text=The Basics
-  await Promise.all([
-    page.waitForNavigation(/*{ url: 'http://project-331.local/courses/introduction-to-edit-proposals/chapter-1' }*/),
-    page.click("text=The Basics"),
-  ])
-
-  // Click text=Page One
-  await page.click("text=Page One")
-
-  await page.click("text=At vero")
-  await page.click("text=So big")
+  await page1.locator(`text=Like this!!!!!`).scrollIntoViewIfNeeded()
 
   await expectScreenshotsToMatchSnapshots({
-    page,
+    page: page1,
     headless,
     snapshotName: "after-changes",
     waitForThisToBeVisibleAndStable: "text=Like this!!!!!",

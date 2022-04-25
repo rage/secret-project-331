@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "../.."
 import { Block } from "../../../../services/backend"
 import { CourseMaterialExerciseTask } from "../../../../shared-module/bindings"
+import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import { IframeState } from "../../../../shared-module/iframe-protocol-types"
 import { narrowContainerWidthPx } from "../../../../shared-module/styles/constants"
 
@@ -16,6 +17,7 @@ interface ExerciseTaskProps {
   isExam: boolean
   postThisStateToIFrame: IframeState | undefined
   setAnswer: (answer: { valid: boolean; data: unknown }) => void
+  exerciseNumber: number
 }
 
 const ExerciseTask: React.FC<ExerciseTaskProps> = ({
@@ -24,7 +26,9 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
   isExam,
   postThisStateToIFrame,
   setAnswer,
+  exerciseNumber,
 }) => {
+  const { signedIn } = useContext(LoginStateContext)
   const { t } = useTranslation()
   const currentExerciseTaskAssignment = exerciseTask.assignment as Block<unknown>[]
   const url = exerciseTask.exercise_iframe_url
@@ -37,7 +41,8 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
     postThisStateToIFrame.view_type === "view-submission"
       ? postThisStateToIFrame.data.grading?.feedback_text ?? null
       : null
-  const cannotAnswerButNoSubmission = !canPostSubmission && !exerciseTask.previous_submission
+  const cannotAnswerButNoSubmission =
+    !canPostSubmission && !exerciseTask.previous_submission && signedIn
 
   return (
     <div>
@@ -57,6 +62,10 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
             postThisStateToIFrame={postThisStateToIFrame}
             url={`${url}?width=${narrowContainerWidthPx}`}
             setAnswer={setAnswer}
+            title={t("exercise-task-content", {
+              "exercise-number": exerciseNumber,
+              "task-number": exerciseTask.order_number,
+            })}
           />
         ) : (
           t("dont-know-how-to-render-this-assignment")

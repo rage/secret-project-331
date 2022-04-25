@@ -1,17 +1,16 @@
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import { InnerBlocks, RichText } from "@wordpress/block-editor"
+import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
+import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
 import Button from "../../shared-module/components/Button"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import { baseTheme } from "../../shared-module/styles"
 import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
 } from "../../shared-module/utils/constants"
-import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 import BlockWrapper from "../BlockWrapper"
 
 import { LandingPageHeroSectionAttributes } from "."
@@ -30,8 +29,12 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
   setAttributes,
 }) => {
   const { title } = attributes
+  const { t } = useTranslation()
   return (
     <BlockWrapper id={clientId}>
+      <InspectorControls key="settings">
+        <BackgroundAndColorCustomizer attributes={attributes} setAttributes={setAttributes} />
+      </InspectorControls>
       <BreakFromCentered
         sidebar
         sidebarPosition="right"
@@ -40,7 +43,11 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
       >
         <div
           className={css`
-            background: ${baseTheme.colors.blue[100]};
+            background-color: ${attributes.backgroundColor};
+            ${attributes.backgroundImage &&
+            `background-image: url("${attributes.backgroundImage}");
+            background-repeat: no-repeat;
+            background-position: center center;`}
             width: 100%;
             border-radius: 1px;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -49,10 +56,11 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
         >
           <RichText
             className="has-text-align-center wp-block-heading"
+            // eslint-disable-next-line i18next/no-literal-string
             tagName="h1"
             value={title}
             onChange={(value: string) => setAttributes({ title: value })}
-            placeholder={"Welcome message for course..."}
+            placeholder={t("welcome-message-for-course")}
           />
           <InnerBlocks
             template={LANDING_PAGE_HERO_SECTION_TEMPLATE}
@@ -66,7 +74,7 @@ const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSecti
             `}
           >
             <Button variant="primary" size="large">
-              Start
+              {t("start")}
             </Button>
           </div>
         </div>

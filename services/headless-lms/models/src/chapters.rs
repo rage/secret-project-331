@@ -268,6 +268,7 @@ pub struct ChapterWithStatus {
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
     pub status: ChapterStatus,
+    pub chapter_image_url: Option<String>,
 }
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]

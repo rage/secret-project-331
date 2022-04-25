@@ -1,4 +1,4 @@
-import { expect, Page, test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import expectPath from "../../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
@@ -80,8 +80,8 @@ test("history test", async ({ page, headless }) => {
   // Fill input[type="text"]
   await page.fill(`label:has-text("Title")`, "New title!")
 
-  // Click text=Save
-  await page.click("text=Save >> visible=true")
+  // Click button:text-is("Save")
+  await page.click(`button:text-is("Save") >> visible=true`)
   // TODO: wait for page saved notification
   await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
   await page.waitForTimeout(100)
@@ -94,8 +94,8 @@ test("history test", async ({ page, headless }) => {
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "New exercise!")
 
-  // Click text=Save
-  await page.click("text=Save >> visible=true")
+  // Click button:text-is("Save")
+  await page.click(`button:text-is("Save") >> visible=true`)
   // TODO: wait for page saved notification
   await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
   await page.waitForTimeout(100)
@@ -120,8 +120,8 @@ test("history test", async ({ page, headless }) => {
   // Check input[type="checkbox"]
   await frame.check(':nth-match(input[type="checkbox"], 2)')
 
-  // Click text=Save
-  await page.click("text=Save >> visible=true")
+  // Click button:text-is("Save")
+  await page.click(`button:text-is("Save") >> visible=true`)
   await page.waitForSelector(`button:enabled:text("Save") >> visible=true`)
   await page.waitForTimeout(100)
 

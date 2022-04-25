@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use futures::TryStreamExt;
-use serde_json::Value;
 
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
@@ -30,6 +29,19 @@ pub struct CourseMaterialExerciseTask {
     pub model_solution_spec: Option<serde_json::Value>,
     pub previous_submission: Option<ExerciseTaskSubmission>,
     pub previous_submission_grading: Option<ExerciseTaskGrading>,
+    pub order_number: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct NewExerciseTask {
+    pub exercise_slide_id: Uuid,
+    pub exercise_type: String,
+    pub assignment: Vec<GutenbergBlock>,
+    pub public_spec: Option<serde_json::Value>,
+    pub private_spec: Option<serde_json::Value>,
+    pub spec_file_id: Option<Uuid>,
+    pub model_solution_spec: Option<serde_json::Value>,
+    pub order_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -47,6 +59,7 @@ pub struct ExerciseTask {
     pub spec_file_id: Option<Uuid>,
     pub model_solution_spec: Option<serde_json::Value>,
     pub copied_from: Option<Uuid>,
+    pub order_number: i32,
 }
 
 impl FromIterator<ExerciseTask> for HashMap<Uuid, ExerciseTask> {
@@ -67,12 +80,7 @@ impl Extend<ExerciseTask> for HashMap<Uuid, ExerciseTask> {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    exercise_slide_id: Uuid,
-    exercise_type: &str,
-    assignment: Vec<GutenbergBlock>,
-    private_spec: Value,
-    public_spec: Value,
-    model_solution_spec: Value,
+    new_exercise_task: NewExerciseTask,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -82,17 +90,19 @@ INSERT INTO exercise_tasks (
     assignment,
     private_spec,
     public_spec,
-    model_solution_spec
+    model_solution_spec,
+    order_number
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
 ",
-        exercise_slide_id,
-        exercise_type,
-        serde_json::to_value(assignment).unwrap(),
-        private_spec,
-        public_spec,
-        model_solution_spec
+        new_exercise_task.exercise_slide_id,
+        new_exercise_task.exercise_type,
+        serde_json::to_value(new_exercise_task.assignment)?,
+        new_exercise_task.private_spec,
+        new_exercise_task.public_spec,
+        new_exercise_task.model_solution_spec,
+        new_exercise_task.order_number,
     )
     .fetch_one(conn)
     .await?;
@@ -186,6 +196,7 @@ pub async fn get_course_material_exercise_tasks(
             model_solution_spec,
             previous_submission,
             previous_submission_grading,
+            order_number: exercise_task.order_number,
         });
     }
     Ok(material_tasks)

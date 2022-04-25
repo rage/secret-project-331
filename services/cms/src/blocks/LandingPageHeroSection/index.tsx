@@ -8,6 +8,8 @@ import LandingPageHeroSectionSave from "./LandingPageHeroSectionSave"
 
 export interface LandingPageHeroSectionAttributes {
   title: string
+  backgroundColor: string
+  backgroundImage: string | undefined
 }
 
 const LandingPageHeroSectionConfiguration: BlockConfiguration<LandingPageHeroSectionAttributes> = {
@@ -21,6 +23,14 @@ const LandingPageHeroSectionConfiguration: BlockConfiguration<LandingPageHeroSec
       source: "html",
       selector: "h1",
       default: "Welcome message for course...",
+    },
+    backgroundColor: {
+      type: "string",
+      default: "#FFFFFF",
+    },
+    backgroundImage: {
+      type: "string",
+      default: undefined,
     },
   },
   edit: LandingPageHeroSectionEditor,

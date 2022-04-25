@@ -10,6 +10,7 @@ import { UseMutationResult } from "react-query"
 import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
+import usePageInfo from "../../hooks/usePageInfo"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
@@ -17,6 +18,7 @@ import BreakFromCentered from "../../shared-module/components/Centering/BreakFro
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
+import { pageRoute } from "../../shared-module/utils/routes"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
@@ -51,6 +53,7 @@ const supportedBlocks = (chapter_id: string | null, exam_id: string | null): str
 
 const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
   const { t } = useTranslation()
+  const pageInfo = usePageInfo(data.id)
   const [title, setTitle] = useState(data.title)
   const savedTitle = data.title
   const savedContent = modifyBlocks(
@@ -104,38 +107,69 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
   }
 
   const saveAndReset = (
-    <div
-      className={css`
-        display: flex;
-        justify-content: center;
-      `}
-    >
-      <Button
-        variant="primary"
-        size="medium"
+    <div>
+      {pageInfo.data && (
+        <a
+          className={css`
+            display: block;
+            margin-bottom: 1rem;
+          `}
+          href={pageRoute(pageInfo.data, data.url_path)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Button
+            variant={"secondary"}
+            size={"medium"}
+            transform="none"
+            className={css`
+              width: 100%;
+            `}
+          >
+            {t("open-saved-page-in-new-tab")}
+          </Button>
+        </a>
+      )}
+      <div
         className={css`
-          margin-right: 1rem;
-          border: 1px black solid;
-          pointer-events: auto;
+          display: flex;
+          justify-content: center;
+          background: #f5f6f7;
+          padding: 1rem;
         `}
-        onClick={handleOnSave}
-        disabled={currentContentStateSaved || currentlySaving}
       >
-        {t("save")}
-      </Button>
-      <Button
-        variant="secondary"
-        size="medium"
-        className={css`
-          margin-left: 1rem;
-          border: 1px black solid;
-          pointer-events: auto;
-        `}
-        onClick={() => contentDispatch({ type: "setContent", payload: savedContent })}
-        disabled={currentContentStateSaved || currentlySaving}
-      >
-        {t("reset")}
-      </Button>
+        <Button
+          variant="primary"
+          size="medium"
+          className={css`
+            margin-right: 1rem;
+            border: 1px black solid;
+            pointer-events: auto;
+          `}
+          onClick={handleOnSave}
+          disabled={currentContentStateSaved || currentlySaving}
+        >
+          {t("save")}
+        </Button>
+        <Button
+          variant="secondary"
+          size="medium"
+          className={css`
+            margin-left: 1rem;
+            border: 1px black solid;
+            pointer-events: auto;
+          `}
+          onClick={() => {
+            const res = confirm(t("are-you-sure-you-want-to-discard-changes"))
+            if (res) {
+              contentDispatch({ type: "setContent", payload: savedContent })
+            }
+          }}
+          disabled={currentContentStateSaved || currentlySaving}
+        >
+          {t("reset")}
+        </Button>
+      </div>
     </div>
   )
   return (

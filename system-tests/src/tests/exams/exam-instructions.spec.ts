@@ -51,8 +51,8 @@ test("test", async ({ page, headless }) => {
   await page.type('[aria-label="Block\\:\\ List"] li', "One")
   await page.press('[aria-label="Block\\:\\ List"]', "Enter")
   await page.type('[aria-label="Block\\:\\ List"] >> :nth-match(li, 2)', "Two")
-  // Click text=Save
-  await page.locator("text=Save").click()
+  // Click button:text-is("Save")
+  await page.locator(`button:text-is("Save")`).click()
   // Go to http://project-331.local/org/uh-cs
   await page.goto("http://project-331.local/org/uh-cs")
   // Click text=Ongoing short timer

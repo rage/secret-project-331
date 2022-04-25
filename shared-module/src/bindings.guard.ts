@@ -153,7 +153,9 @@ export function isAction(obj: any, _argumentName?: string): obj is Action {
       obj.type === "edit_role" &&
       (isUserRole(obj.variant) as boolean)) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "create_courses_or_exams")
+      obj.type === "create_courses_or_exams") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "usually_unacceptable_deletion")
   )
 }
 
@@ -286,7 +288,8 @@ export function isChapterWithStatus(obj: any, _argumentName?: string): obj is Ch
     typeof obj.chapter_number === "number" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (isChapterStatus(obj.status) as boolean)
+    (isChapterStatus(obj.status) as boolean) &&
+    (obj.chapter_image_url === null || typeof obj.chapter_image_url === "string")
   )
 }
 
@@ -664,7 +667,8 @@ export function isCourseMaterialExerciseTask(
     (obj.previous_submission === null ||
       (isExerciseTaskSubmission(obj.previous_submission) as boolean)) &&
     (obj.previous_submission_grading === null ||
-      (isExerciseTaskGrading(obj.previous_submission_grading) as boolean))
+      (isExerciseTaskGrading(obj.previous_submission_grading) as boolean)) &&
+    typeof obj.order_number === "number"
   )
 }
 
@@ -678,7 +682,8 @@ export function isExerciseTask(obj: any, _argumentName?: string): obj is Exercis
     typeof obj.exercise_type === "string" &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     (obj.spec_file_id === null || typeof obj.spec_file_id === "string") &&
-    (obj.copied_from === null || typeof obj.copied_from === "string")
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    typeof obj.order_number === "number"
   )
 }
 
@@ -880,7 +885,8 @@ export function isCmsPageExercise(obj: any, _argumentName?: string): obj is CmsP
     typeof obj.order_number === "number" &&
     typeof obj.score_maximum === "number" &&
     (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
-    typeof obj.limit_number_of_tries === "boolean"
+    typeof obj.limit_number_of_tries === "boolean" &&
+    (obj.deadline === null || obj.deadline instanceof Date)
   )
 }
 
@@ -904,7 +910,8 @@ export function isCmsPageExerciseTask(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.exercise_slide_id === "string" &&
-    typeof obj.exercise_type === "string"
+    typeof obj.exercise_type === "string" &&
+    typeof obj.order_number === "number"
   )
 }
 
@@ -1004,7 +1011,9 @@ export function isPageInfo(obj: any, _argumentName?: string): obj is PageInfo {
     typeof obj.page_id === "string" &&
     typeof obj.page_title === "string" &&
     typeof obj.course_id === "string" &&
-    typeof obj.course_name === "string"
+    typeof obj.course_name === "string" &&
+    typeof obj.course_slug === "string" &&
+    typeof obj.organization_slug === "string"
   )
 }
 
@@ -1129,6 +1138,7 @@ export function isBlockProposal(obj: any, _argumentName?: string): obj is BlockP
     typeof obj.block_id === "string" &&
     typeof obj.current_text === "string" &&
     typeof obj.changed_text === "string" &&
+    typeof obj.original_text === "string" &&
     (isProposalStatus(obj.status) as boolean) &&
     (obj.accept_preview === null || typeof obj.accept_preview === "string")
   )

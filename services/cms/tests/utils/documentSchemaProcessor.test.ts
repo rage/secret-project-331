@@ -60,6 +60,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
       score_maximum: 5,
       max_tries_per_slide: 72,
       limit_number_of_tries: true,
+      deadline: null,
     },
   ],
   exercise_slides: [
@@ -86,6 +87,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
           innerBlocks: [],
         },
       ],
+      order_number: 0,
       exercise_type: "quiz",
       private_spec: {
         options: ["a", "b", "c"],
@@ -118,6 +120,7 @@ const exampleUnnormalizedDocumentExerciseTaskAttributes: ExerciseTaskAttributes 
   exercise_type: "quiz",
   private_spec: '{"options":["a","b","c"]}',
   show_editor: false,
+  order_number: 0,
 }
 
 const exampleUnnormalizedDocument: UnnormalizedDocument = {

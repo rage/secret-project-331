@@ -220,9 +220,9 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
         </FieldContainer>
         <FieldContainer>
           <CheckBox
-            label={t("test")}
+            label={t("test-course")}
             onChange={() => {
-              setIsDraft(!isTest)
+              setIsTest(!isTest)
             }}
             checked={isTest}
           />

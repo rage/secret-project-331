@@ -8,7 +8,7 @@ import { respondToOrLarger } from "../styles/respond"
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant: "primary" | "secondary" | "tertiary" | "outlined" | "blue"
   size: "medium" | "large"
-  transform?: "normal" | "uppercase"
+  transform?: "capitalize" | "lowercase" | "none" | "uppercase"
   children?: React.ReactNode
 }
 
@@ -73,7 +73,7 @@ export const BASE_BUTTON_STYLES = `
 
 export const PrimaryButtonStyles = (props: ButtonProps) => {
   const PRIMARY_BUTTON_STYLES = `
-    text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+    text-transform: ${props.transform ? props.transform : "uppercase"};
     padding: ${theme.buttonSizes[props.size].padding};
   `
   return PRIMARY_BUTTON_STYLES
@@ -81,7 +81,7 @@ export const PrimaryButtonStyles = (props: ButtonProps) => {
 
 export const SecondaryButtonStyles = (props: ButtonProps) => {
   const SECONDARY_BUTTON_STYLES = `
-    text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+    text-transform: ${props.transform ? props.transform : "uppercase"};
     padding: ${theme.buttonSizes[props.size].padding};
 
     color: ${theme.secondary.text};
@@ -111,7 +111,7 @@ export const SecondaryButtonStyles = (props: ButtonProps) => {
 
 export const TertiaryButtonStyles = (props: ButtonProps) => {
   const TERTIARY_BUTTON_STYLES = `
-    text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+    text-transform: ${props.transform ? props.transform : "uppercase"};
     padding: ${theme.buttonSizes[props.size].padding};
 
     color: ${theme.tertiary.text};
@@ -139,7 +139,7 @@ export const TertiaryButtonStyles = (props: ButtonProps) => {
 
 export const BlueButtonStyles = (props: ButtonProps) => {
   const BLUE_BUTTON_STYLES = `
-    text-transform: ${props.transform === "normal" ? "capitalize" : "uppercase"};
+    text-transform: ${props.transform ? props.transform : "uppercase"};
     padding: ${theme.buttonSizes[props.size].padding};
 
     color: ${theme.tertiary.text};

@@ -1,7 +1,6 @@
-/* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
-import { t } from "i18next"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import Progress from "../CourseProgress/index"
 
@@ -30,6 +29,7 @@ export interface ReviewExtraProps {
 export type ReviewComponentProps = React.HTMLAttributes<HTMLDivElement> & ReviewExtraProps
 
 const PeerReviewProgress: React.FC<ReviewComponentProps> = ({ total, attempt }) => {
+  const { t } = useTranslation()
   return (
     <Wrapper>
       <Progress

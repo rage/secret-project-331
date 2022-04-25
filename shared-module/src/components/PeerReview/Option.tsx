@@ -67,10 +67,10 @@ const Option: React.FC<OptionComponentProps> = () => {
         </Text>
       </Body>
       <Footer>
-        <Button transform="uppercase" variant="primary" size="large">
+        <Button transform="capitalize" variant="primary" size="large">
           {t("shuffle")}
         </Button>
-        <Button transform="uppercase" variant="primary" size="large">
+        <Button transform="capitalize" variant="primary" size="large">
           {t("report-as-spam")}
         </Button>
       </Footer>

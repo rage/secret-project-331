@@ -1,5 +1,5 @@
 /**
- * Wrapper for edible blocks.
+ * Wrapper for editable blocks.
  */
 interface BlockWrapperProps {
   id: string

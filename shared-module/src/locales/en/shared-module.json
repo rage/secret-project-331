@@ -60,7 +60,6 @@
   "submit": "Submit",
   "set-field-value": "Set {{name}}",
   "points": "Points",
-<<<<<<< HEAD
   "timeline-instruction": "Timeline instruction",
   "strongly-disagree": "strongly disagree",
   "disagree": "disagree",
@@ -71,9 +70,7 @@
   "report-as-spam": "Report as spam",
   "general-comment": "General comment",
   "instruction": "Instruction",
-  "write-a-review": "Write a review"
-=======
+  "write-a-review": "Write a review",
   "added-text": "Added text",
   "removed-text": "Removed text"
->>>>>>> origin/master
 }

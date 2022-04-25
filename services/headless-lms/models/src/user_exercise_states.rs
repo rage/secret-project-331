@@ -7,6 +7,16 @@ use crate::{
     prelude::*,
 };
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[sqlx(type_name = "exercise_progress", rename_all = "snake_case")]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub enum ExerciseProgress {
+    Incomplete,
+    PeerReview,
+    SelfReview,
+    Complete,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct UserExerciseState {
     pub id: Uuid,
@@ -20,6 +30,7 @@ pub struct UserExerciseState {
     pub score_given: Option<f32>,
     pub grading_progress: GradingProgress,
     pub activity_progress: ActivityProgress,
+    pub exercise_progress: ExerciseProgress,
     pub selected_exercise_slide_id: Option<Uuid>,
 }
 
@@ -272,8 +283,9 @@ SELECT id,
   updated_at,
   deleted_at,
   score_given,
-  grading_progress as "grading_progress: _",
-  activity_progress as "activity_progress: _",
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  exercise_progress AS "exercise_progress: _",
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
@@ -307,7 +319,8 @@ WHERE user_id = $1
       score_given,
       grading_progress as "grading_progress: _",
       activity_progress as "activity_progress: _",
-      selected_exercise_slide_id;
+      exercise_progress AS "exercise_progress: _",
+      selected_exercise_slide_id
       "#,
             user_id,
             exercise_id,
@@ -339,8 +352,9 @@ SELECT id,
   updated_at,
   deleted_at,
   score_given,
-  grading_progress as "grading_progress: _",
-  activity_progress as "activity_progress: _",
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  exercise_progress AS "exercise_progress: _",
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
@@ -446,8 +460,9 @@ RETURNING id,
   updated_at,
   deleted_at,
   score_given,
-  grading_progress as "grading_progress: _",
-  activity_progress as "activity_progress: _",
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  exercise_progress AS "exercise_progress: _",
   selected_exercise_slide_id
         "#,
         score_given,

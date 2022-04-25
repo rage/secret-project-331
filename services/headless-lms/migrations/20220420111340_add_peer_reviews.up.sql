@@ -2,6 +2,16 @@
 ALTER TABLE exercises
 ADD COLUMN needs_peer_review BOOLEAN NOT NULL DEFAULT FALSE;
 COMMENT ON COLUMN exercises.needs_peer_review IS 'Does this exercise need to be peer reviewed before it can be marked as complete. The corresponding peer review can be found from the peer reviews table.';
+-- Add enum for exercise progress with peer reviews
+CREATE TYPE exercise_progress AS ENUM (
+  'incomplete',
+  'peer_review',
+  'self_review',
+  'complete'
+);
+-- Add new enum to user exercise states
+ALTER TABLE user_exercise_states
+ADD COLUMN exercise_progress exercise_progress NOT NULL DEFAULT 'incomplete';
 -- Add peer reviews table
 CREATE TABLE peer_reviews (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -23,7 +33,7 @@ COMMENT ON COLUMN peer_reviews.deleted_at IS 'Timestamp when the record was dele
 COMMENT ON COLUMN peer_reviews.course_id IS 'Course id that this course is a part of.';
 COMMENT ON COLUMN peer_reviews.exercise_id IS 'Exercise that this peer review is a part of. There can be one peer review per course where this field is null, which will be used as the default for all peer reviewed exercises.';
 -- Add enum for peer review question types
-CREATE TYPE peer_review_question_type AS ENUM ('ESSAY', 'SCALE');
+CREATE TYPE peer_review_question_type AS ENUM ('essay', 'scale');
 -- Add peer review questions table
 CREATE TABLE peer_review_questions (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

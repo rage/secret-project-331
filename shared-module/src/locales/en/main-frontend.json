@@ -225,6 +225,7 @@
   "title-change-request": "Change request",
   "title-change-requests": "Change requests",
   "title-chapter": "Chapter {{chapter-number}}: {{chapter-name}}",
+  "title-chapter-only-number": "Chapter {{chapter-number}}",
   "title-course-users-counts-by-exercise": "Count of users for each exercise",
   "title-email-templates": "Email templates for course instance.",
   "title-feedback": "Feedback",

@@ -5,8 +5,8 @@ import AsideEditor from "./AsideEditor"
 import AsideSave from "./AsideSave"
 
 export interface AsideComponentProps {
-  title: string
-  bodyText: string
+  backgroundColor: string
+  separatorColor: string
 }
 
 const AsideConfiguration: BlockConfiguration<AsideComponentProps> = {
@@ -14,17 +14,13 @@ const AsideConfiguration: BlockConfiguration<AsideComponentProps> = {
   description: "Aside with body text and possible heading",
   category: "design",
   attributes: {
-    title: {
+    backgroundColor: {
       type: "string",
-      source: "html",
-      selector: "h2",
-      default: "",
+      default: "#ebf5fb",
     },
-    bodyText: {
+    separatorColor: {
       type: "string",
-      source: "html",
-      selector: "p",
-      default: "Aside body",
+      default: "#007acc",
     },
   },
   edit: AsideEditor,

@@ -59,5 +59,6 @@
   "upload-or-drag-and-drop-onto-this-block": "Upload or drag and drop onto this block",
   "background-color": "Background color",
   "welcome-message-for-course": "Welcome message for course...",
-  "start": "Start"
+  "start": "Start",
+  "separator-color": "Separator color"
 }

@@ -1,5 +1,4 @@
 import styled from "@emotion/styled"
-import { t } from "i18next"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -53,8 +52,6 @@ const Linkert = styled.div`
     margin-top: 6px;
     font-size: 17px;
     font-weight: 500;
-    // eslint-disable-next-line i18next/no-literal-string
-    // eslint-disable-next-line i18next/no-literal-string
     color: ${({ active }) => (active ? "#ffffff" : "#313947")};
     text-transform: capitalize;
   }

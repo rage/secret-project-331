@@ -90,6 +90,7 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
           `}
         >
           {rest.label}
+          {register?.required && " *"}
         </span>
         <Input
           id={rest.id}

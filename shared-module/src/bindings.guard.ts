@@ -543,7 +543,6 @@ export function isExamEnrollment(obj: any, _argumentName?: string): obj is ExamE
 export function isNewExam(obj: any, _argumentName?: string): obj is NewExam {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
     typeof obj.name === "string" &&
     (obj.starts_at === null || obj.starts_at instanceof Date) &&
     (obj.ends_at === null || obj.ends_at instanceof Date) &&
@@ -1010,10 +1009,10 @@ export function isPageInfo(obj: any, _argumentName?: string): obj is PageInfo {
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.page_id === "string" &&
     typeof obj.page_title === "string" &&
-    typeof obj.course_id === "string" &&
-    typeof obj.course_name === "string" &&
-    typeof obj.course_slug === "string" &&
-    typeof obj.organization_slug === "string"
+    (obj.course_id === null || typeof obj.course_id === "string") &&
+    (obj.course_name === null || typeof obj.course_name === "string") &&
+    (obj.course_slug === null || typeof obj.course_slug === "string") &&
+    (obj.organization_slug === null || typeof obj.organization_slug === "string")
   )
 }
 
@@ -1387,7 +1386,13 @@ export function isRoleDomain(obj: any, _argumentName?: string): obj is RoleDomai
 }
 
 export function isUserRole(obj: any, _argumentName?: string): obj is UserRole {
-  return obj === "Reviewer" || obj === "Assistant" || obj === "Teacher" || obj === "Admin"
+  return (
+    obj === "Reviewer" ||
+    obj === "Assistant" ||
+    obj === "Teacher" ||
+    obj === "Admin" ||
+    obj === "CourseOrExamCreator"
+  )
 }
 
 export function isUserCourseSettings(obj: any, _argumentName?: string): obj is UserCourseSettings {

@@ -3324,16 +3324,16 @@ async fn create_exam(
     exam_id: Uuid,
     teacher: Uuid,
 ) -> Result<()> {
-    exams::insert(
+    let new_exam_id = exams::insert(
         conn,
         &NewExam {
-            id: exam_id,
             name,
             starts_at,
             ends_at,
             time_minutes,
             organization_id,
         },
+        Some(exam_id),
     )
     .await?;
     let (exam_exercise_block_1, exam_exercise_1, exam_exercise_slide_1, exam_exercise_task_1) =
@@ -3368,7 +3368,7 @@ async fn create_exam(
             url_path: "".to_string(),
             title: "".to_string(),
             course_id: None,
-            exam_id: Some(exam_id),
+            exam_id: Some(new_exam_id),
             chapter_id: None,
             front_page_of_chapter_id: None,
             content_search_language: None,
@@ -3376,6 +3376,6 @@ async fn create_exam(
         teacher,
     )
     .await?;
-    exams::set_course(conn, exam_id, course_id).await?;
+    exams::set_course(conn, new_exam_id, course_id).await?;
     Ok(())
 }

@@ -9,24 +9,6 @@ import Neutral from "../../img/linkert/neutral.svg"
 import StronglyAgree from "../../img/linkert/stronglyAgree.svg"
 import StronglyDisagree from "../../img/linkert/stronglyDisagree.svg"
 
-const arr = [
-  {
-    text: t("strongly-disagree"),
-  },
-  {
-    text: t("disagree"),
-  },
-  {
-    text: t("neutral"),
-  },
-  {
-    text: t("agree"),
-  },
-  {
-    text: t("strongly agree"),
-  },
-]
-
 const Wrapper = styled.div`
   margin: 0 auto;
   max-width: 1000px;
@@ -91,6 +73,24 @@ interface StyledProps {
 const LinkertScale: React.FC<LinkertScaleComponentProps> = () => {
   const [active, setActive] = useState<string>("")
   const { t } = useTranslation()
+
+  const arr = [
+    {
+      text: t("strongly-disagree"),
+    },
+    {
+      text: t("disagree"),
+    },
+    {
+      text: t("neutral"),
+    },
+    {
+      text: t("agree"),
+    },
+    {
+      text: t("strongly-agree"),
+    },
+  ]
 
   const SVGmatcher = (identifier: string) => {
     switch (identifier) {

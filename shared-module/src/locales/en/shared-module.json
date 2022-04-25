@@ -65,5 +65,10 @@
   "disagree": "disagree",
   "neutral": "neutral",
   "agree": "agree",
-  "strongly-agree": "strongly agree"
+  "strongly-agree": "strongly agree",
+  "shuffle": "Shuffle",
+  "report-as-spam": "Report as spam",
+  "general-comment": "General comment",
+  "instruction": "Instruction",
+  "write-a-review": "Write a review"
 }

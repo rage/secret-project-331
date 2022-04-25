@@ -1,6 +1,6 @@
-/* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { primaryFont } from "../../styles/typography"
 import TextArea from "../InputFields/TextAreaField"
@@ -32,24 +32,23 @@ const StyledInstruction = styled.div`
     color: #313947;
   }
 `
-/* export interface ReviewExtraProps {} */
+const INSTRUCTION_TEXT = `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
+been the industrys standard dummy text ever since the 1500s, when an unknown printer took
+a galley of type and scrambled.`
 
-export type ReviewComponentProps = React.HTMLAttributes<HTMLDivElement> /* & ReviewExtraProps */
+export type ReviewComponentProps = React.HTMLAttributes<HTMLDivElement>
 
 const Review: React.FC<ReviewComponentProps> = () => {
+  const { t } = useTranslation()
   return (
     <Wrapper>
       <StyledInstruction>
-        <h3 className="instruction">Instruction</h3>
-        <p className="instruction-text">
-          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
-          been the industrys standard dummy text ever since the 1500s, when an unknown printer took
-          a galley of type and scrambled.
-        </p>
+        <h3 className="instruction">{t("instruction")}</h3>
+        <p className="instruction-text">{INSTRUCTION_TEXT}</p>
       </StyledInstruction>
 
-      <span className="comment">General comment</span>
-      <TextArea placeholder="Write a review" onChange={() => null}></TextArea>
+      <span className="comment">{t("general-comment")}</span>
+      <TextArea placeholder={t("write-a-review")} onChange={() => null}></TextArea>
       <LinkertScale />
     </Wrapper>
   )

@@ -183,6 +183,7 @@ async fn duplicate_exam(
         models::roles::RoleDomain::Exam(new_exam.id),
     )
     .await?;
+    tx.commit().await?;
 
     Ok(web::Json(()))
 }

@@ -88,6 +88,7 @@ async fn post_new_course(
         models::roles::RoleDomain::Course(course.id),
     )
     .await?;
+    tx.commit().await?;
 
     Ok(web::Json(course))
 }

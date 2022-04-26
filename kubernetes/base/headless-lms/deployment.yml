@@ -78,7 +78,7 @@ metadata:
     deploymentType: without-init-container
     needs-db: "true"
 spec:
-  backoffLimit: 10
+  backoffLimit: 6
   template:
     metadata:
       annotations:
@@ -93,6 +93,7 @@ spec:
             - bash
             - "-c"
             - |
+              set -e
               # wait-for-it seems to always sleep until the timeout without this sleep
               sleep 10
               echo Waiting for postgres to be available

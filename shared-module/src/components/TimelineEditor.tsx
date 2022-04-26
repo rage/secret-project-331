@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import CrossIcon from "../img/exist-icon.svg"
 
-import EditableComponent from "./EditableComponent"
+import TextAreaField from "./InputFields/EditableComponentTextArea"
 import TextField from "./InputFields/TextField"
 
 const Wrapper = styled.div`
@@ -30,11 +30,16 @@ const StyledForm = styled.form`
   grid-template-columns: 0.1fr 2.2fr 0.1fr;
   gap: 10px;
   margin-top: 12px;
+
+  @media (max-width: 767.98px) {
+    grid-template-columns: 1fr;
+    gap: 0px;
+  }
 `
 const StyledTextField = styled(TextField)`
-  /* input {
-    min-width: 80px !important;
-  } */
+  @media (max-width: 767.98px) {
+    height: 55px !important;
+  }
 `
 const StyledBtn = styled.button`
   width: 50px;
@@ -54,14 +59,22 @@ const StyledBtn = styled.button`
       fill: #08457a;
     }
   }
+
+  @media (max-width: 767.98px) {
+    width: 100%;
+  }
 `
 const DeleteBtn = styled.button`
   width: 50px;
-  height: 100%;
+  min-height: 49px;
   background: #e2c2bc;
   outline: none;
   justify-self: end;
   border: none;
+
+  @media (max-width: 767.98px) {
+    width: 100%;
+  }
 `
 const List = styled.div`
   display: grid;
@@ -71,29 +84,35 @@ const List = styled.div`
   margin-top: 10px;
   margin-bottom: 10px;
   font-size: 20px;
+
+  @media (max-width: 767.98px) {
+    grid-template-columns: 100%;
+    gap: 5px;
+    margin-bottom: 30px;
+  }
 `
 const Date = styled.div`
   background: #f5f6f7;
   border: 1.5px solid #e2e4e6;
   width: 280px;
-  display: flex;
-  padding: 0 1rem;
+  padding: 0.4rem 1rem;
+  border-radius: 3px;
 
-  &[contenteditable]:focus {
-    background: #fff;
-    border: 1.5px solid #e2e4e6;
-    outline: none;
+  @media (max-width: 767.98px) {
+    width: 100%;
   }
 `
 const Event = styled.div`
   background: #f5f6f7;
   border: 1.5px solid #e2e4e6;
+  border-radius: 3px;
   width: 100%;
-  display: flex;
   align-items: center;
-  padding: 0 1rem;
-  word-wrap: break-word;
-  word-break: break-all;
+  padding: 0.4rem 1rem;
+
+  @media (max-width: 767.98px) {
+    width: 100%;
+  }
 `
 export interface Timeline {
   id: string
@@ -141,16 +160,12 @@ const TimelineEditor: React.FC<TimelineEditorProps> = () => {
       {state &&
         state.map(({ id, content, year }) => (
           <List key={id} id={id}>
-            <EditableComponent onChange={handleChange} id={id}>
-              <Date>
-                <p>{year}</p>
-              </Date>
-            </EditableComponent>
-            <EditableComponent onChange={handleChange} id={id}>
-              <Event>
-                <p>{content}</p>
-              </Event>
-            </EditableComponent>
+            <Date>
+              <TextAreaField onChange={handleChange} defaultValue={year} autoResize={true} />
+            </Date>
+            <Event>
+              <TextAreaField onChange={handleChange} defaultValue={content} autoResize={true} />
+            </Event>
             <DeleteBtn
               onClick={() => {
                 setState((prevState) => {

@@ -21,13 +21,18 @@ export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextAreaEx
 function updateHeight(ref: React.RefObject<HTMLTextAreaElement>) {
   if (ref.current) {
     // eslint-disable-next-line i18next/no-literal-string
-    ref.current.style.height = "auto"
+    ref.current.style.height = "20px"
     // eslint-disable-next-line i18next/no-literal-string
-    ref.current.style.height = `${ref.current.scrollHeight + 5}px`
+    ref.current.style.height = `${ref.current.scrollHeight /* + 5 */}px`
   }
 }
 
-const TextArea = ({ onChange, className, autoResize, ...rest }: TextAreaExtraProps) => {
+const EditableComponentTextArea = ({
+  onChange,
+  className,
+  autoResize,
+  ...rest
+}: TextAreaExtraProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
@@ -41,15 +46,18 @@ const TextArea = ({ onChange, className, autoResize, ...rest }: TextAreaExtraPro
     <div
       className={cx(
         css`
-          margin-bottom: 1rem;
-
           label {
             display: grid;
 
             textarea {
-              background: #fcfcfc;
-              border: 1.6px solid #dedede;
+              background: transparent;
+              border: none;
               outline: none;
+              /* Custom styles */
+              resize: none;
+              -webkit-box-shadow: none;
+              -moz-box-shadow: none;
+              box-shadow: none;
             }
 
             span {
@@ -64,7 +72,6 @@ const TextArea = ({ onChange, className, autoResize, ...rest }: TextAreaExtraPro
       )}
     >
       <label>
-        <span>{rest.label}</span>
         <textarea
           ref={textareaRef}
           onChange={({ target: { value, name } }) => {
@@ -82,4 +89,4 @@ const TextArea = ({ onChange, className, autoResize, ...rest }: TextAreaExtraPro
   )
 }
 
-export default TextArea
+export default EditableComponentTextArea

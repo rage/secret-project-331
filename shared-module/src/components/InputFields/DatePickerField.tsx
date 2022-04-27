@@ -27,7 +27,7 @@ const DatePicker = ({ onChange, className, ...rest }: DatePickerExtraProps) => {
 
             input {
               max-width: 22ch;
-              padding: 4px 10px;
+              padding: 10px 12px;
               border: 2px solid #dedede;
               border-radius: 3px;
               outline: none;

@@ -50,6 +50,7 @@ const TextArea = ({ onChange, className, autoResize, ...rest }: TextAreaExtraPro
               background: #fcfcfc;
               border: 1.6px solid #dedede;
               outline: none;
+              padding: 10px 12px;
             }
 
             span {

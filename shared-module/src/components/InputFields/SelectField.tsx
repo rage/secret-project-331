@@ -9,6 +9,8 @@ interface SelectOption<T extends string> {
 interface SelectMenuExtraProps<T extends string> {
   id: string
   label?: string
+  name?: string
+  placeholder?: string
   error?: string
   value?: string
   defaultValue?: T
@@ -41,7 +43,6 @@ const SelectMenu = <T extends string>({
             appearance: none;
             background-color: transparent;
             border: none;
-            padding: 8px 10px;
             margin: 0;
             width: 100%;
             font-family: inherit;
@@ -60,9 +61,10 @@ const SelectMenu = <T extends string>({
           .select {
             width: 100%;
             border: 1px solid #e0e0e0;
-            font-size: 1rem;
+            border-radius: 3px;
+            padding: 10px 12px;
+            font-size: 18px;
             cursor: pointer;
-            line-height: 1.1;
             background: #f9f9f9;
             display: grid;
             grid-template-areas: "select";

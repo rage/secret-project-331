@@ -58,6 +58,7 @@ const EditableComponentTextArea = ({
               -webkit-box-shadow: none;
               -moz-box-shadow: none;
               box-shadow: none;
+              width: 100%;
             }
 
             span {

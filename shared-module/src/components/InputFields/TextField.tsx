@@ -41,6 +41,7 @@ const Input = styled.input<InputExtraProps>`
   border-radius: 3px;
   border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
   padding: 10px 12px;
+  /* padding-block: minmax(5px 10px) 12px; */
   transition: ease-in-out, width 0.35s ease-in-out;
   outline: none;
   min-width: 280px;

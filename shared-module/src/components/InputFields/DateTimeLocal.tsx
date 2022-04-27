@@ -49,7 +49,7 @@ const DateTimeLocal = ({
             display: grid;
 
             input {
-              padding: 4px 0;
+              padding: 10px 12px;
               border: 2px solid #dedede;
               border-radius: 3px;
               outline: none;

@@ -24,6 +24,7 @@
     "@mui/material": "^5.6.0",
     "@mui/styles": "^5.6.0",
     "axios": "^0.26.1",
+    "citation-js": "^0.5.7",
     "date-fns": "^2.28.0",
     "diff": "^5.0.0",
     "dompurify": "^2.3.6",

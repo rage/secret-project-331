@@ -1720,6 +1720,52 @@
       "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
     }
   },
+  "1e72401b4ba225d0a53fff1b132fcb10bf77ab6b168c1eca7b613eb7f33a762a": {
+    "query": "\nSELECT *\nFROM material_references\nWHERE id = $1;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "citation_key",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "reference",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, false, false, true]
+    }
+  },
   "1e7b36b82611573fc4018fc50e03c255e15ae4f8410fdced069aa422e72930ae": {
     "query": "\nSELECT *\nFROM users\nWHERE email = $1\n        ",
     "describe": {
@@ -2186,6 +2232,16 @@
         false,
         false
       ]
+    }
+  },
+  "26f972e67e77c0e17f97cacf77bbd0738da23a902870042007944b9c06ff7ff3": {
+    "query": "\n        DELETE FROM material_references WHERE id = $1;\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
     }
   },
   "28bfce5519da0502894a0ee396ee94c5c498958c55f4883409c9cb450b6218be": {
@@ -4475,6 +4531,16 @@
       "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
+  "641e139360e3a2134fda3b79ba71411bc3a96adb101d13d3c41835816bde6adb": {
+    "query": "\nINSERT INTO material_references(course_id, citation_key, reference)\nVALUES ($1, $2, $3)\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Text", "Text"]
+      },
+      "nullable": []
+    }
+  },
   "64fe3f5421ad33305f9f1daef9da4fb63db3edc86b7e769e21e689b67f2d9839": {
     "query": "\nINSERT INTO exercise_task_gradings(\n    exercise_task_submission_id,\n    course_id,\n    exam_id,\n    exercise_id,\n    exercise_task_id,\n    grading_started_at\n  )\nVALUES($1, $2, $3, $4, $5, now())\nRETURNING id,\n  created_at,\n  updated_at,\n  exercise_task_submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  unscaled_score_given,\n  unscaled_score_maximum,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\n",
     "describe": {
@@ -5179,6 +5245,52 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false, null]
+    }
+  },
+  "701ef8a21bade7eba39ffeb80170c53ce36786389183aa1e9f13e14c233fb984": {
+    "query": "\nSELECT *\nFROM material_references\nWHERE course_id = $1;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "citation_key",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "reference",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, false, false, true]
     }
   },
   "704d2ff21bfbe8be852572082c673e2f021de2d503e97fa6cca5d92900ba1fbc": {

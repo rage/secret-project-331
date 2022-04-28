@@ -36,6 +36,7 @@ use headless_lms_models::{
     feedback::{Feedback, FeedbackBlock, FeedbackCount},
     glossary::Term,
     library::grading::{StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult},
+    material_references::{MaterialReference, NewMaterialReference},
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
@@ -847,6 +848,25 @@ fn main() {
             organization_slug: "uh-cs".to_string()
         }
     );
+    write_docs!(
+        MaterialReference,
+        MaterialReference {
+            id: id,
+            course_id: id2,
+            citation_key: "NeuralNetworks2022".to_string(),
+            reference: "bibtex reference".to_string(),
+            created_at,
+            updated_at,
+            deleted_at
+        }
+    );
+    write_docs!(
+        NewMaterialReference,
+        NewMaterialReference {
+            citation_key: "NeuralNetworks2022".to_string(),
+            reference: "bibtex reference".to_string(),
+        }
+    )
 }
 
 fn write_json<T: Serialize>(path: &str, value: T) {

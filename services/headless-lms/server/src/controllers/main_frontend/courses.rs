@@ -11,6 +11,7 @@ use models::{
     exercises::Exercise,
     feedback::{self, Feedback, FeedbackCount},
     glossary::{Term, TermUpdate},
+    material_references::{MaterialReference, NewMaterialReference},
     pages::Page,
     user_exercise_states::ExerciseUserCounts,
 };
@@ -632,6 +633,36 @@ pub async fn post_new_page_ordering(
     Ok(web::Json(()))
 }
 
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_material_references_by_course_id(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<MaterialReference>>> {
+    let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::ExerciseService).await?;
+
+    let res =
+        models::material_references::get_references_by_course_id(&mut conn, *course_id).await?;
+    Ok(web::Json(res))
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn insert_material_reference(
+    course_id: web::Path<Uuid>,
+    payload: web::Json<NewMaterialReference>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::ExerciseService).await?;
+
+    models::material_references::insert_reference(&mut conn, *course_id, payload.0).await?;
+    Ok(web::Json(()))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -696,5 +727,13 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/new-page-ordering",
             web::post().to(post_new_page_ordering),
+        )
+        .route(
+            "/{course_id}/references",
+            web::get().to(get_material_references_by_course_id),
+        )
+        .route(
+            "/{course_id}/references",
+            web::post().to(insert_material_reference),
         );
 }

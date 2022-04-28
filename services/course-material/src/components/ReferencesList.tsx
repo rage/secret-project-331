@@ -1,20 +1,23 @@
 import Cite from "citation-js"
 import React from "react"
 
+import usePageReferences from "../hooks/usePageReferences"
+
 interface ReferencesProps {
-  references: string[]
+  courseId: string
 }
 
-const FORMAT = "html"
+const FORMAT = "text"
 const TEMPLATE = "vancouver"
 const LANG = "en-US"
 const BIBLIOGRAPHY = "bibliography"
 
-const References: React.FC<ReferencesProps> = ({ references }) => {
+const References: React.FC<ReferencesProps> = ({ courseId }) => {
+  const pageRefs = usePageReferences(courseId)
   return (
     <div>
       <ul>
-        {references.map((r, idx) => {
+        {pageRefs.map((r, idx) => {
           const c = Cite(r)
           return (
             <li key={idx}>

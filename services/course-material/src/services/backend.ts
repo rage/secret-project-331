@@ -9,7 +9,9 @@ import {
   CoursePageWithUserData,
   ExamData,
   ExamEnrollment,
+  MaterialReference,
   NewFeedback,
+  NewMaterialReference,
   NewProposedPageEdits,
   OEmbedResponse,
   Page,
@@ -341,4 +343,15 @@ export const fetchMentimeterEmbed = async (url: string): Promise<OEmbedResponse>
     { responseType: "json" },
   )
   return validateResponse(response, isOEmbedResponse)
+}
+
+export const fetchCourseReferences = async (courseId: string): Promise<MaterialReference[]> => {
+  return (await courseMaterialClient.get(`/courses/${courseId}/references`)).data
+}
+
+export const postNewReference = async (
+  courseId: string,
+  data: NewMaterialReference,
+): Promise<void> => {
+  await courseMaterialClient.post(`/courses/${courseId}/references`, data)
 }

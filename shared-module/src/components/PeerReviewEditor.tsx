@@ -28,7 +28,7 @@ const Wrapper = styled.div`
 `
 const StyledForm = styled.form`
   display: grid;
-  grid-template-columns: 1.2fr 0.5fr 0.1fr;
+  grid-template-columns: 0.5fr 1.2fr 0.1fr;
   gap: 10px;
   margin-top: 12px;
 
@@ -74,7 +74,7 @@ const DeleteBtn = styled.button`
 `
 const List = styled.div`
   display: grid;
-  grid-template-columns: 1.2fr 0.5fr 0.1fr;
+  grid-template-columns: 0.5fr 1.2fr 0.1fr;
   min-height: 40px;
   gap: 10px;
   margin-top: 10px;
@@ -117,6 +117,7 @@ export interface PeerReview {
 
 const PLACEHOLDER = "Write the PeerReview instruction"
 const QUESTION = "question"
+const INSTRUCTION = "instruction"
 const TYPE = "questionType"
 const QUESTION_PLACEHOLDER = "Write the question"
 const HEADING_TEXT = "Configure review answers option"
@@ -153,27 +154,21 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = () => {
   return (
     <Wrapper>
       <span>{t("peer-review-instruction")}</span>
-      <SelectField
-        id="peer-review"
-        placeholder={PLACEHOLDER}
-        options={options}
-        onChange={() => null}
-        onBlur={() => null}
-      />
+      <TextField name={INSTRUCTION} placeholder={PLACEHOLDER} onChange={() => null} />
 
       <h2>{HEADING_TEXT}</h2>
       {state &&
         state.map(({ id, question, questionType }) => (
           <List key={id} id={id}>
             <StyledQuestion>
-              <TextAreaField onChange={handleChange} defaultValue={question} autoResize={true} />
-            </StyledQuestion>
-            <StyledQuestionType>
               <TextAreaField
                 onChange={handleChange}
                 defaultValue={questionType}
                 autoResize={true}
               />
+            </StyledQuestion>
+            <StyledQuestionType>
+              <TextAreaField onChange={handleChange} defaultValue={question} autoResize={true} />
             </StyledQuestionType>
             <DeleteBtn
               onClick={() => {
@@ -214,17 +209,15 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = () => {
           target.questionType.value = ""
         }}
       >
-        <TextField name={QUESTION} placeholder={QUESTION_PLACEHOLDER} onChange={() => null} />
         <SelectField
           id="question-type"
           name={TYPE}
           placeholder={PLACEHOLDER}
           options={options}
-          value={t("essay")}
           onChange={() => null}
           onBlur={() => null}
         />
-        {/* <Test></Test> */}
+        <TextField name={QUESTION} placeholder={QUESTION_PLACEHOLDER} onChange={() => null} />
         <StyledBtn type="submit" name={t("submit")} value={t("submit")}>
           <CrossIcon />
         </StyledBtn>

@@ -62,7 +62,7 @@ const SelectMenu = <T extends string>({
             width: 100%;
             border: 1px solid #e0e0e0;
             border-radius: 3px;
-            padding: 0.442vw 12px;
+            padding: 10px 12px;
             font-size: 18px;
             cursor: pointer;
             background: #f9f9f9;

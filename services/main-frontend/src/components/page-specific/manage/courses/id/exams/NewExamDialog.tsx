@@ -91,7 +91,7 @@ const NewExamDialog: React.FC<ExamDialogProps> = ({ organizationId, getOrgExams,
             <NewExamForm
               exams={getOrgExams.data}
               initialData={null}
-              organization={organizationId}
+              organizationId={organizationId}
               onCancel={close}
               onCreateNewExam={(newExam) => createExamMutation.mutate(newExam)}
               onDuplicateExam={(parentId: string, newExam: NewExam) =>

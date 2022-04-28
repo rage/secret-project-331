@@ -12,7 +12,7 @@ import { dateToDateTimeLocalString } from "../../shared-module/utils/time"
 
 interface NewExamFormProps {
   initialData: OrgExam | null
-  organization: string
+  organizationId: string
   exams: OrgExam[]
   onCreateNewExam: (form: NewExam) => void
   onDuplicateExam: (parentId: string, newExam: NewExam) => void
@@ -29,7 +29,7 @@ interface NewExamFields {
 
 const NewExamForm: React.FC<NewExamFormProps> = ({
   initialData,
-  organization,
+  organizationId,
   exams,
   onCreateNewExam,
   onDuplicateExam,
@@ -42,6 +42,8 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
     handleSubmit,
     formState: { errors },
     clearErrors,
+    setValue,
+    getValues,
   } = useForm<NewExamFields>()
 
   const [exam, setExam] = useState(initialData)
@@ -50,7 +52,7 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
 
   const onCreateNewExamWrapper = handleSubmit((data) => {
     onCreateNewExam({
-      organization_id: organization,
+      organization_id: organizationId,
       name: data.name,
       starts_at: new Date(data.startsAt),
       ends_at: new Date(data.endsAt),
@@ -61,10 +63,10 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
   const onDuplicateExamWrapper = handleSubmit((data) => {
     if (exam) {
       const newExam: NewExam = {
-        organization_id: organization,
+        organization_id: organizationId,
         name: data.name,
-        starts_at: data.startsAt,
-        ends_at: data.endsAt,
+        starts_at: new Date(data.startsAt),
+        ends_at: new Date(data.endsAt),
         time_minutes: Number(data.timeMinutes),
       }
       const examId = String(parentId)
@@ -75,7 +77,11 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
   const handleSetExamToDuplicate = (examId: string) => {
     clearErrors()
     setParentId(examId)
-    setExam(exams.filter((e) => e.id === examId)[0])
+    const exam = exams.filter((e) => e.id === examId)[0]
+    setExam(exam)
+    if (getValues("timeMinutes").toString() === "") {
+      setValue("timeMinutes", exam.time_minutes)
+    }
   }
 
   return (
@@ -106,7 +112,6 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
         <TextField
           id={"timeMinutes"}
           error={errors.timeMinutes?.message}
-          defaultValue={String(exam?.time_minutes || "")}
           label={t("label-time-minutes")}
           register={register("timeMinutes", {
             required: t("required-field"),

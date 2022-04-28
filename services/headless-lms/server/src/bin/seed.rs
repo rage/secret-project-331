@@ -135,6 +135,14 @@ async fn main() -> Result<()> {
         Uuid::parse_str("24342539-f1ba-453e-ae13-14aa418db921")?,
     )
     .await?;
+    let course_or_exam_creator = users::insert_with_id(
+        &mut conn,
+        "creator@example.com",
+        Some("Creator"),
+        Some("Example"),
+        Uuid::parse_str("c9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f9")?,
+    )
+    .await?;
 
     let student = users::insert_with_id(
         &mut conn,
@@ -340,6 +348,13 @@ async fn main() -> Result<()> {
         language_teacher,
         UserRole::Teacher,
         RoleDomain::Course(introduction_to_localizing),
+    )
+    .await?;
+    roles::insert(
+        &mut conn,
+        course_or_exam_creator,
+        UserRole::CourseOrExamCreator,
+        RoleDomain::Organization(uh_cs),
     )
     .await?;
 

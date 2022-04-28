@@ -93,7 +93,7 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
             initialData?.starts_at ? dateToDateTimeLocalString(initialData?.starts_at) : undefined
           }
           label={t("label-starts-at")}
-          register={register("startsAt", { required: t("required-field"), valueAsDate: true })}
+          register={register("startsAt", { required: t("required-field") })}
         />
         <DateTimeLocal
           error={errors.endsAt?.message}
@@ -101,7 +101,7 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
             initialData?.ends_at ? dateToDateTimeLocalString(initialData?.ends_at) : undefined
           }
           label={t("label-ends-at")}
-          register={register("endsAt", { required: t("required-field"), valueAsDate: true })}
+          register={register("endsAt", { required: t("required-field") })}
         />
         <TextField
           id={"timeMinutes"}
@@ -110,9 +110,6 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
           label={t("label-time-minutes")}
           register={register("timeMinutes", {
             required: t("required-field"),
-            min: 1,
-            max: 525600,
-            valueAsNumber: true,
           })}
         />
         <br />

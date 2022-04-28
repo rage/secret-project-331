@@ -33,8 +33,7 @@ use headless_lms_models::{
     proposed_page_edits::NewProposedPageEdits,
     roles::UserRole,
     roles::{self, RoleDomain},
-    url_redirections, user_exercise_slide_states, user_exercise_states, user_exercise_task_states,
-    users,
+    url_redirections, user_exercise_slide_states, user_exercise_states, users,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::Value;
@@ -3297,15 +3296,12 @@ async fn submit_and_grade(
         score_given: out_of_100,
         score_maximum: 100,
     };
-    let grading =
-        exercise_task_gradings::update_grading(conn, &grading, &grading_result, &exercise).await?;
-    user_exercise_task_states::upsert_with_grading(conn, user_exercise_slide_state.id, &grading)
-        .await
-        .unwrap();
-    exercise_task_submissions::set_grading_id(conn, grading.id, task_submission.id).await?;
-    headless_lms_models::library::grading::update_points_for_user_exercise_state(
+    headless_lms_models::library::grading::update_exercise_state_with_single_exercise_task_grading_result(
         conn,
-        user_exercise_state,
+        &exercise,
+        &grading,
+        &grading_result,
+        user_exercise_slide_state,
         UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
     )
     .await

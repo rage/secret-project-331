@@ -333,6 +333,34 @@ WHERE user_id = $1
     Ok(res)
 }
 
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<UserExerciseState> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  exercise_progress AS "exercise_progress: _",
+  selected_exercise_slide_id
+FROM user_exercise_states
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_user_exercise_state_if_exists(
     conn: &mut PgConnection,
     user_id: Uuid,

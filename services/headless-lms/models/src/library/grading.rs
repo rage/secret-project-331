@@ -5,10 +5,12 @@ use crate::{
     exercise_task_gradings::{
         self, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy,
     },
+    exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, ExerciseTask},
     exercises::{ActivityProgress, Exercise, ExerciseStatus},
     prelude::*,
+    regradings,
     user_exercise_slide_states::{self, UserExerciseSlideState},
     user_exercise_states::{self, UserExerciseState},
     user_exercise_task_states,
@@ -140,7 +142,6 @@ pub async fn create_user_exercise_slide_submission(
     })
 }
 
-#[inline]
 pub async fn grade_user_submission(
     conn: &mut PgConnection,
     exercise: &Exercise,
@@ -157,7 +158,73 @@ pub async fn grade_user_submission(
     .await
 }
 
-#[inline]
+// Relocated regrading logic to condensate score update logic in a single place.
+// Needs better separation of concerns in the far future.
+pub async fn update_grading_with_single_regrading_result(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    regrading_submission: &ExerciseTaskRegradingSubmission,
+    exercise_task_grading: &ExerciseTaskGrading,
+    exercise_task_grading_result: &ExerciseTaskGradingResult,
+) -> ModelResult<()> {
+    let task_submission = exercise_task_submissions::get_by_id(
+        &mut *conn,
+        regrading_submission.exercise_task_submission_id,
+    )
+    .await?;
+    let slide_submission = exercise_slide_submissions::get_by_id(
+        &mut *conn,
+        task_submission.exercise_slide_submission_id,
+    )
+    .await?
+    .ok_or_else(|| ModelError::Generic("No slide submission".to_string()))?;
+    let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+        conn,
+        slide_submission.user_id,
+        exercise.id,
+        slide_submission.course_instance_id,
+        slide_submission.exam_id,
+    )
+    .await?;
+    let user_exercise_slide_state = user_exercise_slide_states::get_or_insert_by_unique_index(
+        &mut *conn,
+        user_exercise_state.id,
+        slide_submission.exercise_slide_id,
+    )
+    .await?;
+    let regrading = regradings::get_by_id(&mut *conn, regrading_submission.regrading_id).await?;
+    propagate_user_exercise_state_update_from_exercise_task_grading_result(
+        conn,
+        exercise,
+        exercise_task_grading,
+        exercise_task_grading_result,
+        user_exercise_slide_state,
+        regrading.user_points_update_strategy,
+    )
+    .await?;
+    Ok(())
+}
+
+pub async fn update_exercise_state_with_single_exercise_task_grading_result(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    exercise_task_grading: &ExerciseTaskGrading,
+    exercise_task_grading_result: &ExerciseTaskGradingResult,
+    user_exercise_slide_state: UserExerciseSlideState,
+    user_points_update_strategy: UserPointsUpdateStrategy,
+) -> ModelResult<()> {
+    propagate_user_exercise_state_update_from_exercise_task_grading_result(
+        conn,
+        exercise,
+        exercise_task_grading,
+        exercise_task_grading_result,
+        user_exercise_slide_state,
+        user_points_update_strategy,
+    )
+    .await?;
+    Ok(())
+}
+
 pub async fn test_only_grade_user_submission_with_fixed_results(
     conn: &mut PgConnection,
     exercise: &Exercise,
@@ -229,9 +296,9 @@ async fn grade_user_submission_internal(
             results.push(submission);
         }
     }
-    let user_exercise_state = update_points_for_user_exercise_state(
+    let user_exercise_state = propagate_user_exercise_state_update_from_slide(
         &mut tx,
-        user_exercise_state,
+        user_exercise_slide_state,
         exercise_slide_submission.user_points_update_strategy,
     )
     .await?;
@@ -245,36 +312,6 @@ async fn grade_user_submission_internal(
         }),
         exercise_task_submission_results: results,
     })
-}
-
-/// Updates points for given user exercise state and all its related slide states. Returns updated
-/// user exercise state.
-pub async fn update_points_for_user_exercise_state(
-    conn: &mut PgConnection,
-    user_exercise_state: UserExerciseState,
-    user_points_update_strategy: UserPointsUpdateStrategy,
-) -> ModelResult<UserExerciseState> {
-    let mut tx = conn.begin().await?;
-
-    let user_exercise_slide_states = user_exercise_slide_states::get_all_by_user_exercise_state_id(
-        &mut tx,
-        user_exercise_state.id,
-    )
-    .await?;
-    for user_exercise_slide_state in user_exercise_slide_states {
-        update_user_exercise_slide_state(
-            &mut tx,
-            &user_exercise_slide_state,
-            user_points_update_strategy,
-        )
-        .await?;
-    }
-    let new_user_exercise_state =
-        update_user_exercise_state(&mut tx, &user_exercise_state, user_points_update_strategy)
-            .await?;
-
-    tx.commit().await?;
-    Ok(new_user_exercise_state)
 }
 
 async fn grade_user_submission_task(
@@ -369,6 +406,27 @@ async fn update_user_exercise_state(
     Ok(new_user_exercise_state)
 }
 
+/// Updates the user exercise state starting from a slide state, and propagates the update up to the
+/// whole user exercise state.
+async fn propagate_user_exercise_state_update_from_slide(
+    conn: &mut PgConnection,
+    user_exercise_slide_state: UserExerciseSlideState,
+    user_points_update_strategy: UserPointsUpdateStrategy,
+) -> ModelResult<UserExerciseState> {
+    update_user_exercise_slide_state(
+        conn,
+        &user_exercise_slide_state,
+        user_points_update_strategy,
+    )
+    .await?;
+    let user_exercise_state =
+        user_exercise_states::get_by_id(conn, user_exercise_slide_state.user_exercise_state_id)
+            .await?;
+    let user_exercise_state =
+        update_user_exercise_state(conn, &user_exercise_state, user_points_update_strategy).await?;
+    Ok(user_exercise_state)
+}
+
 async fn update_user_exercise_slide_state(
     conn: &mut PgConnection,
     user_exercise_slide_state: &UserExerciseSlideState,
@@ -397,4 +455,47 @@ async fn update_user_exercise_slide_state(
         user_exercise_slide_state.id, changes
     );
     Ok(())
+}
+
+/// Updates the user exercise state starting from a single task, and propagates the update up to the
+/// whole user exercise state.
+async fn propagate_user_exercise_state_update_from_exercise_task_grading_result(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    exercise_task_grading: &ExerciseTaskGrading,
+    exercise_task_grading_result: &ExerciseTaskGradingResult,
+    user_exercise_slide_state: UserExerciseSlideState,
+    user_points_update_strategy: UserPointsUpdateStrategy,
+) -> ModelResult<UserExerciseState> {
+    let updated_exercise_task_grading = exercise_task_gradings::update_grading(
+        conn,
+        exercise_task_grading,
+        exercise_task_grading_result,
+        exercise,
+    )
+    .await?;
+    exercise_task_submissions::set_grading_id(
+        conn,
+        updated_exercise_task_grading.id,
+        updated_exercise_task_grading.exercise_task_submission_id,
+    )
+    .await?;
+    let user_exercise_task_state = user_exercise_task_states::upsert_with_grading(
+        conn,
+        user_exercise_slide_state.id,
+        &updated_exercise_task_grading,
+    )
+    .await?;
+    let user_exercise_slide_state = user_exercise_slide_states::get_by_id(
+        conn,
+        user_exercise_task_state.user_exercise_slide_state_id,
+    )
+    .await?;
+    let user_exercise_state = propagate_user_exercise_state_update_from_slide(
+        conn,
+        user_exercise_slide_state,
+        user_points_update_strategy,
+    )
+    .await?;
+    Ok(user_exercise_state)
 }

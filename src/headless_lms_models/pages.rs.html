@@ -2265,7 +2265,6 @@
 <span id="2260">2260</span>
 <span id="2261">2261</span>
 <span id="2262">2262</span>
-<span id="2263">2263</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -2316,10 +2315,10 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageInfo</span> {
     <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">page_title</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">course_slug</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">organization_slug</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">course_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">course_slug</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">organization_slug</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Page</span> {
@@ -2678,21 +2677,21 @@ WHERE id = $1;
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_info</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PageInfo</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">PageInfo</span>,
-        <span class="string">&quot;
+        <span class="string">r#&quot;
     SELECT
         p.id as page_id,
         p.title as page_title,
-        c.id as course_id,
-        c.name as course_name,
-        c.slug as course_slug,
-        o.slug as organization_slug
+        c.id as &quot;course_id?&quot;,
+        c.name as &quot;course_name?&quot;,
+        c.slug as &quot;course_slug?&quot;,
+        o.slug as &quot;organization_slug?&quot;
     FROM pages p
-    JOIN courses c
+    LEFT JOIN courses c
         on c.id = p.course_id
-    JOIN organizations o
+    LEFT JOIN organizations o
         on o.id = c.organization_id
     WHERE p.id = $1;
-        &quot;</span>,
+        &quot;#</span>,
         <span class="ident">page_id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
@@ -4422,17 +4421,16 @@ WHERE pages.order_number = $1
         <span class="kw">let</span> <span class="ident">course_page_org</span> <span class="op">=</span> <span class="ident">get_organization_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">page</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">org</span>, <span class="ident">course_page_org</span>);
 
-        <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>();
-        <span class="ident"><span class="kw">crate</span>::exams::insert</span>(
+        <span class="kw">let</span> <span class="ident">new_exam_id</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::exams::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
             <span class="kw-2">&amp;</span><span class="ident">NewExam</span> {
-                <span class="ident">id</span>: <span class="ident">exam</span>,
                 <span class="ident">name</span>: <span class="string">&quot;name&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">starts_at</span>: <span class="prelude-val">None</span>,
                 <span class="ident">ends_at</span>: <span class="prelude-val">None</span>,
                 <span class="ident">time_minutes</span>: <span class="number">120</span>,
                 <span class="ident">organization_id</span>: <span class="ident">org</span>,
             },
+            <span class="prelude-val">None</span>,
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
@@ -4446,7 +4444,7 @@ WHERE pages.order_number = $1
                 <span class="ident">url_path</span>: <span class="string">&quot;url&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">title</span>: <span class="string">&quot;title&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">course_id</span>: <span class="prelude-val">None</span>,
-                <span class="ident">exam_id</span>: <span class="prelude-val">Some</span>(<span class="ident">exam</span>),
+                <span class="ident">exam_id</span>: <span class="prelude-val">Some</span>(<span class="ident">new_exam_id</span>),
                 <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
                 <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
                 <span class="ident">content_search_language</span>: <span class="prelude-val">None</span>,

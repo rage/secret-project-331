@@ -211,12 +211,6 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
 <span class="kw">use</span> <span class="ident">models::exams</span>::{<span class="self">self</span>, <span class="ident">Exam</span>, <span class="ident">NewExam</span>};
@@ -248,23 +242,6 @@ GET `/api/v0/main-frontend/exams/:id
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExamCourseInfo</span> {
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-}
-
-<span class="doccomment">/**
-POST `/api/v0/main-frontend/exams`
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_exam</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">exam</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">exams::NewExam</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Exam</span>(<span class="ident">exam</span>.<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exam</span>.<span class="number">0</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">exam</span>))
 }
 
 <span class="doccomment">/**
@@ -400,15 +377,26 @@ GET `/api/v0/main-frontend/exams/:id/export-submissions`
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="ident">models::exams::get_organization_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Duplicate</span>,
+        <span class="ident">Act::CreateCoursesOrExams</span>,
         <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Exam</span>(<span class="kw-2">*</span><span class="ident">exam_id</span>),
+        <span class="ident">Res::Organization</span>(<span class="ident">organization_id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">models::library::copying::copy_exam</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exam_id</span>, <span class="kw-2">&amp;</span><span class="ident">new_exam</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">new_exam</span> <span class="op">=</span> <span class="ident">models::library::copying::copy_exam</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">exam_id</span>, <span class="kw-2">&amp;</span><span class="ident">new_exam</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">models::roles::insert</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+        <span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="ident">models::roles::UserRole::Teacher</span>,
+        <span class="ident">models::roles::RoleDomain::Exam</span>(<span class="ident">new_exam</span>.<span class="ident">id</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(()))
 }

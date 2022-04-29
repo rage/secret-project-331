@@ -703,6 +703,18 @@
 <span id="698">698</span>
 <span id="699">699</span>
 <span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils::strings::is_ietf_language_code_like</span>;
@@ -770,19 +782,31 @@ Content-Type: application/json
     }
     <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Teach</span>,
+        <span class="ident">Act::CreateCoursesOrExams</span>,
         <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
         <span class="ident">Res::Organization</span>(<span class="ident">new_course</span>.<span class="ident">organization_id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> (<span class="ident">course</span>, ..) <span class="op">=</span> <span class="ident">models::courses::insert_course</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
         <span class="ident">Uuid::new_v4</span>(),
         <span class="ident">Uuid::new_v4</span>(),
         <span class="ident">new_course</span>,
         <span class="ident">user</span>.<span class="ident">id</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">models::roles::insert</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+        <span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="ident">models::roles::UserRole::Teacher</span>,
+        <span class="ident">models::roles::RoleDomain::Course</span>(<span class="ident">course</span>.<span class="ident">id</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">course</span>))
 }
 

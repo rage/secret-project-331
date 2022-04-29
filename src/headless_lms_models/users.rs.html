@@ -174,6 +174,8 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_utils::ApplicationConfiguration</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
@@ -340,6 +342,8 @@ WHERE id = $1
         <span class="ident"><span class="kw">crate</span>::users::get_by_email</span>(<span class="ident">conn</span>, <span class="string">&quot;user@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">==</span> <span class="string">&quot;assistant@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">==</span> <span class="string">&quot;assistant&quot;</span> {
         <span class="ident"><span class="kw">crate</span>::users::get_by_email</span>(<span class="ident">conn</span>, <span class="string">&quot;assistant@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">==</span> <span class="string">&quot;creator@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">==</span> <span class="string">&quot;creator&quot;</span> {
+        <span class="ident"><span class="kw">crate</span>::users::get_by_email</span>(<span class="ident">conn</span>, <span class="string">&quot;creator@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>
     } <span class="kw">else</span> {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::Generic</span>(<span class="string">&quot;Invalid email or password&quot;</span>.<span class="ident">to_string</span>()));
     };

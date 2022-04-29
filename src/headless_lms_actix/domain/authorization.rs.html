@@ -442,6 +442,7 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
+<span id="440">440</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">actix_http::Payload</span>;
 <span class="kw">use</span> <span class="ident">actix_session::Session</span>;
 <span class="kw">use</span> <span class="ident">actix_session::SessionExt</span>;
@@ -790,6 +791,7 @@
             <span class="ident">View</span> <span class="op">|</span> <span class="ident">Edit</span> <span class="op">|</span> <span class="ident">Grade</span> <span class="op">|</span> <span class="ident">DeleteAnswer</span> <span class="op">|</span> <span class="ident">EditRole</span>(<span class="ident">Assistant</span> <span class="op">|</span> <span class="ident">Reviewer</span>)
         ),
         <span class="ident">Reviewer</span> =&gt; <span class="macro">matches!</span>(<span class="ident">action</span>, <span class="ident">View</span> <span class="op">|</span> <span class="ident">Grade</span>),
+        <span class="ident">CourseOrExamCreator</span> =&gt; <span class="macro">matches!</span>(<span class="ident">action</span>, <span class="ident">CreateCoursesOrExams</span>),
     }
 }
 

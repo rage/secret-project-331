@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import { Check, Clear, Create, ExpandMore } from "@mui/icons-material"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-import { useTranslation } from "react-i18next"
+import { TFunction, useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"
@@ -21,6 +21,20 @@ const ADMIN: UserRole = "Admin"
 const ASSISTANT: UserRole = "Assistant"
 const REVIEWER: UserRole = "Reviewer"
 const TEACHER: UserRole = "Teacher"
+const COURSE_OR_EXAM_CREATOR: UserRole = "CourseOrExamCreator"
+
+const options = (t: TFunction) => {
+  return [
+    { value: ADMIN, label: t("role-admin") },
+    { value: ASSISTANT, label: t("role-assistant") },
+    { value: REVIEWER, label: t("role-reviewer") },
+    { value: TEACHER, label: t("role-teacher") },
+    {
+      value: COURSE_OR_EXAM_CREATOR,
+      label: t("role-course-or-exam-creator"),
+    },
+  ]
+}
 
 interface EditingRole {
   userId: string
@@ -284,12 +298,7 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
                         onChange={(role) => {
                           setEditingRole({ userId: ur.id, newRole: role })
                         }}
-                        options={[
-                          { value: ADMIN, label: t("role-admin") },
-                          { value: ASSISTANT, label: t("role-assistant") },
-                          { value: REVIEWER, label: t("role-reviewer") },
-                          { value: TEACHER, label: t("role-teacher") },
-                        ]}
+                        options={options(t)}
                         defaultValue={ur.role}
                       />
                     </td>
@@ -383,12 +392,7 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
             onChange={(role) => {
               setNewRole(role)
             }}
-            options={[
-              { value: ADMIN, label: t("role-admin") },
-              { value: ASSISTANT, label: t("role-assistant") },
-              { value: REVIEWER, label: t("role-reviewer") },
-              { value: TEACHER, label: t("role-teacher") },
-            ]}
+            options={options(t)}
             defaultValue={ASSISTANT}
           />
         </div>

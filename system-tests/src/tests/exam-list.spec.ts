@@ -46,17 +46,17 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
     ],
   })
 
-  // Fill [placeholder="Name"]
-  await page.locator('[placeholder="Name"]').fill("new exam")
+  // Fill [label="Name"]
+  await page.locator('[label="Name"]').fill("new exam")
 
-  // Fill [placeholder="starts\ at"]
-  await page.locator('[placeholder="Starts\\ at"]').fill("2099-11-11T13:15")
+  // Fill [label="starts\ at"]
+  await page.locator('[label="Starts\\ at"]').fill("2099-11-11T13:15")
 
-  // Fill [placeholder="starts\ at"]
-  await page.locator('[placeholder="Ends\\ at"]').fill("2099-11-12T13:15")
+  // Fill [label="starts\ at"]
+  await page.locator('[label="Ends\\ at"]').fill("2099-11-12T13:15")
 
-  // Fill [placeholder="Time\ in\ minutes"]
-  await page.locator('[placeholder="Time\\ in\\ minutes"]').fill("120")
+  // Fill [label="Time\ in\ minutes"]
+  await page.locator('[label="Time\\ in\\ minutes"]').fill("120")
 
   await expectScreenshotsToMatchSnapshots({
     page,

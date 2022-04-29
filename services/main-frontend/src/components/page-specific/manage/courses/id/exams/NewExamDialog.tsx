@@ -6,6 +6,7 @@ import { UseQueryResult } from "react-query"
 
 import { createExam, createExamDuplicate } from "../../../../../../services/backend/exams"
 import { NewExam, OrgExam } from "../../../../../../shared-module/bindings"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import NewExamForm from "../../../../../forms/NewExamForm"
 
@@ -24,7 +25,12 @@ const NewExamDialog: React.FC<ExamDialogProps> = ({ organizationId, getOrgExams,
       successMessage: t("exam-created-succesfully"),
       method: "POST",
     },
-    { onSuccess: () => getOrgExams.refetch() },
+    {
+      onSuccess: async () => {
+        await getOrgExams.refetch()
+        close()
+      },
+    },
   )
 
   const duplicateExamMutation = useToastMutation(
@@ -34,8 +40,19 @@ const NewExamDialog: React.FC<ExamDialogProps> = ({ organizationId, getOrgExams,
       successMessage: t("exam-duplicated-succesfully"),
       method: "POST",
     },
-    { onSuccess: () => getOrgExams.refetch() },
+    {
+      onSuccess: async () => {
+        await getOrgExams.refetch()
+        close()
+      },
+    },
   )
+
+  const onClose = () => {
+    createExamMutation.reset()
+    duplicateExamMutation.reset()
+    close()
+  }
 
   if (!getOrgExams.data) {
     return null
@@ -45,7 +62,7 @@ const NewExamDialog: React.FC<ExamDialogProps> = ({ organizationId, getOrgExams,
     <div>
       <Dialog
         open={open}
-        onClose={close}
+        onClose={onClose}
         role="dialog"
         aria-labelledby="label"
         title={t("new-exam-dialog")}
@@ -65,10 +82,16 @@ const NewExamDialog: React.FC<ExamDialogProps> = ({ organizationId, getOrgExams,
             {t("new-exam")}
           </h1>
           <DialogContentText role="main" id="alert-dialog-description">
+            {createExamMutation.isError && (
+              <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
+            )}
+            {duplicateExamMutation.isError && (
+              <ErrorBanner variant={"readOnly"} error={duplicateExamMutation.error} />
+            )}
             <NewExamForm
               exams={getOrgExams.data}
               initialData={null}
-              organization={organizationId}
+              organizationId={organizationId}
               onCancel={close}
               onCreateNewExam={(newExam) => createExamMutation.mutate(newExam)}
               onDuplicateExam={(parentId: string, newExam: NewExam) =>

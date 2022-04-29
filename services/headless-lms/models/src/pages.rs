@@ -48,10 +48,10 @@ pub struct Page {
 pub struct PageInfo {
     pub page_id: Uuid,
     pub page_title: String,
-    pub course_id: Uuid,
-    pub course_name: String,
-    pub course_slug: String,
-    pub organization_slug: String,
+    pub course_id: Option<Uuid>,
+    pub course_name: Option<String>,
+    pub course_slug: Option<String>,
+    pub organization_slug: Option<String>,
 }
 
 impl Page {
@@ -410,21 +410,21 @@ WHERE id = $1;
 pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<PageInfo> {
     let res = sqlx::query_as!(
         PageInfo,
-        "
+        r#"
     SELECT
         p.id as page_id,
         p.title as page_title,
-        c.id as course_id,
-        c.name as course_name,
-        c.slug as course_slug,
-        o.slug as organization_slug
+        c.id as "course_id?",
+        c.name as "course_name?",
+        c.slug as "course_slug?",
+        o.slug as "organization_slug?"
     FROM pages p
-    JOIN courses c
+    LEFT JOIN courses c
         on c.id = p.course_id
-    JOIN organizations o
+    LEFT JOIN organizations o
         on o.id = c.organization_id
     WHERE p.id = $1;
-        ",
+        "#,
         page_id
     )
     .fetch_one(conn)
@@ -2154,17 +2154,16 @@ mod test {
         let course_page_org = get_organization_id(tx.as_mut(), page).await.unwrap();
         assert_eq!(org, course_page_org);
 
-        let exam = Uuid::new_v4();
-        crate::exams::insert(
+        let new_exam_id = crate::exams::insert(
             tx.as_mut(),
             &NewExam {
-                id: exam,
                 name: "name".to_string(),
                 starts_at: None,
                 ends_at: None,
                 time_minutes: 120,
                 organization_id: org,
             },
+            None,
         )
         .await
         .unwrap();
@@ -2178,7 +2177,7 @@ mod test {
                 url_path: "url".to_string(),
                 title: "title".to_string(),
                 course_id: None,
-                exam_id: Some(exam),
+                exam_id: Some(new_exam_id),
                 chapter_id: None,
                 front_page_of_chapter_id: None,
                 content_search_language: None,

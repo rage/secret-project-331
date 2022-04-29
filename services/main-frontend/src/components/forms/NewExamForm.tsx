@@ -1,18 +1,18 @@
-import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { v4 } from "uuid"
 
 import { NewExam, OrgExam } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import CheckBox from "../../shared-module/components/InputFields/CheckBox"
+import DateTimeLocal from "../../shared-module/components/InputFields/DateTimeLocal"
 import SelectMenu from "../../shared-module/components/InputFields/SelectField"
-import FormField from "../FormField"
+import TextField from "../../shared-module/components/InputFields/TextField"
+import { dateToDateTimeLocalString } from "../../shared-module/utils/time"
 
 interface NewExamFormProps {
   initialData: OrgExam | null
-  organization: string
+  organizationId: string
   exams: OrgExam[]
   onCreateNewExam: (form: NewExam) => void
   onDuplicateExam: (parentId: string, newExam: NewExam) => void
@@ -29,7 +29,7 @@ interface NewExamFields {
 
 const NewExamForm: React.FC<NewExamFormProps> = ({
   initialData,
-  organization,
+  organizationId,
   exams,
   onCreateNewExam,
   onDuplicateExam,
@@ -41,18 +41,18 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
     register,
     handleSubmit,
     formState: { errors },
+    clearErrors,
+    setValue,
+    getValues,
   } = useForm<NewExamFields>()
 
   const [exam, setExam] = useState(initialData)
   const [parentId, setParentId] = useState<string | null>(null)
-  const [startsAt, setStartsAt] = useState<Date | null>(null)
-  const [endsAt, setEndsAt] = useState<Date | null>(null)
   const [duplicateExam, setDuplicateExam] = useState(false)
 
   const onCreateNewExamWrapper = handleSubmit((data) => {
     onCreateNewExam({
-      id: v4(),
-      organization_id: organization,
+      organization_id: organizationId,
       name: data.name,
       starts_at: new Date(data.startsAt),
       ends_at: new Date(data.endsAt),
@@ -63,11 +63,10 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
   const onDuplicateExamWrapper = handleSubmit((data) => {
     if (exam) {
       const newExam: NewExam = {
-        id: v4(),
-        organization_id: organization,
+        organization_id: organizationId,
         name: data.name,
-        starts_at: startsAt,
-        ends_at: endsAt,
+        starts_at: new Date(data.startsAt),
+        ends_at: new Date(data.endsAt),
         time_minutes: Number(data.timeMinutes),
       }
       const examId = String(parentId)
@@ -76,51 +75,47 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
   })
 
   const handleSetExamToDuplicate = (examId: string) => {
+    clearErrors()
     setParentId(examId)
-    setExam(exams.filter((e) => e.id === examId)[0])
-    setStartsAt(exams.filter((e) => e.id === examId)[0].starts_at)
-    setEndsAt(exams.filter((e) => e.id === examId)[0].ends_at)
+    const exam = exams.filter((e) => e.id === examId)[0]
+    setExam(exam)
+    if (getValues("timeMinutes").toString() === "") {
+      setValue("timeMinutes", exam.time_minutes)
+    }
   }
 
   return (
     <div>
-      <form
-        onSubmit={duplicateExam ? onDuplicateExamWrapper : onCreateNewExamWrapper}
-        className={css`
-          width: 15rem;
-        `}
-      >
-        <FormField
+      <form onSubmit={duplicateExam ? onDuplicateExamWrapper : onCreateNewExamWrapper}>
+        <TextField
           id={"name"}
-          error={errors["name"]}
-          defaultValue={exam?.name}
-          placeholder={t("label-name")}
-          register={register}
+          error={errors.name?.message}
+          label={t("label-name")}
+          register={register("name", { required: t("required-field") })}
         />
-        <FormField
-          id={"startsAt"}
-          error={errors["startsAt"]}
-          defaultValue={null}
-          value={exam?.starts_at?.toISOString().slice(0, 16)}
-          placeholder={t("label-starts-at")}
-          register={register}
-          type="datetime-local"
+        <DateTimeLocal
+          error={errors.startsAt?.message}
+          defaultValue={
+            initialData?.starts_at ? dateToDateTimeLocalString(initialData?.starts_at) : undefined
+          }
+          label={t("label-starts-at")}
+          register={register("startsAt", { required: t("required-field") })}
         />
-        <FormField
-          id={"endsAt"}
-          error={errors.endsAt}
-          defaultValue={null}
-          value={exam?.ends_at?.toISOString().slice(0, 16)}
-          placeholder={t("label-ends-at")}
-          register={register}
-          type="datetime-local"
+        <DateTimeLocal
+          error={errors.endsAt?.message}
+          defaultValue={
+            initialData?.ends_at ? dateToDateTimeLocalString(initialData?.ends_at) : undefined
+          }
+          label={t("label-ends-at")}
+          register={register("endsAt", { required: t("required-field") })}
         />
-        <FormField
+        <TextField
           id={"timeMinutes"}
-          error={errors["timeMinutes"]}
-          defaultValue={String(exam?.time_minutes || "")}
-          placeholder={t("label-time-minutes")}
-          register={register}
+          error={errors.timeMinutes?.message}
+          label={t("label-time-minutes")}
+          register={register("timeMinutes", {
+            required: t("required-field"),
+          })}
         />
         <br />
         <CheckBox

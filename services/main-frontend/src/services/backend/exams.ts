@@ -8,7 +8,6 @@ export const createExam = async (organizationId: string, data: NewExam) => {
 }
 
 export const createExamDuplicate = async (examId: string, newExam: NewExam) => {
-  console.log(newExam)
   return (
     await mainFrontendClient.post(`/exams/${examId}/duplicate`, newExam, { responseType: "json" })
   ).data

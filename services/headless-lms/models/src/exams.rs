@@ -97,7 +97,6 @@ pub struct CourseExam {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewExam {
-    pub id: Uuid,
     pub name: String,
     pub starts_at: Option<DateTime<Utc>>,
     pub ends_at: Option<DateTime<Utc>>,
@@ -118,8 +117,12 @@ pub struct ExamInstructionsUpdate {
     pub instructions: serde_json::Value,
 }
 
-pub async fn insert(conn: &mut PgConnection, exam: &NewExam) -> ModelResult<()> {
-    sqlx::query!(
+pub async fn insert(
+    conn: &mut PgConnection,
+    exam: &NewExam,
+    seed_id: Option<Uuid>,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
         "
 INSERT INTO exams (
     id,
@@ -130,9 +133,10 @@ INSERT INTO exams (
     time_minutes,
     organization_id
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES (COALESCE($1, uuid_generate_v4()), $2, $3, $4, $5, $6, $7)
+RETURNING id
 ",
-        exam.id,
+        seed_id,
         exam.name,
         serde_json::Value::Array(vec![]),
         exam.starts_at,
@@ -140,10 +144,10 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)
         exam.time_minutes,
         exam.organization_id
     )
-    .execute(conn)
+    .fetch_one(conn)
     .await?;
 
-    Ok(())
+    Ok(res.id)
 }
 
 pub async fn edit(

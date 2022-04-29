@@ -6,6 +6,7 @@ import { useQuery } from "react-query"
 import { fetchOrganizationExams } from "../../../../services/backend/exams"
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import RenderIfPermissions from "../../../../shared-module/components/OnlyRenderIfPermissions"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import NewExamDialog from "../../manage/courses/id/exams/NewExamDialog"
@@ -69,7 +70,10 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
       </div>
       <br />
       {loginStateContext.signedIn && (
-        <>
+        <RenderIfPermissions
+          action={{ type: "create_courses_or_exams" }}
+          resource={{ id: organizationId, type: "organization" }}
+        >
           <Button
             size="medium"
             variant="primary"
@@ -77,7 +81,7 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
           >
             {t("button-text-create")}
           </Button>
-        </>
+        </RenderIfPermissions>
       )}
     </div>
   )

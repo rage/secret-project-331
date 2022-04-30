@@ -41,7 +41,6 @@ const Input = styled.input<InputExtraProps>`
   border-radius: 3px;
   border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
   padding: 10px 12px;
-  /* padding: 0.554vw 12px; */
   transition: ease-in-out, width 0.35s ease-in-out;
   outline: none;
   min-width: 280px;
@@ -54,6 +53,10 @@ const Input = styled.input<InputExtraProps>`
   &:focus,
   &:active {
     border-color: #55b3f5;
+  }
+
+  @media (max-width: 767.98px) {
+    padding: 6px 8px;
   }
 `
 

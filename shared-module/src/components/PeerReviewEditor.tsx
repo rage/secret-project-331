@@ -22,8 +22,9 @@ const Wrapper = styled.div`
 
   h2 {
     font-weight: 300;
-    opacity: 0.8;
     font-size: 1.7rem;
+    line-height: 1.2;
+    margin-top: 10px;
   }
 `
 const StyledForm = styled.form`
@@ -98,6 +99,11 @@ const StyledQuestion = styled.div`
     width: 100%;
   }
 `
+const StyledSelectField = styled(SelectField)`
+  @media (max-width: 767.98px) {
+    margin-bottom: 10px;
+  }
+`
 const StyledQuestionType = styled.div`
   background: #f5f6f7;
   border: 1.5px solid #e2e4e6;
@@ -132,6 +138,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = () => {
   const { t } = useTranslation()
 
   const options = [
+    { label: t("select-question"), value: "", disabled: true },
     { label: t("essay"), value: t("essay") },
     { label: t("linkert-scale"), value: t("linkert-scale") },
   ]
@@ -209,7 +216,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = () => {
           target.questionType.value = ""
         }}
       >
-        <SelectField
+        <StyledSelectField
           id="question-type"
           name={TYPE}
           placeholder={PLACEHOLDER}

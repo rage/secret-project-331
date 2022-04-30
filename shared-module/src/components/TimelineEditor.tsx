@@ -21,8 +21,9 @@ const Wrapper = styled.div`
 
   h2 {
     font-weight: 300;
-    opacity: 0.8;
     font-size: 1.7rem;
+    line-height: 1.2;
+    margin-top: 10px;
   }
 `
 const StyledForm = styled.form`
@@ -33,12 +34,11 @@ const StyledForm = styled.form`
 
   @media (max-width: 767.98px) {
     grid-template-columns: 1fr;
-    gap: 0px;
   }
 `
 const StyledTextField = styled(TextField)`
   @media (max-width: 767.98px) {
-    height: 55px !important;
+    height: 40px !important;
   }
 `
 const StyledBtn = styled.button`

@@ -36,6 +36,10 @@ const DatePicker = ({ onChange, className, ...rest }: DatePickerExtraProps) => {
               &:active {
                 border-color: #55b3f5;
               }
+
+              @media (max-width: 767.98px) {
+                padding: 6px 8px;
+              }
             }
 
             span {

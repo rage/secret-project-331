@@ -4,6 +4,7 @@ import React from "react"
 interface SelectOption<T extends string> {
   value: T
   label: string
+  disabled?: boolean
 }
 
 interface SelectMenuExtraProps<T extends string> {
@@ -69,6 +70,10 @@ const SelectMenu = <T extends string>({
             display: grid;
             grid-template-areas: "select";
             align-items: center;
+
+            @media (max-width: 767.98px) {
+              padding: 6px 8px;
+            }
           }
 
           .select::after {
@@ -104,9 +109,9 @@ const SelectMenu = <T extends string>({
           defaultValue={defaultValue}
           {...rest}
         >
-          {options.map((o) => (
-            <option value={o.value} key={o.label}>
-              {o.label}
+          {options.map(({ value, label, disabled }) => (
+            <option value={value} key={label} disabled={disabled} selected={disabled && true}>
+              {label}
             </option>
           ))}
         </select>

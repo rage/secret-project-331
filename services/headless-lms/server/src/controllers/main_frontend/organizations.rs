@@ -273,14 +273,14 @@ async fn create_exam(
     )
     .await?;
 
-    models::exams::insert(&mut tx, &new_exam).await?;
+    let new_exam_id = models::exams::insert(&mut tx, &new_exam, None).await?;
     pages::insert_exam_page(
         &mut tx,
-        new_exam.id,
+        new_exam_id,
         NewPage {
             chapter_id: None,
             course_id: None,
-            exam_id: Some(new_exam.id),
+            exam_id: Some(new_exam_id),
             front_page_of_chapter_id: None,
             content: serde_json::Value::Array(vec![]),
             content_search_language: Some("simple".to_string()),
@@ -298,7 +298,7 @@ async fn create_exam(
         &mut tx,
         user.id,
         models::roles::UserRole::Teacher,
-        models::roles::RoleDomain::Exam(new_exam.id),
+        models::roles::RoleDomain::Exam(new_exam_id),
     )
     .await?;
 

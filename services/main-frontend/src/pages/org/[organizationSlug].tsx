@@ -71,8 +71,9 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
               perPage={100}
             />
 
+            {/* TODO: We should render ExamList once we can filter away exams etc. */}
             <RenderIfPermissions
-              action={{ type: "view" }}
+              action={{ type: "create_courses_or_exams" }}
               resource={{ id: getOrganizationBySlug.data.id, type: "organization" }}
             >
               <h2>{t("exam-list")}</h2>

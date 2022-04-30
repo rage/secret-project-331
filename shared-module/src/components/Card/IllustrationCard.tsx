@@ -33,21 +33,23 @@ const CardContentWrapper = styled.div`
   ${BackgroundStyles}
 
   h2 {
-    font-size: ${typography.h3};
-    font-weight: 700;
+    font-size: /* ${typography.h3} */ 1.8rem;
+    font-weight: 400;
     z-index: 20;
-    line-height: 1em;
+    line-height: 1.2;
     color: #fff;
+    margin-top: 5px;
   }
 
   span {
-    color: #f5f6f7;
-    font-size: 1.2em;
-    /* opacity: 0.8; */
+    color: #333;
+    font-size: 0.8rem;
     z-index: 20;
-    font-weight: 500;
+    font-weight: 800;
     width: 50%;
     line-height: 3em;
+    background-color: #f9f9f9;
+    padding: 0.2rem 0.2rem 0.1rem;
   }
   ${respondToOrLarger.lg} {
     word-break: normal;
@@ -88,14 +90,16 @@ const IllustrationCard: React.FC<CardProps> = ({
             `background-image: url(${backgroundImage});
               background-repeat: no-repeat;
               background-position: center center;
-              background-size: cover;`}
+              background-size: contain;
+              background-color: #f2f2f2;`}
           `}
         ></div>
         <div
           className={css`
             flex: 1 1 auto;
             padding: 2rem;
-            padding-top: 1rem;
+            background: ${bg};
+            height: 200px;
           `}
         >
           <div
@@ -107,7 +111,7 @@ const IllustrationCard: React.FC<CardProps> = ({
           >
             <div
               className={css`
-                margin-top: auto;
+                /* margin-top: auto; */
               `}
             >
               <span

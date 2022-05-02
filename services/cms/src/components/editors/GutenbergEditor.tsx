@@ -53,6 +53,7 @@ import SelectField from "../../shared-module/components/InputFields/SelectField"
 import SuccessNotification from "../../shared-module/components/Notifications/Success"
 import Spinner from "../../shared-module/components/Spinner"
 import { primaryFont } from "../../shared-module/styles"
+import { blockWithWordCount } from "../../utils/Gutenberg/BlockWithWordCount"
 import {
   modifyEmbedBlockAttributes,
   modifyImageBlockAttributes,
@@ -176,6 +177,8 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   useEffect(() => {
     // eslint-disable-next-line i18next/no-literal-string
     addFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector", withMentimeterInspector)
+    // eslint-disable-next-line i18next/no-literal-string
+    addFilter("editor.BlockEdit", "moocfi/modifyBlockAttributes", blockWithWordCount)
     return () => {
       // eslint-disable-next-line i18next/no-literal-string
       removeFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector")
@@ -310,7 +313,7 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
                       { value: "block-menu", label: t("block-menu") },
                     ]}
                     onBlur={() => {
-                      // noop
+                      // no-op
                     }}
                     onChange={(val) => setSidebarView(val)}
                   />

@@ -8,22 +8,28 @@ import { respondToOrLarger } from "../../styles/respond"
 
 import { ProgressBarExtraProps } from "."
 
-const LinearProgress = styled.div`
+// eslint-disable-next-line i18next/no-literal-string
+const LinearProgress = styled.div<LinearProgressProps>`
   display: flex;
-  background: ${baseTheme.colors.yellow[100]};
+  background: ${baseTheme.colors.green[100]};
   border-radius: 100px;
   align-items: center;
   padding: 0 5px;
-  height: 30px;
+  height: ${({ height }) => (height === "small" ? "16px" : "30px")};
   width: 290px;
 
   ${respondToOrLarger.sm} {
-    height: 40px;
-    width: 500px;
+    height: ${({ height }) => (height === "small" ? "16px" : "40px")};
+    /* width: 500px; */
+    width: 100%;
   }
 `
 interface LinearProgressFillProps {
   percentage: number
+  height: string
+}
+interface LinearProgressProps {
+  height: string
 }
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -36,13 +42,13 @@ const load = (percentage: number) => keyframes`
 const LinearProgressFill = styled.div<LinearProgressFillProps>`
   animation: ${(props: LinearProgressFillProps) => load(props.percentage)} 3s normal forwards;
   border-radius: 100px;
-  height: 20px;
+  height: ${({ height }) => (height === "small" ? "16px" : "20px")};
   width: 0;
-  background: ${baseTheme.colors.yellow[700]};
+  background: ${baseTheme.colors.green[600]};
   justify-content: end;
 
   ${respondToOrLarger.sm} {
-    height: 30px;
+    height: ${({ height }) => (height === "small" ? "16px" : "40px")};
   }
 `
 
@@ -72,6 +78,8 @@ const ProgresssBar: React.FC<ProgressBarExtraProps> = ({
   showAsPercentage = false,
   exercisesAttempted = 10,
   exercisesTotal = 30,
+  height = "medium",
+  label = true,
 }) => {
   const { t } = useTranslation()
   const done = exercisesAttempted ?? 0
@@ -88,15 +96,17 @@ const ProgresssBar: React.FC<ProgressBarExtraProps> = ({
           flex-direction: column;
         `}
       >
-        <Label>
-          <span>
-            {showAsPercentage
-              ? `${percentage}% ${t("exercises-attempted")}`
-              : `${done} / ${total} ${t("exercises-attempted")}`}
-          </span>
-        </Label>
-        <LinearProgress>
-          <LinearProgressFill percentage={percentage} />
+        {label && (
+          <Label>
+            <span>
+              {showAsPercentage
+                ? `${percentage}% ${t("exercises-attempted")}`
+                : `${done} / ${total} ${t("exercises-attempted")}`}
+            </span>
+          </Label>
+        )}
+        <LinearProgress height={height}>
+          <LinearProgressFill percentage={percentage} height={height} />
         </LinearProgress>
       </div>
     </>

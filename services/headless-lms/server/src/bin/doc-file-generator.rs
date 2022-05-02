@@ -867,10 +867,10 @@ fn main() {
         PageInfo {
             page_id: id,
             page_title: "The basics".to_string(),
-            course_id: id2,
-            course_name: "Introduction to everything".to_string(),
-            course_slug: "introduction-to-everything".to_string(),
-            organization_slug: "uh-cs".to_string()
+            course_id: Some(id2),
+            course_name: Some("Introduction to everything".to_string()),
+            course_slug: Some("introduction-to-everything".to_string()),
+            organization_slug: Some("uh-cs".to_string())
         }
     );
 }

@@ -276,7 +276,6 @@ export interface ExamEnrollment {
 }
 
 export interface NewExam {
-  id: string
   name: string
   starts_at: Date | null
   ends_at: Date | null
@@ -576,10 +575,10 @@ export interface Page {
 export interface PageInfo {
   page_id: string
   page_title: string
-  course_id: string
-  course_name: string
-  course_slug: string
-  organization_slug: string
+  course_id: string | null
+  course_name: string | null
+  course_slug: string | null
+  organization_slug: string | null
 }
 
 export interface PageRoutingDataWithChapterStatus {
@@ -844,7 +843,7 @@ export type RoleDomain =
   | { tag: "CourseInstance"; id: string }
   | { tag: "Exam"; id: string }
 
-export type UserRole = "Reviewer" | "Assistant" | "Teacher" | "Admin"
+export type UserRole = "Reviewer" | "Assistant" | "Teacher" | "Admin" | "CourseOrExamCreator"
 
 export interface UserCourseSettings {
   user_id: string

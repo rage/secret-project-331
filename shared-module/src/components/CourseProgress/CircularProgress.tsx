@@ -46,6 +46,10 @@ const StyledSVG = styled.div`
     text-transform: uppercase;
     font-weight: 600;
     opacity: 0.5;
+
+    @media (max-width: 767.98px) {
+      font-size: 1rem;
+    }
   }
 `
 const CircularProgress: React.FC<CircularProgressExtraProps> = ({

@@ -14,7 +14,7 @@ interface CourseProgressProps {
 }
 
 const Wrapper = styled.div`
-  background: #f5f6f7;
+  background-color: #f5f6f7;
   padding: 2rem 4rem;
 `
 

@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
 
-import ArrowSVGIcon from "../img/arrow.svg"
+import ArrowSVGIcon from "../img/blackArrow.svg"
 import { baseTheme, headingFont } from "../styles"
 
 const Wrapper = styled.div`

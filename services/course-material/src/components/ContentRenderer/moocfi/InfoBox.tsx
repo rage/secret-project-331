@@ -18,6 +18,7 @@ const InfoBoxBlock: React.FC<BlockRendererProps<InfoBoxBlockAttributes>> = (prop
         className={css`
           padding: 3rem;
           background-color: ${props.data.attributes.backgroundColor};
+          margin: 3rem 0;
         `}
       >
         <Centered variant="narrow">

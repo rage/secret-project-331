@@ -41,11 +41,18 @@ export const Deprecated1: BlockDeprecation<Deprecated1AsideComponentProps> = {
       )
     }
     if (attributes.bodyText && attributes.bodyText.trim() !== "") {
-      newInnerBlocks.push(
-        createBlock("core/paragraph", {
-          content: attributes.title,
-        }),
-      )
+      const bodyText: string = attributes.bodyText
+      bodyText.split("<br>").forEach((paragraph) => {
+        const trimmed = paragraph.trim()
+        if (trimmed === "") {
+          return
+        }
+        newInnerBlocks.push(
+          createBlock("core/paragraph", {
+            content: trimmed,
+          }),
+        )
+      })
     }
     const newAttributes: AsideComponentProps = {
       ...omit(attributes, ["title", "bodyText"]),

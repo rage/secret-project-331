@@ -43,13 +43,14 @@ import { Popover, SlotFillProvider } from "@wordpress/components"
 import { addFilter, removeFilter } from "@wordpress/hooks"
 // @ts-ignore: no types
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
-import { isEqual } from "lodash"
 import React, { useEffect, useState } from "react"
+import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
 import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import SelectField from "../../shared-module/components/InputFields/SelectField"
+import SuccessNotification from "../../shared-module/components/Notifications/Success"
 import Spinner from "../../shared-module/components/Spinner"
 import { primaryFont } from "../../shared-module/styles"
 import {
@@ -187,14 +188,23 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
     if (!needToRunMigrationsAndValidations) {
       return
     }
-    const updatedContent = runMigrationsAndValidations(content)
+    const [updatedContent, numberOfBlocksMigrated] = runMigrationsAndValidations(content)
     setNeedToRunMigrationsAndValidations(false)
     onContentChange(updatedContent)
-    if (!isEqual(content, updatedContent)) {
-      console.log(JSON.stringify(content, undefined, 2))
-      console.log(JSON.stringify(updatedContent, undefined, 2))
+    if (numberOfBlocksMigrated > 0) {
       // eslint-disable-next-line i18next/no-literal-string
-      console.log("Content updated")
+      console.info(`Ran ${numberOfBlocksMigrated} block migrations`)
+      toast.custom(
+        () => {
+          return (
+            <SuccessNotification
+              header={t("title-outdated-blocks-migrated")}
+              message={t("outdated-blocks-migrated-explanation", { num: numberOfBlocksMigrated })}
+            />
+          )
+        },
+        { duration: 600000 },
+      )
     }
   }, [
     content,

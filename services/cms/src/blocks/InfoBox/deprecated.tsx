@@ -36,7 +36,6 @@ export const Deprecated1: BlockDeprecation<Deprecated1InfoBoxComponentProps> = {
   },
   // @ts-ignore: wat
   migrate: (attributes, innerBlocks) => {
-    console.log("migrate")
     const newInnerBlocks = [...innerBlocks]
     if (attributes.title && attributes.title.trim() !== "") {
       newInnerBlocks.unshift(
@@ -47,11 +46,18 @@ export const Deprecated1: BlockDeprecation<Deprecated1InfoBoxComponentProps> = {
       )
     }
     if (attributes.bodyText && attributes.bodyText.trim() !== "") {
-      newInnerBlocks.push(
-        createBlock("core/paragraph", {
-          content: attributes.title,
-        }),
-      )
+      const bodyText: string = attributes.bodyText
+      bodyText.split("<br>").forEach((paragraph) => {
+        const trimmed = paragraph.trim()
+        if (trimmed === "") {
+          return
+        }
+        newInnerBlocks.push(
+          createBlock("core/paragraph", {
+            content: trimmed,
+          }),
+        )
+      })
     }
     const newAttributes: InfoBoxComponentProps = {
       ...omit(attributes, ["title", "bodyText"]),

@@ -7,22 +7,22 @@ pub struct PeerReview {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub course_id: Uuid,
+    pub course_instance_id: Uuid,
     pub exercise_id: Option<Uuid>,
 }
 
 pub async fn insert(
     conn: &mut PgConnection,
-    course_id: Uuid,
+    course_instance_id: Uuid,
     exercise_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO peer_reviews (course_id, exercise_id)
+INSERT INTO peer_reviews (course_instance_id, exercise_id)
 VALUES ($1, $2)
 RETURNING id;
         ",
-        course_id,
+        course_instance_id,
         exercise_id
     )
     .fetch_one(conn)
@@ -33,17 +33,17 @@ RETURNING id;
 pub async fn insert_with_id(
     conn: &mut PgConnection,
     id: Uuid,
-    course_id: Uuid,
+    course_instance_id: Uuid,
     exercise_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO peer_reviews (id, course_id, exercise_id)
+INSERT INTO peer_reviews (id, course_instance_id, exercise_id)
 VALUES ($1, $2, $3)
 RETURNING id;
         ",
         id,
-        course_id,
+        course_instance_id,
         exercise_id
     )
     .fetch_one(conn)
@@ -78,7 +78,8 @@ pub async fn try_to_get_for_exercise(
     let course_id = exercise.course_id.ok_or_else(|| {
         ModelError::PreconditionFailed("Exercise is not part of a course.".to_string())
     })?;
-    let peer_review = try_to_get_default_for_course_by_course_id(conn, course_id).await?;
+    let peer_review =
+        try_to_get_default_for_course_instance_by_course_instance_id(conn, course_id).await?;
     Ok(peer_review)
 }
 
@@ -101,7 +102,7 @@ WHERE exercise_id = $1
     Ok(res)
 }
 
-pub async fn try_to_get_default_for_course_by_course_id(
+pub async fn try_to_get_default_for_course_instance_by_course_instance_id(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Option<PeerReview>> {
@@ -110,7 +111,7 @@ pub async fn try_to_get_default_for_course_by_course_id(
         "
 SELECT *
 FROM peer_reviews
-WHERE course_id = $1
+WHERE course_instance_id = $1
   AND exercise_id IS NULL
   AND deleted_at IS NULL;
         ",
@@ -143,12 +144,12 @@ mod tests {
 
     #[tokio::test]
     async fn only_one_default_peer_review_per_course() {
-        insert_data!(:tx, :user, :org, course: course_id);
+        insert_data!(:tx, :user, :org, :course, :instance);
 
-        let peer_review_1 = insert(tx.as_mut(), course_id, None).await;
+        let peer_review_1 = insert(tx.as_mut(), instance.id, None).await;
         assert!(peer_review_1.is_ok());
 
-        let peer_review_2 = insert(tx.as_mut(), course_id, None).await;
+        let peer_review_2 = insert(tx.as_mut(), instance.id, None).await;
         assert!(peer_review_2.is_err());
     }
 }

@@ -2,10 +2,10 @@
 
 use futures::future::OptionFuture;
 use models::{
-    exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
+    exercise_slide_submissions::{self, get_exercise_slide_submission_counts_for_exercise_user},
     exercises::{CourseMaterialExercise, Exercise},
     library::grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
-    user_exercise_states::CourseInstanceOrExamId,
+    user_exercise_states::{self, CourseInstanceOrExamId},
 };
 
 use chrono::{Duration, Utc};
@@ -164,6 +164,51 @@ async fn post_submission(
     Ok(web::Json(result))
 }
 
+/**
+ * POST `/api/v0/course-material/exercises/:exercise_id/peer-reviews/start` - Post a signal indicating that
+ * the user will start peer reviewing process.
+ *
+ * This operation is only valid for exercises marked for peer reviews. No further submissions will be
+ * accepted after posting to this endpoint.
+ */
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn start_peer_review(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    // Authorization
+
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    let user_exercise_state =
+        user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
+    let exercise_slide_submission_id = user_exercise_state
+        .selected_exercise_slide_id
+        .ok_or_else(|| ControllerError::Forbidden("No exercise slide selected.".to_string()))?;
+    let users_latest_submission =
+        exercise_slide_submissions::get_users_latest_exercise_slide_submission(
+            &mut conn,
+            &exercise_slide_submission_id,
+            &user.id,
+        )
+        .await?
+        .ok_or_else(|| {
+            ControllerError::Forbidden(
+                "Cannot start peer review without at least one submission.".to_string(),
+            )
+        })?;
+    models::library::peer_reviewing::start_peer_review_for_user(
+        &mut conn,
+        user_exercise_state,
+        &users_latest_submission,
+    )
+    .await?;
+
+    Ok(web::Json(true))
+}
+
 /// Submissions for exams are posted from course instances or from exams. Make respective validations
 /// while figuring out which.
 async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
@@ -240,6 +285,10 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{exercise_id}", web::get().to(get_exercise))
+        .route(
+            "/{exercise_id}/peer-reviews/start",
+            web::post().to(start_peer_review),
+        )
         .route(
             "/{exercise_id}/submissions",
             web::post().to(post_submission),

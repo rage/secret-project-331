@@ -1118,7 +1118,7 @@ export function isPeerReview(obj: any, _argumentName?: string): obj is PeerRevie
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.course_id === "string" &&
+    typeof obj.course_instance_id === "string" &&
     (obj.exercise_id === null || typeof obj.exercise_id === "string")
   )
 }

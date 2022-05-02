@@ -391,7 +391,7 @@ fn main() {
             created_at,
             updated_at,
             deleted_at,
-            course_id: course.id,
+            course_instance_id: course_instance.id,
             exercise_id: Some(exercise.id),
         }
     );

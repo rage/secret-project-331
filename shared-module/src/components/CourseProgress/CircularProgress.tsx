@@ -80,6 +80,9 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
       <h2
         className={css`
           text-transform: uppercase;
+          padding-bottom: 10px;
+          font-weight: 500;
+          border-bottom: 2px solid #d8dbdd;
         `}
       >
         {label}

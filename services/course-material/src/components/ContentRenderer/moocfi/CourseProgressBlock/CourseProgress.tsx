@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
@@ -12,6 +13,11 @@ interface CourseProgressProps {
   courseInstanceId: string
 }
 
+const Wrapper = styled.div`
+  background: #f5f6f7;
+  padding: 2rem 4rem;
+`
+
 const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => {
   const { t } = useTranslation()
   const getUserCourseProgress = useQuery(`course-instance-${courseInstanceId}-progress`, () =>
@@ -19,7 +25,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
   )
 
   return (
-    <div>
+    <Wrapper>
       {getUserCourseProgress.isError && (
         <ErrorBanner variant={"readOnly"} error={getUserCourseProgress.error} />
       )}
@@ -53,7 +59,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
           </div>
         </>
       )}
-    </div>
+    </Wrapper>
   )
 }
 

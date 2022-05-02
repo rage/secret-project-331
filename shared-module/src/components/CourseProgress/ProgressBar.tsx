@@ -52,11 +52,12 @@ const LinearProgressFill = styled.div<LinearProgressFillProps>`
 `
 
 const Label = styled.div`
-  min-width: 265px;
+  min-width: 100%;
   font-weight: 500;
   margin-right: 1rem;
   margin-bottom: 0.4rem;
-  text-align: left;
+  text-align: center;
+  padding-left: 10px;
 
   span:first-of-type {
     font-size: 0.8em;
@@ -66,7 +67,6 @@ const Label = styled.div`
     text-transform: uppercase;
   }
   ${respondToOrLarger.sm} {
-    min-width: 450px;
     span:first-of-type {
       font-size: 1.2em;
     }

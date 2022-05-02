@@ -18,10 +18,9 @@ const PageNumberBox = styled.div`
   font-family: ${headingFont};
   margin: 0 1rem;
 `
-/* const StyledArrow = styled(Arrow)`
-  display: absolute;
-  right: 0;
-` */
+const StyledArrow = styled(ArrowSVGIcon)`
+  opacity: 0.6;
+`
 
 const ChapterParts = styled.div`
   position: relative;
@@ -104,7 +103,7 @@ const PagesInChapterBox: React.FC<PagesInChapterBoxProps> = (props) => {
                 <span>{props.chapterIndex}</span>
               </PageNumberBox>
               <span>{props.chapterTitle}</span>
-              <ArrowSVGIcon role="presentation" alt="" width="20" />
+              <StyledArrow role="presentation" alt="" width="20" />
             </ChapterParts>
           </a>
         </Link>

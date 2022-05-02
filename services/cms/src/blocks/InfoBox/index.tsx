@@ -1,6 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration, createBlock } from "@wordpress/blocks"
-import { omit } from "lodash"
+import { BlockConfiguration } from "@wordpress/blocks"
 
 import InfoBoxEditor from "./InfoBoxEditor"
 import InfoBoxSave from "./InfoBoxSave"

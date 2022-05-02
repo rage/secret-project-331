@@ -1,4 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
+import { useBlockProps } from "@wordpress/block-editor"
 import { BlockDeprecation, createBlock } from "@wordpress/blocks"
 import { omit } from "lodash"
 
@@ -11,26 +12,31 @@ interface Deprecated1InfoBoxComponentProps {
 
 export const Deprecated1: BlockDeprecation<Deprecated1InfoBoxComponentProps> = {
   attributes: {
-    // @ts-ignore: deprecated
     title: {
       type: "string",
-      source: "html",
-      selector: "h3",
       default: "",
     },
     bodyText: {
       type: "string",
-      source: "html",
-      selector: "p",
       default: "Infobox body",
     },
   },
-  save() {
-    return <></>
+  save(props) {
+    const blockProps = useBlockProps.save()
+    return (
+      <div {...blockProps}>
+        {props.attributes.title}
+        {props.attributes.bodyText}
+      </div>
+    )
   },
-  isEligible: (attributes) => attributes.title || attributes.bodyText,
+  isEligible: (attributes) => {
+    console.log("isEligible", attributes)
+    return Boolean(attributes.title || attributes.bodyText)
+  },
   // @ts-ignore: wat
   migrate: (attributes, innerBlocks) => {
+    console.log("migrate")
     const newInnerBlocks = [...innerBlocks]
     if (attributes.title && attributes.title.trim() !== "") {
       newInnerBlocks.unshift(

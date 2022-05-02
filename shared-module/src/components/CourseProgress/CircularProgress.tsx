@@ -44,8 +44,8 @@ const StyledSVG = styled.div`
   .points {
     font-size: 1.4rem;
     text-transform: uppercase;
-    font-weight: 400;
-    opacity: 0.8;
+    font-weight: 600;
+    opacity: 0.5;
   }
 `
 const CircularProgress: React.FC<CircularProgressExtraProps> = ({

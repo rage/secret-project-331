@@ -48,7 +48,7 @@ const LinearProgressFill = styled.div<LinearProgressFillProps>`
   justify-content: end;
 
   ${respondToOrLarger.sm} {
-    height: ${({ height }) => (height === "small" ? "16px" : "40px")};
+    height: ${({ height }) => (height === "small" ? "16px" : "28px")};
   }
 `
 

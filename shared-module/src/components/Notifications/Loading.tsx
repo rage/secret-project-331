@@ -60,6 +60,7 @@ const TextWrapper = styled.div`
   display: inline-flex;
   flex-direction: column;
   height: 100%;
+  margin-bottom: 0.5rem;
   ${respondToOrLarger.xs} {
     padding-top: 0.1rem;
   }

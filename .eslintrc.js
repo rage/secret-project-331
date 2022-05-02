@@ -39,7 +39,15 @@ module.exports = {
     "react/prop-types": "off",
     "no-unused-vars": "off",
     // unused vars are allowed if they start with an underscore
-    "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        varsIgnorePattern: "^_",
+        argsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+        destructuredArrayIgnorePattern: "^_",
+      },
+    ],
     "no-restricted-imports": [
       "error",
       {

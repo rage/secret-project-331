@@ -28,6 +28,8 @@ import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 interface PageEditorProps {
   data: Page
   saveMutation: UseMutationResult<ContentManagementPage, unknown, CmsPageUpdate, unknown>
+  needToRunMigrationsAndValidations: boolean
+  setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
 }
 
 const EditorLoading = <Spinner variant="medium" />
@@ -51,7 +53,12 @@ const supportedBlocks = (chapter_id: string | null, exam_id: string | null): str
   return allSupportedBlocks
 }
 
-const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
+const PageEditor: React.FC<PageEditorProps> = ({
+  data,
+  saveMutation,
+  needToRunMigrationsAndValidations,
+  setNeedToRunMigrationsAndValidations,
+}) => {
   const { t } = useTranslation()
   const pageInfo = usePageInfo(data.id)
   const [title, setTitle] = useState(data.title)
@@ -89,6 +96,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
               chapter_id: data.page.chapter_id,
             }).content,
           })
+          setNeedToRunMigrationsAndValidations(true)
         },
         onSettled: () => {
           setCurrentlySaving(false)
@@ -196,6 +204,8 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
           allowedBlockVariations={allowedBlockVariants}
           mediaUpload={mediaUpload}
           inspectorButtons={saveAndReset}
+          needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+          setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
         />
       </div>
       <div className="editor__component">

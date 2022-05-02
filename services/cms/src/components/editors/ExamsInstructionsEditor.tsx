@@ -15,6 +15,8 @@ import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsuppor
 interface ExamsInstructionsEditorProps {
   data: ExamInstructions
   handleSave: (updatedTemplate: ExamInstructionsUpdate) => Promise<ExamInstructions>
+  needToRunMigrationsAndValidations: boolean
+  setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
 }
 
 const EditorLoading = <Spinner variant="medium" />
@@ -24,7 +26,12 @@ const ExamsInstructionsGutenbergEditor = dynamic(() => import("./GutenbergEditor
   loading: () => EditorLoading,
 })
 
-const ExamsInstructionsEditor: React.FC<ExamsInstructionsEditorProps> = ({ data, handleSave }) => {
+const ExamsInstructionsEditor: React.FC<ExamsInstructionsEditorProps> = ({
+  data,
+  handleSave,
+  needToRunMigrationsAndValidations,
+  setNeedToRunMigrationsAndValidations,
+}) => {
   const { t } = useTranslation()
   const [content, setContent] = useState<BlockInstance[]>(
     modifyBlocks(
@@ -75,6 +82,8 @@ const ExamsInstructionsEditor: React.FC<ExamsInstructionsEditorProps> = ({ data,
         onContentChange={setContent}
         allowedBlocks={allowedExamInstructionsCoreBlocks}
         mediaUpload={mediaUploadBuilder({ examId: data.id })}
+        needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+        setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
       />
     </>
   )

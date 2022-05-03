@@ -299,6 +299,10 @@ export const postProposedEdits = async (
   await courseMaterialClient.post(`/proposed-edits/${courseId}`, newProposedEdits)
 }
 
+export const postStartPeerReview = async (exerciseId: string): Promise<void> => {
+  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews/start`)
+}
+
 export const fetchExamEnrollment = async (examId: string): Promise<ExamEnrollment | null> => {
   const response = await courseMaterialClient.get(`/exams/${examId}/enrollment`)
   return response.data

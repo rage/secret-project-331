@@ -8,7 +8,11 @@ import { useQuery, useQueryClient } from "react-query"
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
-import { fetchExerciseById, postSubmission } from "../../../../services/backend"
+import {
+  fetchExerciseById,
+  postStartPeerReview,
+  postSubmission,
+} from "../../../../services/backend"
 import {
   CourseMaterialExercise,
   StudentExerciseSlideSubmission,
@@ -157,6 +161,11 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     deadlineAsString = deadlineAsString + ` ${timezoneOffset}`
   }
 
+  // These are now arrays so should be refactored
+  const inSubmissionView =
+    postThisStateToIFrame?.every((x) => x.view_type === "view-submission") ?? false
+  const needsPeerReview = getCourseMaterialExercise.data.exercise.needs_peer_review
+
   return (
     <BreakFromCentered sidebar={false}>
       <div
@@ -245,79 +254,92 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               }
             `}
           >
-            {getCourseMaterialExercise.data.can_post_submission &&
-              postThisStateToIFrame?.every((x) => x.view_type !== "view-submission") && (
-                <Button
-                  size="medium"
-                  variant="primary"
-                  disabled={
-                    postSubmissionMutation.isLoading ||
-                    answers.size < postThisStateToIFrame.length ||
-                    Array.from(answers.values()).some((x) => !x.valid)
+            {getCourseMaterialExercise.data.can_post_submission && !inSubmissionView && (
+              <Button
+                size="medium"
+                variant="primary"
+                disabled={
+                  postSubmissionMutation.isLoading ||
+                  answers.size < (postThisStateToIFrame?.length ?? 0) ||
+                  Array.from(answers.values()).some((x) => !x.valid)
+                }
+                onClick={() => {
+                  if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
+                    return
                   }
-                  onClick={() => {
-                    if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
-                      return
+                  postSubmissionMutation.mutate(
+                    {
+                      exercise_slide_id: getCourseMaterialExercise.data.current_exercise_slide.id,
+                      exercise_task_submissions:
+                        getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map(
+                          (task) => ({
+                            exercise_task_id: task.id,
+                            data_json: answers.get(task.id)?.data,
+                          }),
+                        ),
+                    },
+                    {
+                      onSuccess: () => {
+                        queryClient.setQueryData(queryUniqueKey, (old) => {
+                          // Update slide submission counts without refetching
+                          const oldData = old as CourseMaterialExercise
+                          const oldSubmissionCounts =
+                            oldData?.exercise_slide_submission_counts ?? {}
+                          const slideId =
+                            getCourseMaterialExercise?.data?.current_exercise_slide?.id
+                          const newSubmissionCounts = { ...oldSubmissionCounts }
+                          if (slideId) {
+                            newSubmissionCounts[slideId] = (oldSubmissionCounts[slideId] ?? 0) + 1
+                          }
+                          return {
+                            ...oldData,
+                            exercise_slide_submission_counts: newSubmissionCounts,
+                          }
+                        })
+                      },
+                    },
+                  )
+                }}
+              >
+                {t("submit-button")}
+              </Button>
+            )}
+            {inSubmissionView && (
+              <div>
+                {!ranOutOfTries && (
+                  <Button
+                    variant="primary"
+                    size="medium"
+                    onClick={() => {
+                      dispatch({
+                        type: "tryAgain",
+                        payload:
+                          getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks,
+                      })
+                      postSubmissionMutation.reset()
+                      setAnswers(new Map())
+                    }}
+                    disabled={
+                      getCourseMaterialExercise.isRefetching ||
+                      !getCourseMaterialExercise.data.can_post_submission
                     }
-                    postSubmissionMutation.mutate(
-                      {
-                        exercise_slide_id: getCourseMaterialExercise.data.current_exercise_slide.id,
-                        exercise_task_submissions:
-                          getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map(
-                            (task) => ({
-                              exercise_task_id: task.id,
-                              data_json: answers.get(task.id)?.data,
-                            }),
-                          ),
-                      },
-                      {
-                        onSuccess: () => {
-                          queryClient.setQueryData(queryUniqueKey, (old) => {
-                            // Update slide submission counts without refetching
-                            const oldData = old as CourseMaterialExercise
-                            const oldSubmissionCounts =
-                              oldData?.exercise_slide_submission_counts ?? {}
-                            const slideId =
-                              getCourseMaterialExercise?.data?.current_exercise_slide?.id
-                            const newSubmissionCounts = { ...oldSubmissionCounts }
-                            if (slideId) {
-                              newSubmissionCounts[slideId] = (oldSubmissionCounts[slideId] ?? 0) + 1
-                            }
-                            return {
-                              ...oldData,
-                              exercise_slide_submission_counts: newSubmissionCounts,
-                            }
-                          })
-                        },
-                      },
-                    )
-                  }}
-                >
-                  {t("submit-button")}
-                </Button>
-              )}
-            {/* These are now arrays so should be refactored */}
-            {postThisStateToIFrame?.every((x) => x.view_type === "view-submission") &&
-              !ranOutOfTries && (
-                <Button
-                  variant="primary"
-                  size="medium"
-                  onClick={() => {
-                    dispatch({
-                      type: "tryAgain",
-                      payload: getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks,
-                    })
-                    postSubmissionMutation.reset()
-                    setAnswers(new Map())
-                  }}
-                  disabled={
-                    getCourseMaterialExercise.isRefetching ||
-                    !getCourseMaterialExercise.data.can_post_submission
-                  }
-                >
-                  {t("try-again")}
-                </Button>
-              )}
+                  >
+                    {t("try-again")}
+                  </Button>
+                )}
+                {needsPeerReview && (
+                  <Button
+                    variant="primary"
+                    size="medium"
+                    onClick={async () => {
+                      await postStartPeerReview(id)
+                    }}
+                  >
+                    {t("start-peer-review")}
+                  </Button>
+                )}
+              </div>
+            )}
             {postSubmissionMutation.isError && (
               <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
             )}

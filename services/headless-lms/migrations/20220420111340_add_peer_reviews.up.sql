@@ -18,7 +18,7 @@ CREATE TABLE peer_reviews (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  course_instance_id UUID NOT NULL REFERENCES courses(id),
+  course_instance_id UUID NOT NULL REFERENCES course_instances(id),
   exercise_id UUID REFERENCES exercises(id)
 );
 CREATE TRIGGER set_timestamp BEFORE

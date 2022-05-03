@@ -13,13 +13,13 @@ const LinearProgress = styled.div<LinearProgressProps>`
   display: flex;
   background: ${baseTheme.colors.green[100]};
   border-radius: 100px;
+  overflow: hidden;
   align-items: center;
-  padding: 0 5px;
-  height: ${({ height }) => (height === "small" ? "16px" : "30px")};
+  height: ${({ height }) => (height === "small" ? "16px" : "20px")};
   width: 290px;
 
   ${respondToOrLarger.sm} {
-    height: ${({ height }) => (height === "small" ? "16px" : "40px")};
+    height: ${({ height }) => (height === "small" ? "16px" : "28px")};
     /* width: 500px; */
     width: 100%;
   }
@@ -41,23 +41,23 @@ const load = (percentage: number) => keyframes`
 // eslint-disable-next-line i18next/no-literal-string
 const LinearProgressFill = styled.div<LinearProgressFillProps>`
   animation: ${(props: LinearProgressFillProps) => load(props.percentage)} 3s normal forwards;
-  border-radius: 100px;
   height: ${({ height }) => (height === "small" ? "16px" : "20px")};
   width: 0;
   background: ${baseTheme.colors.green[600]};
   justify-content: end;
 
   ${respondToOrLarger.sm} {
-    height: ${({ height }) => (height === "small" ? "16px" : "40px")};
+    height: ${({ height }) => (height === "small" ? "16px" : "28px")};
   }
 `
 
 const Label = styled.div`
-  min-width: 265px;
+  min-width: 100%;
   font-weight: 500;
   margin-right: 1rem;
   margin-bottom: 0.4rem;
-  text-align: left;
+  text-align: center;
+  padding-left: 10px;
 
   span:first-of-type {
     font-size: 0.8em;
@@ -67,7 +67,6 @@ const Label = styled.div`
     text-transform: uppercase;
   }
   ${respondToOrLarger.sm} {
-    min-width: 450px;
     span:first-of-type {
       font-size: 1.2em;
     }

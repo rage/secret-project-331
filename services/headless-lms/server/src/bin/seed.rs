@@ -44,7 +44,7 @@ use uuid::Uuid;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    env::set_var("RUST_LOG", "info,sqlx=warn");
+    env::set_var("RUST_LOG", "info,sqlx=warn,headless_lms_models=warn");
 
     dotenv::dotenv().ok();
     setup_tracing()?;

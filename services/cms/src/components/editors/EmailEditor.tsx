@@ -17,6 +17,8 @@ import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 interface EmailEditorProps {
   data: EmailTemplate
   handleSave: (updatedTemplate: EmailTemplateUpdate) => Promise<EmailTemplate>
+  needToRunMigrationsAndValidations: boolean
+  setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
 }
 
 const EditorLoading = <Spinner variant="medium" />
@@ -26,7 +28,12 @@ const EmailGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
   loading: () => EditorLoading,
 })
 
-const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
+const EmailEditor: React.FC<EmailEditorProps> = ({
+  data,
+  handleSave,
+  needToRunMigrationsAndValidations,
+  setNeedToRunMigrationsAndValidations,
+}) => {
   const courseId = useContext(CourseContext)?.courseId
   const { t } = useTranslation()
   const [content, setContent] = useState<BlockInstance[]>(
@@ -94,6 +101,8 @@ const EmailEditor: React.FC<EmailEditorProps> = ({ data, handleSave }) => {
           onContentChange={setContent}
           allowedBlocks={allowedEmailCoreBlocks}
           mediaUpload={mediaUploadBuilder({ courseId: courseId })}
+          needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+          setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
         />
       )}
     </>

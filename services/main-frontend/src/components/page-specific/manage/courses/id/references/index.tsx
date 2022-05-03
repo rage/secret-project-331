@@ -11,7 +11,7 @@ import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 
-import NewReferenceModal from "./NewReferenceModal"
+import NewReferenceDialog from "./NewReferenceDialog"
 
 const FORMAT = "text"
 const TEMPLATE = "vancouver"
@@ -39,14 +39,15 @@ const References: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
       )}
       {getCourseReferences.isSuccess && (
         <div>
-          <h2>References</h2>
+          <h2>{t("references")}</h2>
           <Button variant="primary" size="medium" onClick={() => setShowNewReferenceModal(true)}>
             {t("add-new-reference")}
           </Button>
-          <NewReferenceModal
+          <NewReferenceDialog
             onClose={() => setShowNewReferenceModal(false)}
             courseId={courseId}
             open={showNewReferenceModal}
+            fetchCourseReferences={getCourseReferences}
           />
           <ul>
             {getCourseReferences.data.map((r, idx) => {

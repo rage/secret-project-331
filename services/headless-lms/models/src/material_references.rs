@@ -25,19 +25,26 @@ pub struct NewMaterialReference {
 pub async fn insert_reference(
     conn: &mut PgConnection,
     course_id: Uuid,
-    new_ref: NewMaterialReference,
+    new_ref: Vec<NewMaterialReference>,
 ) -> ModelResult<()> {
-    sqlx::query!(
-        "
-INSERT INTO material_references(course_id, citation_key, reference)
-VALUES ($1, $2, $3)
-",
-        course_id,
-        new_ref.citation_key,
-        new_ref.reference
-    )
-    .fetch_one(conn)
-    .await?;
+    let mut tx = conn.begin().await?;
+    let new_ref_iter = new_ref.iter();
+
+    for new_ref in new_ref_iter {
+        sqlx::query!(
+            "
+    INSERT INTO material_references(course_id, citation_key, reference)
+    VALUES ($1, $2, $3)
+    ",
+            course_id,
+            new_ref.citation_key,
+            new_ref.reference
+        )
+        .execute(&mut tx)
+        .await?;
+    }
+    tx.commit().await?;
+
     Ok(())
 }
 
@@ -80,7 +87,9 @@ WHERE course_id = $1;
 pub async fn delete_reference(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
-        DELETE FROM material_references WHERE id = $1;
+UPDATE material_references
+SET deleted_at = now()
+WHERE material_references.id = $1;
         ",
         id
     )

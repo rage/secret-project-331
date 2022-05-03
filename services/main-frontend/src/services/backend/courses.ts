@@ -175,7 +175,7 @@ export const fetchCourseReferences = async (courseId: string): Promise<MaterialR
 
 export const postNewReference = async (
   courseId: string,
-  data: NewMaterialReference,
+  data: NewMaterialReference[],
 ): Promise<void> => {
   await mainFrontendClient.post(`/courses/${courseId}/references`, data)
 }

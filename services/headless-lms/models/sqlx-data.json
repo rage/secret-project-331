@@ -2234,16 +2234,6 @@
       ]
     }
   },
-  "26f972e67e77c0e17f97cacf77bbd0738da23a902870042007944b9c06ff7ff3": {
-    "query": "\n        DELETE FROM material_references WHERE id = $1;\n        ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "28bfce5519da0502894a0ee396ee94c5c498958c55f4883409c9cb450b6218be": {
     "query": "\nDELETE FROM roles\nWHERE user_id = $1\n  AND role = $2\n  AND course_instance_id = $3\n",
     "describe": {
@@ -4529,16 +4519,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
-    }
-  },
-  "641e139360e3a2134fda3b79ba71411bc3a96adb101d13d3c41835816bde6adb": {
-    "query": "\nINSERT INTO material_references(course_id, citation_key, reference)\nVALUES ($1, $2, $3)\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Text", "Text"]
-      },
-      "nullable": []
     }
   },
   "64fe3f5421ad33305f9f1daef9da4fb63db3edc86b7e769e21e689b67f2d9839": {
@@ -9265,6 +9245,16 @@
       "nullable": [null, null]
     }
   },
+  "c0b9a180c35f5891305a61ef57a65bceba00f6e0190612ad7348ad7185ca89f2": {
+    "query": "\nUPDATE material_references\nSET deleted_at = now()\nWHERE material_references.id = $1;\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "c0e77b688094cd88143669d7562d1412e2cb9c49374c1a95c75419f3ff7ac8cc": {
     "query": "\nDELETE FROM roles\nWHERE user_id = $1\n  AND role = $2\n  AND course_id = $3\n",
     "describe": {
@@ -10142,6 +10132,16 @@
         false,
         false
       ]
+    }
+  },
+  "d972ea4bdedc2b6d93055c4c244a579960ff3a65213ed3e78f21d641c8d800c7": {
+    "query": "\n    INSERT INTO material_references(course_id, citation_key, reference)\n    VALUES ($1, $2, $3)\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Text", "Text"]
+      },
+      "nullable": []
     }
   },
   "d9b9672a30ff30810ac269307fa33154ced5dcc064a05d69a0440113713d3573": {

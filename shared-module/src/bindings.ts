@@ -41,6 +41,7 @@ export type Resource =
   | { type: "user" }
   | { type: "playground_example" }
   | { type: "exercise_service" }
+  | { type: "material_reference" }
 
 export interface Term {
   id: string

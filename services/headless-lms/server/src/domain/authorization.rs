@@ -127,6 +127,7 @@ pub enum Resource {
     User,
     PlaygroundExample,
     ExerciseService,
+    MaterialReference,
 }
 
 /// Can user_id action the resource?
@@ -224,6 +225,7 @@ pub async fn authorize(
             // permissions for these resources have already been checked
             Err(ControllerError::Forbidden("Unauthorized".to_string()))
         }
+        Resource::MaterialReference => todo!(),
     }
 }
 

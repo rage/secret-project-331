@@ -207,7 +207,9 @@ export function isResource(obj: any, _argumentName?: string): obj is Resource {
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.type === "playground_example") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "exercise_service")
+      obj.type === "exercise_service") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "material_reference")
   )
 }
 

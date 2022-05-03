@@ -641,7 +641,7 @@ async fn get_material_references_by_course_id(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<MaterialReference>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::ExerciseService).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
     let res =
         models::material_references::get_references_by_course_id(&mut conn, *course_id).await?;
@@ -650,17 +650,34 @@ async fn get_material_references_by_course_id(
 
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn insert_material_reference(
+async fn insert_material_references(
     course_id: web::Path<Uuid>,
-    payload: web::Json<NewMaterialReference>,
+    payload: web::Json<Vec<NewMaterialReference>>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::ExerciseService).await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
     models::material_references::insert_reference(&mut conn, *course_id, payload.0).await?;
+
     Ok(web::Json(()))
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn delete_material_reference_by_id(
+    path: web::Path<(Uuid, Uuid)>,
+    reference_id: web::Json<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let (course_id, reference_id) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
+
+    let res = models::material_references::delete_reference(&mut conn, reference_id).await?;
+    Ok(web::Json(res))
 }
 
 /**
@@ -734,6 +751,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route(
             "/{course_id}/references",
-            web::post().to(insert_material_reference),
+            web::post().to(insert_material_references),
+        )
+        .route(
+            "/{course_id}/references/{reference_id}",
+            web::delete().to(delete_material_reference_by_id),
         );
 }

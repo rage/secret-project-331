@@ -16,7 +16,7 @@ const Paragraph = dynamic(() => import("./BasicParagraph"))
 const LatexParagraph = dynamic(() => import("./LatexParagraph"))
 
 const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
-const LATEX_CITE_REGEX = /\[latex\]\\cite{.*?}\[\/latex\]/g
+const LATEX_CITE_REGEX = /\\cite{(.*?)}/g
 const HTML_ESCAPED_AMPERSAND = "&amp;"
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 
@@ -42,8 +42,9 @@ const convertToLatex = (data: string) => {
 
 const parseCitation = (data: string) => {
   const converted = data.replace(LATEX_CITE_REGEX, (_, cite) => {
+    console.log(cite)
     const processed = cite.replaceAll(
-      <sup className="reference" data-citation-id="lolled">
+      <sup className="reference" data-citation-id={cite}>
         [?]
       </sup>,
     )

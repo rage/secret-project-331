@@ -26,7 +26,7 @@ Simple.args = {
 export const IllustrationCard: Story<ComponentProps> = Template.bind({})
 IllustrationCard.args = {
   variant: "illustration",
-  title: "Introduction to the role of AI",
+  title: "Sustainable Development as a Concept and in Politics",
   bg: "#065853",
   chapterNumber: 1,
   open: true,

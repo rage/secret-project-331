@@ -54,6 +54,10 @@ const Input = styled.input<InputExtraProps>`
   &:active {
     border-color: #55b3f5;
   }
+
+  @media (max-width: 767.98px) {
+    padding: 6px 8px;
+  }
 `
 
 const error = css`

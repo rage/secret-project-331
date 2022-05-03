@@ -62,7 +62,6 @@ const ExercisePart = styled.div<StyledProps>`
   list-style-type: none;
   color: ${baseTheme.colors.grey[700]};
   text-decoration: none;
-  border-radius: 2px;
   background: ${({ bg }) => bg && bg};
   display: flex;
   align-items: center;

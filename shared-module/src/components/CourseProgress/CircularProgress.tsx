@@ -29,14 +29,26 @@ const StyledSVG = styled.div`
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 2rem;
-    font-weight: 400;
+    line-height: 1.1;
+    font-weight: 800;
     opacity: 0.9;
     font-family: ${headingFont};
     ${respondToOrLarger.sm} {
       font-size: 3rem;
     }
     span {
-      opacity: 0.5;
+      opacity: 0.4;
+    }
+  }
+
+  .points {
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    opacity: 0.5;
+
+    @media (max-width: 767.98px) {
+      font-size: 1rem;
     }
   }
 `
@@ -72,6 +84,9 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
       <h2
         className={css`
           text-transform: uppercase;
+          padding-bottom: 10px;
+          font-weight: 500;
+          border-bottom: 2px solid #d8dbdd;
         `}
       >
         {label}
@@ -111,7 +126,7 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
           {"/"}
           <span>{maximum}</span>
           <br />
-          <span>{t("points")}</span>
+          <span className="points">{t("points")}</span>
         </p>
       </StyledSVG>
     </>

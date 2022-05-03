@@ -27,7 +27,7 @@ const TimePicker = ({ onChange, className, ...rest }: TimePickerExtraProps) => {
 
             input {
               max-width: 18.5ch;
-              padding: 4px 10px;
+              padding: 10px 12px;
               background: #fcfcfc;
               border: 1.6px solid #dedede;
               border-radius: 3px;
@@ -36,6 +36,10 @@ const TimePicker = ({ onChange, className, ...rest }: TimePickerExtraProps) => {
               &:focus,
               &:active {
                 border-color: #55b3f5;
+              }
+
+              @media (max-width: 767.98px) {
+                padding: 6px 8px;
               }
             }
 

@@ -27,7 +27,7 @@ const DatePicker = ({ onChange, className, ...rest }: DatePickerExtraProps) => {
 
             input {
               max-width: 22ch;
-              padding: 4px 10px;
+              padding: 10px 12px;
               border: 2px solid #dedede;
               border-radius: 3px;
               outline: none;
@@ -35,6 +35,10 @@ const DatePicker = ({ onChange, className, ...rest }: DatePickerExtraProps) => {
               &:focus,
               &:active {
                 border-color: #55b3f5;
+              }
+
+              @media (max-width: 767.98px) {
+                padding: 6px 8px;
               }
             }
 

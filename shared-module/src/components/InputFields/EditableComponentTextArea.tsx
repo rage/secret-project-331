@@ -53,11 +53,11 @@ const EditableComponentTextArea = ({
               background: transparent;
               border: none;
               outline: none;
-              /* Custom styles */
               resize: none;
               -webkit-box-shadow: none;
               -moz-box-shadow: none;
               box-shadow: none;
+              width: 100%;
             }
 
             span {

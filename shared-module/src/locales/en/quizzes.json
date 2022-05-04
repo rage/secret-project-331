@@ -73,5 +73,7 @@
   "label-year": "Year",
   "label-correct-event": "Correct event",
   "placeholder-some-notable-event": "Some notable event",
-  "add": "Add"
+  "add": "Add",
+  "deleted-option": "Deleted option",
+  "quiz-type-not-supported": "Quiz type not supported"
 }

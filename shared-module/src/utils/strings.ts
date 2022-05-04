@@ -72,3 +72,10 @@ export function stripNonPrintableCharacters(string: string): string {
 export function stringToRandomNumber(input: string): number {
   return input.split("").reduce((a, b) => a * 13 + b.charCodeAt(0), 7)
 }
+
+export function nullIfEmptyString(string: string | undefined | null): string | null {
+  if (string === undefined || string === null) {
+    return null
+  }
+  return string === "" ? null : string
+}

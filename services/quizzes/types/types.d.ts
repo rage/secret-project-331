@@ -305,8 +305,9 @@ export interface QuizItemAnswer {
 }
 
 export interface TimelineChoice {
-  year: string
-  /** We use a generated id to match the choices to options to make this resilient to typo fixes. */
+  /** We use timelineItem id to match for answers so that this is resilient to typo fixes in the year */
+  timelineItemId: string
+  /** We use a generated id to match the choices to options to make this resilient to typo fixes event name. */
   chosenEventId: string
 }
 

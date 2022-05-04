@@ -125,7 +125,9 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
       message: "set-state",
     }
     // eslint-disable-next-line i18next/no-literal-string
-    console.log(`parent posting data ${postData}`)
+    console.groupCollapsed(`Parent posting set-state message to iframe`)
+    console.info(JSON.stringify(postData, undefined, 2))
+    console.groupEnd()
     messageChannel.port1.postMessage(postData)
     setLastThingPosted(postThisStateToIFrame)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- lastThingPosted is only used to cancel reposting when postThisStateToIFrame has not changed. Adding it to the dependency array would cause an infinite loop.

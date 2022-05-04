@@ -71,5 +71,6 @@
   "instruction": "Instruction",
   "write-a-review": "Write a review",
   "added-text": "Added text",
-  "removed-text": "Removed text"
+  "removed-text": "Removed text",
+  "please-choose-a-value": "Please choose a value"
 }

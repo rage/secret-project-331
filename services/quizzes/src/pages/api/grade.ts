@@ -25,6 +25,17 @@ export interface ItemAnswerFeedback {
 interface QuizItemAnswerGrading {
   quizItemId: string
   correct: boolean
+  /** The points for this quiz item will be multiplied with the correctness coefficient.
+   *
+   * For example, if this quiz item is worth 2 points and the correctness coefficient 0.75, the
+   * user would get `2*0.75=1.5` points for this quiz item.
+   *
+   * * 0 will be regarded as an incorrect answer
+   * * 0 > x < 1 will be regarded as a partially correct answer
+   * * 1 will be regarded as a correct answer
+   *
+   */
+  correctnessCoefficient: number
 }
 
 export default (req: NextApiRequest, res: NextApiResponse): void => {
@@ -50,7 +61,7 @@ const handlePost = (req: NextApiRequest, res: NextApiResponse<ExerciseTaskGradin
   const gradingRedquest: QuizzesGradingRequest = req.body
   const { exercise_spec, submission_data } = gradingRedquest
 
-  const assessedAnswers = asssesAnswers(submission_data, exercise_spec)
+  const assessedAnswers = assessAnswers(submission_data, exercise_spec)
 
   const score = gradeAnswer(assessedAnswers, exercise_spec)
   const feedbacks: ItemAnswerFeedback[] = submissionFeedback(
@@ -76,16 +87,31 @@ function gradeAnswer(assessedAnswer: QuizItemAnswerGrading[], quiz: Quiz): numbe
   if (quiz.awardPointsEvenIfWrong) {
     return maxPoints
   }
-  const nCorrect = assessedAnswer.filter((answer) => answer.correct).length
-  const total = quiz.items.length
-  const points = (nCorrect / total) * maxPoints
+  let points = 0
+  quiz.items.forEach((item) => {
+    const answerForItem = assessedAnswer.find((ia) => ia.quizItemId === item.id)
+    if (!answerForItem) {
+      // item not answered, 0 points from this quiz item
+      return
+    }
+    let correctnessCoefficient = answerForItem.correctnessCoefficient
+    if (correctnessCoefficient > 1) {
+      correctnessCoefficient = 1
+    }
+    if (correctnessCoefficient < 0) {
+      correctnessCoefficient = 0
+    }
+    // Since each item is worth 1 point for now, we can just use adition instead of multiplying the coefficient by 1
+    points += correctnessCoefficient
+  })
+
   return points
 }
 
 // Function, which goes through every quizItemAnswer and either marks it correct or incorrect
 // Different quizItems have special functions which asseses them
 // Returns a list of object, which tells whether answer was correct or not
-function asssesAnswers(quizAnswer: QuizAnswer, quiz: Quiz): QuizItemAnswerGrading[] {
+function assessAnswers(quizAnswer: QuizAnswer, quiz: Quiz): QuizItemAnswerGrading[] {
   const result = quizAnswer.itemAnswers.map((ia) => {
     const item = quiz.items.find((i) => i.id === ia.quizItemId)
     if (!item) {
@@ -101,8 +127,10 @@ function asssesAnswers(quizAnswer: QuizAnswer, quiz: Quiz): QuizItemAnswerGradin
       return assessOpenQuiz(ia, item)
     } else if (item.type === "matrix") {
       return assessMatrixQuiz(ia, item)
+    } else if (item.type === "timeline") {
+      return assessTimelineQuiz(ia, item)
     } else {
-      return { quizItemId: item.id, correct: true }
+      return { quizItemId: item.id, correct: true, correctnessCoefficient: 1 }
     }
   })
   return result
@@ -126,7 +154,34 @@ function assessOpenQuiz(quizItemAnswer: QuizItemAnswer, quizItem: QuizItem): Qui
   }
   const validityRegex = quizItem.validityRegex ? quizItem.validityRegex.trim() : ""
   const validator = new RegExp(validityRegex, "i")
-  return { quizItemId: quizItem.id, correct: validator.test(textData) }
+  const correct = validator.test(textData)
+  return { quizItemId: quizItem.id, correct, correctnessCoefficient: correct ? 1 : 0 }
+}
+
+function assessTimelineQuiz(
+  quizItemAnswer: QuizItemAnswer,
+  quizItem: QuizItem,
+): QuizItemAnswerGrading {
+  let nCorrect = 0
+  if (!quizItem.timelineItems) {
+    throw new Error("No timeline items for timeline assignment")
+  }
+  quizItem.timelineItems?.forEach((ti) => {
+    const answer = quizItemAnswer.timelineChoices?.find((tc) => tc.year === ti.year)
+    if (!answer) {
+      // No answer, so no points
+      return
+    }
+    if (answer.chosenEventId === ti.correctEventId) {
+      nCorrect += 1
+    }
+  })
+  const correctnessCoefficient = nCorrect / quizItem.timelineItems.length
+  return {
+    quizItemId: quizItem.id,
+    correct: correctnessCoefficient === 0 ? false : true,
+    correctnessCoefficient,
+  }
 }
 
 function assesMultipleChoiceQuizzes(
@@ -156,12 +211,14 @@ function assesMultipleChoiceQuizzes(
   // Check if user selected correct amount of options
   const selectedAllCorrectOptions =
     quizItemAnswer.optionAnswers.length === quizItem.options.filter((o) => o.correct).length
+  const correct = quizItem.multi
+    ? selectedAllCorrectOptions && allSelectedOptionsAreCorrect
+    : allSelectedOptionsAreCorrect
 
   return {
     quizItemId: quizItem.id,
-    correct: quizItem.multi
-      ? selectedAllCorrectOptions && allSelectedOptionsAreCorrect
-      : allSelectedOptionsAreCorrect,
+    correct,
+    correctnessCoefficient: correct ? 1 : 0,
   }
 }
 
@@ -187,9 +244,9 @@ function assessMatrixQuiz(
     }
   }
 
-  const includesSingleFalse = !isMatrixCorrect.includes(false)
+  const correct = !isMatrixCorrect.includes(false)
 
-  return { quizItemId: quizItem.id, correct: includesSingleFalse }
+  return { quizItemId: quizItem.id, correct, correctnessCoefficient: correct ? 1 : 0 }
 }
 
 function submissionFeedback(

@@ -200,9 +200,28 @@ export interface PublicQuizItem {
   maxLabel: string | null
   minLabel: string | null
   options: PublicQuizItemOption[]
+  timelineItems: PublicTimelineItem[]
+  /** A list of events to choose from when matching years to events. */
+  timelineItemEvents: PublicTimelineEvent[]
   title: string
   body: string
   direction: "row" | "column"
+}
+
+/**
+ * Only used in the timeline exercise type
+ *
+ * The correctEvent is omitted from here because it's the correct answer and we don't want to show that to the students before they have solved the exercise. All available options can be found in `PublicQuizItem.timelineItemEvents`.
+ * */
+export interface PublicTimelineItem {
+  id: string
+  /** The year the student is supposed to match to an event. */
+  year: string
+}
+
+export interface PublicTimelineEvent {
+  id: string
+  name: string
 }
 
 export type ModelSolutionQuizItem = Omit<QuizItem, "validityRegex">
@@ -239,7 +258,9 @@ export interface NormalizedQuizItemTimelineItem {
   /** The year the student is supposed to match to an event. */
   year: string
   /** The event the student is supposed choose from the dropdown menu */
-  correctEvent: string
+  correctEventName: string
+  /** Generated id for the correct event that allows us to identify the event even if the teacher has decided the edit the event name afterwards. This makes this exercise resilient to typo fixes. */
+  correctEventId: string
 }
 
 export type QuizItemTimelineItem = NormalizedQuizItemTimelineItem
@@ -279,6 +300,14 @@ export interface QuizItemAnswer {
   /** Only contains an id of a selected option */
   optionAnswers: string[] | null
   optionCells: string[][] | null
+  /** Only used for timeline answers. */
+  timelineChoices: TimelineChoice[] | null
+}
+
+export interface TimelineChoice {
+  year: string
+  /** We use a generated id to match the choices to options to make this resilient to typo fixes. */
+  chosenEventId: string
 }
 
 export interface UserQuizState {

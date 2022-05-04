@@ -2,15 +2,14 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import React, { useState } from "react"
+import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
 import { NormalizedQuizItem } from "../../../../../types/types"
-import TextAreaField from "../../../../shared-module/components/InputFields/TextAreaField"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
-import { baseTheme, headingFont, primaryFont } from "../../../../shared-module/styles"
+import { baseTheme } from "../../../../shared-module/styles"
 import { addedTimelineItemAction } from "../../../../store/editor/timelineItems/timelineItemsActions"
 import { useTypedSelector } from "../../../../store/store"
 
@@ -140,7 +139,6 @@ interface Fields {
 const TimelineEditor: React.FC<TimelineEditorProps> = ({ item }) => {
   const storeTimelineItems = useTypedSelector((state) => state.editor.timelineItems)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
-  const [state, setState] = useState<Timeline[]>([])
   const dispatch = useDispatch()
   const { t } = useTranslation()
 
@@ -180,7 +178,7 @@ const TimelineEditor: React.FC<TimelineEditorProps> = ({ item }) => {
                 onChange={() => {
                   // TODO
                 }}
-                defaultValue={timelineItem.correctEvent}
+                defaultValue={timelineItem.correctEventName}
               />
 
               <DeleteBtn

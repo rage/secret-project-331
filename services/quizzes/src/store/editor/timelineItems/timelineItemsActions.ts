@@ -3,10 +3,17 @@ import { v4 } from "uuid"
 
 export const addedTimelineItemAction = createAction(
   "ADDED_TIMELINE_ITEM",
-  (quizItemId: string, year: string, correctEvent: string) => ({
+  (quizItemId: string, year: string, correctEventName: string) => ({
     quizItemId,
     year,
-    correctEvent,
+    correctEventName,
     timelineItemId: v4(),
+    correctEventId: v4(),
   }),
-)<{ quizItemId: string; year: string; correctEvent: string; timelineItemId: string }>()
+)<{
+  quizItemId: string
+  year: string
+  correctEventName: string
+  timelineItemId: string
+  correctEventId: string
+}>()

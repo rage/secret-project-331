@@ -21,7 +21,8 @@ export const timelineItemReducer = createReducer<
       draftState[action.payload.timelineItemId] = {
         id: action.payload.timelineItemId,
         year: action.payload.year.trim(),
-        correctEvent: action.payload.correctEvent.trim(),
+        correctEventName: action.payload.correctEventName.trim(),
+        correctEventId: action.payload.correctEventId,
       }
     })
   })

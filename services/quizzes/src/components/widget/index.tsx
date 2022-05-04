@@ -110,6 +110,7 @@ const Widget: React.FC<WidgetProps> = ({ port, quiz }) => {
           textData: null,
           optionAnswers: null,
           optionCells: null,
+          timelineChoices: null,
         }
       }),
     },

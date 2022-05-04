@@ -5,6 +5,6 @@ type PeerReviewQuestion = {
   deleted_at: Date | null
   peer_review_id: string
   order_number: number
-  title: string
+  question: string
   question_type: PeerReviewQuestionType
 }

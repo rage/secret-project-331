@@ -279,7 +279,7 @@ fn main() {
         deleted_at,
         peer_review_id: id,
         order_number: 0,
-        title: "Was the answer well thought out?".to_string(),
+        question: "Was the answer well thought out?".to_string(),
         question_type: PeerReviewQuestionType::Essay,
     };
     let playground_example = PlaygroundExample {

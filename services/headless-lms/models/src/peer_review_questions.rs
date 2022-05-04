@@ -13,7 +13,7 @@ pub enum PeerReviewQuestionType {
 pub struct NewPeerReviewQuestion {
     pub peer_review_id: Uuid,
     pub order_number: i32,
-    pub title: String,
+    pub question: String,
     pub question_type: PeerReviewQuestionType,
 }
 
@@ -26,7 +26,7 @@ pub struct PeerReviewQuestion {
     pub deleted_at: Option<DateTime<Utc>>,
     pub peer_review_id: Uuid,
     pub order_number: i32,
-    pub title: String,
+    pub question: String,
     pub question_type: PeerReviewQuestionType,
 }
 
@@ -39,7 +39,7 @@ pub async fn insert(
 INSERT INTO peer_review_questions (
     peer_review_id,
     order_number,
-    title,
+    question,
     question_type
   )
 VALUES ($1, $2, $3, $4)
@@ -47,7 +47,7 @@ RETURNING id;
         ",
         new_peer_review_question.peer_review_id,
         new_peer_review_question.order_number,
-        new_peer_review_question.title,
+        new_peer_review_question.question,
         new_peer_review_question.question_type as PeerReviewQuestionType,
     )
     .fetch_one(conn)
@@ -65,7 +65,7 @@ SELECT id,
   deleted_at,
   peer_review_id,
   order_number,
-  title,
+  question,
   question_type AS "question_type: _"
 FROM peer_review_questions
 WHERE id = $1
@@ -91,7 +91,7 @@ SELECT id,
     deleted_at,
     peer_review_id,
     order_number,
-    title,
+    question,
     question_type AS "question_type: _"
 FROM peer_review_questions
 WHERE peer_review_id = $1

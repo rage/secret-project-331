@@ -1130,7 +1130,7 @@ export function isNewPeerReviewQuestion(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.peer_review_id === "string" &&
     typeof obj.order_number === "number" &&
-    typeof obj.title === "string" &&
+    typeof obj.question === "string" &&
     (isPeerReviewQuestionType(obj.question_type) as boolean)
   )
 }
@@ -1144,7 +1144,7 @@ export function isPeerReviewQuestion(obj: any, _argumentName?: string): obj is P
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     typeof obj.peer_review_id === "string" &&
     typeof obj.order_number === "number" &&
-    typeof obj.title === "string" &&
+    typeof obj.question === "string" &&
     (isPeerReviewQuestionType(obj.question_type) as boolean)
   )
 }

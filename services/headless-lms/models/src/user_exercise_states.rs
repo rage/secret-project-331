@@ -12,7 +12,7 @@ use crate::{
 #[sqlx(type_name = "exercise_progress", rename_all = "snake_case")]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum ExerciseProgress {
-    Incomplete,
+    NotAnswered,
     PeerReview,
     SelfReview,
     Complete,

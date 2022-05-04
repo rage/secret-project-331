@@ -18,7 +18,7 @@ pub async fn start_peer_review_for_user(
     user_exercise_state: UserExerciseState,
     exercise_slide_submission: &ExerciseSlideSubmission,
 ) -> ModelResult<()> {
-    if user_exercise_state.exercise_progress != ExerciseProgress::Incomplete {
+    if user_exercise_state.exercise_progress != ExerciseProgress::NotAnswered {
         return Err(ModelError::PreconditionFailed(
             "Cannot start peer review anymore.".to_string(),
         ));

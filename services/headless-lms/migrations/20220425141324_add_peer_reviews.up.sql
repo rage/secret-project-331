@@ -4,14 +4,14 @@ ADD COLUMN needs_peer_review BOOLEAN NOT NULL DEFAULT FALSE;
 COMMENT ON COLUMN exercises.needs_peer_review IS 'Does this exercise need to be peer reviewed before it can be marked as complete. The corresponding peer review can be found from the peer reviews table.';
 -- Add enum for exercise progress with peer reviews
 CREATE TYPE exercise_progress AS ENUM (
-  'not_complete',
+  'not_answered',
   'peer_review',
   'self_review',
   'complete'
 );
 -- Add new enum to user exercise states
 ALTER TABLE user_exercise_states
-ADD COLUMN exercise_progress exercise_progress NOT NULL DEFAULT 'not_complete';
+ADD COLUMN exercise_progress exercise_progress NOT NULL DEFAULT 'not_answered';
 -- Add peer reviews table
 CREATE TABLE peer_reviews (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

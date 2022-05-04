@@ -1142,7 +1142,7 @@
             "Custom": {
               "name": "exercise_progress",
               "kind": {
-                "Enum": ["not_complete", "peer_review", "self_review", "complete"]
+                "Enum": ["not_answered", "peer_review", "self_review", "complete"]
               }
             }
           }
@@ -1358,7 +1358,7 @@
             "Custom": {
               "name": "exercise_progress",
               "kind": {
-                "Enum": ["not_complete", "peer_review", "self_review", "complete"]
+                "Enum": ["not_answered", "peer_review", "self_review", "complete"]
               }
             }
           }
@@ -2696,7 +2696,7 @@
             "Custom": {
               "name": "exercise_progress",
               "kind": {
-                "Enum": ["not_complete", "peer_review", "self_review", "complete"]
+                "Enum": ["not_answered", "peer_review", "self_review", "complete"]
               }
             }
           }
@@ -3674,7 +3674,7 @@
             "Custom": {
               "name": "exercise_progress",
               "kind": {
-                "Enum": ["not_complete", "peer_review", "self_review", "complete"]
+                "Enum": ["not_answered", "peer_review", "self_review", "complete"]
               }
             }
           }
@@ -11157,7 +11157,7 @@
             "Custom": {
               "name": "exercise_progress",
               "kind": {
-                "Enum": ["not_complete", "peer_review", "self_review", "complete"]
+                "Enum": ["not_answered", "peer_review", "self_review", "complete"]
               }
             }
           }
@@ -12755,7 +12755,7 @@
             "Custom": {
               "name": "exercise_progress",
               "kind": {
-                "Enum": ["not_complete", "peer_review", "self_review", "complete"]
+                "Enum": ["not_answered", "peer_review", "self_review", "complete"]
               }
             }
           }
@@ -12772,7 +12772,7 @@
             "Custom": {
               "name": "exercise_progress",
               "kind": {
-                "Enum": ["not_complete", "peer_review", "self_review", "complete"]
+                "Enum": ["not_answered", "peer_review", "self_review", "complete"]
               }
             }
           },

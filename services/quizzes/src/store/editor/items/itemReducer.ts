@@ -12,7 +12,10 @@ import {
   deletedOption,
   initializedEditor,
 } from "../editorActions"
-import { addedTimelineItemAction } from "../timelineItems/timelineItemsActions"
+import {
+  addedTimelineItemAction,
+  deleteTimelineItemEventAction,
+} from "../timelineItems/timelineItemsActions"
 
 import {
   decreasedItemOrder,
@@ -264,6 +267,15 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
         draftState[action.payload.quizItemId].timelineItems = []
       }
       draftState[action.payload.quizItemId].timelineItems.push(action.payload.timelineItemId)
+    })
+  })
+
+  .handleAction(deleteTimelineItemEventAction, (state, action) => {
+    return produce(state, (draftState) => {
+      const timelineItems = draftState[action.payload.quizItemId].timelineItems
+      draftState[action.payload.quizItemId].timelineItems = timelineItems.filter(
+        (id) => id !== action.payload.timelineItemId,
+      )
     })
   })
 

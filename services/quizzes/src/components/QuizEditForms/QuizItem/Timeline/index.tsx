@@ -10,7 +10,12 @@ import { useDispatch } from "react-redux"
 import { NormalizedQuizItem } from "../../../../../types/types"
 import TextField from "../../../../shared-module/components/InputFields/TextField"
 import { baseTheme } from "../../../../shared-module/styles"
-import { addedTimelineItemAction } from "../../../../store/editor/timelineItems/timelineItemsActions"
+import {
+  addedTimelineItemAction,
+  deleteTimelineItemEventAction,
+  editTimelineItemEventAction,
+  editTimelineItemYearAction,
+} from "../../../../store/editor/timelineItems/timelineItemsActions"
 import { useTypedSelector } from "../../../../store/store"
 
 interface TimelineEditorProps {
@@ -166,24 +171,24 @@ const TimelineEditor: React.FC<TimelineEditorProps> = ({ item }) => {
               <TextField
                 className={cx(yearTextFieldStyles, alreadyInputtedTextFieldStyles)}
                 label={t("label-year")}
-                onChange={() => {
-                  // TODO
+                onChange={(value) => {
+                  dispatch(editTimelineItemYearAction(timelineItemId, value))
                 }}
-                defaultValue={timelineItem.year}
+                value={timelineItem.year}
               />
 
               <TextField
                 className={cx(alreadyInputtedTextFieldStyles)}
                 label={t("label-correct-event")}
-                onChange={() => {
-                  // TODO
+                onChange={(value) => {
+                  dispatch(editTimelineItemEventAction(timelineItemId, value))
                 }}
-                defaultValue={timelineItem.correctEventName}
+                value={timelineItem.correctEventName}
               />
 
               <DeleteBtn
                 onClick={() => {
-                  // TODO: delete timeline item
+                  dispatch(deleteTimelineItemEventAction(item.id, timelineItemId))
                 }}
               >
                 <FontAwesomeIcon icon={faXmark} />

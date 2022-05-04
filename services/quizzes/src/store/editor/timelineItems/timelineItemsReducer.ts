@@ -5,7 +5,12 @@ import { createReducer } from "typesafe-actions"
 import { action, NormalizedQuizItemTimelineItem } from "../../../../types/types"
 import { initializedEditor } from "../editorActions"
 
-import { addedTimelineItemAction } from "./timelineItemsActions"
+import {
+  addedTimelineItemAction,
+  deleteTimelineItemEventAction,
+  editTimelineItemEventAction,
+  editTimelineItemYearAction,
+} from "./timelineItemsActions"
 
 export const timelineItemReducer = createReducer<
   { [optionId: string]: NormalizedQuizItemTimelineItem },
@@ -24,6 +29,26 @@ export const timelineItemReducer = createReducer<
         correctEventName: action.payload.correctEventName.trim(),
         correctEventId: action.payload.correctEventId,
       }
+    })
+  })
+
+  .handleAction(editTimelineItemYearAction, (state, action) => {
+    return produce(state, (draftState) => {
+      const item = draftState[action.payload.timelineItemId]
+      item.year = action.payload.newValue
+    })
+  })
+
+  .handleAction(editTimelineItemEventAction, (state, action) => {
+    return produce(state, (draftState) => {
+      const item = draftState[action.payload.timelineItemId]
+      item.correctEventName = action.payload.newValue
+    })
+  })
+
+  .handleAction(deleteTimelineItemEventAction, (state, action) => {
+    return produce(state, (draftState) => {
+      delete draftState[action.payload.timelineItemId]
     })
   })
 

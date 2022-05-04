@@ -17,3 +17,36 @@ export const addedTimelineItemAction = createAction(
   timelineItemId: string
   correctEventId: string
 }>()
+
+export const editTimelineItemYearAction = createAction(
+  "EDITED_TIMELINE_ITEM_YEAR",
+  (timelineItemId: string, newValue: string) => ({
+    timelineItemId,
+    newValue,
+  }),
+)<{
+  timelineItemId: string
+  newValue: string
+}>()
+
+export const editTimelineItemEventAction = createAction(
+  "EDITED_TIMELINE_ITEM_EVENT",
+  (timelineItemId: string, newValue: string) => ({
+    timelineItemId,
+    newValue,
+  }),
+)<{
+  timelineItemId: string
+  newValue: string
+}>()
+
+export const deleteTimelineItemEventAction = createAction(
+  "DELETED_TIMELINE_ITEM",
+  (quizItemId: string, timelineItemId: string) => ({
+    timelineItemId,
+    quizItemId,
+  }),
+)<{
+  timelineItemId: string
+  quizItemId: string
+}>()

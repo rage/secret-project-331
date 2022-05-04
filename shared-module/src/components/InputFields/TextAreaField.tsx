@@ -16,6 +16,8 @@ interface TextAreaExtraProps {
   autoResize?: boolean
 }
 
+type TextAreaProps = TextAreaExtraProps & React.TextareaHTMLAttributes<HTMLTextAreaElement>
+
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextAreaExtraProps
 
 function updateHeight(ref: React.RefObject<HTMLTextAreaElement>) {
@@ -27,7 +29,7 @@ function updateHeight(ref: React.RefObject<HTMLTextAreaElement>) {
   }
 }
 
-const TextArea = ({ onChange, className, autoResize, ...rest }: TextAreaExtraProps) => {
+const TextArea = ({ onChange, className, autoResize, ...rest }: TextAreaProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {

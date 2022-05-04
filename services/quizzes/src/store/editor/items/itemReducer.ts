@@ -12,6 +12,7 @@ import {
   deletedOption,
   initializedEditor,
 } from "../editorActions"
+import { addedTimelineItemAction } from "../timelineItems/timelineItemsActions"
 
 import {
   decreasedItemOrder,
@@ -150,6 +151,7 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
         allAnswersCorrect: false,
         direction: "column",
         feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem",
+        timelineItems: [],
       }
       draftState[action.payload.itemId] = newItem
     })
@@ -253,6 +255,15 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
   .handleAction(editedQuizItemOptionCells, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.itemId].optionCells = action.payload.optionCells
+    })
+  })
+
+  .handleAction(addedTimelineItemAction, (state, action) => {
+    return produce(state, (draftState) => {
+      if (!draftState[action.payload.quizItemId].timelineItems) {
+        draftState[action.payload.quizItemId].timelineItems = []
+      }
+      draftState[action.payload.quizItemId].timelineItems.push(action.payload.timelineItemId)
     })
   })
 

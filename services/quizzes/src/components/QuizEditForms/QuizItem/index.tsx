@@ -19,6 +19,7 @@ import MatrixContent from "./MatrixContent"
 import MultipleChoiceContent from "./MultipleChoiceContent"
 import OpenContent from "./OpenContent"
 import ScaleContent from "./ScaleContent"
+import Timeline from "./Timeline"
 
 const TypeWrapper = styled.div`
   display: flex;
@@ -112,6 +113,9 @@ const contentBasedOnType = (type: string, item: NormalizedQuizItem, t: TFunction
     }
     case "custom-frontend-accept-data": {
       return <CustomFrontend item={item} />
+    }
+    case "timeline": {
+      return <Timeline item={item} />
     }
     default: {
       return <div>{t("unsupported")}</div>

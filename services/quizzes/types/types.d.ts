@@ -119,6 +119,7 @@ export interface QuizItem {
   allAnswersCorrect: boolean
   direction: "row" | "column"
   feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
+  timelineItems: QuizItemTimelineItem[] | null
 }
 
 export interface QuizItemModelSolution {
@@ -134,6 +135,11 @@ export interface OptionsFeedback {
   failureMessage?: string
 }
 
+/**
+ * Quiz item that has been normalized.
+ *
+ * See this for an introduction to normalization in Redux: https://redux.js.org/tutorials/essentials/part-6-performance-normalization#normalizing-data
+ */
 export interface NormalizedQuizItem {
   id: string
   quizId: string
@@ -159,6 +165,8 @@ export interface NormalizedQuizItem {
   allAnswersCorrect: boolean
   direction: "row" | "column"
   feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
+  /** Only defined for the timeline quiz item type. */
+  timelineItems: string[]
 }
 
 export interface QuizItemVariables {
@@ -225,6 +233,17 @@ export interface NormalizedQuizItemOption {
   failureMessage: null | string
 }
 
+/** Only defined for the timeline exercise type */
+export interface NormalizedQuizItemTimelineItem {
+  id: string
+  /** The year the student is supposed to match to an event. */
+  year: string
+  /** The event the student is supposed choose from the dropdown menu */
+  correctEvent: string
+}
+
+export type QuizItemTimelineItem = NormalizedQuizItemTimelineItem
+
 export interface QuizItemOptionVariables {
   optionEditing: boolean
 }
@@ -279,6 +298,7 @@ export interface Entities {
   quizzes: { [quizId: string]: NormalizedQuiz }
   items: { [itemId: string]: NormalizedQuizItem }
   options?: { [optionId: string]: NormalizedQuizItemOption }
+  timelineItems?: { [timelineItemId: string]: NormalizedQuizItemTimelineItem }
   result: string
 }
 

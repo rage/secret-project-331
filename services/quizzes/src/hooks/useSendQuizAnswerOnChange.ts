@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { useEffect } from "react"
 
 import { WidgetReducerState } from "../components/widget"
@@ -15,8 +16,10 @@ export const useSendQuizAnswerOnChange = (port: MessagePort, state: WidgetReduce
       data: state.quiz_answer,
       valid: state.quiz_answer_is_valid,
     }
-    // eslint-disable-next-line i18next/no-literal-string
-    console.info("Sending current data", JSON.stringify(message))
+
+    console.groupCollapsed("Quizzes: sending current data")
+    console.info(JSON.stringify(message, undefined, 2))
+    console.groupEnd()
     port.postMessage(message)
   }, [port, state])
 }

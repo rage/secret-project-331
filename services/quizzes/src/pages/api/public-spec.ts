@@ -52,6 +52,15 @@ function handlePost(req: NextApiRequest, res: NextApiResponse) {
           }
           return po
         }),
+        timelineItems:
+          i.timelineItems?.map((t) => {
+            return { year: t.year, id: t.id }
+          }) || [],
+        timelineItemEvents: (
+          i.timelineItems?.map((t) => {
+            return { id: t.correctEventId, name: t.correctEventName }
+          }) || []
+        ).sort((a, b) => a.name.localeCompare(b.name)),
       }
       return pi
     }),

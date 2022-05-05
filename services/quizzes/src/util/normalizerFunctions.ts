@@ -13,6 +13,7 @@ export const normalizeData = (data: Quiz) => {
     result: normalizedInputData.result ?? "",
     peerReviewCollections: normalizedInputData.entities.peerReviewCollections ?? {},
     questions: normalizedInputData.entities.questions ?? {},
+    timelineItems: normalizedInputData.entities.timelineItems ?? {},
   }
 }
 
@@ -22,6 +23,7 @@ export const denormalizeData = (state: StoreState) => {
     items: state.editor.items,
     result: state.editor.quizId,
     options: state.editor.options,
+    timelineItems: state.editor.timelineItems,
   }
   const res = denormalize(state.editor.quizId, normalizedQuiz, entities)
   return res

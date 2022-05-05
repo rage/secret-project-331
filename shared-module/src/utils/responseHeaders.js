@@ -27,7 +27,7 @@ const normalResponseHeaders = [
 const externallyEmbeddableIFrameResponseHeaders = [
   {
     key: "Referrer-Policy",
-    value: "no-referrer-when-downgrade",
+    value: "strict-origin-when-cross-origin",
   },
   {
     key: "X-Content-Type-Options",

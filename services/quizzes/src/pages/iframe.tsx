@@ -51,8 +51,15 @@ const IFrame: React.FC = () => {
         console.info("Frame received a port:", port)
         setPort(port)
         port.onmessage = (message: WindowEventMap["message"]) => {
-          // eslint-disable-next-line i18next/no-literal-string
-          console.info("Frame received a message from port", JSON.stringify(message.data))
+          if (message.data.message) {
+            // eslint-disable-next-line i18next/no-literal-string
+            console.groupCollapsed(`Frame received a ${message.data.message} message from port`)
+          } else {
+            // eslint-disable-next-line i18next/no-literal-string
+            console.groupCollapsed(`Frame received a message from port`)
+          }
+
+          console.info(JSON.stringify(message.data, undefined, 2))
           const data = message.data
           console.log(data)
           if (isSetStateMessage(data)) {
@@ -93,6 +100,7 @@ const IFrame: React.FC = () => {
             // eslint-disable-next-line i18next/no-literal-string
             console.error("Frame received an unknown message from message port")
           }
+          console.groupEnd()
         }
       }
     }

@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { useEffect } from "react"
 
 import { CurrentStateMessage } from "../shared-module/iframe-protocol-types"
@@ -17,8 +18,9 @@ export const useSendEditorStateOnChange = (port: MessagePort, state: StoreState)
       data: { private_spec: denormalizeData(state) },
       valid: true,
     }
-    // eslint-disable-next-line i18next/no-literal-string
-    console.info("Sending current data", JSON.stringify(message))
+    console.groupCollapsed("Quizzes: sending current data")
+    console.info(JSON.stringify(message, undefined, 2))
+    console.groupEnd()
     port.postMessage(message)
   }, [state, port])
 }

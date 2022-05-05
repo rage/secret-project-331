@@ -13,5 +13,11 @@ export default (req: NextApiRequest, res: NextApiResponse<ModelSolutionQuiz>): v
 function createModelSolution(quiz: Quiz): ModelSolutionQuiz {
   const modelSolution: ModelSolutionQuiz = quiz
 
+  // Let's never leak validity regex to students because it makes it too easy to figure out how to "trick" the check.
+  modelSolution.items.forEach((item) => {
+    // @ts-ignore: the field is there because of the cast above
+    delete item.validityRegex
+  })
+
   return modelSolution
 }

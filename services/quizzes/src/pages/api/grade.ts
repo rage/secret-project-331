@@ -16,11 +16,17 @@ interface OptionAnswerFeedback {
   this_option_was_correct: boolean | null
 }
 
+interface TimelineItemFeedback {
+  timeline_item_id: string | null
+  what_was_chosen_was_correct: boolean
+}
+
 export interface ItemAnswerFeedback {
   quiz_item_id: string | null
   quiz_item_feedback: string | null
   quiz_item_correct: boolean | null
   quiz_item_option_feedbacks: OptionAnswerFeedback[] | null
+  timeline_item_feedbacks: TimelineItemFeedback[] | null
 }
 
 interface QuizItemAnswerGrading {
@@ -263,6 +269,7 @@ function submissionFeedback(
         quiz_item_feedback: null,
         quiz_item_option_feedbacks: null,
         quiz_item_correct: null,
+        timeline_item_feedbacks: null,
       }
     }
     if (
@@ -271,6 +278,7 @@ function submissionFeedback(
       item.type === "multiple-choice-dropdown"
     ) {
       return {
+        timeline_item_feedbacks: null,
         quiz_item_id: item.id,
         quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
         quiz_item_correct: itemGrading.correct,
@@ -289,13 +297,37 @@ function submissionFeedback(
             })
           : null,
       }
-    } else {
+    }
+
+    if (item.type === "timeline") {
       return {
         quiz_item_id: item.id,
         quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
         quiz_item_correct: itemGrading.correct,
         quiz_item_option_feedbacks: null,
+        timeline_item_feedbacks: ia.timelineChoices
+          ? ia.timelineChoices.map<TimelineItemFeedback>((tc) => {
+              const timelineItem = item.timelineItems?.find((ti) => ti.id === tc.timelineItemId)
+              if (!timelineItem) {
+                return {
+                  timeline_item_id: null,
+                  what_was_chosen_was_correct: false,
+                }
+              }
+              return {
+                timeline_item_id: timelineItem.id,
+                what_was_chosen_was_correct: timelineItem.correctEventId === tc.chosenEventId,
+              }
+            })
+          : null,
       }
+    }
+    return {
+      quiz_item_id: item.id,
+      quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
+      quiz_item_correct: itemGrading.correct,
+      quiz_item_option_feedbacks: null,
+      timeline_item_feedbacks: null,
     }
   })
   return feedbacks

@@ -75,5 +75,7 @@
   "placeholder-some-notable-event": "Some notable event",
   "add": "Add",
   "deleted-option": "Deleted option",
-  "quiz-type-not-supported": "Quiz type not supported"
+  "quiz-type-not-supported": "Quiz type not supported",
+  "not-answered": "Not answered",
+  "correct-option": "Correct option"
 }

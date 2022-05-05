@@ -12,6 +12,7 @@ import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
 import MultipleChoiceClickableFeedback from "./SubmissionComponents/MultipleChoiceClickable"
 import MultipleChoiceDropdownFeedback from "./SubmissionComponents/MultipleChoiceDropdown"
 import OpenFeedback from "./SubmissionComponents/Open"
+import Timeline from "./SubmissionComponents/Timeline"
 import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
 
 interface SubmissionProps {
@@ -64,6 +65,7 @@ const mapTypeToComponent: { [key: string]: QuizItemSubmissionComponentDescriptor
     shouldDisplayCorrectnessMessageAfterAnswer: true,
   },
   matrix: { component: MatrixSubmission, shouldDisplayCorrectnessMessageAfterAnswer: true },
+  timeline: { component: Timeline, shouldDisplayCorrectnessMessageAfterAnswer: true },
 }
 
 const componentDescriptorByTypeName = (

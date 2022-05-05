@@ -8,17 +8,6 @@ import TimelineSelect from "../../shared-module/components/TimelineSelect"
 
 import { QuizItemComponentProps } from "."
 
-interface ValueLabel {
-  value: string
-  label: string
-}
-
-export interface TimelineExtraProps {
-  data: ValueLabel[]
-}
-
-export type TimelineProps = React.HTMLAttributes<HTMLDivElement> & TimelineExtraProps
-
 const TimelineWrapper = styled.section`
   *,
   *::before,

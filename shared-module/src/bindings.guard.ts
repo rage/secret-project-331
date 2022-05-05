@@ -33,6 +33,7 @@ import {
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseSlide,
   CourseMaterialExerciseTask,
+  CourseMaterialPeerReviewData,
   CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
@@ -65,6 +66,7 @@ import {
   ExerciseTaskGrading,
   ExerciseTaskGradingResult,
   ExerciseTaskSubmission,
+  ExerciseTaskSubmissionWithSpec,
   ExerciseUserCounts,
   ExerciseWithExerciseTasks,
   Feedback,
@@ -848,6 +850,23 @@ export function isStudentExerciseTaskSubmissionResult(
   )
 }
 
+export function isCourseMaterialPeerReviewData(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewData {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_slide_submission_id === "string" &&
+    Array.isArray(obj.exercise_task_submissions) &&
+    obj.exercise_task_submissions.every(
+      (e: any) => isExerciseTaskSubmissionWithSpec(e) as boolean,
+    ) &&
+    typeof obj.peer_review_id === "string" &&
+    Array.isArray(obj.peer_review_questions) &&
+    obj.peer_review_questions.every((e: any) => isPeerReviewQuestion(e) as boolean)
+  )
+}
+
 export function isOrganization(obj: any, _argumentName?: string): obj is Organization {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1392,6 +1411,18 @@ export function isExerciseTaskSubmission(
     typeof obj.exercise_task_id === "string" &&
     typeof obj.exercise_slide_id === "string" &&
     (obj.exercise_task_grading_id === null || typeof obj.exercise_task_grading_id === "string")
+  )
+}
+
+export function isExerciseTaskSubmissionWithSpec(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseTaskSubmissionWithSpec {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.exercise_task_id === "string" &&
+    typeof obj.exercise_task_order_number === "number"
   )
 }
 

@@ -66,6 +66,7 @@ CREATE TABLE peer_review_queue_entries(
   user_id UUID NOT NULL REFERENCES users(id),
   exercise_id UUID NOT NULL REFERENCES exercises(id),
   receiving_peer_reviews_exercise_slide_submission_id UUID NOT NULL REFERENCES exercise_slide_submissions(id),
+  received_enough_peer_reviews BOOLEAN NOT NULL DEFAULT 'false',
   peer_review_priority INTEGER NOT NULL DEFAULT 0
 );
 CREATE TRIGGER set_timestamp BEFORE
@@ -79,6 +80,7 @@ COMMENT ON COLUMN peer_review_queue_entries.deleted_at IS 'Timestamp when the re
 COMMENT ON COLUMN peer_review_queue_entries.user_id IS 'TODO';
 COMMENT ON COLUMN peer_review_queue_entries.exercise_id IS 'TODO';
 COMMENT ON COLUMN peer_review_queue_entries.receiving_peer_reviews_exercise_slide_submission_id IS 'TODO';
+COMMENT ON COLUMN peer_review_queue_entries.received_enough_peer_reviews IS 'Whether or not this queue entry has already received enough peer reviews. Simply a boolean for performance reasons.';
 COMMENT ON COLUMN peer_review_queue_entries.peer_review_priority IS 'TODO';
 -- Add peer review submissions.
 CREATE TABLE peer_review_submissions(

@@ -21,9 +21,8 @@ async fn get_submission_info(
     )
     .await?;
 
-    let slide_submission = models::exercise_slide_submissions::get_by_id(&mut conn, *submission_id)
-        .await?
-        .ok_or_else(|| anyhow::anyhow!("Missing submission".to_string()))?;
+    let slide_submission =
+        models::exercise_slide_submissions::get_by_id(&mut conn, *submission_id).await?;
     let task_submission = models::exercise_task_submissions::get_by_exercise_slide_submission_id(
         &mut conn,
         slide_submission.id,

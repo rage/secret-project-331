@@ -466,6 +466,13 @@ export interface StudentExerciseTaskSubmissionResult {
   model_solution_spec: unknown | null
 }
 
+export interface CourseMaterialPeerReviewData {
+  exercise_slide_submission_id: string
+  exercise_task_submissions: Array<ExerciseTaskSubmissionWithSpec>
+  peer_review_id: string
+  peer_review_questions: Array<PeerReviewQuestion>
+}
+
 export interface Organization {
   id: string
   slug: string
@@ -818,6 +825,15 @@ export interface ExerciseTaskSubmission {
   data_json: unknown | null
   exercise_task_grading_id: string | null
   metadata: unknown | null
+}
+
+export interface ExerciseTaskSubmissionWithSpec {
+  id: string
+  exercise_task_id: string
+  exercise_task_order_number: number
+  public_spec: unknown | null
+  model_solution_spec: unknown | null
+  data_json: unknown | null
 }
 
 export interface SubmissionInfo {

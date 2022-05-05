@@ -35,6 +35,14 @@ pub struct ExerciseSlideSubmission {
     pub user_points_update_strategy: UserPointsUpdateStrategy,
 }
 
+impl ExerciseSlideSubmission {
+    pub fn get_course_instance_id(&self) -> ModelResult<Uuid> {
+        self.course_instance_id.ok_or_else(|| {
+            ModelError::Generic("Submission is not related to a course instance.".to_string())
+        })
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmissionCount {
@@ -145,10 +153,7 @@ RETURNING id,
     Ok(res)
 }
 
-pub async fn get_by_id(
-    conn: &mut PgConnection,
-    id: Uuid,
-) -> ModelResult<Option<ExerciseSlideSubmission>> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExerciseSlideSubmission> {
     let exercise_slide_submission = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
@@ -169,9 +174,49 @@ WHERE id = $1
         "#,
         id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(exercise_slide_submission)
+}
+
+/// Attempts to find a single random `ExerciseSlideSubmission` that is not related to the provided user.
+///
+/// This function is mostly provided for very specific peer review purposes. Since getting other people's
+/// submissions wouldn't make any sense in the context of exams, only course instances are being considered.
+pub async fn try_to_get_random_from_other_users_by_exercise_and_course_instance_ids(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+    excluded_user_id: Uuid,
+) -> ModelResult<Option<ExerciseSlideSubmission>> {
+    let res = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _"
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+  AND course_instance_id = $2
+  AND user_id <> $3
+  AND deleted_at IS NULL
+ORDER BY random() ASC
+        "#,
+        exercise_id,
+        course_instance_id,
+        excluded_user_id,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn get_by_exercise_id(

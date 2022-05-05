@@ -119,6 +119,8 @@ fn ts_binding_generator() {
         library::grading::StudentExerciseTaskSubmission,
         library::grading::StudentExerciseTaskSubmissionResult,
 
+        library::peer_reviewing::CourseMaterialPeerReviewData,
+
         organizations::Organization,
 
         page_history::PageHistory,
@@ -171,6 +173,7 @@ fn ts_binding_generator() {
         exercise_task_gradings::UserPointsUpdateStrategy,
 
         exercise_task_submissions::ExerciseTaskSubmission,
+        exercise_task_submissions::ExerciseTaskSubmissionWithSpec,
         exercise_task_submissions::SubmissionInfo,
 
         roles::RoleUser,

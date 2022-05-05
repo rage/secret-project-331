@@ -10,6 +10,7 @@ pub struct PeerReviewQueueEntry {
     pub user_id: Uuid,
     pub exercise_id: Uuid,
     pub receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+    pub received_enough_peer_reviews: bool,
     pub peer_review_priority: i32,
 }
 
@@ -49,6 +50,69 @@ WHERE id = $1
         id
     )
     .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_many_by_exercise_id_and_review_priority(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    excluded_user_id: Uuid,
+    excluded_submissions_ids: &[Uuid],
+    count: i64,
+) -> ModelResult<Vec<PeerReviewQueueEntry>> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+SELECT *
+FROM peer_review_queue_entries
+WHERE exercise_id = $1
+  AND user_id <> $2
+  AND receiving_peer_reviews_exercise_slide_submission_id NOT IN (
+    SELECT UNNEST($3::uuid [])
+  )
+  AND deleted_at IS NULL
+ORDER BY peer_review_priority DESC
+LIMIT $4
+            ",
+        exercise_id,
+        excluded_user_id,
+        excluded_submissions_ids,
+        count,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_many_that_need_peer_reviews_by_exercise_id_and_review_priority(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    excluded_user_id: Uuid,
+    excluded_submissions_ids: &[Uuid],
+    count: i64,
+) -> ModelResult<Vec<PeerReviewQueueEntry>> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+SELECT *
+FROM peer_review_queue_entries
+WHERE exercise_id = $1
+  AND user_id <> $2
+  AND receiving_peer_reviews_exercise_slide_submission_id NOT IN (
+    SELECT UNNEST($3::uuid [])
+  )
+  AND received_enough_peer_reviews = 'true'
+  AND deleted_at IS NULL
+ORDER BY peer_review_priority DESC
+LIMIT $4
+        ",
+        exercise_id,
+        excluded_user_id,
+        excluded_submissions_ids,
+        count,
+    )
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }

@@ -176,8 +176,7 @@ pub async fn update_grading_with_single_regrading_result(
         &mut *conn,
         task_submission.exercise_slide_submission_id,
     )
-    .await?
-    .ok_or_else(|| ModelError::Generic("No slide submission".to_string()))?;
+    .await?;
     let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
         conn,
         slide_submission.user_id,

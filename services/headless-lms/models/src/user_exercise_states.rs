@@ -35,6 +35,14 @@ pub struct UserExerciseState {
     pub selected_exercise_slide_id: Option<Uuid>,
 }
 
+impl UserExerciseState {
+    pub fn get_course_instance_id(&self) -> ModelResult<Uuid> {
+        self.course_instance_id.ok_or_else(|| {
+            ModelError::Generic("Submission is not related to a course instance.".to_string())
+        })
+    }
+}
+
 /// Either a course instance or exam id.
 ///
 /// Exercises can either be part of courses or exams. Many user-related actions need to differentiate

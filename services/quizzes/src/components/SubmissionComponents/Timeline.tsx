@@ -133,131 +133,133 @@ const Timeline: React.FunctionComponent<QuizItemSubmissionComponentProps> = ({
   const { t } = useTranslation()
   return (
     <TimelineWrapper>
-      {public_quiz_item.timelineItems.map((timelineItem, n) => {
-        const selectedTimelineItem = user_quiz_item_answer?.timelineChoices?.find(
-          (tc) => tc.timelineItemId === timelineItem.id,
-        )
+      {public_quiz_item.timelineItems
+        .sort((a, b) => Number(a.year) - Number(b.year))
+        .map((timelineItem, n) => {
+          const selectedTimelineItem = user_quiz_item_answer?.timelineChoices?.find(
+            (tc) => tc.timelineItemId === timelineItem.id,
+          )
 
-        const selectedTimelineEventDetails = public_quiz_item.timelineItemEvents.find(
-          (te) => te.id === selectedTimelineItem?.chosenEventId,
-        )
+          const selectedTimelineEventDetails = public_quiz_item.timelineItemEvents.find(
+            (te) => te.id === selectedTimelineItem?.chosenEventId,
+          )
 
-        const timelinemItemFeedback = quiz_item_feedback?.timeline_item_feedbacks?.find(
-          (tif) => tif.timeline_item_id === timelineItem.id,
-        )
+          const timelinemItemFeedback = quiz_item_feedback?.timeline_item_feedbacks?.find(
+            (tif) => tif.timeline_item_id === timelineItem.id,
+          )
 
-        const whatWasChosenWasCorrect = timelinemItemFeedback?.what_was_chosen_was_correct
-        const modelSolutionCorrectEventId = quiz_item_model_solution?.timelineItems?.find(
-          (ti) => ti.id === timelineItem.id,
-        )?.correctEventId
-        const modelSolutionCorrectEventName = public_quiz_item.timelineItemEvents.find(
-          (te) => te.id === modelSolutionCorrectEventId,
-        )?.name
+          const whatWasChosenWasCorrect = timelinemItemFeedback?.what_was_chosen_was_correct
+          const modelSolutionCorrectEventId = quiz_item_model_solution?.timelineItems?.find(
+            (ti) => ti.id === timelineItem.id,
+          )?.correctEventId
+          const modelSolutionCorrectEventName = public_quiz_item.timelineItemEvents.find(
+            (te) => te.id === modelSolutionCorrectEventId,
+          )?.name
 
-        const align = n % 2 === 0 ? right : left
-        return (
-          <div
-            className={`${container} ${align} ${css`
-              &::after {
-                content: "";
-                position: absolute;
-                width: 30px;
-                height: 30px;
-                top: calc(50% - 20px);
-                right: -15px;
-                background: ${whatWasChosenWasCorrect ? "#32BEA6" : baseTheme.colors.clear[200]};
-                border: ${whatWasChosenWasCorrect ? "4px solid #EBEDEE" : "2px solid #767B85"};
-                border-style: solid;
-                border-radius: 16px;
-                transition: all 200ms linear;
-                z-index: 1;
-              }
-            `}`}
-            key={timelineItem.id}
-          >
-            <div className="date">{timelineItem.year}</div>
-            <div className="content">
-              {!selectedTimelineItem && <>{t("not-answered")}</>}
-              {selectedTimelineItem && (
-                <div>
-                  <div
-                    className={css`
-                      background-color: ${whatWasChosenWasCorrect
-                        ? baseTheme.colors.green[300]
-                        : baseTheme.colors.red[400]};
-                      border: none;
-                      margin: 0;
-                      width: 100%;
-                      display: flex;
-                      align-items: center;
-                    `}
-                    id={timelineItem.id}
-                  >
-                    <p
-                      className={css`
-                        padding: 8px 2px 8px 17px;
-                        width: 100%;
-                      `}
-                    >
-                      {selectedTimelineEventDetails?.name ?? t("deleted-option")}
-                    </p>
-                    <FontAwesomeIcon
-                      icon={whatWasChosenWasCorrect ? faCheck : faXmark}
-                      aria-label={
-                        whatWasChosenWasCorrect
-                          ? t("your-answer-was-correct")
-                          : t("your-answer-was-not-correct")
-                      }
-                      aria-hidden={false}
-                      className={css`
-                        padding: 0.5rem 1rem;
-                        color: ${whatWasChosenWasCorrect
-                          ? baseTheme.colors.green[700]
-                          : baseTheme.colors.red[700]};
-                      `}
-                    />
-                  </div>
-                  {!whatWasChosenWasCorrect && modelSolutionCorrectEventName && (
+          const align = n % 2 === 0 ? right : left
+          return (
+            <div
+              className={`${container} ${align} ${css`
+                &::after {
+                  content: "";
+                  position: absolute;
+                  width: 30px;
+                  height: 30px;
+                  top: calc(50% - 20px);
+                  right: -15px;
+                  background: ${whatWasChosenWasCorrect ? "#32BEA6" : baseTheme.colors.clear[200]};
+                  border: ${whatWasChosenWasCorrect ? "4px solid #EBEDEE" : "2px solid #767B85"};
+                  border-style: solid;
+                  border-radius: 16px;
+                  transition: all 200ms linear;
+                  z-index: 1;
+                }
+              `}`}
+              key={timelineItem.id}
+            >
+              <div className="date">{timelineItem.year}</div>
+              <div className="content">
+                {!selectedTimelineItem && <>{t("not-answered")}</>}
+                {selectedTimelineItem && (
+                  <div>
                     <div
                       className={css`
-                        background-color: ${baseTheme.colors.clear[200]};
-                        padding-top: 10px;
-                        padding-left: 17px;
-                        padding-right: 17px;
-                        padding-bottom: 10px;
-                        font-size: 13px;
+                        background-color: ${whatWasChosenWasCorrect
+                          ? baseTheme.colors.green[300]
+                          : baseTheme.colors.red[400]};
+                        border: none;
+                        margin: 0;
+                        width: 100%;
+                        display: flex;
+                        align-items: center;
                       `}
+                      id={timelineItem.id}
                     >
-                      <div
+                      <p
                         className={css`
-                          font-family: ${headingFont};
-                          text-transform: uppercase;
-                          color: ${baseTheme.colors.clear[100]};
-                          background-color: ${baseTheme.colors.green[400]};
-                          width: fit-content;
-                          font-size: 12px;
-                          margin-bottom: 0.5rem;
-                          font-weight: 600;
-                          padding: 3px;
-                          line-height: 100%;
-
-                          span {
-                            position: relative;
-                            top: 1px;
-                          }
+                          padding: 8px 2px 8px 17px;
+                          width: 100%;
                         `}
                       >
-                        <span>{t("correct-option")}</span>
-                      </div>
-                      {modelSolutionCorrectEventName}
+                        {selectedTimelineEventDetails?.name ?? t("deleted-option")}
+                      </p>
+                      <FontAwesomeIcon
+                        icon={whatWasChosenWasCorrect ? faCheck : faXmark}
+                        aria-label={
+                          whatWasChosenWasCorrect
+                            ? t("your-answer-was-correct")
+                            : t("your-answer-was-not-correct")
+                        }
+                        aria-hidden={false}
+                        className={css`
+                          padding: 0.5rem 1rem;
+                          color: ${whatWasChosenWasCorrect
+                            ? baseTheme.colors.green[700]
+                            : baseTheme.colors.red[700]};
+                        `}
+                      />
                     </div>
-                  )}
-                </div>
-              )}
+                    {!whatWasChosenWasCorrect && modelSolutionCorrectEventName && (
+                      <div
+                        className={css`
+                          background-color: ${baseTheme.colors.clear[200]};
+                          padding-top: 10px;
+                          padding-left: 17px;
+                          padding-right: 17px;
+                          padding-bottom: 10px;
+                          font-size: 13px;
+                        `}
+                      >
+                        <div
+                          className={css`
+                            font-family: ${headingFont};
+                            text-transform: uppercase;
+                            color: ${baseTheme.colors.clear[100]};
+                            background-color: ${baseTheme.colors.green[400]};
+                            width: fit-content;
+                            font-size: 12px;
+                            margin-bottom: 0.5rem;
+                            font-weight: 600;
+                            padding: 3px;
+                            line-height: 100%;
+
+                            span {
+                              position: relative;
+                              top: 1px;
+                            }
+                          `}
+                        >
+                          <span>{t("correct-option")}</span>
+                        </div>
+                        {modelSolutionCorrectEventName}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )
-      })}
+          )
+        })}
     </TimelineWrapper>
   )
 }

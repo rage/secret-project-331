@@ -123,7 +123,7 @@ const StyledTime = styled.div`
   width: 100%;
   display: flex;
 `
-const StyledButton = styled.div`
+const StyledButton = styled.button`
   background-color: #b1a2d4;
   width: 80px;
   justify-self: end;
@@ -161,77 +161,49 @@ const Timeline: React.FunctionComponent<QuizItemComponentProps> = ({
   const { t } = useTranslation()
   return (
     <TimelineWrapper>
-      {quizItem.timelineItems.map((timelineItem, n) => {
-        const selectedTimelineItem = quizItemAnswerState?.timelineChoices?.find(
-          (tc) => tc.timelineItemId === timelineItem.id,
-        )
+      {quizItem.timelineItems
+        .sort((a, b) => Number(a.year) - Number(b.year))
+        .map((timelineItem, n) => {
+          const selectedTimelineItem = quizItemAnswerState?.timelineChoices?.find(
+            (tc) => tc.timelineItemId === timelineItem.id,
+          )
 
-        const selectedTimelineEventDetails = quizItem.timelineItemEvents.find(
-          (te) => te.id === selectedTimelineItem?.chosenEventId,
-        )
+          const selectedTimelineEventDetails = quizItem.timelineItemEvents.find(
+            (te) => te.id === selectedTimelineItem?.chosenEventId,
+          )
 
-        const align = n % 2 === 0 ? right : left
-        return (
-          <div
-            className={`${container} ${align} ${css`
-              &::after {
-                content: "";
-                position: absolute;
-                width: 30px;
-                height: 30px;
-                top: calc(50% - 20px);
-                right: -15px;
-                background: ${selectedTimelineItem ? "#32BEA6" : "#EBEDEE"};
-                border: ${selectedTimelineItem ? "4px solid #EBEDEE" : "2px solid #767B85"};
-                border-style: ${selectedTimelineItem ? "solid" : "dashed"};
-                border-radius: 16px;
-                transition: all 200ms linear;
-                z-index: 1;
-              }
-            `}`}
-            key={timelineItem.id}
-          >
-            <div className="date">{timelineItem.year}</div>
-            <div className="content">
-              {!selectedTimelineItem && (
-                <TimelineSelect
-                  id={timelineItem.id}
-                  options={quizItem.timelineItemEvents.map((tie) => {
-                    return { label: tie.name, value: tie.id }
-                  })}
-                  onChange={(event) => {
-                    if (!quizItemAnswerState) {
-                      return
-                    }
-                    const timelineChoicesWithoutThisOne =
-                      quizItemAnswerState.timelineChoices?.filter(
-                        (tc) => tc.timelineItemId !== timelineItem.id,
-                      ) || []
-                    const newTimelineChoices: TimelineChoice[] = [
-                      ...timelineChoicesWithoutThisOne,
-                      { timelineItemId: timelineItem.id, chosenEventId: event.target.value },
-                    ]
-                    console.log(JSON.stringify(newTimelineChoices, undefined, 2))
-                    setQuizItemAnswerState({
-                      ...quizItemAnswerState,
-                      timelineChoices: newTimelineChoices,
-                      valid: validate(newTimelineChoices, quizItem.timelineItems),
-                    })
-                  }}
-                />
-              )}
-              {selectedTimelineItem && (
-                <StyledTime id={timelineItem.id}>
-                  <p
-                    className={css`
-                      padding: 8px 2px 8px 8px;
-                      width: 100%;
-                    `}
-                  >
-                    {selectedTimelineEventDetails?.name ?? t("deleted-option")}
-                  </p>
-                  <StyledButton
-                    onClick={() => {
+          const align = n % 2 === 0 ? right : left
+          return (
+            <div
+              className={`${container} ${align} ${css`
+                &::after {
+                  content: "";
+                  position: absolute;
+                  width: 30px;
+                  height: 30px;
+                  top: calc(50% - 20px);
+                  right: -15px;
+                  background: ${selectedTimelineItem ? "#32BEA6" : "#EBEDEE"};
+                  border: ${selectedTimelineItem ? "4px solid #EBEDEE" : "2px solid #767B85"};
+                  border-style: ${selectedTimelineItem ? "solid" : "dashed"};
+                  border-radius: 16px;
+                  transition: all 200ms linear;
+                  z-index: 1;
+                }
+              `}`}
+              key={timelineItem.id}
+            >
+              <label htmlFor={`select-${timelineItem.id}`} className="date">
+                {timelineItem.year}
+              </label>
+              <div className="content">
+                {!selectedTimelineItem && (
+                  <TimelineSelect
+                    id={`select-${timelineItem.id}`}
+                    options={quizItem.timelineItemEvents.map((tie) => {
+                      return { label: tie.name, value: tie.id }
+                    })}
+                    onChange={(event) => {
                       if (!quizItemAnswerState) {
                         return
                       }
@@ -239,19 +211,52 @@ const Timeline: React.FunctionComponent<QuizItemComponentProps> = ({
                         quizItemAnswerState.timelineChoices?.filter(
                           (tc) => tc.timelineItemId !== timelineItem.id,
                         ) || []
+                      const newTimelineChoices: TimelineChoice[] = [
+                        ...timelineChoicesWithoutThisOne,
+                        { timelineItemId: timelineItem.id, chosenEventId: event.target.value },
+                      ]
+                      console.log(JSON.stringify(newTimelineChoices, undefined, 2))
                       setQuizItemAnswerState({
                         ...quizItemAnswerState,
-                        timelineChoices: timelineChoicesWithoutThisOne,
-                        valid: validate(timelineChoicesWithoutThisOne, quizItem.timelineItems),
+                        timelineChoices: newTimelineChoices,
+                        valid: validate(newTimelineChoices, quizItem.timelineItems),
                       })
                     }}
-                  ></StyledButton>
-                </StyledTime>
-              )}
+                  />
+                )}
+                {selectedTimelineItem && (
+                  <StyledTime id={timelineItem.id}>
+                    <p
+                      className={css`
+                        padding: 8px 2px 8px 8px;
+                        width: 100%;
+                      `}
+                    >
+                      {selectedTimelineEventDetails?.name ?? t("deleted-option")}
+                    </p>
+                    <StyledButton
+                      aria-label={t("remove")}
+                      onClick={() => {
+                        if (!quizItemAnswerState) {
+                          return
+                        }
+                        const timelineChoicesWithoutThisOne =
+                          quizItemAnswerState.timelineChoices?.filter(
+                            (tc) => tc.timelineItemId !== timelineItem.id,
+                          ) || []
+                        setQuizItemAnswerState({
+                          ...quizItemAnswerState,
+                          timelineChoices: timelineChoicesWithoutThisOne,
+                          valid: validate(timelineChoicesWithoutThisOne, quizItem.timelineItems),
+                        })
+                      }}
+                    ></StyledButton>
+                  </StyledTime>
+                )}
+              </div>
             </div>
-          </div>
-        )
-      })}
+          )
+        })}
     </TimelineWrapper>
   )
 }

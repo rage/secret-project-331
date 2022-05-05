@@ -171,6 +171,7 @@ function assessTimelineQuiz(
   if (!quizItem.timelineItems) {
     throw new Error("No timeline items for timeline assignment")
   }
+  const timeLineItemsCount = quizItem.timelineItems.length
   quizItem.timelineItems?.forEach((ti) => {
     const answer = quizItemAnswer.timelineChoices?.find((tc) => tc.timelineItemId === ti.id)
     if (!answer) {
@@ -185,7 +186,7 @@ function assessTimelineQuiz(
   const correctnessCoefficient = nCorrect / quizItem.timelineItems.length
   return {
     quizItemId: quizItem.id,
-    correct: correctnessCoefficient === 0 ? false : true,
+    correct: nCorrect === timeLineItemsCount,
     correctnessCoefficient,
   }
 }

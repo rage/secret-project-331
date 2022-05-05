@@ -3,7 +3,7 @@ import { Dialog, DialogContentText } from "@mui/material"
 import { t } from "i18next"
 import { UseQueryResult } from "react-query"
 
-import { postNewReference } from "../../../../../../services/backend/courses"
+import { postNewReferences } from "../../../../../../services/backend/courses"
 import { MaterialReference, NewMaterialReference } from "../../../../../../shared-module/bindings"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import NewReferenceForm from "../../../../../forms/NewReferenceForm"
@@ -21,24 +21,8 @@ const NewReferenceDialog: React.FC<NewReferenceModalProps> = ({
   courseId,
   fetchCourseReferences,
 }) => {
-  // const [references, setReferences] = useState("")
-
-  // const handleSubmit = () => {
-  //   const c = Cite.parse.input.chain(references, {
-  //     format: "string",
-  //     type: "string",
-  //     style: "bibtex",
-  //     lang: "en-US",
-  //   })
-  //   console.log(c.forEach((c) => console.log(c.toString())))
-  // }
-
   const createReferenceMutation = useToastMutation(
-    (reference: NewMaterialReference) =>
-      postNewReference(courseId, {
-        citation_key: reference.citation_key,
-        reference: reference.reference,
-      }),
+    (references: NewMaterialReference[]) => postNewReferences(courseId, references),
     {
       notify: true,
       successMessage: t("reference-added-succesfully"),
@@ -72,7 +56,6 @@ const NewReferenceDialog: React.FC<NewReferenceModalProps> = ({
           </h1>
           <DialogContentText role="main" id="alert-dialog-description">
             <NewReferenceForm
-              courseId={courseId}
               onCancel={onClose}
               onCreateNewReference={(newReference) => createReferenceMutation.mutate(newReference)}
             />

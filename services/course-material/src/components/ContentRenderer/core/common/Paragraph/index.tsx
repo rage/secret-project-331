@@ -42,7 +42,6 @@ const convertToLatex = (data: string) => {
 
 const parseCitation = (data: string) => {
   const converted = data.replace(LATEX_CITE_REGEX, (_, cite) => {
-    console.log(cite)
     const processed = cite.replaceAll(
       <sup className="reference" data-citation-id={cite}>
         [?]

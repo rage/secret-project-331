@@ -13,6 +13,6 @@ WHERE deleted_at IS NULL;
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON material_references FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 COMMENT ON TABLE material_references IS 'References to scientific publications of which teachers use in their course materials to refer to.';
-COMMENT ON COLUMN material_reference.course_id IS 'Course the reference belongs to';
-COMMENT ON COLUMN material_reference.citation_key IS 'Unique citation key for reference, used in course material';
-COMMENT ON COLUMN material_reference.reference IS 'Reference in bibtex form';
+COMMENT ON COLUMN material_references.course_id IS 'Course the reference belongs to';
+COMMENT ON COLUMN material_references.citation_key IS 'Unique citation key for reference, used in course material';
+COMMENT ON COLUMN material_references.reference IS 'Reference in bibtex form';

@@ -69,7 +69,7 @@ const CourseManagementPage: React.FC<CourseManagementPageProps> = ({ query }) =>
           {t("link-pages")}
         </TabLink>
         <TabLink url={"references"} isActive={path === "references"}>
-          {t("link-references")}
+          {t("references")}
         </TabLink>
         <TabLink
           url={"feedback"}

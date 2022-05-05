@@ -1,28 +1,25 @@
 import { css } from "@emotion/css"
+import Cite from "citation-js"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { NewMaterialReference } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
-import TextAreaField from "../../shared-module/components/InputFields/TextAreaField"
+import FormTextAreaField from "../FormTextAreaField"
 
 interface NewReferenceFormProps {
-  courseId: string
-  onCreateNewReference: (form: NewMaterialReference) => void
+  onCreateNewReference: (form: NewMaterialReference[]) => void
   onCancel: () => void
 }
 
 interface NewReferenceFields {
-  reference: string
+  references: string
 }
 
 const REFERENCE = "Bibtex reference"
-const NewReferenceForm: React.FC<NewReferenceFormProps> = ({
-  courseId,
-  onCreateNewReference,
-  onCancel,
-}) => {
+
+const NewReferenceForm: React.FC<NewReferenceFormProps> = ({ onCreateNewReference, onCancel }) => {
   const { t } = useTranslation()
   const {
     register,
@@ -31,10 +28,15 @@ const NewReferenceForm: React.FC<NewReferenceFormProps> = ({
   } = useForm<NewReferenceFields>()
 
   const onCreateNewReferenceWrapper = handleSubmit((data) => {
-    onCreateNewReference({
-      citation_key: data.citation_key,
-      reference: data.reference,
+    const cite = new Cite(data.references)
+    const references = cite.data.map((c) => {
+      const ci = new Cite(c)
+      return {
+        citation_key: c.id,
+        reference: ci.get({ type: "string", style: "bibtex", lang: "en-US" }),
+      }
     })
+    onCreateNewReference(references)
   })
 
   return (
@@ -42,14 +44,15 @@ const NewReferenceForm: React.FC<NewReferenceFormProps> = ({
       <form
         onSubmit={onCreateNewReferenceWrapper}
         className={css`
-          width: 25rem;
+          width: 100%;
         `}
       >
-        <TextAreaField
-          id={"reference"}
-          error={errors["reference"]}
+        <FormTextAreaField
+          id={"references"}
+          error={errors["references"]}
           placeholder={REFERENCE}
           register={register}
+          defaultValue={null}
         />
         <br />
         <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>

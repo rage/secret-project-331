@@ -240,5 +240,8 @@
   "weekday-sunday": "Sunnuntai",
   "weekday-thursday": "Torstai",
   "weekday-tuesday": "Tiistai",
-  "weekday-wednesday": "Keskiviikko"
+  "weekday-wednesday": "Keskiviikko",
+  "references": "Lähteet",
+  "add-new-reference": "Lisää uusi lähde",
+  "new-reference": "Uusi lähde"
 }

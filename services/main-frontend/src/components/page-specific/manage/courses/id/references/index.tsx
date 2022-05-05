@@ -13,8 +13,8 @@ import { respondToOrLarger } from "../../../../../../shared-module/styles/respon
 
 import NewReferenceDialog from "./NewReferenceDialog"
 
-const FORMAT = "text"
-const TEMPLATE = "vancouver"
+const TYPE = "string"
+const STYLE = "vancouver"
 const LANG = "en-US"
 const BIBLIOGRAPHY = "bibliography"
 
@@ -51,14 +51,17 @@ const References: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
           />
           <ul>
             {getCourseReferences.data.map((r, idx) => {
-              const c = Cite(r)
+              const c = Cite(r.reference)
               return (
                 <li key={idx}>
-                  {c.format(BIBLIOGRAPHY, {
-                    format: FORMAT,
-                    template: TEMPLATE,
-                    lang: LANG,
-                  })}
+                  <h5>
+                    {r.citation_key},{" "}
+                    {c.format(BIBLIOGRAPHY, {
+                      type: TYPE,
+                      style: STYLE,
+                      lang: LANG,
+                    })}
+                  </h5>
                 </li>
               )
             })}

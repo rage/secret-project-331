@@ -51,6 +51,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
 
   const [createDuplicate, setCreateDuplicate] = useState<boolean>(false)
   const [isDraft, setIsDraft] = useState<boolean>(false)
+  const [isTest, setIsTest] = useState<boolean>(false)
   const [description, setDescription] = useState("")
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -80,6 +81,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
         teacher_in_charge_email: teacherInChargeEmail,
         teacher_in_charge_name: teacherInChargeName,
         is_draft: isDraft,
+        is_test_mode: isTest,
       }
       if (courseId) {
         await onSubmitDuplicateCourseForm(courseId, newCourse)
@@ -112,6 +114,7 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
         teacher_in_charge_email: teacherInChargeEmail,
         description,
         is_draft: isDraft,
+        is_test_mode: isTest,
       })
       setName("")
       setSlug("")
@@ -213,6 +216,15 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
               setIsDraft(!isDraft)
             }}
             checked={isDraft}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <CheckBox
+            label={t("test-course")}
+            onChange={() => {
+              setIsTest(!isTest)
+            }}
+            checked={isTest}
           />
         </FieldContainer>
         {courses && (

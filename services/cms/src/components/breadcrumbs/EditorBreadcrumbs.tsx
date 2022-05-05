@@ -1,8 +1,7 @@
 import { useRouter } from "next/router"
 import React from "react"
-import { useQuery } from "react-query"
 
-import { fetchPageInfo } from "../../services/backend/pages"
+import usePageInfo from "../../hooks/usePageInfo"
 import Breadcrumbs from "../../shared-module/components/Breadcrumbs"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
@@ -13,12 +12,7 @@ const EditorBreadcrumbs: React.FC = () => {
   const router = useRouter()
 
   const pageId = router.asPath.split("/")[2]
-  const data = useQuery(`page-with-id-${pageId}`, () => {
-    if (!pageId) {
-      return null
-    }
-    return fetchPageInfo(pageId)
-  })
+  const data = usePageInfo(pageId)
 
   if (!data) {
     return (
@@ -43,6 +37,11 @@ const EditorBreadcrumbs: React.FC = () => {
   const pageTitle = data.data.page_title
   const courseId = data.data.course_id
   const courseName = data.data.course_name
+
+  // Exams might now have courseId and the CMS breadcrumb will be broken
+  if (!courseId || !courseName) {
+    return null
+  }
   /* eslint-disable i18next/no-literal-string */
   const pieces = [
     {

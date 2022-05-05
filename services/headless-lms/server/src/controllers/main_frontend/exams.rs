@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use chrono::Utc;
-use models::exams::{self, Exam};
+use models::exams::{self, Exam, NewExam};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
@@ -153,6 +153,42 @@ pub async fn export_submissions(
 }
 
 /**
+ * POST `/api/v0/cms/exams/:exam_id/duplicate` - duplicates existing exam.
+ */
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn duplicate_exam(
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    new_exam: web::Json<NewExam>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let organization_id = models::exams::get_organization_id(&mut conn, *exam_id).await?;
+    authorize(
+        &mut conn,
+        Act::CreateCoursesOrExams,
+        Some(user.id),
+        Res::Organization(organization_id),
+    )
+    .await?;
+
+    let mut tx = conn.begin().await?;
+    let new_exam = models::library::copying::copy_exam(&mut tx, &exam_id, &new_exam).await?;
+
+    models::roles::insert(
+        &mut tx,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Exam(new_exam.id),
+    )
+    .await?;
+    tx.commit().await?;
+
+    Ok(web::Json(()))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -167,5 +203,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{id}/export-submissions",
             web::get().to(export_submissions),
-        );
+        )
+        .route("/{id}/duplicate", web::post().to(duplicate_exam));
 }

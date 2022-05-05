@@ -65,19 +65,31 @@ async fn post_new_course(
     }
     authorize(
         &mut conn,
-        Act::Teach,
+        Act::CreateCoursesOrExams,
         Some(user.id),
         Res::Organization(new_course.organization_id),
     )
     .await?;
+
+    let mut tx = conn.begin().await?;
     let (course, ..) = models::courses::insert_course(
-        &mut conn,
+        &mut tx,
         Uuid::new_v4(),
         Uuid::new_v4(),
         new_course,
         user.id,
     )
     .await?;
+
+    models::roles::insert(
+        &mut tx,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Course(course.id),
+    )
+    .await?;
+    tx.commit().await?;
+
     Ok(web::Json(course))
 }
 
@@ -122,7 +134,13 @@ async fn delete_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    authorize(
+        &mut conn,
+        Act::UsuallyUnacceptableDeletion,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
     let course = models::courses::delete_course(&mut conn, *course_id).await?;
     Ok(web::Json(course))
 }

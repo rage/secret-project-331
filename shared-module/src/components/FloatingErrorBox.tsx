@@ -56,10 +56,10 @@ const FloatingErrorBox: React.FC<ErrorProps> = () => {
   return (
     <ErrorWrapper>
       <ButtonWrapper>
-        <Button transform="normal" variant="primary" size="large">
+        <Button transform="capitalize" variant="primary" size="large">
           {PLACEHOLDER_TEXT_ONE}
         </Button>
-        <Button transform="normal" variant="secondary" size="large">
+        <Button transform="capitalize" variant="secondary" size="large">
           {PLACEHOLDER_TEXT_ONE}
         </Button>
       </ButtonWrapper>

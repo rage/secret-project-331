@@ -1,5 +1,11 @@
-import { HistoryRestoreData, NewPage, Page, PageHistory } from "../../shared-module/bindings"
-import { isPage, isPageHistory } from "../../shared-module/bindings.guard"
+import {
+  HistoryRestoreData,
+  NewPage,
+  Page,
+  PageHistory,
+  PageInfo,
+} from "../../shared-module/bindings"
+import { isPage, isPageHistory, isPageInfo } from "../../shared-module/bindings.guard"
 import { isArray, isNumber, isString, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
@@ -37,4 +43,9 @@ export const restorePage = async (pageId: string, historyId: string): Promise<st
     headers: { "Content-Type": "application/json" },
   })
   return validateResponse(response, isString)
+}
+
+export const fetchPageInfo = async (pageId: string): Promise<PageInfo> => {
+  const response = await mainFrontendClient.get(`/pages/${pageId}/info`, { responseType: "json" })
+  return validateResponse(response, isPageInfo)
 }

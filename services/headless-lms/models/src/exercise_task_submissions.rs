@@ -2,12 +2,8 @@ use futures::Stream;
 use serde_json::Value;
 
 use crate::{
-    exercise_slide_submissions,
-    exercise_task_gradings::{self, ExerciseTaskGrading},
-    exercise_tasks::{self, ExerciseTask},
-    exercises::Exercise,
-    prelude::*,
-    CourseOrExamId,
+    exercise_slide_submissions, exercise_task_gradings::ExerciseTaskGrading,
+    exercise_tasks::ExerciseTask, exercises::Exercise, prelude::*, CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -47,21 +43,6 @@ pub struct SubmissionData {
     pub course_instance_id: Uuid,
     pub data_json: Value,
     pub id: Uuid,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct StudentExerciseTaskSubmission {
-    pub exercise_task_id: Uuid,
-    pub data_json: serde_json::Value,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct StudentExerciseTaskSubmissionResult {
-    pub submission: ExerciseTaskSubmission,
-    pub grading: Option<ExerciseTaskGrading>,
-    pub model_solution_spec: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -235,86 +216,25 @@ WHERE ets.id = $1
     CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
-pub async fn create_exercise_task_submission_for_exercise(
-    conn: &mut PgConnection,
-    exercise: &Exercise,
-    exercise_task: &ExerciseTask,
-    exercise_slide_submission_id: Uuid,
-    data_json: Value,
-) -> ModelResult<StudentExerciseTaskSubmissionResult> {
-    let submission = sqlx::query_as!(
-        ExerciseTaskSubmission,
-        "
-INSERT INTO exercise_task_submissions(
-    exercise_slide_submission_id,
-    exercise_slide_id,
-    exercise_task_id,
-    data_json
-  )
-VALUES ($1, $2, $3, $4)
-RETURNING *
-        ",
-        exercise_slide_submission_id,
-        exercise_task.exercise_slide_id,
-        exercise_task.id,
-        data_json
-    )
-    .fetch_one(&mut *conn)
-    .await?;
-    let grading = exercise_task_gradings::new_grading(conn, exercise, &submission).await?;
-    let updated_submission = sqlx::query_as!(
-        ExerciseTaskSubmission,
-        "
-UPDATE exercise_task_submissions
-SET exercise_task_grading_id = $1
-WHERE id = $2
-RETURNING *;
-        ",
-        grading.id,
-        submission.id
-    )
-    .fetch_one(&mut *conn)
-    .await?;
-
-    let grading = exercise_task_gradings::grade_submission(
-        conn,
-        &submission,
-        exercise_task,
-        exercise,
-        &grading,
-    )
-    .await?;
-
-    let model_solution_spec = exercise_tasks::get_exercise_task_model_solution_spec_by_id(
-        conn,
-        submission.exercise_task_id,
-    )
-    .await?;
-
-    Ok(StudentExerciseTaskSubmissionResult {
-        submission: updated_submission,
-        grading: Some(grading),
-        model_solution_spec,
-    })
-}
-
 pub async fn set_grading_id(
     conn: &mut PgConnection,
     grading_id: Uuid,
     submission_id: Uuid,
-) -> ModelResult<()> {
-    sqlx::query!(
+) -> ModelResult<ExerciseTaskSubmission> {
+    let res = sqlx::query_as!(
+        ExerciseTaskSubmission,
         "
 UPDATE exercise_task_submissions
 SET exercise_task_grading_id = $1
 WHERE id = $2
+RETURNING *
 ",
         grading_id,
         submission_id
     )
-    .execute(conn)
+    .fetch_one(conn)
     .await?;
-    Ok(())
+    Ok(res)
 }
 
 pub fn stream_exam_submissions(

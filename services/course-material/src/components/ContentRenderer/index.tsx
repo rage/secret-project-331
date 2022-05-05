@@ -1,5 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import DOMPurify from "dompurify"
 import dynamic from "next/dynamic"
 import React from "react"
@@ -7,6 +7,8 @@ import { useTranslation } from "react-i18next"
 
 import { Block } from "../../services/backend"
 import { NewProposedBlockEdit } from "../../shared-module/bindings"
+import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
+import { baseTheme } from "../../shared-module/styles"
 import { linkWithExtraIconClass } from "../../shared-module/styles/constants"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { courseMaterialBlockClass } from "../../utils/constants"
@@ -40,24 +42,28 @@ import ExerciseBlock from "./moocfi/ExerciseBlock"
 import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
 import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
+import InfoBox from "./moocfi/InfoBox"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
+
+/** The props that this component receives */
 export interface ContentRendererProps {
   data: Block<unknown>[]
   editing: boolean
   selectedBlockId: string | null
-  setEdits: (m: Map<string, NewProposedBlockEdit>) => void
+  setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
   isExam: boolean
 }
 
-export interface BlockRendererProps<T> {
+/**
+ * The props a block receives from the ContentRenderer. Generic over the block's attributes.
+ *
+ * Contains most attributes from `ContentRendererProps` to enable nesting blocks with InnerBlocks.
+ * */
+export type BlockRendererProps<T> = {
   data: Block<T>
-  editing: boolean
-  selectedBlockId: string | null
-  setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
   id: string
-  isExam: boolean
-}
+} & Omit<ContentRendererProps, "data">
 
 const LatexBlock = dynamic(() => import("./moocfi/LatexBlock"))
 
@@ -109,9 +115,18 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/course-objective-section": CourseObjectiveSectionBlock,
   "moocfi/chapter-progress": ChapterProgressBlock,
   "moocfi/glossary": GlossaryBlock,
+  "moocfi/infobox": InfoBox,
 }
 
+const highlightedBlockStyles = css`
+  outline: 2px solid ${baseTheme.colors.red[400]};
+  outline-offset: 10px;
+`
+
 const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
+  const highlightBlocks = useQueryParameter("highlight-blocks")
+    .split(",")
+    .filter((id) => id !== "")
   const { t } = useTranslation()
   if (props.data.constructor !== Array) {
     return (
@@ -167,8 +182,16 @@ const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
     >
       {props.data.map((block) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
+        const isHighlighted = highlightBlocks.includes(block.clientId)
         return (
-          <div key={block.clientId} id={block.clientId} className={courseMaterialBlockClass}>
+          <div
+            key={block.clientId}
+            id={block.clientId}
+            className={cx(
+              courseMaterialBlockClass,
+              (isHighlighted && highlightedBlockStyles) ?? undefined,
+            )}
+          >
             <Component
               id={block.clientId}
               data={block}

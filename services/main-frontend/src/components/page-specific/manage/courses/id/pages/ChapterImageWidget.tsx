@@ -8,18 +8,22 @@ import UploadImageForm from "../../../../../forms/UploadImageForm"
 
 export interface ChapterImageControlsProps {
   chapter: Chapter
-  onChapterUpdated: () => void
+  onChapterUpdated?: () => void
 }
 
 const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onChapterUpdated }) => {
   const { t } = useTranslation()
   const [allowRemove, setAllowRemove] = useState(true)
   const [error, setError] = useState<unknown>()
+  const [chapterImageUrl, setChapterImageUrl] = useState(chapter.chapter_image_url)
 
   const handleSubmit = async (imageFile: File) => {
     try {
-      await setChapterImage(chapter.id, imageFile)
-      onChapterUpdated()
+      const res = await setChapterImage(chapter.id, imageFile)
+      if (onChapterUpdated) {
+        onChapterUpdated()
+      }
+      setChapterImageUrl(res.chapter_image_url)
       setError(undefined)
     } catch (e) {
       setError(e)
@@ -30,7 +34,10 @@ const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onCh
     setAllowRemove(false)
     try {
       await removeChapterImage(chapter.id)
-      onChapterUpdated()
+      if (onChapterUpdated) {
+        onChapterUpdated()
+      }
+      setChapterImageUrl(null)
       setError(undefined)
     } catch (e) {
       setError(e)
@@ -42,9 +49,9 @@ const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onCh
   return (
     <div>
       {error && <pre>{JSON.stringify(`${error}`, undefined, 2)}</pre>}
-      {chapter.chapter_image_url ? (
+      {chapterImageUrl ? (
         <>
-          <img src={chapter.chapter_image_url} alt={t("image-alt-what-to-display-on-chapter")} />
+          <img src={chapterImageUrl} alt={t("image-alt-what-to-display-on-chapter")} />
           <Button size="medium" variant="secondary" onClick={handleRemove} disabled={!allowRemove}>
             {t("button-text-remove")}
           </Button>

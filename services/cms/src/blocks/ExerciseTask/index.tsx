@@ -3,13 +3,15 @@ import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
 import { ComponentType, useEffect } from "react"
 import { v4 } from "uuid"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+
 import ExerciseTaskEditor, { ExerciseTaskAttributes } from "./ExerciseTaskEditor"
 import ExerciseTaskSave from "./ExerciseTaskSave"
 
 const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
   title: "ExerciseTask",
   description: "An exercise task",
-  category: "embed",
+  category: MOOCFI_CATEGORY_SLUG,
   parent: ["moocfi/exercise-slide"],
   attributes: {
     id: {
@@ -27,6 +29,10 @@ const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
     show_editor: {
       type: "boolean",
       default: false,
+    },
+    order_number: {
+      type: "number",
+      default: 0,
     },
   },
   edit: enforceExerciseTaskIdDefined(ExerciseTaskEditor),

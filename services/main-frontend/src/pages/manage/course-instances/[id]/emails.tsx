@@ -48,7 +48,7 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
   }
 
   return (
-    <Layout navVariant="complex">
+    <Layout navVariant="simple">
       <div
         className={css`
           margin-bottom: 1rem;

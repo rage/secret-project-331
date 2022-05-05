@@ -20,29 +20,27 @@ use headless_lms_models::{
     course_instances::{ChapterScore, CourseInstance, Points},
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
-    exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions},
+    exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions, OrgExam},
     exercise_services::ExerciseService,
     exercise_slide_submissions::{
         ExerciseSlideSubmission, ExerciseSlideSubmissionCount,
         ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
-        StudentExerciseSlideSubmissionResult,
     },
     exercise_slides::CourseMaterialExerciseSlide,
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
-    exercise_task_submissions::{
-        ExerciseTaskSubmission, StudentExerciseTaskSubmissionResult, SubmissionInfo,
-    },
+    exercise_task_submissions::{ExerciseTaskSubmission, SubmissionInfo},
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     exercises::{
         ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
     },
     feedback::{Feedback, FeedbackBlock, FeedbackCount},
     glossary::Term,
+    library::grading::{StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult},
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
         CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, ContentManagementPage,
-        CoursePageWithUserData, Page, PageChapterAndCourseInformation,
+        CoursePageWithUserData, Page, PageChapterAndCourseInformation, PageInfo,
         PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
     playground_examples::PlaygroundExample,
@@ -84,6 +82,7 @@ macro_rules! write_docs {
 fn main() {
     // reusable variables
     let id = Uuid::parse_str("307fa56f-9853-4f5c-afb9-a6736c232f32").unwrap();
+    let id2 = Uuid::parse_str("3c6ca496-17ac-445c-88c0-4ded2f2dbe58").unwrap();
     let date_time = Utc.timestamp(1640988000, 0);
     let created_at = date_time;
     let updated_at = date_time;
@@ -127,7 +126,7 @@ fn main() {
         created_at,
         updated_at,
         deleted_at,
-        course_id: id,
+        course_id: id2,
         starts_at: Some(date_time),
         ends_at: None,
         name: Some("Instance".to_string()),
@@ -142,7 +141,7 @@ fn main() {
         created_at,
         updated_at,
         deleted_at,
-        current_course_id: id,
+        current_course_id: id2,
         current_course_instance_id: id,
     };
     let exercise = Exercise {
@@ -173,6 +172,7 @@ fn main() {
         exercise_id: id,
         user_id: id,
         exercise_slide_id: id,
+        user_points_update_strategy: UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
     };
     let exercise_task_submission = ExerciseTaskSubmission {
         id,
@@ -198,7 +198,6 @@ fn main() {
         grading_priority: 1,
         score_given: Some(80.0),
         grading_progress: GradingProgress::FullyGraded,
-        user_points_update_strategy: UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
         unscaled_score_given: Some(80.0),
         unscaled_score_maximum: Some(100),
         grading_started_at: Some(date_time),
@@ -233,6 +232,7 @@ fn main() {
         course_language_group_id: id,
         description: Some("Example".to_string()),
         is_draft: true,
+        is_test_mode: false,
     };
     let chapter = Chapter {
         id,
@@ -240,7 +240,7 @@ fn main() {
         updated_at,
         deleted_at,
         name: "The Basics".to_string(),
-        course_id: id,
+        course_id: id2,
         chapter_image_url: None,
         chapter_number: 1,
         front_page_id: None,
@@ -332,7 +332,8 @@ fn main() {
                 order_number: 123,
                 score_maximum: 1,
                 max_tries_per_slide: Some(17),
-                limit_number_of_tries: true
+                limit_number_of_tries: true,
+                deadline: None
             }],
             exercise_slides: vec![CmsPageExerciseSlide {
                 id,
@@ -345,6 +346,7 @@ fn main() {
                 assignment: serde_json::json!({"options": ["a", "b", "c"]}),
                 exercise_type: "quiz".to_string(),
                 private_spec: None,
+                order_number: 1,
             }],
             organization_id: id,
         }
@@ -382,14 +384,16 @@ fn main() {
             score_given: 3.0,
             score_maximum: Some(10),
             total_exercises: Some(66),
-            completed_exercises: Some(13)
+            attempted_exercises: Some(13)
         }
     );
     write_docs!(
         UserCourseInstanceChapterProgress,
         UserCourseInstanceChapterProgress {
             score_given: 1.0,
-            score_maximum: 4
+            score_maximum: 4,
+            total_exercises: Some(4),
+            attempted_exercises: Some(2)
         }
     );
     write_docs!(
@@ -416,7 +420,7 @@ fn main() {
         CourseInstanceEnrollment,
         CourseInstanceEnrollment {
             user_id: id,
-            course_id: id,
+            course_id: id2,
             course_instance_id: id,
             created_at,
             updated_at,
@@ -430,7 +434,8 @@ fn main() {
             page: page.clone(),
             instance: Some(course_instance.clone()),
             settings: Some(user_course_settings.clone()),
-            was_redirected: false
+            was_redirected: false,
+            is_test_mode: false
         }
     );
     write_docs!(CourseInstance, course_instance.clone());
@@ -502,6 +507,7 @@ fn main() {
                     model_solution_spec: None,
                     previous_submission: Some(exercise_task_submission.clone()),
                     previous_submission_grading: Some(grading.clone()),
+                    order_number: 1
                 }],
             },
             exercise_status: Some(ExerciseStatus {
@@ -556,7 +562,7 @@ fn main() {
                     updated_at,
                     deleted_at,
                     name: "The Basics".to_string(),
-                    course_id: id,
+                    course_id: id2,
                     chapter_image_path: None,
                     chapter_number: 1,
                     front_page_id: None,
@@ -608,7 +614,7 @@ fn main() {
         vec![Feedback {
             id,
             user_id: Some(id),
-            course_id: id,
+            course_id: id2,
             feedback_given: "Unclear".to_string(),
             selected_text: None,
             marked_as_read: false,
@@ -653,9 +659,21 @@ fn main() {
         Vec<CourseExam>,
         vec![CourseExam {
             id,
-            course_id: id,
+            course_id: id2,
             course_name: "Example course".to_string(),
             name: "Course exam".to_string()
+        }]
+    );
+    write_docs!(
+        Vec<OrgExam>,
+        vec![OrgExam {
+            id,
+            organization_id: id,
+            name: "Org exam".to_string(),
+            instructions: page.content.clone(),
+            time_minutes: 120,
+            starts_at: Some(date_time),
+            ends_at: Some(date_time)
         }]
     );
     write_docs!(Page, page.clone());
@@ -685,6 +703,7 @@ fn main() {
             block_proposals: vec![BlockProposal {
                 id,
                 block_id: id,
+                original_text: "Hello,, world!".to_string(),
                 current_text: "Hello,, world!".to_string(),
                 changed_text: "Hello, world!".to_string(),
                 status: ProposalStatus::Accepted,
@@ -742,7 +761,8 @@ fn main() {
                 private_spec: None,
                 spec_file_id: Some(id),
                 model_solution_spec: None,
-                copied_from: None
+                copied_from: None,
+                order_number: 1
             },
         }
     );
@@ -786,12 +806,13 @@ fn main() {
                 created_at,
                 updated_at,
                 name: "The Basics".to_string(),
-                course_id: id,
+                course_id: id2,
                 deleted_at,
                 chapter_number: 1,
                 front_page_id: None,
                 opens_at: None,
-                status: ChapterStatus::Open
+                status: ChapterStatus::Open,
+                chapter_image_url: Some("http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg".to_string()),
             }]
         }
     );
@@ -802,6 +823,7 @@ fn main() {
             instructions: page.content.clone()
         }
     );
+    write_docs!(bool, false);
     write_docs!(
         OEmbedResponse,
         OEmbedResponse {
@@ -812,6 +834,17 @@ fn main() {
             provider_url: "http://project-331.local".to_string(),
             title: "OEmbed".to_string(),
             version: "1.0".to_string(),
+        }
+    );
+    write_docs!(
+        PageInfo,
+        PageInfo {
+            page_id: id,
+            page_title: "The basics".to_string(),
+            course_id: Some(id2),
+            course_name: Some("Introduction to everything".to_string()),
+            course_slug: Some("introduction-to-everything".to_string()),
+            organization_slug: Some("uh-cs".to_string())
         }
     );
 }

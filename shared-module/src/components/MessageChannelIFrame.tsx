@@ -14,17 +14,19 @@ interface MessageChannelIFrameProps {
   postThisStateToIFrame: IframeState | null
   onMessageFromIframe: (message: CurrentStateMessage, responsePort: MessagePort) => void
   breakFromCenteredProps?: BreakFromCenteredProps
+  title: string
 }
 
-const IFRAME_TITLE = "Exercise type specific content"
+// const IFRAME_TITLE = "Exercise type specific content"
 
 const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   url,
   postThisStateToIFrame,
   onMessageFromIframe,
   breakFromCenteredProps,
+  title,
 }) => {
-  const [showBorders, _] = useState(false)
+  const [showBorders] = useState(false)
   const { t } = useTranslation()
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
@@ -152,7 +154,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
             width: 100%;
             border: 0;
           `}
-          title={IFRAME_TITLE}
+          title={title}
           ref={iframeRef}
           src={url}
         />

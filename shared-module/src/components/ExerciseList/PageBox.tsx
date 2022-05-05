@@ -16,7 +16,8 @@ const PageBoxRow = styled.div`
   color: ${baseTheme.colors.clear[100]};
   text-decoration: none;
   border-radius: 2px;
-  background: ${baseTheme.colors.grey[700]};
+  background: ${baseTheme.colors.blue[600]};
+  margin: 5px 0 5px 0;
 
   span {
     vertical-align: top;

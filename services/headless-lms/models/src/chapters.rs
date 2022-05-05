@@ -268,12 +268,15 @@ pub struct ChapterWithStatus {
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
     pub status: ChapterStatus,
+    pub chapter_image_url: Option<String>,
 }
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseInstanceChapterProgress {
     pub score_given: f32,
     pub score_maximum: i32,
+    pub total_exercises: Option<u32>,
+    pub attempted_exercises: Option<u32>,
 }
 
 pub async fn course_chapters(
@@ -446,6 +449,13 @@ pub async fn get_user_course_instance_chapter_progress(
     let result = UserCourseInstanceChapterProgress {
         score_given: option_f32_to_f32_two_decimals(user_chapter_metrics.score_given),
         score_maximum,
+        total_exercises: Some(exercise_ids.len())
+            .map(TryInto::try_into)
+            .transpose()?,
+        attempted_exercises: user_chapter_metrics
+            .attempted_exercises
+            .map(TryInto::try_into)
+            .transpose()?,
     };
     Ok(result)
 }

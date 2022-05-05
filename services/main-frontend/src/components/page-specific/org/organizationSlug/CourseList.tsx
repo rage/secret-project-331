@@ -13,6 +13,7 @@ import {
 import { NewCourse } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import RenderIfPermissions from "../../../../shared-module/components/OnlyRenderIfPermissions"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import NewCourseForm from "../../../forms/NewCourseForm"
@@ -175,7 +176,10 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
 
       <br />
       {loginStateContext.signedIn && (
-        <>
+        <RenderIfPermissions
+          action={{ type: "create_courses_or_exams" }}
+          resource={{ id: organizationId, type: "organization" }}
+        >
           <Button
             size="medium"
             variant="primary"
@@ -183,9 +187,7 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
           >
             {t("button-text-create")}
           </Button>
-          <br />
-          <br />
-        </>
+        </RenderIfPermissions>
       )}
     </div>
   )

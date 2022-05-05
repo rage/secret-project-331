@@ -163,7 +163,7 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
                       href={`#${id}`}
                       onClick={(e) => {
                         e.preventDefault()
-                        document.querySelector(`#${id}`)?.scrollIntoView({
+                        document.querySelector(`[id='${id}']`)?.scrollIntoView({
                           behavior: "smooth",
                         })
                       }}

@@ -1,11 +1,38 @@
+import { css } from "@emotion/css"
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import Aside, { AsideComponentProps } from "../../../shared-module/components/Aside"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+import InnerBlocks from "../util/InnerBlocks"
 
-const HeroSectionBlock: React.FC<BlockRendererProps<AsideComponentProps>> = (props) => {
-  return <Aside title={props.data.attributes.title} bodyText={props.data.attributes.bodyText} />
+interface AsideBlockProps {
+  backgroundColor: string
+  separatorColor: string
 }
 
-export default withErrorBoundary(HeroSectionBlock)
+const AsideBLock: React.FC<BlockRendererProps<AsideBlockProps>> = (props) => {
+  return (
+    <div
+      className={css`
+        padding: 2rem;
+        border-top: 0.4rem solid ${props.data.attributes.separatorColor};
+        border-bottom: 0.4rem solid ${props.data.attributes.separatorColor};
+        background: ${props.data.attributes.backgroundColor};
+        margin: 3rem 0;
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+          margin-top: 0;
+        }
+      `}
+    >
+      <InnerBlocks parentBlockProps={props} />
+    </div>
+  )
+}
+
+export default withErrorBoundary(AsideBLock)

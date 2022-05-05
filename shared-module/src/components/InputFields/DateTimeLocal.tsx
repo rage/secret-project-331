@@ -49,7 +49,7 @@ const DateTimeLocal = ({
             display: grid;
 
             input {
-              padding: 4px 0;
+              padding: 10px 12px;
               border: 2px solid #dedede;
               border-radius: 3px;
               outline: none;
@@ -57,6 +57,10 @@ const DateTimeLocal = ({
               &:focus,
               &:active {
                 border-color: #55b3f5;
+              }
+
+              @media (max-width: 767.98px) {
+                padding: 6px 8px;
               }
             }
 
@@ -97,14 +101,16 @@ const DateTimeLocal = ({
         />
       </label>
 
-      <small
-        className={css`
-          display: block;
-          height: 18px;
-        `}
-      >
-        {value && dateToString(new Date(value))}
-      </small>
+      {value && (
+        <small
+          className={css`
+            display: block;
+            height: 18px;
+          `}
+        >
+          {dateToString(new Date(value))}
+        </small>
+      )}
 
       {rest.error && (
         <span className={cx(error)} id={`${rest.label}_error`} role="alert">

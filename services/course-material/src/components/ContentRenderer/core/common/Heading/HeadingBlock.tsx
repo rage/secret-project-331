@@ -7,6 +7,7 @@ import { BlockRendererProps } from "../../.."
 import { HeadingAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
+import { marginTopHeadingMapper } from "../../../../../styles/headerMarginMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const HeadingBlock: React.FC<BlockRendererProps<HeadingAttributes>> = ({ data }) => {
@@ -31,6 +32,7 @@ const HeadingBlock: React.FC<BlockRendererProps<HeadingAttributes>> = ({ data })
     className: css`
       line-height: ${level === 1 ? 1.1 : 1.2};
       margin-bottom: 1rem;
+      margin-top: ${marginTopHeadingMapper(level)};
       ${textAlign && `text-align: ${textAlign};`}
       ${textColor && `color: ${colorMapper(textColor, "#000000")};`}
       ${backgroundColor && `background-color: ${colorMapper(backgroundColor)};`}

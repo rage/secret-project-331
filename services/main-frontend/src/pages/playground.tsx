@@ -21,6 +21,7 @@ import { monospaceFont } from "../shared-module/styles"
 import { narrowContainerWidthPx } from "../shared-module/styles/constants"
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
+const TITLE = "PLAYGROUND"
 
 const Home: React.FC = () => {
   const { t } = useTranslation()
@@ -302,6 +303,7 @@ const Home: React.FC = () => {
               },
             }}
             onMessageFromIframe={onMessage}
+            title={TITLE}
           />
         </div>
       )}

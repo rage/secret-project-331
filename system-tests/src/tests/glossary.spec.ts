@@ -82,8 +82,12 @@ test("test", async ({ page, headless }) => {
   await page.fill('[placeholder="New term"]', "abcd")
   await page.fill('textarea[name="New definition"]', "efgh")
 
-  // Click text=Save
-  await page.click("text=Save >> visible=true")
+  // Click button:text-is("Save")
+  await page.click(`button:text-is("Save") >> visible=true`)
+
+  await page.evaluate(() => {
+    window.scrollTo(0, 538)
+  })
 
   await expectScreenshotsToMatchSnapshots({
     page,

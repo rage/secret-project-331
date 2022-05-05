@@ -8,6 +8,14 @@ BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/models"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
+#  Check if .env file exists, this won't work without it
+ENV_PATH="$BASEDIR/../services/headless-lms/models/.env"
+ENV_RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$ENV_PATH")
+if [ ! -f "$ENV_RELATIVE_PATH" ]; then
+  echo "$ENV_RELATIVE_PATH does not exist. sqlx-prepare won't work without this file, you can copy .env.example as a template"
+  exit 1
+fi 
+
 run_command cd "$RELATIVE_PATH" || exit
 
 run_command cargo sqlx prepare --database-url postgres://headless-lms@localhost:54328/headless_lms_dev -- "$@" --lib

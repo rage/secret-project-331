@@ -1,110 +1,114 @@
+import { css } from "@emotion/css"
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
-import { headingFont } from "../../styles"
+import { baseTheme, headingFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
-import CourseProgressExtraProps from "./index"
+import { ProgressBarExtraProps } from "."
 
-const load = keyframes`
-  0% { width: 0; }
-  100% { width: 68%; }
-
-`
-
-const LinearProgress = styled.div`
-  background: #24124b;
-  justify-content: flex-start;
-  border-radius: 100px;
-  align-items: center;
-  position: relative;
-  padding: 0 5px;
+// eslint-disable-next-line i18next/no-literal-string
+const LinearProgress = styled.div<LinearProgressProps>`
   display: flex;
-  height: 30px;
+  background: ${baseTheme.colors.green[100]};
+  border-radius: 100px;
+  overflow: hidden;
+  align-items: center;
+  height: ${({ height }) => (height === "small" ? "16px" : "20px")};
   width: 290px;
 
   ${respondToOrLarger.sm} {
-    height: 40px;
-    width: 500px;
+    height: ${({ height }) => (height === "small" ? "16px" : "28px")};
+    /* width: 500px; */
+    width: 100%;
   }
+`
+interface LinearProgressFillProps {
+  percentage: number
+  height: string
+}
+interface LinearProgressProps {
+  height: string
+}
 
-  div {
-    animation: ${load} 3s normal forwards;
-    border-radius: 100px;
-    height: 20px;
-    width: 0;
-    background: #f4649f;
-    display: flex;
-    justify-content: end;
+// eslint-disable-next-line i18next/no-literal-string
+const load = (percentage: number) => keyframes`
+  0% { width: 0; }
+  100% { width: ${percentage}%; }
+`
 
-    ${respondToOrLarger.sm} {
-      height: 30px;
-    }
+// eslint-disable-next-line i18next/no-literal-string
+const LinearProgressFill = styled.div<LinearProgressFillProps>`
+  animation: ${(props: LinearProgressFillProps) => load(props.percentage)} 3s normal forwards;
+  height: ${({ height }) => (height === "small" ? "16px" : "20px")};
+  width: 0;
+  background: ${baseTheme.colors.green[600]};
+  justify-content: end;
 
-    span {
-      display: block;
-      justify-self: end;
-      color: white;
-    }
+  ${respondToOrLarger.sm} {
+    height: ${({ height }) => (height === "small" ? "16px" : "28px")};
   }
 `
 
 const Label = styled.div`
-  min-width: 125px;
+  min-width: 100%;
   font-weight: 500;
   margin-right: 1rem;
-  display: grid;
   margin-bottom: 0.4rem;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
+  text-align: center;
+  padding-left: 10px;
 
   span:first-of-type {
-    justify-self: start;
-    font-size: 1.2em;
+    font-size: 0.8em;
     font-weight: 400;
     font-family: ${headingFont};
     opacity: 0.9;
+    text-transform: uppercase;
   }
-
-  span:last-child {
-    justify-self: end;
-    font-weight: 700;
-    font-size: 0.8em;
+  ${respondToOrLarger.sm} {
+    span:first-of-type {
+      font-size: 1.2em;
+    }
   }
 `
 
-export interface CourseProgressExtraProps {
-  max: number | null
-  given: number | null
-  point: number
-  n: number
-  exercisesDone: number
-  exercisesTotal: number
-  label: string
-}
-
-const ProgresssBar: React.FC<CourseProgressExtraProps> = ({
-  n = 20,
-  exercisesDone = 10,
+const ProgresssBar: React.FC<ProgressBarExtraProps> = ({
+  showAsPercentage = false,
+  exercisesAttempted = 10,
   exercisesTotal = 30,
+  height = "medium",
+  label = true,
 }) => {
   const { t } = useTranslation()
-  const exerciseScaled = (exercisesDone / exercisesTotal) * 100
+  const done = exercisesAttempted ?? 0
+  const total = exercisesTotal ?? 0
+  const exerciseScaled = showAsPercentage && done !== 0 && total !== 0 ? (done / total) * 100 : 0
   const percentage = Math.floor(exerciseScaled)
   return (
-    <div>
-      <Label>
-        <span>
-          {n ? t("percent-done", { percentage }) : `${exercisesDone} / ${exercisesTotal}`}
-        </span>
-        <span></span>{" "}
-      </Label>
-      {/* <BorderLinearProgress variant="determinate" value={n ? exerciseScaled : pointScaled} /> */}
-      <LinearProgress>
-        <div></div>
-      </LinearProgress>
-    </div>
+    <>
+      <div
+        className={css`
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+        `}
+      >
+        {label && (
+          <Label>
+            <span>
+              {showAsPercentage
+                ? `${percentage}% ${t("exercises-attempted")}`
+                : `${done} / ${total} ${t("exercises-attempted")}`}
+            </span>
+          </Label>
+        )}
+        <LinearProgress height={height}>
+          <LinearProgressFill percentage={percentage} height={height} />
+        </LinearProgress>
+      </div>
+    </>
   )
 }
 

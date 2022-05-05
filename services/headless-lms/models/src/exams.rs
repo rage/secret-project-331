@@ -16,6 +16,18 @@ pub struct Exam {
     pub time_minutes: i32,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct OrgExam {
+    pub id: Uuid,
+    pub name: String,
+    pub instructions: serde_json::Value,
+    pub starts_at: Option<DateTime<Utc>>,
+    pub ends_at: Option<DateTime<Utc>>,
+    pub time_minutes: i32,
+    pub organization_id: Uuid,
+}
+
 pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exam> {
     let exam = sqlx::query!(
         "
@@ -50,7 +62,8 @@ SELECT id,
   copied_from,
   content_search_language::text,
   course_language_group_id,
-  is_draft
+  is_draft,
+  is_test_mode
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1
@@ -72,7 +85,7 @@ WHERE course_exams.exam_id = $1
     })
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseExam {
     pub id: Uuid,
@@ -81,11 +94,10 @@ pub struct CourseExam {
     pub name: String,
 }
 
-#[derive(Debug)]
-pub struct NewExam<'a> {
-    pub id: Uuid,
-    pub name: &'a str,
-    pub instructions: serde_json::Value,
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct NewExam {
+    pub name: String,
     pub starts_at: Option<DateTime<Utc>>,
     pub ends_at: Option<DateTime<Utc>>,
     pub time_minutes: i32,
@@ -105,8 +117,12 @@ pub struct ExamInstructionsUpdate {
     pub instructions: serde_json::Value,
 }
 
-pub async fn insert(conn: &mut PgConnection, exam: NewExam<'_>) -> ModelResult<()> {
-    sqlx::query!(
+pub async fn insert(
+    conn: &mut PgConnection,
+    exam: &NewExam,
+    seed_id: Option<Uuid>,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
         "
 INSERT INTO exams (
     id,
@@ -117,19 +133,21 @@ INSERT INTO exams (
     time_minutes,
     organization_id
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES (COALESCE($1, uuid_generate_v4()), $2, $3, $4, $5, $6, $7)
+RETURNING id
 ",
-        exam.id,
+        seed_id,
         exam.name,
-        exam.instructions,
+        serde_json::Value::Array(vec![]),
         exam.starts_at,
         exam.ends_at,
         exam.time_minutes,
         exam.organization_id
     )
-    .execute(conn)
+    .fetch_one(conn)
     .await?;
-    Ok(())
+
+    Ok(res.id)
 }
 
 pub async fn edit(
@@ -195,6 +213,31 @@ WHERE exam_id = $1
 }
 
 pub async fn get_exams_for_organization(
+    conn: &mut PgConnection,
+    organization: Uuid,
+) -> ModelResult<Vec<OrgExam>> {
+    let res = sqlx::query_as!(
+        OrgExam,
+        "
+SELECT id,
+  name,
+  instructions,
+  starts_at,
+  ends_at,
+  time_minutes,
+  organization_id
+FROM exams
+WHERE exams.organization_id = $1
+  AND exams.deleted_at IS NULL
+",
+        organization
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_course_exams_for_organization(
     conn: &mut PgConnection,
     organization: Uuid,
 ) -> ModelResult<Vec<CourseExam>> {

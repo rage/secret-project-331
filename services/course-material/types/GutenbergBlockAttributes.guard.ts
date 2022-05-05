@@ -67,6 +67,7 @@ import {
   QuoteDeprecated2Attributes,
   QuoteDeprecated3Attributes,
   SeparatorAttributes,
+  SeparatorDeprecated1Attributes,
   SpacerAttributes,
   SpacerDeprecated1Attributes,
   TableAttributes,
@@ -1081,7 +1082,10 @@ export function isColumnAttributes(obj: any, _argumentName?: string): obj is Col
     (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
     (typeof obj.style === "undefined" ||
       (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+      typeof obj.style === "function") &&
+    (typeof obj.layout === "undefined" ||
+      (obj.layout !== null && typeof obj.layout === "object") ||
+      typeof obj.layout === "function")
   )
 }
 
@@ -1466,8 +1470,7 @@ export function isSeparatorAttributes(
 ): obj is SeparatorAttributes {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.color === "undefined" || typeof obj.color === "string") &&
-    (typeof obj.customColor === "undefined" || typeof obj.customColor === "string") &&
+    typeof obj.opacity === "string" &&
     (typeof obj.align === "undefined" ||
       obj.align === "" ||
       obj.align === "left" ||
@@ -1479,6 +1482,27 @@ export function isSeparatorAttributes(
       (obj.lock !== null && typeof obj.lock === "object") ||
       typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
+    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
+    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
+    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
+    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
+    (typeof obj.style === "undefined" ||
+      (obj.style !== null && typeof obj.style === "object") ||
+      typeof obj.style === "function")
+  )
+}
+
+export function isSeparatorDeprecated1Attributes(
+  obj: any,
+  _argumentName?: string,
+): obj is SeparatorDeprecated1Attributes {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (typeof obj.color === "undefined" || typeof obj.color === "string") &&
+    (typeof obj.customColor === "undefined" || typeof obj.customColor === "string") &&
+    (typeof obj.lock === "undefined" ||
+      (obj.lock !== null && typeof obj.lock === "object") ||
+      typeof obj.lock === "function") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string")
   )
 }

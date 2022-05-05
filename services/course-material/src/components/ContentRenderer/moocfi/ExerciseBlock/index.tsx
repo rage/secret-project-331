@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import HelpIcon from "@mui/icons-material/Help"
 import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -20,6 +21,7 @@ import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import { baseTheme } from "../../../../shared-module/styles"
+import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
@@ -28,13 +30,29 @@ interface ExerciseBlockAttributes {
   id: string
 }
 
+interface DeadlineProps {
+  closingSoon: boolean
+}
+
+// eslint-disable-next-line i18next/no-literal-string
+const DeadlineText = styled.div<DeadlineProps>`
+  display: flex;
+  justify-content: center;
+  font-size: clamp(10px, 2.5vw, 16px);
+  padding: 1rem;
+  background: ${(DeadlineProps) =>
+    DeadlineProps.closingSoon ? baseTheme.colors.red["100"] : baseTheme.colors.clear["300"]};
+  color: ${(DeadlineProps) =>
+    DeadlineProps.closingSoon ? baseTheme.colors.red["700"] : baseTheme.colors.green["600"]};
+`
+
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const pageContext = useContext(PageContext)
   const showExercise = props.isExam || (loginState.signedIn ? !!pageContext.settings : true)
@@ -106,6 +124,39 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const ranOutOfTries =
     limit_number_of_tries && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
 
+  const exerciseDeadline = getCourseMaterialExercise.data.exercise.deadline
+
+  const dateInTwoDays = new Date()
+  dateInTwoDays.setDate(dateInTwoDays.getDate() + 2)
+
+  const lang = i18n.language
+
+  let deadlineAsString = ""
+  const DATESTYLE = "long"
+  const TIMESTYLE = "short"
+
+  if (exerciseDeadline) {
+    const sign = exerciseDeadline.getTimezoneOffset() > 0 ? "-" : "+"
+
+    deadlineAsString = exerciseDeadline.toLocaleString(lang, {
+      dateStyle: DATESTYLE,
+      timeStyle: TIMESTYLE,
+    })
+
+    const timezoneOffsetParts = (-exerciseDeadline.getTimezoneOffset() / 60).toString().split(".")
+    const start = timezoneOffsetParts[0].padStart(2, "0")
+    let end = ""
+    if (timezoneOffsetParts[1]) {
+      end = timezoneOffsetParts[1].padEnd(2, "0")
+    } else {
+      end = end.padEnd(2, "0")
+    }
+
+    // eslint-disable-next-line i18next/no-literal-string
+    const timezoneOffset = `(UTC${sign}${start}:${end})`
+    deadlineAsString = deadlineAsString + ` ${timezoneOffset}`
+  }
+
   return (
     <BreakFromCentered sidebar={false}>
       <div
@@ -132,7 +183,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 width: 5rem !important;
                 margin-right: 1rem;
               `}
-            />
+            />{" "}
             <h2
               className={css`
                 font-size: 2rem;
@@ -157,6 +208,17 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
             </div>
           </div>
+          {exerciseDeadline &&
+            (Date.now() < exerciseDeadline.getTime() ? (
+              <DeadlineText closingSoon={dateInTwoDays.getTime() >= exerciseDeadline.getTime()}>
+                {t("deadline")}
+                {deadlineAsString}
+              </DeadlineText>
+            ) : (
+              <DeadlineText closingSoon={true}>
+                {t("Deadline-passed-n-days-ago", { days: dateDiffInDays(exerciseDeadline) })}
+              </DeadlineText>
+            ))}
           {getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
             <ExerciseTask
               key={task.id}
@@ -173,6 +235,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 (x) => x.exercise_task_id === task.id,
               )}
               canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
+              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
             />
           ))}
           <div
@@ -266,6 +329,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               >
                 {t("tries-remaining-n", { n: triesRemaining })}
               </div>
+            )}
+            {!loginState.isLoading && !loginState.signedIn && (
+              <div>{t("please-log-in-to-answer-exercise")}</div>
             )}
           </div>
         </Centered>

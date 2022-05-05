@@ -75,7 +75,6 @@
           "grading_priority": 1,
           "score_given": 80.0,
           "grading_progress": "FullyGraded",
-          "user_points_update_strategy": "CanAddPointsAndCanRemovePoints",
           "unscaled_score_given": 80.0,
           "unscaled_score_maximum": 100,
           "grading_started_at": "2021-12-31T22:00:00Z",
@@ -83,7 +82,8 @@
           "feedback_json": null,
           "feedback_text": null,
           "deleted_at": null
-        }
+        },
+        "order_number": 1
       }
     ]
   },

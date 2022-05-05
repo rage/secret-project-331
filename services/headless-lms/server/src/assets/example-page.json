@@ -850,7 +850,7 @@
     "innerBlocks": []
   },
   {
-    "clientId": "c0c3bc7a-c3f2-46ae-aaff-e54a2b169857",
+    "clientId": "49258bd4-1533-4015-890a-9209d5afb5f7",
     "name": "core/quote",
     "isValid": true,
     "attributes": {
@@ -859,6 +859,87 @@
       "align": "right"
     },
     "innerBlocks": []
+  },
+  {
+    "name": "moocfi/infobox",
+    "attributes": {
+      "backgroundColor": "#faf5f3"
+    },
+    "clientId": "223a087c-e5ea-43ee-a384-83f671f082e7",
+    "innerBlocks": [
+      {
+        "name": "core/heading",
+        "attributes": {
+          "content": "What is inside this infobox?",
+          "level": 3
+        },
+        "clientId": "fcd2d80b-be77-49ee-b318-cbaa3016689c",
+        "innerBlocks": [],
+        "isValid": true
+      },
+      {
+        "name": "core/paragraph",
+        "attributes": {
+          "content": "<strong>Lorem ipsum logic</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus",
+          "dropCap": false
+        },
+        "clientId": "ce46dfae-ec7f-4137-a5c5-4606aa71446f",
+        "innerBlocks": [],
+        "isValid": true
+      },
+      {
+        "name": "core/paragraph",
+        "attributes": {
+          "content": "<strong>Lorem ipsum summary</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus",
+          "dropCap": false
+        },
+        "clientId": "be771fdc-7f94-4fc9-8e03-0ca375a3e2bd",
+        "innerBlocks": [],
+        "isValid": true
+      }
+    ],
+    "isValid": true
+  },
+  {
+    "name": "moocfi/aside",
+    "attributes": {
+      "backgroundColor": "#ebf5fb",
+      "separatorColor": "#007acc"
+    },
+    "clientId": "9a6b79ac-c0d9-4f17-8d67-2475187a3d35",
+    "innerBlocks": [
+      {
+        "name": "core/heading",
+        "attributes": {
+          "content": "What is inside this aside?",
+          "level": 3
+        },
+        "clientId": "dc631127-cd91-4022-826c-f5c1d7450c7a",
+        "innerBlocks": [],
+        "isValid": true
+      },
+      {
+        "name": "core/paragraph",
+        "attributes": {
+          "content": "<strong>Lorem ipsum logic</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus",
+          "dropCap": false
+        },
+        "clientId": "61f83af4-2916-44f5-8605-2786f6eb168f",
+        "innerBlocks": [],
+        "isValid": true
+      },
+      {
+        "name": "core/paragraph",
+        "attributes": {
+          "content": "<strong>Lorem ipsum summary</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus",
+          "dropCap": false
+        },
+        "clientId": "a7544e6f-e55a-4a97-a5fb-9c8b4d91e64e",
+        "innerBlocks": [],
+        "isValid": true
+      }
+    ],
+    "isValid": true
   },
   {
     "clientId": "44b434c7-be41-4eb4-850f-cd8922246062",

@@ -22,8 +22,11 @@ pub mod exercise_tasks;
 pub mod exercises;
 pub mod feedback;
 pub mod glossary;
+pub mod library;
 pub mod organizations;
 pub mod page_history;
+pub mod page_visit_datum;
+pub mod page_visit_datum_daily_visit_hashing_keys;
 pub mod pages;
 pub mod playground_examples;
 pub mod proposed_block_edits;
@@ -32,7 +35,9 @@ pub mod regradings;
 pub mod roles;
 pub mod url_redirections;
 pub mod user_course_settings;
+pub mod user_exercise_slide_states;
 pub mod user_exercise_states;
+pub mod user_exercise_task_states;
 pub mod users;
 
 mod error;
@@ -64,6 +69,13 @@ impl CourseOrExamId {
             (None, None) => Err(ModelError::Generic(
                 "Database row did not have a course id or an exam id".to_string(),
             )),
+        }
+    }
+
+    pub fn to_course_and_exam_ids(&self) -> (Option<Uuid>, Option<Uuid>) {
+        match self {
+            Self::Course(instance_id) => (Some(*instance_id), None),
+            Self::Exam(exam_id) => (None, Some(*exam_id)),
         }
     }
     pub fn exam_id(&self) -> Option<&Uuid> {

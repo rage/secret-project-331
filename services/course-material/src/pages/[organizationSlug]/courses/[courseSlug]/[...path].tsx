@@ -2,22 +2,25 @@ import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useReducer } from "react"
 import { useQuery } from "react-query"
 
-import CourseMaterialPageBreadcrumbs from "../../../../components/CourseMaterialPageBreadcrumbs"
-import Layout from "../../../../components/Layout"
 import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
+import Layout from "../../../../components/layout/Layout"
+import CourseMaterialPageBreadcrumbs from "../../../../components/navigation/CourseMaterialPageBreadcrumbs"
+import CourseTestModeNotification from "../../../../components/notifications/CourseTestModeNotification"
 import PageContext, { CoursePageDispatch, defaultPageState } from "../../../../contexts/PageContext"
+import useScrollToSelector from "../../../../hooks/useScrollToSelector"
 import pageStateReducer from "../../../../reducers/pageStateReducer"
 import { fetchCoursePageByPath } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
+import { PageMarginOffset } from "../../../../shared-module/components/layout/PageMarginOffset"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import basePath from "../../../../shared-module/utils/base-path"
+import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../../shared-module/utils/constants"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import { tryToScrollToSelector } from "../../../../utils/dom"
 import { courseFaqPageRoute } from "../../../../utils/routing"
 
 interface PagePageProps {
@@ -51,6 +54,7 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
           instance: getCoursePageByPath.data.instance ?? null,
           settings: getCoursePageByPath.data.settings ?? null,
           exam: null,
+          isTest: getCoursePageByPath.data.is_test_mode,
         },
       })
     }
@@ -86,23 +90,8 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
     }
   }, [courseSlug, getCoursePageByPath.data, router])
 
-  useEffect(() => {
-    if (typeof window != "undefined" && window.location.hash) {
-      const selector = window.location.hash
-      setTimeout(() => {
-        tryToScrollToSelector(selector)
-      }, 100)
-      setTimeout(() => {
-        tryToScrollToSelector(selector)
-      }, 500)
-      setTimeout(() => {
-        tryToScrollToSelector(selector)
-      }, 1000)
-      setTimeout(() => {
-        tryToScrollToSelector(selector)
-      }, 2000)
-    }
-  }, [path])
+  // Handle scrolling to selector if window has anchor
+  useScrollToSelector(path)
 
   const handleRefresh = useCallback(async () => {
     await getCoursePageByPath.refetch()
@@ -131,7 +120,14 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
           organizationSlug={query.organizationSlug}
           courseSlug={courseSlug}
         >
-          <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
+          <PageMarginOffset
+            marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
+            // eslint-disable-next-line i18next/no-literal-string
+            marginBottom={"0rem"}
+          >
+            <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
+            {<CourseTestModeNotification isTestMode={pageState.isTest} />}
+          </PageMarginOffset>
           <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
         </Layout>
       </PageContext.Provider>

@@ -155,7 +155,7 @@ test("create quizzes test", async ({ page }) => {
   await closeModal(page, frame)
   await frame.click(`[aria-label="Option 2"]`)
   await page.evaluate(() => {
-    window.scrollBy(0, -300)
+    window.scrollBy(0, 200)
   })
   await frame.check(`input[type="checkbox"]`)
   await frame.fill(`label:has-text("Option title") input`, `correct`)
@@ -192,6 +192,10 @@ test("create quizzes test", async ({ page }) => {
   await frame2.fill(`label:has-text("Failure message") input`, `no`)
   await closeModal(page, frame2)
   await frame2.click(`[aria-label="Option 2"]`)
+  // TODO: Figure out why clicking the option makes screen jump upwards
+  await page.evaluate(() => {
+    window.scrollBy(0, 300)
+  })
   await frame2.check(`input[type="checkbox"]`)
   await frame2.fill(`label:has-text("Option title") input`, `correct`)
   await frame2.fill(`label:has-text("Success message") input`, `yes`)
@@ -217,25 +221,30 @@ test("create quizzes test", async ({ page }) => {
   await frame3.fill(`label:has-text("Failure message") input`, `no`)
   await closeModal(page, frame3)
   await frame3.click(`[aria-label="Option 2"]`)
+  // TODO: Figure out why clicking the option makes screen jump upwards
+  await page.evaluate(() => {
+    window.scrollBy(0, 300)
+  })
   await frame3.check(`input[type="checkbox"]`)
   await frame3.fill(`label:has-text("Option title") input`, `correct`)
   await frame3.fill(`label:has-text("Success message") input`, `yes`)
   await closeModal(page, frame3)
 
-  // Click text=Save
-  await page.click("text=Save >> visible=true")
+  // Click button:text-is("Save")
+  await page.click(`button:text-is("Save") >> visible=true`)
 })
 
 async function closeModal(page: Page, frame: Frame) {
-  const closeButtonLocator = frame.locator(`[aria-label="Close"]`)
-  const handle = await closeButtonLocator.elementHandle()
-  const boundingBox = await handle.boundingBox()
-  const y = boundingBox.y
-  await page.evaluate((y) => {
-    window.scrollTo(0, y)
-  }, y)
-  const frameElement = await frame.frameElement()
-  frameElement.scrollIntoViewIfNeeded()
+  // We shouldn't need any scrolling tricks as the modal is already in the viewport
+  // const closeButtonLocator = frame.locator(`[aria-label="Close"]`)
+  // const handle = await closeButtonLocator.elementHandle()
+  // const boundingBox = await handle.boundingBox()
+  // const y = boundingBox.y
+  // await page.evaluate((y) => {
+  //   window.scrollTo(0, y)
+  // }, y)
+  // const frameElement = await frame.frameElement()
+  // frameElement.scrollIntoViewIfNeeded()
   await frame.click(`[aria-label="Close"]`)
   await frame.waitForTimeout(100)
 }

@@ -50,7 +50,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ text, label, onC
           </div>
         )}
         <Button
-          transform="normal"
+          transform="capitalize"
           variant="outlined"
           size={"medium"}
           onClick={() => setPreviewVisible(!previewVisible)}

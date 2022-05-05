@@ -58,7 +58,7 @@ const CourseManagementPage: React.FC<CourseManagementPageProps> = ({ query }) =>
   const PageToRender = CourseManagementPageTabs[path] ?? CourseManagementPageTabs["overview"]
 
   return (
-    <Layout navVariant="complex">
+    <Layout navVariant="simple">
       <TabLinkNavigation>
         <TabLink url={"overview"} isActive={path === "overview"}>
           {t("link-overview")}

@@ -71,7 +71,14 @@
     },
     "eslint.alwaysShowStatus": true,
     "eslint.lintTask.enable": true,
-    "eslint.format.enable": true
+    "eslint.format.enable": true,
+    "stylelint.validate": [
+      "css",
+      "less",
+      "postcss",
+      "typescriptreact",
+      "javascriptreact"
+    ]
   },
   "recommendations": [
     "stylelint.vscode-stylelint",
@@ -85,7 +92,8 @@
     "usernamehw.errorlens",
     "jebbs.plantuml",
     "wix.vscode-import-cost",
-    "serayuzgur.crates"
+    "serayuzgur.crates",
+    "ms-playwright.playwright"
   ],
   "launch": {
     "configurations": [],

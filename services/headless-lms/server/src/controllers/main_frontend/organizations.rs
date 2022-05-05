@@ -4,8 +4,9 @@ use std::{path::PathBuf, str::FromStr};
 
 use models::{
     courses::{Course, CourseCount},
-    exams::CourseExam,
+    exams::{CourseExam, NewExam, OrgExam},
     organizations::Organization,
+    pages::{self, NewPage},
 };
 
 use crate::controllers::{helpers::media::upload_image_for_organization, prelude::*};
@@ -223,17 +224,86 @@ async fn get_organization(
 }
 
 /**
-GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations with id.
+GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn get_exams(
+async fn get_course_exams(
     pool: web::Data<PgPool>,
     organization: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<Vec<CourseExam>>> {
     let mut conn = pool.acquire().await?;
+    let exams = models::exams::get_course_exams_for_organization(&mut conn, *organization).await?;
+    Ok(web::Json(exams))
+}
+
+/**
+GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations exams in Exam form.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_org_exams(
+    pool: web::Data<PgPool>,
+    organization: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<OrgExam>>> {
+    let mut conn = pool.acquire().await?;
     let exams = models::exams::get_exams_for_organization(&mut conn, *organization).await?;
     Ok(web::Json(exams))
+}
+
+/**
+POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new exam for the organization.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn create_exam(
+    pool: web::Data<PgPool>,
+    payload: web::Json<NewExam>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let mut tx = conn.begin().await?;
+
+    let new_exam = payload.0;
+    authorize(
+        &mut tx,
+        Act::CreateCoursesOrExams,
+        Some(user.id),
+        Res::Organization(new_exam.organization_id),
+    )
+    .await?;
+
+    let new_exam_id = models::exams::insert(&mut tx, &new_exam, None).await?;
+    pages::insert_exam_page(
+        &mut tx,
+        new_exam_id,
+        NewPage {
+            chapter_id: None,
+            course_id: None,
+            exam_id: Some(new_exam_id),
+            front_page_of_chapter_id: None,
+            content: serde_json::Value::Array(vec![]),
+            content_search_language: Some("simple".to_string()),
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            exercises: vec![],
+            title: "exam page".to_string(),
+            url_path: "/".to_string(),
+        },
+        user.id,
+    )
+    .await?;
+
+    models::roles::insert(
+        &mut tx,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Exam(new_exam_id),
+    )
+    .await?;
+
+    tx.commit().await?;
+    Ok(web::Json(()))
 }
 
 /**
@@ -270,5 +340,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{organization_id}/image",
             web::delete().to(remove_organization_image),
         )
-        .route("/{organization_id}/exams", web::get().to(get_exams));
+        .route(
+            "/{organization_id}/course_exams",
+            web::get().to(get_course_exams),
+        )
+        .route("/{organization_id}/org_exams", web::get().to(get_org_exams))
+        .route("/{organization_id}/exams", web::post().to(create_exam));
 }

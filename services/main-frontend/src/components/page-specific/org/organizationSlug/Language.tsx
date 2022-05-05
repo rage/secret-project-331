@@ -24,7 +24,7 @@ import Sweden from "../../../../imgs/flags/Sweden.svg"
 import USA from "../../../../imgs/flags/USA.svg"
 import UK from "../../../../imgs/flags/United_Kingdom.svg"
 
-import Finland from "../../../../imgs/flags/Finland.svg"
+import Finland from ".../../../../imgs/flags/Finland.svg"
 
 export const DEFAULT_FLAG_CLIP_PATH = "circle(25% at 42% 50%)"
 

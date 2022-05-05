@@ -51,6 +51,7 @@ const TextArea = ({ onChange, className, autoResize, ...rest }: TextAreaProps) =
               background: #fcfcfc;
               border: 1.6px solid #dedede;
               outline: none;
+              padding: 10px 12px;
             }
 
             span {

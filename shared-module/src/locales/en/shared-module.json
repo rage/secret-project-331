@@ -60,6 +60,7 @@
   "submit": "Submit",
   "set-field-value": "Set {{name}}",
   "points": "Points",
+  "peer-review-instruction": "Peer review instruction",
   "strongly-disagree": "strongly disagree",
   "disagree": "disagree",
   "neutral": "neutral",
@@ -72,5 +73,9 @@
   "write-a-review": "Write a review",
   "added-text": "Added text",
   "removed-text": "Removed text",
-  "please-choose-a-value": "Please choose a value"
+  "please-choose-a-value": "Please choose a value",
+  "essay": "Essay",
+  "linkert-scale": "Linkert Scale",
+  "select-question": "Select question type",
+  "what-you-will-learn": "What you will learn in this chapter"
 }

@@ -45,22 +45,25 @@ import HeroSectionBlock from "./moocfi/HeroSectionBlock"
 import InfoBox from "./moocfi/InfoBox"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
+
+/** The props that this component receives */
 export interface ContentRendererProps {
   data: Block<unknown>[]
   editing: boolean
   selectedBlockId: string | null
-  setEdits: (m: Map<string, NewProposedBlockEdit>) => void
+  setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
   isExam: boolean
 }
 
-export interface BlockRendererProps<T> {
+/**
+ * The props a block receives from the ContentRenderer. Generic over the block's attributes.
+ *
+ * Contains most attributes from `ContentRendererProps` to enable nesting blocks with InnerBlocks.
+ * */
+export type BlockRendererProps<T> = {
   data: Block<T>
-  editing: boolean
-  selectedBlockId: string | null
-  setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
   id: string
-  isExam: boolean
-}
+} & Omit<ContentRendererProps, "data">
 
 const LatexBlock = dynamic(() => import("./moocfi/LatexBlock"))
 

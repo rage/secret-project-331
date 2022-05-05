@@ -1,8 +1,13 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { RichText } from "@wordpress/block-editor"
+import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
 
+import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
+import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
+import Centered from "../../shared-module/components/Centering/Centered"
+import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 import BlockWrapper from "../BlockWrapper"
 
 import { InfoBoxComponentProps } from "."
@@ -67,32 +72,34 @@ const InfoBoxEditor: React.FC<BlockEditProps<InfoBoxComponentProps>> = ({
   attributes,
   setAttributes,
 }) => {
-  const { title, bodyText } = attributes
   return (
     <BlockWrapper id={clientId}>
-      <Wrapper>
-        <Container>
-          <Body>
-            <RichText
-              className="has-text-align-left wp-block-heading"
-              // eslint-disable-next-line i18next/no-literal-string
-              tagName="h3"
-              value={title}
-              onChange={(value: string) => setAttributes({ title: value })}
-              placeholder={""}
-            />
-            <RichText
-              className="has-text-align-left wp-block-heading"
-              // eslint-disable-next-line i18next/no-literal-string
-              tagName="p"
-              value={bodyText}
-              onChange={(value: string) => setAttributes({ bodyText: value })}
-              // eslint-disable-next-line i18next/no-literal-string
-              placeholder={"Infobox body"}
-            />
-          </Body>
-        </Container>
-      </Wrapper>
+      <InspectorControls key="settings">
+        <BackgroundColorCustomizer
+          attributes={attributes}
+          setAttributes={setAttributes}
+          // eslint-disable-next-line i18next/no-literal-string
+          defaultBackgroundColor="#faf5f3"
+        />
+      </InspectorControls>
+      <BreakFromCentered {...breakFromCenteredProps}>
+        <div
+          className={css`
+            padding: 3rem;
+            background-color: ${attributes.backgroundColor};
+          `}
+        >
+          <Centered variant="narrow">
+            <div
+              className={css`
+                padding: 10px;
+              `}
+            >
+              <InnerBlocks />
+            </div>
+          </Centered>
+        </div>
+      </BreakFromCentered>
     </BlockWrapper>
   )
 }

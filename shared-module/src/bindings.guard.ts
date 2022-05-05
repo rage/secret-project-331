@@ -711,6 +711,8 @@ export function isCourseMaterialExercise(
     (isExercise(obj.exercise) as boolean) &&
     typeof obj.can_post_submission === "boolean" &&
     (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
+    (obj.peer_review_info === null ||
+      (isCourseMaterialPeerReviewData(obj.peer_review_info) as boolean)) &&
     (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
     (isPointMap(obj.exercise_slide_submission_counts) as boolean)
   )
@@ -909,7 +911,8 @@ export function isCmsPageExercise(obj: any, _argumentName?: string): obj is CmsP
     typeof obj.score_maximum === "number" &&
     (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
     typeof obj.limit_number_of_tries === "boolean" &&
-    (obj.deadline === null || obj.deadline instanceof Date)
+    (obj.deadline === null || obj.deadline instanceof Date) &&
+    typeof obj.needs_peer_review === "boolean"
   )
 }
 

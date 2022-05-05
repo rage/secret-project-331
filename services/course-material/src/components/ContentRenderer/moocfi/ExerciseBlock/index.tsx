@@ -29,6 +29,7 @@ import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
+import PeerReviewView from "./PeerReviewView"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -247,6 +248,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
             />
           ))}
+          {getCourseMaterialExercise.data.peer_review_info && (
+            <PeerReviewView peer_review_data={getCourseMaterialExercise.data.peer_review_info} />
+          )}
           <div
             className={css`
               button {

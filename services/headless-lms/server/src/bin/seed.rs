@@ -26,7 +26,8 @@ use headless_lms_models::{
     page_history::HistoryChangeReason,
     pages,
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage},
-    playground_examples,
+    peer_review_questions::{self, NewPeerReviewQuestion, PeerReviewQuestionType},
+    peer_reviews, playground_examples,
     playground_examples::PlaygroundExampleData,
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
@@ -1597,6 +1598,7 @@ async fn seed_sample_course(
         Uuid::new_v5(&course_id, b"00dd984d-8651-404e-80b8-30fae9cf32ed"),
         Uuid::new_v5(&course_id, b"a66c2552-8123-4287-bd8b-b49a29204870"),
         Uuid::new_v5(&course_id, b"f6f63ff0-c119-4141-922b-bc04cbfa0a31"),
+        true,
         serde_json::json!({
             "id": "a2704a2b-fe3d-4945-a007-5593e4b81195",
             "body": "very hard",
@@ -1655,6 +1657,7 @@ async fn seed_sample_course(
         Uuid::new_v5(&course_id, b"8ae8971c-95dd-4d8c-b38f-152ad89c6b20"),
         Uuid::new_v5(&course_id, b"d05b1d9b-f270-4e5e-baeb-a904ea29dc90"),
         Uuid::new_v5(&course_id, b"1057f91c-9dac-4364-9d6a-fa416abc540b"),
+        false,
         serde_json::json!({
             "id": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
             "body": "very hard",
@@ -1713,6 +1716,7 @@ async fn seed_sample_course(
         Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
         Uuid::new_v5(&course_id, b"52939561-af36-4ab6-bffa-be97e94d3314"),
         Uuid::new_v5(&course_id, b"8845b17e-2320-4384-97f8-24e42457cb5e"),
+        false,
         serde_json::json!({
             "id": "f1f0520e-3037-409c-b52d-163ad0bc5c59",
             "body": "very hard",
@@ -1790,6 +1794,7 @@ async fn seed_sample_course(
         Uuid::new_v5(&course_id, b"b5e1e7e87-0678-4296-acf7-a8ac926ff94b"),
         Uuid::new_v5(&course_id, b"50e26d7f-f11f-4a8a-990d-fb17c3371d1d"),
         Uuid::new_v5(&course_id, b"7ca39a36-2dcd-4521-bbf6-bfc5849874e3"),
+        false,
         serde_json::json!({
             "id": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
             "body": "very hard",
@@ -2238,6 +2243,29 @@ async fn seed_sample_course(
         .await?;
     }
 
+    // peer reviews
+    let peer_review_id = peer_reviews::insert_with_id(
+        conn,
+        Uuid::new_v5(&course_id, b"64717822-ac25-4a7d-8298-f0ac39d73260"),
+        default_instance.id,
+        None,
+    )
+    .await
+    .unwrap();
+    let new_peer_review_question = NewPeerReviewQuestion {
+        peer_review_id,
+        order_number: 0,
+        question: "Was the answer properly thought out?".to_string(),
+        question_type: PeerReviewQuestionType::Essay,
+    };
+    let _peer_review_question_1_id = peer_review_questions::insert_with_id(
+        conn,
+        Uuid::new_v5(&course_id, b"64717822-ac25-4a7d-8298-f0ac39d73260"),
+        &new_peer_review_question,
+    )
+    .await
+    .unwrap();
+
     // feedback
     info!("sample feedback");
     let new_feedback = NewFeedback {
@@ -2381,6 +2409,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         Uuid::new_v5(&course.id, b"7f011d0e-1cbf-4870-bacf-1873cf360c15"),
         Uuid::new_v5(&course.id, b"b9446b94-0edf-465c-9a9a-57708b7ef180"),
         Uuid::new_v5(&course.id, b"58e71279-81e1-4679-83e6-8f5f23ec055a"),
+        false,
         serde_json::json!({
                 "id": "3a1b3e10-2dd5-4cb9-9460-4c08f19e16d3",
                 "body": "very hard",
@@ -2454,6 +2483,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         Uuid::new_v5(&course.id, b"9037cb17-3841-4a79-8f50-bbe595a4f785"),
         Uuid::new_v5(&course.id, b"d6d80ae0-97a1-4db1-8a3b-2bdde3cfbe9a"),
         Uuid::new_v5(&course.id, b"085b60ec-aa9d-11ec-b500-7b1e176646f8"),
+        false,
         serde_json::json!({
                 "id": "783a7697-5e9e-41dc-90b5-c7fe1570bd3a",
                 "body": "very hard",
@@ -2527,6 +2557,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         Uuid::new_v5(&course.id, b"5d953894-aa9d-11ec-97e7-2ff4d73f69f1"),
         Uuid::new_v5(&course.id, b"604dae7c-aa9d-11ec-8df1-575042832340"),
         Uuid::new_v5(&course.id, b"6365746e-aa9d-11ec-8718-0b5628cbe29f"),
+        false,
         serde_json::json!({
                 "id": "33cd47ea-aa9d-11ec-897c-5b22513d61ee",
                 "body": "very hard",
@@ -2601,6 +2632,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         Uuid::new_v5(&course.id, b"712fd37c-e3d7-4569-8a64-371d7dda9c19"),
         Uuid::new_v5(&course.id, b"6799021d-ff0c-4e4d-b5db-c2c19fba7fb9"),
         Uuid::new_v5(&course.id, b"01b69776-3e82-4694-98a9-5ce53f2a4ab5"),
+        false,
         serde_json::json!({
                 "id": "9a186f2b-7616-472e-b839-62ab0f2f0a6c",
                 "body": "very hard",
@@ -3188,6 +3220,7 @@ fn example_exercise_flexible(
         max_tries_per_slide: None,
         limit_number_of_tries: false,
         deadline: None,
+        needs_peer_review: false,
     };
     (block, exercise, slides, tasks)
 }
@@ -3199,6 +3232,7 @@ fn quizzes_exercise(
     exercise_task_id: Uuid,
     block_id: Uuid,
     paragraph_id: Uuid,
+    needs_peer_review: bool,
     private_spec: serde_json::Value,
 ) -> (
     GutenbergBlock,
@@ -3225,6 +3259,7 @@ fn quizzes_exercise(
         max_tries_per_slide: None,
         limit_number_of_tries: false,
         deadline: Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        needs_peer_review,
     };
     let exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,

@@ -55,6 +55,34 @@ RETURNING id;
     Ok(res.id)
 }
 
+pub async fn insert_with_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+    new_peer_review_question: &NewPeerReviewQuestion,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO peer_review_questions (
+    id,
+    peer_review_id,
+    order_number,
+    question,
+    question_type
+  )
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id;
+        ",
+        id,
+        new_peer_review_question.peer_review_id,
+        new_peer_review_question.order_number,
+        new_peer_review_question.question,
+        new_peer_review_question.question_type as PeerReviewQuestionType,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PeerReviewQuestion> {
     let res = sqlx::query_as!(
         PeerReviewQuestion,

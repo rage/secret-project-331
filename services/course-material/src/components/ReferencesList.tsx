@@ -17,18 +17,19 @@ const References: React.FC<ReferencesProps> = ({ courseId }) => {
   return (
     <div>
       <ul>
-        {pageRefs.map((r, idx) => {
-          const c = Cite(r)
-          return (
-            <li key={idx}>
-              {c.format(BIBLIOGRAPHY, {
-                format: FORMAT,
-                template: TEMPLATE,
-                lang: LANG,
-              })}
-            </li>
-          )
-        })}
+        {pageRefs &&
+          pageRefs.map((r, idx) => {
+            const c = Cite(r)
+            return (
+              <li key={idx}>
+                {c.format(BIBLIOGRAPHY, {
+                  format: FORMAT,
+                  template: TEMPLATE,
+                  lang: LANG,
+                })}
+              </li>
+            )
+          })}
       </ul>
     </div>
   )

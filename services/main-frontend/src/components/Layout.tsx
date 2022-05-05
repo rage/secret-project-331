@@ -30,7 +30,6 @@ const Layout: React.FC<LayoutProps> = ({
   children,
   title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
   navVariant,
-  faqUrl,
   licenseUrl,
   returnToPath,
 }) => {

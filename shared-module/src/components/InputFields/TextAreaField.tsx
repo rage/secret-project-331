@@ -1,8 +1,7 @@
 import { css, cx } from "@emotion/css"
 import React, { useEffect, useRef } from "react"
-import { FieldError, FieldValues, UseFormRegister } from "react-hook-form"
 
-interface TextAreaExtraProps<T extends FieldValues> {
+interface TextAreaExtraProps {
   label?: string
   name?: string
   errorMessage?: string
@@ -15,9 +14,6 @@ interface TextAreaExtraProps<T extends FieldValues> {
   className?: string
   defaultValue?: string
   autoResize?: boolean
-  id?: string
-  error?: FieldError | undefined
-  register?: UseFormRegister<T>
 }
 
 export type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & TextAreaExtraProps

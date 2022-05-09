@@ -16,7 +16,7 @@ Check if we are using the current node LTS version from by comparing a `.nvmcrc`
 
 1. Run `bin/update-rust`
 2. Run command: `bin/build-dockerfile-development-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base`
-   3: Run command: `bin/build-dockerfile-production-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-production-base`
+3: Run command: `bin/build-dockerfile-production-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-production-base`
 
 ## Updating node dependencies
 

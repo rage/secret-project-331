@@ -14,31 +14,76 @@ pub struct PeerReviewQueueEntry {
     pub peer_review_priority: i32,
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    peer_review_id: Uuid,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+    peer_review_priority: i32,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO peer_review_queue_entries (
+    user_id,
+    peer_review_id,
+    receiving_peer_reviews_exercise_slide_submission_id,
+    peer_review_priority
+  )
+VALUES ($1, $2, $3, $4)
+RETURNING id
+        ",
+        user_id,
+        peer_review_id,
+        receiving_peer_reviews_exercise_slide_submission_id,
+        peer_review_priority,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}
+
 pub async fn upsert(
     conn: &mut PgConnection,
     user_id: Uuid,
     peer_review_id: Uuid,
     submission_id: Uuid,
-) -> ModelResult<()> {
-    let _res = sqlx::query!(
+) -> ModelResult<PeerReviewQueueEntry> {
+    let peer_review_queue_entry =
+        try_to_get_by_user_and_peer_review_ids(conn, user_id, peer_review_id).await?;
+    if let Some(peer_review_queue_entry) = peer_review_queue_entry {
+        let peer_review_queue_entry =
+            update(conn, peer_review_queue_entry.id, submission_id, 0).await?;
+        Ok(peer_review_queue_entry)
+    } else {
+        let peer_review_queue_entry_id =
+            insert(conn, user_id, peer_review_id, submission_id, 0).await?;
+        let peer_review_queue_entry = get_by_id(conn, peer_review_queue_entry_id).await?;
+        Ok(peer_review_queue_entry)
+    }
+}
+
+pub async fn update(
+    conn: &mut PgConnection,
+    id: Uuid,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+    peer_review_priority: i32,
+) -> ModelResult<PeerReviewQueueEntry> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
         "
-INSERT INTO peer_review_queue_entries (
-    user_id,
-    peer_review_id,
-    receiving_peer_reviews_exercise_slide_submission_id
-  )
-VALUES ($1, $2, $3) ON CONFLICT (user_id, peer_review_id) DO
-UPDATE
-SET receiving_peer_reviews_exercise_slide_submission_id = $3,
-  deleted_at = NULL
-        ",
-        user_id,
-        peer_review_id,
-        submission_id,
+UPDATE peer_review_queue_entries
+SET receiving_peer_reviews_exercise_slide_submission_id = $1,
+  peer_review_priority = $2
+WHERE id = $3
+RETURNING *
+    ",
+        receiving_peer_reviews_exercise_slide_submission_id,
+        peer_review_priority,
+        id
     )
-    .execute(conn)
+    .fetch_one(conn)
     .await?;
-    Ok(())
+    Ok(res)
 }
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PeerReviewQueueEntry> {
@@ -55,6 +100,38 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn get_by_user_and_peer_review_ids(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    peer_review_id: Uuid,
+) -> ModelResult<PeerReviewQueueEntry> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+SELECT *
+FROM peer_review_queue_entries
+WHERE user_id = $1
+  AND peer_review_id = $2
+  AND deleted_at IS NULL
+        ",
+        user_id,
+        peer_review_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn try_to_get_by_user_and_peer_review_ids(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    peer_review_id: Uuid,
+) -> ModelResult<Option<PeerReviewQueueEntry>> {
+    get_by_user_and_peer_review_ids(conn, user_id, peer_review_id)
+        .await
+        .optional()
 }
 
 pub async fn get_many_by_exercise_id_and_review_priority(

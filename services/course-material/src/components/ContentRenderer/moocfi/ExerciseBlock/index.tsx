@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import HelpIcon from "@mui/icons-material/Help"
-import { useContext, useReducer, useState } from "react"
+import { useCallback, useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery, useQueryClient } from "react-query"
 
@@ -10,6 +10,7 @@ import PageContext from "../../../../contexts/PageContext"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
 import {
   fetchExerciseById,
+  postPeerReviewSubmission,
   postStartPeerReview,
   postSubmission,
 } from "../../../../services/backend"
@@ -55,6 +56,9 @@ const DeadlineText = styled.div<DeadlineProps>`
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
+  const [peerReviewAnswers, setPeerReviewAnswers] = useState<ReadonlyMap<string, unknown>>(
+    new Map(),
+  )
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
   const { t, i18n } = useTranslation()
@@ -81,6 +85,16 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       })
     },
   })
+
+  const handleSetPeerReviewQuestionAnswer = useCallback(
+    (id, value) =>
+      setPeerReviewAnswers((prev) => {
+        const map = new Map(prev)
+        map.set(id, value)
+        return map
+      }),
+    [],
+  )
 
   const postSubmissionMutation = useToastMutation(
     (submission: StudentExerciseSlideSubmission) => postSubmission(id, submission),
@@ -249,7 +263,32 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             />
           ))}
           {getCourseMaterialExercise.data.peer_review_info && (
-            <PeerReviewView peer_review_data={getCourseMaterialExercise.data.peer_review_info} />
+            <div>
+              <PeerReviewView
+                peerReviewData={getCourseMaterialExercise.data.peer_review_info}
+                setPeerReviewQuestionAnswer={handleSetPeerReviewQuestionAnswer}
+              />
+              <Button
+                size="medium"
+                variant="primary"
+                onClick={async () => {
+                  if (!getCourseMaterialExercise.data.peer_review_info) {
+                    // Handle error
+                    return
+                  }
+                  await postPeerReviewSubmission(id, {
+                    exercise_slide_submission_id:
+                      getCourseMaterialExercise.data.peer_review_info?.exercise_slide_submission_id,
+                    peer_review_id: getCourseMaterialExercise.data.peer_review_info?.peer_review_id,
+                    peer_review_question_answers: Array.from(peerReviewAnswers.entries()).map(
+                      ([id, val]) => ({ peer_review_question_id: id, data_json: val }),
+                    ),
+                  })
+                }}
+              >
+                {t("submit-button")}
+              </Button>
+            </div>
           )}
           <div
             className={css`

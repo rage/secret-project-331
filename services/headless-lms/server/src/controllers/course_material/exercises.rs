@@ -296,6 +296,10 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{exercise_id}", web::get().to(get_exercise))
         .route(
+            "/{exercise_id}/peer-reviews",
+            web::post().to(submit_peer_review),
+        )
+        .route(
             "/{exercise_id}/peer-reviews/start",
             web::post().to(start_peer_review),
         )

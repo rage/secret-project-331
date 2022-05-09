@@ -76,7 +76,7 @@ pub async fn create_peer_review_submission_for_user(
     let peer_review_submission_id = peer_review_submissions::insert(
         &mut tx,
         user_exercise_state.user_id,
-        user_exercise_state.exercise_id,
+        peer_review.id,
         peer_review_submission.exercise_slide_submission_id,
     )
     .await?;

@@ -108,6 +108,8 @@ CREATE TABLE peer_review_question_submissions(
   peer_review_submission_id UUID NOT NULL REFERENCES peer_review_submissions(id),
   data_json JSONB NOT NULL
 );
+-- Text data field
+-- Number data field
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON peer_review_question_submissions FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 COMMENT ON TABLE peer_review_question_submissions IS 'TODO';

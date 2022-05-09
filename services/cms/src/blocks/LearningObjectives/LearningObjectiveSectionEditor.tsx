@@ -13,35 +13,27 @@ import BlockWrapper from "../BlockWrapper"
 
 import { LearningObjectiveSectionAttributes } from "."
 
-const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/buttons", "core/button", "core/paragraph", "core/list", "core/list-item"]
+const ALLOWED_NESTED_BLOCKS = [
+  "core/heading",
+  "core/buttons",
+  "core/button",
+  "core/paragraph",
+  "core/list",
+]
 const LEARNING_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
   [
     "core/columns",
     { isStackedOnMobile: true },
     [
-      [
-        "core/column",
-        {},
-        [
-          ["core/list-item", { placeholder: "Insert text...", align: "center" }],
-        ],
-      ],
-      [
-        "core/column",
-        {},
-        [
-          ["core/list-item", { placeholder: "Insert text...", align: "center" }],
-        ],
-      ],
+      ["core/column", {}, [["core/list", { placeholder: "Insert text...", align: "left" }]]],
+      ["core/column", {}, [["core/list", { placeholder: "Insert text...", align: "left" }]]],
     ],
   ],
 ]
 
-const LearningObjectiveSectionEditor: React.FC<BlockEditProps<LearningObjectiveSectionAttributes>> = ({
-  clientId,
-  attributes,
-  setAttributes,
-}) => {
+const LearningObjectiveSectionEditor: React.FC<
+  BlockEditProps<LearningObjectiveSectionAttributes>
+> = ({ clientId, attributes, setAttributes }) => {
   const { title } = attributes
   return (
     <BlockWrapper id={clientId}>

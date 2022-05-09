@@ -41,8 +41,15 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
     // We use port 1 for communication, defining a event handler
     messageChannel.port1.onmessage = (message: WindowEventMap["message"]) => {
       const data = message.data
-      // eslint-disable-next-line i18next/no-literal-string
-      console.info("Received message", JSON.stringify(data))
+      if (data.message) {
+        // eslint-disable-next-line i18next/no-literal-string
+        console.groupCollapsed(`Parent page: received message ${data.message} from iframe`)
+      } else {
+        // eslint-disable-next-line i18next/no-literal-string
+        console.groupCollapsed(`Parent page: received message from iframe`)
+      }
+
+      console.info(JSON.stringify(data, undefined, 2))
       if (isHeightChangedMessage(data)) {
         if (!iframeRef.current) {
           // eslint-disable-next-line i18next/no-literal-string
@@ -64,6 +71,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
         // eslint-disable-next-line i18next/no-literal-string
         console.warn("unsupported message")
       }
+      console.groupEnd()
     }
   }, [messageChannel, onMessageFromIframe])
 
@@ -117,7 +125,9 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
       message: "set-state",
     }
     // eslint-disable-next-line i18next/no-literal-string
-    console.log(`parent posting data ${postData}`)
+    console.groupCollapsed(`Parent posting set-state message to iframe`)
+    console.info(JSON.stringify(postData, undefined, 2))
+    console.groupEnd()
     messageChannel.port1.postMessage(postData)
     setLastThingPosted(postThisStateToIFrame)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- lastThingPosted is only used to cancel reposting when postThisStateToIFrame has not changed. Adding it to the dependency array would cause an infinite loop.
@@ -148,7 +158,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
         `}
       >
         <iframe
-          sandbox="allow-scripts"
+          sandbox="allow-scripts allow-forms"
           className={css`
             overflow: hidden;
             width: 100%;

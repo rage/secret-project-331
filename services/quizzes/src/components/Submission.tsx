@@ -12,6 +12,7 @@ import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
 import MultipleChoiceClickableFeedback from "./SubmissionComponents/MultipleChoiceClickable"
 import MultipleChoiceDropdownFeedback from "./SubmissionComponents/MultipleChoiceDropdown"
 import OpenFeedback from "./SubmissionComponents/Open"
+import Timeline from "./SubmissionComponents/Timeline"
 import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
 
 interface SubmissionProps {
@@ -29,6 +30,7 @@ type QuizItemType =
   | "open"
   | "custom-frontend-accept-data"
   | "matrix"
+  | "timeline"
 
 interface QuizItemSubmissionComponentDescriptor {
   component: React.FC<QuizItemSubmissionComponentProps>
@@ -63,11 +65,12 @@ const mapTypeToComponent: { [key: string]: QuizItemSubmissionComponentDescriptor
     shouldDisplayCorrectnessMessageAfterAnswer: true,
   },
   matrix: { component: MatrixSubmission, shouldDisplayCorrectnessMessageAfterAnswer: true },
+  timeline: { component: Timeline, shouldDisplayCorrectnessMessageAfterAnswer: true },
 }
 
 const componentDescriptorByTypeName = (
   typeName: QuizItemType,
-): QuizItemSubmissionComponentDescriptor => {
+): QuizItemSubmissionComponentDescriptor | undefined => {
   return mapTypeToComponent[typeName]
 }
 
@@ -82,6 +85,9 @@ const Submission: React.FC<SubmissionProps> = ({
     <>
       {publicAlternatives.items.map((item) => {
         const componentDescriptor = componentDescriptorByTypeName(item.type as QuizItemType)
+        if (!componentDescriptor) {
+          return <>{t("quiz-type-not-supported")}</>
+        }
         const Component = componentDescriptor.component
         const itemFeedback = feedback_json
           ? feedback_json.filter((itemFeedback) => itemFeedback.quiz_item_id === item.id)[0]

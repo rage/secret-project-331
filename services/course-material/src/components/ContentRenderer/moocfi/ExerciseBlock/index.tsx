@@ -17,6 +17,7 @@ import Button from "../../../../shared-module/components/Button"
 import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../../../shared-module/components/Centering/Centered"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import HideTextInSystemTests from "../../../../shared-module/components/HideTextInSystemTests"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
@@ -212,7 +213,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             (Date.now() < exerciseDeadline.getTime() ? (
               <DeadlineText closingSoon={dateInTwoDays.getTime() >= exerciseDeadline.getTime()}>
                 {t("deadline")}
-                {deadlineAsString}
+                <HideTextInSystemTests
+                  text={deadlineAsString}
+                  testPlaceholder="Time of the deadline"
+                />
               </DeadlineText>
             ) : (
               <DeadlineText closingSoon={true}>

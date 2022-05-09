@@ -1,26 +1,28 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
-interface SelectOption<T extends string> {
-  value: T
+interface SelectOption {
+  value: string
   label: string
 }
 
-interface SelectMenuExtraProps<T extends string> {
+interface SelectMenuExtraProps {
   id: string
   label?: string
   error?: string
   value?: string
-  defaultValue?: T
-  options: SelectOption<T>[]
+  defaultValue?: string
+  options: SelectOption[]
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void
   className?: string
 }
 
-export type SelectMenuProps<T extends string> = React.HTMLAttributes<HTMLInputElement> &
-  SelectMenuExtraProps<T>
+const DEFAULT_VALUE_KEY = "default-value"
 
-const SelectMenu = <T extends string>({
+export type SelectMenuProps = React.HTMLAttributes<HTMLInputElement> & SelectMenuExtraProps
+
+const SelectMenu = ({
   id,
   label,
   onChange,
@@ -28,7 +30,8 @@ const SelectMenu = <T extends string>({
   options,
   className,
   ...rest
-}: SelectMenuExtraProps<T>) => {
+}: SelectMenuExtraProps) => {
+  const { t } = useTranslation()
   return (
     <div
       className={cx(
@@ -94,7 +97,15 @@ const SelectMenu = <T extends string>({
     >
       {label && <label htmlFor={id}>{label}</label>}
       <div className="select">
-        <select id={id} onChange={(event) => onChange(event)} defaultValue={defaultValue} {...rest}>
+        <select
+          id={id}
+          onChange={(event) => onChange(event)}
+          defaultValue={DEFAULT_VALUE_KEY}
+          {...rest}
+        >
+          <option value={DEFAULT_VALUE_KEY} key={defaultValue ?? DEFAULT_VALUE_KEY} disabled>
+            {t("please-choose-a-value")}
+          </option>
           {options.map((o) => (
             <option value={o.value} key={o.label}>
               {o.label}

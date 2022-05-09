@@ -34,6 +34,8 @@ import {
   CourseMaterialExerciseSlide,
   CourseMaterialExerciseTask,
   CourseMaterialPeerReviewData,
+  CourseMaterialPeerReviewQuestionAnswer,
+  CourseMaterialPeerReviewSubmission,
   CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
@@ -866,6 +868,31 @@ export function isCourseMaterialPeerReviewData(
     typeof obj.peer_review_id === "string" &&
     Array.isArray(obj.peer_review_questions) &&
     obj.peer_review_questions.every((e: any) => isPeerReviewQuestion(e) as boolean)
+  )
+}
+
+export function isCourseMaterialPeerReviewQuestionAnswer(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewQuestionAnswer {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.peer_review_question_id === "string"
+  )
+}
+
+export function isCourseMaterialPeerReviewSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewSubmission {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_slide_submission_id === "string" &&
+    typeof obj.peer_review_id === "string" &&
+    Array.isArray(obj.peer_review_question_answers) &&
+    obj.peer_review_question_answers.every(
+      (e: any) => isCourseMaterialPeerReviewQuestionAnswer(e) as boolean,
+    )
   )
 }
 

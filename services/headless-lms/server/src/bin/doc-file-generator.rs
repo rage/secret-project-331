@@ -39,7 +39,10 @@ use headless_lms_models::{
     glossary::Term,
     library::{
         grading::{StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult},
-        peer_reviewing::CourseMaterialPeerReviewData,
+        peer_reviewing::{
+            CourseMaterialPeerReviewData, CourseMaterialPeerReviewQuestionAnswer,
+            CourseMaterialPeerReviewSubmission,
+        },
     },
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
@@ -356,6 +359,14 @@ fn main() {
         peer_review_id: peer_review.id,
         peer_review_questions: vec![peer_review_question.clone()],
     };
+    let course_material_peer_review_submission = CourseMaterialPeerReviewSubmission {
+        exercise_slide_submission_id: exercise_slide_submission.id,
+        peer_review_id: peer_review.id,
+        peer_review_question_answers: vec![CourseMaterialPeerReviewQuestionAnswer {
+            peer_review_question_id: id,
+            data_json: serde_json::json!({ "textData": "I think that the answer was well written." }),
+        }],
+    };
     let submission_result = StudentExerciseTaskSubmissionResult {
         submission: exercise_task_submission.clone(),
         grading: Some(grading.clone()),
@@ -608,6 +619,10 @@ fn main() {
                 )
             ])
         }
+    );
+    write_docs!(
+        CourseMaterialPeerReviewSubmission,
+        course_material_peer_review_submission
     );
     write_docs!(
         Option<PageRoutingDataWithChapterStatus>,

@@ -2,9 +2,12 @@
 
 use futures::future::OptionFuture;
 use models::{
-    exercise_slide_submissions::{self, get_exercise_slide_submission_counts_for_exercise_user},
+    exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
     exercises::{CourseMaterialExercise, Exercise},
-    library::grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
+    library::{
+        grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
+        peer_reviewing::CourseMaterialPeerReviewSubmission,
+    },
     user_exercise_states::{self, CourseInstanceOrExamId},
 };
 
@@ -184,28 +187,35 @@ async fn start_peer_review(
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let user_exercise_state =
         user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
-    let exercise_slide_submission_id = user_exercise_state
-        .selected_exercise_slide_id
-        .ok_or_else(|| ControllerError::Forbidden("No exercise slide selected.".to_string()))?;
-    let users_latest_submission =
-        exercise_slide_submissions::get_users_latest_exercise_slide_submission(
-            &mut conn,
-            &exercise_slide_submission_id,
-            &user.id,
-        )
-        .await?
-        .ok_or_else(|| {
-            ControllerError::Forbidden(
-                "Cannot start peer review without at least one submission.".to_string(),
-            )
-        })?;
-    models::library::peer_reviewing::start_peer_review_for_user(
+    models::library::peer_reviewing::start_peer_review_for_user(&mut conn, user_exercise_state)
+        .await?;
+
+    Ok(web::Json(true))
+}
+
+/**
+ * POST `/api/v0/course-material/exercises/:exercise_id/peer-reviews - Post a peer review for an
+ * exercise submission.
+ */
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn submit_peer_review(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    payload: web::Json<CourseMaterialPeerReviewSubmission>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    // Authorization
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    let user_exercise_state =
+        user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
+    models::library::peer_reviewing::create_peer_review_submission_for_user(
         &mut conn,
-        user_exercise_state,
-        &users_latest_submission,
+        &user_exercise_state,
+        payload.0,
     )
     .await?;
-
     Ok(web::Json(true))
 }
 

@@ -28,6 +28,7 @@ pub mod page_history;
 pub mod page_visit_datum;
 pub mod page_visit_datum_daily_visit_hashing_keys;
 pub mod pages;
+pub mod peer_review_question_submissions;
 pub mod peer_review_questions;
 pub mod peer_review_queue_entries;
 pub mod peer_review_submissions;

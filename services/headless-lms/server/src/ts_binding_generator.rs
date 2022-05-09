@@ -120,6 +120,8 @@ fn ts_binding_generator() {
         library::grading::StudentExerciseTaskSubmissionResult,
 
         library::peer_reviewing::CourseMaterialPeerReviewData,
+        library::peer_reviewing::CourseMaterialPeerReviewQuestionAnswer,
+        library::peer_reviewing::CourseMaterialPeerReviewSubmission,
 
         organizations::Organization,
 

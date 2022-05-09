@@ -254,9 +254,9 @@ LIMIT $2 OFFSET $3;
 
 pub async fn get_users_latest_exercise_slide_submission(
     conn: &mut PgConnection,
-    exercise_slide_id: &Uuid,
-    user_id: &Uuid,
-) -> ModelResult<Option<ExerciseSlideSubmission>> {
+    exercise_slide_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<ExerciseSlideSubmission> {
     let res = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
@@ -281,9 +281,19 @@ LIMIT 1
         exercise_slide_id,
         user_id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn try_to_get_users_latest_exercise_slide_submission(
+    conn: &mut PgConnection,
+    exercise_slide_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Option<ExerciseSlideSubmission>> {
+    get_users_latest_exercise_slide_submission(conn, exercise_slide_id, user_id)
+        .await
+        .optional()
 }
 
 pub async fn get_course_and_exam_id(

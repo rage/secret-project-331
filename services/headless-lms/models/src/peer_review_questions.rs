@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
@@ -129,5 +131,17 @@ WHERE peer_review_id = $1
     )
     .fetch_all(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn get_all_by_peer_review_id_as_map(
+    conn: &mut PgConnection,
+    peer_review_id: Uuid,
+) -> ModelResult<HashMap<Uuid, PeerReviewQuestion>> {
+    let res = get_all_by_peer_review_id(conn, peer_review_id)
+        .await?
+        .into_iter()
+        .map(|x| (x.id, x))
+        .collect();
     Ok(res)
 }

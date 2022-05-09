@@ -203,11 +203,11 @@ WHERE exercise_slide_submission_id = $1
 
 pub async fn get_users_latest_exercise_task_submissions_for_exercise_slide(
     conn: &mut PgConnection,
-    exercise_slide_id: &Uuid,
-    user_id: &Uuid,
+    exercise_slide_id: Uuid,
+    user_id: Uuid,
 ) -> ModelResult<Option<Vec<ExerciseTaskSubmission>>> {
     let exercise_slide_submission =
-        exercise_slide_submissions::get_users_latest_exercise_slide_submission(
+        exercise_slide_submissions::try_to_get_users_latest_exercise_slide_submission(
             conn,
             exercise_slide_id,
             user_id,

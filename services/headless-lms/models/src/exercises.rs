@@ -32,6 +32,13 @@ pub struct Exercise {
     pub needs_peer_review: bool,
 }
 
+impl Exercise {
+    pub fn get_course_id(&self) -> ModelResult<Uuid> {
+        self.course_id
+            .ok_or_else(|| ModelError::Generic("Exercise is not related to a course.".to_string()))
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExercise {
@@ -391,7 +398,7 @@ async fn get_or_select_exercise_slide(
             let random_slide =
                 exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise.id).await?;
             let random_slide_tasks =
-                exercise_tasks::get_course_material_exercise_tasks(conn, &random_slide.id, None)
+                exercise_tasks::get_course_material_exercise_tasks(conn, random_slide.id, None)
                     .await?;
             Ok((
                 CourseMaterialExerciseSlide {
@@ -458,8 +465,8 @@ async fn get_or_select_exercise_slide(
                                 .await?;
                             let random_tasks = exercise_tasks::get_course_material_exercise_tasks(
                                 conn,
-                                &random_slide.id,
-                                Some(&user_id),
+                                random_slide.id,
+                                Some(user_id),
                             )
                             .await?;
 
@@ -482,8 +489,8 @@ async fn get_or_select_exercise_slide(
                         .await?;
                         let random_tasks = exercise_tasks::get_course_material_exercise_tasks(
                             conn,
-                            &random_slide.id,
-                            Some(&user_id),
+                            random_slide.id,
+                            Some(user_id),
                         )
                         .await?;
 

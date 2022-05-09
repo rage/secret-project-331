@@ -64,21 +64,21 @@ CREATE TABLE peer_review_queue_entries(
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   user_id UUID NOT NULL REFERENCES users(id),
-  exercise_id UUID NOT NULL REFERENCES exercises(id),
+  peer_review_id UUID NOT NULL REFERENCES peer_reviews(id),
   receiving_peer_reviews_exercise_slide_submission_id UUID NOT NULL REFERENCES exercise_slide_submissions(id),
   received_enough_peer_reviews BOOLEAN NOT NULL DEFAULT 'false',
   peer_review_priority INTEGER NOT NULL DEFAULT 0
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON peer_review_queue_entries FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-CREATE UNIQUE INDEX peer_review_queue_entry_user_and_exercise_uniqueness ON peer_review_queue_entries (user_id, exercise_id)
+CREATE UNIQUE INDEX peer_review_queue_entry_user_and_peer_review_uniqueness ON peer_review_queue_entries (user_id, peer_review_id)
 WHERE deleted_at IS NULL;
 COMMENT ON TABLE peer_review_queue_entries IS 'Table for queueing up for peer reviews.';
 COMMENT ON COLUMN peer_review_queue_entries.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN peer_review_queue_entries.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN peer_review_queue_entries.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN peer_review_queue_entries.user_id IS 'TODO';
-COMMENT ON COLUMN peer_review_queue_entries.exercise_id IS 'TODO';
+COMMENT ON COLUMN peer_review_queue_entries.peer_review_id IS 'TODO';
 COMMENT ON COLUMN peer_review_queue_entries.receiving_peer_reviews_exercise_slide_submission_id IS 'TODO';
 COMMENT ON COLUMN peer_review_queue_entries.received_enough_peer_reviews IS 'Whether or not this queue entry has already received enough peer reviews. Simply a boolean for performance reasons.';
 COMMENT ON COLUMN peer_review_queue_entries.peer_review_priority IS 'TODO';
@@ -89,7 +89,7 @@ CREATE TABLE peer_review_submissions(
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   user_id UUID NOT NULL REFERENCES users(id),
-  exercise_id UUID NOT NULL REFERENCES exercises(id),
+  peer_review_id UUID NOT NULL REFERENCES peer_reviews(id),
   exercise_slide_submission_id UUID NOT NULL REFERENCES exercise_slide_submissions(id)
 );
 CREATE TRIGGER set_timestamp BEFORE
@@ -98,3 +98,22 @@ COMMENT ON TABLE peer_review_queue_entries IS 'TODO';
 COMMENT ON COLUMN peer_review_queue_entries.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN peer_review_queue_entries.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN peer_review_queue_entries.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+-- Add peer review question submissions
+CREATE TABLE peer_review_question_submissions(
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  peer_review_question_id UUID NOT NULL REFERENCES peer_review_questions(id),
+  peer_review_submission_id UUID NOT NULL REFERENCES peer_review_submissions(id),
+  data_json JSONB NOT NULL
+);
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON peer_review_question_submissions FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+COMMENT ON TABLE peer_review_question_submissions IS 'TODO';
+COMMENT ON COLUMN peer_review_question_submissions.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN peer_review_question_submissions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN peer_review_question_submissions.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN peer_review_question_submissions.peer_review_question_id IS '';
+COMMENT ON COLUMN peer_review_question_submissions.peer_review_submission_id IS '';
+COMMENT ON COLUMN peer_review_question_submissions.data_json IS '';

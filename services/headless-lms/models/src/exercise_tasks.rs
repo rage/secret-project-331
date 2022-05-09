@@ -151,11 +151,11 @@ pub async fn get_exercise_task_by_id(
 
 pub async fn get_course_material_exercise_tasks(
     conn: &mut PgConnection,
-    exercise_slide_id: &Uuid,
-    user_id: Option<&Uuid>,
+    exercise_slide_id: Uuid,
+    user_id: Option<Uuid>,
 ) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
     let exercise_tasks: Vec<ExerciseTask> =
-        get_exercise_tasks_by_exercise_slide_id(conn, exercise_slide_id).await?;
+        get_exercise_tasks_by_exercise_slide_id(conn, &exercise_slide_id).await?;
     let mut latest_submissions_by_task_id = if let Some(user_id) = user_id {
         exercise_task_submissions::get_users_latest_exercise_task_submissions_for_exercise_slide(
             conn,
@@ -260,12 +260,9 @@ pub async fn get_existing_users_exercise_slide_for_course_instance(
     .await?;
     let exercise_tasks = if let Some(user_exercise_state) = user_exercise_state {
         if let Some(selected_exercise_slide_id) = user_exercise_state.selected_exercise_slide_id {
-            let exercise_tasks = get_course_material_exercise_tasks(
-                conn,
-                &selected_exercise_slide_id,
-                Some(&user_id),
-            )
-            .await?;
+            let exercise_tasks =
+                get_course_material_exercise_tasks(conn, selected_exercise_slide_id, Some(user_id))
+                    .await?;
             Some(CourseMaterialExerciseSlide {
                 id: selected_exercise_slide_id,
                 exercise_tasks,
@@ -319,8 +316,7 @@ pub async fn get_or_select_user_exercise_tasks_for_course_instance_or_exam(
         };
 
     let exercise_tasks =
-        get_course_material_exercise_tasks(conn, &selected_exercise_slide_id, Some(&user_id))
-            .await?;
+        get_course_material_exercise_tasks(conn, selected_exercise_slide_id, Some(user_id)).await?;
     info!("got tasks");
     if exercise_tasks.is_empty() {
         return Err(ModelError::PreconditionFailed(

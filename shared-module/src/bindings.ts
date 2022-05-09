@@ -474,6 +474,17 @@ export interface CourseMaterialPeerReviewData {
   peer_review_questions: Array<PeerReviewQuestion>
 }
 
+export interface CourseMaterialPeerReviewQuestionAnswer {
+  peer_review_question_id: string
+  data_json: unknown
+}
+
+export interface CourseMaterialPeerReviewSubmission {
+  exercise_slide_submission_id: string
+  peer_review_id: string
+  peer_review_question_answers: Array<CourseMaterialPeerReviewQuestionAnswer>
+}
+
 export interface Organization {
   id: string
   slug: string

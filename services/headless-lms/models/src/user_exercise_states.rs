@@ -38,8 +38,13 @@ pub struct UserExerciseState {
 impl UserExerciseState {
     pub fn get_course_instance_id(&self) -> ModelResult<Uuid> {
         self.course_instance_id.ok_or_else(|| {
-            ModelError::Generic("Submission is not related to a course instance.".to_string())
+            ModelError::Generic("Exercise is not part of a course instance.".to_string())
         })
+    }
+
+    pub fn get_selected_exercise_slide_id(&self) -> ModelResult<Uuid> {
+        self.selected_exercise_slide_id
+            .ok_or_else(|| ModelError::Generic("No exercise slide selected.".to_string()))
     }
 }
 

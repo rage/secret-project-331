@@ -8,6 +8,7 @@ pub struct PeerReviewSubmission {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub user_id: Uuid,
+    pub peer_review_id: Uuid,
     pub exercise_id: Uuid,
     pub exercise_slide_submission_id: Uuid,
 }
@@ -15,25 +16,24 @@ pub struct PeerReviewSubmission {
 pub async fn insert(
     conn: &mut PgConnection,
     user_id: Uuid,
-    exercise_id: Uuid,
+    peer_review_id: Uuid,
     exercise_slide_submission_id: Uuid,
-) -> ModelResult<PeerReviewSubmission> {
-    let res = sqlx::query_as!(
-        PeerReviewSubmission,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
         "
 INSERT INTO peer_review_submissions (
     user_id,
-    exercise_id,
+    peer_review_id,
     exercise_slide_submission_id
   )
 VALUES ($1, $2, $3)
-RETURNING *
+RETURNING id
         ",
         user_id,
-        exercise_id,
+        peer_review_id,
         exercise_slide_submission_id,
     )
     .fetch_one(conn)
     .await?;
-    Ok(res)
+    Ok(res.id)
 }

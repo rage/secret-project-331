@@ -11,12 +11,14 @@ Check if we are using the current node LTS version from by comparing a `.nvmcrc`
 3. Go to the root of the project and install the new version of node by running command `nvm install`
 4. Open all Dockerfiles with command: `find -iname '*dockerfile' | grep --invert-match node_modules | xargs code`
 5. Replace node version in the FROM statements
+6. Update the pull command in `bin/build-dockerfile-node-base`
 
-## Rust version update
+## Rust & Base image update
 
 1. Run `bin/update-rust`
 2. Run command: `bin/build-dockerfile-development-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base`
 3: Run command: `bin/build-dockerfile-production-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-production-base`
+4: Run command: `bin/build-dockerfile-node-base && docker push eu.gcr.io/moocfi-public/project-331-node-base`
 
 ## Updating node dependencies
 

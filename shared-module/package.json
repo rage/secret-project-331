@@ -33,7 +33,7 @@
     "babel-jest": "^28.1.0",
     "babel-loader": "^8.2.5",
     "babel-plugin-inline-react-svg": "^2.0.1",
-    "jest": "^28.1.0",
+    "jest": "^27.5.1",
     "msw": "^0.39.2",
     "next": "^12.1.6",
     "nodemon": "^2.0.16",

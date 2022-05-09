@@ -84,7 +84,7 @@
     "@types/wordpress__media-utils": "^3.0.0",
     "@wordpress/scripts": "^23.0.0",
     "babel-plugin-inline-react-svg": "^2.0.1",
-    "jest": "^28.1.0",
+    "jest": "^27.5.1",
     "jsdom": "^19.0.0",
     "json-schema-to-typescript": "^10.1.5",
     "stylelint": "^14.8.2",

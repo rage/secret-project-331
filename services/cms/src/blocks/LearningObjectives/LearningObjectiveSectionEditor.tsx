@@ -13,13 +13,7 @@ import BlockWrapper from "../BlockWrapper"
 
 import { LearningObjectiveSectionAttributes } from "."
 
-const ALLOWED_NESTED_BLOCKS = [
-  "core/heading",
-  "core/buttons",
-  "core/button",
-  "core/paragraph",
-  "core/list",
-]
+const ALLOWED_NESTED_BLOCKS = ["core/list"]
 const LEARNING_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
   ["core/list", { placeholder: "Insert text...", align: "left" }],
 ]

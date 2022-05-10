@@ -37,7 +37,7 @@ export const blockTypeMapForPages = [
   ["moocfi/glossary", Glossary],
   ["moocfi/aside", Aside],
   ["moocfi/infobox", InfoBox],
-  ["moocfi/learning-objectives", LearningObjectives],
+  ["moocfi/learning-objective-section", LearningObjectives],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

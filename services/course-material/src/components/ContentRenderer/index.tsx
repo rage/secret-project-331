@@ -44,6 +44,7 @@ import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
 import InfoBox from "./moocfi/InfoBox"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
+import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
 
 /** The props that this component receives */
@@ -113,6 +114,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/landing-page-hero-section": LandingPageHeroSectionBlock,
   "moocfi/course-progress": CourseProgressBlock,
   "moocfi/course-objective-section": CourseObjectiveSectionBlock,
+  "moocfi/learning-objective-section": LearningObjectiveBlock,
   "moocfi/chapter-progress": ChapterProgressBlock,
   "moocfi/glossary": GlossaryBlock,
   "moocfi/infobox": InfoBox,

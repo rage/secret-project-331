@@ -21,20 +21,12 @@ const ALLOWED_NESTED_BLOCKS = [
   "core/list",
 ]
 const LEARNING_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
-  [
-    "core/columns",
-    { isStackedOnMobile: true },
-    [
-      ["core/column", {}, [["core/list", { placeholder: "Insert text...", align: "left" }]]],
-      ["core/column", {}, [["core/list", { placeholder: "Insert text...", align: "left" }]]],
-    ],
-  ],
+  ["core/list", { placeholder: "Insert text...", align: "left" }],
 ]
 
 const LearningObjectiveSectionEditor: React.FC<
   BlockEditProps<LearningObjectiveSectionAttributes>
-> = ({ clientId, attributes, setAttributes }) => {
-  const { title } = attributes
+> = ({ clientId }) => {
   return (
     <BlockWrapper id={clientId}>
       <BreakFromCentered
@@ -52,7 +44,7 @@ const LearningObjectiveSectionEditor: React.FC<
             padding: 7.5em 1em;
           `}
         >
-          <RichText
+          {/* <RichText
             className="has-text-align-center wp-block-heading"
             // eslint-disable-next-line i18next/no-literal-string
             tagName="h2"
@@ -60,7 +52,7 @@ const LearningObjectiveSectionEditor: React.FC<
             onChange={(value: string) => setAttributes({ title: value })}
             // eslint-disable-next-line i18next/no-literal-string
             placeholder={"What you will learn in this chapter..."}
-          />
+          /> */}
           <InnerBlocks
             template={LEARNING_OBJECTIVE_SECTION_TEMPLATE}
             allowedBlocks={ALLOWED_NESTED_BLOCKS}

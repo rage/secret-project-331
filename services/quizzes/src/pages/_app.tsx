@@ -6,7 +6,11 @@ import React, { useEffect } from "react"
 
 import useLanguage from "../shared-module/hooks/useLanguage"
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
+import generateWebVitalsReporter from "../shared-module/utils/generateWebVitalsReporter"
 import initI18n from "../shared-module/utils/initI18n"
+
+// Prevent rehydration mismatch by preloading english translations
+import "../shared-module/locales/en/quizzes.json"
 
 import "@fortawesome/fontawesome-svg-core/styles.css"
 config.autoAddCss = false
@@ -17,8 +21,9 @@ html {
 }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
-const i18n = initI18n("quizzes")
+const SERVICE_NAME = "quizzes"
+
+const i18n = initI18n(SERVICE_NAME)
 
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   const language = useLanguage()
@@ -55,5 +60,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
     </>
   )
 }
+
+module.exports.reportWebVitals = generateWebVitalsReporter(SERVICE_NAME)
 
 export default MyApp

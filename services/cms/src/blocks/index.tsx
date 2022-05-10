@@ -39,7 +39,7 @@ export const blockTypeMapForPages = [
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
-export const blockTypeMapForTopLevelPages = [
+export const blockTypeMapForFrontPages = [
   ["moocfi/course-chapter-grid", CourseChapterGrid],
   ["moocfi/course-progress", CourseProgress],
   ["moocfi/unsupported-block-type", UnsupportedBlock],
@@ -48,4 +48,9 @@ export const blockTypeMapForTopLevelPages = [
   ["moocfi/course-objective-section", CourseObjectiveSection],
   ["moocfi/glossary", Glossary],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+] as Array<[string, BlockConfiguration<Record<string, any>>]>
+
+export const blockTypeMapForTopLevelPages = [
+  ...blockTypeMapForFrontPages,
+  ["moocfi/hero-section", HeroSection],
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>

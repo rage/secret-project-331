@@ -272,7 +272,7 @@ Then you're done! Now you can use the dependency in the project.
 
 This might be the case if you get something like command not found or `error: no such subcommand: xxx` from cargo.
 
-Usually this is because the base image for the headless-lms container has been updated, but your computer has not pulled the updated image. To pull the updated image to your local Minikube, run the following command in the repo root: `bin/minikube-pull-headless-lms-dev-base`. After that restart the development environment.
+Usually this is because the base image for the headless-lms container has been updated, but your computer has not pulled the updated image. To pull the updated image to your local Minikube, run the following command in the repo root: `bin/minikube-pull-baseimages`. After that restart the development environment.
 
 ## Logging
 

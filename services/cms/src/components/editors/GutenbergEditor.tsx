@@ -211,6 +211,7 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
     needToRunMigrationsAndValidations,
     onContentChange,
     setNeedToRunMigrationsAndValidations,
+    t,
   ])
 
   if (needToRunMigrationsAndValidations) {

@@ -10,15 +10,20 @@ import useLanguage from "../shared-module/hooks/useLanguage"
 import { queryClient } from "../shared-module/services/appQueryClient"
 import GlobalStyles from "../shared-module/styles/GlobalStyles"
 import muiTheme from "../shared-module/styles/muiTheme"
+import generateWebVitalsReporter from "../shared-module/utils/generateWebVitalsReporter"
 import initI18n from "../shared-module/utils/initI18n"
 import "../styles/Gutenberg/style.scss"
 import LocalStyles from "../styles/LocalStyles"
 
+// Prevent rehydration mismatch by preloading english translations
+import "../shared-module/locales/en/cms.json"
+
 import "@fortawesome/fontawesome-svg-core/styles.css"
 config.autoAddCss = false
 
-// eslint-disable-next-line i18next/no-literal-string
-const i18n = initI18n("cms")
+const SERVICE_NAME = "cms"
+
+const i18n = initI18n(SERVICE_NAME)
 
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   const language = useLanguage()
@@ -60,5 +65,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
     </>
   )
 }
+
+export const reportWebVitals = generateWebVitalsReporter(SERVICE_NAME)
 
 export default MyApp

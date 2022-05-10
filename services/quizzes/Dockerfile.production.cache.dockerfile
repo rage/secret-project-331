@@ -1,5 +1,5 @@
 # This image is used in skaffold.production.yaml to cache the build
-FROM node:16-bullseye-slim as builder
+FROM eu.gcr.io/moocfi-public/project-331-node-base:latest as builder
 
 RUN apt-get update \
   && apt-get install -y build-essential vim \

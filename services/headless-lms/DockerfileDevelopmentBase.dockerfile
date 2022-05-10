@@ -19,6 +19,10 @@ RUN curl https://packages.ipfire.org/79842AA7CDBA7AE3-pub.asc | apt-key add - \
   && apt-get install -yy location \
   && rm -rf /var/lib/apt/lists/*
 
+# Fix location export. Ideally we would contribute this back to location but I can't find where they accept patches
+COPY location-export.patch /location-export.patch
+RUN patch /usr/lib/python3/dist-packages/location/export.py < /location-export.patch && rm /location-export.patch
+
 RUN location update \
   && mkdir -p /ips-to-country \
   && location export --directory /ips-to-country \

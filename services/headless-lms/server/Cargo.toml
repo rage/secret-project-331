@@ -23,7 +23,7 @@ actix-multipart = "0.4.0"
 # Strongly Typed Mimes
 mime = "0.3.16"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.17.0", features = ["fs", "io-util"] }
+tokio = { version = "1.18.2", features = ["fs", "io-util"] }
 # Utilities to work with `Stream` and `tokio`.
 tokio-stream = "0.1.8"
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
@@ -33,9 +33,9 @@ dotenv = "0.15.0"
 # A simple library to work with listenfds passed from the outside (systemd/catflap socket activation)
 listenfd = "0.5.0"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.56"
+anyhow = "1.0.57"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
-sqlx = { version = "0.5.11", features = [
+sqlx = { version = "0.5.13", features = [
   "postgres",
   "runtime-actix-rustls",
   "uuid",
@@ -46,11 +46,11 @@ sqlx = { version = "0.5.11", features = [
 # A library to generate and parse UUIDs.
 uuid = { version = "0.8.2", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.136", features = ["derive"] }
+serde = { version = "1.0.137", features = ["derive"] }
 # Date and time library for Rust
 chrono = { version = "0.4.19", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.79"
+serde_json = "1.0.81"
 # Adds #[derive(x)] macros for more traits
 derive_more = "0.99.17"
 # Types and traits for working with bytes
@@ -64,23 +64,23 @@ walkdir = "2.3.2"
 # higher level HTTP client library
 reqwest = { version = "0.11.10", features = ["brotli", "gzip", "json"] }
 # Sessions for Actix web
-actix-session = {version="0.6.2", features=["cookie-session"]}
+actix-session = { version = "0.6.2", features = ["cookie-session"] }
 # An extensible, strongly-typed implementation of OAuth2
-oauth2 = "4.1.0"
+oauth2 = "4.2.0"
 # URL library for Rust, based on the WHATWG URL Standard
 url = "2.2.2"
 # Application-level tracing for Rust.
-tracing = "0.1.32"
+tracing = "0.1.34"
 # Utilities for implementing and composing `tracing` subscribers.
-tracing-subscriber = { version = "0.3.10", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.11", features = ["env-filter"] }
 # Structured logging middleware for actix-web.
 tracing-actix-web = "0.5.1"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.0"
 # Provides compatibility between `tracing` and the `log` crate.
-tracing-log = "0.1.2"
+tracing-log = "0.1.3"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "1.0.30"
+thiserror = "1.0.31"
 # generate typescript bindings from rust types
 ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "71bba3a18cdc5bc02c63b2772fd5324b1b07227b", features = [
   "chrono-impl",
@@ -94,7 +94,7 @@ actix-http = "3.0.4"
 # Fast CSV parsing with support for serde.
 csv = "1.1.6"
 # Email client
-lettre = "0.10.0-rc.5"
+lettre = "0.10.0-rc.6"
 # An implementation of regular expressions for Rust.
 regex = "1.5.5"
 # Single assignment cells and lazy values.
@@ -102,7 +102,7 @@ once_cell = "1.10.0"
 # A rate-limiting middleware for actix-web backed by the governor crate
 actix-governor = "0.3.0"
 # Detect if a user-agent is a known bot
-isbot = "0.1.1"
+isbot = "0.1.2"
 # user-agent strings parser
 woothee = "0.13.0"
 

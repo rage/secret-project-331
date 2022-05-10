@@ -536,6 +536,9 @@ export function isQuoteAttributes(obj: any, _argumentName?: string): obj is Quot
       typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
+    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
+    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
+    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
     (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
     (typeof obj.style === "undefined" ||
       (obj.style !== null && typeof obj.style === "object") ||
@@ -1077,6 +1080,7 @@ export function isColumnAttributes(obj: any, _argumentName?: string): obj is Col
       typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
+    (typeof obj.borderColor === "undefined" || typeof obj.borderColor === "string") &&
     (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
     (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
     (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&

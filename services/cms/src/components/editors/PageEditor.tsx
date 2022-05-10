@@ -7,7 +7,11 @@ import React, { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { UseMutationResult } from "react-query"
 
-import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
+import {
+  blockTypeMapForFrontPages,
+  blockTypeMapForPages,
+  blockTypeMapForTopLevelPages,
+} from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import usePageInfo from "../../hooks/usePageInfo"
@@ -198,6 +202,8 @@ const PageEditor: React.FC<PageEditorProps> = ({
           customBlocks={
             data.chapter_id !== null || data.exam_id !== null
               ? blockTypeMapForPages
+              : data.url_path === "/"
+              ? blockTypeMapForFrontPages
               : blockTypeMapForTopLevelPages
           }
           allowedBlocks={supportedCoreBlocks}

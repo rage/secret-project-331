@@ -414,6 +414,9 @@ export interface QuoteAttributes {
   }
   anchor?: string
   className?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
   fontSize?: string
   style?: {
     [k: string]: unknown
@@ -829,6 +832,7 @@ export interface ColumnAttributes {
   }
   anchor?: string
   className?: string
+  borderColor?: string
   backgroundColor?: string
   textColor?: string
   gradient?: string

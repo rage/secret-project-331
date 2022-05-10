@@ -21,7 +21,7 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration<LearningObjectiv
         type: "string",
         source: "html",
         selector: "h2",
-        default: "What you will learn in this chapter...",
+        default: "What you will learn in this",
       },
     },
     edit: LearningObjectiveSectionEditor,

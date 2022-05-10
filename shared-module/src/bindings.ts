@@ -678,6 +678,7 @@ export interface NewPeerReviewQuestion {
   order_number: number
   question: string
   question_type: PeerReviewQuestionType
+  answer_required: boolean
 }
 
 export interface PeerReviewQuestion {
@@ -689,6 +690,7 @@ export interface PeerReviewQuestion {
   order_number: number
   question: string
   question_type: PeerReviewQuestionType
+  answer_required: boolean
 }
 
 export type PeerReviewQuestionType = "Essay" | "Scale"

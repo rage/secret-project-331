@@ -17,6 +17,7 @@ pub struct NewPeerReviewQuestion {
     pub order_number: i32,
     pub question: String,
     pub question_type: PeerReviewQuestionType,
+    pub answer_required: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
@@ -30,6 +31,7 @@ pub struct PeerReviewQuestion {
     pub order_number: i32,
     pub question: String,
     pub question_type: PeerReviewQuestionType,
+    pub answer_required: bool,
 }
 
 pub async fn insert(
@@ -42,15 +44,17 @@ INSERT INTO peer_review_questions (
     peer_review_id,
     order_number,
     question,
-    question_type
+    question_type,
+    answer_required
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id;
         ",
         new_peer_review_question.peer_review_id,
         new_peer_review_question.order_number,
         new_peer_review_question.question,
         new_peer_review_question.question_type as PeerReviewQuestionType,
+        new_peer_review_question.answer_required,
     )
     .fetch_one(conn)
     .await?;
@@ -69,9 +73,10 @@ INSERT INTO peer_review_questions (
     peer_review_id,
     order_number,
     question,
-    question_type
+    question_type,
+    answer_required
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id;
         ",
         id,
@@ -79,6 +84,7 @@ RETURNING id;
         new_peer_review_question.order_number,
         new_peer_review_question.question,
         new_peer_review_question.question_type as PeerReviewQuestionType,
+        new_peer_review_question.answer_required,
     )
     .fetch_one(conn)
     .await?;
@@ -96,7 +102,8 @@ SELECT id,
   peer_review_id,
   order_number,
   question,
-  question_type AS "question_type: _"
+  question_type AS "question_type: _",
+  answer_required
 FROM peer_review_questions
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -122,7 +129,8 @@ SELECT id,
     peer_review_id,
     order_number,
     question,
-    question_type AS "question_type: _"
+    question_type AS "question_type: _",
+    answer_required
 FROM peer_review_questions
 WHERE peer_review_id = $1
     AND deleted_at IS NULL;

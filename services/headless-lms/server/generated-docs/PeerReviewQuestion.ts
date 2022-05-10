@@ -7,4 +7,5 @@ type PeerReviewQuestion = {
   order_number: number
   question: string
   question_type: PeerReviewQuestionType
+  answer_required: boolean
 }

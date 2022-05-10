@@ -43,7 +43,8 @@ CREATE TABLE peer_review_questions (
   peer_review_id UUID NOT NULL REFERENCES peer_reviews(id),
   order_number INTEGER NOT NULL,
   question VARCHAR(128) NOT NULL,
-  question_type peer_review_question_type NOT NULL
+  question_type peer_review_question_type NOT NULL,
+  answer_required BOOLEAN NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON peer_review_questions FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -57,6 +58,7 @@ COMMENT ON COLUMN peer_review_questions.peer_review_id IS 'Peer review that the 
 COMMENT ON COLUMN peer_review_questions.order_number IS 'The order in which this record should appear.';
 COMMENT ON COLUMN peer_review_questions.question IS 'The concrete question that is presented to the user.';
 COMMENT ON COLUMN peer_review_questions.question_type IS 'The type of answer the reviewer should give.';
+COMMENT ON COLUMN peer_review_questions.answer_required IS '';
 -- Add peer review queue entries.
 CREATE TABLE peer_review_queue_entries(
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

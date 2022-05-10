@@ -2257,6 +2257,7 @@ async fn seed_sample_course(
         order_number: 0,
         question: "Was the answer properly thought out?".to_string(),
         question_type: PeerReviewQuestionType::Essay,
+        answer_required: true,
     };
     let _peer_review_question_1_id = peer_review_questions::insert_with_id(
         conn,

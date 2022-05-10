@@ -327,6 +327,7 @@ fn main() {
         order_number: 0,
         question: "Was the answer well thought out?".to_string(),
         question_type: PeerReviewQuestionType::Essay,
+        answer_required: true,
     };
     let peer_review = PeerReview {
         id,

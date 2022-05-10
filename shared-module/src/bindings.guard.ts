@@ -1182,7 +1182,8 @@ export function isNewPeerReviewQuestion(
     typeof obj.peer_review_id === "string" &&
     typeof obj.order_number === "number" &&
     typeof obj.question === "string" &&
-    (isPeerReviewQuestionType(obj.question_type) as boolean)
+    (isPeerReviewQuestionType(obj.question_type) as boolean) &&
+    typeof obj.answer_required === "boolean"
   )
 }
 
@@ -1196,7 +1197,8 @@ export function isPeerReviewQuestion(obj: any, _argumentName?: string): obj is P
     typeof obj.peer_review_id === "string" &&
     typeof obj.order_number === "number" &&
     typeof obj.question === "string" &&
-    (isPeerReviewQuestionType(obj.question_type) as boolean)
+    (isPeerReviewQuestionType(obj.question_type) as boolean) &&
+    typeof obj.answer_required === "boolean"
   )
 }
 

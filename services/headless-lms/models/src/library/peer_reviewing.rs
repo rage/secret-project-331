@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use rand::{seq::SliceRandom, thread_rng};
 
 use crate::{
@@ -59,12 +61,10 @@ pub async fn create_peer_review_submission_for_user(
         user_exercise_state.get_course_instance_id()?,
     )
     .await?;
-    let sanitized_answers = sanitize_and_validate_peer_review_submissions_answers(
-        conn,
-        peer_review.id,
+    let sanitized_answers = validate_and_sanitize_peer_review_submission_answers(
+        peer_review_questions::get_all_by_peer_review_id_as_map(conn, peer_review.id).await?,
         peer_review_submission.peer_review_question_answers,
-    )
-    .await?;
+    )?;
     let users_latest_submission =
         exercise_slide_submissions::get_users_latest_exercise_slide_submission(
             conn,
@@ -103,24 +103,30 @@ pub async fn create_peer_review_submission_for_user(
     Ok(())
 }
 
-/// Filters submitted peer review answers to only those that relate to the valid peer review. Also
-/// makes sure that questions marked as required are included.
-async fn sanitize_and_validate_peer_review_submissions_answers(
-    conn: &mut PgConnection,
-    peer_review_id: Uuid,
+/// Filters submitted peer review answers to those that are part of the peer review.
+fn validate_and_sanitize_peer_review_submission_answers(
+    mut peer_review_questions: HashMap<Uuid, PeerReviewQuestion>,
     peer_review_submission_question_answers: Vec<CourseMaterialPeerReviewQuestionAnswer>,
 ) -> ModelResult<Vec<CourseMaterialPeerReviewQuestionAnswer>> {
-    let mut valid_peer_review_questions =
-        peer_review_questions::get_all_by_peer_review_id_as_map(conn, peer_review_id).await?;
     let valid_peer_review_question_answers = peer_review_submission_question_answers
         .into_iter()
         .filter(|answer| {
-            valid_peer_review_questions
+            peer_review_questions
                 .remove(&answer.peer_review_question_id)
                 .is_some()
         })
         .collect();
-    Ok(valid_peer_review_question_answers)
+    if peer_review_questions
+        .into_iter()
+        .all(|question| !question.1.answer_required)
+    {
+        // Answer is valid if all required questions are answered.
+        Ok(valid_peer_review_question_answers)
+    } else {
+        Err(ModelError::PreconditionFailed(
+            "All required questions need to be answered.".to_string(),
+        ))
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -241,4 +247,88 @@ async fn get_course_material_peer_review_data(
         peer_review_id: peer_review.id,
         peer_review_questions,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod validate_peer_review_submissions_answers {
+        use chrono::TimeZone;
+
+        use crate::peer_review_questions::PeerReviewQuestionType;
+
+        use super::*;
+
+        #[test]
+        fn accepts_valid_answers() {
+            let peer_review_id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let question_id = Uuid::parse_str("68d5cda3-6ad8-464b-9af1-bd1692fcbee1").unwrap();
+            let questions = HashMap::from([(
+                question_id,
+                create_peer_review_question(question_id, peer_review_id, true).unwrap(),
+            )]);
+            let answers = vec![create_peer_review_answer(question_id)];
+            assert_eq!(
+                validate_and_sanitize_peer_review_submission_answers(questions, answers)
+                    .unwrap()
+                    .len(),
+                1
+            );
+        }
+
+        #[test]
+        fn filters_illegal_answers() {
+            let peer_review_id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let questions = HashMap::new();
+            let answers = vec![create_peer_review_answer(peer_review_id)];
+            assert_eq!(
+                validate_and_sanitize_peer_review_submission_answers(questions, answers)
+                    .unwrap()
+                    .len(),
+                0
+            );
+        }
+
+        #[test]
+        fn errors_on_missing_required_answers() {
+            let peer_review_id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let question_id = Uuid::parse_str("68d5cda3-6ad8-464b-9af1-bd1692fcbee1").unwrap();
+            let questions = HashMap::from([(
+                question_id,
+                create_peer_review_question(question_id, peer_review_id, true).unwrap(),
+            )]);
+            assert!(
+                validate_and_sanitize_peer_review_submission_answers(questions, vec![]).is_err()
+            )
+        }
+
+        fn create_peer_review_question(
+            id: Uuid,
+            peer_review_id: Uuid,
+            answer_required: bool,
+        ) -> ModelResult<PeerReviewQuestion> {
+            Ok(PeerReviewQuestion {
+                id,
+                created_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
+                updated_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
+                deleted_at: None,
+                peer_review_id,
+                order_number: 0,
+                question: "".to_string(),
+                question_type: PeerReviewQuestionType::Essay,
+                answer_required,
+            })
+        }
+
+        fn create_peer_review_answer(
+            peer_review_question_id: Uuid,
+        ) -> CourseMaterialPeerReviewQuestionAnswer {
+            CourseMaterialPeerReviewQuestionAnswer {
+                peer_review_question_id,
+                text_data: Some("".to_string()),
+                number_data: None,
+            }
+        }
+    }
 }

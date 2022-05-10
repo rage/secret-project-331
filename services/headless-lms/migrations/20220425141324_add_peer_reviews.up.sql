@@ -106,16 +106,18 @@ CREATE TABLE peer_review_question_submissions(
   deleted_at TIMESTAMP WITH TIME ZONE,
   peer_review_question_id UUID NOT NULL REFERENCES peer_review_questions(id),
   peer_review_submission_id UUID NOT NULL REFERENCES peer_review_submissions(id),
-  data_json JSONB NOT NULL
+  text_data VARCHAR(128),
+  number_data REAL
 );
--- Text data field
--- Number data field
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON peer_review_question_submissions FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+ALTER TABLE peer_review_question_submissions
+ADD CONSTRAINT text_or_number_data_set CHECK ((text_data IS NULL) <> (number_data IS NULL));
 COMMENT ON TABLE peer_review_question_submissions IS 'TODO';
 COMMENT ON COLUMN peer_review_question_submissions.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN peer_review_question_submissions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN peer_review_question_submissions.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN peer_review_question_submissions.peer_review_question_id IS '';
 COMMENT ON COLUMN peer_review_question_submissions.peer_review_submission_id IS '';
-COMMENT ON COLUMN peer_review_question_submissions.data_json IS '';
+COMMENT ON COLUMN peer_review_question_submissions.text_data IS '';
+COMMENT ON COLUMN peer_review_question_submissions.number_data IS '';

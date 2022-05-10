@@ -1,10 +1,16 @@
 import React, { useEffect } from "react"
 
-import { CourseMaterialPeerReviewData } from "../../../../shared-module/bindings"
+import {
+  CourseMaterialPeerReviewData,
+  CourseMaterialPeerReviewQuestionAnswer,
+} from "../../../../shared-module/bindings"
 
 export interface PeerReviewViewProps {
   peerReviewData: CourseMaterialPeerReviewData
-  setPeerReviewQuestionAnswer(questionId: string, value: unknown): void
+  setPeerReviewQuestionAnswer(
+    questionId: string,
+    value: CourseMaterialPeerReviewQuestionAnswer,
+  ): void
 }
 
 const PeerReviewView: React.FC<PeerReviewViewProps> = ({
@@ -16,11 +22,17 @@ const PeerReviewView: React.FC<PeerReviewViewProps> = ({
     peerReviewData.peer_review_questions.forEach((question) => {
       if (question.question_type === "Essay") {
         setPeerReviewQuestionAnswer(question.id, {
+          peer_review_question_id: question.id,
           // eslint-disable-next-line i18next/no-literal-string
-          textData: "I think that the answer was clearly thought out.",
+          text_data: "I think that the answer was clearly thought out.",
+          number_data: null,
         })
       } else if (question.question_type === "Scale") {
-        setPeerReviewQuestionAnswer(question.id, { numberData: 5 })
+        setPeerReviewQuestionAnswer(question.id, {
+          peer_review_question_id: question.id,
+          text_data: null,
+          number_data: 5,
+        })
       }
     })
   }, [peerReviewData, setPeerReviewQuestionAnswer])

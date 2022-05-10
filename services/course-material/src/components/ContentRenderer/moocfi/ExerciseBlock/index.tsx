@@ -16,6 +16,7 @@ import {
 } from "../../../../services/backend"
 import {
   CourseMaterialExercise,
+  CourseMaterialPeerReviewQuestionAnswer,
   StudentExerciseSlideSubmission,
 } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
@@ -56,9 +57,9 @@ const DeadlineText = styled.div<DeadlineProps>`
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
-  const [peerReviewAnswers, setPeerReviewAnswers] = useState<ReadonlyMap<string, unknown>>(
-    new Map(),
-  )
+  const [peerReviewAnswers, setPeerReviewAnswers] = useState<
+    ReadonlyMap<string, CourseMaterialPeerReviewQuestionAnswer>
+  >(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
   const { t, i18n } = useTranslation()
@@ -280,9 +281,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                     exercise_slide_submission_id:
                       getCourseMaterialExercise.data.peer_review_info?.exercise_slide_submission_id,
                     peer_review_id: getCourseMaterialExercise.data.peer_review_info?.peer_review_id,
-                    peer_review_question_answers: Array.from(peerReviewAnswers.entries()).map(
-                      ([id, val]) => ({ peer_review_question_id: id, data_json: val }),
-                    ),
+                    peer_review_question_answers: Array.from(peerReviewAnswers.values()),
                   })
                 }}
               >

@@ -476,7 +476,8 @@ export interface CourseMaterialPeerReviewData {
 
 export interface CourseMaterialPeerReviewQuestionAnswer {
   peer_review_question_id: string
-  data_json: unknown
+  text_data: string | null
+  number_data: number | null
 }
 
 export interface CourseMaterialPeerReviewSubmission {

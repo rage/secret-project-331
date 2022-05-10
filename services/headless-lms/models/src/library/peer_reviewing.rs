@@ -32,7 +32,7 @@ pub async fn start_peer_review_for_user(
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialPeerReviewSubmission {
     pub exercise_slide_submission_id: Uuid,
@@ -40,11 +40,12 @@ pub struct CourseMaterialPeerReviewSubmission {
     pub peer_review_question_answers: Vec<CourseMaterialPeerReviewQuestionAnswer>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialPeerReviewQuestionAnswer {
     pub peer_review_question_id: Uuid,
-    pub data_json: serde_json::Value,
+    pub text_data: Option<String>,
+    pub number_data: Option<f32>,
 }
 
 pub async fn create_peer_review_submission_for_user(
@@ -85,7 +86,8 @@ pub async fn create_peer_review_submission_for_user(
             &mut tx,
             answer.peer_review_question_id,
             peer_review_submission_id,
-            answer.data_json,
+            answer.text_data,
+            answer.number_data,
         )
         .await?;
     }

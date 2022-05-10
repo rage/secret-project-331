@@ -877,7 +877,9 @@ export function isCourseMaterialPeerReviewQuestionAnswer(
 ): obj is CourseMaterialPeerReviewQuestionAnswer {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.peer_review_question_id === "string"
+    typeof obj.peer_review_question_id === "string" &&
+    (obj.text_data === null || typeof obj.text_data === "string") &&
+    (obj.number_data === null || typeof obj.number_data === "number")
   )
 }
 

@@ -10676,22 +10676,6 @@
       "nullable": [false, false, false, true, false, false, false, false]
     }
   },
-  "d6cd9c08fa6fd27156c585435931b57484d460c033fc0718ea4d156d652d2519": {
-    "query": "\nINSERT INTO peer_review_question_submissions (\n    peer_review_question_id,\n    peer_review_submission_id,\n    data_json\n  )\nVALUES ($1, $2, $3)\nRETURNING id\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Jsonb"]
-      },
-      "nullable": [false]
-    }
-  },
   "d724f9b31998cfc4677cf3f3a006ab15dd17bdad59b2b290e47d648e9e03d03d": {
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  exercise_task_submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  unscaled_score_maximum,\n  unscaled_score_given,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\nFROM exercise_task_gradings\nWHERE id = $1\n",
     "describe": {
@@ -11178,6 +11162,22 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, true, false, true, true, true, false]
+    }
+  },
+  "dca9962cde61fb16b1beda03b37bdae5bf72f2a6f6e68636ea4d90e8c8f060f1": {
+    "query": "\nINSERT INTO peer_review_question_submissions (\n    peer_review_question_id,\n    peer_review_submission_id,\n    text_data,\n    number_data\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Varchar", "Float4"]
+      },
+      "nullable": [false]
     }
   },
   "dce5a0e44cf3cf01c4c6b21cb9f6bc5cd8b9b98d4819a502d359be8e06e46ba9": {

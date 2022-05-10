@@ -364,7 +364,8 @@ fn main() {
         peer_review_id: peer_review.id,
         peer_review_question_answers: vec![CourseMaterialPeerReviewQuestionAnswer {
             peer_review_question_id: id,
-            data_json: serde_json::json!({ "textData": "I think that the answer was well written." }),
+            text_data: Some("I think that the answer was well written.".to_string()),
+            number_data: None,
         }],
     };
     let submission_result = StudentExerciseTaskSubmissionResult {

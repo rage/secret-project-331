@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { BlockIcon, MediaPlaceholder } from "@wordpress/block-editor"
+import { BlockIcon } from "@wordpress/block-editor"
 import { ColorPalette, PanelBody, Placeholder } from "@wordpress/components"
 import { cover as icon } from "@wordpress/icons"
 import React from "react"

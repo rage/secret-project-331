@@ -1,4 +1,4 @@
-FROM node:16
+FROM eu.gcr.io/moocfi-public/project-331-node-base:latest
 
 RUN apt-get update \
   && apt-get install -y build-essential vim \

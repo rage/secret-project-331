@@ -66,6 +66,6 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   )
 }
 
-module.exports.reportWebVitals = generateWebVitalsReporter(SERVICE_NAME)
+export const reportWebVitals = generateWebVitalsReporter(SERVICE_NAME)
 
 export default MyApp

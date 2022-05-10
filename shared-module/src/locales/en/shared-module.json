@@ -60,7 +60,7 @@
   "submit": "Submit",
   "set-field-value": "Set {{name}}",
   "points": "Points",
-  "timeline-instruction": "Timeline instruction",
+  "peer-review-instruction": "Peer review instruction",
   "strongly-disagree": "strongly disagree",
   "disagree": "disagree",
   "neutral": "neutral",
@@ -72,5 +72,10 @@
   "instruction": "Instruction",
   "write-a-review": "Write a review",
   "added-text": "Added text",
-  "removed-text": "Removed text"
+  "removed-text": "Removed text",
+  "please-choose-a-value": "Please choose a value",
+  "essay": "Essay",
+  "linkert-scale": "Linkert Scale",
+  "select-question": "Select question type",
+  "what-you-will-learn": "What you will learn in this chapter"
 }

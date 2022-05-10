@@ -7,7 +7,11 @@ import React, { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { UseMutationResult } from "react-query"
 
-import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
+import {
+  blockTypeMapForFrontPages,
+  blockTypeMapForPages,
+  blockTypeMapForTopLevelPages,
+} from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import usePageInfo from "../../hooks/usePageInfo"
@@ -28,6 +32,8 @@ import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 interface PageEditorProps {
   data: Page
   saveMutation: UseMutationResult<ContentManagementPage, unknown, CmsPageUpdate, unknown>
+  needToRunMigrationsAndValidations: boolean
+  setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
 }
 
 const EditorLoading = <Spinner variant="medium" />
@@ -51,7 +57,12 @@ const supportedBlocks = (chapter_id: string | null, exam_id: string | null): str
   return allSupportedBlocks
 }
 
-const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
+const PageEditor: React.FC<PageEditorProps> = ({
+  data,
+  saveMutation,
+  needToRunMigrationsAndValidations,
+  setNeedToRunMigrationsAndValidations,
+}) => {
   const { t } = useTranslation()
   const pageInfo = usePageInfo(data.id)
   const [title, setTitle] = useState(data.title)
@@ -89,6 +100,7 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
               chapter_id: data.page.chapter_id,
             }).content,
           })
+          setNeedToRunMigrationsAndValidations(true)
         },
         onSettled: () => {
           setCurrentlySaving(false)
@@ -190,12 +202,16 @@ const PageEditor: React.FC<PageEditorProps> = ({ data, saveMutation }) => {
           customBlocks={
             data.chapter_id !== null || data.exam_id !== null
               ? blockTypeMapForPages
+              : data.url_path === "/"
+              ? blockTypeMapForFrontPages
               : blockTypeMapForTopLevelPages
           }
           allowedBlocks={supportedCoreBlocks}
           allowedBlockVariations={allowedBlockVariants}
           mediaUpload={mediaUpload}
           inspectorButtons={saveAndReset}
+          needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+          setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
         />
       </div>
       <div className="editor__component">

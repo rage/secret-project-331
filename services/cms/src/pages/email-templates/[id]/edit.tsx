@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic"
-import React from "react"
+import React, { useState } from "react"
 
 import Layout from "../../../components/Layout"
 import CourseContext from "../../../contexts/CourseContext"
@@ -30,6 +30,7 @@ export interface EmailTemplateEditProps {
 }
 
 const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
+  const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const emailTemplateId = query.id
   // eslint-disable-next-line i18next/no-literal-string
   const templateQuery = useStateQuery(["email-template", emailTemplateId], (_emailTemplateId) =>
@@ -39,6 +40,7 @@ const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
     // eslint-disable-next-line i18next/no-literal-string
     ["course-id-of-instance", templateQuery.data?.course_instance_id],
     (courseInstanceId) => fetchCourseInstance(courseInstanceId),
+    { onSuccess: () => setNeedToRunMigrationsAndValidations(true) },
   )
 
   if (templateQuery.state === "error" || instanceQuery.state === "error") {
@@ -69,7 +71,12 @@ const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
   return (
     <CourseContext.Provider value={{ courseId: instanceQuery.data.course_id }}>
       <Layout>
-        <EmailEditor data={templateQuery.data} handleSave={handleSave} />
+        <EmailEditor
+          data={templateQuery.data}
+          handleSave={handleSave}
+          needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+          setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+        />
       </Layout>
     </CourseContext.Provider>
   )

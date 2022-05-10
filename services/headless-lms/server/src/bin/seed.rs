@@ -44,7 +44,7 @@ use uuid::Uuid;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    env::set_var("RUST_LOG", "info,sqlx=warn");
+    env::set_var("RUST_LOG", "info,sqlx=warn,headless_lms_models=warn");
 
     dotenv::dotenv().ok();
     setup_tracing()?;
@@ -1882,6 +1882,89 @@ async fn seed_sample_course(
             "awardPointsEvenIfWrong": false}),
     );
 
+    let (
+        quizzes_exercise_block_5,
+        quizzes_exercise_5,
+        quizzes_exercise_slide_5,
+        quizzes_exercise_task_5,
+    ) = quizzes_exercise(
+        Uuid::new_v5(&course.id, b"981623c8-baa3-4d14-bb8a-963e167da9ca"),
+        Uuid::new_v5(&course.id, b"b1a6d7e4-00b2-43fb-bf39-863f4ef49d09"),
+        Uuid::new_v5(&course.id, b"1a2f2c9f-9552-440e-8dd3-1e3703bd0fab"),
+        Uuid::new_v5(&course.id, b"6b568812-f752-4d9f-a60a-48257822d21e"),
+        Uuid::new_v5(&course.id, b"b2f7d8d5-f3c0-4cac-8eb7-89a7b88c2236"),
+        false,
+        serde_json::json!({
+          "autoConfirm": true,
+          "autoReject": false,
+          "awardPointsEvenIfWrong": false,
+          "body": "",
+          "courseId": "29b09b7e-337f-4074-b14b-6109427a52f6",
+          "createdAt": "2022-05-04T09:03:06.271Z",
+          "deadline": "2022-05-04T09:03:06.271Z",
+          "excludedFromScore": true,
+          "grantPointsPolicy": "grant_whenever_possible",
+          "id": "72c3bb44-1695-4ea0-af3e-f2280c726551",
+          "items": [
+            {
+              "allAnswersCorrect": false,
+              "body": "",
+              "createdAt": "2022-05-04T09:03:09.167Z",
+              "direction": "column",
+              "failureMessage": null,
+              "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
+              "formatRegex": null,
+              "id": "105270c8-e94a-40ec-a159-8fe38f116bb4",
+              "maxValue": null,
+              "maxWords": null,
+              "minValue": null,
+              "minWords": null,
+              "multi": false,
+              "optionCells": null,
+              "options": [],
+              "order": 0,
+              "quizId": "72c3bb44-1695-4ea0-af3e-f2280c726551",
+              "sharedOptionFeedbackMessage": null,
+              "successMessage": null,
+              "timelineItems": [
+                {
+                  "correctEventId": "59e30264-fb11-4e44-a91e-1c5cf80fd977",
+                  "correctEventName": "Finland joins  the European Union",
+                  "id": "c40fc487-9cb9-4007-80d3-8ffd7a8dc799",
+                  "year": "1995"
+                },
+                {
+                  "correctEventId": "0ee17a8e-6d51-4620-b355-90815462543f",
+                  "correctEventName": "Finland switches their currency to Euro",
+                  "id": "d63fd98e-b73c-47cf-a634-9046249c78e4",
+                  "year": "2002"
+                },
+                {
+                  "correctEventId": "0a59d2d3-6cf6-4b91-b1bd-873eefde78ac",
+                  "correctEventName": "Finland joins the Economic and Monetary Union of the European Union",
+                  "id": "50d7641c-382e-4805-95d8-e873c462bc48",
+                  "year": "1998"
+                }
+              ],
+              "title": "",
+              "type": "timeline",
+              "updatedAt": "2022-05-04T09:03:09.167Z",
+              "usesSharedOptionFeedbackMessage": false,
+              "validityRegex": null
+            }
+          ],
+          "open": "2022-05-04T09:03:06.271Z",
+          "part": 0,
+          "points": 0,
+          "section": 0,
+          "submitMessage": "",
+          "title": "",
+          "tries": 1,
+          "triesLimited": true,
+          "updatedAt": "2022-05-04T09:03:06.271Z"
+        }),
+    );
+
     let page_3 = create_page(
         conn,
         course.id,
@@ -1969,6 +2052,29 @@ async fn seed_sample_course(
                     Uuid::new_v5(&course_id, b"6b7775c3-b46e-41e5-a730-0a2c2f0ba148")
                 ),
                 quizzes_exercise_block_4
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/the-timeline".to_string(),
+            title: "The timeline".to_string(),
+            chapter_id: Some(chapter_2.id),
+            exercises: vec![quizzes_exercise_5],
+            exercise_slides: vec![quizzes_exercise_slide_5],
+            exercise_tasks: vec![quizzes_exercise_task_5],
+            content: serde_json::json!([
+                paragraph(
+                    "Best page",
+                    Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27")
+                ),
+                quizzes_exercise_block_5,
             ]),
         },
     )

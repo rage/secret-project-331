@@ -12,6 +12,7 @@ import { MultipleChoiceClickable } from "./MultipleChoiceClickable"
 import { MultipleChoiceDropdown } from "./MultipleChoiceDropdown"
 import Open from "./Open"
 import Scale from "./Scale"
+import Timeline from "./Timeline"
 import Unsupported from "./Unsupported"
 
 interface WidgetProps {
@@ -27,6 +28,7 @@ type QuizItemType =
   | "open"
   | "custom-frontend-accept-data"
   | "matrix"
+  | "timeline"
 
 const componentsByTypeNames = (typeName: QuizItemType) => {
   const mapTypeToComponent: { [key: string]: React.FC<QuizItemComponentProps> } = {
@@ -39,6 +41,7 @@ const componentsByTypeNames = (typeName: QuizItemType) => {
     "multiple-choice-dropdown": MultipleChoiceDropdown,
     "clickable-multiple-choice": MultipleChoiceClickable,
     matrix: Matrix,
+    timeline: Timeline,
   }
 
   return mapTypeToComponent[typeName]
@@ -110,6 +113,7 @@ const Widget: React.FC<WidgetProps> = ({ port, quiz }) => {
           textData: null,
           optionAnswers: null,
           optionCells: null,
+          timelineChoices: null,
         }
       }),
     },

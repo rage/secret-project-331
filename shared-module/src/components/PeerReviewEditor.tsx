@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import CrossIcon from "../img/exist-icon.svg"
 
 import TextAreaField from "./InputFields/EditableComponentTextArea"
+import SelectField from "./InputFields/SelectField"
 import TextField from "./InputFields/TextField"
 
 const Wrapper = styled.div`
@@ -21,24 +22,20 @@ const Wrapper = styled.div`
 
   h2 {
     font-weight: 300;
-    opacity: 0.8;
     font-size: 1.7rem;
+    line-height: 1.2;
+    margin-top: 10px;
   }
 `
 const StyledForm = styled.form`
   display: grid;
-  grid-template-columns: 0.1fr 2.2fr 0.1fr;
+  grid-template-columns: 0.5fr 1.2fr 0.1fr;
   gap: 10px;
   margin-top: 12px;
 
   @media (max-width: 767.98px) {
     grid-template-columns: 1fr;
     gap: 0px;
-  }
-`
-const StyledTextField = styled(TextField)`
-  @media (max-width: 767.98px) {
-    height: 55px !important;
   }
 `
 const StyledBtn = styled.button`
@@ -66,7 +63,7 @@ const StyledBtn = styled.button`
 `
 const DeleteBtn = styled.button`
   width: 50px;
-  min-height: 49px;
+  min-height: 50px;
   background: #e2c2bc;
   outline: none;
   justify-self: end;
@@ -78,7 +75,7 @@ const DeleteBtn = styled.button`
 `
 const List = styled.div`
   display: grid;
-  grid-template-columns: 0.1fr 2.2fr 0.1fr;
+  grid-template-columns: 0.5fr 1.2fr 0.1fr;
   min-height: 40px;
   gap: 10px;
   margin-top: 10px;
@@ -91,10 +88,10 @@ const List = styled.div`
     margin-bottom: 30px;
   }
 `
-const Date = styled.div`
+const StyledQuestion = styled.div`
   background: #f5f6f7;
   border: 1.5px solid #e2e4e6;
-  width: 280px;
+  width: 100%;
   padding: 0.4rem 1rem;
   border-radius: 3px;
 
@@ -102,39 +99,49 @@ const Date = styled.div`
     width: 100%;
   }
 `
-const Event = styled.div`
+const StyledSelectField = styled(SelectField)`
+  @media (max-width: 767.98px) {
+    margin-bottom: 10px;
+  }
+`
+const StyledQuestionType = styled.div`
   background: #f5f6f7;
   border: 1.5px solid #e2e4e6;
   border-radius: 3px;
   width: 100%;
-  align-items: center;
   padding: 0.4rem 1rem;
 
   @media (max-width: 767.98px) {
     width: 100%;
   }
 `
-export interface Timeline {
+export interface PeerReview {
   id: string
-  year: string
-  content: string
+  question: string
+  questionType: string
 }
 
-const PLACEHOLDER = "Write the timeline instruction"
-const EVENT_PLACEHOLDER = "Write the event for the timeline"
-const YEAR_PLACEHOLDER = "1994"
-const HEADING_TEXT = "Configure the correct time and event"
-const EVENT = "event"
-const YEAR = "year"
+const PLACEHOLDER = "Write the PeerReview instruction"
+const QUESTION = "question"
+const INSTRUCTION = "instruction"
+const TYPE = "questionType"
+const QUESTION_PLACEHOLDER = "Write the question"
+const HEADING_TEXT = "Configure review answers option"
 
-/* export interface TimelineEditorExtraProps {} */
+/* export interface PeerReviewEditorExtraProps {} */
 
-export type TimelineEditorProps =
-  React.HTMLAttributes<HTMLDivElement> /* & TimelineEditorExtraProps */
+export type PeerReviewEditorProps =
+  React.HTMLAttributes<HTMLDivElement> /* & PeerReviewEditorExtraProps */
 
-const TimelineEditor: React.FC<TimelineEditorProps> = () => {
-  const [state, setState] = useState<Timeline[]>([])
+const PeerReviewEditor: React.FC<PeerReviewEditorProps> = () => {
+  const [state, setState] = useState<PeerReview[]>([])
   const { t } = useTranslation()
+
+  const options = [
+    { label: t("select-question"), value: "", disabled: true },
+    { label: t("essay"), value: t("essay") },
+    { label: t("linkert-scale"), value: t("linkert-scale") },
+  ]
 
   const handleChange = (e: any) => {
     const id = e.parentElement.id
@@ -144,7 +151,7 @@ const TimelineEditor: React.FC<TimelineEditorProps> = () => {
         return item.id === id
           ? {
               ...item,
-              content: value,
+              question: value,
             }
           : item
       })
@@ -153,24 +160,28 @@ const TimelineEditor: React.FC<TimelineEditorProps> = () => {
 
   return (
     <Wrapper>
-      <span>{t("timeline-instruction")}</span>
-      <TextField placeholder={PLACEHOLDER} onChange={() => null}></TextField>
+      <span>{t("peer-review-instruction")}</span>
+      <TextField name={INSTRUCTION} placeholder={PLACEHOLDER} onChange={() => null} />
 
       <h2>{HEADING_TEXT}</h2>
       {state &&
-        state.map(({ id, content, year }) => (
+        state.map(({ id, question, questionType }) => (
           <List key={id} id={id}>
-            <Date>
-              <TextAreaField onChange={handleChange} defaultValue={year} autoResize={true} />
-            </Date>
-            <Event>
-              <TextAreaField onChange={handleChange} defaultValue={content} autoResize={true} />
-            </Event>
+            <StyledQuestion>
+              <TextAreaField
+                onChange={handleChange}
+                defaultValue={questionType}
+                autoResize={true}
+              />
+            </StyledQuestion>
+            <StyledQuestionType>
+              <TextAreaField onChange={handleChange} defaultValue={question} autoResize={true} />
+            </StyledQuestionType>
             <DeleteBtn
               onClick={() => {
                 setState((prevState) => {
                   return prevState.filter((o) => {
-                    return year !== o.year
+                    return question !== o.question
                   })
                 })
               }}
@@ -183,30 +194,37 @@ const TimelineEditor: React.FC<TimelineEditorProps> = () => {
         onSubmit={(e: React.SyntheticEvent) => {
           e.preventDefault()
           const target = e.target as typeof e.target & {
-            year: { value: string }
-            event: { value: string }
+            question: { value: string }
+            questionType: { value: string }
           }
 
-          const year = target.year.value
-          const event = target.event.value
+          const question = target.question.value
+          const type = target.questionType.value
 
-          if (year !== "" && event !== "") {
+          if (question !== "" && type !== "") {
             setState((state) => [
               ...state,
               {
                 // eslint-disable-next-line i18next/no-literal-string
-                id: `id-${year}`,
-                year: year,
-                content: event,
+                id: `id-${question}`,
+                question: question,
+                questionType: type,
               },
             ])
           }
-          target.year.value = ""
-          target.event.value = ""
+          target.question.value = ""
+          target.questionType.value = ""
         }}
       >
-        <StyledTextField name={YEAR} placeholder={YEAR_PLACEHOLDER} onChange={() => null} />
-        <TextField name={EVENT} placeholder={EVENT_PLACEHOLDER} onChange={() => null} />
+        <StyledSelectField
+          id="question-type"
+          name={TYPE}
+          placeholder={PLACEHOLDER}
+          options={options}
+          onChange={() => null}
+          onBlur={() => null}
+        />
+        <TextField name={QUESTION} placeholder={QUESTION_PLACEHOLDER} onChange={() => null} />
         <StyledBtn type="submit" name={t("submit")} value={t("submit")}>
           <CrossIcon />
         </StyledBtn>
@@ -215,4 +233,4 @@ const TimelineEditor: React.FC<TimelineEditorProps> = () => {
   )
 }
 
-export default TimelineEditor
+export default PeerReviewEditor

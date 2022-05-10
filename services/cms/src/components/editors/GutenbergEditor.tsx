@@ -44,11 +44,14 @@ import { addFilter, removeFilter } from "@wordpress/hooks"
 // @ts-ignore: no types
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useEffect, useState } from "react"
+import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
 import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import SelectField from "../../shared-module/components/InputFields/SelectField"
+import SuccessNotification from "../../shared-module/components/Notifications/Success"
+import Spinner from "../../shared-module/components/Spinner"
 import { primaryFont } from "../../shared-module/styles"
 import {
   modifyEmbedBlockAttributes,
@@ -57,6 +60,7 @@ import {
 import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
 import { modifyGutenbergCategories } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
+import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
 
 interface GutenbergEditorProps {
@@ -67,6 +71,12 @@ interface GutenbergEditorProps {
   customBlocks?: Array<Parameters<typeof registerBlockType>>
   mediaUpload: (props: MediaUploadProps) => void
   inspectorButtons?: JSX.Element
+  /** This component has to run block migrations and validations once the Gutenberg editor and blocks have been loaded.
+   * Whenever new data has been loaded from the server, the parent of this components will set this to true
+   * to indicate to this component that migrations and validations should be run again.
+   */
+  needToRunMigrationsAndValidations: boolean
+  setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
 }
 
 const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
@@ -77,6 +87,8 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
   customBlocks,
   mediaUpload,
   inspectorButtons,
+  needToRunMigrationsAndValidations,
+  setNeedToRunMigrationsAndValidations,
 }: GutenbergEditorProps) => {
   const { t } = useTranslation()
   const [editorSettings, setEditorSettings] = useState<
@@ -169,6 +181,42 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
       removeFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector")
     }
   }, [])
+
+  // This **should** be the last useEffect as it supposes that Gutenberg is fully set up
+  // Runs migrations and validations for the blocks
+  useEffect(() => {
+    if (!needToRunMigrationsAndValidations) {
+      return
+    }
+    const [updatedContent, numberOfBlocksMigrated] = runMigrationsAndValidations(content)
+    setNeedToRunMigrationsAndValidations(false)
+    onContentChange(updatedContent)
+    if (numberOfBlocksMigrated > 0) {
+      // eslint-disable-next-line i18next/no-literal-string
+      console.info(`Ran ${numberOfBlocksMigrated} block migrations`)
+      toast.custom(
+        () => {
+          return (
+            <SuccessNotification
+              header={t("title-outdated-blocks-migrated")}
+              message={t("outdated-blocks-migrated-explanation", { num: numberOfBlocksMigrated })}
+            />
+          )
+        },
+        { duration: 600000 },
+      )
+    }
+  }, [
+    content,
+    needToRunMigrationsAndValidations,
+    onContentChange,
+    setNeedToRunMigrationsAndValidations,
+    t,
+  ])
+
+  if (needToRunMigrationsAndValidations) {
+    return <Spinner variant="large" />
+  }
 
   return (
     <div

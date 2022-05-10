@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic"
-import React from "react"
+import React, { useState } from "react"
 import { useQuery, useQueryClient } from "react-query"
 
 import Layout from "../../components/Layout"
@@ -28,6 +28,7 @@ const PageEditor = dynamic(() => import("../../components/editors/PageEditor"), 
 
 const Pages = ({ query }: PagesProps) => {
   const { id } = query
+  const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const queryClient = useQueryClient()
   const getPage = useQuery(`page-${id}`, () => fetchPageWithId(id), {
     select: (data) => {
@@ -44,6 +45,9 @@ const Pages = ({ query }: PagesProps) => {
         }).content,
       }
       return page
+    },
+    onSuccess: () => {
+      setNeedToRunMigrationsAndValidations(true)
     },
   })
 
@@ -68,7 +72,14 @@ const Pages = ({ query }: PagesProps) => {
     <Layout>
       {getPage.isError && <ErrorBanner variant={"readOnly"} error={getPage.error} />}
       {(getPage.isLoading || getPage.isIdle) && <Spinner variant={"medium"} />}
-      {getPage.isSuccess && <PageEditor data={getPage.data} saveMutation={mutate} />}
+      {getPage.isSuccess && (
+        <PageEditor
+          data={getPage.data}
+          saveMutation={mutate}
+          needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+          setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+        />
+      )}
     </Layout>
   )
 }

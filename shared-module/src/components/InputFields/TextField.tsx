@@ -43,7 +43,7 @@ const Input = styled.input<InputExtraProps>`
   padding: 10px 12px;
   transition: ease-in-out, width 0.35s ease-in-out;
   outline: none;
-  min-width: 280px;
+  min-width: 20px;
   width: 100%;
   display: block;
   font-size: 18px;
@@ -53,6 +53,10 @@ const Input = styled.input<InputExtraProps>`
   &:focus,
   &:active {
     border-color: #55b3f5;
+  }
+
+  @media (max-width: 767.98px) {
+    padding: 6px 8px;
   }
 `
 
@@ -80,7 +84,7 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
     >
       <label>
         {rest.label && (
-          <span
+          <div
             className={css`
               color: #333;
               font-family: ${primaryFont};
@@ -93,7 +97,7 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
             `}
           >
             {rest.label}
-          </span>
+          </div>
         )}
         <Input
           id={rest.id}

@@ -2,14 +2,14 @@
 import { Meta, Story } from "@storybook/react"
 import React from "react"
 
-import TimelineEditor from "../src/components/TimelineEditor"
+import TopicObjectives from "../src/components/TopicObjectives"
 
 export default {
-  title: "Components/TimelineEditor",
-  component: TimelineEditor,
+  title: "Components/TopicObjectives",
+  component: TopicObjectives,
 } as Meta
 
-const Component = TimelineEditor
+const Component = TopicObjectives
 
 type ComponentProps = React.ComponentProps<typeof Component>
 
@@ -17,5 +17,5 @@ const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {..
 
 export const Primary: Story<ComponentProps> = Template.bind({})
 Primary.args = {
-  children: "TimelineEditor",
+  children: "TopicObjectives",
 }

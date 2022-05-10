@@ -119,6 +119,7 @@ export interface QuizItem {
   allAnswersCorrect: boolean
   direction: "row" | "column"
   feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
+  timelineItems: QuizItemTimelineItem[] | null
 }
 
 export interface QuizItemModelSolution {
@@ -134,6 +135,11 @@ export interface OptionsFeedback {
   failureMessage?: string
 }
 
+/**
+ * Quiz item that has been normalized.
+ *
+ * See this for an introduction to normalization in Redux: https://redux.js.org/tutorials/essentials/part-6-performance-normalization#normalizing-data
+ */
 export interface NormalizedQuizItem {
   id: string
   quizId: string
@@ -159,6 +165,8 @@ export interface NormalizedQuizItem {
   allAnswersCorrect: boolean
   direction: "row" | "column"
   feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
+  /** Only defined for the timeline quiz item type. */
+  timelineItems: string[]
 }
 
 export interface QuizItemVariables {
@@ -192,9 +200,28 @@ export interface PublicQuizItem {
   maxLabel: string | null
   minLabel: string | null
   options: PublicQuizItemOption[]
+  timelineItems: PublicTimelineItem[]
+  /** A list of events to choose from when matching years to events. */
+  timelineItemEvents: PublicTimelineEvent[]
   title: string
   body: string
   direction: "row" | "column"
+}
+
+/**
+ * Only used in the timeline exercise type
+ *
+ * The correctEvent is omitted from here because it's the correct answer and we don't want to show that to the students before they have solved the exercise. All available options can be found in `PublicQuizItem.timelineItemEvents`.
+ * */
+export interface PublicTimelineItem {
+  id: string
+  /** The year the student is supposed to match to an event. */
+  year: string
+}
+
+export interface PublicTimelineEvent {
+  id: string
+  name: string
 }
 
 export type ModelSolutionQuizItem = Omit<QuizItem, "validityRegex">
@@ -224,6 +251,19 @@ export interface NormalizedQuizItemOption {
   successMessage: null | string
   failureMessage: null | string
 }
+
+/** Only defined for the timeline exercise type */
+export interface NormalizedQuizItemTimelineItem {
+  id: string
+  /** The year the student is supposed to match to an event. */
+  year: string
+  /** The event the student is supposed choose from the dropdown menu */
+  correctEventName: string
+  /** Generated id for the correct event that allows us to identify the event even if the teacher has decided the edit the event name afterwards. This makes this exercise resilient to typo fixes. */
+  correctEventId: string
+}
+
+export type QuizItemTimelineItem = NormalizedQuizItemTimelineItem
 
 export interface QuizItemOptionVariables {
   optionEditing: boolean
@@ -260,6 +300,15 @@ export interface QuizItemAnswer {
   /** Only contains an id of a selected option */
   optionAnswers: string[] | null
   optionCells: string[][] | null
+  /** Only used for timeline answers. */
+  timelineChoices: TimelineChoice[] | null
+}
+
+export interface TimelineChoice {
+  /** We use timelineItem id to match for answers so that this is resilient to typo fixes in the year */
+  timelineItemId: string
+  /** We use a generated id to match the choices to options to make this resilient to typo fixes event name. */
+  chosenEventId: string
 }
 
 export interface UserQuizState {
@@ -279,6 +328,7 @@ export interface Entities {
   quizzes: { [quizId: string]: NormalizedQuiz }
   items: { [itemId: string]: NormalizedQuizItem }
   options?: { [optionId: string]: NormalizedQuizItemOption }
+  timelineItems?: { [timelineItemId: string]: NormalizedQuizItemTimelineItem }
   result: string
 }
 

@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic"
-import React from "react"
+import React, { useState } from "react"
 import { useQuery } from "react-query"
 
 import Layout from "../../../components/Layout"
@@ -28,9 +28,12 @@ export interface ExamInstructionsEditProps {
 }
 
 const ExamsInstructionsEditor: React.FC<ExamInstructionsEditProps> = ({ query }) => {
+  const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const examsId = query.id
-  const getExamsInstructions = useQuery(`exam-${examsId}-instructions`, () =>
-    fetchExamsInstructions(examsId),
+  const getExamsInstructions = useQuery(
+    `exam-${examsId}-instructions`,
+    () => fetchExamsInstructions(examsId),
+    { onSuccess: () => setNeedToRunMigrationsAndValidations(true) },
   )
 
   const handleSave = async (instructions: ExamInstructionsUpdate): Promise<ExamInstructions> => {
@@ -51,7 +54,12 @@ const ExamsInstructionsEditor: React.FC<ExamInstructionsEditProps> = ({ query })
 
   return (
     <Layout>
-      <ExamsInstructionsGutenbergEditor data={getExamsInstructions.data} handleSave={handleSave} />
+      <ExamsInstructionsGutenbergEditor
+        data={getExamsInstructions.data}
+        handleSave={handleSave}
+        needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+        setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+      />
     </Layout>
   )
 }

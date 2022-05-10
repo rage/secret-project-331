@@ -1,4 +1,4 @@
-import { Page, test } from "@playwright/test"
+import { expect, Page, test } from "@playwright/test"
 
 import expectPath from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
@@ -19,9 +19,13 @@ const replaceTimeComponentDates = async (page: Page) => {
 test("can add and delete exercise service", async ({ page, headless }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
+  await page.evaluate(() => {
+    window.scrollTo(0, 700)
+  })
 
   // Click text=Manage exercise services
-  await Promise.all([page.waitForNavigation(), page.click("text=Manage exercise services")])
+  await page.locator("text=Manage exercise services").click()
+  await expect(page).toHaveURL("http://project-331.local/manage/exercise-services")
 
   expectPath(page, "/manage/exercise-services")
 

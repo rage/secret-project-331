@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.11/src/pool/connection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.13/src/pool/connection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -268,6 +268,23 @@
 <span id="263">263</span>
 <span id="264">264</span>
 <span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Formatter</span>};
 <span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
@@ -301,9 +318,9 @@
 }
 
 <span class="doccomment">/// RAII wrapper for connections being handled by functions that may drop them</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span>, <span class="ident">C</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">inner</span>: <span class="ident">C</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">guard</span>: <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;p</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">guard</span>: <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">const</span> <span class="ident">DEREF_ERR</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;(bug) connection already released to pool&quot;</span>;
@@ -329,6 +346,18 @@
     }
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">DB::Connection</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PoolConnection</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">DB::Connection</span> {
+        <span class="self">self</span>
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">DB::Connection</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PoolConnection</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">as_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">DB::Connection</span> {
+        <span class="self">self</span>
+    }
+}
+
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">PoolConnection</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Explicitly release a connection from the pool</span>
     <span class="attribute">#[<span class="ident">deprecated</span> <span class="op">=</span> <span class="string">&quot;renamed to `.detach()` for clarity&quot;</span>]</span>
@@ -347,7 +376,7 @@
         <span class="self">self</span>.<span class="ident">live</span>
             .<span class="ident">take</span>()
             .<span class="ident">expect</span>(<span class="string">&quot;PoolConnection double-dropped&quot;</span>)
-            .<span class="ident">float</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pool</span>)
+            .<span class="ident">float</span>(<span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">clone</span>())
             .<span class="ident">detach</span>()
     }
 
@@ -364,23 +393,24 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This effectively runs the drop handler eagerly instead of spawning a task to do it.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">return_to_pool</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> ()<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
-        <span class="comment">// we want these to happen synchronously so the drop handler doesn&#39;t try to spawn a task anyway</span>
-        <span class="comment">// this also makes the returned future `&#39;static`</span>
-        <span class="kw">let</span> <span class="ident">live</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">live</span>.<span class="ident">take</span>();
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">clone</span>();
+        <span class="comment">// float the connection in the pool before we move into the task</span>
+        <span class="comment">// in case the returned `Future` isn&#39;t executed, like if it&#39;s spawned into a dying runtime</span>
+        <span class="comment">// https://github.com/launchbadge/sqlx/issues/1396</span>
+        <span class="kw">let</span> <span class="ident">floating</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">live</span>.<span class="ident">take</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">live</span><span class="op">|</span> <span class="ident">live</span>.<span class="ident">float</span>(<span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">clone</span>()));
 
         <span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">floating</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">live</span>) <span class="op">=</span> <span class="ident">live</span> {
-                <span class="ident">live</span>.<span class="ident">float</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>)
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">floating</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">floating</span>) <span class="op">=</span> <span class="ident">floating</span> {
+                <span class="ident">floating</span>
             } <span class="kw">else</span> {
                 <span class="kw">return</span>;
             };
 
-            <span class="comment">// test the connection on-release to ensure it is still viable</span>
+            <span class="comment">// test the connection on-release to ensure it is still viable,</span>
+            <span class="comment">// and flush anything time-sensitive like transaction rollbacks</span>
             <span class="comment">// if an Executor future/stream is dropped during an `.await` call, the connection</span>
             <span class="comment">// is likely to be left in an inconsistent state, in which case it should not be</span>
             <span class="comment">// returned to the pool; also of course, if it was dropped due to an error</span>
-            <span class="comment">// this is simply a band-aid as SQLx-next (0.6) connections should be able</span>
+            <span class="comment">// this is simply a band-aid as SQLx-next connections should be able</span>
             <span class="comment">// to recover from cancellations</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">floating</span>.<span class="ident">raw</span>.<span class="ident">ping</span>().<span class="kw">await</span> {
                 <span class="macro">log::warn!</span>(
@@ -393,7 +423,7 @@
                 <span class="ident">drop</span>(<span class="ident">floating</span>);
             } <span class="kw">else</span> {
                 <span class="comment">// if the connection is still viable, release it to the pool</span>
-                <span class="ident">pool</span>.<span class="ident">release</span>(<span class="ident">floating</span>);
+                <span class="ident">floating</span>.<span class="ident">release</span>();
             }
         }
     }
@@ -415,7 +445,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">float</span>(<span class="self">self</span>, <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">float</span>(<span class="self">self</span>, <span class="ident">pool</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident">Floating</span> {
             <span class="ident">inner</span>: <span class="self">self</span>,
             <span class="comment">// create a new guard from a previously leaked permit</span>
@@ -445,8 +475,8 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_live</span>(<span class="ident">conn</span>: <span class="ident">DB::Connection</span>, <span class="ident">guard</span>: <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_live</span>(<span class="ident">conn</span>: <span class="ident">DB::Connection</span>, <span class="ident">guard</span>: <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">inner</span>: <span class="ident">Live</span> {
                 <span class="ident">raw</span>: <span class="ident">conn</span>,
@@ -471,6 +501,10 @@
         }
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">release</span>(<span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">guard</span>.<span class="ident">pool</span>.<span class="ident">clone</span>().<span class="ident">release</span>(<span class="self">self</span>);
+    }
+
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="comment">// `guard` is dropped as intended</span>
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">raw</span>.<span class="ident">close</span>().<span class="kw">await</span>
@@ -480,7 +514,7 @@
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">raw</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_idle</span>(<span class="self">self</span>) -&gt; <span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_idle</span>(<span class="self">self</span>) -&gt; <span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Floating</span> {
             <span class="ident">inner</span>: <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">into_idle</span>(),
             <span class="ident">guard</span>: <span class="self">self</span>.<span class="ident">guard</span>,
@@ -488,11 +522,11 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_idle</span>(
         <span class="ident">idle</span>: <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
-        <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
-        <span class="ident">permit</span>: <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span>,
+        <span class="ident">pool</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">permit</span>: <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     ) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">inner</span>: <span class="ident">idle</span>,
@@ -504,14 +538,14 @@
         <span class="self">self</span>.<span class="ident">live</span>.<span class="ident">raw</span>.<span class="ident">ping</span>().<span class="kw">await</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_live</span>(<span class="self">self</span>) -&gt; <span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_live</span>(<span class="self">self</span>) -&gt; <span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Floating</span> {
             <span class="ident">inner</span>: <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">live</span>,
             <span class="ident">guard</span>: <span class="self">self</span>.<span class="ident">guard</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="self">self</span>) -&gt; <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="self">self</span>) -&gt; <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
         <span class="comment">// `guard` is dropped as intended</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">live</span>.<span class="ident">raw</span>.<span class="ident">close</span>().<span class="kw">await</span> {
             <span class="macro">log::debug!</span>(<span class="string">&quot;error occurred while closing the pool connection: {}&quot;</span>, <span class="ident">e</span>);
@@ -520,7 +554,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">C</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">C</span>;
 
     <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
@@ -528,7 +562,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">C</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>
     }

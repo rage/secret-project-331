@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.11/src/postgres/options/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.13/src/postgres/options/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -404,8 +404,82 @@
 <span id="399">399</span>
 <span id="400">400</span>
 <span id="401">401</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::env::var</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
+<span class="kw">use</span> <span class="ident">std::env::var</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="ident">Display</span>, <span class="ident">Write</span>};
 <span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
 
 <span class="kw">mod</span> <span class="ident">connect</span>;
@@ -493,6 +567,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">statement_cache_capacity</span>: <span class="ident">usize</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">application_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">log_settings</span>: <span class="ident">LogSettings</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">extra_float_digits</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">options</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
@@ -553,6 +628,7 @@
                 .<span class="ident">unwrap_or_default</span>(),
             <span class="ident">statement_cache_capacity</span>: <span class="number">100</span>,
             <span class="ident">application_name</span>: <span class="ident">var</span>(<span class="string">&quot;PGAPPNAME&quot;</span>).<span class="ident">ok</span>(),
+            <span class="ident">extra_float_digits</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;3&quot;</span>.<span class="ident">into</span>()),
             <span class="ident">log_settings</span>: <span class="ident">Default::default</span>(),
             <span class="ident">options</span>: <span class="ident">var</span>(<span class="string">&quot;PGOPTIONS&quot;</span>).<span class="ident">ok</span>(),
         }
@@ -742,6 +818,59 @@
         <span class="self">self</span>
     }
 
+    <span class="doccomment">/// Sets or removes the `extra_float_digits` connection option.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This changes the default precision of floating-point values returned in text mode (when</span>
+    <span class="doccomment">/// not using prepared statements such as calling methods of [`Executor`] directly).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Historically, Postgres would by default round floating-point values to 6 and 15 digits</span>
+    <span class="doccomment">/// for `float4`/`REAL` (`f32`) and `float8`/`DOUBLE` (`f64`), respectively, which would mean</span>
+    <span class="doccomment">/// that the returned value may not be exactly the same as its representation in Postgres.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The nominal range for this value is `-15` to `3`, where negative values for this option</span>
+    <span class="doccomment">/// cause floating-points to be rounded to that many fewer digits than normal (`-1` causes</span>
+    <span class="doccomment">/// `float4` to be rounded to 5 digits instead of six, or 14 instead of 15 for `float8`),</span>
+    <span class="doccomment">/// positive values cause Postgres to emit that many extra digits of precision over default</span>
+    <span class="doccomment">/// (or simply use maximum precision in Postgres 12 and later),</span>
+    <span class="doccomment">/// and 0 means keep the default behavior (or the &quot;old&quot; behavior described above</span>
+    <span class="doccomment">/// as of Postgres 12).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// SQLx sets this value to 3 by default, which tells Postgres to return floating-point values</span>
+    <span class="doccomment">/// at their maximum precision in the hope that the parsed value will be identical to its</span>
+    <span class="doccomment">/// counterpart in Postgres. This is also the default in Postgres 12 and later anyway.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// However, older versions of Postgres and alternative implementations that talk the Postgres</span>
+    <span class="doccomment">/// protocol may not support this option, or the full range of values.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If you get an error like &quot;unknown option `extra_float_digits`&quot; when connecting, try</span>
+    <span class="doccomment">/// setting this to `None` or consult the manual of your database for the allowed range</span>
+    <span class="doccomment">/// of values.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more information, see:</span>
+    <span class="doccomment">/// * [Postgres manual, 20.11.2: Client Connection Defaults; Locale and Formatting][20.11.2]</span>
+    <span class="doccomment">/// * [Postgres manual, 8.1.3: Numeric Types; Floating-point Types][8.1.3]</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`Executor`]: crate::executor::Executor</span>
+    <span class="doccomment">/// [20.11.2]: https://www.postgresql.org/docs/current/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-FORMAT</span>
+    <span class="doccomment">/// [8.1.3]: https://www.postgresql.org/docs/current/datatype-numeric.html#DATATYPE-FLOAT</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ### Examples</span>
+    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// # use sqlx_core::postgres::PgConnectOptions;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut options = PgConnectOptions::new()</span>
+    <span class="doccomment">///     // for Redshift and Postgres 10</span>
+    <span class="doccomment">///     .extra_float_digits(2);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut options = PgConnectOptions::new()</span>
+    <span class="doccomment">///     // don&#39;t send the option at all (Postgres 9 and older)</span>
+    <span class="doccomment">///     .extra_float_digits(None);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extra_float_digits</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">extra_float_digits</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">extra_float_digits</span> <span class="op">=</span> <span class="ident">extra_float_digits</span>.<span class="ident">into</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">it</span><span class="op">|</span> <span class="ident">it</span>.<span class="ident">to_string</span>().<span class="ident">into</span>());
+        <span class="self">self</span>
+    }
+
     <span class="doccomment">/// Set additional startup options for the connection as a list of key-value pairs.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example</span>
@@ -757,15 +886,14 @@
         <span class="ident">V</span>: <span class="ident">Display</span>,
         <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span>,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options_str</span> <span class="op">=</span> <span class="ident">String::new</span>();
+        <span class="comment">// Do this in here so `options_str` is only set if we have an option to insert</span>
+        <span class="kw">let</span> <span class="ident">options_str</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">get_or_insert_with</span>(<span class="ident">String::new</span>);
         <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">options</span> {
-            <span class="ident">options_str</span> <span class="op">+</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;-c {}={}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>);
-        }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">options</span> {
-            <span class="ident">v</span>.<span class="ident">push</span>(<span class="string">&#39; &#39;</span>);
-            <span class="ident">v</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">options_str</span>);
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">options</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">options_str</span>);
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">options_str</span>.<span class="ident">is_empty</span>() {
+                <span class="ident">options_str</span>.<span class="ident">push</span>(<span class="string">&#39; &#39;</span>);
+            }
+
+            <span class="macro">write!</span>(<span class="ident">options_str</span>, <span class="string">&quot;-c {}={}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write an option to the string&quot;</span>);
         }
         <span class="self">self</span>
     }
@@ -804,6 +932,24 @@
 
     <span class="comment">// fallback to localhost if no socket was found</span>
     <span class="string">&quot;localhost&quot;</span>.<span class="ident">to_owned</span>()
+}
+
+<span class="attribute">#[<span class="ident">test</span>]</span>
+<span class="kw">fn</span> <span class="ident">test_options_formatting</span>() {
+    <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">PgConnectOptions::new</span>().<span class="ident">options</span>([(<span class="string">&quot;geqo&quot;</span>, <span class="string">&quot;off&quot;</span>)]);
+    <span class="macro">assert_eq!</span>(<span class="ident">options</span>.<span class="ident">options</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;-c geqo=off&quot;</span>.<span class="ident">to_string</span>()));
+    <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">options</span>([(<span class="string">&quot;search_path&quot;</span>, <span class="string">&quot;sqlx&quot;</span>)]);
+    <span class="macro">assert_eq!</span>(
+        <span class="ident">options</span>.<span class="ident">options</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;-c geqo=off -c search_path=sqlx&quot;</span>.<span class="ident">to_string</span>())
+    );
+    <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">PgConnectOptions::new</span>().<span class="ident">options</span>([(<span class="string">&quot;geqo&quot;</span>, <span class="string">&quot;off&quot;</span>), (<span class="string">&quot;statement_timeout&quot;</span>, <span class="string">&quot;5min&quot;</span>)]);
+    <span class="macro">assert_eq!</span>(
+        <span class="ident">options</span>.<span class="ident">options</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;-c geqo=off -c statement_timeout=5min&quot;</span>.<span class="ident">to_string</span>())
+    );
+    <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">PgConnectOptions::new</span>();
+    <span class="macro">assert_eq!</span>(<span class="ident">options</span>.<span class="ident">options</span>, <span class="prelude-val">None</span>);
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>

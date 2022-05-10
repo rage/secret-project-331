@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.11/src/postgres/options/pgpass.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pgpass.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.13/src/postgres/options/pgpass.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pgpass.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -269,6 +269,68 @@
 <span id="264">264</span>
 <span id="265">265</span>
 <span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
 <span class="kw">use</span> <span class="ident">std::env::var_os</span>;
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -327,8 +389,28 @@
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">BufReader::new</span>(<span class="ident">file</span>);
+    <span class="kw">let</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">BufReader::new</span>(<span class="ident">file</span>);
+    <span class="ident">load_password_from_reader</span>(<span class="ident">reader</span>, <span class="ident">host</span>, <span class="ident">port</span>, <span class="ident">username</span>, <span class="ident">database</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">load_password_from_reader</span>(
+    <span class="kw-2">mut</span> <span class="ident">reader</span>: <span class="kw">impl</span> <span class="ident">BufRead</span>,
+    <span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+    <span class="ident">port</span>: <span class="ident">u16</span>,
+    <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+    <span class="ident">database</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
+) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">String::new</span>();
+
+    <span class="comment">// https://stackoverflow.com/a/55041833</span>
+    <span class="kw">fn</span> <span class="ident">trim_newline</span>(<span class="ident">s</span>: <span class="kw-2">&amp;mut</span> <span class="ident">String</span>) {
+        <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">ends_with</span>(<span class="string">&#39;\n&#39;</span>) {
+            <span class="ident">s</span>.<span class="ident">pop</span>();
+            <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">ends_with</span>(<span class="string">&#39;\r&#39;</span>) {
+                <span class="ident">s</span>.<span class="ident">pop</span>();
+            }
+        }
+    }
 
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">read_line</span>(<span class="kw-2">&amp;mut</span> <span class="ident">line</span>) {
         <span class="kw">if</span> <span class="ident">n</span> <span class="op">==</span> <span class="number">0</span> {
@@ -339,8 +421,8 @@
             <span class="comment">// comment, do nothing</span>
         } <span class="kw">else</span> {
             <span class="comment">// try to load password from line</span>
-            <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">line</span>[..<span class="ident">line</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>]; <span class="comment">// trim newline</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">password</span>) <span class="op">=</span> <span class="ident">load_password_from_line</span>(<span class="ident">line</span>, <span class="ident">host</span>, <span class="ident">port</span>, <span class="ident">username</span>, <span class="ident">database</span>) {
+            <span class="ident">trim_newline</span>(<span class="kw-2">&amp;mut</span> <span class="ident">line</span>);
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">password</span>) <span class="op">=</span> <span class="ident">load_password_from_line</span>(<span class="kw-2">&amp;</span><span class="ident">line</span>, <span class="ident">host</span>, <span class="ident">port</span>, <span class="ident">username</span>, <span class="ident">database</span>) {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">password</span>);
             }
         }
@@ -434,7 +516,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">find_next_field</span>, <span class="ident">load_password_from_line</span>};
+    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">find_next_field</span>, <span class="ident">load_password_from_line</span>, <span class="ident">load_password_from_reader</span>};
     <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -531,6 +613,48 @@
                 <span class="string">&quot;foo&quot;</span>,
                 <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>)
             ),
+            <span class="prelude-val">None</span>
+        );
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_load_password_from_reader</span>() {
+        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="string">b&quot;\
+            localhost:5432:bar:foo:baz\n\
+            # mixed line endings (also a comment!)\n\
+            *:5432:bar:foo:baz\r\n\
+            # trailing space, comment with CRLF! \r\n\
+            thishost:5432:bar:foo:baz \n\
+            # malformed line \n\
+            thathost:5432:foobar:foo\n\
+            # missing trailing newline\n\
+            localhost:5432:*:foo:baz
+        &quot;</span>;
+
+        <span class="comment">// normal</span>
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">load_password_from_reader</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">file</span>[..], <span class="string">&quot;localhost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>)),
+            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.<span class="ident">to_owned</span>())
+        );
+        <span class="comment">// wildcard</span>
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">load_password_from_reader</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">file</span>[..], <span class="string">&quot;localhost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;foobar&quot;</span>)),
+            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.<span class="ident">to_owned</span>())
+        );
+        <span class="comment">// accept wildcard with missing db</span>
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">load_password_from_reader</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">file</span>[..], <span class="string">&quot;localhost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">None</span>),
+            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.<span class="ident">to_owned</span>())
+        );
+
+        <span class="comment">// doesn&#39;t match</span>
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">load_password_from_reader</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">file</span>[..], <span class="string">&quot;thathost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;foobar&quot;</span>)),
+            <span class="prelude-val">None</span>
+        );
+        <span class="comment">// malformed entry</span>
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">load_password_from_reader</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">file</span>[..], <span class="string">&quot;thathost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;foobar&quot;</span>)),
             <span class="prelude-val">None</span>
         );
     }

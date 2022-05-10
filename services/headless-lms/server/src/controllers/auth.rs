@@ -99,13 +99,7 @@ pub async fn login(
     if app_conf.test_mode {
         warn!("Using test credentials. Normal accounts won't work.");
         let user = {
-            models::users::authenticate_test_user(
-                &mut conn,
-                email.clone(),
-                password.clone(),
-                &app_conf,
-            )
-            .await
+            models::users::authenticate_test_user(&mut conn, &email, &password, &app_conf).await
         };
 
         if let Ok(user) = user {
@@ -120,8 +114,8 @@ pub async fn login(
 
     let token = client
         .exchange_password(
-            &ResourceOwnerUsername::new(email.clone()),
-            &ResourceOwnerPassword::new(password.clone()),
+            &ResourceOwnerUsername::new(email),
+            &ResourceOwnerPassword::new(password),
         )
         .request_async(async_http_client_with_headers)
         .await;

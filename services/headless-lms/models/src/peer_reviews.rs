@@ -7,22 +7,24 @@ pub struct PeerReview {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub course_instance_id: Uuid,
+    pub course_id: Uuid,
     pub exercise_id: Option<Uuid>,
+    pub peer_reviews_to_give: i32,
+    pub peer_reviews_to_receive: i32,
 }
 
 pub async fn insert(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     exercise_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO peer_reviews (course_instance_id, exercise_id)
+INSERT INTO peer_reviews (course_id, exercise_id)
 VALUES ($1, $2)
-RETURNING id;
+RETURNING id
         ",
-        course_instance_id,
+        course_id,
         exercise_id
     )
     .fetch_one(conn)
@@ -33,17 +35,17 @@ RETURNING id;
 pub async fn insert_with_id(
     conn: &mut PgConnection,
     id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     exercise_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO peer_reviews (id, course_instance_id, exercise_id)
+INSERT INTO peer_reviews (id, course_id, exercise_id)
 VALUES ($1, $2, $3)
-RETURNING id;
+RETURNING id
         ",
         id,
-        course_instance_id,
+        course_id,
         exercise_id
     )
     .fetch_one(conn)
@@ -58,7 +60,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PeerRev
 SELECT *
 FROM peer_reviews
 WHERE id = $1
-  AND deleted_at IS NULL;
+  AND deleted_at IS NULL
         ",
         id
     )
@@ -67,19 +69,14 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn get_by_exercise_or_course_instance_id(
+pub async fn get_by_exercise_or_course_id(
     conn: &mut PgConnection,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<PeerReview> {
     match try_to_get_by_exercise_id(conn, exercise_id).await? {
         Some(peer_review) => Ok(peer_review),
-        None => {
-            let peer_review =
-                get_default_for_course_instance_by_course_instance_id(conn, course_instance_id)
-                    .await?;
-            Ok(peer_review)
-        }
+        None => get_default_for_course_by_course_id(conn, course_id).await,
     }
 }
 
@@ -93,7 +90,7 @@ pub async fn try_to_get_by_exercise_id(
 SELECT *
 FROM peer_reviews
 WHERE exercise_id = $1
-  AND deleted_at IS NULL;
+  AND deleted_at IS NULL
         ",
         exercise_id
     )
@@ -102,20 +99,20 @@ WHERE exercise_id = $1
     Ok(res)
 }
 
-pub async fn get_default_for_course_instance_by_course_instance_id(
+pub async fn get_default_for_course_by_course_id(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<PeerReview> {
     let res = sqlx::query_as!(
         PeerReview,
         "
 SELECT *
 FROM peer_reviews
-WHERE course_instance_id = $1
+WHERE course_id = $1
   AND exercise_id IS NULL
-  AND deleted_at IS NULL;
+  AND deleted_at IS NULL
         ",
-        course_instance_id
+        course_id
     )
     .fetch_one(conn)
     .await?;
@@ -128,7 +125,7 @@ pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
 UPDATE peer_reviews
 SET deleted_at = now()
 WHERE id = $1
-RETURNING id;
+RETURNING id
     ",
         id
     )
@@ -144,12 +141,12 @@ mod tests {
 
     #[tokio::test]
     async fn only_one_default_peer_review_per_course() {
-        insert_data!(:tx, :user, :org, :course, :instance);
+        insert_data!(:tx, :user, :org, :course);
 
-        let peer_review_1 = insert(tx.as_mut(), instance.id, None).await;
+        let peer_review_1 = insert(tx.as_mut(), course, None).await;
         assert!(peer_review_1.is_ok());
 
-        let peer_review_2 = insert(tx.as_mut(), instance.id, None).await;
+        let peer_review_2 = insert(tx.as_mut(), course, None).await;
         assert!(peer_review_2.is_err());
     }
 }

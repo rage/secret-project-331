@@ -181,12 +181,10 @@ WHERE id = $1
 
 /// Attempts to find a single random `ExerciseSlideSubmission` that is not related to the provided user.
 ///
-/// This function is mostly provided for very specific peer review purposes. Since getting other people's
-/// submissions wouldn't make any sense in the context of exams, only course instances are being considered.
-pub async fn try_to_get_random_from_other_users_by_exercise_and_course_instance_ids(
+/// This function is mostly provided for very specific peer review purposes.
+pub async fn try_to_get_random_from_other_users_by_exercise_id(
     conn: &mut PgConnection,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
     excluded_user_id: Uuid,
 ) -> ModelResult<Option<ExerciseSlideSubmission>> {
     let res = sqlx::query_as!(
@@ -205,13 +203,11 @@ SELECT id,
   user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
-  AND course_instance_id = $2
-  AND user_id <> $3
+  AND user_id <> $2
   AND deleted_at IS NULL
 ORDER BY random() ASC
         "#,
         exercise_id,
-        course_instance_id,
         excluded_user_id,
     )
     .fetch_optional(conn)

@@ -669,8 +669,10 @@ export interface PeerReview {
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
-  course_instance_id: string
+  course_id: string
   exercise_id: string | null
+  peer_reviews_to_give: number
+  peer_reviews_to_receive: number
 }
 
 export interface NewPeerReviewQuestion {

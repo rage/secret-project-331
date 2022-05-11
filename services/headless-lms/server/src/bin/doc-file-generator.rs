@@ -334,8 +334,10 @@ fn main() {
         created_at,
         updated_at,
         deleted_at,
-        course_instance_id: course_instance.id,
+        course_id: course.id,
         exercise_id: Some(exercise.id),
+        peer_reviews_to_give: 3,
+        peer_reviews_to_receive: 2,
     };
     let playground_example = PlaygroundExample {
         id,

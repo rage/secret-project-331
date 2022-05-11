@@ -345,6 +345,7 @@ pub async fn get_course_material_exercise(
                 // complicated course material exercise logic to own library file?
                 library::peer_reviewing::try_to_select_exercise_slide_submission_for_peer_review(
                     conn,
+                    &exercise,
                     user_exercise_state,
                 )
                 .await?

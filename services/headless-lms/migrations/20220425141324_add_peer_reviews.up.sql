@@ -18,20 +18,26 @@ CREATE TABLE peer_reviews (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  course_instance_id UUID NOT NULL REFERENCES course_instances(id),
-  exercise_id UUID REFERENCES exercises(id)
+  course_id UUID NOT NULL REFERENCES courses(id),
+  exercise_id UUID REFERENCES exercises(id),
+  peer_reviews_to_give INTEGER NOT NULL,
+  peer_reviews_to_receive INTEGER NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON peer_reviews FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-CREATE UNIQUE INDEX courses_have_only_one_default_peer_review ON peer_reviews (course_instance_id)
+CREATE UNIQUE INDEX courses_have_only_one_default_peer_review ON peer_reviews (course_id)
 WHERE deleted_at IS NULL
   AND exercise_id IS NULL;
+ALTER TABLE peer_reviews
+ADD CONSTRAINT more_given_than_received_peer_reviews CHECK (peer_reviews_to_give > peer_reviews_to_receive);
 COMMENT ON TABLE peer_reviews IS 'Collections for peer review questions that students have to answer to evaluate each others'' answers.';
 COMMENT ON COLUMN peer_reviews.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN peer_reviews.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN peer_reviews.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
-COMMENT ON COLUMN peer_reviews.course_instance_id IS 'Course instance that this course is a part of.';
+COMMENT ON COLUMN peer_reviews.course_id IS 'Course instance that this course is a part of.';
 COMMENT ON COLUMN peer_reviews.exercise_id IS 'Exercise that this peer review is a part of. There can be one peer review per course where this field is null, which will be used as the default for all peer reviewed exercises.';
+COMMENT ON COLUMN peer_reviews.peer_reviews_to_give IS '';
+COMMENT ON COLUMN peer_reviews.peer_reviews_to_receive IS '';
 -- Add enum for peer review question types
 CREATE TYPE peer_review_question_type AS ENUM ('essay', 'scale');
 -- Add peer review questions table

@@ -5,6 +5,7 @@ use rand::{seq::SliceRandom, thread_rng};
 use crate::{
     exercise_slide_submissions::{self, ExerciseSlideSubmission},
     exercise_task_submissions::{self, ExerciseTaskSubmissionWithSpec},
+    exercises::Exercise,
     peer_review_question_submissions,
     peer_review_questions::{self, PeerReviewQuestion},
     peer_review_queue_entries, peer_review_submissions,
@@ -55,7 +56,7 @@ pub async fn create_peer_review_submission_for_user(
     user_exercise_state: &UserExerciseState,
     peer_review_submission: CourseMaterialPeerReviewSubmission,
 ) -> ModelResult<()> {
-    let peer_review = peer_reviews::get_by_exercise_or_course_instance_id(
+    let peer_review = peer_reviews::get_by_exercise_or_course_id(
         conn,
         user_exercise_state.exercise_id,
         user_exercise_state.get_course_instance_id()?,
@@ -147,14 +148,15 @@ pub struct CourseMaterialPeerReviewData {
 /// submissions for the specified exercise.
 pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     conn: &mut PgConnection,
+    exercise: &Exercise,
     user_exercise_state: &UserExerciseState,
 ) -> ModelResult<Option<CourseMaterialPeerReviewData>> {
     // TODO: Get already answered from peer review submissions.
     let excluded_submission_ids = Vec::new();
-    let peer_review = peer_reviews::get_by_exercise_or_course_instance_id(
+    let peer_review = peer_reviews::get_by_exercise_or_course_id(
         conn,
         user_exercise_state.exercise_id,
-        user_exercise_state.get_course_instance_id()?,
+        exercise.get_course_id()?,
     )
     .await?;
     let candidate_submission_id = try_to_select_peer_review_candidate_from_queue(
@@ -171,11 +173,10 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         None => {
             // At the start of a course there can be a short period when there aren't any peer reviews.
             // In that case just get a random one.
-            exercise_slide_submissions::try_to_get_random_from_other_users_by_exercise_and_course_instance_ids(
+            exercise_slide_submissions::try_to_get_random_from_other_users_by_exercise_id(
                 conn,
                 user_exercise_state.exercise_id,
-                user_exercise_state.get_course_instance_id()?,
-                user_exercise_state.user_id
+                user_exercise_state.user_id,
             )
             .await?
         }

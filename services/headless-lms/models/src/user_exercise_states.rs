@@ -48,6 +48,15 @@ impl UserExerciseState {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct UserExerciseStateUpdate {
+    pub id: Uuid,
+    pub score_given: Option<f32>,
+    pub activity_progress: ActivityProgress,
+    pub exercise_progress: ExerciseProgress,
+    pub grading_progress: GradingProgress,
+}
+
 /// Either a course instance or exam id.
 ///
 /// Exercises can either be part of courses or exams. Many user-related actions need to differentiate
@@ -503,6 +512,45 @@ WHERE user_id = $1
         .await?;
     }
     Ok(())
+}
+
+pub async fn update(
+    conn: &mut PgConnection,
+    user_exercise_state_update: UserExerciseStateUpdate,
+) -> ModelResult<UserExerciseState> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+UPDATE user_exercise_states
+SET score_given = $1,
+  activity_progress = $2,
+  exercise_progress = $3,
+  grading_progress = $4
+WHERE id = $5
+  AND deleted_at IS NULL
+RETURNING id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  exercise_progress AS "exercise_progress: _",
+  selected_exercise_slide_id
+        "#,
+        user_exercise_state_update.score_given,
+        user_exercise_state_update.activity_progress as ActivityProgress,
+        user_exercise_state_update.exercise_progress as ExerciseProgress,
+        user_exercise_state_update.grading_progress as GradingProgress,
+        user_exercise_state_update.id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn update_exercise_progress(

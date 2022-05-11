@@ -2,8 +2,8 @@
 const generateNormalResponseHeaders =
   require("./src/shared-module/utils/responseHeaders").generateNormalResponseHeaders
 
-// Forces one to sanitize HTML before using dangerouslySetInnerHTML
-const normalResponseHeaders = generateNormalResponseHeaders({ requireTrustedTypesFor: true })
+// Trusted types blocked on: https://github.com/vercel/next.js/issues/32209
+const normalResponseHeaders = generateNormalResponseHeaders({ requireTrustedTypesFor: false })
 
 const config = {
   eslint: {

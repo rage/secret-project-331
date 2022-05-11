@@ -242,7 +242,11 @@ async fn get_course_material_peer_review_data(
     let peer_review_questions =
         peer_review_questions::get_all_by_peer_review_id(conn, peer_review.id).await?;
     let exercise_task_submissions =
-        exercise_task_submissions::get_stuff(conn, exercise_slide_submission.id).await?;
+        exercise_task_submissions::get_task_submissions_with_specs_by_exercise_slide_id(
+            conn,
+            exercise_slide_submission.id,
+        )
+        .await?;
     Ok(CourseMaterialPeerReviewData {
         exercise_slide_submission_id: exercise_slide_submission.id,
         exercise_task_submissions,

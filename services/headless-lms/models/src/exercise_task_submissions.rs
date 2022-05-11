@@ -86,7 +86,7 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn get_stuff(
+pub async fn get_task_submissions_with_specs_by_exercise_slide_id(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,
 ) -> ModelResult<Vec<ExerciseTaskSubmissionWithSpec>> {

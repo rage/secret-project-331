@@ -398,7 +398,7 @@ async fn update_user_exercise_state(
     );
     let user_exercise_state_update = derive_new_user_exercise_state(
         exercise,
-        &user_exercise_state,
+        user_exercise_state,
         new_score_given,
         grading_progress,
     );

@@ -7,8 +7,9 @@ import { baseTheme } from "../../styles"
 import { primaryFont } from "../../styles/typography"
 
 interface TextFieldExtraProps {
+  name?: string
   type?: "email" | "password" | "text" | "number"
-  label: string
+  label?: string
   hint?: string
   error?: string
   placeholder?: string
@@ -39,18 +40,23 @@ const Input = styled.input<InputExtraProps>`
   border-style: solid;
   border-radius: 3px;
   border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
-  padding: 4px 12px;
+  padding: 10px 12px;
   transition: ease-in-out, width 0.35s ease-in-out;
   outline: none;
-  min-width: 280px;
+  min-width: 20px;
   width: 100%;
   display: block;
+  font-size: 18px;
 
   ${({ disabled }) => disabled && `cursor: not-allowed;`}
 
   &:focus,
   &:active {
     border-color: #55b3f5;
+  }
+
+  @media (max-width: 767.98px) {
+    padding: 6px 8px;
   }
 `
 
@@ -77,22 +83,25 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
       )}
     >
       <label>
-        <span
-          className={css`
-            color: #333;
-            font-family: ${primaryFont};
-            font-weight: 500;
-            font-size: 14px;
-            display: inline-block;
-            margin-bottom: 2px;
-            ${disabled && `color: ${baseTheme.colors.grey[400]};`}
-            ${disabled && `cursor: not-allowed;`}
-          `}
-        >
-          {rest.label}
-        </span>
+        {rest.label && (
+          <div
+            className={css`
+              color: #333;
+              font-family: ${primaryFont};
+              font-weight: 500;
+              font-size: 14px;
+              display: inline-block;
+              margin-bottom: 2px;
+              ${disabled && `color: ${baseTheme.colors.grey[400]};`}
+              ${disabled && `cursor: not-allowed;`}
+            `}
+          >
+            {rest.label}
+          </div>
+        )}
         <Input
           id={rest.id}
+          name={rest.name}
           disabled={disabled}
           // eslint-disable-next-line i18next/no-literal-string
           aria-errormessage={`${rest.label}_error`}

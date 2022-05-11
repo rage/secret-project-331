@@ -649,7 +649,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -832,7 +832,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -1971,7 +1971,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -2245,7 +2245,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -2413,7 +2413,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -2606,6 +2606,16 @@
         true,
         false
       ]
+    }
+  },
+  "3086750b6507141d9cde0b6fbb88c242f4e5605e18145ab8fe63b33501255dfb": {
+    "query": "\nINSERT INTO exercise_tasks (\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    spec_file_id,\n    public_spec,\n    model_solution_spec,\n    order_number,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  uuid_generate_v5($1, exercise_slide_id::text),\n  exercise_type,\n  assignment,\n  private_spec,\n  spec_file_id,\n  public_spec,\n  model_solution_spec,\n  order_number,\n  id\nFROM exercise_tasks\nWHERE exercise_slide_id IN (\n    SELECT s.id\n    FROM exercise_slides s\n      JOIN exercises e ON (e.id = s.exercise_id)\n    WHERE e.course_id = $2 OR e.exam_id = $2\n    AND e.deleted_at IS NULL\n    AND s.deleted_at IS NULL\n  )\nAND deleted_at IS NULL;\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "310d303ee9cea12a2e88194ccff5b4084c9b079ad54cad555edacf336c21cfd7": {
@@ -4250,7 +4260,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -4521,6 +4531,47 @@
       "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
+  "62eb815d156490c85deffee0a43a04e454890fe62b07edebe2ad8b9616268ba4": {
+    "query": "\n    SELECT\n        p.id as page_id,\n        p.title as page_title,\n        c.id as \"course_id?\",\n        c.name as \"course_name?\",\n        c.slug as \"course_slug?\",\n        o.slug as \"organization_slug?\"\n    FROM pages p\n    LEFT JOIN courses c\n        on c.id = p.course_id\n    LEFT JOIN organizations o\n        on o.id = c.organization_id\n    WHERE p.id = $1;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "page_title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id?",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_name?",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_slug?",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "organization_slug?",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, false, false]
+    }
+  },
   "64fe3f5421ad33305f9f1daef9da4fb63db3edc86b7e769e21e689b67f2d9839": {
     "query": "\nINSERT INTO exercise_task_gradings(\n    exercise_task_submission_id,\n    course_id,\n    exam_id,\n    exercise_id,\n    exercise_task_id,\n    grading_started_at\n  )\nVALUES($1, $2, $3, $4, $5, now())\nRETURNING id,\n  created_at,\n  updated_at,\n  exercise_task_submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  unscaled_score_given,\n  unscaled_score_maximum,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\n",
     "describe": {
@@ -4664,16 +4715,6 @@
       "nullable": [null]
     }
   },
-  "6614cce685d4ef479b4006c4f7256843a2485627072b3e6b82a7deb731e43c72": {
-    "query": "\n    INSERT INTO exercise_slides (\n        id, exercise_id, order_number\n    )\n    SELECT uuid_generate_v5($1, id::text),\n        uuid_generate_v5($1, exercise_id::text),\n        order_number\n    FROM exercise_slides\n    WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2 AND deleted_at IS NULL)\n    AND deleted_at IS NULL;\n            ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "680c5eed3c49d67d404af7d0a2df7dc8f9391db14848e8aff877a8a117335be2": {
     "query": "SELECT * FROM exercises WHERE id = $1;",
     "describe": {
@@ -4812,7 +4853,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -5127,7 +5168,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -7931,16 +7972,6 @@
       "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
     }
   },
-  "aa3d589f5ad62e428553c37b3629fbe81b79261e73cebbe2e70bed882c5c39d8": {
-    "query": "\nINSERT INTO exams (\n    id,\n    name,\n    instructions,\n    starts_at,\n    ends_at,\n    time_minutes,\n    organization_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Jsonb", "Timestamptz", "Timestamptz", "Int4", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "aabbcdc5984f0c7fc03acf0c2f53ebb8f0ff5f2b8993a81bd988be4bbf240a70": {
     "query": "\nINSERT INTO exercise_slides (id, exercise_id, order_number)\nVALUES ($1, $2, $3) ON CONFLICT (id) DO\nUPDATE\nSET exercise_id = $2,\n    order_number = $3,\n    deleted_at = NULL\nRETURNING id;\n    ",
     "describe": {
@@ -7953,6 +7984,22 @@
       ],
       "parameters": {
         "Left": ["Uuid", "Uuid", "Int4"]
+      },
+      "nullable": [false]
+    }
+  },
+  "ab512d5393d172dfdeb96e097b1214c65f66cededf3a2ca08c10fdb3759c8c2a": {
+    "query": "\nINSERT INTO exams (\n    id,\n    name,\n    instructions,\n    starts_at,\n    ends_at,\n    time_minutes,\n    organization_id\n  )\nVALUES (COALESCE($1, uuid_generate_v4()), $2, $3, $4, $5, $6, $7)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Jsonb", "Timestamptz", "Timestamptz", "Int4", "Uuid"]
       },
       "nullable": [false]
     }
@@ -8488,7 +8535,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -8976,16 +9023,6 @@
       "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
-  "bc685ac9ccab125d7b10d5fefa57ac5a3ff24d34cf57bb034adb252990eeb3cd": {
-    "query": "\nINSERT INTO exercise_tasks (\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    spec_file_id,\n    public_spec,\n    model_solution_spec,\n    order_number,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  uuid_generate_v5($1, exercise_slide_id::text),\n  exercise_type,\n  assignment,\n  private_spec,\n  spec_file_id,\n  public_spec,\n  model_solution_spec,\n  order_number,\n  id\nFROM exercise_tasks\nWHERE exercise_slide_id IN (\n    SELECT s.id\n    FROM exercise_slides s\n      JOIN exercises e ON (e.id = s.exercise_id)\n    WHERE e.course_id = $2\n    AND e.deleted_at IS NULL\n    AND s.deleted_at IS NULL\n  )\nAND deleted_at IS NULL;\n    ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "bc9ec84596a94fb96cb6efa0bc1ea8e7b99add5da3e67ec659365c02623a770c": {
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  user_exercise_state_id,\n  score_given,\n  grading_progress AS \"grading_progress: _\"\nFROM user_exercise_slide_states\nWHERE user_exercise_state_id = $1\n  AND deleted_at IS NULL\n        ",
     "describe": {
@@ -9266,7 +9303,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -9503,7 +9540,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -9659,7 +9696,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -9858,6 +9895,16 @@
         "Left": ["Uuid"]
       },
       "nullable": [false]
+    }
+  },
+  "d649285a0c9cf46bdad2303ee6d7793ff5d1a7ce58f402e070c69f7187b57085": {
+    "query": "\n    INSERT INTO exercise_slides (\n        id, exercise_id, order_number\n    )\n    SELECT uuid_generate_v5($1, id::text),\n        uuid_generate_v5($1, exercise_id::text),\n        order_number\n    FROM exercise_slides\n    WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2 OR exam_id = $2 AND deleted_at IS NULL)\n    AND deleted_at IS NULL;\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "d67631e6ddcdf17214fc75f0c9f760507d1fdce3c948f1524b5668403e197de3": {
@@ -10588,47 +10635,6 @@
       "nullable": [true, true]
     }
   },
-  "e0b4500a82c00392858356fa3059ce8c827c665abcbe5e703b8350ec39965df7": {
-    "query": "\n    SELECT\n        p.id as page_id,\n        p.title as page_title,\n        c.id as course_id,\n        c.name as course_name,\n        c.slug as course_slug,\n        o.slug as organization_slug\n    FROM pages p\n    JOIN courses c\n        on c.id = p.course_id\n    JOIN organizations o\n        on o.id = c.organization_id\n    WHERE p.id = $1;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "page_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "page_title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "course_slug",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 5,
-          "name": "organization_slug",
-          "type_info": "Varchar"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, false, false]
-    }
-  },
   "e2fe96906db5d05fa1a8b0aabc25e9027c386b349f11d4c26bcf7db1864af6cf": {
     "query": "\nselect max(p.order_number) as order_number\nfrom pages p\nwhere p.chapter_id = $1\n  and p.deleted_at is null;\n",
     "describe": {
@@ -11126,7 +11132,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -11217,7 +11223,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -11418,7 +11424,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -11542,7 +11548,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }

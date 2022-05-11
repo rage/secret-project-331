@@ -218,7 +218,7 @@ pub async fn get_service_info_by_exercise_service(
     let service_info = if let Ok(exercise_service_info) = res {
         exercise_service_info
     } else {
-        warn!("Could not find service info for service. This is rare and only should happen when a background worker has not had the opportunity to complete their fetching task yet. Trying the fetching here in this worker so that we can continue.");
+        warn!("Could not find service info for {} ({}). This is rare and only should happen when a background worker has not had the opportunity to complete their fetching task yet. Trying the fetching here in this worker so that we can continue.", exercise_service.name, exercise_service.slug);
         let fetched_service_info = fetch_and_upsert_service_info(conn, exercise_service).await?;
         fetched_service_info
     };

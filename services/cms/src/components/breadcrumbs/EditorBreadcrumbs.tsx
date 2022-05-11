@@ -37,6 +37,11 @@ const EditorBreadcrumbs: React.FC = () => {
   const pageTitle = data.data.page_title
   const courseId = data.data.course_id
   const courseName = data.data.course_name
+
+  // Exams might now have courseId and the CMS breadcrumb will be broken
+  if (!courseId || !courseName) {
+    return null
+  }
   /* eslint-disable i18next/no-literal-string */
   const pieces = [
     {

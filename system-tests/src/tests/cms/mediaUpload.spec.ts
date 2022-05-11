@@ -50,8 +50,11 @@ test.describe("Uploading media as admin", async () => {
     ])
     expect(page.url().startsWith("http://project-331.local/cms/pages/")).toBe(true)
 
-    // Click text=Type / to choose a block and type /image
-    await page.type("text=Type / to choose a block", "/image")
+    await page.locator(`[aria-label="Add default block"]`).click()
+    await page
+      .locator(`[aria-label="Empty block; start writing or type forward slash to choose a block"]`)
+      .type(`/image`)
+
     // Click :nth-match(:text("Image"), 2)
     await page.click('text="Image"')
 

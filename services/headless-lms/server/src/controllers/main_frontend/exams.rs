@@ -32,23 +32,6 @@ pub struct ExamCourseInfo {
 }
 
 /**
-POST `/api/v0/main-frontend/exams`
-*/
-#[generated_doc]
-#[instrument(skip(pool))]
-pub async fn create_exam(
-    pool: web::Data<PgPool>,
-    exam: web::Json<exams::NewExam>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<()>> {
-    let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(exam.id)).await?;
-
-    let exam = exams::insert(&mut conn, &exam.0).await?;
-    Ok(web::Json(exam))
-}
-
-/**
 POST `/api/v0/main-frontend/exams/:id/set`
 */
 #[generated_doc]
@@ -181,15 +164,26 @@ async fn duplicate_exam(
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
+    let organization_id = models::exams::get_organization_id(&mut conn, *exam_id).await?;
     authorize(
         &mut conn,
-        Act::Duplicate,
+        Act::CreateCoursesOrExams,
         Some(user.id),
-        Res::Exam(*exam_id),
+        Res::Organization(organization_id),
     )
     .await?;
 
-    models::library::copying::copy_exam(&mut conn, &exam_id, &new_exam).await?;
+    let mut tx = conn.begin().await?;
+    let new_exam = models::library::copying::copy_exam(&mut tx, &exam_id, &new_exam).await?;
+
+    models::roles::insert(
+        &mut tx,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Exam(new_exam.id),
+    )
+    .await?;
+    tx.commit().await?;
 
     Ok(web::Json(()))
 }

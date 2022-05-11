@@ -1,6 +1,7 @@
 {
   "add-new-quiz-item": "Add new quiz item",
   "add-option": "Add option",
+  "add-new-event": "Add new event",
   "all-answers-correct": "All answers correct (no matter what one answers it is correct)",
   "allow-selecting-multiple-options": "Allow selecting multiple options",
   "answer": "Answer",
@@ -68,5 +69,13 @@
   "word-count": "Word count",
   "your-answer-was-correct": "Your answer was correct.",
   "your-answer-was-not-correct": "Your answer was not correct.",
-  "select-all-correct-options": "Select all correct options."
+  "select-all-correct-options": "Select all correct options.",
+  "label-year": "Year",
+  "label-correct-event": "Correct event",
+  "placeholder-some-notable-event": "Some notable event",
+  "add": "Add",
+  "deleted-option": "Deleted option",
+  "quiz-type-not-supported": "Quiz type not supported",
+  "not-answered": "Not answered",
+  "remove": "Remove"
 }

@@ -29,6 +29,7 @@ const TYPES = [
   "matrix",
   "multiple-choice-dropdown",
   "clickable-multiple-choice",
+  "timeline",
 ]
 
 export const AddQuizItem: React.FC = () => {

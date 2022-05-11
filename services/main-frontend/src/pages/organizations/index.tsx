@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import Layout from "../../components/Layout"
 import OrganizationsList from "../../components/page-specific/organizations/index/OrganizationsList"
+import RenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 const MANAGE_EXERCISE_SERVICES_HREF = "/manage/exercise-services"
@@ -15,31 +16,32 @@ const Home: React.FC = () => {
     <Layout>
       <OrganizationsList />
 
-      {/* Temporary view for the exercise services */}
-      <h1
-        className={css`
-          text-align: center;
-          font-weight: 600;
-          font-size: 3em;
-          color: #656565;
-        `}
-      >
-        {t("title-services")}
-      </h1>
-      <div>
-        <Link href={MANAGE_EXERCISE_SERVICES_HREF} passHref>
-          <a
-            href="replace"
-            className={css`
-              cursor: pointer;
-              color: blue;
-              text-decoration: underline;
-            `}
-          >
-            {t("link-manage-exercise-services")}
-          </a>
-        </Link>
-      </div>
+      <RenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
+        <h1
+          className={css`
+            text-align: center;
+            font-weight: 600;
+            font-size: 3em;
+            color: #656565;
+          `}
+        >
+          {t("title-services")}
+        </h1>
+        <div>
+          <Link href={MANAGE_EXERCISE_SERVICES_HREF} passHref>
+            <a
+              href="replace"
+              className={css`
+                cursor: pointer;
+                color: blue;
+                text-decoration: underline;
+              `}
+            >
+              {t("link-manage-exercise-services")}
+            </a>
+          </Link>
+        </div>
+      </RenderIfPermissions>
     </Layout>
   )
 }

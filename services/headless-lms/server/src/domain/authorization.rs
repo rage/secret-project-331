@@ -348,6 +348,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
             View | Edit | Grade | DeleteAnswer | EditRole(Assistant | Reviewer)
         ),
         Reviewer => matches!(action, View | Grade),
+        CourseOrExamCreator => matches!(action, CreateCoursesOrExams),
     }
 }
 

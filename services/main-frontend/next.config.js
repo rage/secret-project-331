@@ -4,7 +4,7 @@
 const generateNormalResponseHeaders =
   require("./src/shared-module/utils/responseHeaders").generateNormalResponseHeaders
 
-const normalResponseHeaders = generateNormalResponseHeaders()
+const normalResponseHeaders = generateNormalResponseHeaders({ requireTrustedTypesFor: true })
 
 const config = {
   eslint: {

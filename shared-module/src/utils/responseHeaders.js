@@ -27,7 +27,7 @@ function generateNormalResponseHeaders(options = { requireTrustedTypesFor: false
         "frame-src * data: blob:",
         "img-src 'self' data: blob: https://storage.googleapis.com abs.twimg.com https://pbs.twimg.com ton.twimg.com platform.twitter.com",
         "script-src 'self' 'unsafe-eval' 'inline' 'unsafe-inline' data: blob: https://cdn.syndication.twimg.com platform.twitter.com",
-        "style-src 'self' 'inline' 'unsafe-inline' https://ton.twimg.com platform.twitter.com",
+        "style-src 'self' 'unsafe-inline' https://ton.twimg.com platform.twitter.com",
         "object-src 'none'",
         "frame-ancestors 'none'",
         "base-uri 'none'",

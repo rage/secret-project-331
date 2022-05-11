@@ -1,8 +1,10 @@
 /* eslint-disable import/order */
 /* eslint-disable i18next/no-literal-string */
 /* eslint-disable @typescript-eslint/no-var-requires */
-const normalResponseHeaders =
-  require("./src/shared-module/utils/responseHeaders").normalResponseHeaders
+const generateNormalResponseHeaders =
+  require("./src/shared-module/utils/responseHeaders").generateNormalResponseHeaders
+
+const normalResponseHeaders = generateNormalResponseHeaders()
 
 const config = {
   eslint: {

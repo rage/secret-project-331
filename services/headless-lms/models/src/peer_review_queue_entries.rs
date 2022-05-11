@@ -8,7 +8,8 @@ pub struct PeerReviewQueueEntry {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub user_id: Uuid,
-    pub peer_review_id: Uuid,
+    pub exercise_id: Uuid,
+    pub course_instance_id: Uuid,
     pub receiving_peer_reviews_exercise_slide_submission_id: Uuid,
     pub received_enough_peer_reviews: bool,
     pub peer_review_priority: i32,
@@ -17,7 +18,8 @@ pub struct PeerReviewQueueEntry {
 pub async fn insert(
     conn: &mut PgConnection,
     user_id: Uuid,
-    peer_review_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
     receiving_peer_reviews_exercise_slide_submission_id: Uuid,
     peer_review_priority: i32,
 ) -> ModelResult<Uuid> {
@@ -25,15 +27,17 @@ pub async fn insert(
         "
 INSERT INTO peer_review_queue_entries (
     user_id,
-    peer_review_id,
+    exercise_id,
+    course_instance_id,
     receiving_peer_reviews_exercise_slide_submission_id,
     peer_review_priority
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
         ",
         user_id,
-        peer_review_id,
+        exercise_id,
+        course_instance_id,
         receiving_peer_reviews_exercise_slide_submission_id,
         peer_review_priority,
     )
@@ -45,18 +49,37 @@ RETURNING id
 pub async fn upsert(
     conn: &mut PgConnection,
     user_id: Uuid,
-    peer_review_id: Uuid,
-    submission_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
 ) -> ModelResult<PeerReviewQueueEntry> {
-    let peer_review_queue_entry =
-        try_to_get_by_user_and_peer_review_ids(conn, user_id, peer_review_id).await?;
+    // Can't do actual upsert due to partial constraint.
+    let peer_review_queue_entry = try_to_get_by_user_and_exercise_and_course_instance_ids(
+        conn,
+        user_id,
+        exercise_id,
+        course_instance_id,
+    )
+    .await?;
     if let Some(peer_review_queue_entry) = peer_review_queue_entry {
-        let peer_review_queue_entry =
-            update(conn, peer_review_queue_entry.id, submission_id, 0).await?;
+        let peer_review_queue_entry = update(
+            conn,
+            peer_review_queue_entry.id,
+            receiving_peer_reviews_exercise_slide_submission_id,
+            0,
+        )
+        .await?;
         Ok(peer_review_queue_entry)
     } else {
-        let peer_review_queue_entry_id =
-            insert(conn, user_id, peer_review_id, submission_id, 0).await?;
+        let peer_review_queue_entry_id = insert(
+            conn,
+            user_id,
+            exercise_id,
+            course_instance_id,
+            receiving_peer_reviews_exercise_slide_submission_id,
+            0,
+        )
+        .await?;
         let peer_review_queue_entry = get_by_id(conn, peer_review_queue_entry_id).await?;
         Ok(peer_review_queue_entry)
     }
@@ -102,10 +125,11 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn get_by_user_and_peer_review_ids(
+pub async fn get_by_user_and_exercise_and_course_instance_ids(
     conn: &mut PgConnection,
     user_id: Uuid,
-    peer_review_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
 ) -> ModelResult<PeerReviewQueueEntry> {
     let res = sqlx::query_as!(
         PeerReviewQueueEntry,
@@ -113,30 +137,36 @@ pub async fn get_by_user_and_peer_review_ids(
 SELECT *
 FROM peer_review_queue_entries
 WHERE user_id = $1
-  AND peer_review_id = $2
+  AND exercise_id = $2
+  AND course_instance_id = $3
   AND deleted_at IS NULL
         ",
         user_id,
-        peer_review_id,
+        exercise_id,
+        course_instance_id,
     )
     .fetch_one(conn)
     .await?;
     Ok(res)
 }
 
-pub async fn try_to_get_by_user_and_peer_review_ids(
+pub async fn try_to_get_by_user_and_exercise_and_course_instance_ids(
     conn: &mut PgConnection,
     user_id: Uuid,
-    peer_review_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
 ) -> ModelResult<Option<PeerReviewQueueEntry>> {
-    get_by_user_and_peer_review_ids(conn, user_id, peer_review_id)
+    get_by_user_and_exercise_and_course_instance_ids(conn, user_id, exercise_id, course_instance_id)
         .await
         .optional()
 }
 
+/// Gets multiple records of `PeerReviewQueueEntry` ordered by peer review priority.
+///
+/// Doesn't differentiate between different course instances.
 pub async fn get_many_by_exercise_id_and_review_priority(
     conn: &mut PgConnection,
-    peer_review_id: Uuid,
+    exercise_id: Uuid,
     excluded_user_id: Uuid,
     excluded_submissions_ids: &[Uuid],
     count: i64,
@@ -146,7 +176,7 @@ pub async fn get_many_by_exercise_id_and_review_priority(
         "
 SELECT *
 FROM peer_review_queue_entries
-WHERE peer_review_id = $1
+WHERE exercise_id = $1
   AND user_id <> $2
   AND receiving_peer_reviews_exercise_slide_submission_id NOT IN (
     SELECT UNNEST($3::uuid [])
@@ -155,7 +185,7 @@ WHERE peer_review_id = $1
 ORDER BY peer_review_priority DESC
 LIMIT $4
             ",
-        peer_review_id,
+        exercise_id,
         excluded_user_id,
         excluded_submissions_ids,
         count,
@@ -165,9 +195,13 @@ LIMIT $4
     Ok(res)
 }
 
+/// Gets multiple records of `PeerReviewQueueEntry` that still require more peer reviews, ordered by
+/// peer review priority.
+///
+/// Doesn't differentiate between different course instances.
 pub async fn get_many_that_need_peer_reviews_by_exercise_id_and_review_priority(
     conn: &mut PgConnection,
-    peer_review_id: Uuid,
+    exercise_id: Uuid,
     excluded_user_id: Uuid,
     excluded_submissions_ids: &[Uuid],
     count: i64,
@@ -177,7 +211,7 @@ pub async fn get_many_that_need_peer_reviews_by_exercise_id_and_review_priority(
         "
 SELECT *
 FROM peer_review_queue_entries
-WHERE peer_review_id = $1
+WHERE exercise_id = $1
   AND user_id <> $2
   AND receiving_peer_reviews_exercise_slide_submission_id NOT IN (
     SELECT UNNEST($3::uuid [])
@@ -187,7 +221,7 @@ WHERE peer_review_id = $1
 ORDER BY peer_review_priority DESC
 LIMIT $4
         ",
-        peer_review_id,
+        exercise_id,
         excluded_user_id,
         excluded_submissions_ids,
         count,

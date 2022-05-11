@@ -66,21 +66,23 @@ CREATE TABLE peer_review_queue_entries(
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   user_id UUID NOT NULL REFERENCES users(id),
-  peer_review_id UUID NOT NULL REFERENCES peer_reviews(id),
+  exercise_id UUID NOT NULL REFERENCES exercises(id),
+  course_instance_id UUID NOT NULL REFERENCES course_instances(id),
   receiving_peer_reviews_exercise_slide_submission_id UUID NOT NULL REFERENCES exercise_slide_submissions(id),
   received_enough_peer_reviews BOOLEAN NOT NULL DEFAULT 'false',
   peer_review_priority INTEGER NOT NULL DEFAULT 0
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON peer_review_queue_entries FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-CREATE UNIQUE INDEX peer_review_queue_entry_user_and_peer_review_uniqueness ON peer_review_queue_entries (user_id, peer_review_id)
+CREATE UNIQUE INDEX peer_review_queue_entry_user_exercise_and_course_instance_uniqueness ON peer_review_queue_entries (user_id, exercise_id, course_instance_id)
 WHERE deleted_at IS NULL;
 COMMENT ON TABLE peer_review_queue_entries IS 'Table for queueing up for peer reviews.';
 COMMENT ON COLUMN peer_review_queue_entries.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN peer_review_queue_entries.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN peer_review_queue_entries.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN peer_review_queue_entries.user_id IS 'TODO';
-COMMENT ON COLUMN peer_review_queue_entries.peer_review_id IS 'TODO';
+COMMENT ON COLUMN peer_review_queue_entries.exercise_id IS 'TODO';
+COMMENT ON COLUMN peer_review_queue_entries.course_instance_id IS 'TODO';
 COMMENT ON COLUMN peer_review_queue_entries.receiving_peer_reviews_exercise_slide_submission_id IS 'TODO';
 COMMENT ON COLUMN peer_review_queue_entries.received_enough_peer_reviews IS 'Whether or not this queue entry has already received enough peer reviews. Simply a boolean for performance reasons.';
 COMMENT ON COLUMN peer_review_queue_entries.peer_review_priority IS 'TODO';

@@ -127,21 +127,26 @@
         },
         {
           "ordinal": 5,
-          "name": "peer_review_id",
+          "name": "exercise_id",
           "type_info": "Uuid"
         },
         {
           "ordinal": 6,
-          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "name": "course_instance_id",
           "type_info": "Uuid"
         },
         {
           "ordinal": 7,
+          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
           "name": "received_enough_peer_reviews",
           "type_info": "Bool"
         },
         {
-          "ordinal": 8,
+          "ordinal": 9,
           "name": "peer_review_priority",
           "type_info": "Int4"
         }
@@ -149,7 +154,7 @@
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, false, false]
+      "nullable": [false, false, false, true, false, false, false, false, false, false]
     }
   },
   "01125b4c8cd60ca94b41c5594ac8dfdb15e4d05409cd445903166385e6f0f839": {
@@ -454,21 +459,26 @@
         },
         {
           "ordinal": 5,
-          "name": "peer_review_id",
+          "name": "exercise_id",
           "type_info": "Uuid"
         },
         {
           "ordinal": 6,
-          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "name": "course_instance_id",
           "type_info": "Uuid"
         },
         {
           "ordinal": 7,
+          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
           "name": "received_enough_peer_reviews",
           "type_info": "Bool"
         },
         {
-          "ordinal": 8,
+          "ordinal": 9,
           "name": "peer_review_priority",
           "type_info": "Int4"
         }
@@ -476,7 +486,7 @@
       "parameters": {
         "Left": ["Int4", "Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, false, false]
+      "nullable": [false, false, false, true, false, false, false, false, false, false]
     }
   },
   "06518b02100124d605ae4cd2b84008fe94e46360284a701d60f79c7dcb117ea6": {
@@ -630,6 +640,67 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": []
+    }
+  },
+  "0ad2cf34054a1a3a1bcce718a2c197b1f14fade36edeb533ca408da4619e2d04": {
+    "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE exercise_id = $1\n  AND user_id <> $2\n  AND receiving_peer_reviews_exercise_slide_submission_id NOT IN (\n    SELECT UNNEST($3::uuid [])\n  )\n  AND received_enough_peer_reviews = 'true'\n  AND deleted_at IS NULL\nORDER BY peer_review_priority DESC\nLIMIT $4\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "received_enough_peer_reviews",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 9,
+          "name": "peer_review_priority",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "UuidArray", "Int8"]
+      },
+      "nullable": [false, false, false, true, false, false, false, false, false, false]
     }
   },
   "0c395da11ae62743051ec6f45ac48e2a1a450c36bd37fbecf8ccb71a9fefdd7b": {
@@ -2300,6 +2371,67 @@
       "nullable": [false, false, false, true, false, true, true, true, false, false]
     }
   },
+  "224bd118478c0bf1ee79ba1e0bf2a5e1359651242a5fba089f2971a85ac7a87c": {
+    "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "received_enough_peer_reviews",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 9,
+          "name": "peer_review_priority",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [false, false, false, true, false, false, false, false, false, false]
+    }
+  },
   "22f6c2c2cdd99910cb9f2095b97e3228b7e221d42b5677c8715226dbf4e886b3": {
     "query": "\nINSERT INTO roles (user_id, role, exam_id)\nVALUES ($1, $2, $3)\nRETURNING id\n",
     "describe": {
@@ -3234,6 +3366,67 @@
       "nullable": [false]
     }
   },
+  "33d3eff49d48e9ecbf59ab4e338c5c4051d6eedb96356eab2494bd92ae03b285": {
+    "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE exercise_id = $1\n  AND user_id <> $2\n  AND receiving_peer_reviews_exercise_slide_submission_id NOT IN (\n    SELECT UNNEST($3::uuid [])\n  )\n  AND deleted_at IS NULL\nORDER BY peer_review_priority DESC\nLIMIT $4\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "received_enough_peer_reviews",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 9,
+          "name": "peer_review_priority",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "UuidArray", "Int8"]
+      },
+      "nullable": [false, false, false, true, false, false, false, false, false, false]
+    }
+  },
   "346af2b8f77a86c90b599b24167da4aee650d1bc3694c8603c4a60fc8cdbe477": {
     "query": "\nINSERT INTO feedback(user_id, course_id, feedback_given, selected_text, page_id)\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n",
     "describe": {
@@ -3509,62 +3702,6 @@
       "nullable": []
     }
   },
-  "3978112732dfc7f829388351e2ea50539602377be2ebe68c391de351c3600729": {
-    "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE user_id = $1\n  AND peer_review_id = $2\n  AND deleted_at IS NULL\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "peer_review_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 6,
-          "name": "receiving_peer_reviews_exercise_slide_submission_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 7,
-          "name": "received_enough_peer_reviews",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 8,
-          "name": "peer_review_priority",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": [false, false, false, true, false, false, false, false, false]
-    }
-  },
   "3a3fa537038bdbeb11c9454487111b56afaa5230c97546dc0b29554446bfa27d": {
     "query": "\nSELECT COALESCE(ues.score_given, 0) AS score_given,\n  ues.exercise_id AS exercise_id\nFROM user_exercise_states AS ues\nWHERE ues.deleted_at IS NULL\n  AND ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.course_instance_id = $2\n  AND ues.user_id = $3;\n        ",
     "describe": {
@@ -3584,62 +3721,6 @@
         "Left": ["UuidArray", "Uuid", "Uuid"]
       },
       "nullable": [null, false]
-    }
-  },
-  "3af011cd58d7a3a0d061471be648e2b022357eee18df26dcaa71afb0c7a4be78": {
-    "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE peer_review_id = $1\n  AND user_id <> $2\n  AND receiving_peer_reviews_exercise_slide_submission_id NOT IN (\n    SELECT UNNEST($3::uuid [])\n  )\n  AND deleted_at IS NULL\nORDER BY peer_review_priority DESC\nLIMIT $4\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "peer_review_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 6,
-          "name": "receiving_peer_reviews_exercise_slide_submission_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 7,
-          "name": "received_enough_peer_reviews",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 8,
-          "name": "peer_review_priority",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "UuidArray", "Int8"]
-      },
-      "nullable": [false, false, false, true, false, false, false, false, false]
     }
   },
   "3bb077ad577e36fde77fb49923128af173cd07b8196dceb6810c676ccd2b79ef": {
@@ -7770,21 +7851,26 @@
         },
         {
           "ordinal": 5,
-          "name": "peer_review_id",
+          "name": "exercise_id",
           "type_info": "Uuid"
         },
         {
           "ordinal": 6,
-          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "name": "course_instance_id",
           "type_info": "Uuid"
         },
         {
           "ordinal": 7,
+          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
           "name": "received_enough_peer_reviews",
           "type_info": "Bool"
         },
         {
-          "ordinal": 8,
+          "ordinal": 9,
           "name": "peer_review_priority",
           "type_info": "Int4"
         }
@@ -7792,7 +7878,7 @@
       "parameters": {
         "Left": ["Uuid", "Int4", "Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, false, false]
+      "nullable": [false, false, false, true, false, false, false, false, false, false]
     }
   },
   "9bc0b3ae6672ff787250bbbfbf353634b598e814cb2e3b8ca26235466b22ee63": {
@@ -9430,22 +9516,6 @@
         false,
         false
       ]
-    }
-  },
-  "b9f5b611a69b9edd27fb1cef8bf1222d4cfd9f7dfd03f6c0ca323ad64eb642eb": {
-    "query": "\nINSERT INTO peer_review_queue_entries (\n    user_id,\n    peer_review_id,\n    receiving_peer_reviews_exercise_slide_submission_id,\n    peer_review_priority\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Int4"]
-      },
-      "nullable": [false]
     }
   },
   "ba5c8af80928b629695e040f876ed927a80ee54bfdde0404b185ef603f8205bd": {
@@ -11501,62 +11571,6 @@
       "nullable": [true, true]
     }
   },
-  "df356b9dd2f5a9ca92d861ff2e1b856a39badf960303401f067e560960f30f3f": {
-    "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE peer_review_id = $1\n  AND user_id <> $2\n  AND receiving_peer_reviews_exercise_slide_submission_id NOT IN (\n    SELECT UNNEST($3::uuid [])\n  )\n  AND received_enough_peer_reviews = 'true'\n  AND deleted_at IS NULL\nORDER BY peer_review_priority DESC\nLIMIT $4\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "peer_review_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 6,
-          "name": "receiving_peer_reviews_exercise_slide_submission_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 7,
-          "name": "received_enough_peer_reviews",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 8,
-          "name": "peer_review_priority",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "UuidArray", "Int8"]
-      },
-      "nullable": [false, false, false, true, false, false, false, false, false]
-    }
-  },
   "e2fe96906db5d05fa1a8b0aabc25e9027c386b349f11d4c26bcf7db1864af6cf": {
     "query": "\nselect max(p.order_number) as order_number\nfrom pages p\nwhere p.chapter_id = $1\n  and p.deleted_at is null;\n",
     "describe": {
@@ -12628,6 +12642,22 @@
       ],
       "parameters": {
         "Left": ["UuidArray"]
+      },
+      "nullable": [false]
+    }
+  },
+  "f77ffcd219ba62cc8de4e29e1f496ed3941efb5ec57d0c8b96ad1e48d6bae075": {
+    "query": "\nINSERT INTO peer_review_queue_entries (\n    user_id,\n    exercise_id,\n    course_instance_id,\n    receiving_peer_reviews_exercise_slide_submission_id,\n    peer_review_priority\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Int4"]
       },
       "nullable": [false]
     }

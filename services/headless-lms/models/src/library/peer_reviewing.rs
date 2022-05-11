@@ -94,7 +94,8 @@ pub async fn create_peer_review_submission_for_user(
     peer_review_queue_entries::upsert(
         &mut tx,
         user_exercise_state.user_id,
-        peer_review.id,
+        user_exercise_state.exercise_id,
+        user_exercise_state.get_course_instance_id()?,
         users_latest_submission.id,
     )
     .await?;
@@ -196,17 +197,18 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
 
 async fn try_to_select_peer_review_candidate_from_queue(
     conn: &mut PgConnection,
-    peer_review_id: Uuid,
+    exercise_id: Uuid,
     excluded_user_id: Uuid,
     excluded_exercise_slide_submission_ids: &[Uuid],
 ) -> ModelResult<Option<Uuid>> {
     let mut rng = thread_rng();
     // Try to get a candidate that needs reviews from queue.
     let mut candidates = peer_review_queue_entries::get_many_that_need_peer_reviews_by_exercise_id_and_review_priority(conn,
-        peer_review_id,
+        exercise_id,
         excluded_user_id,
         excluded_exercise_slide_submission_ids,
-        MAX_PEER_REVIEW_CANDIDATES,).await?;
+        MAX_PEER_REVIEW_CANDIDATES,
+    ).await?;
     candidates.shuffle(&mut rng);
     match candidates.into_iter().next() {
         Some(candidate) => Ok(Some(
@@ -217,7 +219,7 @@ async fn try_to_select_peer_review_candidate_from_queue(
             let mut candidates =
                 peer_review_queue_entries::get_many_by_exercise_id_and_review_priority(
                     conn,
-                    peer_review_id,
+                    exercise_id,
                     excluded_user_id,
                     excluded_exercise_slide_submission_ids,
                     MAX_PEER_REVIEW_CANDIDATES,

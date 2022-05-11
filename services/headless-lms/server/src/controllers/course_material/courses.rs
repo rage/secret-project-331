@@ -15,6 +15,7 @@ use models::{
     feedback,
     feedback::NewFeedback,
     glossary::Term,
+    material_references::MaterialReference,
     page_visit_datum::NewPageVisitDatum,
     page_visit_datum_daily_visit_hashing_keys::{
         generate_anonymous_identifier, GenerateAnonymousIdentifierInput,
@@ -495,6 +496,21 @@ async fn glossary(
     Ok(web::Json(glossary))
 }
 
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_material_references_by_course_id(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<MaterialReference>>> {
+    let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+
+    let res =
+        models::material_references::get_references_by_course_id(&mut conn, *course_id).await?;
+    Ok(web::Json(res))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -532,5 +548,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_user_course_settings),
         )
         .route("/{course_id}/propose-edit", web::post().to(propose_edit))
-        .route("/{course_id}/glossary", web::get().to(glossary));
+        .route("/{course_id}/glossary", web::get().to(glossary))
+        .route(
+            "/{course_id}/references",
+            web::get().to(get_material_references_by_course_id),
+        );
 }

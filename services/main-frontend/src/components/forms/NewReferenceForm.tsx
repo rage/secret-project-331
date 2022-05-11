@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import Cite from "citation-js"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -7,6 +6,9 @@ import { useTranslation } from "react-i18next"
 import { NewMaterialReference } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import FormTextAreaField from "../FormTextAreaField"
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const Cite = require("citation-js")
 
 interface NewReferenceFormProps {
   onCreateNewReference: (form: NewMaterialReference[]) => void
@@ -29,7 +31,7 @@ const NewReferenceForm: React.FC<NewReferenceFormProps> = ({ onCreateNewReferenc
 
   const onCreateNewReferenceWrapper = handleSubmit((data) => {
     const cite = new Cite(data.references)
-    const references = cite.data.map((c) => {
+    const references = cite.data.map((c: { id: string }) => {
       const ci = new Cite(c)
       return {
         citation_key: c.id,

@@ -41,14 +41,11 @@ const convertToLatex = (data: string) => {
 }
 
 const parseCitation = (data: string) => {
-  const converted = data.replace(LATEX_CITE_REGEX, (_, cite) => {
-    const processed = cite.replaceAll(
-      <sup className="reference" data-citation-id={cite}>
-        [?]
-      </sup>,
-    )
-    return processed
-  })
+  const converted = data.replace(
+    LATEX_CITE_REGEX,
+    // eslint-disable-next-line i18next/no-literal-string
+    (_, citationId) => `<sup class="reference" data-citation-id=${citationId}>[?]</sup>`,
+  )
   return converted
 }
 

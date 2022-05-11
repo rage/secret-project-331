@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import Cite from "citation-js"
 import { t } from "i18next"
 import { useState } from "react"
 import { useQuery } from "react-query"
@@ -12,6 +11,9 @@ import Spinner from "../../../../../../shared-module/components/Spinner"
 import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 
 import NewReferenceDialog from "./NewReferenceDialog"
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const Cite = require("citation-js")
 
 const TYPE = "string"
 const STYLE = "vancouver"

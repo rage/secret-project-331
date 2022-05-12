@@ -38,15 +38,6 @@ const LearningObjectiveSectionEditor: React.FC<
             padding: 7.5em 1em;
           `}
         >
-          {/* <RichText
-            className="has-text-align-center wp-block-heading"
-            // eslint-disable-next-line i18next/no-literal-string
-            tagName="h2"
-            value={title}
-            onChange={(value: string) => setAttributes({ title: value })}
-            // eslint-disable-next-line i18next/no-literal-string
-            placeholder={"What you will learn in this chapter..."}
-          /> */}
           <InnerBlocks
             template={LEARNING_OBJECTIVE_SECTION_TEMPLATE}
             allowedBlocks={ALLOWED_NESTED_BLOCKS}

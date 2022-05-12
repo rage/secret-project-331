@@ -3071,22 +3071,6 @@
       "nullable": []
     }
   },
-  "2d13199823f9d14430a8f8510df1bc9eea9fb9aeeb2cb672a12443cb24542113": {
-    "query": "\nINSERT INTO peer_reviews (id, course_id, exercise_id)\nVALUES ($1, $2, $3)\nRETURNING id\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
-      },
-      "nullable": [false]
-    }
-  },
   "2dc3330b399fb3d204887cd2ef29a72cc7df6b66b8ff9ba7872044c8da00bba1": {
     "query": "\nINSERT INTO roles (user_id, role, course_id)\nVALUES ($1, $2, $3)\nRETURNING id\n",
     "describe": {
@@ -5576,6 +5560,22 @@
       "nullable": [null]
     }
   },
+  "663e31fd872e32b921b8f11fd23e23a9e06206f10edcd30d697446de9f293210": {
+    "query": "\nINSERT INTO peer_reviews (\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Int4", "Int4"]
+      },
+      "nullable": [false]
+    }
+  },
   "680c5eed3c49d67d404af7d0a2df7dc8f9391db14848e8aff877a8a117335be2": {
     "query": "SELECT * FROM exercises WHERE id = $1;",
     "describe": {
@@ -7930,6 +7930,22 @@
         "Left": ["TextArray"]
       },
       "nullable": [false, false, false, true, false, false, false, true, false]
+    }
+  },
+  "9926983716d96fd291a81fa728ed1ce1ba268570fee21794fa8a406332c8384d": {
+    "query": "\nINSERT INTO peer_reviews (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Int4", "Int4"]
+      },
+      "nullable": [false]
     }
   },
   "9b22240e7ed6238509fccd2191dfed47215d59363003b204f7f666a587d34a48": {
@@ -11592,22 +11608,6 @@
         false,
         false
       ]
-    }
-  },
-  "dd5be98f5f5b9946b3f74e0cc762d0ee9d7e72ef19f2f3e2d1b0952b1b204eea": {
-    "query": "\nINSERT INTO peer_reviews (course_id, exercise_id)\nVALUES ($1, $2)\nRETURNING id\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": [false]
     }
   },
   "dd98dd1240aa56bb5ba42647e870c187d85c5ab801c6f0cca33757734a97df5b": {

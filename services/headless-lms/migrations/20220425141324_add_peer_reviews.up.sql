@@ -82,6 +82,7 @@ CREATE TABLE peer_review_queue_entries(
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON peer_review_queue_entries FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+CREATE INDEX peer_review_priority ON peer_review_queue_entries (peer_review_priority);
 CREATE UNIQUE INDEX peer_review_queue_entry_user_exercise_and_course_instance_uniqueness ON peer_review_queue_entries (user_id, exercise_id, course_instance_id)
 WHERE deleted_at IS NULL;
 COMMENT ON TABLE peer_review_queue_entries IS 'Table for queueing up for peer reviews. Once user posts their first peer review, they will get added to the queue where additional peer reviews given will increase their own priority of receiving peer reviews.';

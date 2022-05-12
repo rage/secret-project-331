@@ -849,8 +849,8 @@ fn main() {
         }
     );
     write_docs!(
-        MaterialReference,
-        MaterialReference {
+        Vec<MaterialReference>,
+        vec![MaterialReference {
             id,
             course_id: id2,
             citation_key: "NeuralNetworks2022".to_string(),
@@ -858,7 +858,7 @@ fn main() {
             created_at,
             updated_at,
             deleted_at
-        }
+        }]
     );
     write_docs!(
         NewMaterialReference,

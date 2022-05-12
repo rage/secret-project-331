@@ -649,7 +649,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           }
@@ -832,7 +832,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           },
@@ -1971,7 +1971,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           },
@@ -2245,7 +2245,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           },
@@ -2413,7 +2413,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           },
@@ -4260,7 +4260,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           }
@@ -4853,7 +4853,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           }
@@ -5168,7 +5168,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           }
@@ -8535,7 +8535,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           }
@@ -9303,7 +9303,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           },
@@ -9540,7 +9540,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           }
@@ -9696,7 +9696,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           },
@@ -11132,7 +11132,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           }
@@ -11223,7 +11223,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           },
@@ -11424,7 +11424,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           },
@@ -11548,7 +11548,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer"]
               }
             }
           }

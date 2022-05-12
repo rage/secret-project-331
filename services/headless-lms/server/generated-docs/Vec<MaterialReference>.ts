@@ -1,4 +1,4 @@
-type MaterialReference = {
+type Vec<MaterialReference> = Array<{
   id: string
   course_id: string
   citation_key: string
@@ -6,4 +6,4 @@ type MaterialReference = {
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
-}
+}>

@@ -30,14 +30,15 @@ WHERE deleted_at IS NULL
   AND exercise_id IS NULL;
 ALTER TABLE peer_reviews
 ADD CONSTRAINT more_given_than_received_peer_reviews CHECK (peer_reviews_to_give > peer_reviews_to_receive);
-COMMENT ON TABLE peer_reviews IS 'Collections for peer review questions that students have to answer to evaluate each others'' answers.';
+COMMENT ON TABLE peer_reviews IS 'Collections for peer review questions that users have to answer to evaluate each others'' answers.';
+COMMENT ON COLUMN peer_reviews.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN peer_reviews.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN peer_reviews.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN peer_reviews.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
-COMMENT ON COLUMN peer_reviews.course_id IS 'Course instance that this course is a part of.';
-COMMENT ON COLUMN peer_reviews.exercise_id IS 'Exercise that this peer review is a part of. There can be one peer review per course where this field is null, which will be used as the default for all peer reviewed exercises.';
-COMMENT ON COLUMN peer_reviews.peer_reviews_to_give IS '';
-COMMENT ON COLUMN peer_reviews.peer_reviews_to_receive IS '';
+COMMENT ON COLUMN peer_reviews.course_id IS 'Course that this peer review is a part of.';
+COMMENT ON COLUMN peer_reviews.exercise_id IS 'Exercise that this peer review is for. There can be one peer review per course where this field is null, which then will be used as the default option for all peer reviewed exercises on that course.';
+COMMENT ON COLUMN peer_reviews.peer_reviews_to_give IS 'The number of peer reviews that the user must give before completing the exercise. Users must always give more peer reviews than receive, to make sure that there are enough peer reviews for each student.';
+COMMENT ON COLUMN peer_reviews.peer_reviews_to_receive IS 'The number of peer reviews that the user must receive before completing the exercise.';
 -- Add enum for peer review question types
 CREATE TYPE peer_review_question_type AS ENUM ('essay', 'scale');
 -- Add peer review questions table
@@ -56,15 +57,16 @@ CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON peer_review_questions FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 CREATE UNIQUE INDEX peer_review_question_order_number_uniqueness ON peer_review_questions (peer_review_id, order_number)
 WHERE deleted_at IS NULL;
-COMMENT ON TABLE peer_review_questions IS 'Part of user a exercise state, keeps track of the state of a single exercise slide.';
+COMMENT ON TABLE peer_review_questions IS 'Question that is a part of a peer review.';
+COMMENT ON COLUMN peer_review_questions.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN peer_review_questions.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN peer_review_questions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN peer_review_questions.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN peer_review_questions.peer_review_id IS 'Peer review that the record is a part of';
-COMMENT ON COLUMN peer_review_questions.order_number IS 'The order in which this record should appear.';
+COMMENT ON COLUMN peer_review_questions.order_number IS 'The order in which this question should appear.';
 COMMENT ON COLUMN peer_review_questions.question IS 'The concrete question that is presented to the user.';
-COMMENT ON COLUMN peer_review_questions.question_type IS 'The type of answer the reviewer should give.';
-COMMENT ON COLUMN peer_review_questions.answer_required IS '';
+COMMENT ON COLUMN peer_review_questions.question_type IS 'The type of question, for example an essay or a scale.';
+COMMENT ON COLUMN peer_review_questions.answer_required IS 'Whether or not this question needs to be answered to submit the review.';
 -- Add peer review queue entries.
 CREATE TABLE peer_review_queue_entries(
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -82,16 +84,17 @@ CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON peer_review_queue_entries FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 CREATE UNIQUE INDEX peer_review_queue_entry_user_exercise_and_course_instance_uniqueness ON peer_review_queue_entries (user_id, exercise_id, course_instance_id)
 WHERE deleted_at IS NULL;
-COMMENT ON TABLE peer_review_queue_entries IS 'Table for queueing up for peer reviews.';
+COMMENT ON TABLE peer_review_queue_entries IS 'Table for queueing up for peer reviews. Once user posts their first peer review, they will get added to the queue where additional peer reviews given will increase their own priority of receiving peer reviews.';
+COMMENT ON COLUMN peer_review_queue_entries.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN peer_review_queue_entries.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN peer_review_queue_entries.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN peer_review_queue_entries.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
-COMMENT ON COLUMN peer_review_queue_entries.user_id IS 'TODO';
-COMMENT ON COLUMN peer_review_queue_entries.exercise_id IS 'TODO';
-COMMENT ON COLUMN peer_review_queue_entries.course_instance_id IS 'TODO';
-COMMENT ON COLUMN peer_review_queue_entries.receiving_peer_reviews_exercise_slide_submission_id IS 'TODO';
+COMMENT ON COLUMN peer_review_queue_entries.user_id IS 'The user who is in queue.';
+COMMENT ON COLUMN peer_review_queue_entries.exercise_id IS 'The exercise that is being peer reviewed.';
+COMMENT ON COLUMN peer_review_queue_entries.course_instance_id IS 'The course instance that the user is on. User can queue for the same exercise on multiple different course instances.';
+COMMENT ON COLUMN peer_review_queue_entries.receiving_peer_reviews_exercise_slide_submission_id IS 'The users submission that should receive peer reviews.';
 COMMENT ON COLUMN peer_review_queue_entries.received_enough_peer_reviews IS 'Whether or not this queue entry has already received enough peer reviews. Simply a boolean for performance reasons.';
-COMMENT ON COLUMN peer_review_queue_entries.peer_review_priority IS 'TODO';
+COMMENT ON COLUMN peer_review_queue_entries.peer_review_priority IS 'How fast this user should receive peer reviews. Usually based on the amount of peer reviews given.';
 -- Add peer review submissions.
 CREATE TABLE peer_review_submissions(
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -104,10 +107,14 @@ CREATE TABLE peer_review_submissions(
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON peer_review_submissions FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-COMMENT ON TABLE peer_review_queue_entries IS 'TODO';
-COMMENT ON COLUMN peer_review_queue_entries.created_at IS 'Timestamp when the record was created.';
-COMMENT ON COLUMN peer_review_queue_entries.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
-COMMENT ON COLUMN peer_review_queue_entries.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON TABLE peer_review_submissions IS 'User made peer review submissions.';
+COMMENT ON COLUMN peer_review_submissions.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN peer_review_submissions.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN peer_review_submissions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN peer_review_submissions.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN peer_review_submissions.user_id IS 'User who made this peer review.';
+COMMENT ON COLUMN peer_review_submissions.peer_review_id IS 'Peer review that is being submitted for.';
+COMMENT ON COLUMN peer_review_submissions.exercise_slide_submission_id IS 'Exercise slide that is being peer reviewed.';
 -- Add peer review question submissions
 CREATE TABLE peer_review_question_submissions(
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -123,11 +130,12 @@ CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON peer_review_question_submissions FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 ALTER TABLE peer_review_question_submissions
 ADD CONSTRAINT text_or_number_data_set CHECK ((text_data IS NULL) <> (number_data IS NULL));
-COMMENT ON TABLE peer_review_question_submissions IS 'TODO';
+COMMENT ON TABLE peer_review_question_submissions IS 'Submission for an individual question of a peer review.';
+COMMENT ON COLUMN peer_review_question_submissions.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN peer_review_question_submissions.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN peer_review_question_submissions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN peer_review_question_submissions.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
-COMMENT ON COLUMN peer_review_question_submissions.peer_review_question_id IS '';
-COMMENT ON COLUMN peer_review_question_submissions.peer_review_submission_id IS '';
-COMMENT ON COLUMN peer_review_question_submissions.text_data IS '';
-COMMENT ON COLUMN peer_review_question_submissions.number_data IS '';
+COMMENT ON COLUMN peer_review_question_submissions.peer_review_question_id IS 'Peer review question that is being answered.';
+COMMENT ON COLUMN peer_review_question_submissions.peer_review_submission_id IS 'Peer review submission that this question is a part of.';
+COMMENT ON COLUMN peer_review_question_submissions.text_data IS 'Text data of the answer depending on question type.';
+COMMENT ON COLUMN peer_review_question_submissions.number_data IS 'Number data of the answer depending on question type.';

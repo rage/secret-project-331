@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const normalResponseHeaders =
-  require("./src/shared-module/utils/responseHeaders").normalResponseHeaders
+const generateNormalResponseHeaders =
+  require("./src/shared-module/utils/responseHeaders").generateNormalResponseHeaders
+
+// Trusted types blocked on: https://github.com/vercel/next.js/issues/32209
+const normalResponseHeaders = generateNormalResponseHeaders({ requireTrustedTypesFor: false })
 
 const config = {
   eslint: {

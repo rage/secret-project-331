@@ -178,6 +178,7 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
       </StyledWrapper>
       <button
         onClick={() => setHidden(!hidden)}
+        aria-label={hidden ? t("open-heading-menu") : t("close-heading-menu")}
         className={css`
           all: unset;
           display: inline;

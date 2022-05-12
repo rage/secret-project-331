@@ -88,8 +88,8 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
   // eslint-disable-next-line i18next/no-literal-string
   const [isActive, setIsActive] = useState<string>("id-1")
   const [offsetpx, setOffsetpx] = useState<number>(Y_OFFSET + TOP_OFFSET)
-  const [fixed, setFixed] = useState<boolean>(false)
-  const [hidden, setHidden] = useState<boolean>(false)
+  const [fixed, setFixed] = useState<boolean>(true)
+  const [hidden, setHidden] = useState<boolean>(true)
   const { headings } = useHeadingData()
   const { t } = useTranslation()
 

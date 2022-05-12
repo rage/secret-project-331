@@ -27,10 +27,12 @@ test("test", async ({ page, headless }) => {
     page.click("text=Edit exam instructions"),
   ])
 
-  // Click text=Type / to choose a block
-  await page.type("text=Type / to choose a block", "/")
+  await page.locator(`[aria-label="Add default block"]`).click()
+  await page
+    .locator(`[aria-label="Empty block; start writing or type forward slash to choose a block"]`)
+    .type(`/heading`)
 
-  await page.click("text=Heading")
+  await page.click(`button[role="option"]:has-text("Heading")`)
   await page.type(`[aria-label="Block\\:\\ Heading"]`, "Lorem Ipsum Exam")
   // Press Enter
   await page.press('[aria-label="Block\\:\\ Heading"]', "Enter")

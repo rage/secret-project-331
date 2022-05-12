@@ -851,7 +851,7 @@ fn main() {
     write_docs!(
         MaterialReference,
         MaterialReference {
-            id: id,
+            id,
             course_id: id2,
             citation_key: "NeuralNetworks2022".to_string(),
             reference: "bibtex reference".to_string(),

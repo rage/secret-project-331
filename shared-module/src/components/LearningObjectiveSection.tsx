@@ -45,7 +45,7 @@ const Content = styled.div`
 const StyledObjectives = styled.div`
   display: grid;
   grid-template-columns: 20px 1fr;
-  span {
+  li {
     margin-left: 15px;
     font-size: 20px;
     line-height: 1.3;
@@ -63,7 +63,7 @@ export interface Objective {
 
 export interface LearningObjectivesExtraProps {
   title: string
-  objectives: string[]
+  objectives: any
 }
 
 export type LearningObjectiveProps = React.HTMLAttributes<HTMLDivElement> &
@@ -76,10 +76,10 @@ const LearningObjective: React.FC<LearningObjectiveProps> = ({ objectives, title
         <h2>{title}</h2>
       </Header>
       <Content>
-        {objectives?.map((objective) => (
+        {objectives.atributes.values.map((objective: string) => (
           <StyledObjectives key={objective}>
             <StyledCheck />
-            <span>{objective}</span>
+            {objective}
           </StyledObjectives>
         ))}
       </Content>

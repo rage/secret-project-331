@@ -12,6 +12,7 @@ interface Props<T extends FieldValues> {
   required?: boolean
   type?: string
   value?: string
+  className?: string
 }
 
 const FormTextAreaField = <T extends FieldValues>({
@@ -40,10 +41,6 @@ const FormTextAreaField = <T extends FieldValues>({
         defaultValue={defaultValue || ""}
         {...register(id, { required: required })}
         {...rest}
-        className={css`
-          width: 100%;
-          margin-bottom: 0.5rem;
-        `}
       ></textarea>
       <br />
     </>

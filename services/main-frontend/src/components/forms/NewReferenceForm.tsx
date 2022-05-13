@@ -42,29 +42,32 @@ const NewReferenceForm: React.FC<NewReferenceFormProps> = ({ onCreateNewReferenc
   })
 
   return (
-    <div>
-      <form
-        onSubmit={onCreateNewReferenceWrapper}
+    <form
+      onSubmit={onCreateNewReferenceWrapper}
+      className={css`
+        width: 100%;
+      `}
+    >
+      <FormTextAreaField
+        id={"references"}
+        error={errors["references"]}
+        placeholder={REFERENCE}
+        register={register}
+        defaultValue={null}
         className={css`
           width: 100%;
+          margin-bottom: 0.5rem;
+          height: 150px;
         `}
-      >
-        <FormTextAreaField
-          id={"references"}
-          error={errors["references"]}
-          placeholder={REFERENCE}
-          register={register}
-          defaultValue={null}
-        />
-        <br />
-        <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
-          {t("button-text-submit")}
-        </Button>
-        <Button variant="secondary" size="medium" type="button" onClick={onCancel}>
-          {t("button-text-close")}
-        </Button>
-      </form>
-    </div>
+      />
+      <br />
+      <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
+        {t("button-text-submit")}
+      </Button>
+      <Button variant="secondary" size="medium" type="button" onClick={onCancel}>
+        {t("button-text-close")}
+      </Button>
+    </form>
   )
 }
 

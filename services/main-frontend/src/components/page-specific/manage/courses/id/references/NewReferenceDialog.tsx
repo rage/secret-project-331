@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import { Dialog, DialogContentText } from "@mui/material"
+import { Dialog, DialogContent, DialogTitle } from "@mui/material"
 import { t } from "i18next"
 import { UseQueryResult } from "react-query"
 
@@ -32,37 +32,31 @@ const NewReferenceDialog: React.FC<NewReferenceModalProps> = ({
   )
 
   return (
-    <div>
-      <Dialog
-        open={open}
-        onClose={onClose}
-        role="dialog"
-        aria-labelledby="label"
-        title={t("new-reference-dialog")}
-      >
-        <div
-          id="new-reference-dialog"
+    <Dialog
+      open={open}
+      onClose={onClose}
+      role="dialog"
+      aria-labelledby="label"
+      title={t("new-reference-dialog")}
+      fullWidth
+    >
+      <DialogTitle>
+        <h3
+          id="dialog-label"
           className={css`
-            padding: 1rem;
+            font-size: 32px;
           `}
         >
-          <h1
-            id="label"
-            className={css`
-              font-size: 32px;
-            `}
-          >
-            {t("new-reference")}
-          </h1>
-          <DialogContentText role="main" id="alert-dialog-description">
-            <NewReferenceForm
-              onCancel={onClose}
-              onCreateNewReference={(newReference) => createReferenceMutation.mutate(newReference)}
-            />
-          </DialogContentText>
-        </div>
-      </Dialog>
-    </div>
+          {t("new-reference")}
+        </h3>
+      </DialogTitle>
+      <DialogContent role="main" id="alert-dialog-description">
+        <NewReferenceForm
+          onCancel={onClose}
+          onCreateNewReference={(newReference) => createReferenceMutation.mutate(newReference)}
+        />
+      </DialogContent>
+    </Dialog>
   )
 }
 

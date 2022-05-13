@@ -68,6 +68,17 @@ async fn get_url_path(
     Ok(page.url_path)
 }
 
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn is_front_page(
+    page_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let is_front_page = models::pages::is_front_page(&mut conn, *page_id).await?;
+    Ok(web::Json(is_front_page))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/exam/{page_id}", web::get().to(get_by_exam_id))
         .route("/{current_page_id}/next-page", web::get().to(get_next_page))
@@ -75,5 +86,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{current_page_id}/chapter-and-course-information",
             web::get().to(get_chapter_and_course_information),
-        );
+        )
+        .route("/{current_page_id}", web::get().to(is_front_page));
 }

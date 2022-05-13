@@ -60,6 +60,7 @@
   "edited-by-on": "Edited by {{user}} on {{time}}",
   "english": "English",
   "error-cannot-render-exercise-task-missing-url": "Cannot render exercise task, missing url.",
+  "error-cannot-render-exercise-task-missing-submission": "Cannot render exercise task, missing submission.",
   "error-could-not-find-edit-history-for-page": "Could not find any edit history for the page",
   "error-loading-organizations": "Error loading organizations.",
   "error-title": "Error",

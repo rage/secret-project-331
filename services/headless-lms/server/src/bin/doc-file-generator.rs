@@ -25,6 +25,7 @@ use headless_lms_models::{
     exercise_slide_submissions::{
         ExerciseSlideSubmission, ExerciseSlideSubmissionCount,
         ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
+        ExerciseSlideSubmissionInfo,
     },
     exercise_slides::CourseMaterialExerciseSlide,
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
@@ -800,6 +801,28 @@ fn main() {
             course_name: Some("Introduction to everything".to_string()),
             course_slug: Some("introduction-to-everything".to_string()),
             organization_slug: Some("uh-cs".to_string())
+        }
+    );
+    write_docs!(
+        ExerciseSlideSubmissionInfo,
+        ExerciseSlideSubmissionInfo {
+            tasks: vec![CourseMaterialExerciseTask {
+                id,
+                exercise_slide_id: id,
+                exercise_iframe_url: Some(
+                    "http://project-331.local/example-exercise/exercise".to_string()
+                ),
+                assignment: serde_json::json! {{"name":"core/paragraph","isValid":true,"clientId":"187a0aea-c088-4354-a1ea-f0cab082c065","attributes":{"content":"Answer this question.","dropCap":false},"innerBlocks":[]}},
+                public_spec: Some(
+                    serde_json::json! {[{"id":"7ab2591c-b0f3-4543-9548-a113849b0f94","name":"a"},{"id":"a833d1df-f27b-4fbf-b516-883a62c09d88","name":"b"},{"id":"03d4b3d4-88af-4125-88b7-4ee052fd876f","name":"c"}]}
+                ),
+                model_solution_spec: None,
+                previous_submission: Some(exercise_task_submission.clone()),
+                previous_submission_grading: Some(grading.clone()),
+                order_number: 1
+            }],
+            exercise,
+            exercise_slide_submission
         }
     );
 }

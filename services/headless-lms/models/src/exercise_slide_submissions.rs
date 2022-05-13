@@ -64,6 +64,7 @@ pub struct ExerciseSlideSubmissionCountByWeekAndHour {
 pub struct ExerciseSlideSubmissionInfo {
     pub tasks: Vec<CourseMaterialExerciseTask>,
     pub exercise: Exercise,
+    pub exercise_slide_submission: ExerciseSlideSubmission,
 }
 
 pub async fn insert_exercise_slide_submission(
@@ -424,5 +425,9 @@ pub async fn get_exercise_slide_submission_info(
     let exercise =
         crate::exercises::get_by_id(&mut *conn, exercise_slide_submission.exercise_id).await?;
     let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id).await?;
-    Ok(ExerciseSlideSubmissionInfo { exercise, tasks })
+    Ok(ExerciseSlideSubmissionInfo {
+        exercise,
+        tasks,
+        exercise_slide_submission,
+    })
 }

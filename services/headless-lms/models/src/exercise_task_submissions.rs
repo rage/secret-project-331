@@ -299,7 +299,7 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
             exercise_iframe_url: Some(exercise_iframe_url),
             assignment: task.assignment.clone(),
             public_spec: task.public_spec.clone(),
-            model_solution_spec: task.public_spec.clone(),
+            model_solution_spec: task.model_solution_spec.clone(),
             previous_submission: Some(ts),
             previous_submission_grading: Some(grading.clone()),
             order_number: task.order_number,

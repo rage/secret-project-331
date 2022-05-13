@@ -20,6 +20,9 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
   const { t } = useTranslation()
   const getSubmissionInfo = useQuery(`submission-${query.id}`, () => fetchSubmissionInfo(query.id))
 
+  const totalScoreGiven = getSubmissionInfo.data?.tasks
+    .map((task) => task.previous_submission_grading?.score_given)
+    .reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
   return (
     <Layout navVariant="simple">
       <div>
@@ -31,32 +34,35 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
         )}
         {getSubmissionInfo.isSuccess && (
           <>
-            <h1>{t("title-submission-id", { id: getSubmissionInfo.data.submission.id })}</h1>
+            <h1>{t("title-submission-id", { id: query.id })}</h1>
             {
               <div>
                 <div>
                   {t("points-out-of", {
-                    points: getSubmissionInfo.data.grading
-                      ? getSubmissionInfo.data.grading.score_given
-                      : 0,
+                    points: totalScoreGiven,
                     scoreMaximum: getSubmissionInfo.data.exercise.score_maximum,
                   })}
                 </div>
                 <div>
                   {t("submitted-at-by", {
-                    time: getSubmissionInfo.data.submission.created_at.toDateString(),
-                    user: "TODO: fix later",
+                    time: getSubmissionInfo.data.exercise_slide_submission.created_at.toDateString(),
+                    user: getSubmissionInfo.data.exercise_slide_submission.user_id,
                   })}
                 </div>
               </div>
             }
-            <SubmissionIFrame
-              url={`${getSubmissionInfo.data.iframe_path}?width=700`} // todo: move constants to shared module?
-              public_spec={getSubmissionInfo.data.exercise_task.public_spec}
-              submission={getSubmissionInfo.data.submission}
-              model_solution_spec={getSubmissionInfo.data.exercise_task.model_solution_spec}
-              grading={getSubmissionInfo.data.grading}
-            />
+            {getSubmissionInfo.data.tasks
+              .sort((a, b) => a.order_number - b.order_number)
+              .map((task) => (
+                <SubmissionIFrame
+                  key={task.id}
+                  url={`${task.exercise_iframe_url}?width=700`} // todo: move constants to shared module?
+                  public_spec={task.public_spec}
+                  submission={task.previous_submission}
+                  model_solution_spec={task.model_solution_spec}
+                  grading={task.previous_submission_grading}
+                />
+              ))}
           </>
         )}
         <DebugModal data={getSubmissionInfo.data} />

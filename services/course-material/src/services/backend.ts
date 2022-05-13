@@ -342,3 +342,7 @@ export const fetchMentimeterEmbed = async (url: string): Promise<OEmbedResponse>
   )
   return validateResponse(response, isOEmbedResponse)
 }
+
+export const isPageFrontPage = async (pageId: string): Promise<boolean> => {
+  return (await courseMaterialClient.get(`/pages/${pageId}`)).data
+}

@@ -11,7 +11,7 @@ use itertools::Itertools;
 use url::Url;
 
 use crate::{
-    chapters::{course_chapters, ChapterStatus, DatabaseChapter},
+    chapters::{course_chapters, get_chapter_by_page_id, ChapterStatus, DatabaseChapter},
     course_instances::{self, CourseInstance},
     courses::{get_nondeleted_course_id_by_slug, Course},
     exercise_service_info,
@@ -2138,6 +2138,15 @@ WHERE pages.order_number = $1
     }
     tx.commit().await?;
     Ok(())
+}
+
+pub async fn is_front_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<bool> {
+    let chapter = get_chapter_by_page_id(conn, page_id).await?;
+
+    match chapter.front_page_id {
+        Some(id) => return Ok(id == page_id),
+        _ => return Ok(false),
+    }
 }
 
 #[cfg(test)]

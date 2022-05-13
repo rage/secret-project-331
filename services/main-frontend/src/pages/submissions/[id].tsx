@@ -1,3 +1,6 @@
+import { css } from "@emotion/css"
+import { faQuestion as faIcon } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
@@ -7,10 +10,14 @@ import SubmissionIFrame from "../../components/page-specific/submissions/id/Subm
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
+import HideTextInSystemTests from "../../shared-module/components/HideTextInSystemTests"
 import Spinner from "../../shared-module/components/Spinner"
+import { baseTheme } from "../../shared-module/styles"
+import { narrowContainerWidthRem } from "../../shared-module/styles/constants"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import { dateToString } from "../../shared-module/utils/time"
 
 interface SubmissionPageProps {
   query: SimplifiedUrlQuery<"id">
@@ -34,20 +41,79 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
         )}
         {getSubmissionInfo.isSuccess && (
           <>
-            <h1>{t("title-submission-id", { id: query.id })}</h1>
+            <h1
+              className={css`
+                margin-bottom: 2rem;
+              `}
+            >
+              {t("title-submission-id", { id: query.id })}
+            </h1>
             {
-              <div>
-                <div>
-                  {t("points-out-of", {
-                    points: totalScoreGiven,
-                    scoreMaximum: getSubmissionInfo.data.exercise.score_maximum,
-                  })}
+              <div
+                className={css`
+                  background-color: ${baseTheme.colors.green[600]};
+                  color: ${baseTheme.colors.clear[100]};
+                  padding: 1.5rem 2rem;
+                  max-width: ${narrowContainerWidthRem}rem;
+                  margin: 2rem auto;
+                  display: flex;
+                  align-items: center;
+                `}
+              >
+                <div
+                  aria-hidden
+                  className={css`
+                    background-color: ${baseTheme.colors.clear[100]};
+                    color: ${baseTheme.colors.green[600]};
+                    font-weight: bold;
+                    font-size: 42px;
+                    width: 58px;
+                    height: 58px;
+                    border-radius: 100%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                  `}
+                >
+                  <FontAwesomeIcon icon={faIcon} />
                 </div>
-                <div>
-                  {t("submitted-at-by", {
-                    time: getSubmissionInfo.data.exercise_slide_submission.created_at.toDateString(),
-                    user: getSubmissionInfo.data.exercise_slide_submission.user_id,
-                  })}
+                <div
+                  className={css`
+                    flex: 1;
+                    margin-left: 1rem;
+                  `}
+                >
+                  <div>
+                    <HideTextInSystemTests
+                      text={t("answered-at", {
+                        time: dateToString(
+                          getSubmissionInfo.data.exercise_slide_submission.created_at,
+                        ),
+                      })}
+                      testPlaceholder={t("answered-at", {
+                        time: "XXXX-XX-XX XX:XX:XX UTC+00:00",
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <HideTextInSystemTests
+                      text={t("sent-by", {
+                        user: getSubmissionInfo.data.exercise_slide_submission.user_id,
+                      })}
+                      testPlaceholder={t("sent-by", {
+                        user: "user",
+                      })}
+                    />
+                  </div>
+                </div>
+                <div
+                  className={css`
+                    font-weight: bold;
+                    font-size: 18px;
+                    text-transform: uppercase;
+                  `}
+                >
+                  {t("points")} {totalScoreGiven} / {getSubmissionInfo.data.exercise.score_maximum}
                 </div>
               </div>
             }
@@ -65,7 +131,24 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
               ))}
           </>
         )}
-        <DebugModal data={getSubmissionInfo.data} />
+        <div
+          className={css`
+            background-color: ${baseTheme.colors.clear[100]};
+            color: ${baseTheme.colors.clear[100]};
+            padding: 1.5rem 2rem;
+            max-width: ${narrowContainerWidthRem}rem;
+            margin: 2rem auto;
+            display: flex;
+            align-items: center;
+          `}
+        >
+          <div
+            className={css`
+              flex: 1;
+            `}
+          ></div>
+          <DebugModal data={getSubmissionInfo.data} />
+        </div>
       </div>
     </Layout>
   )

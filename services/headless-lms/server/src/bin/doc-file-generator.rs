@@ -40,7 +40,7 @@ use headless_lms_models::{
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
         CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, ContentManagementPage,
-        CoursePageWithUserData, Page, PageChapterAndCourseInformation, PageInfo,
+        CoursePageWithUserData, IsFrontPage, Page, PageChapterAndCourseInformation, PageInfo,
         PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
     playground_examples::PlaygroundExample,
@@ -845,6 +845,12 @@ fn main() {
             course_name: Some("Introduction to everything".to_string()),
             course_slug: Some("introduction-to-everything".to_string()),
             organization_slug: Some("uh-cs".to_string())
+        }
+    );
+    write_docs!(
+        IsFrontPage,
+        IsFrontPage {
+            is_front_page: true
         }
     );
 }

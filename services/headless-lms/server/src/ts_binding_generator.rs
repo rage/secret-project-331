@@ -140,6 +140,7 @@ fn ts_binding_generator() {
         pages::PageWithExercises,
         pages::NewPage,
         pages::PageChapterAndCourseInformation,
+        pages::IsFrontPage,
 
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,

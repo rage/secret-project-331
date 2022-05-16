@@ -642,6 +642,10 @@ export interface PageChapterAndCourseInformation {
   organization_slug: string
 }
 
+export interface IsFrontPage {
+  is_front_page: boolean
+}
+
 export interface PlaygroundExample {
   id: string
   created_at: Date

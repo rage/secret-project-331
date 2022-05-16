@@ -148,32 +148,34 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
         </h3>
 
         <StyledTopics role="navigation">
-          {headings &&
-            headings.map(({ id, title }) => {
-              return (
-                <StTopic
-                  key={id}
-                  className={css`
-                    ${isActive === id &&
-                    "background: #DAE6E5; /* border-color: #065853 !important; */ &:before{background: #1F6964 !important}"}
-                  `}
-                >
-                  <li>
-                    <a
-                      href={`#${id}`}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        document.querySelector(`[id='${id}']`)?.scrollIntoView({
-                          behavior: "smooth",
-                        })
-                      }}
-                    >
-                      {title}
-                    </a>
-                  </li>
-                </StTopic>
-              )
-            })}
+          <ul>
+            {headings &&
+              headings.map(({ id, title }) => {
+                return (
+                  <StTopic
+                    key={id}
+                    className={css`
+                      ${isActive === id &&
+                      "background: #DAE6E5; /* border-color: #065853 !important; */ &:before{background: #1F6964 !important}"}
+                    `}
+                  >
+                    <li>
+                      <a
+                        href={`#${id}`}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          document.querySelector(`[id='${id}']`)?.scrollIntoView({
+                            behavior: "smooth",
+                          })
+                        }}
+                      >
+                        {title}
+                      </a>
+                    </li>
+                  </StTopic>
+                )
+              })}
+          </ul>
         </StyledTopics>
       </StyledWrapper>
       <button

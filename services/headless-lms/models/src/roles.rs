@@ -9,6 +9,7 @@ pub enum UserRole {
     Teacher,
     Admin,
     CourseOrExamCreator,
+    MaterialViewer,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]

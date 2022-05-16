@@ -2261,6 +2261,26 @@
 <span id="2256">2256</span>
 <span id="2257">2257</span>
 <span id="2258">2258</span>
+<span id="2259">2259</span>
+<span id="2260">2260</span>
+<span id="2261">2261</span>
+<span id="2262">2262</span>
+<span id="2263">2263</span>
+<span id="2264">2264</span>
+<span id="2265">2265</span>
+<span id="2266">2266</span>
+<span id="2267">2267</span>
+<span id="2268">2268</span>
+<span id="2269">2269</span>
+<span id="2270">2270</span>
+<span id="2271">2271</span>
+<span id="2272">2272</span>
+<span id="2273">2273</span>
+<span id="2274">2274</span>
+<span id="2275">2275</span>
+<span id="2276">2276</span>
+<span id="2277">2277</span>
+<span id="2278">2278</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -2917,6 +2937,7 @@ AND pages.deleted_at IS NULL
     <span class="kw">pub</span> <span class="ident">max_tries_per_slide</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">limit_number_of_tries</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">needs_peer_review</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CmsPageExercise</span> {
@@ -2929,6 +2950,7 @@ AND pages.deleted_at IS NULL
             <span class="ident">max_tries_per_slide</span>: <span class="ident">exercise</span>.<span class="ident">max_tries_per_slide</span>,
             <span class="ident">limit_number_of_tries</span>: <span class="ident">exercise</span>.<span class="ident">limit_number_of_tries</span>,
             <span class="ident">deadline</span>: <span class="ident">exercise</span>.<span class="ident">deadline</span>,
+            <span class="ident">needs_peer_review</span>: <span class="ident">exercise</span>.<span class="ident">needs_peer_review</span>,
         }
     }
 }
@@ -3239,9 +3261,23 @@ INSERT INTO exercises(
     score_maximum,
     max_tries_per_slide,
     limit_number_of_tries,
-    deadline
+    deadline,
+    needs_peer_review
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT (id) DO
+VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12
+  ) ON CONFLICT (id) DO
 UPDATE
 SET course_id = $2,
   name = $3,
@@ -3253,6 +3289,7 @@ SET course_id = $2,
   max_tries_per_slide = $9,
   limit_number_of_tries = $10,
   deadline = $11,
+  needs_peer_review = $12,
   deleted_at = NULL
 RETURNING id,
   name,
@@ -3260,7 +3297,8 @@ RETURNING id,
   score_maximum,
   max_tries_per_slide,
   limit_number_of_tries,
-  deadline;
+  deadline,
+  needs_peer_review
             &quot;</span>,
             <span class="ident">safe_for_db_exercise_id</span>,
             <span class="ident">page</span>.<span class="ident">course_id</span>,
@@ -3272,7 +3310,8 @@ RETURNING id,
             <span class="ident">exercise_update</span>.<span class="ident">score_maximum</span>,
             <span class="ident">exercise_update</span>.<span class="ident">max_tries_per_slide</span>,
             <span class="ident">exercise_update</span>.<span class="ident">limit_number_of_tries</span>,
-            <span class="ident">exercise_update</span>.<span class="ident">deadline</span>
+            <span class="ident">exercise_update</span>.<span class="ident">deadline</span>,
+            <span class="ident">exercise_update</span>.<span class="ident">needs_peer_review</span>,
         )
         .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -4463,6 +4502,7 @@ WHERE pages.order_number = $1
             <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">None</span>,
             <span class="ident">limit_number_of_tries</span>: <span class="bool-val">false</span>,
             <span class="ident">deadline</span>: <span class="prelude-val">Some</span>(<span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+            <span class="ident">needs_peer_review</span>: <span class="bool-val">false</span>,
         };
         <span class="kw">let</span> <span class="ident">e1_s1</span> <span class="op">=</span> <span class="ident">CmsPageExerciseSlide</span> {
             <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;43380e81-6ff2-4f46-9f38-af0ac6a8421a&quot;</span>).<span class="ident">unwrap</span>(),

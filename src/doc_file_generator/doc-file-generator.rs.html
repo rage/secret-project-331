@@ -844,6 +844,104 @@
 <span id="839">839</span>
 <span id="840">840</span>
 <span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -875,14 +973,20 @@
     },
     <span class="ident">exercise_slides::CourseMaterialExerciseSlide</span>,
     <span class="ident">exercise_task_gradings</span>::{<span class="ident">ExerciseTaskGrading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
-    <span class="ident">exercise_task_submissions::ExerciseTaskSubmission</span>,
-    <span class="ident">exercise_tasks::CourseMaterialExerciseTask</span>,
+    <span class="ident">exercise_task_submissions</span>::{<span class="ident">ExerciseTaskSubmission</span>, <span class="ident">ExerciseTaskSubmissionWithSpec</span>},
+    <span class="ident">exercise_tasks</span>::{<span class="ident">CourseMaterialExerciseTask</span>, <span class="ident">ExerciseTask</span>},
     <span class="ident">exercises</span>::{
         <span class="ident">ActivityProgress</span>, <span class="ident">CourseMaterialExercise</span>, <span class="ident">Exercise</span>, <span class="ident">ExerciseStatus</span>, <span class="ident">GradingProgress</span>,
     },
     <span class="ident">feedback</span>::{<span class="ident">Feedback</span>, <span class="ident">FeedbackBlock</span>, <span class="ident">FeedbackCount</span>},
     <span class="ident">glossary::Term</span>,
-    <span class="ident">library::grading</span>::{<span class="ident">StudentExerciseSlideSubmissionResult</span>, <span class="ident">StudentExerciseTaskSubmissionResult</span>},
+    <span class="ident">library</span>::{
+        <span class="ident">grading</span>::{<span class="ident">StudentExerciseSlideSubmissionResult</span>, <span class="ident">StudentExerciseTaskSubmissionResult</span>},
+        <span class="ident">peer_reviewing</span>::{
+            <span class="ident">CourseMaterialPeerReviewData</span>, <span class="ident">CourseMaterialPeerReviewQuestionAnswer</span>,
+            <span class="ident">CourseMaterialPeerReviewSubmission</span>,
+        },
+    },
     <span class="ident">organizations::Organization</span>,
     <span class="ident">page_history</span>::{<span class="ident">HistoryChangeReason</span>, <span class="ident">PageHistory</span>},
     <span class="ident">pages</span>::{
@@ -890,6 +994,8 @@
         <span class="ident">CoursePageWithUserData</span>, <span class="ident">Page</span>, <span class="ident">PageChapterAndCourseInformation</span>, <span class="ident">PageInfo</span>,
         <span class="ident">PageRoutingDataWithChapterStatus</span>, <span class="ident">PageSearchResult</span>, <span class="ident">PageWithExercises</span>,
     },
+    <span class="ident">peer_review_questions</span>::{<span class="ident">PeerReviewQuestion</span>, <span class="ident">PeerReviewQuestionType</span>},
+    <span class="ident">peer_reviews::PeerReview</span>,
     <span class="ident">playground_examples::PlaygroundExample</span>,
     <span class="ident">proposed_block_edits</span>::{<span class="ident">BlockProposal</span>, <span class="ident">ProposalStatus</span>},
     <span class="ident">proposed_page_edits</span>::{<span class="ident">PageProposal</span>, <span class="ident">ProposalCount</span>},
@@ -1007,7 +1113,46 @@
         <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
         <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">Some</span>(<span class="number">17</span>),
         <span class="ident">limit_number_of_tries</span>: <span class="bool-val">true</span>,
+        <span class="ident">needs_peer_review</span>: <span class="bool-val">false</span>,
     };
+    <span class="kw">let</span> <span class="ident">exercise_task</span> <span class="op">=</span> <span class="ident">ExerciseTask</span> {
+        <span class="ident">id</span>,
+        <span class="ident">created_at</span>,
+        <span class="ident">updated_at</span>,
+        <span class="ident">deleted_at</span>,
+        <span class="ident">exercise_slide_id</span>: <span class="ident">id</span>,
+        <span class="ident">exercise_type</span>: <span class="string">&quot;quiz&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">assignment</span>: <span class="macro">serde_json::json!</span> {{
+          <span class="string">&quot;name&quot;</span>: <span class="string">&quot;core/paragraph&quot;</span>,
+          <span class="string">&quot;isValid&quot;</span>: <span class="bool-val">true</span>,
+          <span class="string">&quot;clientId&quot;</span>: <span class="string">&quot;187a0aea-c088-4354-a1ea-f0cab082c065&quot;</span>,
+          <span class="string">&quot;attributes&quot;</span>: {
+            <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Answer this question.&quot;</span>,
+            <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
+          },
+          <span class="string">&quot;innerBlocks&quot;</span>: []
+        }},
+        <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span> {[
+          {
+            <span class="string">&quot;id&quot;</span>: <span class="string">&quot;7ab2591c-b0f3-4543-9548-a113849b0f94&quot;</span>,
+            <span class="string">&quot;name&quot;</span>: <span class="string">&quot;a&quot;</span>
+          },
+          {
+            <span class="string">&quot;id&quot;</span>: <span class="string">&quot;a833d1df-f27b-4fbf-b516-883a62c09d88&quot;</span>,
+            <span class="string">&quot;name&quot;</span>: <span class="string">&quot;b&quot;</span>
+          },
+          {
+            <span class="string">&quot;id&quot;</span>: <span class="string">&quot;03d4b3d4-88af-4125-88b7-4ee052fd876f&quot;</span>,
+            <span class="string">&quot;name&quot;</span>: <span class="string">&quot;c&quot;</span>
+          }
+        ]}),
+        <span class="ident">private_spec</span>: <span class="prelude-val">None</span>,
+        <span class="ident">spec_file_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
+        <span class="ident">model_solution_spec</span>: <span class="prelude-val">None</span>,
+        <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
+        <span class="ident">order_number</span>: <span class="number">1</span>,
+    };
+
     <span class="kw">let</span> <span class="ident">exercise_slide_submission</span> <span class="op">=</span> <span class="ident">ExerciseSlideSubmission</span> {
         <span class="ident">id</span>,
         <span class="ident">created_at</span>,
@@ -1116,6 +1261,27 @@
         <span class="ident">upstream_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">email</span>: <span class="string">&quot;email@example.com&quot;</span>.<span class="ident">to_string</span>(),
     };
+    <span class="kw">let</span> <span class="ident">peer_review_question</span> <span class="op">=</span> <span class="ident">PeerReviewQuestion</span> {
+        <span class="ident">id</span>,
+        <span class="ident">created_at</span>,
+        <span class="ident">updated_at</span>,
+        <span class="ident">deleted_at</span>,
+        <span class="ident">peer_review_id</span>: <span class="ident">id</span>,
+        <span class="ident">order_number</span>: <span class="number">0</span>,
+        <span class="ident">question</span>: <span class="string">&quot;Was the answer well thought out?&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType::Essay</span>,
+        <span class="ident">answer_required</span>: <span class="bool-val">true</span>,
+    };
+    <span class="kw">let</span> <span class="ident">peer_review</span> <span class="op">=</span> <span class="ident">PeerReview</span> {
+        <span class="ident">id</span>,
+        <span class="ident">created_at</span>,
+        <span class="ident">updated_at</span>,
+        <span class="ident">deleted_at</span>,
+        <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="ident">exercise_id</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise</span>.<span class="ident">id</span>),
+        <span class="ident">peer_reviews_to_give</span>: <span class="number">3</span>,
+        <span class="ident">peer_reviews_to_receive</span>: <span class="number">2</span>,
+    };
     <span class="kw">let</span> <span class="ident">playground_example</span> <span class="op">=</span> <span class="ident">PlaygroundExample</span> {
         <span class="ident">id</span>,
         <span class="ident">created_at</span>,
@@ -1125,6 +1291,28 @@
         <span class="ident">url</span>: <span class="string">&quot;http://example.com&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">width</span>: <span class="number">123</span>,
         <span class="ident">data</span>: <span class="macro">serde_json::json!</span> {{}},
+    };
+    <span class="kw">let</span> <span class="ident">course_material_peer_review_data</span> <span class="op">=</span> <span class="ident">CourseMaterialPeerReviewData</span> {
+        <span class="ident">exercise_slide_submission_id</span>: <span class="ident">exercise_slide_submission</span>.<span class="ident">id</span>,
+        <span class="ident">exercise_task_submissions</span>: <span class="macro">vec!</span>[<span class="ident">ExerciseTaskSubmissionWithSpec</span> {
+            <span class="ident">id</span>,
+            <span class="ident">exercise_task_id</span>: <span class="ident">exercise_task</span>.<span class="ident">id</span>,
+            <span class="ident">exercise_task_order_number</span>: <span class="number">0</span>,
+            <span class="ident">public_spec</span>: <span class="ident">exercise_task</span>.<span class="ident">public_spec</span>.<span class="ident">clone</span>(),
+            <span class="ident">model_solution_spec</span>: <span class="ident">exercise_task</span>.<span class="ident">model_solution_spec</span>.<span class="ident">clone</span>(),
+            <span class="ident">data_json</span>: <span class="ident">exercise_task_submission</span>.<span class="ident">data_json</span>.<span class="ident">clone</span>(),
+        }],
+        <span class="ident">peer_review_id</span>: <span class="ident">peer_review</span>.<span class="ident">id</span>,
+        <span class="ident">peer_review_questions</span>: <span class="macro">vec!</span>[<span class="ident">peer_review_question</span>.<span class="ident">clone</span>()],
+    };
+    <span class="kw">let</span> <span class="ident">course_material_peer_review_submission</span> <span class="op">=</span> <span class="ident">CourseMaterialPeerReviewSubmission</span> {
+        <span class="ident">exercise_slide_submission_id</span>: <span class="ident">exercise_slide_submission</span>.<span class="ident">id</span>,
+        <span class="ident">peer_review_id</span>: <span class="ident">peer_review</span>.<span class="ident">id</span>,
+        <span class="ident">peer_review_question_answers</span>: <span class="macro">vec!</span>[<span class="ident">CourseMaterialPeerReviewQuestionAnswer</span> {
+            <span class="ident">peer_review_question_id</span>: <span class="ident">id</span>,
+            <span class="ident">text_data</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;I think that the answer was well written.&quot;</span>.<span class="ident">to_string</span>()),
+            <span class="ident">number_data</span>: <span class="prelude-val">None</span>,
+        }],
     };
     <span class="kw">let</span> <span class="ident">submission_result</span> <span class="op">=</span> <span class="ident">StudentExerciseTaskSubmissionResult</span> {
         <span class="ident">submission</span>: <span class="ident">exercise_task_submission</span>.<span class="ident">clone</span>(),
@@ -1180,7 +1368,8 @@
                 <span class="ident">score_maximum</span>: <span class="number">1</span>,
                 <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">Some</span>(<span class="number">17</span>),
                 <span class="ident">limit_number_of_tries</span>: <span class="bool-val">true</span>,
-                <span class="ident">deadline</span>: <span class="prelude-val">None</span>
+                <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
+                <span class="ident">needs_peer_review</span>: <span class="bool-val">false</span>,
             }],
             <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[<span class="ident">CmsPageExerciseSlide</span> {
                 <span class="ident">id</span>,
@@ -1218,6 +1407,9 @@
             }
         ]
     );
+    <span class="macro">write_docs!</span>(<span class="ident">PeerReview</span>, <span class="ident">peer_review</span>);
+    <span class="macro">write_docs!</span>(<span class="ident">PeerReviewQuestion</span>, <span class="ident">peer_review_question</span>.<span class="ident">clone</span>());
+    <span class="macro">write_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestion</span><span class="op">&gt;</span>, <span class="macro">vec!</span>[<span class="ident">peer_review_question</span>]);
     <span class="macro">write_docs!</span>(
         <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageWithExercises</span><span class="op">&gt;</span>,
         <span class="macro">vec!</span>[<span class="ident">PageWithExercises</span> {
@@ -1357,6 +1549,7 @@
                     <span class="ident">order_number</span>: <span class="number">1</span>
                 }],
             },
+            <span class="ident">peer_review_info</span>: <span class="prelude-val">Some</span>(<span class="ident">course_material_peer_review_data</span>),
             <span class="ident">exercise_status</span>: <span class="prelude-val">Some</span>(<span class="ident">ExerciseStatus</span> {
                 <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
                 <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress::InProgress</span>,
@@ -1373,6 +1566,10 @@
                 )
             ])
         }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">CourseMaterialPeerReviewSubmission</span>,
+        <span class="ident">course_material_peer_review_submission</span>
     );
     <span class="macro">write_docs!</span>(
         <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingDataWithChapterStatus</span><span class="op">&gt;</span>,
@@ -1567,7 +1764,6 @@
             <span class="ident">handled</span>: <span class="number">2</span>
         }
     );
-
     <span class="macro">write_docs!</span>(<span class="ident">User</span>, <span class="ident">user</span>.<span class="ident">clone</span>());
     <span class="macro">write_docs!</span>(<span class="ident">CourseCount</span>, <span class="ident">CourseCount</span> { <span class="ident">count</span>: <span class="number">1234</span> });
     <span class="macro">write_docs!</span>(

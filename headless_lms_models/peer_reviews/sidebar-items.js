@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["delete",""],["get_by_exercise_or_course_id",""],["get_by_id",""],["get_default_for_course_by_course_id",""],["insert",""],["insert_with_id",""],["try_to_get_by_exercise_id",""]],"struct":[["PeerReview",""]]});

@@ -3504,6 +3504,41 @@
 <span id="3499">3499</span>
 <span id="3500">3500</span>
 <span id="3501">3501</span>
+<span id="3502">3502</span>
+<span id="3503">3503</span>
+<span id="3504">3504</span>
+<span id="3505">3505</span>
+<span id="3506">3506</span>
+<span id="3507">3507</span>
+<span id="3508">3508</span>
+<span id="3509">3509</span>
+<span id="3510">3510</span>
+<span id="3511">3511</span>
+<span id="3512">3512</span>
+<span id="3513">3513</span>
+<span id="3514">3514</span>
+<span id="3515">3515</span>
+<span id="3516">3516</span>
+<span id="3517">3517</span>
+<span id="3518">3518</span>
+<span id="3519">3519</span>
+<span id="3520">3520</span>
+<span id="3521">3521</span>
+<span id="3522">3522</span>
+<span id="3523">3523</span>
+<span id="3524">3524</span>
+<span id="3525">3525</span>
+<span id="3526">3526</span>
+<span id="3527">3527</span>
+<span id="3528">3528</span>
+<span id="3529">3529</span>
+<span id="3530">3530</span>
+<span id="3531">3531</span>
+<span id="3532">3532</span>
+<span id="3533">3533</span>
+<span id="3534">3534</span>
+<span id="3535">3535</span>
+<span id="3536">3536</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -3532,15 +3567,15 @@
     <span class="ident">page_history::HistoryChangeReason</span>,
     <span class="ident">pages</span>,
     <span class="ident">pages</span>::{<span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">CmsPageUpdate</span>, <span class="ident">NewPage</span>},
-    <span class="ident">playground_examples</span>,
+    <span class="ident">peer_review_questions</span>::{<span class="self">self</span>, <span class="ident">NewPeerReviewQuestion</span>, <span class="ident">PeerReviewQuestionType</span>},
+    <span class="ident">peer_reviews</span>, <span class="ident">playground_examples</span>,
     <span class="ident">playground_examples::PlaygroundExampleData</span>,
     <span class="ident">proposed_block_edits::NewProposedBlockEdit</span>,
     <span class="ident">proposed_page_edits</span>,
     <span class="ident">proposed_page_edits::NewProposedPageEdits</span>,
     <span class="ident">roles::UserRole</span>,
     <span class="ident">roles</span>::{<span class="self">self</span>, <span class="ident">RoleDomain</span>},
-    <span class="ident">url_redirections</span>, <span class="ident">user_exercise_slide_states</span>, <span class="ident">user_exercise_states</span>, <span class="ident">user_exercise_task_states</span>,
-    <span class="ident">users</span>,
+    <span class="ident">url_redirections</span>, <span class="ident">user_exercise_slide_states</span>, <span class="ident">user_exercise_states</span>, <span class="ident">users</span>,
 };
 <span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{<span class="ident">attributes</span>, <span class="ident">document_schema_processor::GutenbergBlock</span>};
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -5104,6 +5139,7 @@
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;00dd984d-8651-404e-80b8-30fae9cf32ed&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;a66c2552-8123-4287-bd8b-b49a29204870&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;f6f63ff0-c119-4141-922b-bc04cbfa0a31&quot;</span>),
+        <span class="bool-val">true</span>,
         <span class="macro">serde_json::json!</span>({
             <span class="string">&quot;id&quot;</span>: <span class="string">&quot;a2704a2b-fe3d-4945-a007-5593e4b81195&quot;</span>,
             <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very hard&quot;</span>,
@@ -5162,6 +5198,7 @@
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;8ae8971c-95dd-4d8c-b38f-152ad89c6b20&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;d05b1d9b-f270-4e5e-baeb-a904ea29dc90&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;1057f91c-9dac-4364-9d6a-fa416abc540b&quot;</span>),
+        <span class="bool-val">false</span>,
         <span class="macro">serde_json::json!</span>({
             <span class="string">&quot;id&quot;</span>: <span class="string">&quot;1e2bb795-1736-4b37-ae44-b16ca59b4e4f&quot;</span>,
             <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very hard&quot;</span>,
@@ -5220,6 +5257,7 @@
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;e4230b3a-1db8-49c4-9554-1f96f7f3d015&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;52939561-af36-4ab6-bffa-be97e94d3314&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;8845b17e-2320-4384-97f8-24e42457cb5e&quot;</span>),
+        <span class="bool-val">false</span>,
         <span class="macro">serde_json::json!</span>({
             <span class="string">&quot;id&quot;</span>: <span class="string">&quot;f1f0520e-3037-409c-b52d-163ad0bc5c59&quot;</span>,
             <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very hard&quot;</span>,
@@ -5297,6 +5335,7 @@
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;b5e1e7e87-0678-4296-acf7-a8ac926ff94b&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;50e26d7f-f11f-4a8a-990d-fb17c3371d1d&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;7ca39a36-2dcd-4521-bbf6-bfc5849874e3&quot;</span>),
+        <span class="bool-val">false</span>,
         <span class="macro">serde_json::json!</span>({
             <span class="string">&quot;id&quot;</span>: <span class="string">&quot;1e2bb795-1736-4b37-ae44-b16ca59b4e4f&quot;</span>,
             <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very hard&quot;</span>,
@@ -5395,6 +5434,7 @@
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;1a2f2c9f-9552-440e-8dd3-1e3703bd0fab&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;6b568812-f752-4d9f-a60a-48257822d21e&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;b2f7d8d5-f3c0-4cac-8eb7-89a7b88c2236&quot;</span>),
+        <span class="bool-val">false</span>,
         <span class="macro">serde_json::json!</span>({
           <span class="string">&quot;autoConfirm&quot;</span>: <span class="bool-val">true</span>,
           <span class="string">&quot;autoReject&quot;</span>: <span class="bool-val">false</span>,
@@ -5850,6 +5890,32 @@
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }
 
+    <span class="comment">// peer reviews</span>
+    <span class="kw">let</span> <span class="ident">peer_review_id</span> <span class="op">=</span> <span class="ident">peer_reviews::insert_with_id</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;64717822-ac25-4a7d-8298-f0ac39d73260&quot;</span>),
+        <span class="ident">course_id</span>,
+        <span class="prelude-val">None</span>,
+        <span class="number">2</span>,
+        <span class="number">1</span>,
+    )
+    .<span class="kw">await</span>
+    .<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="ident">new_peer_review_question</span> <span class="op">=</span> <span class="ident">NewPeerReviewQuestion</span> {
+        <span class="ident">peer_review_id</span>,
+        <span class="ident">order_number</span>: <span class="number">0</span>,
+        <span class="ident">question</span>: <span class="string">&quot;Was the answer properly thought out?&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType::Essay</span>,
+        <span class="ident">answer_required</span>: <span class="bool-val">true</span>,
+    };
+    <span class="kw">let</span> <span class="ident">_peer_review_question_1_id</span> <span class="op">=</span> <span class="ident">peer_review_questions::insert_with_id</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;64717822-ac25-4a7d-8298-f0ac39d73260&quot;</span>),
+        <span class="kw-2">&amp;</span><span class="ident">new_peer_review_question</span>,
+    )
+    .<span class="kw">await</span>
+    .<span class="ident">unwrap</span>();
+
     <span class="comment">// feedback</span>
     <span class="macro">info!</span>(<span class="string">&quot;sample feedback&quot;</span>);
     <span class="kw">let</span> <span class="ident">new_feedback</span> <span class="op">=</span> <span class="ident">NewFeedback</span> {
@@ -5993,6 +6059,7 @@
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;7f011d0e-1cbf-4870-bacf-1873cf360c15&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;b9446b94-0edf-465c-9a9a-57708b7ef180&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;58e71279-81e1-4679-83e6-8f5f23ec055a&quot;</span>),
+        <span class="bool-val">false</span>,
         <span class="macro">serde_json::json!</span>({
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;3a1b3e10-2dd5-4cb9-9460-4c08f19e16d3&quot;</span>,
                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very hard&quot;</span>,
@@ -6066,6 +6133,7 @@
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;9037cb17-3841-4a79-8f50-bbe595a4f785&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;d6d80ae0-97a1-4db1-8a3b-2bdde3cfbe9a&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;085b60ec-aa9d-11ec-b500-7b1e176646f8&quot;</span>),
+        <span class="bool-val">false</span>,
         <span class="macro">serde_json::json!</span>({
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;783a7697-5e9e-41dc-90b5-c7fe1570bd3a&quot;</span>,
                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very hard&quot;</span>,
@@ -6139,6 +6207,7 @@
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;5d953894-aa9d-11ec-97e7-2ff4d73f69f1&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;604dae7c-aa9d-11ec-8df1-575042832340&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;6365746e-aa9d-11ec-8718-0b5628cbe29f&quot;</span>),
+        <span class="bool-val">false</span>,
         <span class="macro">serde_json::json!</span>({
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;33cd47ea-aa9d-11ec-897c-5b22513d61ee&quot;</span>,
                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very hard&quot;</span>,
@@ -6213,6 +6282,7 @@
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;712fd37c-e3d7-4569-8a64-371d7dda9c19&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;6799021d-ff0c-4e4d-b5db-c2c19fba7fb9&quot;</span>),
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;01b69776-3e82-4694-98a9-5ce53f2a4ab5&quot;</span>),
+        <span class="bool-val">false</span>,
         <span class="macro">serde_json::json!</span>({
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;9a186f2b-7616-472e-b839-62ab0f2f0a6c&quot;</span>,
                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very hard&quot;</span>,
@@ -6800,6 +6870,7 @@
         <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">None</span>,
         <span class="ident">limit_number_of_tries</span>: <span class="bool-val">false</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
+        <span class="ident">needs_peer_review</span>: <span class="bool-val">false</span>,
     };
     (<span class="ident">block</span>, <span class="ident">exercise</span>, <span class="ident">slides</span>, <span class="ident">tasks</span>)
 }
@@ -6811,6 +6882,7 @@
     <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">block_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">paragraph_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">needs_peer_review</span>: <span class="ident">bool</span>,
     <span class="ident">private_spec</span>: <span class="ident">serde_json::Value</span>,
 ) -&gt; (
     <span class="ident">GutenbergBlock</span>,
@@ -6837,6 +6909,7 @@
         <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">None</span>,
         <span class="ident">limit_number_of_tries</span>: <span class="bool-val">false</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">Some</span>(<span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="ident">needs_peer_review</span>,
     };
     <span class="kw">let</span> <span class="ident">exercise_slide</span> <span class="op">=</span> <span class="ident">CmsPageExerciseSlide</span> {
         <span class="ident">id</span>: <span class="ident">exercise_slide_id</span>,
@@ -6923,15 +6996,12 @@
         <span class="ident">score_given</span>: <span class="ident">out_of_100</span>,
         <span class="ident">score_maximum</span>: <span class="number">100</span>,
     };
-    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span>
-        <span class="ident">exercise_task_gradings::update_grading</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">grading_result</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">user_exercise_task_states::upsert_with_grading</span>(<span class="ident">conn</span>, <span class="ident">user_exercise_slide_state</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-    <span class="ident">exercise_task_submissions::set_grading_id</span>(<span class="ident">conn</span>, <span class="ident">grading</span>.<span class="ident">id</span>, <span class="ident">task_submission</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">headless_lms_models::library::grading::update_points_for_user_exercise_state</span>(
+    <span class="ident">headless_lms_models::library::grading::update_exercise_state_with_single_exercise_task_grading_result</span>(
         <span class="ident">conn</span>,
-        <span class="ident">user_exercise_state</span>,
+        <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
+        <span class="kw-2">&amp;</span><span class="ident">grading</span>,
+        <span class="kw-2">&amp;</span><span class="ident">grading_result</span>,
+        <span class="ident">user_exercise_slide_state</span>,
         <span class="ident">UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints</span>,
     )
     .<span class="kw">await</span>

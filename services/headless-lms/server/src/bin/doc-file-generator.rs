@@ -29,9 +29,7 @@ use headless_lms_models::{
     },
     exercise_slides::CourseMaterialExerciseSlide,
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
-    exercise_task_submissions::{
-        ExerciseTaskSubmission, ExerciseTaskSubmissionWithSpec,
-    },
+    exercise_task_submissions::{ExerciseTaskSubmission, ExerciseTaskSubmissionWithSpec},
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     exercises::{
         ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,

@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use chrono::NaiveDate;
 
 use crate::{
-    courses::Course, exercise_task_gradings::UserPointsUpdateStrategy, prelude::*,
+    courses::Course, exercise_task_gradings::UserPointsUpdateStrategy,
+    exercise_tasks::CourseMaterialExerciseTask, exercises::Exercise, prelude::*,
     user_exercise_states::CourseInstanceOrExamId, CourseOrExamId,
 };
 
@@ -56,6 +57,14 @@ pub struct ExerciseSlideSubmissionCountByWeekAndHour {
     pub isodow: Option<i32>,
     pub hour: Option<i32>,
     pub count: Option<i32>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseSlideSubmissionInfo {
+    pub tasks: Vec<CourseMaterialExerciseTask>,
+    pub exercise: Exercise,
+    pub exercise_slide_submission: ExerciseSlideSubmission,
 }
 
 pub async fn insert_exercise_slide_submission(
@@ -145,10 +154,7 @@ RETURNING id,
     Ok(res)
 }
 
-pub async fn get_by_id(
-    conn: &mut PgConnection,
-    id: Uuid,
-) -> ModelResult<Option<ExerciseSlideSubmission>> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExerciseSlideSubmission> {
     let exercise_slide_submission = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
@@ -169,7 +175,7 @@ WHERE id = $1
         "#,
         id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(exercise_slide_submission)
 }
@@ -409,4 +415,19 @@ GROUP BY exercise_slide_id;
     .collect::<HashMap<Uuid, i64>>();
 
     Ok(res)
+}
+
+pub async fn get_exercise_slide_submission_info(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<ExerciseSlideSubmissionInfo> {
+    let exercise_slide_submission = get_by_id(&mut *conn, exercise_slide_submission_id).await?;
+    let exercise =
+        crate::exercises::get_by_id(&mut *conn, exercise_slide_submission.exercise_id).await?;
+    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id).await?;
+    Ok(ExerciseSlideSubmissionInfo {
+        exercise,
+        tasks,
+        exercise_slide_submission,
+    })
 }

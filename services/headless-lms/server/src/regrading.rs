@@ -24,6 +24,8 @@ use headless_lms_models::{
     ModelResult,
 };
 
+use headless_lms_models::error::TryToOptional;
+
 type GradingFutures =
     HashMap<String, Vec<Pin<Box<dyn Future<Output = GradingData> + Send + 'static>>>>;
 
@@ -141,7 +143,8 @@ pub async fn regrade(
             &mut *conn,
             task_submission.exercise_slide_submission_id,
         )
-        .await?
+        .await
+        .optional()?
         .ok_or_else(|| anyhow::anyhow!("No slide submission"))?;
         let user_exercise_state = models::user_exercise_states::get_or_create_user_exercise_state(
             conn,

@@ -1,5 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { faBug as faIcon } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Dialog, Paper } from "@mui/material"
 import { Dispatch, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -53,8 +55,8 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
 
   return (
     <>
-      <Button variant="primary" size="medium" onClick={() => openModal()}>
-        {t("debug")}
+      <Button variant="blue" size="medium" aria-label={t("debug")} onClick={() => openModal()}>
+        <FontAwesomeIcon icon={faIcon} />
       </Button>
       <Dialog maxWidth="xl" open={open} onClose={closeModal}>
         <Paper

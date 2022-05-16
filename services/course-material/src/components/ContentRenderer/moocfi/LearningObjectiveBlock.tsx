@@ -1,7 +1,9 @@
-import React, { useContext } from "react"
+import React, { useContext, useEffect, useState } from "react"
+import { useQuery } from "react-query"
 
 import { BlockRendererProps } from ".."
 import PageContext from "../../../contexts/PageContext"
+import { isPageFrontPage } from "../../../services/backend"
 import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
 import LearningObjective, {
   LearningObjectiveProps,
@@ -15,21 +17,22 @@ const LearningObjectiveSectionBlock: React.FC<BlockRendererProps<LearningObjecti
   props,
 ) => {
   const pageContext = useContext(PageContext)
-  const url = pageContext.pageData?.url_path
+  const pageId = pageContext.pageData?.id
 
-  // check if the last param in the URL is chapter
-  const lastSegment = url?.substring(url.lastIndexOf("/") + 1)?.includes("chapter")
-  const heading = lastSegment
+  const isChapterFrontPage = useQuery(`chapter-front-page-${pageId}`, () => {
+    if (!pageId) {
+      return false
+    }
+    return isPageFrontPage(pageId)
+  })
+
+  const heading = isChapterFrontPage
     ? props.data.attributes.title + " " + CHAPTER
     : props.data.attributes.title + " " + PAGE
   return (
     <BreakFromCentered sidebar={false}>
-      {props.data.innerBlocks.map((block: any) => {
-        const values = block?.attributes?.values
-        const arr = values
-          .match(/(<li>(.*?)<\/li>)/g)
-          .map((str: string) => str.replace(/<\/?li>/g, ""))
-        return <LearningObjective title={heading} objectives={arr} key={block.clientId} />
+      {props.data.innerBlocks.map((block) => {
+        return <LearningObjective title={heading} objectives={block} key={block.clientId} />
       })}
     </BreakFromCentered>
   )

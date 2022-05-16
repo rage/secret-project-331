@@ -62,6 +62,7 @@ import {
   ExerciseSlideSubmissionCount,
   ExerciseSlideSubmissionCountByExercise,
   ExerciseSlideSubmissionCountByWeekAndHour,
+  ExerciseSlideSubmissionInfo,
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
@@ -120,7 +121,6 @@ import {
   StudentExerciseSlideSubmissionResult,
   StudentExerciseTaskSubmission,
   StudentExerciseTaskSubmissionResult,
-  SubmissionInfo,
   Term,
   TermUpdate,
   UploadResult,
@@ -1387,6 +1387,19 @@ export function isExerciseSlideSubmissionCountByWeekAndHour(
   )
 }
 
+export function isExerciseSlideSubmissionInfo(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseSlideSubmissionInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.tasks) &&
+    obj.tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean) &&
+    (isExercise(obj.exercise) as boolean) &&
+    (isExerciseSlideSubmission(obj.exercise_slide_submission) as boolean)
+  )
+}
+
 export function isExerciseTaskGrading(
   obj: any,
   _argumentName?: string,
@@ -1459,17 +1472,6 @@ export function isExerciseTaskSubmissionWithSpec(
     typeof obj.id === "string" &&
     typeof obj.exercise_task_id === "string" &&
     typeof obj.exercise_task_order_number === "number"
-  )
-}
-
-export function isSubmissionInfo(obj: any, _argumentName?: string): obj is SubmissionInfo {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isExerciseTaskSubmission(obj.submission) as boolean) &&
-    (isExercise(obj.exercise) as boolean) &&
-    (isExerciseTask(obj.exercise_task) as boolean) &&
-    (obj.grading === null || (isExerciseTaskGrading(obj.grading) as boolean)) &&
-    typeof obj.iframe_path === "string"
   )
 }
 

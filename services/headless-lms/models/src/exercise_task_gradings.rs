@@ -449,3 +449,43 @@ pub async fn get_for_student(
         Ok(Some(grading))
     }
 }
+
+pub async fn get_all_gradings_by_exercise_slide_submission_id(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<Vec<ExerciseTaskGrading>> {
+    let res = sqlx::query_as!(
+        ExerciseTaskGrading,
+        r#"
+SELECT id,
+created_at,
+updated_at,
+exercise_task_submission_id,
+course_id,
+exam_id,
+exercise_id,
+exercise_task_id,
+grading_priority,
+score_given,
+grading_progress as "grading_progress: _",
+unscaled_score_given,
+unscaled_score_maximum,
+grading_started_at,
+grading_completed_at,
+feedback_json,
+feedback_text,
+deleted_at
+FROM exercise_task_gradings
+WHERE deleted_at IS NULL
+  AND exercise_task_submission_id IN (
+    SELECT id
+    FROM exercise_task_submissions
+    WHERE exercise_slide_submission_id = $1
+  )
+"#,
+        exercise_slide_submission_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(res)
+}

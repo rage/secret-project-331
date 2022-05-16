@@ -103,18 +103,24 @@ CREATE TABLE peer_review_submissions(
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   user_id UUID NOT NULL REFERENCES users(id),
+  exercise_id UUID NOT NULL REFERENCES exercises(id),
+  course_instance_id UUID NOT NULL REFERENCES course_instances(id),
   peer_review_id UUID NOT NULL REFERENCES peer_reviews(id),
   exercise_slide_submission_id UUID NOT NULL REFERENCES exercise_slide_submissions(id)
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON peer_review_submissions FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+CREATE UNIQUE INDEX peer_review_submissions_course_instance_submission_uniqueness ON peer_review_submissions (user_id, exercise_id, course_instance_id)
+WHERE deleted_at IS NULL;
 COMMENT ON TABLE peer_review_submissions IS 'User made peer review submissions.';
 COMMENT ON COLUMN peer_review_submissions.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN peer_review_submissions.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN peer_review_submissions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN peer_review_submissions.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN peer_review_submissions.user_id IS 'User who made this peer review.';
-COMMENT ON COLUMN peer_review_submissions.peer_review_id IS 'Peer review that is being submitted for.';
+COMMENT ON COLUMN peer_review_submissions.exercise_id IS 'Exercise that this peer review is made for.';
+COMMENT ON COLUMN peer_review_submissions.course_instance_id IS 'Course instance that this peer review is submitted for.';
+COMMENT ON COLUMN peer_review_submissions.peer_review_id IS 'Peer review that the submission is made of.';
 COMMENT ON COLUMN peer_review_submissions.exercise_slide_submission_id IS 'Exercise slide that is being peer reviewed.';
 -- Add peer review question submissions
 CREATE TABLE peer_review_question_submissions(

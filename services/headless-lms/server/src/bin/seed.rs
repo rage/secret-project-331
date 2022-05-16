@@ -2355,6 +2355,8 @@ async fn seed_sample_course(
         Uuid::new_v5(&course_id, b"64717822-ac25-4a7d-8298-f0ac39d73260"),
         default_instance.id,
         None,
+        2,
+        1,
     )
     .await
     .unwrap();

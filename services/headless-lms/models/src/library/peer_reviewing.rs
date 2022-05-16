@@ -78,6 +78,8 @@ pub async fn create_peer_review_submission_for_user(
     let peer_review_submission_id = peer_review_submissions::insert(
         &mut tx,
         user_exercise_state.user_id,
+        user_exercise_state.exercise_id,
+        user_exercise_state.get_course_instance_id()?,
         peer_review.id,
         peer_review_submission.exercise_slide_submission_id,
     )
@@ -151,14 +153,20 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     exercise: &Exercise,
     user_exercise_state: &UserExerciseState,
 ) -> ModelResult<Option<CourseMaterialPeerReviewData>> {
-    // TODO: Get already answered from peer review submissions.
-    let excluded_submission_ids = Vec::new();
     let peer_review = peer_reviews::get_by_exercise_or_course_id(
         conn,
         user_exercise_state.exercise_id,
         exercise.get_course_id()?,
     )
     .await?;
+    let excluded_submission_ids =
+        peer_review_submissions::get_users_submission_ids_for_exercise_and_course_instance(
+            conn,
+            user_exercise_state.user_id,
+            user_exercise_state.exercise_id,
+            user_exercise_state.get_course_instance_id()?,
+        )
+        .await?;
     let candidate_submission_id = try_to_select_peer_review_candidate_from_queue(
         conn,
         user_exercise_state.exercise_id,

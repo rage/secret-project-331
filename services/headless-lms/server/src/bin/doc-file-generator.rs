@@ -43,9 +43,11 @@ use headless_lms_models::{
         CoursePageWithUserData, Page, PageChapterAndCourseInformation, PageInfo,
         PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
+    pending_roles::PendingRole,
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
     proposed_page_edits::{PageProposal, ProposalCount},
+    roles::RoleUser,
     user_course_settings::UserCourseSettings,
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
     users::User,
@@ -845,6 +847,26 @@ fn main() {
             course_name: Some("Introduction to everything".to_string()),
             course_slug: Some("introduction-to-everything".to_string()),
             organization_slug: Some("uh-cs".to_string())
+        }
+    );
+    write_docs!(
+        PendingRole,
+        PendingRole {
+            id,
+            user_email: "pending@example.com".to_string(),
+            role: headless_lms_models::roles::UserRole::MaterialViewer,
+            expires_at: updated_at
+        }
+    );
+
+    write_docs!(
+        RoleUser,
+        RoleUser {
+            id,
+            first_name: Some("Bob".to_string()),
+            last_name: Some("Bobbingson".to_string()),
+            email: "bob@example.com".to_string(),
+            role: headless_lms_models::roles::UserRole::Teacher
         }
     );
 }

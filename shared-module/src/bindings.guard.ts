@@ -97,6 +97,7 @@ import {
   PageSearchResult,
   PageWithExercises,
   Pagination,
+  PendingRole,
   PlaygroundExample,
   PlaygroundExampleData,
   PointMap,
@@ -1391,7 +1392,27 @@ export function isUserRole(obj: any, _argumentName?: string): obj is UserRole {
     obj === "Assistant" ||
     obj === "Teacher" ||
     obj === "Admin" ||
-    obj === "CourseOrExamCreator"
+    obj === "CourseOrExamCreator" ||
+    obj === "MaterialViewer"
+  )
+}
+
+export function isRoleInfo(obj: any, _argumentName?: string): obj is RoleInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.email === "string" &&
+    (isUserRole(obj.role) as boolean) &&
+    (isRoleDomain(obj.domain) as boolean)
+  )
+}
+
+export function isPendingRole(obj: any, _argumentName?: string): obj is PendingRole {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.user_email === "string" &&
+    (isUserRole(obj.role) as boolean) &&
+    obj.expires_at instanceof Date
   )
 }
 
@@ -1477,15 +1498,6 @@ export function isRoleQuery(obj: any, _argumentName?: string): obj is RoleQuery 
     (typeof obj.course_id === "undefined" || typeof obj.course_id === "string") &&
     (typeof obj.course_instance_id === "undefined" || typeof obj.course_instance_id === "string") &&
     (typeof obj.exam_id === "undefined" || typeof obj.exam_id === "string")
-  )
-}
-
-export function isRoleInfo(obj: any, _argumentName?: string): obj is RoleInfo {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.email === "string" &&
-    (isUserRole(obj.role) as boolean) &&
-    (isRoleDomain(obj.domain) as boolean)
   )
 }
 

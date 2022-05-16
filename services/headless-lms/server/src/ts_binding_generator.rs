@@ -6,12 +6,8 @@ use crate::controllers::{
         exams::{ExamData, ExamEnrollmentData},
     },
     main_frontend::{
-        courses::GetFeedbackQuery,
-        exams::ExamCourseInfo,
-        exercises::ExerciseSubmissions,
-        feedback::MarkAsRead,
-        proposed_edits::GetEditProposalsQuery,
-        roles::{RoleInfo, RoleQuery},
+        courses::GetFeedbackQuery, exams::ExamCourseInfo, exercises::ExerciseSubmissions,
+        feedback::MarkAsRead, proposed_edits::GetEditProposalsQuery, roles::RoleQuery,
     },
     ErrorData, ErrorResponse, UploadResult,
 };
@@ -170,6 +166,9 @@ fn ts_binding_generator() {
         roles::RoleUser,
         roles::RoleDomain,
         roles::UserRole,
+        roles::RoleInfo,
+
+        pending_roles::PendingRole,
 
         user_course_settings::UserCourseSettings,
 
@@ -181,7 +180,6 @@ fn ts_binding_generator() {
 
         ChaptersWithStatus,
         RoleQuery,
-        RoleInfo,
         ExamData,
         ExamEnrollmentData,
         ExamCourseInfo,

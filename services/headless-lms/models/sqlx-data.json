@@ -572,6 +572,34 @@
       "nullable": []
     }
   },
+  "0b3b322122a5cbfc5c5172ab45936acc039cea5bca3d80d5dc36e55caeed068f": {
+    "query": "\nUPDATE roles\nSET deleted_at = NOW()\nWHERE user_id = $1\n  AND role = $2\n  AND organization_id = $3\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator",
+                  "material_viewer"
+                ]
+              }
+            }
+          },
+          "Uuid"
+        ]
+      },
+      "nullable": []
+    }
+  },
   "0c395da11ae62743051ec6f45ac48e2a1a450c36bd37fbecf8ccb71a9fefdd7b": {
     "query": "\nSELECT *\nFROM user_course_settings\nWHERE user_id = $1\n  AND course_language_group_id = $2\n  AND deleted_at IS NULL;\n        ",
     "describe": {
@@ -616,56 +644,6 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": [false, false, false, false, true, false, false]
-    }
-  },
-  "0c8461a6308d09d435968b157266abe5a98c2f162db755aaa129eb69ca6ec577": {
-    "query": "\nSELECT users.id,\n  users.first_name,\n  users.last_name,\n  email,\n  role AS \"role: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\nWHERE roles.course_id = $1\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "first_name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "last_name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 3,
-          "name": "email",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "role: UserRole",
-          "type_info": {
-            "Custom": {
-              "name": "user_role",
-              "kind": {
-                "Enum": [
-                  "admin",
-                  "assistant",
-                  "teacher",
-                  "reviewer",
-                  "course_or_exam_creator",
-                  "material_viewer"
-                ]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, true, true, false, false]
     }
   },
   "0cad1ed88151ce17ea1b859b43de22620aaf28c6a0149937d7f865da67c19797": {
@@ -1785,6 +1763,51 @@
       "nullable": [false, false, false, true, true, false, true, true]
     }
   },
+  "1f4cfccde889b2c0c2548fe0aa0fc34eb67f6ddc0fbe18caed52a315ed1f6b2e": {
+    "query": "\nSELECT id, user_email, expires_at, role AS \"role!: UserRole\" FROM pending_roles\nWHERE course_id = $1\nAND deleted_at IS NULL\nAND expires_at > NOW()\n          ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "expires_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "role!: UserRole",
+          "type_info": {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator",
+                  "material_viewer"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false]
+    }
+  },
   "20fc12ac7e010520d3a0fc268c01c6fd85802b41adc867ed79edb32b74bcbc17": {
     "query": "\nSELECT id,\ncreated_at,\nupdated_at,\ndeleted_at,\nexercise_slide_id,\ncourse_id,\ncourse_instance_id,\nexam_id,\nexercise_id,\nuser_id,\nuser_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE id = $1\n  AND deleted_at IS NULL;\n        ",
     "describe": {
@@ -2207,34 +2230,6 @@
         false,
         false
       ]
-    }
-  },
-  "28bfce5519da0502894a0ee396ee94c5c498958c55f4883409c9cb450b6218be": {
-    "query": "\nDELETE FROM roles\nWHERE user_id = $1\n  AND role = $2\n  AND course_instance_id = $3\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          {
-            "Custom": {
-              "name": "user_role",
-              "kind": {
-                "Enum": [
-                  "admin",
-                  "assistant",
-                  "teacher",
-                  "reviewer",
-                  "course_or_exam_creator",
-                  "material_viewer"
-                ]
-              }
-            }
-          },
-          "Uuid"
-        ]
-      },
-      "nullable": []
     }
   },
   "2a8d2052e1e241693b19cfc230ea0e1e087f74820b5344b333b2dbe5b3071b89": {
@@ -2703,6 +2698,41 @@
       ]
     }
   },
+  "329cf5dca3c8476a324195c324a241980814f362d33c55cc938e9caa71bbf3a8": {
+    "query": "\nINSERT INTO pending_roles (user_email, role, course_id, course_instance_id)\nVALUES ($1, $2, $3, $4)\nRETURNING id;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator",
+                  "material_viewer"
+                ]
+              }
+            }
+          },
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": [false]
+    }
+  },
   "32b2e273cd76d67a815caa719ad77495b38155aac7e8fe2be06e6f15cbb63228": {
     "query": "\nINSERT INTO exercise_task_gradings (\n    exercise_task_submission_id,\n    course_id,\n    exercise_id,\n    exercise_task_id\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n",
     "describe": {
@@ -3015,6 +3045,56 @@
       "nullable": [null, false]
     }
   },
+  "3b9554493e03cdfe0d533f856563e8a4515d4c8d8a38b8821056cb56c6a6098f": {
+    "query": "\nSELECT users.id,\n  users.first_name,\n  users.last_name,\n  email,\n  role AS \"role: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\nWHERE roles.organization_id = $1\nAND roles.deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "first_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "last_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "role: UserRole",
+          "type_info": {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator",
+                  "material_viewer"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, true, true, false, false]
+    }
+  },
   "3cfa60a3aa02306a61d9a0fc8faadefde42a9c78b5c3a71b12ed35e17f7dd9f3": {
     "query": "\nSELECT user_id,\n  email,\n  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_exercises\nFROM (\n    SELECT u.id AS user_id,\n      u.email,\n      exercise_id,\n      COALESCE(score_given, 0) as score_given\n    FROM user_exercise_states ues\n      JOIN users u ON u.id = ues.user_id\n      JOIN exercises e ON e.id = ues.exercise_id\n    WHERE ues.exam_id = $1\n      AND ues.deleted_at IS NULL\n      AND u.deleted_at IS NULL\n      AND e.deleted_at IS NULL\n  ) as uue\nGROUP BY user_id,\n  email\n",
     "describe": {
@@ -3039,6 +3119,51 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, null]
+    }
+  },
+  "3e2d1ca77df30e87efe65921bcc7cf0068faf0f9edb309dd86e5d51c1e998b9f": {
+    "query": "\nSELECT id, user_email, expires_at, role AS \"role!: UserRole\" FROM pending_roles\nWHERE course_instance_id = $1\nAND deleted_at IS NULL\nAND expires_at > NOW()\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "expires_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "role!: UserRole",
+          "type_info": {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator",
+                  "material_viewer"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false]
     }
   },
   "3e428bdd951fadaeac24cab7e991c4928f8c58df8dd45c61fbb8779b5ddcbe85": {
@@ -3487,6 +3612,34 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false]
+    }
+  },
+  "484b5694137698de31db5b5cab42838c5e922a1c71adac8bfedb983849799d5e": {
+    "query": "\nUPDATE roles\nSET deleted_at = NOW()\nWHERE user_id = $1\n  AND role = $2\n  AND course_instance_id = $3\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator",
+                  "material_viewer"
+                ]
+              }
+            }
+          },
+          "Uuid"
+        ]
+      },
+      "nullable": []
     }
   },
   "4a941f65ffdb7975654d492932697491dff81a72f4738383b310c2fcad159639": {
@@ -4568,6 +4721,33 @@
       "nullable": [false, false, false, false, false, false]
     }
   },
+  "6422b18b4cf0024f5476b8b296b15dde66a3cec32f5d7da9ee87d072e7063bd0": {
+    "query": "\nUPDATE roles\nSET deleted_at = NOW()\nWHERE user_id = $1\n  AND role = $2\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator",
+                  "material_viewer"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "nullable": []
+    }
+  },
   "64fe3f5421ad33305f9f1daef9da4fb63db3edc86b7e769e21e689b67f2d9839": {
     "query": "\nINSERT INTO exercise_task_gradings(\n    exercise_task_submission_id,\n    course_id,\n    exam_id,\n    exercise_id,\n    exercise_task_id,\n    grading_started_at\n  )\nVALUES($1, $2, $3, $4, $5, now())\nRETURNING id,\n  created_at,\n  updated_at,\n  exercise_task_submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  unscaled_score_given,\n  unscaled_score_maximum,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\n",
     "describe": {
@@ -4811,61 +4991,6 @@
         true,
         false
       ]
-    }
-  },
-  "683c5a50724caff2f45501c18b2dbf2e4881adf896d3b1764573c97505cc38ce": {
-    "query": "\nSELECT is_global,\n  organization_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  role AS \"role: UserRole\"\nFROM roles\nWHERE user_id = $1\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "is_global",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 1,
-          "name": "organization_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "course_instance_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 4,
-          "name": "exam_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "role: UserRole",
-          "type_info": {
-            "Custom": {
-              "name": "user_role",
-              "kind": {
-                "Enum": [
-                  "admin",
-                  "assistant",
-                  "teacher",
-                  "reviewer",
-                  "course_or_exam_creator",
-                  "material_viewer"
-                ]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, true, true, true, true, false]
     }
   },
   "684da3248694cb9460fd8b524fc4ad1644c72671cbc1b76b144440e9f7a0a31b": {
@@ -5138,56 +5263,6 @@
         ]
       },
       "nullable": [false]
-    }
-  },
-  "6ec055f71048c1e451d31c648ccff19d8001aaca71fa3acf0786afb30a8f3a69": {
-    "query": "\nSELECT users.id,\n  users.first_name,\n  users.last_name,\n  email,\n  role AS \"role: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\nWHERE roles.organization_id = $1\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "first_name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "last_name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 3,
-          "name": "email",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "role: UserRole",
-          "type_info": {
-            "Custom": {
-              "name": "user_role",
-              "kind": {
-                "Enum": [
-                  "admin",
-                  "assistant",
-                  "teacher",
-                  "reviewer",
-                  "course_or_exam_creator",
-                  "material_viewer"
-                ]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, true, true, false, false]
     }
   },
   "6f5ab6a5fb0636d714701ea1c4d6c01ca9b3a54efc33322c8bf81d98d356d8e6": {
@@ -6597,6 +6672,106 @@
       "nullable": []
     }
   },
+  "919de379999817d1f9f1120d81d8e91ed53cb36233334dd1bb8353166456622f": {
+    "query": "\nSELECT users.id,\n  users.first_name,\n  users.last_name,\n  email,\n  role AS \"role: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\nWHERE roles.exam_id = $1\nAND roles.deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "first_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "last_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "role: UserRole",
+          "type_info": {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator",
+                  "material_viewer"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, true, true, false, false]
+    }
+  },
+  "91be3679be0b42bab48b5942e4076f77ecf736ee420e3908c9113ba181947bf9": {
+    "query": "\nSELECT users.id,\n  users.first_name,\n  users.last_name,\n  email,\n  role AS \"role: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\nWHERE roles.course_id = $1\nAND roles.deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "first_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "last_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "role: UserRole",
+          "type_info": {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator",
+                  "material_viewer"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, true, true, false, false]
+    }
+  },
   "9306546d3c8ca209c7fbc0ed7d85d6e347b974550d51e9dabc288a687fe6c8c2": {
     "query": "\nUPDATE user_exercise_slide_states\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id\n    ",
     "describe": {
@@ -6824,6 +6999,56 @@
         "Left": ["Varchar", "Uuid", "Int4", "Timestamptz", "Timestamptz"]
       },
       "nullable": [false, false, false, false, false, false, true, true, true, true, true, true]
+    }
+  },
+  "96a54dfdd5a9e3fc721047ffb3984ba39c94fd84b9069ddc31ac84e477ff45e3": {
+    "query": "\nSELECT users.id,\n  users.first_name,\n  users.last_name,\n  email,\n  role AS \"role: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\nWHERE roles.course_instance_id = $1\nAND roles.deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "first_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "last_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "role: UserRole",
+          "type_info": {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator",
+                  "material_viewer"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, true, true, false, false]
     }
   },
   "9725efd61b9041c572a3a1cfe81bbbf6ac6497b62d3c9194757cf3f9e423977c": {
@@ -7373,6 +7598,61 @@
         true,
         false
       ]
+    }
+  },
+  "9d574567e7aa12228c9ce67546df505e1eec89cb3720969ed7685cee32765f3d": {
+    "query": "\nSELECT is_global,\n  organization_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  role AS \"role: UserRole\"\nFROM roles\nWHERE user_id = $1\nAND roles.deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "is_global",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 1,
+          "name": "organization_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "role: UserRole",
+          "type_info": {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator",
+                  "material_viewer"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, true, true, true, true, false]
     }
   },
   "9e77b192694c3af4cf6ab696e5b43a1e1f28dab7af08beb2e38eccbe0282b01a": {
@@ -7989,6 +8269,56 @@
       "nullable": [false, false]
     }
   },
+  "abeebb70eeeef2b00db343d89b1612958a1e4daec360d415bc3e325970861caa": {
+    "query": "\nSELECT users.id AS \"id!\",\n  users.first_name,\n  users.last_name,\n  email AS \"email!\",\n  role AS \"role!: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\nWHERE is_global = TRUE\nAND roles.deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id!",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "first_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "last_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "email!",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "role!: UserRole",
+          "type_info": {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator",
+                  "material_viewer"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [true, true, true, true, true]
+    }
+  },
   "ad05712486467ad76850b5d365d57b87a302263d16b4bdc830f02e8a1092e6cc": {
     "query": "\nSELECT SUM(COALESCE(etg.score_given, 0))::real\nFROM exercise_task_gradings etg\n  JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id\nWHERE ets.exercise_slide_submission_id = $1\n  AND etg.deleted_at IS NULL\n  AND ets.deleted_at IS NULL\n        ",
     "describe": {
@@ -8466,56 +8796,6 @@
         "Left": ["Uuid", "Bool", "Int8", "Int8"]
       },
       "nullable": [true, true, true, true, true, true, true, true, true, true, true, true, true]
-    }
-  },
-  "b5f1ec1669cfc199d6b65c0d841eba7c1bdf11241cba798728ef4bb290a4ba47": {
-    "query": "\nSELECT users.id AS \"id!\",\n  users.first_name,\n  users.last_name,\n  email AS \"email!\",\n  role AS \"role!: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\nWHERE is_global = TRUE\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id!",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "first_name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "last_name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 3,
-          "name": "email!",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "role!: UserRole",
-          "type_info": {
-            "Custom": {
-              "name": "user_role",
-              "kind": {
-                "Enum": [
-                  "admin",
-                  "assistant",
-                  "teacher",
-                  "reviewer",
-                  "course_or_exam_creator",
-                  "material_viewer"
-                ]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": []
-      },
-      "nullable": [true, true, true, true, true]
     }
   },
   "b6def96f6973719237ce93811fd8a9215bf24529cab71d262f22f11d13ddf526": {
@@ -9253,34 +9533,6 @@
       "nullable": [null, null]
     }
   },
-  "c0e77b688094cd88143669d7562d1412e2cb9c49374c1a95c75419f3ff7ac8cc": {
-    "query": "\nDELETE FROM roles\nWHERE user_id = $1\n  AND role = $2\n  AND course_id = $3\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          {
-            "Custom": {
-              "name": "user_role",
-              "kind": {
-                "Enum": [
-                  "admin",
-                  "assistant",
-                  "teacher",
-                  "reviewer",
-                  "course_or_exam_creator",
-                  "material_viewer"
-                ]
-              }
-            }
-          },
-          "Uuid"
-        ]
-      },
-      "nullable": []
-    }
-  },
   "c0f24a805cf0a59c92963d7c37909c123b95498c27f5e32c9332cfa4f9b5ec22": {
     "query": "\nSELECT is_draft\nFROM courses\nWHERE id = $1\n",
     "describe": {
@@ -9477,56 +9729,6 @@
       "nullable": []
     }
   },
-  "c8d4077884e92fe70dd43055ec6864244539abb25e65e7dad57f5dfaf7477754": {
-    "query": "\nSELECT users.id,\n  users.first_name,\n  users.last_name,\n  email,\n  role AS \"role: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\nWHERE roles.course_instance_id = $1\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "first_name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "last_name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 3,
-          "name": "email",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "role: UserRole",
-          "type_info": {
-            "Custom": {
-              "name": "user_role",
-              "kind": {
-                "Enum": [
-                  "admin",
-                  "assistant",
-                  "teacher",
-                  "reviewer",
-                  "course_or_exam_creator",
-                  "material_viewer"
-                ]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, true, true, false, false]
-    }
-  },
   "cb4274ae34447c4c5f7629ca692a91b49faea0db90cc160062b393fca15537b1": {
     "query": "\nSELECT exercise_task_submissions.id,\n  user_id,\n  exercise_task_submissions.created_at,\n  exercise_slide_submissions.exercise_id,\n  exercise_task_submissions.exercise_task_id,\n  exercise_task_gradings.score_given,\n  exercise_task_submissions.data_json\nFROM exercise_task_submissions\n  JOIN exercise_slide_submissions ON exercise_task_submissions.exercise_slide_submission_id = exercise_slide_submissions.id\n  JOIN exercise_task_gradings on exercise_task_submissions.exercise_task_grading_id = exercise_task_gradings.id\n  JOIN exercises on exercise_slide_submissions.exercise_id = exercises.id\nWHERE exercise_slide_submissions.exam_id = $1\n  AND exercise_task_submissions.deleted_at IS NULL\n  AND exercise_task_gradings.deleted_at IS NULL\n  AND exercises.deleted_at IS NULL;\n        ",
     "describe": {
@@ -9660,8 +9862,8 @@
       "nullable": [false, false, false, true, false, false, false, true, false]
     }
   },
-  "cdb8d8f63e7ba458f01b559fe4f0571a47ccac7eda5c84ab415e227d76ebca7e": {
-    "query": "\nDELETE FROM roles\nWHERE user_id = $1\n  AND role = $2\n  AND exam_id = $3\n",
+  "cdac05ad76a52ce739970b303df38478564221c36d7ed06c63b33d365b7d71c4": {
+    "query": "\nUPDATE roles\nSET deleted_at = NOW()\nWHERE user_id = $1\n  AND role = $2\n  AND course_id = $3\n",
     "describe": {
       "columns": [],
       "parameters": {
@@ -10865,6 +11067,34 @@
       "nullable": [true, true, true]
     }
   },
+  "e62bffcde1e4aef11334336becb1e1cea58e38c6b49c63bb5276211defb341b0": {
+    "query": "\nUPDATE roles\nSET deleted_at = NOW()\nWHERE user_id = $1\n  AND role = $2\n  AND exam_id = $3\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "name": "user_role",
+              "kind": {
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator",
+                  "material_viewer"
+                ]
+              }
+            }
+          },
+          "Uuid"
+        ]
+      },
+      "nullable": []
+    }
+  },
   "e6f687f777bbf1f390fd79b39ebe2f71adc27844198a74a5370382ba150abb44": {
     "query": "\nUPDATE regradings\nSET regrading_started_at = CASE\n    WHEN regrading_started_at IS NULL THEN now()\n    ELSE regrading_started_at\n  END\nWHERE regrading_completed_at IS NULL\n  AND deleted_at IS NULL\nRETURNING id\n",
     "describe": {
@@ -11073,56 +11303,6 @@
       "nullable": []
     }
   },
-  "edb8b86eadb9983d736300c28314c5b8e3f5a4b0ba1c4756d088118871018aa7": {
-    "query": "\nSELECT users.id,\n  users.first_name,\n  users.last_name,\n  email,\n  role AS \"role: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\nWHERE roles.exam_id = $1\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "first_name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "last_name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 3,
-          "name": "email",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "role: UserRole",
-          "type_info": {
-            "Custom": {
-              "name": "user_role",
-              "kind": {
-                "Enum": [
-                  "admin",
-                  "assistant",
-                  "teacher",
-                  "reviewer",
-                  "course_or_exam_creator",
-                  "material_viewer"
-                ]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, true, true, false, false]
-    }
-  },
   "ee7145229275ac980ffb6c1f156e3bd4e793b17a5c28c5eda9549fdb68eb6187": {
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  user_exercise_state_id,\n  score_given,\n  grading_progress AS \"grading_progress: _\"\nFROM user_exercise_slide_states\nWHERE user_exercise_state_id = $1\n  AND exercise_slide_id = $2\n  AND deleted_at IS NULL\n        ",
     "describe": {
@@ -11187,34 +11367,6 @@
       "columns": [],
       "parameters": {
         "Left": ["Date"]
-      },
-      "nullable": []
-    }
-  },
-  "f0f97d1ed0cb831152deb37dc09cd70dba84aae7b211e181d1225e14a01047d5": {
-    "query": "\nDELETE FROM roles\nWHERE user_id = $1\n  AND role = $2\n  AND organization_id = $3\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          {
-            "Custom": {
-              "name": "user_role",
-              "kind": {
-                "Enum": [
-                  "admin",
-                  "assistant",
-                  "teacher",
-                  "reviewer",
-                  "course_or_exam_creator",
-                  "material_viewer"
-                ]
-              }
-            }
-          },
-          "Uuid"
-        ]
       },
       "nullable": []
     }
@@ -11528,33 +11680,6 @@
         "Left": ["Uuid", "Int4"]
       },
       "nullable": [false]
-    }
-  },
-  "f4f6c13de771e2521337c4b144e9909899288d7986a559b1752ca2622888e8be": {
-    "query": "\nDELETE FROM roles\nWHERE user_id = $1\n  AND role = $2\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          {
-            "Custom": {
-              "name": "user_role",
-              "kind": {
-                "Enum": [
-                  "admin",
-                  "assistant",
-                  "teacher",
-                  "reviewer",
-                  "course_or_exam_creator",
-                  "material_viewer"
-                ]
-              }
-            }
-          }
-        ]
-      },
-      "nullable": []
     }
   },
   "f5eee3722c97003bd8de1b9e8aa5e0d72916aa364eed13a63efecde48ae9f4a8": {

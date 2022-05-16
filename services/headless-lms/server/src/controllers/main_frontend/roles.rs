@@ -1,17 +1,9 @@
+use crate::controllers::prelude::*;
 use models::{
-    roles::{self, RoleDomain, RoleUser, UserRole},
+    pending_roles::{self, PendingRole},
+    roles::{self, RoleDomain, RoleInfo, RoleUser, UserRole},
     users,
 };
-
-use crate::controllers::prelude::*;
-
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct RoleInfo {
-    pub email: String,
-    pub role: UserRole,
-    pub domain: RoleDomain,
-}
 
 async fn authorize_role_management(
     conn: &mut PgConnection,
@@ -53,9 +45,34 @@ pub async fn set(
     )
     .await?;
 
-    let user = users::get_by_email(&mut conn, &role_info.email).await?;
-    roles::insert(&mut conn, user.id, role_info.role, role_info.domain).await?;
-    Ok(HttpResponse::Ok().finish())
+    let user = users::get_by_email(&mut conn, &role_info.email)
+        .await
+        .optional()?;
+    match user {
+        Some(user) => {
+            let _res = roles::insert(&mut conn, user.id, role_info.role, role_info.domain).await?;
+            Ok(HttpResponse::Ok().finish())
+        }
+        None => {
+            match role_info.role {
+                UserRole::Admin | UserRole::Teacher => return Ok(HttpResponse::NotFound().finish()),
+                UserRole::Reviewer
+                | UserRole::Assistant
+                | UserRole::CourseOrExamCreator
+                | UserRole::MaterialViewer => (),
+            };
+            match role_info.domain {
+                RoleDomain::Global | RoleDomain::Organization(_) | RoleDomain::Exam(_) => {
+                    Ok(HttpResponse::NotFound().finish())
+                }
+                RoleDomain::Course(_) | RoleDomain::CourseInstance(_) => {
+                    let _pending_role =
+                        pending_roles::insert(&mut conn, role_info.into_inner()).await?;
+                    Ok(HttpResponse::Ok().finish())
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -129,6 +146,7 @@ impl TryFrom<RoleQuery> for RoleDomain {
  * GET /api/v0/main-frontend/roles - Get all roles for the given domain.
  */
 #[instrument(skip(pool))]
+#[generated_doc]
 pub async fn fetch(
     pool: web::Data<PgPool>,
     query: web::Query<RoleQuery>,
@@ -143,6 +161,24 @@ pub async fn fetch(
 }
 
 /**
+ * GET /api/v0/main-frontend/roles - Get all pending roles for the given domain.
+ */
+#[instrument(skip(pool))]
+#[generated_doc]
+pub async fn fetch_pending(
+    pool: web::Data<PgPool>,
+    query: web::Query<RoleQuery>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<PendingRole>>> {
+    let mut conn = pool.acquire().await?;
+    let domain = query.into_inner().try_into()?;
+    authorize_role_management(&mut conn, domain, Act::Edit, user.id).await?;
+
+    let roles = pending_roles::get_all(&mut conn, domain).await?;
+    Ok(web::Json(roles))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -152,5 +188,6 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/add", web::post().to(set))
         .route("/remove", web::post().to(unset))
-        .route("", web::get().to(fetch));
+        .route("", web::get().to(fetch))
+        .route("/pending", web::get().to(fetch_pending));
 }

@@ -1,7 +1,8 @@
 import React from "react"
-import { useTranslation } from "react-i18next"
 
 import usePageReferences from "../hooks/usePageReferences"
+import Reference from "../shared-module/components/Reference"
+import Spinner from "../shared-module/components/Spinner"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -16,33 +17,25 @@ const STYLE = "vancouver"
 const LANG = "en-US"
 const BIBLIOGRAPHY = "bibliography"
 
-const References: React.FC<ReferencesProps> = ({ courseId }) => {
+const ReferenceList: React.FC<ReferencesProps> = ({ courseId }) => {
   const pageRefs = usePageReferences(courseId)
-  const { t } = useTranslation()
-  return (
-    <div>
-      <h2>{t("references")}</h2>
-      <ul>
-        {pageRefs &&
-          pageRefs.map((r) => {
-            const c = Cite(r.reference.reference)
-            const citation = c.format(BIBLIOGRAPHY, {
-              type: TYPE,
-              style: STYLE,
-              lang: LANG,
-            })
-            return (
-              <div key={r.referenceNumber}>
-                <li>
-                  <h4>{`[${r.referenceNumber}], ${citation}`}</h4>
-                </li>
-                <br />
-              </div>
-            )
-          })}
-      </ul>
-    </div>
-  )
+
+  if (!pageRefs) {
+    return <Spinner variant="medium" />
+  }
+
+  const refs: { id: string; text: string }[] = pageRefs.map((r) => {
+    const c = Cite(r.reference.reference)
+    return {
+      id: r.reference.citation_key,
+      text: c.format(BIBLIOGRAPHY, {
+        type: TYPE,
+        style: STYLE,
+        lang: LANG,
+      }),
+    }
+  })
+  return <Reference data={refs} />
 }
 
-export default withErrorBoundary(References)
+export default withErrorBoundary(ReferenceList)

@@ -1,6 +1,8 @@
 //! Controllers for requests starting with `/api/v0/course-material/pages`.
 
-use models::pages::{Page, PageChapterAndCourseInformation, PageRoutingDataWithChapterStatus};
+use models::pages::{
+    IsFrontPage, Page, PageChapterAndCourseInformation, PageRoutingDataWithChapterStatus,
+};
 
 use crate::controllers::prelude::*;
 
@@ -73,7 +75,7 @@ async fn get_url_path(
 async fn is_front_page(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<bool>> {
+) -> ControllerResult<web::Json<IsFrontPage>> {
     let mut conn = pool.acquire().await?;
     let is_front_page = models::pages::is_front_page(&mut conn, *page_id).await?;
     Ok(web::Json(is_front_page))

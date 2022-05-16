@@ -193,6 +193,12 @@ pub struct ExerciseWithExerciseTasks {
     score_maximum: i32,
 }
 
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct IsFrontPage {
+    pub is_front_page: bool,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct HistoryRestoreData {
@@ -2140,13 +2146,17 @@ WHERE pages.order_number = $1
     Ok(())
 }
 
-pub async fn is_front_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<bool> {
+pub async fn is_front_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<IsFrontPage> {
     let chapter = get_chapter_by_page_id(conn, page_id).await?;
 
-    match chapter.front_page_id {
-        Some(id) => return Ok(id == page_id),
-        _ => return Ok(false),
-    }
+    Ok(chapter.front_page_id.map_or(
+        IsFrontPage {
+            is_front_page: false,
+        },
+        |id| IsFrontPage {
+            is_front_page: id == page_id,
+        },
+    ))
 }
 
 #[cfg(test)]

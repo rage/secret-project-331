@@ -23,6 +23,17 @@ pub struct ExerciseTaskSubmission {
     pub metadata: Option<serde_json::Value>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseTaskSubmissionWithSpec {
+    pub id: Uuid,
+    pub exercise_task_id: Uuid,
+    pub exercise_task_order_number: i32,
+    pub public_spec: Option<serde_json::Value>,
+    pub model_solution_spec: Option<serde_json::Value>,
+    pub data_json: Option<serde_json::Value>,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct SubmissionData {
@@ -63,6 +74,32 @@ WHERE id = $1
         submission_id
     )
     .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_task_submissions_with_specs_by_exercise_slide_id(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<Vec<ExerciseTaskSubmissionWithSpec>> {
+    let res = sqlx::query_as!(
+        ExerciseTaskSubmissionWithSpec,
+        "
+SELECT ets.id,
+  ets.exercise_task_id,
+  ets.data_json,
+  et.order_number AS exercise_task_order_number,
+  et.public_spec,
+  et.model_solution_spec
+FROM exercise_task_submissions ets
+  JOIN exercise_tasks et ON ets.exercise_task_id = et.id
+WHERE ets.exercise_slide_submission_id = $1
+  AND ets.deleted_at IS NULL
+  AND et.deleted_at IS NULL
+        ",
+        exercise_slide_submission_id,
+    )
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }
@@ -158,11 +195,11 @@ WHERE exercise_slide_submission_id = $1
 
 pub async fn get_users_latest_exercise_task_submissions_for_exercise_slide(
     conn: &mut PgConnection,
-    exercise_slide_id: &Uuid,
-    user_id: &Uuid,
+    exercise_slide_id: Uuid,
+    user_id: Uuid,
 ) -> ModelResult<Option<Vec<ExerciseTaskSubmission>>> {
     let exercise_slide_submission =
-        exercise_slide_submissions::get_users_latest_exercise_slide_submission(
+        exercise_slide_submissions::try_to_get_users_latest_exercise_slide_submission(
             conn,
             exercise_slide_id,
             user_id,

@@ -382,6 +382,7 @@ export interface CourseMaterialExercise {
   exercise: Exercise
   can_post_submission: boolean
   current_exercise_slide: CourseMaterialExerciseSlide
+  peer_review_info: CourseMaterialPeerReviewData | null
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
 }
@@ -402,6 +403,7 @@ export interface Exercise {
   copied_from: string | null
   max_tries_per_slide: number | null
   limit_number_of_tries: boolean
+  needs_peer_review: boolean
 }
 
 export interface ExerciseStatus {
@@ -465,6 +467,25 @@ export interface StudentExerciseTaskSubmissionResult {
   model_solution_spec: unknown | null
 }
 
+export interface CourseMaterialPeerReviewData {
+  exercise_slide_submission_id: string
+  exercise_task_submissions: Array<ExerciseTaskSubmissionWithSpec>
+  peer_review_id: string
+  peer_review_questions: Array<PeerReviewQuestion>
+}
+
+export interface CourseMaterialPeerReviewQuestionAnswer {
+  peer_review_question_id: string
+  text_data: string | null
+  number_data: number | null
+}
+
+export interface CourseMaterialPeerReviewSubmission {
+  exercise_slide_submission_id: string
+  peer_review_id: string
+  peer_review_question_answers: Array<CourseMaterialPeerReviewQuestionAnswer>
+}
+
 export interface Organization {
   id: string
   slug: string
@@ -496,6 +517,7 @@ export interface CmsPageExercise {
   max_tries_per_slide: number | null
   limit_number_of_tries: boolean
   deadline: Date | null
+  needs_peer_review: boolean
 }
 
 export interface CmsPageExerciseSlide {
@@ -641,6 +663,39 @@ export interface PageChapterAndCourseInformation {
   chapter_front_page_url_path: string | null
   organization_slug: string
 }
+
+export interface PeerReview {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_id: string
+  exercise_id: string | null
+  peer_reviews_to_give: number
+  peer_reviews_to_receive: number
+}
+
+export interface NewPeerReviewQuestion {
+  peer_review_id: string
+  order_number: number
+  question: string
+  question_type: PeerReviewQuestionType
+  answer_required: boolean
+}
+
+export interface PeerReviewQuestion {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  peer_review_id: string
+  order_number: number
+  question: string
+  question_type: PeerReviewQuestionType
+  answer_required: boolean
+}
+
+export type PeerReviewQuestionType = "Essay" | "Scale"
 
 export interface PlaygroundExample {
   id: string
@@ -794,6 +849,15 @@ export interface ExerciseTaskSubmission {
   data_json: unknown | null
   exercise_task_grading_id: string | null
   metadata: unknown | null
+}
+
+export interface ExerciseTaskSubmissionWithSpec {
+  id: string
+  exercise_task_id: string
+  exercise_task_order_number: number
+  public_spec: unknown | null
+  model_solution_spec: unknown | null
+  data_json: unknown | null
 }
 
 export interface RoleUser {

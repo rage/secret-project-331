@@ -3,9 +3,10 @@ use crate::{
     exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
+    library::{self, peer_reviewing::CourseMaterialPeerReviewData},
     prelude::*,
     user_course_settings,
-    user_exercise_states::{self, CourseInstanceOrExamId},
+    user_exercise_states::{self, CourseInstanceOrExamId, ExerciseProgress},
     CourseOrExamId,
 };
 use std::collections::HashMap;
@@ -28,6 +29,14 @@ pub struct Exercise {
     pub copied_from: Option<Uuid>,
     pub max_tries_per_slide: Option<i32>,
     pub limit_number_of_tries: bool,
+    pub needs_peer_review: bool,
+}
+
+impl Exercise {
+    pub fn get_course_id(&self) -> ModelResult<Uuid> {
+        self.course_id
+            .ok_or_else(|| ModelError::Generic("Exercise is not related to a course.".to_string()))
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -36,6 +45,7 @@ pub struct CourseMaterialExercise {
     pub exercise: Exercise,
     pub can_post_submission: bool,
     pub current_exercise_slide: CourseMaterialExerciseSlide,
+    pub peer_review_info: Option<CourseMaterialPeerReviewData>,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
     #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, number>"))]
@@ -328,6 +338,24 @@ pub async fn get_course_material_exercise(
         false
     };
 
+    let peer_review_info = match user_exercise_state {
+        Some(ref user_exercise_state) => {
+            if user_exercise_state.exercise_progress == ExerciseProgress::PeerReview {
+                // Calling library inside a model function. Maybe should be refactored by moving
+                // complicated course material exercise logic to own library file?
+                library::peer_reviewing::try_to_select_exercise_slide_submission_for_peer_review(
+                    conn,
+                    &exercise,
+                    user_exercise_state,
+                )
+                .await?
+            } else {
+                None
+            }
+        }
+        None => None,
+    };
+
     let exercise_status = user_exercise_state.map(|user_exercise_state| ExerciseStatus {
         score_given: user_exercise_state.score_given,
         activity_progress: user_exercise_state.activity_progress,
@@ -354,6 +382,7 @@ pub async fn get_course_material_exercise(
         exercise,
         can_post_submission,
         current_exercise_slide,
+        peer_review_info,
         exercise_status,
         exercise_slide_submission_counts,
     })
@@ -370,7 +399,7 @@ async fn get_or_select_exercise_slide(
             let random_slide =
                 exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise.id).await?;
             let random_slide_tasks =
-                exercise_tasks::get_course_material_exercise_tasks(conn, &random_slide.id, None)
+                exercise_tasks::get_course_material_exercise_tasks(conn, random_slide.id, None)
                     .await?;
             Ok((
                 CourseMaterialExerciseSlide {
@@ -437,8 +466,8 @@ async fn get_or_select_exercise_slide(
                                 .await?;
                             let random_tasks = exercise_tasks::get_course_material_exercise_tasks(
                                 conn,
-                                &random_slide.id,
-                                Some(&user_id),
+                                random_slide.id,
+                                Some(user_id),
                             )
                             .await?;
 
@@ -461,8 +490,8 @@ async fn get_or_select_exercise_slide(
                         .await?;
                         let random_tasks = exercise_tasks::get_course_material_exercise_tasks(
                             conn,
-                            &random_slide.id,
-                            Some(&user_id),
+                            random_slide.id,
+                            Some(user_id),
                         )
                         .await?;
 

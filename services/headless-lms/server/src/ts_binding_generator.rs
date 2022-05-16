@@ -119,6 +119,10 @@ fn ts_binding_generator() {
         library::grading::StudentExerciseTaskSubmission,
         library::grading::StudentExerciseTaskSubmissionResult,
 
+        library::peer_reviewing::CourseMaterialPeerReviewData,
+        library::peer_reviewing::CourseMaterialPeerReviewQuestionAnswer,
+        library::peer_reviewing::CourseMaterialPeerReviewSubmission,
+
         organizations::Organization,
 
         page_history::PageHistory,
@@ -140,6 +144,12 @@ fn ts_binding_generator() {
         pages::PageWithExercises,
         pages::NewPage,
         pages::PageChapterAndCourseInformation,
+
+        peer_reviews::PeerReview,
+
+        peer_review_questions::NewPeerReviewQuestion,
+        peer_review_questions::PeerReviewQuestion,
+        peer_review_questions::PeerReviewQuestionType,
 
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,
@@ -166,6 +176,7 @@ fn ts_binding_generator() {
         exercise_task_gradings::UserPointsUpdateStrategy,
 
         exercise_task_submissions::ExerciseTaskSubmission,
+        exercise_task_submissions::ExerciseTaskSubmissionWithSpec,
 
         roles::RoleUser,
         roles::RoleDomain,

@@ -40,7 +40,8 @@
       "score_maximum": 1,
       "max_tries_per_slide": 17,
       "limit_number_of_tries": true,
-      "deadline": null
+      "deadline": null,
+      "needs_peer_review": false
     }
   ],
   "exercise_slides": [

@@ -14,6 +14,7 @@ export interface ExerciseAttributes {
   score_maximum: number
   max_tries_per_slide?: number
   limit_number_of_tries: boolean
+  needs_peer_review: boolean
 }
 
 const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
@@ -40,6 +41,10 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
       default: undefined,
     },
     limit_number_of_tries: {
+      type: "boolean",
+      default: false,
+    },
+    needs_peer_review: {
       type: "boolean",
       default: false,
     },

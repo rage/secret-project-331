@@ -61,6 +61,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
       max_tries_per_slide: 72,
       limit_number_of_tries: true,
       deadline: null,
+      needs_peer_review: false,
     },
   ],
   exercise_slides: [
@@ -106,6 +107,7 @@ const exampleUnnormalizedDocumentExerciseAttributes: ExerciseAttributes = {
   score_maximum: 5,
   max_tries_per_slide: 72,
   limit_number_of_tries: true,
+  needs_peer_review: false,
 }
 
 // Doing this separately so that we get type errors when the type changes

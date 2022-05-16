@@ -60,6 +60,7 @@ and corresponding Rust enum
 
 ```rust
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
     Admin,

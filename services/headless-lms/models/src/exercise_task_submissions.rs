@@ -282,11 +282,11 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
         let grading = exercise_task_gradings
             .iter()
             .find(|g| Some(g.id) == ts.exercise_task_grading_id)
-            .ok_or(ModelError::NotFound("Grading not found".to_string()))?;
+            .ok_or_else(|| ModelError::NotFound("Grading not found".to_string()))?;
         let task = exercise_tasks
             .iter()
             .find(|t| t.id == ts.exercise_task_id)
-            .ok_or(ModelError::NotFound("Exercise task not found".to_string()))?;
+            .ok_or_else(|| ModelError::NotFound("Exercise task not found".to_string()))?;
         let exercise_iframe_url = crate::exercise_service_info::get_service_info_by_exercise_type(
             &mut *conn,
             &task.exercise_type,

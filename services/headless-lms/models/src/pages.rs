@@ -2231,14 +2231,14 @@ mod test {
 
         // Fails with missing slide
         assert!(
-            create_update(vec![e1.clone()], vec![], vec![e1_s1_t1.clone()],)
+            create_update(vec![e1.clone()], vec![], vec![e1_s1_t1],)
                 .validate_exercise_data()
                 .is_err()
         );
 
         // Fails with missing task
         assert!(
-            create_update(vec![e1.clone()], vec![e1_s1.clone()], vec![],)
+            create_update(vec![e1], vec![e1_s1], vec![],)
                 .validate_exercise_data()
                 .is_err()
         );

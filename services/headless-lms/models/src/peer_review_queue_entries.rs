@@ -178,9 +178,7 @@ SELECT *
 FROM peer_review_queue_entries
 WHERE exercise_id = $1
   AND user_id <> $2
-  AND receiving_peer_reviews_exercise_slide_submission_id NOT IN (
-    SELECT UNNEST($3::uuid [])
-  )
+  AND receiving_peer_reviews_exercise_slide_submission_id <> ALL($3)
   AND deleted_at IS NULL
 ORDER BY peer_review_priority DESC
 LIMIT $4
@@ -213,9 +211,7 @@ SELECT *
 FROM peer_review_queue_entries
 WHERE exercise_id = $1
   AND user_id <> $2
-  AND receiving_peer_reviews_exercise_slide_submission_id NOT IN (
-    SELECT UNNEST($3::uuid [])
-  )
+  AND receiving_peer_reviews_exercise_slide_submission_id <> ALL($3)
   AND received_enough_peer_reviews = 'true'
   AND deleted_at IS NULL
 ORDER BY peer_review_priority DESC

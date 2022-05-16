@@ -2353,7 +2353,7 @@ async fn seed_sample_course(
     let peer_review_id = peer_reviews::insert_with_id(
         conn,
         Uuid::new_v5(&course_id, b"64717822-ac25-4a7d-8298-f0ac39d73260"),
-        default_instance.id,
+        course_id,
         None,
         2,
         1,

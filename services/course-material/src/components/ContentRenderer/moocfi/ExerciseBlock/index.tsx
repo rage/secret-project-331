@@ -57,6 +57,8 @@ const DeadlineText = styled.div<DeadlineProps>`
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
+  const [allowStartPeerReview, setAllowStartPeerReview] = useState(true)
+  const [allowPostPeerReviewSubmission, setAllowPostPeerReviewSubmission] = useState(true)
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
   const [peerReviewAnswers, setPeerReviewAnswers] = useState<
     ReadonlyMap<string, CourseMaterialPeerReviewQuestionAnswer>
@@ -268,30 +270,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             />
           ))}
           {getCourseMaterialExercise.data.peer_review_info && (
-            <div>
-              <PeerReviewView
-                peerReviewData={getCourseMaterialExercise.data.peer_review_info}
-                setPeerReviewQuestionAnswer={handleSetPeerReviewQuestionAnswer}
-              />
-              <Button
-                size="medium"
-                variant="primary"
-                onClick={async () => {
-                  if (!getCourseMaterialExercise.data.peer_review_info) {
-                    // Handle error
-                    return
-                  }
-                  await postPeerReviewSubmission(id, {
-                    exercise_slide_submission_id:
-                      getCourseMaterialExercise.data.peer_review_info?.exercise_slide_submission_id,
-                    peer_review_id: getCourseMaterialExercise.data.peer_review_info?.peer_review_id,
-                    peer_review_question_answers: Array.from(peerReviewAnswers.values()),
-                  })
-                }}
-              >
-                {t("submit-button")}
-              </Button>
-            </div>
+            <PeerReviewView
+              peerReviewData={getCourseMaterialExercise.data.peer_review_info}
+              setPeerReviewQuestionAnswer={handleSetPeerReviewQuestionAnswer}
+            />
           )}
           <div
             className={css`
@@ -352,7 +334,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             )}
             {inSubmissionView && (
               <div>
-                {!ranOutOfTries && (
+                {!ranOutOfTries && !getCourseMaterialExercise.data.peer_review_info && (
                   <Button
                     variant="primary"
                     size="medium"
@@ -367,18 +349,51 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                     }}
                     disabled={
                       getCourseMaterialExercise.isRefetching ||
-                      !getCourseMaterialExercise.data.can_post_submission
+                      !getCourseMaterialExercise.data.can_post_submission ||
+                      !!getCourseMaterialExercise.data.peer_review_info
                     }
                   >
                     {t("try-again")}
                   </Button>
                 )}
-                {needsPeerReview && (
+                {needsPeerReview && getCourseMaterialExercise.data.peer_review_info && (
+                  <Button
+                    size="medium"
+                    variant="primary"
+                    disabled={!allowPostPeerReviewSubmission}
+                    onClick={async () => {
+                      if (!getCourseMaterialExercise.data.peer_review_info) {
+                        // Handle error
+                        return
+                      }
+                      setAllowPostPeerReviewSubmission(false)
+                      await postPeerReviewSubmission(id, {
+                        exercise_slide_submission_id:
+                          getCourseMaterialExercise.data.peer_review_info
+                            ?.exercise_slide_submission_id,
+                        peer_review_id:
+                          getCourseMaterialExercise.data.peer_review_info?.peer_review_id,
+                        peer_review_question_answers: Array.from(peerReviewAnswers.values()),
+                      }).finally(() => setAllowPostPeerReviewSubmission(true))
+                      await getCourseMaterialExercise.refetch()
+                    }}
+                  >
+                    {t("submit-button")}
+                  </Button>
+                )}
+                {needsPeerReview && !getCourseMaterialExercise.data.peer_review_info && (
                   <Button
                     variant="primary"
                     size="medium"
+                    disabled={
+                      !needsPeerReview ||
+                      !allowStartPeerReview ||
+                      !!getCourseMaterialExercise.data.peer_review_info
+                    }
                     onClick={async () => {
-                      await postStartPeerReview(id)
+                      setAllowStartPeerReview(false)
+                      await postStartPeerReview(id).finally(() => setAllowStartPeerReview(true))
+                      await getCourseMaterialExercise.refetch()
                     }}
                   >
                     {t("start-peer-review")}

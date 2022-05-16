@@ -53,13 +53,14 @@ pub struct CourseMaterialPeerReviewQuestionAnswer {
 
 pub async fn create_peer_review_submission_for_user(
     conn: &mut PgConnection,
+    exercise: &Exercise,
     user_exercise_state: &UserExerciseState,
     peer_review_submission: CourseMaterialPeerReviewSubmission,
 ) -> ModelResult<()> {
     let peer_review = peer_reviews::get_by_exercise_or_course_id(
         conn,
         user_exercise_state.exercise_id,
-        user_exercise_state.get_course_instance_id()?,
+        exercise.get_course_id()?,
     )
     .await?;
     let sanitized_answers = validate_and_sanitize_peer_review_submission_answers(
@@ -181,6 +182,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         None => {
             // At the start of a course there can be a short period when there aren't any peer reviews.
             // In that case just get a random one.
+            // TODO: Filter already submitted also here!!!
             exercise_slide_submissions::try_to_get_random_from_other_users_by_exercise_id(
                 conn,
                 user_exercise_state.exercise_id,

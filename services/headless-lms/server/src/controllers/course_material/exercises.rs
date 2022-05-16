@@ -212,6 +212,7 @@ async fn submit_peer_review(
         user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
     models::library::peer_reviewing::create_peer_review_submission_for_user(
         &mut conn,
+        &exercise,
         &user_exercise_state,
         payload.0,
     )

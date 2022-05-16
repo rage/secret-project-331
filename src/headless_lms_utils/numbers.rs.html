@@ -68,11 +68,11 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">f32_approx_eq_works</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">f32_approx_eq</span>(<span class="number">1.0</span>, <span class="number">1.1</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">f32_approx_eq</span>(<span class="op">-</span><span class="number">1.1</span>, <span class="number">1.1</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">f32_approx_eq</span>(<span class="number">1.1</span>, <span class="op">-</span><span class="number">1.1</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">f32_approx_eq</span>(<span class="number">1.1</span>, <span class="number">1.1</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">f32_approx_eq</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">f32_approx_eq</span>(<span class="number">1.0</span>, <span class="number">1.1</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">f32_approx_eq</span>(<span class="op">-</span><span class="number">1.1</span>, <span class="number">1.1</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">f32_approx_eq</span>(<span class="number">1.1</span>, <span class="op">-</span><span class="number">1.1</span>));
+        <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(<span class="number">1.1</span>, <span class="number">1.1</span>));
+        <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(<span class="number">0.0</span>, <span class="number">0.0</span>));
     }
 }
 </code></pre></div>

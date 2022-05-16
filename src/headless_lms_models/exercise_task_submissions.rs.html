@@ -269,12 +269,58 @@
 <span id="264">264</span>
 <span id="265">265</span>
 <span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">futures::Stream</span>;
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">exercise_slide_submissions</span>, <span class="ident">exercise_task_gradings::ExerciseTaskGrading</span>,
-    <span class="ident">exercise_tasks::ExerciseTask</span>, <span class="ident">exercises::Exercise</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">CourseOrExamId</span>,
+    <span class="ident">exercise_slide_submissions</span>,
+    <span class="ident">exercise_tasks</span>::{<span class="ident">CourseMaterialExerciseTask</span>, <span class="ident">ExerciseTask</span>},
+    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+    <span class="ident">CourseOrExamId</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -290,16 +336,6 @@
     <span class="kw">pub</span> <span class="ident">data_json</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">exercise_task_grading_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">metadata</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SubmissionInfo</span> {
-    <span class="kw">pub</span> <span class="ident">submission</span>: <span class="ident">ExerciseTaskSubmission</span>,
-    <span class="kw">pub</span> <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_task</span>: <span class="ident">ExerciseTask</span>,
-    <span class="kw">pub</span> <span class="ident">grading</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseTaskGrading</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">iframe_path</span>: <span class="ident">String</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
@@ -534,6 +570,58 @@ WHERE exercise_slide_submissions.exam_id = $1
         <span class="ident">exam_id</span>
     )
     .<span class="ident">fetch</span>(<span class="ident">conn</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise_task_submission_info_by_exercise_slide_submission_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseMaterialExerciseTask</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">task_submisssions</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::exercise_task_submissions::get_by_exercise_slide_submission_id</span>(
+        <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
+        <span class="ident">exercise_slide_submission_id</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">exercise_task_gradings</span> <span class="op">=</span>
+        <span class="ident"><span class="kw">crate</span>::exercise_task_gradings::get_all_gradings_by_exercise_slide_submission_id</span>(
+            <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
+            <span class="ident">exercise_slide_submission_id</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">exercise_tasks</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::exercise_tasks::get_exercise_tasks_by_exercise_slide_id</span>::<span class="op">&lt;</span>
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseTask</span><span class="op">&gt;</span>,
+    <span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">task_submisssions</span>[<span class="number">0</span>].<span class="ident">exercise_slide_id</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">task_submisssions</span>.<span class="ident">len</span>());
+    <span class="kw">for</span> <span class="ident">ts</span> <span class="kw">in</span> <span class="ident">task_submisssions</span> {
+        <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">exercise_task_gradings</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">g</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">g</span>.<span class="ident">id</span>) <span class="op">==</span> <span class="ident">ts</span>.<span class="ident">exercise_task_grading_id</span>)
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ModelError::NotFound</span>(<span class="string">&quot;Grading not found&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">exercise_tasks</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">ts</span>.<span class="ident">exercise_task_id</span>)
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ModelError::NotFound</span>(<span class="string">&quot;Exercise task not found&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">exercise_iframe_url</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::exercise_service_info::get_service_info_by_exercise_type</span>(
+            <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
+            <span class="kw-2">&amp;</span><span class="ident">task</span>.<span class="ident">exercise_type</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">exercise_type_specific_user_interface_iframe</span>;
+        <span class="kw">let</span> <span class="ident">course_material_exercise_task</span> <span class="op">=</span> <span class="ident">CourseMaterialExerciseTask</span> {
+            <span class="ident">id</span>: <span class="ident">task</span>.<span class="ident">id</span>,
+            <span class="ident">exercise_slide_id</span>: <span class="ident">task</span>.<span class="ident">exercise_slide_id</span>,
+            <span class="ident">exercise_iframe_url</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise_iframe_url</span>),
+            <span class="ident">assignment</span>: <span class="ident">task</span>.<span class="ident">assignment</span>.<span class="ident">clone</span>(),
+            <span class="ident">public_spec</span>: <span class="ident">task</span>.<span class="ident">public_spec</span>.<span class="ident">clone</span>(),
+            <span class="ident">model_solution_spec</span>: <span class="ident">task</span>.<span class="ident">model_solution_spec</span>.<span class="ident">clone</span>(),
+            <span class="ident">previous_submission</span>: <span class="prelude-val">Some</span>(<span class="ident">ts</span>),
+            <span class="ident">previous_submission_grading</span>: <span class="prelude-val">Some</span>(<span class="ident">grading</span>.<span class="ident">clone</span>()),
+            <span class="ident">order_number</span>: <span class="ident">task</span>.<span class="ident">order_number</span>,
+        };
+        <span class="ident">res</span>.<span class="ident">push</span>(<span class="ident">course_material_exercise_task</span>);
+    }
+    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>

@@ -454,6 +454,46 @@
 <span id="449">449</span>
 <span id="450">450</span>
 <span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Future</span>;
@@ -904,6 +944,46 @@ RETURNING id,
     } <span class="kw">else</span> {
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">grading</span>))
     }
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_gradings_by_exercise_slide_submission_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseTaskGrading</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">ExerciseTaskGrading</span>,
+        <span class="string">r#&quot;
+SELECT id,
+created_at,
+updated_at,
+exercise_task_submission_id,
+course_id,
+exam_id,
+exercise_id,
+exercise_task_id,
+grading_priority,
+score_given,
+grading_progress as &quot;grading_progress: _&quot;,
+unscaled_score_given,
+unscaled_score_maximum,
+grading_started_at,
+grading_completed_at,
+feedback_json,
+feedback_text,
+deleted_at
+FROM exercise_task_gradings
+WHERE deleted_at IS NULL
+  AND exercise_task_submission_id IN (
+    SELECT id
+    FROM exercise_task_submissions
+    WHERE exercise_slide_submission_id = $1
+  )
+&quot;#</span>,
+        <span class="ident">exercise_slide_submission_id</span>
+    )
+    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>

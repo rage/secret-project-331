@@ -46,7 +46,12 @@ const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
                 margin-bottom: 2rem;
               `}
             >
-              {t("title-submission-id", { id: query.id })}
+              <HideTextInSystemTests
+                text={t("title-submission-id", { id: query.id })}
+                testPlaceholder={t("title-submission-id", {
+                  id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                })}
+              />
             </h1>
             {
               <div

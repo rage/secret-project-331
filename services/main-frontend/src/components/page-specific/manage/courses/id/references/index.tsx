@@ -1,15 +1,17 @@
 import { css } from "@emotion/css"
-import { t } from "i18next"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchCourseReferences } from "../../../../../../services/backend/courses"
+import { MaterialReference } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 
+import EditReferenceDialog from "./EditReferenceDialog"
 import NewReferenceDialog from "./NewReferenceDialog"
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -21,7 +23,10 @@ const LANG = "en-US"
 const BIBLIOGRAPHY = "bibliography"
 
 const References: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+  const { t } = useTranslation()
   const [showNewReferenceModal, setShowNewReferenceModal] = useState(false)
+  const [showEditReferenceModal, setShowEditReferenceModal] = useState(false)
+  const [reference, setReference] = useState<MaterialReference | null>(null)
   const getCourseReferences = useQuery(`course-${courseId}-references`, () =>
     fetchCourseReferences(courseId),
   )
@@ -64,10 +69,29 @@ const References: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                       lang: LANG,
                     })}
                   </h5>
+                  <Button
+                    size="medium"
+                    variant="secondary"
+                    onClick={() => {
+                      setReference(r)
+                      setShowEditReferenceModal(true)
+                    }}
+                  >
+                    {t("edit-reference")}
+                  </Button>
                 </li>
               )
             })}
           </ul>
+          {reference && (
+            <EditReferenceDialog
+              courseId={courseId}
+              getCourseReferences={getCourseReferences}
+              onClose={() => setShowEditReferenceModal(false)}
+              reference={reference}
+              open={showEditReferenceModal}
+            />
+          )}
         </div>
       )}
     </div>

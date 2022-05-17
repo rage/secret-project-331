@@ -678,9 +678,29 @@ async fn insert_material_references(
 
 #[generated_doc]
 #[instrument(skip(pool))]
+async fn update_material_reference(
+    path: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    payload: web::Json<NewMaterialReference>,
+) -> ControllerResult<web::Json<()>> {
+    let (course_id, reference_id) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
+
+    let res = models::material_references::update_material_reference_by_id(
+        &mut conn,
+        reference_id,
+        payload.0,
+    )
+    .await?;
+    Ok(web::Json(res))
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
 async fn delete_material_reference_by_id(
     path: web::Path<(Uuid, Uuid)>,
-    reference_id: web::Json<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
@@ -764,6 +784,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/references",
             web::post().to(insert_material_references),
+        )
+        .route(
+            "/{course_id}/references/{reference_id}",
+            web::post().to(update_material_reference),
         )
         .route(
             "/{course_id}/references/{reference_id}",

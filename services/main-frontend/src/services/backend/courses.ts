@@ -1,3 +1,5 @@
+import { StringMap } from "i18next"
+
 import {
   Course,
   CourseInstance,
@@ -178,4 +180,16 @@ export const postNewReferences = async (
   data: NewMaterialReference[],
 ): Promise<void> => {
   await mainFrontendClient.post(`/courses/${courseId}/references`, data)
+}
+
+export const postReferenceUpdate = async (
+  courseId: string,
+  referenceId: string,
+  reference: NewMaterialReference,
+): Promise<void> => {
+  await mainFrontendClient.post(`/courses/${courseId}/references/${referenceId}`, reference)
+}
+
+export const deleteReference = async (courseId: string, referenceId: string): Promise<void> => {
+  await mainFrontendClient.delete(`/courses/${courseId}/references/${referenceId}`)
 }

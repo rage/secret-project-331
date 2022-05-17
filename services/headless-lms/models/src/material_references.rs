@@ -75,13 +75,34 @@ pub async fn get_references_by_course_id(
         "
 SELECT *
 FROM material_references
-WHERE course_id = $1;
+WHERE course_id = $1
+  AND deleted_at IS NULL;
     ",
         course_id
     )
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn update_material_reference_by_id(
+    conn: &mut PgConnection,
+    material_reference_id: Uuid,
+    material_reference: NewMaterialReference,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE material_references
+SET reference = $1, citation_key = $2
+WHERE id = $3;
+",
+        material_reference.reference,
+        material_reference.citation_key,
+        material_reference_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn delete_reference(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {

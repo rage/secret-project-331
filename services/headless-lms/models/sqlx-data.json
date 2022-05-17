@@ -649,7 +649,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -832,7 +832,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -1971,7 +1971,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -2245,7 +2245,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -2413,7 +2413,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -3005,6 +3005,16 @@
       "nullable": []
     }
   },
+  "398cddba416318e36683334088580e67fd4a2b995045c3ef01ed5a737194e30c": {
+    "query": "\nUPDATE material_references\nSET reference = $1, citation_key = $2\nWHERE id = $3;\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Text", "Text", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "3a3fa537038bdbeb11c9454487111b56afaa5230c97546dc0b29554446bfa27d": {
     "query": "\nSELECT COALESCE(ues.score_given, 0) AS score_given,\n  ues.exercise_id AS exercise_id\nFROM user_exercise_states AS ues\nWHERE ues.deleted_at IS NULL\n  AND ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.course_instance_id = $2\n  AND ues.user_id = $3;\n        ",
     "describe": {
@@ -3498,6 +3508,52 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, false]
+    }
+  },
+  "4713ef1238437d6952f073fce7db826fac893b938edacba02855eeef03ae1133": {
+    "query": "\nSELECT *\nFROM material_references\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "citation_key",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "reference",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, false, false, true]
     }
   },
   "4a941f65ffdb7975654d492932697491dff81a72f4738383b310c2fcad159639": {
@@ -4260,7 +4316,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -4853,7 +4909,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -5168,7 +5224,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -5266,52 +5322,6 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false, null]
-    }
-  },
-  "701ef8a21bade7eba39ffeb80170c53ce36786389183aa1e9f13e14c233fb984": {
-    "query": "\nSELECT *\nFROM material_references\nWHERE course_id = $1;\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "citation_key",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "reference",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, false, false, true]
     }
   },
   "704d2ff21bfbe8be852572082c673e2f021de2d503e97fa6cca5d92900ba1fbc": {
@@ -8535,7 +8545,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -9303,7 +9313,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -9540,7 +9550,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -9696,7 +9706,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -11132,7 +11142,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }
@@ -11223,7 +11233,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -11424,7 +11434,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           },
@@ -11548,7 +11558,7 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer"]
+                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
               }
             }
           }

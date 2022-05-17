@@ -36,7 +36,6 @@ use headless_lms_models::{
     },
     feedback::{Feedback, FeedbackBlock, FeedbackCount},
     glossary::Term,
-    material_references::{MaterialReference, NewMaterialReference},
     library::{
         grading::{StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult},
         peer_reviewing::{
@@ -44,6 +43,7 @@ use headless_lms_models::{
             CourseMaterialPeerReviewSubmission,
         },
     },
+    material_references::{MaterialReference, NewMaterialReference},
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
     pages::{

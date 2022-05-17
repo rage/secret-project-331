@@ -138,6 +138,7 @@ pub struct ExerciseStatus {
     pub score_given: Option<f32>,
     pub activity_progress: ActivityProgress,
     pub grading_progress: GradingProgress,
+    pub exercise_progress_stage: ExerciseProgress,
 }
 
 pub async fn insert(
@@ -360,6 +361,7 @@ pub async fn get_course_material_exercise(
         score_given: user_exercise_state.score_given,
         activity_progress: user_exercise_state.activity_progress,
         grading_progress: user_exercise_state.grading_progress,
+        exercise_progress_stage: user_exercise_state.exercise_progress,
     });
 
     let exercise_slide_submission_counts = if let Some(user_id) = user_id {

@@ -54,6 +54,7 @@ import {
   ExamInstructions,
   ExamInstructionsUpdate,
   Exercise,
+  ExerciseProgress,
   ExerciseService,
   ExerciseServiceInfoApi,
   ExerciseServiceNewOrUpdate,
@@ -747,7 +748,8 @@ export function isExerciseStatus(obj: any, _argumentName?: string): obj is Exerc
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (obj.score_given === null || typeof obj.score_given === "number") &&
     (isActivityProgress(obj.activity_progress) as boolean) &&
-    (isGradingProgress(obj.grading_progress) as boolean)
+    (isGradingProgress(obj.grading_progress) as boolean) &&
+    (isExerciseProgress(obj.exercise_progress_stage) as boolean)
   )
 }
 
@@ -1564,6 +1566,10 @@ export function isExerciseUserCounts(obj: any, _argumentName?: string): obj is E
     typeof obj.n_users_with_some_points === "number" &&
     typeof obj.n_users_with_max_points === "number"
   )
+}
+
+export function isExerciseProgress(obj: any, _argumentName?: string): obj is ExerciseProgress {
+  return obj === "NotAnswered" || obj === "PeerReview" || obj === "SelfReview" || obj === "Complete"
 }
 
 export function isUser(obj: any, _argumentName?: string): obj is User {

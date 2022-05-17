@@ -309,6 +309,7 @@ async fn grade_user_submission_internal(
             score_given: user_exercise_state.score_given,
             activity_progress: user_exercise_state.activity_progress,
             grading_progress: user_exercise_state.grading_progress,
+            exercise_progress_stage: user_exercise_state.exercise_progress,
         }),
         exercise_task_submission_results: results,
     })

@@ -17,7 +17,9 @@ const EssayFeedback: React.FC<QuizItemSubmissionComponentProps> = ({ user_quiz_i
         flex: 1;
         flex-wrap: wrap;
         margin: 0.5;
-        background: ${baseTheme.colors.grey[300]};
+        background: ${baseTheme.colors.grey[100]};
+        flex-direction: column;
+        padding: 1rem;
       `}
     >
       <pre

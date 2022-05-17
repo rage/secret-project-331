@@ -410,6 +410,7 @@ export interface ExerciseStatus {
   score_given: number | null
   activity_progress: ActivityProgress
   grading_progress: GradingProgress
+  exercise_progress_stage: ExerciseProgress
 }
 
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
@@ -909,6 +910,8 @@ export interface ExerciseUserCounts {
   n_users_with_some_points: number
   n_users_with_max_points: number
 }
+
+export type ExerciseProgress = "NotAnswered" | "PeerReview" | "SelfReview" | "Complete"
 
 export interface User {
   id: string

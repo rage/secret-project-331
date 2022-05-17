@@ -187,6 +187,7 @@ fn ts_binding_generator() {
         user_exercise_states::UserCourseInstanceChapterExerciseProgress,
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::ExerciseUserCounts,
+        user_exercise_states::ExerciseProgress,
 
         users::User,
 

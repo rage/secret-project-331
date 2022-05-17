@@ -38,7 +38,7 @@ interface QuizItemSubmissionComponentDescriptor {
 }
 
 const mapTypeToComponent: { [key: string]: QuizItemSubmissionComponentDescriptor } = {
-  essay: { component: EssayFeedback, shouldDisplayCorrectnessMessageAfterAnswer: true },
+  essay: { component: EssayFeedback, shouldDisplayCorrectnessMessageAfterAnswer: false },
   "multiple-choice": {
     component: MultipleChoiceSubmission,
     shouldDisplayCorrectnessMessageAfterAnswer: true,

@@ -381,6 +381,8 @@ fn main() {
             score_given: None,
             activity_progress: ActivityProgress::InProgress,
             grading_progress: GradingProgress::NotReady,
+            exercise_progress_stage:
+                headless_lms_models::user_exercise_states::ExerciseProgress::NotAnswered,
         }),
     };
     let organization = Organization {
@@ -609,7 +611,9 @@ fn main() {
             exercise_status: Some(ExerciseStatus {
                 score_given: None,
                 activity_progress: ActivityProgress::InProgress,
-                grading_progress: GradingProgress::NotReady
+                grading_progress: GradingProgress::NotReady,
+                exercise_progress_stage:
+                    headless_lms_models::user_exercise_states::ExerciseProgress::NotAnswered
             }),
             exercise_slide_submission_counts: HashMap::from([
                 (

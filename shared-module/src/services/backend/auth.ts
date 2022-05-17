@@ -5,7 +5,7 @@ import { ActionOnResource } from "../../bindings"
 
 export const loggedIn = async (): Promise<boolean> => {
   const url = `/api/v0/auth/logged-in`
-  const data = (await .get(url, { responseType: "json" })).data
+  const data = (await axios.get(url, { responseType: "json" })).data
   return data
 }
 

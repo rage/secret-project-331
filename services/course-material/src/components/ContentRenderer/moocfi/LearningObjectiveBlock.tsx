@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { BlockRendererProps } from ".."
@@ -10,30 +11,26 @@ import LearningObjective, {
 } from "../../../shared-module/components/LearningObjectiveSection"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
-const PAGE = "PAGE"
-const CHAPTER = "CHAPTER"
-
 const LearningObjectiveSectionBlock: React.FC<BlockRendererProps<LearningObjectiveProps>> = (
   props,
 ) => {
+  const { t } = useTranslation()
   const pageContext = useContext(PageContext)
   const pageId = pageContext.pageData?.id
 
-  const isChapterFrontPage = useQuery(`chapter-front-page-${pageId}`, () => {
+  const isChapterFrontPage = () => {
     if (!pageId) {
       return false
     }
     return isPageFrontPage(pageId)
-  })
+  }
 
-  const heading = isChapterFrontPage
-    ? props.data.attributes.title + " " + CHAPTER
-    : props.data.attributes.title + " " + PAGE
+  const heading = isChapterFrontPage()
+    ? props.data.attributes.title + " " + t("chapter")
+    : props.data.attributes.title + " " + t("page")
   return (
     <BreakFromCentered sidebar={false}>
-      {props.data.innerBlocks.map((block) => {
-        return <LearningObjective title={heading} objectives={block} key={block.clientId} />
-      })}
+      <LearningObjective title={heading} objectives={props.data.innerBlocks} />
     </BreakFromCentered>
   )
 }

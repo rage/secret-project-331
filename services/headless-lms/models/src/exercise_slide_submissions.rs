@@ -191,10 +191,11 @@ WHERE id = $1
 /// Attempts to find a single random `ExerciseSlideSubmission` that is not related to the provided user.
 ///
 /// This function is mostly provided for very specific peer review purposes.
-pub async fn try_to_get_random_from_other_users_by_exercise_id(
+pub async fn try_to_get_random_filtered_by_user_and_submissions(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     excluded_user_id: Uuid,
+    excluded_ids: &[Uuid],
 ) -> ModelResult<Option<ExerciseSlideSubmission>> {
     let res = sqlx::query_as!(
         ExerciseSlideSubmission,
@@ -212,11 +213,13 @@ SELECT id,
   user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
-  AND user_id <> $2
+  AND id <> ALL($2)
+  AND user_id <> $3
   AND deleted_at IS NULL
 ORDER BY random() ASC
         "#,
         exercise_id,
+        excluded_ids,
         excluded_user_id,
     )
     .fetch_optional(conn)

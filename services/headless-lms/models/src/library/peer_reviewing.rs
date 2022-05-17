@@ -160,7 +160,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         exercise.get_course_id()?,
     )
     .await?;
-    let excluded_submission_ids =
+    let excluded_exercise_slide_submission_ids =
         peer_review_submissions::get_users_submission_ids_for_exercise_and_course_instance(
             conn,
             user_exercise_state.user_id,
@@ -172,7 +172,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         conn,
         user_exercise_state.exercise_id,
         user_exercise_state.user_id,
-        &excluded_submission_ids,
+        &excluded_exercise_slide_submission_ids,
     )
     .await?;
     let exercise_slide_submission_to_review = match candidate_submission_id {
@@ -182,11 +182,11 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         None => {
             // At the start of a course there can be a short period when there aren't any peer reviews.
             // In that case just get a random one.
-            // TODO: Filter already submitted also here!!!
-            exercise_slide_submissions::try_to_get_random_from_other_users_by_exercise_id(
+            exercise_slide_submissions::try_to_get_random_filtered_by_user_and_submissions(
                 conn,
                 user_exercise_state.exercise_id,
                 user_exercise_state.user_id,
+                &excluded_exercise_slide_submission_ids,
             )
             .await?
         }

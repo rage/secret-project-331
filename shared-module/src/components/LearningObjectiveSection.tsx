@@ -45,7 +45,7 @@ const Content = styled.div`
 const StyledObjectives = styled.div`
   display: grid;
   grid-template-columns: 20px 1fr;
-  li {
+  span {
     margin-left: 15px;
     font-size: 20px;
     line-height: 1.3;
@@ -76,12 +76,20 @@ const LearningObjective: React.FC<LearningObjectiveProps> = ({ objectives, title
         <h2>{title}</h2>
       </Header>
       <Content>
-        {objectives.atributes.values.map((objective: string) => (
-          <StyledObjectives key={objective}>
-            <StyledCheck />
-            {objective}
-          </StyledObjectives>
-        ))}
+        {objectives.map(({ attributes: { values }, clientId }: any) => {
+          const parser = new DOMParser()
+          // eslint-disable-next-line i18next/no-literal-string
+          const listItem = parser.parseFromString(values, "text/html")
+          const children: string[] = [].slice
+            .call(listItem.body.childNodes)
+            .map(({ innerHTML }) => innerHTML)
+          return children.map((child) => (
+            <StyledObjectives key={clientId}>
+              <StyledCheck />
+              <span>{child}</span>
+            </StyledObjectives>
+          ))
+        })}
       </Content>
     </Wrapper>
   )

@@ -14,7 +14,7 @@ use crate::{
     CourseOrExamId,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExerciseTask {
     pub id: Uuid,
@@ -151,11 +151,11 @@ pub async fn get_exercise_task_by_id(
 
 pub async fn get_course_material_exercise_tasks(
     conn: &mut PgConnection,
-    exercise_slide_id: &Uuid,
-    user_id: Option<&Uuid>,
+    exercise_slide_id: Uuid,
+    user_id: Option<Uuid>,
 ) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
     let exercise_tasks: Vec<ExerciseTask> =
-        get_exercise_tasks_by_exercise_slide_id(conn, exercise_slide_id).await?;
+        get_exercise_tasks_by_exercise_slide_id(conn, &exercise_slide_id).await?;
     let mut latest_submissions_by_task_id = if let Some(user_id) = user_id {
         exercise_task_submissions::get_users_latest_exercise_task_submissions_for_exercise_slide(
             conn,
@@ -260,12 +260,9 @@ pub async fn get_existing_users_exercise_slide_for_course_instance(
     .await?;
     let exercise_tasks = if let Some(user_exercise_state) = user_exercise_state {
         if let Some(selected_exercise_slide_id) = user_exercise_state.selected_exercise_slide_id {
-            let exercise_tasks = get_course_material_exercise_tasks(
-                conn,
-                &selected_exercise_slide_id,
-                Some(&user_id),
-            )
-            .await?;
+            let exercise_tasks =
+                get_course_material_exercise_tasks(conn, selected_exercise_slide_id, Some(user_id))
+                    .await?;
             Some(CourseMaterialExerciseSlide {
                 id: selected_exercise_slide_id,
                 exercise_tasks,
@@ -319,8 +316,7 @@ pub async fn get_or_select_user_exercise_tasks_for_course_instance_or_exam(
         };
 
     let exercise_tasks =
-        get_course_material_exercise_tasks(conn, &selected_exercise_slide_id, Some(&user_id))
-            .await?;
+        get_course_material_exercise_tasks(conn, selected_exercise_slide_id, Some(user_id)).await?;
     info!("got tasks");
     if exercise_tasks.is_empty() {
         return Err(ModelError::PreconditionFailed(
@@ -392,4 +388,44 @@ WHERE et.id = $1;
     .fetch_one(conn)
     .await?;
     Ok(exercise_task.model_solution_spec)
+}
+
+pub async fn get_all_exercise_tas_by_exercise_slide_submission_id(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<Vec<ExerciseTaskGrading>> {
+    let res = sqlx::query_as!(
+        ExerciseTaskGrading,
+        r#"
+SELECT id,
+created_at,
+updated_at,
+exercise_task_submission_id,
+course_id,
+exam_id,
+exercise_id,
+exercise_task_id,
+grading_priority,
+score_given,
+grading_progress as "grading_progress: _",
+unscaled_score_given,
+unscaled_score_maximum,
+grading_started_at,
+grading_completed_at,
+feedback_json,
+feedback_text,
+deleted_at
+FROM exercise_task_gradings
+WHERE deleted_at IS NULL
+  AND exercise_task_submission_id IN (
+    SELECT id
+    FROM exercise_task_submissions
+    WHERE exercise_slide_submission_id = $1
+  )
+"#,
+        exercise_slide_submission_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(res)
 }

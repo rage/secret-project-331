@@ -6,6 +6,7 @@ import {
   Course,
   CourseInstance,
   CourseMaterialExercise,
+  CourseMaterialPeerReviewSubmission,
   CoursePageWithUserData,
   ExamData,
   ExamEnrollment,
@@ -299,6 +300,19 @@ export const postProposedEdits = async (
   newProposedEdits: NewProposedPageEdits,
 ): Promise<void> => {
   await courseMaterialClient.post(`/proposed-edits/${courseId}`, newProposedEdits)
+}
+
+export const postPeerReviewSubmission = async (
+  exerciseId: string,
+  peerReviewSubmission: CourseMaterialPeerReviewSubmission,
+): Promise<void> => {
+  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews`, peerReviewSubmission, {
+    responseType: "json",
+  })
+}
+
+export const postStartPeerReview = async (exerciseId: string): Promise<void> => {
+  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews/start`)
 }
 
 export const fetchExamEnrollment = async (examId: string): Promise<ExamEnrollment | null> => {

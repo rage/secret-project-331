@@ -60,6 +60,7 @@ and corresponding Rust enum
 
 ```rust
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
     Admin,
@@ -91,6 +92,22 @@ The same syntax can be used with `sqlx::query_as!`
 ```
 
 Here, `Role` is a struct with various fields, including a `role: UserRole` field.
+
+### Analyzing SQL queries
+
+You can analyze queries to find out where most of their processing time goes. For example, given the following query:
+
+```sql
+SELECT * FROM organizations WHERE deleted_at IS NULL;
+```
+
+Add it to file `explain.sql` with the added EXPLAIN block:
+```sql
+EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON)
+SELECT * FROM organizations WHERE deleted_at IS NULL;
+```
+
+Now run the command `bin/psql-analyze explain.sql analyze.json` and then add the contents of both `explain.sql` and newly generated `analyze.json` on [https://tatiyants.com/pev/#/plans/new](https://tatiyants.com/pev/#/plans/new).
 
 ### Setup development with a local Postgres
 

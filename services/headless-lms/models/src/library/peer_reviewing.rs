@@ -95,11 +95,21 @@ pub async fn create_peer_review_submission_for_user(
         )
         .await?;
     }
-    peer_review_queue_entries::upsert(
+    // Update submitters queue entry
+    let users_peer_review_submission_count =
+        peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
+            &mut tx,
+            user_exercise_state.user_id,
+            user_exercise_state.exercise_id,
+            user_exercise_state.get_course_instance_id()?,
+        )
+        .await?;
+    peer_review_queue_entries::upsert_peer_review_priority(
         &mut tx,
         user_exercise_state.user_id,
         user_exercise_state.exercise_id,
         user_exercise_state.get_course_instance_id()?,
+        users_peer_review_submission_count.try_into()?,
         users_latest_submission.id,
     )
     .await?;

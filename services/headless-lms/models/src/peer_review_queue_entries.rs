@@ -46,43 +46,44 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn upsert(
+/// Inserts or updates the queue entry indexed by `user_id`, `exercise_id` and `course_instance_id`.
+///
+/// The value for `receiving_peer_reviews_exercise_slide_submission_id` never changes after the initial
+/// insertion. This is to make sure that all received peer reviews are made for the same exercise slide
+/// submission.
+pub async fn upsert_peer_review_priority(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
     course_instance_id: Uuid,
+    peer_review_priority: i32,
     receiving_peer_reviews_exercise_slide_submission_id: Uuid,
 ) -> ModelResult<PeerReviewQueueEntry> {
-    // Can't do actual upsert due to partial constraint.
-    let peer_review_queue_entry = try_to_get_by_user_and_exercise_and_course_instance_ids(
-        conn,
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+INSERT INTO peer_review_queue_entries (
+    user_id,
+    exercise_id,
+    course_instance_id,
+    peer_review_priority,
+    receiving_peer_reviews_exercise_slide_submission_id
+  )
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
+UPDATE
+SET peer_review_priority = $4,
+  deleted_at = NULL
+RETURNING *
+        ",
         user_id,
         exercise_id,
         course_instance_id,
+        peer_review_priority,
+        receiving_peer_reviews_exercise_slide_submission_id,
     )
+    .fetch_one(conn)
     .await?;
-    if let Some(peer_review_queue_entry) = peer_review_queue_entry {
-        let peer_review_queue_entry = update(
-            conn,
-            peer_review_queue_entry.id,
-            receiving_peer_reviews_exercise_slide_submission_id,
-            0,
-        )
-        .await?;
-        Ok(peer_review_queue_entry)
-    } else {
-        let peer_review_queue_entry_id = insert(
-            conn,
-            user_id,
-            exercise_id,
-            course_instance_id,
-            receiving_peer_reviews_exercise_slide_submission_id,
-            0,
-        )
-        .await?;
-        let peer_review_queue_entry = get_by_id(conn, peer_review_queue_entry_id).await?;
-        Ok(peer_review_queue_entry)
-    }
+    Ok(res)
 }
 
 pub async fn update(

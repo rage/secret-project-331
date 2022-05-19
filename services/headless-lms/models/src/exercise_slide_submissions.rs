@@ -197,6 +197,7 @@ pub async fn try_to_get_random_filtered_by_user_and_submissions(
     excluded_user_id: Uuid,
     excluded_ids: &[Uuid],
 ) -> ModelResult<Option<ExerciseSlideSubmission>> {
+    // TODO: Filter to only latest submission per student.
     let res = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"

@@ -91,13 +91,26 @@ pub async fn create_peer_review_submission_for_user(
         )
         .await?;
     }
-    let user_exercise_state = update_peer_review_giver_exercise_progress(
-        &mut tx,
-        exercise,
-        user_exercise_state,
-        &peer_review,
-    )
-    .await?;
+    let peer_reviews_given: i32 =
+        peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
+            &mut tx,
+            user_exercise_state.user_id,
+            user_exercise_state.exercise_id,
+            user_exercise_state.get_course_instance_id()?,
+        )
+        .await?
+        .try_into()?;
+    let user_exercise_state = if peer_reviews_given >= peer_review.peer_reviews_to_give {
+        update_peer_review_giver_exercise_progress(
+            &mut tx,
+            exercise,
+            user_exercise_state,
+            peer_reviews_given,
+        )
+        .await?
+    } else {
+        user_exercise_state
+    };
     let receiver_peer_review_queue_entry =
         peer_review_queue_entries::try_to_get_by_user_and_exercise_and_course_instance_ids(
             &mut tx,
@@ -145,7 +158,7 @@ async fn update_peer_review_giver_exercise_progress(
     conn: &mut PgConnection,
     exercise: &Exercise,
     user_exercise_state: UserExerciseState,
-    peer_review: &PeerReview,
+    peer_reviews_given: i32,
 ) -> ModelResult<UserExerciseState> {
     let users_latest_submission =
         exercise_slide_submissions::get_users_latest_exercise_slide_submission(
@@ -154,20 +167,12 @@ async fn update_peer_review_giver_exercise_progress(
             user_exercise_state.user_id,
         )
         .await?;
-    let peer_reviews_given =
-        peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
-            conn,
-            user_exercise_state.user_id,
-            user_exercise_state.exercise_id,
-            user_exercise_state.get_course_instance_id()?,
-        )
-        .await?;
     let peer_review_queue_entry = peer_review_queue_entries::upsert_peer_review_priority(
         conn,
         user_exercise_state.user_id,
         user_exercise_state.exercise_id,
         user_exercise_state.get_course_instance_id()?,
-        peer_reviews_given.try_into()?,
+        peer_reviews_given,
         users_latest_submission.id,
     )
     .await?;
@@ -175,7 +180,7 @@ async fn update_peer_review_giver_exercise_progress(
         conn,
         exercise,
         user_exercise_state,
-        peer_reviews_given >= peer_review.peer_reviews_to_give.try_into()?,
+        true,
         peer_review_queue_entry.received_enough_peer_reviews,
     )
     .await?;

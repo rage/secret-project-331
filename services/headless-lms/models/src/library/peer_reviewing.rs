@@ -15,6 +15,8 @@ use crate::{
     user_exercise_states::{self, ExerciseProgress, UserExerciseState},
 };
 
+use super::grading;
+
 const MAX_PEER_REVIEW_CANDIDATES: i64 = 10;
 
 /// Starts peer review state for the student for this exercise.
@@ -89,8 +91,13 @@ pub async fn create_peer_review_submission_for_user(
         )
         .await?;
     }
-    let user_exercise_state =
-        update_peer_review_giver_exercise_progress(&mut tx, user_exercise_state).await?;
+    let user_exercise_state = update_peer_review_giver_exercise_progress(
+        &mut tx,
+        exercise,
+        user_exercise_state,
+        &peer_review,
+    )
+    .await?;
     let receiver_peer_review_queue_entry =
         peer_review_queue_entries::try_to_get_by_user_and_exercise_and_course_instance_ids(
             &mut tx,
@@ -136,7 +143,9 @@ fn validate_and_sanitize_peer_review_submission_answers(
 /// Creates or updates submitter's exercise state and peer review queue entry.
 async fn update_peer_review_giver_exercise_progress(
     conn: &mut PgConnection,
+    exercise: &Exercise,
     user_exercise_state: UserExerciseState,
+    peer_review: &PeerReview,
 ) -> ModelResult<UserExerciseState> {
     let users_latest_submission =
         exercise_slide_submissions::get_users_latest_exercise_slide_submission(
@@ -145,7 +154,7 @@ async fn update_peer_review_giver_exercise_progress(
             user_exercise_state.user_id,
         )
         .await?;
-    let peer_review_priority =
+    let peer_reviews_given =
         peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
             conn,
             user_exercise_state.user_id,
@@ -153,16 +162,23 @@ async fn update_peer_review_giver_exercise_progress(
             user_exercise_state.get_course_instance_id()?,
         )
         .await?;
-    peer_review_queue_entries::upsert_peer_review_priority(
+    let peer_review_queue_entry = peer_review_queue_entries::upsert_peer_review_priority(
         conn,
         user_exercise_state.user_id,
         user_exercise_state.exercise_id,
         user_exercise_state.get_course_instance_id()?,
-        peer_review_priority.try_into()?,
+        peer_reviews_given.try_into()?,
         users_latest_submission.id,
     )
     .await?;
-    // Update user exercise state
+    let user_exercise_state = grading::update_user_exercise_state_peer_review_status(
+        conn,
+        exercise,
+        user_exercise_state,
+        peer_reviews_given >= peer_review.peer_reviews_to_give.try_into()?,
+        peer_review_queue_entry.received_enough_peer_reviews,
+    )
+    .await?;
     Ok(user_exercise_state)
 }
 

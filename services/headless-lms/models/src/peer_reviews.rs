@@ -13,6 +13,14 @@ pub struct PeerReview {
     pub peer_reviews_to_receive: i32,
 }
 
+impl PeerReview {
+    pub fn given_and_received_enough(&self, given: i32, received: i32) -> bool {
+        let given_enough = given >= self.peer_reviews_to_give;
+        let received_enough = received >= self.peer_reviews_to_receive;
+        given_enough && received_enough
+    }
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,

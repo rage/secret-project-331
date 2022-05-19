@@ -287,5 +287,6 @@
   "save": "Save",
   "delete": "Delete",
   "reference-updated-succesfully": "Reference updated succesfully",
-  "reference-deleted-succesfully": "Reference deleted succesfully"
+  "reference-deleted-succesfully": "Reference deleted succesfully",
+  "reference-added-succesfully": "Reference added succesfully"
 }

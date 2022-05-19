@@ -62,8 +62,46 @@ test("material reference tests", async ({ page, headless }) => {
   // Click text=Close
   await page.locator("text=Close").click()
 
+  await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["heading-order"],
+    page,
+    headless,
+    snapshotName: "new-material-reference-added",
+    waitForThisToBeVisibleAndStable: ["text=Add new reference"],
+  })
+
+  await page.locator("text=Edit reference").click()
+
+  await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["heading-order", "page-has-heading-one"],
+    page,
+    headless,
+    snapshotName: "material-reference-editor",
+    waitForThisToBeVisibleAndStable: ["text=Edit reference"],
+  })
+
+  // Fill textarea[name="references"]
+  await page
+    .locator('textarea[name="reference"]')
+    .fill(
+      "@incollection{wang2003,\n  title={Artificial neural network},\n  author={Wang, Sun-Chong},\n  booktitle={Interdisciplinary computing in java programming},\n  pages={81--100},\n  year={2003},\n  publisher={Springer}\n}\n",
+    )
+
+  await page.locator("text=Save").click()
+
+  await page.locator("text=Close").click()
+
+  await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["heading-order"],
+    page,
+    headless,
+    snapshotName: "material-reference-edited",
+    waitForThisToBeVisibleAndStable: ["text=Add new reference"],
+  })
+
   // Click text=Pages
   await page.locator("text=Pages").click()
+
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/pages",
   )
@@ -80,7 +118,7 @@ test("material reference tests", async ({ page, headless }) => {
   // Click button[role="option"]:has-text("Paragraph")
   await page.locator('button[role="option"]:has-text("Paragraph")').click()
 
-  const PARAGRAPH = `This paragraph contains a citation\\cite{wang2003artificial}.`
+  const PARAGRAPH = `This paragraph contains a citation\\cite{wang2003}.`
 
   // Click [aria-label="Empty block\; start writing or type forward slash to choose a block"]
   await page.fill(

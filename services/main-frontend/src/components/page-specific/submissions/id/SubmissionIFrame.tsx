@@ -15,7 +15,7 @@ const TITLE = "VIEW SUBMISSION"
 interface SubmissionIFrameProps {
   url: string
   public_spec: unknown
-  submission: ExerciseTaskSubmission
+  submission: ExerciseTaskSubmission | null
   model_solution_spec: unknown
   grading: ExerciseTaskGrading | null
 }
@@ -39,6 +39,12 @@ const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
   }
   if (!grading) {
     return <Alert severity="error">{t("error-cannot-render-exercise-task-missing-url")}</Alert>
+  }
+
+  if (!submission) {
+    return (
+      <Alert severity="error">{t("error-cannot-render-exercise-task-missing-submission")}</Alert>
+    )
   }
   const state: SubmissionState = {
     public_spec,

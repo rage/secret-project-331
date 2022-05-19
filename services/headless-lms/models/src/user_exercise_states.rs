@@ -3,9 +3,20 @@ use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use serde_json::Value;
 
 use crate::{
-    exercises::{ActivityProgress, GradingProgress},
+    exercises::{ActivityProgress, Exercise, GradingProgress},
     prelude::*,
+    user_course_settings,
 };
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[sqlx(type_name = "exercise_progress", rename_all = "snake_case")]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub enum ExerciseProgress {
+    NotAnswered,
+    PeerReview,
+    SelfReview,
+    Complete,
+}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct UserExerciseState {
@@ -20,7 +31,30 @@ pub struct UserExerciseState {
     pub score_given: Option<f32>,
     pub grading_progress: GradingProgress,
     pub activity_progress: ActivityProgress,
+    pub exercise_progress: ExerciseProgress,
     pub selected_exercise_slide_id: Option<Uuid>,
+}
+
+impl UserExerciseState {
+    pub fn get_course_instance_id(&self) -> ModelResult<Uuid> {
+        self.course_instance_id.ok_or_else(|| {
+            ModelError::Generic("Exercise is not part of a course instance.".to_string())
+        })
+    }
+
+    pub fn get_selected_exercise_slide_id(&self) -> ModelResult<Uuid> {
+        self.selected_exercise_slide_id
+            .ok_or_else(|| ModelError::Generic("No exercise slide selected.".to_string()))
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct UserExerciseStateUpdate {
+    pub id: Uuid,
+    pub score_given: Option<f32>,
+    pub activity_progress: ActivityProgress,
+    pub exercise_progress: ExerciseProgress,
+    pub grading_progress: GradingProgress,
 }
 
 /// Either a course instance or exam id.
@@ -272,8 +306,9 @@ SELECT id,
   updated_at,
   deleted_at,
   score_given,
-  grading_progress as "grading_progress: _",
-  activity_progress as "activity_progress: _",
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  exercise_progress AS "exercise_progress: _",
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
@@ -307,7 +342,8 @@ WHERE user_id = $1
       score_given,
       grading_progress as "grading_progress: _",
       activity_progress as "activity_progress: _",
-      selected_exercise_slide_id;
+      exercise_progress AS "exercise_progress: _",
+      selected_exercise_slide_id
       "#,
             user_id,
             exercise_id,
@@ -318,6 +354,62 @@ WHERE user_id = $1
         .await?
     };
     Ok(res)
+}
+
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<UserExerciseState> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  exercise_progress AS "exercise_progress: _",
+  selected_exercise_slide_id
+FROM user_exercise_states
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_users_current_by_exercise(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise: &Exercise,
+) -> ModelResult<UserExerciseState> {
+    let course_or_exam_id = CourseOrExamId::from(exercise.course_id, exercise.exam_id)?;
+    let course_instance_or_exam_id = match course_or_exam_id {
+        CourseOrExamId::Course(course_id) => {
+            user_course_settings::get_user_course_settings_by_course_id(conn, user_id, course_id)
+                .await?
+                .map(|settings| {
+                    CourseInstanceOrExamId::Instance(settings.current_course_instance_id)
+                })
+                .ok_or_else(|| {
+                    ModelError::PreconditionFailed("Missing user course settings.".to_string())
+                })
+        }
+        CourseOrExamId::Exam(exam_id) => Ok(CourseInstanceOrExamId::Exam(exam_id)),
+    }?;
+    let user_exercise_state =
+        get_user_exercise_state_if_exists(conn, user_id, exercise.id, course_instance_or_exam_id)
+            .await?
+            .ok_or_else(|| {
+                ModelError::PreconditionFailed("Missing user exercise state.".to_string())
+            })?;
+    Ok(user_exercise_state)
 }
 
 pub async fn get_user_exercise_state_if_exists(
@@ -339,8 +431,9 @@ SELECT id,
   updated_at,
   deleted_at,
   score_given,
-  grading_progress as "grading_progress: _",
-  activity_progress as "activity_progress: _",
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  exercise_progress AS "exercise_progress: _",
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
@@ -421,6 +514,79 @@ WHERE user_id = $1
     Ok(())
 }
 
+pub async fn update(
+    conn: &mut PgConnection,
+    user_exercise_state_update: UserExerciseStateUpdate,
+) -> ModelResult<UserExerciseState> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+UPDATE user_exercise_states
+SET score_given = $1,
+  activity_progress = $2,
+  exercise_progress = $3,
+  grading_progress = $4
+WHERE id = $5
+  AND deleted_at IS NULL
+RETURNING id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  exercise_progress AS "exercise_progress: _",
+  selected_exercise_slide_id
+        "#,
+        user_exercise_state_update.score_given,
+        user_exercise_state_update.activity_progress as ActivityProgress,
+        user_exercise_state_update.exercise_progress as ExerciseProgress,
+        user_exercise_state_update.grading_progress as GradingProgress,
+        user_exercise_state_update.id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn update_exercise_progress(
+    conn: &mut PgConnection,
+    id: Uuid,
+    exercise_progress: ExerciseProgress,
+) -> ModelResult<UserExerciseState> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+UPDATE user_exercise_states
+SET exercise_progress = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+RETURNING id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  exercise_progress AS "exercise_progress: _",
+  selected_exercise_slide_id
+        "#,
+        exercise_progress as ExerciseProgress,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn update_grading_state(
     conn: &mut PgConnection,
     id: Uuid,
@@ -446,8 +612,9 @@ RETURNING id,
   updated_at,
   deleted_at,
   score_given,
-  grading_progress as "grading_progress: _",
-  activity_progress as "activity_progress: _",
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  exercise_progress AS "exercise_progress: _",
   selected_exercise_slide_id
         "#,
         score_given,

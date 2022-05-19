@@ -28,6 +28,11 @@ pub mod page_history;
 pub mod page_visit_datum;
 pub mod page_visit_datum_daily_visit_hashing_keys;
 pub mod pages;
+pub mod peer_review_question_submissions;
+pub mod peer_review_questions;
+pub mod peer_review_queue_entries;
+pub mod peer_review_submissions;
+pub mod peer_reviews;
 pub mod playground_examples;
 pub mod proposed_block_edits;
 pub mod proposed_page_edits;
@@ -40,7 +45,7 @@ pub mod user_exercise_states;
 pub mod user_exercise_task_states;
 pub mod users;
 
-mod error;
+pub mod error;
 mod prelude;
 #[cfg(test)]
 pub mod test_helper;

@@ -1,16 +1,22 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import HelpIcon from "@mui/icons-material/Help"
-import { useContext, useReducer, useState } from "react"
+import { useCallback, useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery, useQueryClient } from "react-query"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
-import { fetchExerciseById, postSubmission } from "../../../../services/backend"
+import {
+  fetchExerciseById,
+  postPeerReviewSubmission,
+  postStartPeerReview,
+  postSubmission,
+} from "../../../../services/backend"
 import {
   CourseMaterialExercise,
+  CourseMaterialPeerReviewQuestionAnswer,
   StudentExerciseSlideSubmission,
 } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
@@ -26,6 +32,7 @@ import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExerciseTask from "./ExerciseTask"
+import PeerReviewView from "./PeerReviewView"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -50,7 +57,12 @@ const DeadlineText = styled.div<DeadlineProps>`
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
+  const [allowStartPeerReview, setAllowStartPeerReview] = useState(true)
+  const [allowPostPeerReviewSubmission, setAllowPostPeerReviewSubmission] = useState(true)
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
+  const [peerReviewAnswers, setPeerReviewAnswers] = useState<
+    ReadonlyMap<string, CourseMaterialPeerReviewQuestionAnswer>
+  >(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
   const { t, i18n } = useTranslation()
@@ -77,6 +89,16 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       })
     },
   })
+
+  const handleSetPeerReviewQuestionAnswer = useCallback(
+    (id, value) =>
+      setPeerReviewAnswers((prev) => {
+        const map = new Map(prev)
+        map.set(id, value)
+        return map
+      }),
+    [],
+  )
 
   const postSubmissionMutation = useToastMutation(
     (submission: StudentExerciseSlideSubmission) => postSubmission(id, submission),
@@ -157,6 +179,11 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     const timezoneOffset = `(UTC${sign}${start}:${end})`
     deadlineAsString = deadlineAsString + ` ${timezoneOffset}`
   }
+
+  // These are now arrays so should be refactored
+  const inSubmissionView =
+    postThisStateToIFrame?.every((x) => x.view_type === "view-submission") ?? false
+  const needsPeerReview = getCourseMaterialExercise.data.exercise.needs_peer_review
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -242,6 +269,12 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
             />
           ))}
+          {getCourseMaterialExercise.data.peer_review_info && (
+            <PeerReviewView
+              peerReviewData={getCourseMaterialExercise.data.peer_review_info}
+              setPeerReviewQuestionAnswer={handleSetPeerReviewQuestionAnswer}
+            />
+          )}
           <div
             className={css`
               button {
@@ -249,79 +282,125 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               }
             `}
           >
-            {getCourseMaterialExercise.data.can_post_submission &&
-              postThisStateToIFrame?.every((x) => x.view_type !== "view-submission") && (
-                <Button
-                  size="medium"
-                  variant="primary"
-                  disabled={
-                    postSubmissionMutation.isLoading ||
-                    answers.size < postThisStateToIFrame.length ||
-                    Array.from(answers.values()).some((x) => !x.valid)
+            {getCourseMaterialExercise.data.can_post_submission && !inSubmissionView && (
+              <Button
+                size="medium"
+                variant="primary"
+                disabled={
+                  postSubmissionMutation.isLoading ||
+                  answers.size < (postThisStateToIFrame?.length ?? 0) ||
+                  Array.from(answers.values()).some((x) => !x.valid)
+                }
+                onClick={() => {
+                  if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
+                    return
                   }
-                  onClick={() => {
-                    if (!courseInstanceId && !getCourseMaterialExercise.data.exercise.exam_id) {
-                      return
+                  postSubmissionMutation.mutate(
+                    {
+                      exercise_slide_id: getCourseMaterialExercise.data.current_exercise_slide.id,
+                      exercise_task_submissions:
+                        getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map(
+                          (task) => ({
+                            exercise_task_id: task.id,
+                            data_json: answers.get(task.id)?.data,
+                          }),
+                        ),
+                    },
+                    {
+                      onSuccess: () => {
+                        queryClient.setQueryData(queryUniqueKey, (old) => {
+                          // Update slide submission counts without refetching
+                          const oldData = old as CourseMaterialExercise
+                          const oldSubmissionCounts =
+                            oldData?.exercise_slide_submission_counts ?? {}
+                          const slideId =
+                            getCourseMaterialExercise?.data?.current_exercise_slide?.id
+                          const newSubmissionCounts = { ...oldSubmissionCounts }
+                          if (slideId) {
+                            newSubmissionCounts[slideId] = (oldSubmissionCounts[slideId] ?? 0) + 1
+                          }
+                          return {
+                            ...oldData,
+                            exercise_slide_submission_counts: newSubmissionCounts,
+                          }
+                        })
+                      },
+                    },
+                  )
+                }}
+              >
+                {t("submit-button")}
+              </Button>
+            )}
+            {inSubmissionView && (
+              <div>
+                {!ranOutOfTries && !getCourseMaterialExercise.data.peer_review_info && (
+                  <Button
+                    variant="primary"
+                    size="medium"
+                    onClick={() => {
+                      dispatch({
+                        type: "tryAgain",
+                        payload:
+                          getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks,
+                      })
+                      postSubmissionMutation.reset()
+                      setAnswers(new Map())
+                    }}
+                    disabled={
+                      getCourseMaterialExercise.isRefetching ||
+                      !getCourseMaterialExercise.data.can_post_submission ||
+                      !!getCourseMaterialExercise.data.peer_review_info
                     }
-                    postSubmissionMutation.mutate(
-                      {
-                        exercise_slide_id: getCourseMaterialExercise.data.current_exercise_slide.id,
-                        exercise_task_submissions:
-                          getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map(
-                            (task) => ({
-                              exercise_task_id: task.id,
-                              data_json: answers.get(task.id)?.data,
-                            }),
-                          ),
-                      },
-                      {
-                        onSuccess: () => {
-                          queryClient.setQueryData(queryUniqueKey, (old) => {
-                            // Update slide submission counts without refetching
-                            const oldData = old as CourseMaterialExercise
-                            const oldSubmissionCounts =
-                              oldData?.exercise_slide_submission_counts ?? {}
-                            const slideId =
-                              getCourseMaterialExercise?.data?.current_exercise_slide?.id
-                            const newSubmissionCounts = { ...oldSubmissionCounts }
-                            if (slideId) {
-                              newSubmissionCounts[slideId] = (oldSubmissionCounts[slideId] ?? 0) + 1
-                            }
-                            return {
-                              ...oldData,
-                              exercise_slide_submission_counts: newSubmissionCounts,
-                            }
-                          })
-                        },
-                      },
-                    )
-                  }}
-                >
-                  {t("submit-button")}
-                </Button>
-              )}
-            {/* These are now arrays so should be refactored */}
-            {postThisStateToIFrame?.every((x) => x.view_type === "view-submission") &&
-              !ranOutOfTries && (
-                <Button
-                  variant="primary"
-                  size="medium"
-                  onClick={() => {
-                    dispatch({
-                      type: "tryAgain",
-                      payload: getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks,
-                    })
-                    postSubmissionMutation.reset()
-                    setAnswers(new Map())
-                  }}
-                  disabled={
-                    getCourseMaterialExercise.isRefetching ||
-                    !getCourseMaterialExercise.data.can_post_submission
-                  }
-                >
-                  {t("try-again")}
-                </Button>
-              )}
+                  >
+                    {t("try-again")}
+                  </Button>
+                )}
+                {needsPeerReview && getCourseMaterialExercise.data.peer_review_info && (
+                  <Button
+                    size="medium"
+                    variant="primary"
+                    disabled={!allowPostPeerReviewSubmission}
+                    onClick={async () => {
+                      if (!getCourseMaterialExercise.data.peer_review_info) {
+                        // Handle error
+                        return
+                      }
+                      setAllowPostPeerReviewSubmission(false)
+                      await postPeerReviewSubmission(id, {
+                        exercise_slide_submission_id:
+                          getCourseMaterialExercise.data.peer_review_info
+                            ?.exercise_slide_submission_id,
+                        peer_review_id:
+                          getCourseMaterialExercise.data.peer_review_info?.peer_review_id,
+                        peer_review_question_answers: Array.from(peerReviewAnswers.values()),
+                      }).finally(() => setAllowPostPeerReviewSubmission(true))
+                      await getCourseMaterialExercise.refetch()
+                    }}
+                  >
+                    {t("submit-button")}
+                  </Button>
+                )}
+                {needsPeerReview && !getCourseMaterialExercise.data.peer_review_info && (
+                  <Button
+                    variant="primary"
+                    size="medium"
+                    disabled={
+                      !needsPeerReview ||
+                      !allowStartPeerReview ||
+                      !!getCourseMaterialExercise.data.peer_review_info
+                    }
+                    onClick={async () => {
+                      setAllowStartPeerReview(false)
+                      await postStartPeerReview(id).finally(() => setAllowStartPeerReview(true))
+                      await getCourseMaterialExercise.refetch()
+                    }}
+                  >
+                    {t("start-peer-review")}
+                  </Button>
+                )}
+              </div>
+            )}
             {postSubmissionMutation.isError && (
               <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
             )}

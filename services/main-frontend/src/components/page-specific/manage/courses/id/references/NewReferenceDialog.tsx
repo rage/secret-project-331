@@ -28,7 +28,12 @@ const NewReferenceDialog: React.FC<NewReferenceModalProps> = ({
       successMessage: t("reference-added-succesfully"),
       method: "POST",
     },
-    { onSuccess: () => fetchCourseReferences.refetch() },
+    {
+      onSuccess: () => {
+        fetchCourseReferences.refetch()
+        onClose()
+      },
+    },
   )
 
   return (

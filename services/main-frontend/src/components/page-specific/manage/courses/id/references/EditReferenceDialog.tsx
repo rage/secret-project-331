@@ -38,7 +38,12 @@ const EditReferenceDialog: React.FC<EditReferenceDialogProps> = ({
       successMessage: t("reference-updated-succesfully"),
       method: "POST",
     },
-    { onSuccess: () => getCourseReferences.refetch() },
+    {
+      onSuccess: () => {
+        getCourseReferences.refetch()
+        onClose()
+      },
+    },
   )
 
   const deleteReferenceMutation = useToastMutation(
@@ -48,7 +53,12 @@ const EditReferenceDialog: React.FC<EditReferenceDialogProps> = ({
       successMessage: t("reference-deleted-succesfully"),
       method: "DELETE",
     },
-    { onSuccess: () => getCourseReferences.refetch() },
+    {
+      onSuccess: () => {
+        getCourseReferences.refetch()
+        onClose()
+      },
+    },
   )
 
   return (

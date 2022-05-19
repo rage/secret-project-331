@@ -59,8 +59,7 @@ test("material reference tests", async ({ page, headless }) => {
   // Click text=Submit
   await page.locator("text=Submit").click()
 
-  // Click text=Close
-  await page.locator("text=Close").click()
+  await page.locator("text=Success").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["heading-order"],
@@ -89,7 +88,7 @@ test("material reference tests", async ({ page, headless }) => {
 
   await page.locator("text=Save").click()
 
-  await page.locator("text=Close").click()
+  await page.locator("text=Success").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["heading-order"],

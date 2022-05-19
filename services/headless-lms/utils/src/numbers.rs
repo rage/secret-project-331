@@ -27,10 +27,10 @@ mod tests {
 
     #[test]
     fn f32_approx_eq_works() {
-        assert_eq!(f32_approx_eq(1.0, 1.1), false);
-        assert_eq!(f32_approx_eq(-1.1, 1.1), false);
-        assert_eq!(f32_approx_eq(1.1, -1.1), false);
-        assert_eq!(f32_approx_eq(1.1, 1.1), true);
-        assert_eq!(f32_approx_eq(0.0, 0.0), true);
+        assert!(!f32_approx_eq(1.0, 1.1));
+        assert!(!f32_approx_eq(-1.1, 1.1));
+        assert!(!f32_approx_eq(1.1, -1.1));
+        assert!(f32_approx_eq(1.1, 1.1));
+        assert!(f32_approx_eq(0.0, 0.0));
     }
 }

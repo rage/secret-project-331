@@ -654,6 +654,7 @@ pub struct CmsPageExercise {
     pub max_tries_per_slide: Option<i32>,
     pub limit_number_of_tries: bool,
     pub deadline: Option<DateTime<Utc>>,
+    pub needs_peer_review: bool,
 }
 
 impl From<Exercise> for CmsPageExercise {
@@ -666,6 +667,7 @@ impl From<Exercise> for CmsPageExercise {
             max_tries_per_slide: exercise.max_tries_per_slide,
             limit_number_of_tries: exercise.limit_number_of_tries,
             deadline: exercise.deadline,
+            needs_peer_review: exercise.needs_peer_review,
         }
     }
 }
@@ -976,9 +978,23 @@ INSERT INTO exercises(
     score_maximum,
     max_tries_per_slide,
     limit_number_of_tries,
-    deadline
+    deadline,
+    needs_peer_review
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT (id) DO
+VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12
+  ) ON CONFLICT (id) DO
 UPDATE
 SET course_id = $2,
   name = $3,
@@ -990,6 +1006,7 @@ SET course_id = $2,
   max_tries_per_slide = $9,
   limit_number_of_tries = $10,
   deadline = $11,
+  needs_peer_review = $12,
   deleted_at = NULL
 RETURNING id,
   name,
@@ -997,7 +1014,8 @@ RETURNING id,
   score_maximum,
   max_tries_per_slide,
   limit_number_of_tries,
-  deadline;
+  deadline,
+  needs_peer_review
             ",
             safe_for_db_exercise_id,
             page.course_id,
@@ -1009,7 +1027,8 @@ RETURNING id,
             exercise_update.score_maximum,
             exercise_update.max_tries_per_slide,
             exercise_update.limit_number_of_tries,
-            exercise_update.deadline
+            exercise_update.deadline,
+            exercise_update.needs_peer_review,
         )
         .fetch_one(&mut *conn)
         .await?;
@@ -2200,6 +2219,7 @@ mod test {
             max_tries_per_slide: None,
             limit_number_of_tries: false,
             deadline: Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+            needs_peer_review: false,
         };
         let e1_s1 = CmsPageExerciseSlide {
             id: Uuid::parse_str("43380e81-6ff2-4f46-9f38-af0ac6a8421a").unwrap(),
@@ -2230,18 +2250,14 @@ mod test {
         .is_ok());
 
         // Fails with missing slide
-        assert!(
-            create_update(vec![e1.clone()], vec![], vec![e1_s1_t1.clone()],)
-                .validate_exercise_data()
-                .is_err()
-        );
+        assert!(create_update(vec![e1.clone()], vec![], vec![e1_s1_t1],)
+            .validate_exercise_data()
+            .is_err());
 
         // Fails with missing task
-        assert!(
-            create_update(vec![e1.clone()], vec![e1_s1.clone()], vec![],)
-                .validate_exercise_data()
-                .is_err()
-        );
+        assert!(create_update(vec![e1], vec![e1_s1], vec![],)
+            .validate_exercise_data()
+            .is_err());
     }
 
     fn create_update(

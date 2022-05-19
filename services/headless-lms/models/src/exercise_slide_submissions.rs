@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use chrono::NaiveDate;
 
 use crate::{
-    courses::Course, exercise_task_gradings::UserPointsUpdateStrategy, prelude::*,
+    courses::Course, exercise_task_gradings::UserPointsUpdateStrategy,
+    exercise_tasks::CourseMaterialExerciseTask, exercises::Exercise, prelude::*,
     user_exercise_states::CourseInstanceOrExamId, CourseOrExamId,
 };
 
@@ -35,6 +36,14 @@ pub struct ExerciseSlideSubmission {
     pub user_points_update_strategy: UserPointsUpdateStrategy,
 }
 
+impl ExerciseSlideSubmission {
+    pub fn get_course_instance_id(&self) -> ModelResult<Uuid> {
+        self.course_instance_id.ok_or_else(|| {
+            ModelError::Generic("Submission is not related to a course instance.".to_string())
+        })
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmissionCount {
@@ -56,6 +65,14 @@ pub struct ExerciseSlideSubmissionCountByWeekAndHour {
     pub isodow: Option<i32>,
     pub hour: Option<i32>,
     pub count: Option<i32>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseSlideSubmissionInfo {
+    pub tasks: Vec<CourseMaterialExerciseTask>,
+    pub exercise: Exercise,
+    pub exercise_slide_submission: ExerciseSlideSubmission,
 }
 
 pub async fn insert_exercise_slide_submission(
@@ -145,10 +162,7 @@ RETURNING id,
     Ok(res)
 }
 
-pub async fn get_by_id(
-    conn: &mut PgConnection,
-    id: Uuid,
-) -> ModelResult<Option<ExerciseSlideSubmission>> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExerciseSlideSubmission> {
     let exercise_slide_submission = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
@@ -169,9 +183,45 @@ WHERE id = $1
         "#,
         id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(exercise_slide_submission)
+}
+
+/// Attempts to find a single random `ExerciseSlideSubmission` that is not related to the provided user.
+///
+/// This function is mostly provided for very specific peer review purposes.
+pub async fn try_to_get_random_from_other_users_by_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    excluded_user_id: Uuid,
+) -> ModelResult<Option<ExerciseSlideSubmission>> {
+    let res = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _"
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+  AND user_id <> $2
+  AND deleted_at IS NULL
+ORDER BY random() ASC
+        "#,
+        exercise_id,
+        excluded_user_id,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn get_by_exercise_id(
@@ -209,9 +259,9 @@ LIMIT $2 OFFSET $3;
 
 pub async fn get_users_latest_exercise_slide_submission(
     conn: &mut PgConnection,
-    exercise_slide_id: &Uuid,
-    user_id: &Uuid,
-) -> ModelResult<Option<ExerciseSlideSubmission>> {
+    exercise_slide_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<ExerciseSlideSubmission> {
     let res = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
@@ -236,9 +286,19 @@ LIMIT 1
         exercise_slide_id,
         user_id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn try_to_get_users_latest_exercise_slide_submission(
+    conn: &mut PgConnection,
+    exercise_slide_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Option<ExerciseSlideSubmission>> {
+    get_users_latest_exercise_slide_submission(conn, exercise_slide_id, user_id)
+        .await
+        .optional()
 }
 
 pub async fn get_course_and_exam_id(
@@ -409,4 +469,19 @@ GROUP BY exercise_slide_id;
     .collect::<HashMap<Uuid, i64>>();
 
     Ok(res)
+}
+
+pub async fn get_exercise_slide_submission_info(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<ExerciseSlideSubmissionInfo> {
+    let exercise_slide_submission = get_by_id(&mut *conn, exercise_slide_submission_id).await?;
+    let exercise =
+        crate::exercises::get_by_id(&mut *conn, exercise_slide_submission.exercise_id).await?;
+    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id).await?;
+    Ok(ExerciseSlideSubmissionInfo {
+        exercise,
+        tasks,
+        exercise_slide_submission,
+    })
 }

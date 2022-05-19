@@ -33,6 +33,9 @@ import {
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseSlide,
   CourseMaterialExerciseTask,
+  CourseMaterialPeerReviewData,
+  CourseMaterialPeerReviewQuestionAnswer,
+  CourseMaterialPeerReviewSubmission,
   CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
@@ -59,12 +62,14 @@ import {
   ExerciseSlideSubmissionCount,
   ExerciseSlideSubmissionCountByExercise,
   ExerciseSlideSubmissionCountByWeekAndHour,
+  ExerciseSlideSubmissionInfo,
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
   ExerciseTaskGrading,
   ExerciseTaskGradingResult,
   ExerciseTaskSubmission,
+  ExerciseTaskSubmissionWithSpec,
   ExerciseUserCounts,
   ExerciseWithExerciseTasks,
   Feedback,
@@ -82,6 +87,7 @@ import {
   NewExam,
   NewFeedback,
   NewPage,
+  NewPeerReviewQuestion,
   NewProposedBlockEdit,
   NewProposedPageEdits,
   OEmbedResponse,
@@ -97,6 +103,9 @@ import {
   PageSearchResult,
   PageWithExercises,
   Pagination,
+  PeerReview,
+  PeerReviewQuestion,
+  PeerReviewQuestionType,
   PlaygroundExample,
   PlaygroundExampleData,
   PointMap,
@@ -112,7 +121,6 @@ import {
   StudentExerciseSlideSubmissionResult,
   StudentExerciseTaskSubmission,
   StudentExerciseTaskSubmissionResult,
-  SubmissionInfo,
   Term,
   TermUpdate,
   UploadResult,
@@ -705,6 +713,8 @@ export function isCourseMaterialExercise(
     (isExercise(obj.exercise) as boolean) &&
     typeof obj.can_post_submission === "boolean" &&
     (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
+    (obj.peer_review_info === null ||
+      (isCourseMaterialPeerReviewData(obj.peer_review_info) as boolean)) &&
     (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
     (isPointMap(obj.exercise_slide_submission_counts) as boolean)
   )
@@ -727,7 +737,8 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     typeof obj.order_number === "number" &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
     (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
-    typeof obj.limit_number_of_tries === "boolean"
+    typeof obj.limit_number_of_tries === "boolean" &&
+    typeof obj.needs_peer_review === "boolean"
   )
 }
 
@@ -843,6 +854,50 @@ export function isStudentExerciseTaskSubmissionResult(
   )
 }
 
+export function isCourseMaterialPeerReviewData(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewData {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_slide_submission_id === "string" &&
+    Array.isArray(obj.exercise_task_submissions) &&
+    obj.exercise_task_submissions.every(
+      (e: any) => isExerciseTaskSubmissionWithSpec(e) as boolean,
+    ) &&
+    typeof obj.peer_review_id === "string" &&
+    Array.isArray(obj.peer_review_questions) &&
+    obj.peer_review_questions.every((e: any) => isPeerReviewQuestion(e) as boolean)
+  )
+}
+
+export function isCourseMaterialPeerReviewQuestionAnswer(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewQuestionAnswer {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.peer_review_question_id === "string" &&
+    (obj.text_data === null || typeof obj.text_data === "string") &&
+    (obj.number_data === null || typeof obj.number_data === "number")
+  )
+}
+
+export function isCourseMaterialPeerReviewSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewSubmission {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_slide_submission_id === "string" &&
+    typeof obj.peer_review_id === "string" &&
+    Array.isArray(obj.peer_review_question_answers) &&
+    obj.peer_review_question_answers.every(
+      (e: any) => isCourseMaterialPeerReviewQuestionAnswer(e) as boolean,
+    )
+  )
+}
+
 export function isOrganization(obj: any, _argumentName?: string): obj is Organization {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -885,7 +940,8 @@ export function isCmsPageExercise(obj: any, _argumentName?: string): obj is CmsP
     typeof obj.score_maximum === "number" &&
     (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
     typeof obj.limit_number_of_tries === "boolean" &&
-    (obj.deadline === null || obj.deadline instanceof Date)
+    (obj.deadline === null || obj.deadline instanceof Date) &&
+    typeof obj.needs_peer_review === "boolean"
   )
 }
 
@@ -1105,6 +1161,56 @@ export function isPageChapterAndCourseInformation(
   )
 }
 
+export function isPeerReview(obj: any, _argumentName?: string): obj is PeerReview {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.course_id === "string" &&
+    (obj.exercise_id === null || typeof obj.exercise_id === "string") &&
+    typeof obj.peer_reviews_to_give === "number" &&
+    typeof obj.peer_reviews_to_receive === "number"
+  )
+}
+
+export function isNewPeerReviewQuestion(
+  obj: any,
+  _argumentName?: string,
+): obj is NewPeerReviewQuestion {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.peer_review_id === "string" &&
+    typeof obj.order_number === "number" &&
+    typeof obj.question === "string" &&
+    (isPeerReviewQuestionType(obj.question_type) as boolean) &&
+    typeof obj.answer_required === "boolean"
+  )
+}
+
+export function isPeerReviewQuestion(obj: any, _argumentName?: string): obj is PeerReviewQuestion {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.peer_review_id === "string" &&
+    typeof obj.order_number === "number" &&
+    typeof obj.question === "string" &&
+    (isPeerReviewQuestionType(obj.question_type) as boolean) &&
+    typeof obj.answer_required === "boolean"
+  )
+}
+
+export function isPeerReviewQuestionType(
+  obj: any,
+  _argumentName?: string,
+): obj is PeerReviewQuestionType {
+  return obj === "Essay" || obj === "Scale"
+}
+
 export function isPlaygroundExample(obj: any, _argumentName?: string): obj is PlaygroundExample {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1281,6 +1387,19 @@ export function isExerciseSlideSubmissionCountByWeekAndHour(
   )
 }
 
+export function isExerciseSlideSubmissionInfo(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseSlideSubmissionInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.tasks) &&
+    obj.tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean) &&
+    (isExercise(obj.exercise) as boolean) &&
+    (isExerciseSlideSubmission(obj.exercise_slide_submission) as boolean)
+  )
+}
+
 export function isExerciseTaskGrading(
   obj: any,
   _argumentName?: string,
@@ -1344,14 +1463,15 @@ export function isExerciseTaskSubmission(
   )
 }
 
-export function isSubmissionInfo(obj: any, _argumentName?: string): obj is SubmissionInfo {
+export function isExerciseTaskSubmissionWithSpec(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseTaskSubmissionWithSpec {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isExerciseTaskSubmission(obj.submission) as boolean) &&
-    (isExercise(obj.exercise) as boolean) &&
-    (isExerciseTask(obj.exercise_task) as boolean) &&
-    (obj.grading === null || (isExerciseTaskGrading(obj.grading) as boolean)) &&
-    typeof obj.iframe_path === "string"
+    typeof obj.id === "string" &&
+    typeof obj.exercise_task_id === "string" &&
+    typeof obj.exercise_task_order_number === "number"
   )
 }
 

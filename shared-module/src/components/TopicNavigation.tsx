@@ -72,6 +72,11 @@ const StTopic = styled.div`
     opacity: 0.8;
   }
 `
+
+const isRunningOnMobile = () => {
+  return window.matchMedia("(max-width: 800px)").matches
+}
+
 export interface Topic {
   id: string
   offsetTop: number
@@ -88,8 +93,8 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
   // eslint-disable-next-line i18next/no-literal-string
   const [isActive, setIsActive] = useState<string>("id-1")
   const [offsetpx, setOffsetpx] = useState<number>(Y_OFFSET + TOP_OFFSET)
-  const [fixed, setFixed] = useState<boolean>(true)
-  const [hidden, setHidden] = useState<boolean>(true)
+  const [fixed, setFixed] = useState<boolean>(isRunningOnMobile())
+  const [hidden, setHidden] = useState<boolean>(isRunningOnMobile())
   const { headings } = useHeadingData()
   const { t } = useTranslation()
 

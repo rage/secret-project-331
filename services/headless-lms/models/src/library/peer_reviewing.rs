@@ -8,7 +8,8 @@ use crate::{
     exercises::Exercise,
     peer_review_question_submissions,
     peer_review_questions::{self, PeerReviewQuestion},
-    peer_review_queue_entries, peer_review_submissions,
+    peer_review_queue_entries::{self, PeerReviewQueueEntry},
+    peer_review_submissions,
     peer_reviews::{self, PeerReview},
     prelude::*,
     user_exercise_states::{self, ExerciseProgress, UserExerciseState},
@@ -54,9 +55,9 @@ pub struct CourseMaterialPeerReviewQuestionAnswer {
 pub async fn create_peer_review_submission_for_user(
     conn: &mut PgConnection,
     exercise: &Exercise,
-    user_exercise_state: &UserExerciseState,
+    user_exercise_state: UserExerciseState,
     peer_review_submission: CourseMaterialPeerReviewSubmission,
-) -> ModelResult<()> {
+) -> ModelResult<UserExerciseState> {
     let peer_review = peer_reviews::get_by_exercise_or_course_id(
         conn,
         user_exercise_state.exercise_id,
@@ -67,13 +68,6 @@ pub async fn create_peer_review_submission_for_user(
         peer_review_questions::get_all_by_peer_review_id_as_map(conn, peer_review.id).await?,
         peer_review_submission.peer_review_question_answers,
     )?;
-    let users_latest_submission =
-        exercise_slide_submissions::get_users_latest_exercise_slide_submission(
-            conn,
-            user_exercise_state.get_selected_exercise_slide_id()?,
-            user_exercise_state.user_id,
-        )
-        .await?;
 
     let mut tx = conn.begin().await?;
     let peer_review_submission_id = peer_review_submissions::insert(
@@ -95,27 +89,22 @@ pub async fn create_peer_review_submission_for_user(
         )
         .await?;
     }
-    // Update submitters queue entry
-    let users_peer_review_submission_count =
-        peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
+    let user_exercise_state =
+        update_peer_review_giver_exercise_progress(&mut tx, user_exercise_state).await?;
+    let receiver_peer_review_queue_entry =
+        peer_review_queue_entries::try_to_get_by_user_and_exercise_and_course_instance_ids(
             &mut tx,
             user_exercise_state.user_id,
             user_exercise_state.exercise_id,
             user_exercise_state.get_course_instance_id()?,
         )
         .await?;
-    peer_review_queue_entries::upsert_peer_review_priority(
-        &mut tx,
-        user_exercise_state.user_id,
-        user_exercise_state.exercise_id,
-        user_exercise_state.get_course_instance_id()?,
-        users_peer_review_submission_count.try_into()?,
-        users_latest_submission.id,
-    )
-    .await?;
+    if let Some(entry) = receiver_peer_review_queue_entry {
+        update_peer_review_receiver_exercise_status(&mut tx, &peer_review, entry).await?;
+    }
     tx.commit().await?;
 
-    Ok(())
+    Ok(user_exercise_state)
 }
 
 /// Filters submitted peer review answers to those that are part of the peer review.
@@ -142,6 +131,62 @@ fn validate_and_sanitize_peer_review_submission_answers(
             "All required questions need to be answered.".to_string(),
         ))
     }
+}
+
+/// Creates or updates submitter's exercise state and peer review queue entry.
+async fn update_peer_review_giver_exercise_progress(
+    conn: &mut PgConnection,
+    user_exercise_state: UserExerciseState,
+) -> ModelResult<UserExerciseState> {
+    let users_latest_submission =
+        exercise_slide_submissions::get_users_latest_exercise_slide_submission(
+            conn,
+            user_exercise_state.get_selected_exercise_slide_id()?,
+            user_exercise_state.user_id,
+        )
+        .await?;
+    let peer_review_priority =
+        peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
+            conn,
+            user_exercise_state.user_id,
+            user_exercise_state.exercise_id,
+            user_exercise_state.get_course_instance_id()?,
+        )
+        .await?;
+    peer_review_queue_entries::upsert_peer_review_priority(
+        conn,
+        user_exercise_state.user_id,
+        user_exercise_state.exercise_id,
+        user_exercise_state.get_course_instance_id()?,
+        peer_review_priority.try_into()?,
+        users_latest_submission.id,
+    )
+    .await?;
+    // Update user exercise state
+    Ok(user_exercise_state)
+}
+
+async fn update_peer_review_receiver_exercise_status(
+    conn: &mut PgConnection,
+    peer_review: &PeerReview,
+    peer_review_queue_entry: PeerReviewQueueEntry,
+) -> ModelResult<()> {
+    let peer_reviews_received =
+        peer_review_submissions::count_peer_review_submissions_for_exercise_slide_submission(
+            conn,
+            peer_review_queue_entry.receiving_peer_reviews_exercise_slide_submission_id,
+        )
+        .await?;
+    if peer_reviews_received >= peer_review.peer_reviews_to_receive.try_into()? {
+        // Only ever set this to true
+        peer_review_queue_entries::update_received_enough_peer_reviews(
+            conn,
+            peer_review_queue_entry.id,
+            true,
+        )
+        .await?;
+    }
+    Ok(())
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]

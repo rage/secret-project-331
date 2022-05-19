@@ -86,6 +86,26 @@ RETURNING *
     Ok(res)
 }
 
+pub async fn update_received_enough_peer_reviews(
+    conn: &mut PgConnection,
+    id: Uuid,
+    received_enough_peer_reviews: bool,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE peer_review_queue_entries
+SET received_enough_peer_reviews = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+        ",
+        received_enough_peer_reviews,
+        id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn update(
     conn: &mut PgConnection,
     id: Uuid,

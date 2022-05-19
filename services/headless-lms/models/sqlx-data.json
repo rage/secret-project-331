@@ -1640,6 +1640,16 @@
       ]
     }
   },
+  "17ff1271184d6781f32962520690a1e8e221bd387341a8f08f8902e60ba91c78": {
+    "query": "\nUPDATE peer_review_queue_entries\nSET received_enough_peer_reviews = $1\nWHERE id = $2\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Bool", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "180ec2d92ccee0fd983de0a8c8476c597497bea8fec0abc3d7aeaa2712da92f0": {
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  peer_review_id,\n  order_number,\n  question,\n  question_type AS \"question_type: _\",\n  answer_required\nFROM peer_review_questions\nWHERE id = $1\n  AND deleted_at IS NULL;\n        ",
     "describe": {
@@ -9586,6 +9596,22 @@
         "Left": ["Uuid", "Bool", "Int8", "Int8"]
       },
       "nullable": [true, true, true, true, true, true, true, true, true, true, true, true, true]
+    }
+  },
+  "b57648f4d24a296f9fe2491db7162c90974400f3d523df699448dadde9c660d7": {
+    "query": "\nSELECT COUNT(*) AS count\nFROM peer_review_submissions\nWHERE exercise_slide_submission_id = $1\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "count",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [null]
     }
   },
   "b5f1ec1669cfc199d6b65c0d841eba7c1bdf11241cba798728ef4bb290a4ba47": {

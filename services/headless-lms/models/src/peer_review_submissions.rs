@@ -111,3 +111,21 @@ WHERE user_id = $1
     .await?;
     Ok(res.count.unwrap_or(0).try_into()?)
 }
+
+pub async fn count_peer_review_submissions_for_exercise_slide_submission(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<u32> {
+    let res = sqlx::query!(
+        "
+SELECT COUNT(*) AS count
+FROM peer_review_submissions
+WHERE exercise_slide_submission_id = $1
+  AND deleted_at IS NULL
+        ",
+        exercise_slide_submission_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.count.unwrap_or(0).try_into()?)
+}

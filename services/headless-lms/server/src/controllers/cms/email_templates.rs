@@ -18,7 +18,8 @@ async fn get_email_template(
 
     let email_templates =
         models::email_templates::get_email_template(&mut conn, *email_template_id).await?;
-    Ok(web::Json(email_templates))
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    return token.0.ok(web::Json(email_templates));
 }
 
 /**
@@ -41,7 +42,8 @@ async fn update_email_template(
         request_update_template,
     )
     .await?;
-    Ok(web::Json(updated_template))
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    return token.0.ok(web::Json(updated_template));
 }
 
 /**

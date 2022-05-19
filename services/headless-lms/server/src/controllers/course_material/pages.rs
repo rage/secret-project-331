@@ -12,10 +12,12 @@ GET /api/v0/course-material/pages/exam/{page_id}
 async fn get_by_exam_id(
     exam_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
     let page = models::pages::get_by_exam_id(&mut conn, *exam_id).await?;
-    Ok(web::Json(page))
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.0.ok(web::Json(page))
 }
 
 /**
@@ -27,13 +29,15 @@ async fn get_by_exam_id(
 async fn get_next_page(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Option<PageRoutingDataWithChapterStatus>>> {
     let mut conn = pool.acquire().await?;
     let next_page_data = models::pages::get_next_page(&mut conn, *page_id).await?;
     let next_page_data_with_status =
         models::pages::get_next_page_with_chapter_status(next_page_data).await?;
 
-    Ok(web::Json(next_page_data_with_status))
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.0.ok(web::Json(next_page_data_with_status))
 }
 
 /**
@@ -44,11 +48,13 @@ async fn get_next_page(
 async fn get_chapter_and_course_information(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<PageChapterAndCourseInformation>> {
     let mut conn = pool.acquire().await?;
     let res = models::pages::get_page_chapter_and_course_information(&mut conn, *page_id).await?;
 
-    Ok(web::Json(res))
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.0.ok(web::Json(res))
 }
 
 /**
@@ -62,10 +68,13 @@ async fn get_chapter_and_course_information(
 async fn get_url_path(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<String> {
     let mut conn = pool.acquire().await?;
     let page = models::pages::get_page(&mut conn, *page_id).await?;
-    Ok(page.url_path)
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.0.ok(page.url_path)
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

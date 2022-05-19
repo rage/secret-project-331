@@ -10,10 +10,13 @@ GET `/api/v0/course-material/oembed/mentimeter?url=https://menti.com/123qwerty`
 async fn get_mentimeter_oembed_data(
     query_params: web::Query<OEmbedRequest>,
     app_conf: web::Data<ApplicationConfiguration>,
+    user: AuthUser,
+    conn: &mut PgConnection,
 ) -> ControllerResult<web::Json<OEmbedResponse>> {
     let url = query_params.url.to_string();
     let response = mentimeter_oembed_response_builder(url, app_conf.base_url.to_string())?;
-    Ok(web::Json(response))
+    let token = authorize(conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.0.ok(web::Json(response))
 }
 
 /**

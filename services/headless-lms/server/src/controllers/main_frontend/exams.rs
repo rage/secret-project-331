@@ -19,10 +19,11 @@ pub async fn get_exam(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Exam>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
 
     let exam = exams::get(&mut conn, *exam_id).await?;
-    Ok(web::Json(exam))
+
+    token.0.ok(web::Json(exam))
 }
 
 #[derive(Debug, Deserialize)]
@@ -43,10 +44,11 @@ pub async fn set_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
 
     exams::set_course(&mut conn, *exam_id, exam.course_id).await?;
-    Ok(web::Json(()))
+
+    token.0.ok(web::Json(()))
 }
 
 /**
@@ -61,10 +63,11 @@ pub async fn unset_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
 
     exams::unset_course(&mut conn, *exam_id, exam.course_id).await?;
-    Ok(web::Json(()))
+
+    token.0.ok(web::Json(()))
 }
 
 /**
@@ -78,7 +81,7 @@ pub async fn export_points(
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let exam_id = exam_id.into_inner();
-    authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(exam_id)).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(exam_id)).await?;
 
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
 
@@ -96,7 +99,8 @@ pub async fn export_points(
     let exam = exams::get(&mut conn, exam_id).await?;
 
     // return response that streams data from the receiver
-    Ok(HttpResponse::Ok()
+
+    return token.0.ok(HttpResponse::Ok()
         .append_header((
             "Content-Disposition",
             format!(
@@ -105,7 +109,7 @@ pub async fn export_points(
                 Utc::today().format("%Y-%m-%d")
             ),
         ))
-        .streaming(UnboundedReceiverStream::new(receiver)))
+        .streaming(UnboundedReceiverStream::new(receiver)));
 }
 
 /**
@@ -119,7 +123,7 @@ pub async fn export_submissions(
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let exam_id = exam_id.into_inner();
-    authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(exam_id)).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(exam_id)).await?;
 
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
 
@@ -140,7 +144,8 @@ pub async fn export_submissions(
     let exam = exams::get(&mut conn, exam_id).await?;
 
     // return response that streams data from the receiver
-    Ok(HttpResponse::Ok()
+
+    return token.0.ok(HttpResponse::Ok()
         .append_header((
             "Content-Disposition",
             format!(
@@ -149,7 +154,8 @@ pub async fn export_submissions(
                 Utc::today().format("%Y-%m-%d")
             ),
         ))
-        .streaming(UnboundedReceiverStream::new(receiver)))
+        .0
+        .streaming(UnboundedReceiverStream::new(receiver)));
 }
 
 /**
@@ -165,7 +171,7 @@ async fn duplicate_exam(
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let organization_id = models::exams::get_organization_id(&mut conn, *exam_id).await?;
-    authorize(
+    let token = authorize(
         &mut conn,
         Act::CreateCoursesOrExams,
         Some(user.id),
@@ -185,7 +191,7 @@ async fn duplicate_exam(
     .await?;
     tx.commit().await?;
 
-    Ok(web::Json(()))
+    token.0.ok(web::Json(()))
 }
 
 /**
@@ -202,7 +208,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("/{id}/export-points", web::get().to(export_points))
         .route(
             "/{id}/export-submissions",
-            web::get().to(export_submissions),
+            web::get().0.to(export_submissions),
         )
         .route("/{id}/duplicate", web::post().to(duplicate_exam));
 }

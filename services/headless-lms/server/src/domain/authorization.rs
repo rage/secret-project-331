@@ -128,6 +128,13 @@ pub enum Resource {
     PlaygroundExample,
     ExerciseService,
 }
+pub struct AuthorizationToken(());
+
+impl AuthorizationToken {
+    pub fn ok<T>(self, t: T) -> ControllerResult<T> {
+        Ok((t, self))
+    }
+}
 
 /// Can user_id action the resource?
 pub async fn authorize(
@@ -135,7 +142,7 @@ pub async fn authorize(
     action: Action,
     user_id: Option<Uuid>,
     resource: Resource,
-) -> ControllerResult<()> {
+) -> ControllerResult<AuthorizationToken> {
     let user_roles = if let Some(user_id) = user_id {
         models::roles::get_roles(conn, user_id)
             .await
@@ -149,7 +156,7 @@ pub async fn authorize(
     // check global role
     for role in &user_roles {
         if role.is_global() && has_permission(role.role, action) {
-            return Ok(());
+            return Ok((AuthorizationToken(()), AuthorizationToken(())));
         }
     }
 
@@ -157,7 +164,7 @@ pub async fn authorize(
     if resource == Resource::AnyCourse {
         for role in &user_roles {
             if has_permission(role.role, action) {
-                return Ok(());
+                return Ok((AuthorizationToken(()), AuthorizationToken(())));
             }
         }
     }
@@ -231,16 +238,16 @@ async fn check_organization_permission(
     roles: &[Role],
     action: Action,
     organization_id: Uuid,
-) -> ControllerResult<()> {
+) -> ControllerResult<AuthorizationToken> {
     if action == Action::View {
         // anyone can view an organization regardless of roles
-        return Ok(());
+        return Ok((AuthorizationToken(()), AuthorizationToken(())));
     };
 
     // check organization role
     for role in roles {
         if role.is_role_for_organization(organization_id) && has_permission(role.role, action) {
-            return Ok(());
+            return Ok((AuthorizationToken(()), AuthorizationToken(())));
         }
     }
     Err(ControllerError::Forbidden("Unauthorized".to_string()))
@@ -252,7 +259,7 @@ async fn check_course_permission(
     roles: &[Role],
     mut action: Action,
     course_id: Uuid,
-) -> ControllerResult<()> {
+) -> ControllerResult<AuthorizationToken> {
     // if trying to View a draft course, check for permission to Teach instead
     if action == Action::View && models::courses::is_draft(conn, course_id).await? {
         action = Action::Teach;
@@ -261,7 +268,7 @@ async fn check_course_permission(
     // check course role
     for role in roles {
         if role.is_role_for_course(course_id) && has_permission(role.role, action) {
-            return Ok(());
+            return Ok((AuthorizationToken(()), AuthorizationToken(())));
         }
     }
     let organization_id = models::courses::get_organization_id(conn, course_id).await?;
@@ -274,7 +281,7 @@ async fn check_course_instance_permission(
     roles: &[Role],
     mut action: Action,
     course_instance_id: Uuid,
-) -> ControllerResult<()> {
+) -> ControllerResult<AuthorizationToken> {
     // if trying to View a course instance that is not open, we check for permission to Teach
     if action == Action::View
         && !models::course_instances::is_open(conn, course_instance_id).await?
@@ -286,7 +293,7 @@ async fn check_course_instance_permission(
     for role in roles {
         if role.is_role_for_course_instance(course_instance_id) && has_permission(role.role, action)
         {
-            return Ok(());
+            return Ok((AuthorizationToken(()), AuthorizationToken(())));
         }
     }
     let course_id = models::course_instances::get_course_id(conn, course_instance_id).await?;
@@ -299,11 +306,11 @@ async fn check_exam_permission(
     roles: &[Role],
     action: Action,
     exam_id: Uuid,
-) -> ControllerResult<()> {
+) -> ControllerResult<AuthorizationToken> {
     // check exam role
     for role in roles {
         if role.is_role_for_exam(exam_id) && has_permission(role.role, action) {
-            return Ok(());
+            return Ok((AuthorizationToken(()), AuthorizationToken(())));
         }
     }
     let organization_id = models::exams::get_organization_id(conn, exam_id).await?;
@@ -315,7 +322,7 @@ async fn check_course_or_exam_permission(
     roles: &[Role],
     action: Action,
     course_or_exam_id: CourseOrExamId,
-) -> ControllerResult<()> {
+) -> ControllerResult<AuthorizationToken> {
     match course_or_exam_id {
         CourseOrExamId::Course(course_id) => {
             check_course_permission(conn, roles, action, course_id).await

@@ -19,7 +19,7 @@ async fn authorize_role_management(
     action: Act,
     user_id: Uuid,
 ) -> ControllerResult<()> {
-    match domain {
+    let token = match domain {
         RoleDomain::Global => {
             authorize(conn, action, Some(user_id), Res::GlobalPermissions).await?
         }
@@ -31,8 +31,9 @@ async fn authorize_role_management(
             authorize(conn, action, Some(user_id), Res::CourseInstance(id)).await?
         }
         RoleDomain::Exam(id) => authorize(conn, Act::Edit, Some(user_id), Res::Exam(id)).await?,
-    }
-    Ok(())
+    };
+
+    token.0.ok(())
 }
 
 /**
@@ -55,7 +56,15 @@ pub async fn set(
 
     let user = users::get_by_email(&mut conn, &role_info.email).await?;
     roles::insert(&mut conn, user.id, role_info.role, role_info.domain).await?;
-    Ok(HttpResponse::Ok().finish())
+
+    let token = authorize(
+        &mut conn,
+        Act::EditRole(role_info.role),
+        Some(user.id),
+        Res::AnyCourse,
+    )
+    .await?;
+    token.0.ok(HttpResponse::Ok().finish())
 }
 
 /**
@@ -78,7 +87,15 @@ pub async fn unset(
 
     let user = users::get_by_email(&mut conn, &role_info.email).await?;
     roles::remove(&mut conn, user.id, role_info.role, role_info.domain).await?;
-    Ok(HttpResponse::Ok().finish())
+
+    let token = authorize(
+        &mut conn,
+        Act::EditRole(role_info.role),
+        Some(user.id),
+        Res::AnyCourse,
+    )
+    .await?;
+    token.0.ok(HttpResponse::Ok().finish())
 }
 
 #[derive(Debug, Deserialize)]
@@ -139,7 +156,9 @@ pub async fn fetch(
     authorize_role_management(&mut conn, domain, Act::Edit, user.id).await?;
 
     let roles = roles::get(&mut conn, domain).await?;
-    Ok(web::Json(roles))
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::AnyCourse).await?;
+    token.0.ok(web::Json(roles))
 }
 
 /**

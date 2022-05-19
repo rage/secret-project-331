@@ -30,18 +30,19 @@ async fn add_media(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
-
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
     let media_path = upload_media(
         request.headers(),
         payload,
         StoreKind::Exam(*exam_id),
         file_store.as_ref(),
+        pool,
+        user,
     )
     .await?;
-    let download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());
+    let download_url = file_store.get_download_url(media_path.0.as_path(), app_conf.as_ref());
 
-    Ok(web::Json(UploadResult { url: download_url }))
+    return token.0.ok(web::Json(UploadResult { url: download_url }));
 }
 
 /**
@@ -56,12 +57,11 @@ async fn get_exam_instructions(
 ) -> ControllerResult<web::Json<ExamInstructions>> {
     let mut conn = pool.acquire().await?;
 
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
-
     let exam_instructions_data =
         models::exams::get_exam_instructions_data(&mut conn, *exam_id).await?;
 
-    Ok(web::Json(exam_instructions_data))
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+    return token.0.ok(web::Json(exam_instructions_data));
 }
 
 /**
@@ -89,7 +89,8 @@ async fn update_exam_instructions(
     let saved_instructions =
         models::exams::update_exam_instructions(&mut conn, *exam_id, instructions_update).await?;
 
-    Ok(web::Json(saved_instructions))
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    return token.0.ok(web::Json(saved_instructions));
 }
 
 /**

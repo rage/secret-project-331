@@ -63,7 +63,8 @@ async fn get_exercise(
     if !has_received_full_points && !out_of_tries {
         course_material_exercise.clear_model_solution_specs();
     }
-    Ok(web::Json(course_material_exercise))
+    let token = authorize(&mut conn, Act::View, user_id, Res::AnyCourse).await?;
+    token.0.ok(web::Json(course_material_exercise))
 }
 
 /**
@@ -116,7 +117,7 @@ async fn post_submission(
         }
     }
 
-    let (course_instance_or_exam_id, last_try) =
+    let ((course_instance_or_exam_id, last_try), course_instance_or_exam_id_auth) =
         resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             &mut conn,
             user.id,
@@ -161,7 +162,14 @@ async fn post_submission(
     if !has_received_full_points && !last_try {
         result.clear_model_solution_specs();
     }
-    Ok(web::Json(result))
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Exercise(*exercise_id),
+    )
+    .await?;
+    token.0.ok(web::Json(result))
 }
 
 /// Submissions for exams are posted from course instances or from exams. Make respective validations
@@ -182,7 +190,8 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             )
             .await?;
             if let Some(settings) = settings {
-                Ok(CourseInstanceOrExamId::Instance(
+                let token = authorize(conn, Act::View, Some(user_id), Res::AnyCourse).await?;
+                token.0.ok(CourseInstanceOrExamId::Instance(
                     settings.current_course_instance_id,
                 ))
             } else {
@@ -193,7 +202,8 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
         } else if let Some(exam_id) = exercise.exam_id {
             // If submitting for an exam, make sure that user's time is not up.
             if models::exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await? {
-                Ok(CourseInstanceOrExamId::Exam(exam_id))
+                let token = authorize(conn, Act::View, Some(user_id), Res::AnyCourse).await?;
+                token.0.ok(CourseInstanceOrExamId::Exam(exam_id))
             } else {
                 Err(ControllerError::Unauthorized(
                     "Submissions for this exam are no longer accepted.".to_string(),
@@ -204,7 +214,8 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             Err(ControllerError::InternalServerError(
                 "Exam doesn't belong to either a course nor exam.".to_string(),
             ))
-        }?;
+        }?
+        .0;
     if exercise.limit_number_of_tries {
         if let Some(max_tries_per_slide) = exercise.max_tries_per_slide {
             // check if the user has attempts remaining
@@ -228,7 +239,8 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             }
         }
     }
-    Ok((course_instance_id_or_exam_id, last_try))
+    let token = authorize(conn, Act::View, Some(user_id), Res::AnyCourse).await?;
+    token.0.ok((course_instance_id_or_exam_id, last_try))
 }
 
 /**

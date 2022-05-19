@@ -38,7 +38,8 @@ async fn get_course(
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    Ok(web::Json(course))
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    token.0.ok(web::Json(course))
 }
 
 /**
@@ -75,13 +76,18 @@ async fn get_course_page_by_path(
     )
     .await?;
 
-    authorize(
+    let user_id = user.map(|u| u.id);
+
+    let token = authorize(
         &mut conn,
         Act::View,
-        user.map(|u| u.id),
+        user_id,
         Res::Page(page_with_user_data.page.id),
     )
     .await?;
+
+    let tempRequestInformation =
+        derive_information_from_requester(req, ip_to_country_mapper, pool, user_id)?;
 
     let RequestInformation {
         ip,
@@ -96,7 +102,7 @@ async fn get_course_page_by_path(
         operating_system,
         operating_system_version,
         device_type,
-    } = derive_information_from_requester(req, ip_to_country_mapper)?;
+    } = tempRequestInformation.0;
 
     let course_or_exam_id = page_with_user_data
         .page
@@ -132,7 +138,7 @@ async fn get_course_page_by_path(
     )
     .await?;
 
-    Ok(web::Json(page_with_user_data))
+    return token.0.ok(web::Json(page_with_user_data));
 }
 
 struct RequestInformation {
@@ -154,7 +160,10 @@ struct RequestInformation {
 fn derive_information_from_requester(
     req: HttpRequest,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
+    pool: web::Data<PgPool>,
+    user: Option<Uuid>,
 ) -> ControllerResult<RequestInformation> {
+    let mut conn = pool.acquire()?;
     let headers = req.headers();
     let user_agent = headers.get(header::USER_AGENT);
     let bots = Bots::default();
@@ -205,7 +214,8 @@ fn derive_information_from_requester(
         .as_ref()
         .map(|ua| ua.os_version.to_string());
     let device_type = parsed_user_agent.as_ref().map(|ua| ua.category.to_string());
-    Ok(RequestInformation {
+    let token = authorize(&mut conn, Act::Teach, Some(user), Res::AnyCourse)?;
+    token.0.ok(RequestInformation {
         ip,
         user_agent: user_agent
             .and_then(|ua| ua.to_str().ok())
@@ -240,9 +250,16 @@ async fn get_current_course_instance(
             &mut conn, user.id, *course_id,
         )
         .await?;
-        Ok(web::Json(instance))
+        let token = authorize(
+            &mut conn,
+            Act::Teach,
+            Some(user.id),
+            Res::Course(*course_id),
+        )
+        .await?;
+        token.0.ok(web::Json(instance))
     } else {
-        Ok(web::Json(None))
+        Err(ControllerError::NotFound("User not found".to_string()))
     }
 }
 
@@ -253,11 +270,19 @@ GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all 
 async fn get_course_instances(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<CourseInstance>>> {
     let mut conn = pool.acquire().await?;
     let instances =
         models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
-    Ok(web::Json(instances))
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    token.0.ok(web::Json(instances))
 }
 
 /**
@@ -268,10 +293,18 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages
 async fn get_course_pages(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let pages: Vec<Page> = models::pages::course_pages(&mut conn, *course_id).await?;
-    Ok(web::Json(pages))
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    token.0.ok(web::Json(pages))
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -295,6 +328,7 @@ async fn get_chapters(
 ) -> ControllerResult<web::Json<ChaptersWithStatus>> {
     let mut conn = pool.acquire().await?;
 
+    let user_id = user.as_ref().map(|u| u.id);
     let is_previewable = OptionFuture::from(user.map(|u| {
         authorize(&mut conn, Act::Teach, Some(u.id), Res::Course(*course_id)).map(|r| r.ok())
     }))
@@ -327,7 +361,8 @@ async fn get_chapters(
             }
         })
         .collect();
-    Ok(web::Json(ChaptersWithStatus {
+    let token = authorize(&mut conn, Act::Teach, user_id, Res::Course(*course_id)).await?;
+    token.0.ok(web::Json(ChaptersWithStatus {
         is_previewable,
         chapters,
     }))
@@ -344,14 +379,16 @@ async fn get_user_course_settings(
     user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Option<UserCourseSettings>>> {
     let mut conn = pool.acquire().await?;
+    let user_id = user.as_ref().map(|u| u.id);
     if let Some(user) = user {
         let settings = models::user_course_settings::get_user_course_settings_by_course_id(
             &mut conn, user.id, *course_id,
         )
         .await?;
-        Ok(web::Json(settings))
+        let token = authorize(&mut conn, Act::Teach, user_id, Res::Course(*course_id)).await?;
+        token.0.ok(web::Json(settings))
     } else {
-        Ok(web::Json(None))
+        Err(ControllerError::NotFound("User not found".to_string()))
     }
 }
 
@@ -379,11 +416,19 @@ async fn search_pages_with_phrase(
     course_id: web::Path<Uuid>,
     payload: web::Json<PageSearchRequest>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
     let res =
         models::pages::get_page_search_results_for_phrase(&mut conn, *course_id, &*payload).await?;
-    Ok(web::Json(res))
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    token.0.ok(web::Json(res))
 }
 
 /**
@@ -410,11 +455,19 @@ async fn search_pages_with_words(
     course_id: web::Path<Uuid>,
     payload: web::Json<PageSearchRequest>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
     let res =
         models::pages::get_page_search_results_for_words(&mut conn, *course_id, &*payload).await?;
-    Ok(web::Json(res))
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    token.0.ok(web::Json(res))
 }
 
 /**
@@ -459,7 +512,8 @@ pub async fn feedback(
         ids.push(id);
     }
     tx.commit().await?;
-    Ok(web::Json(ids))
+    let token = authorize(&mut conn, Act::Teach, user_id, Res::Course(*course_id)).await?;
+    token.0.ok(web::Json(ids))
 }
 
 /**
@@ -474,6 +528,7 @@ async fn propose_edit(
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
+    let course_id = course.id;
     let (id, _) = proposed_page_edits::insert(
         &mut conn,
         course.id,
@@ -481,7 +536,8 @@ async fn propose_edit(
         &edits.into_inner(),
     )
     .await?;
-    Ok(web::Json(id))
+    let token = authorize(&mut conn, Act::Teach, Some(id), Res::Course(course_id)).await?;
+    token.0.ok(web::Json(id))
 }
 
 #[generated_doc]
@@ -489,10 +545,18 @@ async fn propose_edit(
 async fn glossary(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Term>>> {
     let mut conn = pool.acquire().await?;
     let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
-    Ok(web::Json(glossary))
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    token.0.ok(web::Json(glossary))
 }
 
 /**

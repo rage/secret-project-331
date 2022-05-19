@@ -67,10 +67,8 @@ pub async fn authorize_action_on_resource(
     let mut conn = pool.acquire().await?;
     let data = payload.0;
 
-    return match authorize(&mut conn, data.action, Some(user.id), data.resource).await {
-        Ok(()) => Ok(web::Json(true)),
-        Err(_) => Ok(web::Json(false)),
-    };
+    let token = authorize(&mut conn, data.action, Some(user.id), data.resource).await?;
+    return token.0.ok(web::Json(true));
 }
 
 /**
@@ -91,8 +89,9 @@ pub async fn login(
         warn!("Trying development mode UUID login");
         if let Ok(id) = Uuid::parse_str(&email) {
             let user = { models::users::get_by_id(&mut conn, id).await? };
+            let token = authorize(&mut conn, Act::View, Some(user.id), Res::User).await?;
             authorization::remember(&session, user)?;
-            return Ok(HttpResponse::Ok().finish());
+            return Ok((HttpResponse::Ok().finish(), token.0));
         };
     }
 
@@ -109,8 +108,9 @@ pub async fn login(
         };
 
         if let Ok(user) = user {
+            let token = authorize(&mut conn, Act::View, Some(user.id), Res::User).await?;
             authorization::remember(&session, user)?;
-            return Ok(HttpResponse::Ok().finish());
+            return Ok((HttpResponse::Ok().finish(), token.0));
         } else {
             return Err(ControllerError::Unauthorized(
                 "Incorrect email or password.".to_string(),
@@ -135,8 +135,9 @@ pub async fn login(
 
     let user = get_user_from_moocfi(&token, &mut conn).await;
     if let Ok(user) = user {
-        authorization::remember(&session, user)?;
-        Ok(HttpResponse::Ok().finish())
+        let token = authorize(&mut conn, Act::View, Some(user.0.id), Res::User).await?;
+        authorization::remember(&session, user.0)?;
+        return Ok((HttpResponse::Ok().finish(), token.0));
     } else {
         Err(ControllerError::Unauthorized(
             "Incorrect email or password.".to_string().finish(),
@@ -261,7 +262,8 @@ pub async fn get_user_from_moocfi(
                 .await?
             }
         };
-        Ok(user)
+        let token = authorize(conn, Act::Edit, Some(user.id), Res::User).await?;
+        return Ok((user, token.0));
     } else {
         Err(ControllerError::NotFound(
             "User not found.".to_string().finish(),

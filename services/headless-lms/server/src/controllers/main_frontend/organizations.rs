@@ -21,6 +21,7 @@ async fn get_all_organizations(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Organization>>> {
     let mut conn = pool.acquire().await?;
     let organizations = models::organizations::all_organizations(&mut conn)
@@ -28,7 +29,9 @@ async fn get_all_organizations(
         .into_iter()
         .map(|org| Organization::from_database_organization(org, file_store.as_ref(), &app_conf))
         .collect();
-    Ok(web::Json(organizations))
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.0.ok(web::Json(organizations))
 }
 
 /**
@@ -43,7 +46,7 @@ async fn get_organization_courses(
     pagination: web::Query<Pagination>,
 ) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-
+    let user_id = user.map(|u| u.id);
     let user = user.map(|u| u.id);
     let courses = models::courses::organization_courses_visible_to_user_paginated(
         &mut conn,
@@ -52,7 +55,9 @@ async fn get_organization_courses(
         *pagination,
     )
     .await?;
-    Ok(web::Json(courses))
+
+    let token = authorize(&mut conn, Act::View, Some(user_id), Res::AnyCourse).await?;
+    token.0.ok(web::Json(courses))
 }
 
 #[generated_doc]
@@ -60,11 +65,14 @@ async fn get_organization_courses(
 async fn get_organization_course_count(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<Json<CourseCount>> {
     let mut conn = pool.acquire().await?;
     let result =
         models::courses::organization_course_count(&mut conn, *request_organization_id).await?;
-    Ok(Json(result))
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.0.ok(Json(result))
 }
 
 #[generated_doc]
@@ -73,6 +81,7 @@ async fn get_organization_active_courses(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     pagination: web::Query<Pagination>,
+    user: AuthUser,
 ) -> ControllerResult<Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
     let courses = models::courses::get_active_courses_for_organization(
@@ -81,7 +90,9 @@ async fn get_organization_active_courses(
         &pagination,
     )
     .await?;
-    Ok(Json(courses))
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.0.ok(Json(courses))
 }
 
 #[generated_doc]
@@ -89,6 +100,7 @@ async fn get_organization_active_courses(
 async fn get_organization_active_courses_count(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<Json<CourseCount>> {
     let mut conn = pool.acquire().await?;
     let result = models::courses::get_active_courses_for_organization_count(
@@ -96,7 +108,9 @@ async fn get_organization_active_courses_count(
         *request_organization_id,
     )
     .await?;
-    Ok(Json(result))
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.0.ok(Json(result))
 }
 
 /**
@@ -125,18 +139,25 @@ async fn set_organization_image(
 ) -> ControllerResult<web::Json<Organization>> {
     let mut conn = pool.acquire().await?;
     let organization = models::organizations::get_organization(&mut conn, *organization_id).await?;
-    authorize(
+    let token = authorize(
         &mut conn,
         Act::Edit,
         Some(user.id),
         Res::Organization(organization.id),
     )
     .await?;
-    let organization_image =
-        upload_image_for_organization(request.headers(), payload, &organization, &file_store)
-            .await?
-            .to_string_lossy()
-            .to_string();
+    let organization_image = upload_image_for_organization(
+        request.headers(),
+        payload,
+        &organization,
+        &file_store,
+        user,
+        pool,
+    )
+    .await?
+    .0
+    .to_string_lossy()
+    .to_string();
     let updated_organization = models::organizations::update_organization_image_path(
         &mut conn,
         organization.id,
@@ -159,8 +180,7 @@ async fn set_organization_image(
         file_store.as_ref(),
         app_conf.as_ref(),
     );
-
-    Ok(web::Json(response))
+    token.0.ok(web::Json(response))
 }
 
 /**
@@ -183,7 +203,7 @@ async fn remove_organization_image(
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let organization = models::organizations::get_organization(&mut conn, *organization_id).await?;
-    authorize(
+    let token = authorize(
         &mut conn,
         Act::Edit,
         Some(user.id),
@@ -201,7 +221,7 @@ async fn remove_organization_image(
             ControllerError::InternalServerError(original_error.to_string())
         })?;
     }
-    Ok(web::Json(()))
+    token.0.ok(web::Json(()))
 }
 
 /**
@@ -214,13 +234,16 @@ async fn get_organization(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Organization>> {
     let mut conn = pool.acquire().await?;
     let db_organization =
         models::organizations::get_organization(&mut conn, *organization_id).await?;
     let organization =
         Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
-    Ok(web::Json(organization))
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.0.ok(web::Json(organization))
 }
 
 /**
@@ -231,10 +254,19 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Retur
 async fn get_course_exams(
     pool: web::Data<PgPool>,
     organization: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<CourseExam>>> {
     let mut conn = pool.acquire().await?;
     let exams = models::exams::get_course_exams_for_organization(&mut conn, *organization).await?;
-    Ok(web::Json(exams))
+
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Organization(*organization),
+    )
+    .await?;
+    token.0.ok(web::Json(exams))
 }
 
 /**
@@ -245,10 +277,19 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an o
 async fn get_org_exams(
     pool: web::Data<PgPool>,
     organization: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<OrgExam>>> {
     let mut conn = pool.acquire().await?;
     let exams = models::exams::get_exams_for_organization(&mut conn, *organization).await?;
-    Ok(web::Json(exams))
+
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Organization(*organization),
+    )
+    .await?;
+    token.0.ok(web::Json(exams))
 }
 
 /**
@@ -265,7 +306,7 @@ async fn create_exam(
     let mut tx = conn.begin().await?;
 
     let new_exam = payload.0;
-    authorize(
+    let token = authorize(
         &mut tx,
         Act::CreateCoursesOrExams,
         Some(user.id),
@@ -303,7 +344,8 @@ async fn create_exam(
     .await?;
 
     tx.commit().await?;
-    Ok(web::Json(()))
+
+    token.0.ok(web::Json(()))
 }
 
 /**

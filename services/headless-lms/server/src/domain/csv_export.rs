@@ -1,10 +1,7 @@
-use std::{
-    collections::HashMap,
-    io,
-    io::Write,
-    sync::{Arc, Mutex},
-};
-
+use crate::controllers::prelude::*;
+use crate::domain::authorization::authorize;
+use crate::domain::authorization::AuthUser;
+use actix_web::http::header;
 use anyhow::{Context, Result};
 use bytes::Bytes;
 use csv::Writer;
@@ -13,6 +10,12 @@ use headless_lms_models::{
     chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
 };
 use sqlx::PgConnection;
+use std::{
+    collections::HashMap,
+    io,
+    io::Write,
+    sync::{Arc, Mutex},
+};
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
 use tokio_stream::StreamExt;
 use uuid::Uuid;
@@ -235,16 +238,22 @@ where
 pub struct CSVExportAdapter {
     pub sender: UnboundedSender<ControllerResult<Bytes>>,
 }
-
 impl Write for CSVExportAdapter {
     fn flush(&mut self) -> std::io::Result<()> {
         Ok(())
     }
 
-    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+    fn write(
+        &mut self,
+        buf: &[u8],
+        pool: web::Data<PgPool>,
+        user: AuthUser,
+    ) -> std::io::Result<usize> {
+        let mut conn = pool.acquire()?;
+        let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse);
         let bytes = Bytes::copy_from_slice(buf);
         self.sender
-            .send(Ok(bytes))
+            .send(Ok((bytes, token.0)))
             .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
         Ok(buf.len())
     }
@@ -410,7 +419,12 @@ mod test {
             Ok(())
         }
 
-        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        fn write(
+            &mut self,
+            buf: &[u8],
+            pool: web::Data<PgPool>,
+            user: AuthUser,
+        ) -> std::io::Result<usize> {
             let bytes = Bytes::copy_from_slice(buf);
             self.sender
                 .send(bytes)

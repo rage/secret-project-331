@@ -13,7 +13,7 @@ async fn get_submission_info(
     user: AuthUser,
 ) -> ControllerResult<web::Json<SubmissionInfo>> {
     let mut conn = pool.acquire().await?;
-    authorize(
+    let token = authorize(
         &mut conn,
         Act::Teach,
         Some(user.id),
@@ -48,7 +48,7 @@ async fn get_submission_info(
     )
     .await?;
 
-    Ok(web::Json(SubmissionInfo {
+    token.0.ok(web::Json(SubmissionInfo {
         submission: task_submission,
         exercise,
         exercise_task,

@@ -14,13 +14,16 @@ async fn get_organization_by_slug(
     organization_slug: web::Path<String>,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Organization>> {
     let mut conn = pool.acquire().await?;
     let db_organization =
         models::organizations::get_organization_by_slug(&mut conn, &*organization_slug).await?;
     let organization =
         Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
-    Ok(web::Json(organization))
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.0.ok(web::Json(organization))
 }
 
 /**

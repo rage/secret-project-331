@@ -1640,16 +1640,6 @@
       ]
     }
   },
-  "17ff1271184d6781f32962520690a1e8e221bd387341a8f08f8902e60ba91c78": {
-    "query": "\nUPDATE peer_review_queue_entries\nSET received_enough_peer_reviews = $1\nWHERE id = $2\n  AND deleted_at IS NULL\n        ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Bool", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "180ec2d92ccee0fd983de0a8c8476c597497bea8fec0abc3d7aeaa2712da92f0": {
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  peer_review_id,\n  order_number,\n  question,\n  question_type AS \"question_type: _\",\n  answer_required\nFROM peer_review_questions\nWHERE id = $1\n  AND deleted_at IS NULL;\n        ",
     "describe": {
@@ -7237,6 +7227,67 @@
       "nullable": [false]
     }
   },
+  "89089e691171de510f8629313e0ed9cfd0b6908f4fa30e826480a2eb97168d16": {
+    "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE receiving_peer_reviews_exercise_slide_submission_id = $1\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "received_enough_peer_reviews",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 9,
+          "name": "peer_review_priority",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [false, false, false, true, false, false, false, false, false, false]
+    }
+  },
   "8996c28a928545504a3741a926ceb7831d752406f9f3c6871854343bb7b1aa4b": {
     "query": "\nINSERT INTO exercise_slides (exercise_id, order_number)\nVALUES ($1, $2)\nRETURNING *;\n    ",
     "describe": {
@@ -11129,6 +11180,67 @@
         "Left": ["Varchar", "Varchar", "Int4", "Jsonb"]
       },
       "nullable": [false, false, false, true, false, false, false, false]
+    }
+  },
+  "d684fcc4ad0942b8fa8bdc4afb1ed171ef2ba003a6ece945a16289222083345f": {
+    "query": "\nUPDATE peer_review_queue_entries\nSET received_enough_peer_reviews = $1\nWHERE id = $2\n  AND deleted_at IS NULL\nRETURNING *;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "received_enough_peer_reviews",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 9,
+          "name": "peer_review_priority",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Bool", "Uuid"]
+      },
+      "nullable": [false, false, false, true, false, false, false, false, false, false]
     }
   },
   "d724f9b31998cfc4677cf3f3a006ab15dd17bdad59b2b290e47d648e9e03d03d": {

@@ -12,7 +12,7 @@ use crate::{
     peer_review_submissions,
     peer_reviews::{self, PeerReview},
     prelude::*,
-    user_exercise_states::{self, ExerciseProgress, UserExerciseState},
+    user_exercise_states::{self, CourseInstanceOrExamId, ExerciseProgress, UserExerciseState},
 };
 
 use super::grading;
@@ -112,15 +112,14 @@ pub async fn create_peer_review_submission_for_user(
         user_exercise_state
     };
     let receiver_peer_review_queue_entry =
-        peer_review_queue_entries::try_to_get_by_user_and_exercise_and_course_instance_ids(
+        peer_review_queue_entries::try_to_get_by_receiving_submission_and_course_instance_ids(
             &mut tx,
-            user_exercise_state.user_id,
-            user_exercise_state.exercise_id,
+            peer_review_submission.exercise_slide_submission_id,
             user_exercise_state.get_course_instance_id()?,
         )
         .await?;
     if let Some(entry) = receiver_peer_review_queue_entry {
-        update_peer_review_receiver_exercise_status(&mut tx, &peer_review, entry).await?;
+        update_peer_review_receiver_exercise_status(&mut tx, exercise, &peer_review, entry).await?;
     }
     tx.commit().await?;
 
@@ -189,6 +188,7 @@ async fn update_peer_review_giver_exercise_progress(
 
 async fn update_peer_review_receiver_exercise_status(
     conn: &mut PgConnection,
+    exercise: &Exercise,
     peer_review: &PeerReview,
     peer_review_queue_entry: PeerReviewQueueEntry,
 ) -> ModelResult<()> {
@@ -200,12 +200,39 @@ async fn update_peer_review_receiver_exercise_status(
         .await?;
     if peer_reviews_received >= peer_review.peer_reviews_to_receive.try_into()? {
         // Only ever set this to true
-        peer_review_queue_entries::update_received_enough_peer_reviews(
+        let peer_review_queue_entry =
+            peer_review_queue_entries::update_received_enough_peer_reviews(
+                conn,
+                peer_review_queue_entry.id,
+                true,
+            )
+            .await?;
+        let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
             conn,
-            peer_review_queue_entry.id,
-            true,
+            peer_review_queue_entry.user_id,
+            peer_review_queue_entry.exercise_id,
+            CourseInstanceOrExamId::Instance(peer_review_queue_entry.course_instance_id),
         )
         .await?;
+        if let Some(user_exercise_state) = user_exercise_state {
+            let peer_reviews_given: i32 =
+            peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
+                conn,
+                peer_review_queue_entry.user_id,
+                peer_review_queue_entry.exercise_id,
+                peer_review_queue_entry.course_instance_id,
+            )
+            .await?
+            .try_into()?;
+            grading::update_user_exercise_state_peer_review_status(
+                conn,
+                exercise,
+                user_exercise_state,
+                peer_reviews_given >= peer_review.peer_reviews_to_give,
+                true,
+            )
+            .await?;
+        }
     }
     Ok(())
 }

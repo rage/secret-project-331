@@ -151,7 +151,7 @@ test("material reference tests", async ({ page, headless }) => {
     headless,
     snapshotName: "citation-paragraph",
     beforeScreenshot: async () =>
-      await page.locator(`text=This paragraph contains a citation`).scrollIntoViewIfNeeded(),
+      await page.locator(`text=This paragraph contains a citation[1]`).scrollIntoViewIfNeeded(),
   })
 
   await page.locator("text=Reference").scrollIntoViewIfNeeded()
@@ -171,7 +171,7 @@ test("material reference tests", async ({ page, headless }) => {
     page,
     headless,
     snapshotName: "open-course-material-reference-list",
-    waitForThisToBeVisibleAndStable: ["text=Reference"],
+    waitForThisToBeVisibleAndStable: ["text=Reference", "text=Wang"],
     beforeScreenshot: async () => await page.locator("text=Reference").scrollIntoViewIfNeeded(),
   })
 })

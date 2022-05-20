@@ -9,8 +9,13 @@ import { respondToOrLarger } from "../../styles/respond"
 
 import { CircularProgressExtraProps } from "."
 
+interface StyledSVGProps {
+  required: number
+  current: number
+}
+
 // eslint-disable-next-line i18next/no-literal-string
-const StyledSVG = styled.div`
+const StyledSVG = styled.div<StyledSVGProps>`
   position: relative;
   width: 100%;
   text-align: center;
@@ -21,6 +26,26 @@ const StyledSVG = styled.div`
     ${respondToOrLarger.sm} {
       width: 25rem;
     }
+  }
+
+  svg circle {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: #F1E4A9;
+    stroke-width: 20px;
+  }
+
+  svg circle:nth-child(2) {
+    stroke: #B4CDCB;
+    stroke-dasharray: calc(100 * 6);
+    stroke-dashoffset: ${({required}) => `calc((100 * 6) - ((100 * 6) * ${required}) / 100)`};
+  }
+
+  svg circle:nth-child(3) {
+    stroke: #1F6964;
+    stroke-dasharray: calc(100 * 6);
+    stroke-dashoffset: ${({current}) => `calc((100 * 6) - ((100 * 6) * ${current}) / 100)`};
   }
 
   p {
@@ -57,6 +82,8 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
   label,
   given,
   max,
+  required = 80,
+  current = 50
 }) => {
   const [willAnimate, setWillAnimate] = useState(false)
   const { t } = useTranslation()
@@ -91,7 +118,7 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
       >
         {label}
       </h2>
-      <StyledSVG>
+      <StyledSVG required={required} current={current}>
         <svg xmlns="http://www.w3.org/2000/svg" width="497" height="497" viewBox="0 0 497 497">
           <g id="Group_11" transform="translate(-712 -7629)">
             <g
@@ -114,10 +141,11 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
               transform="translate(801 7718)"
               fill="#fff"
               stroke={`${baseTheme.colors.yellow[700]}`}
-              strokeWidth="4"
+              strokeWidth="20"
             >
-              <circle cx="160" cy="160" r="160" stroke="none" />
-              <circle cx="160" cy="160" r="158" fill="none" />
+              <circle cx="160" cy="160" r="160" />
+              <circle cx="160" cy="160" r="160"  />
+              <circle cx="160" cy="160" r="160" />
             </g>
           </g>
         </svg>

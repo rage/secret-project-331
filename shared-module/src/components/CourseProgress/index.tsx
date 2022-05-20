@@ -9,6 +9,8 @@ export interface CircularProgressExtraProps {
   given: number | null
   point: number
   label: string
+  required: number
+  current: number
 }
 export interface ProgressBarExtraProps {
   variant: "bar"

@@ -106,6 +106,7 @@ pub async fn create_peer_review_submission_for_user(
             exercise,
             user_exercise_state,
             peer_reviews_given,
+            peer_review.peer_reviews_to_receive,
         )
         .await?
     } else {
@@ -158,6 +159,7 @@ async fn update_peer_review_giver_exercise_progress(
     exercise: &Exercise,
     user_exercise_state: UserExerciseState,
     peer_reviews_given: i32,
+    peer_reviews_to_receive: i32,
 ) -> ModelResult<UserExerciseState> {
     let users_latest_submission =
         exercise_slide_submissions::get_users_latest_exercise_slide_submission(
@@ -166,6 +168,13 @@ async fn update_peer_review_giver_exercise_progress(
             user_exercise_state.user_id,
         )
         .await?;
+    let peer_reviews_received: i32 =
+        peer_review_submissions::count_peer_review_submissions_for_exercise_slide_submission(
+            conn,
+            users_latest_submission.id,
+        )
+        .await?
+        .try_into()?;
     let peer_review_queue_entry = peer_review_queue_entries::upsert_peer_review_priority(
         conn,
         user_exercise_state.user_id,
@@ -173,6 +182,7 @@ async fn update_peer_review_giver_exercise_progress(
         user_exercise_state.get_course_instance_id()?,
         peer_reviews_given,
         users_latest_submission.id,
+        peer_reviews_received >= peer_reviews_to_receive,
     )
     .await?;
     let user_exercise_state = grading::update_user_exercise_state_peer_review_status(

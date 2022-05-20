@@ -50,7 +50,8 @@ RETURNING id
 ///
 /// The value for `receiving_peer_reviews_exercise_slide_submission_id` never changes after the initial
 /// insertion. This is to make sure that all received peer reviews are made for the same exercise slide
-/// submission.
+/// submission. The same applies to `received_enough_peer_reviews` to avoid the scenario where it might
+/// be set from `true` back to `false`.
 pub async fn upsert_peer_review_priority(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -58,6 +59,7 @@ pub async fn upsert_peer_review_priority(
     course_instance_id: Uuid,
     peer_review_priority: i32,
     receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+    received_enough_peer_reviews: bool,
 ) -> ModelResult<PeerReviewQueueEntry> {
     let res = sqlx::query_as!(
         PeerReviewQueueEntry,
@@ -67,9 +69,10 @@ INSERT INTO peer_review_queue_entries (
     exercise_id,
     course_instance_id,
     peer_review_priority,
-    receiving_peer_reviews_exercise_slide_submission_id
+    receiving_peer_reviews_exercise_slide_submission_id,
+    received_enough_peer_reviews
   )
-VALUES ($1, $2, $3, $4, $5) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
+VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
 UPDATE
 SET peer_review_priority = $4,
   deleted_at = NULL
@@ -80,6 +83,7 @@ RETURNING *
         course_instance_id,
         peer_review_priority,
         receiving_peer_reviews_exercise_slide_submission_id,
+        received_enough_peer_reviews,
     )
     .fetch_one(conn)
     .await?;

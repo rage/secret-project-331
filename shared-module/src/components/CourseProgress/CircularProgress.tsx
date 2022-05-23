@@ -28,15 +28,31 @@ const StyledSVG = styled.div<StyledSVGProps>`
     }
   }
 
+  svg {
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%,
+  }
+
   svg circle {
     width: 100%;
     height: 100%;
     fill: none;
     stroke: #F1E4A9;
     stroke-width: 20px;
+    transition: stroke-dashoffset 0.35s;
+    transform: rotate(0deg);
+    background: green;
   }
 
   svg circle:nth-child(2) {
+    stroke: #B4CDCB;
+  }
+
+  svg circle:nth-child(3) {
+    stroke: #1F6964;
+  }
+
+  /* svg circle:nth-child(2) {
     stroke: #B4CDCB;
     stroke-dasharray: calc(100 * 6);
     stroke-dashoffset: ${({required}) => `calc((100 * 6) - ((100 * 6) * ${required}) / 100)`};
@@ -46,7 +62,7 @@ const StyledSVG = styled.div<StyledSVGProps>`
     stroke: #1F6964;
     stroke-dasharray: calc(100 * 6);
     stroke-dashoffset: ${({current}) => `calc((100 * 6) - ((100 * 6) * ${current}) / 100)`};
-  }
+  } */
 
   p {
     position: absolute;
@@ -83,10 +99,17 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
   given,
   max,
   required = 80,
-  current = 50
+  current = 40
 }) => {
   const [willAnimate, setWillAnimate] = useState(false)
   const { t } = useTranslation()
+
+  const radius = 160;
+  const circumference = radius * 2 * Math.PI;
+
+  const strokeDashoffset = circumference - current / 100 * circumference;
+  const requiredStrokeDashoffset = circumference - required / 100 * circumference;
+
 
   const givenScore = given ?? 0
   const maximum = max ?? 0
@@ -141,11 +164,10 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
               transform="translate(801 7718)"
               fill="#fff"
               stroke={`${baseTheme.colors.yellow[700]}`}
-              strokeWidth="20"
             >
               <circle cx="160" cy="160" r="160" />
-              <circle cx="160" cy="160" r="160"  />
-              <circle cx="160" cy="160" r="160" />
+              <circle cx={radius} cy={radius} r={radius} strokeDasharray={ circumference + ' ' + circumference } style={{strokeDashoffset: requiredStrokeDashoffset}}/>
+              <circle cx={radius} cy={radius} r={radius} strokeDasharray={ circumference + ' ' + circumference } style={{strokeDashoffset}}/>
             </g>
           </g>
         </svg>

@@ -95,7 +95,7 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
   const radius = 160;
   const circumference = radius * 2 * Math.PI;
 
-  const strokeDashoffset = circumference - current / 100 * circumference;
+  const currentStrokeDashoffset = circumference - current / 100 * circumference;
   const requiredStrokeDashoffset = circumference - required / 100 * circumference;
 
 
@@ -155,7 +155,7 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
             >
               <circle cx="160" cy="160" r="160" />
               <circle cx={radius} cy={radius} r={radius} strokeDasharray={ circumference + ' ' + circumference } style={{strokeDashoffset: requiredStrokeDashoffset}}/>
-              <circle cx={radius} cy={radius} r={radius} strokeDasharray={ circumference + ' ' + circumference } style={{strokeDashoffset}}/>
+              <circle cx={radius} cy={radius} r={radius} strokeDasharray={ circumference + ' ' + circumference } style={{strokeDashoffset: currentStrokeDashoffset}}/>
             </g>
           </g>
         </svg>

@@ -52,18 +52,6 @@ const StyledSVG = styled.div<StyledSVGProps>`
     stroke: #1F6964;
   }
 
-  /* svg circle:nth-child(2) {
-    stroke: #B4CDCB;
-    stroke-dasharray: calc(100 * 6);
-    stroke-dashoffset: ${({required}) => `calc((100 * 6) - ((100 * 6) * ${required}) / 100)`};
-  }
-
-  svg circle:nth-child(3) {
-    stroke: #1F6964;
-    stroke-dasharray: calc(100 * 6);
-    stroke-dashoffset: ${({current}) => `calc((100 * 6) - ((100 * 6) * ${current}) / 100)`};
-  } */
-
   p {
     position: absolute;
     top: 50%;

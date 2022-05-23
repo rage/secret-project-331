@@ -4,7 +4,8 @@ use rand::{seq::SliceRandom, thread_rng};
 
 use crate::{
     exercise_slide_submissions::{self, ExerciseSlideSubmission},
-    exercise_task_submissions::{self, ExerciseTaskSubmissionWithSpec},
+    exercise_task_submissions,
+    exercise_tasks::CourseMaterialExerciseTask,
     exercises::Exercise,
     peer_review_question_submissions,
     peer_review_questions::{self, PeerReviewQuestion},
@@ -134,13 +135,16 @@ fn validate_and_sanitize_peer_review_submission_answers(
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialPeerReviewData {
     pub exercise_slide_submission_id: Uuid,
-    pub exercise_task_submissions: Vec<ExerciseTaskSubmissionWithSpec>,
-    pub peer_review_id: Uuid,
+    /// Uses the same type as we use when we render and exercise in course material. Allows us to reuse existing logic for getting all the necessary information for rendering the submission.
+    pub course_material_exercise_tasks: Vec<CourseMaterialExerciseTask>,
+    pub peer_review: PeerReview,
     pub peer_review_questions: Vec<PeerReviewQuestion>,
+    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
+    pub num_peer_reviews_given: i64,
 }
 
 /// Tries to select a submission for user to peer review.
@@ -152,26 +156,27 @@ pub struct CourseMaterialPeerReviewData {
 pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     conn: &mut PgConnection,
     exercise: &Exercise,
-    user_exercise_state: &UserExerciseState,
+    reviewer_user_exercise_state: &UserExerciseState,
 ) -> ModelResult<Option<CourseMaterialPeerReviewData>> {
     let peer_review = peer_reviews::get_by_exercise_or_course_id(
         conn,
-        user_exercise_state.exercise_id,
+        reviewer_user_exercise_state.exercise_id,
         exercise.get_course_id()?,
     )
     .await?;
+    let course_instance_id = reviewer_user_exercise_state.get_course_instance_id()?;
     let excluded_submission_ids =
         peer_review_submissions::get_users_submission_ids_for_exercise_and_course_instance(
             conn,
-            user_exercise_state.user_id,
-            user_exercise_state.exercise_id,
-            user_exercise_state.get_course_instance_id()?,
+            reviewer_user_exercise_state.user_id,
+            reviewer_user_exercise_state.exercise_id,
+            course_instance_id,
         )
         .await?;
     let candidate_submission_id = try_to_select_peer_review_candidate_from_queue(
         conn,
-        user_exercise_state.exercise_id,
-        user_exercise_state.user_id,
+        reviewer_user_exercise_state.exercise_id,
+        reviewer_user_exercise_state.user_id,
         &excluded_submission_ids,
     )
     .await?;
@@ -185,8 +190,8 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
             // TODO: Filter already submitted also here!!!
             exercise_slide_submissions::try_to_get_random_from_other_users_by_exercise_id(
                 conn,
-                user_exercise_state.exercise_id,
-                user_exercise_state.user_id,
+                reviewer_user_exercise_state.exercise_id,
+                reviewer_user_exercise_state.user_id,
             )
             .await?
         }
@@ -197,6 +202,8 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
                 conn,
                 &peer_review,
                 &exercise_slide_submission,
+                reviewer_user_exercise_state.user_id,
+                course_instance_id,
             )
             .await?;
             Some(data)
@@ -249,20 +256,29 @@ async fn get_course_material_peer_review_data(
     conn: &mut PgConnection,
     peer_review: &PeerReview,
     exercise_slide_submission: &ExerciseSlideSubmission,
+    reviewer_user_id: Uuid,
+    reviewer_course_instance_id: Uuid,
 ) -> ModelResult<CourseMaterialPeerReviewData> {
     let peer_review_questions =
         peer_review_questions::get_all_by_peer_review_id(conn, peer_review.id).await?;
-    let exercise_task_submissions =
-        exercise_task_submissions::get_task_submissions_with_specs_by_exercise_slide_id(
+    let course_material_exercise_tasks = exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(
+        conn,
+        exercise_slide_submission.id,
+    ).await?;
+    let num_peer_reviews_given =
+        peer_review_submissions::get_num_peer_reviews_given_by_user_and_course_instance_and_exercise(
             conn,
-            exercise_slide_submission.id,
+            reviewer_user_id,
+            reviewer_course_instance_id,
+            exercise_slide_submission.exercise_id,
         )
         .await?;
     Ok(CourseMaterialPeerReviewData {
         exercise_slide_submission_id: exercise_slide_submission.id,
-        exercise_task_submissions,
-        peer_review_id: peer_review.id,
+        course_material_exercise_tasks,
+        peer_review: peer_review.clone(),
         peer_review_questions,
+        num_peer_reviews_given,
     })
 }
 

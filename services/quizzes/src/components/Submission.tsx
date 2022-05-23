@@ -86,7 +86,7 @@ const Submission: React.FC<SubmissionProps> = ({
       {publicAlternatives.items.map((item) => {
         const componentDescriptor = componentDescriptorByTypeName(item.type as QuizItemType)
         if (!componentDescriptor) {
-          return <>{t("quiz-type-not-supported")}</>
+          return <div key={item.id}>{t("quiz-type-not-supported")}</div>
         }
         const Component = componentDescriptor.component
         const itemFeedback = feedback_json
@@ -97,7 +97,7 @@ const Submission: React.FC<SubmissionProps> = ({
           : null
         const quizItemAnswer = user_answer.itemAnswers.filter((ia) => ia.quizItemId === item.id)[0]
         return (
-          <>
+          <div key={item.id}>
             <Component
               key={item.id}
               public_quiz_item={item}
@@ -124,7 +124,7 @@ const Submission: React.FC<SubmissionProps> = ({
                   : t("your-answer-was-not-correct")}
               </div>
             )}
-          </>
+          </div>
         )
       })}
     </>

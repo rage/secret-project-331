@@ -7170,47 +7170,6 @@
       "nullable": [false]
     }
   },
-  "88cbe822bee7d884530f351c6a67d2a672db5c1355834f26f08b24c34e67698f": {
-    "query": "\nSELECT ets.id,\n  ets.exercise_task_id,\n  ets.data_json,\n  et.order_number AS exercise_task_order_number,\n  et.public_spec,\n  et.model_solution_spec\nFROM exercise_task_submissions ets\n  JOIN exercise_tasks et ON ets.exercise_task_id = et.id\nWHERE ets.exercise_slide_submission_id = $1\n  AND ets.deleted_at IS NULL\n  AND et.deleted_at IS NULL\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "exercise_task_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "data_json",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 3,
-          "name": "exercise_task_order_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 4,
-          "name": "public_spec",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 5,
-          "name": "model_solution_spec",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, true, false, true, true]
-    }
-  },
   "89042c2cdd2a99289a3cc9e493f47ee914734c7af0e53ae63206bbf62fc02df0": {
     "query": "\nINSERT INTO users (id, email, first_name, last_name)\nVALUES ($1, $2, $3, $4)\nRETURNING id\n",
     "describe": {
@@ -12873,6 +12832,22 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, false, true, true, true, false, false]
+    }
+  },
+  "f5f6f6ee7f41b785b8b8b4bdd59d6d82338f119d2099cdb332bc2c89a7778721": {
+    "query": "\nSELECT COUNT(*)\nFROM peer_review_submissions\nWHERE user_id = $1\n  AND exercise_id = $3\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "count",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [null]
     }
   },
   "f75a47ca2444e4cbaade9a44f7104ede569c4660c573e5fa4034805f1597c361": {

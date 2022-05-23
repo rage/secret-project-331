@@ -176,7 +176,6 @@ fn ts_binding_generator() {
         exercise_task_gradings::UserPointsUpdateStrategy,
 
         exercise_task_submissions::ExerciseTaskSubmission,
-        exercise_task_submissions::ExerciseTaskSubmissionWithSpec,
 
         roles::RoleUser,
         roles::RoleDomain,

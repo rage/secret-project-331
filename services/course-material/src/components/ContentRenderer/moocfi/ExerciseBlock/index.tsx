@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import HelpIcon from "@mui/icons-material/Help"
-import { useCallback, useContext, useReducer, useState } from "react"
+import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery, useQueryClient } from "react-query"
 
@@ -10,13 +10,11 @@ import PageContext from "../../../../contexts/PageContext"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
 import {
   fetchExerciseById,
-  postPeerReviewSubmission,
   postStartPeerReview,
   postSubmission,
 } from "../../../../services/backend"
 import {
   CourseMaterialExercise,
-  CourseMaterialPeerReviewQuestionAnswer,
   StudentExerciseSlideSubmission,
 } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
@@ -58,11 +56,7 @@ const DeadlineText = styled.div<DeadlineProps>`
 // the page.
 const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
   const [allowStartPeerReview, setAllowStartPeerReview] = useState(true)
-  const [allowPostPeerReviewSubmission, setAllowPostPeerReviewSubmission] = useState(true)
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
-  const [peerReviewAnswers, setPeerReviewAnswers] = useState<
-    ReadonlyMap<string, CourseMaterialPeerReviewQuestionAnswer>
-  >(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
   const { t, i18n } = useTranslation()
@@ -89,16 +83,6 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       })
     },
   })
-
-  const handleSetPeerReviewQuestionAnswer = useCallback(
-    (id, value) =>
-      setPeerReviewAnswers((prev) => {
-        const map = new Map(prev)
-        map.set(id, value)
-        return map
-      }),
-    [],
-  )
 
   const postSubmissionMutation = useToastMutation(
     (submission: StudentExerciseSlideSubmission) => postSubmission(id, submission),
@@ -250,29 +234,33 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 {t("Deadline-passed-n-days-ago", { days: dateDiffInDays(exerciseDeadline) })}
               </DeadlineText>
             ))}
-          {getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
-            <ExerciseTask
-              key={task.id}
-              exerciseTask={task}
-              isExam={isExam}
-              setAnswer={(answer) =>
-                setAnswers((prev) => {
-                  const answers = new Map(prev)
-                  answers.set(task.id, answer)
-                  return answers
-                })
-              }
-              postThisStateToIFrame={postThisStateToIFrame?.find(
-                (x) => x.exercise_task_id === task.id,
-              )}
-              canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
-              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
-            />
-          ))}
-          {getCourseMaterialExercise.data.peer_review_info && (
+          {getCourseMaterialExercise.data.exercise_status?.exercise_progress_stage !==
+            "PeerReview" &&
+            getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
+              <ExerciseTask
+                key={task.id}
+                exerciseTask={task}
+                isExam={isExam}
+                setAnswer={(answer) =>
+                  setAnswers((prev) => {
+                    const answers = new Map(prev)
+                    answers.set(task.id, answer)
+                    return answers
+                  })
+                }
+                postThisStateToIFrame={postThisStateToIFrame?.find(
+                  (x) => x.exercise_task_id === task.id,
+                )}
+                canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
+                exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
+              />
+            ))}
+          {getCourseMaterialExercise.data.exercise_status?.exercise_progress_stage ===
+            "PeerReview" && (
             <PeerReviewView
+              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
               peerReviewData={getCourseMaterialExercise.data.peer_review_info}
-              setPeerReviewQuestionAnswer={handleSetPeerReviewQuestionAnswer}
+              exerciseId={id}
             />
           )}
           <div
@@ -354,31 +342,6 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                     }
                   >
                     {t("try-again")}
-                  </Button>
-                )}
-                {needsPeerReview && getCourseMaterialExercise.data.peer_review_info && (
-                  <Button
-                    size="medium"
-                    variant="primary"
-                    disabled={!allowPostPeerReviewSubmission}
-                    onClick={async () => {
-                      if (!getCourseMaterialExercise.data.peer_review_info) {
-                        // Handle error
-                        return
-                      }
-                      setAllowPostPeerReviewSubmission(false)
-                      await postPeerReviewSubmission(id, {
-                        exercise_slide_submission_id:
-                          getCourseMaterialExercise.data.peer_review_info
-                            ?.exercise_slide_submission_id,
-                        peer_review_id:
-                          getCourseMaterialExercise.data.peer_review_info?.peer_review_id,
-                        peer_review_question_answers: Array.from(peerReviewAnswers.values()),
-                      }).finally(() => setAllowPostPeerReviewSubmission(true))
-                      await getCourseMaterialExercise.refetch()
-                    }}
-                  >
-                    {t("submit-button")}
                   </Button>
                 )}
                 {needsPeerReview && !getCourseMaterialExercise.data.peer_review_info && (

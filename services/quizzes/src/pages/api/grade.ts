@@ -142,6 +142,7 @@ function assessAnswers(quizAnswer: QuizAnswer, quiz: Quiz): QuizItemAnswerGradin
     } else if (item.type === "timeline") {
       return assessTimelineQuiz(ia, item)
     } else {
+      // TODO: handle essay word limits
       return { quizItemId: item.id, correct: true, correctnessCoefficient: 1 }
     }
   })

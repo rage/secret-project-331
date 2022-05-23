@@ -60,7 +60,7 @@ test("test quizzes essay feedback", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "essay-feedback",
-    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=Your submit has been answered`,
     beforeScreenshot: async () => {
       await (await frame.frameElement()).scrollIntoViewIfNeeded()
     },

@@ -6,7 +6,7 @@ use crate::{
     library::{self, peer_reviewing::CourseMaterialPeerReviewData},
     prelude::*,
     user_course_settings,
-    user_exercise_states::{self, CourseInstanceOrExamId, ExerciseProgress},
+    user_exercise_states::{self, CourseInstanceOrExamId, ExerciseProgress, UserExerciseState},
     CourseOrExamId,
 };
 use std::collections::HashMap;
@@ -329,15 +329,8 @@ pub async fn get_course_material_exercise(
         _ => None,
     };
 
-    let can_post_submission = if let Some(user_id) = user_id {
-        if let Some(exam_id) = exercise.exam_id {
-            exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await?
-        } else {
-            true
-        }
-    } else {
-        false
-    };
+    let can_post_submission =
+        determine_can_post_submission(&mut *conn, user_id, &exercise, &user_exercise_state).await?;
 
     let peer_review_info = match user_exercise_state {
         Some(ref user_exercise_state) => {
@@ -388,6 +381,31 @@ pub async fn get_course_material_exercise(
         exercise_status,
         exercise_slide_submission_counts,
     })
+}
+
+async fn determine_can_post_submission(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    exercise: &Exercise,
+    user_exercise_state: &Option<UserExerciseState>,
+) -> Result<bool, ModelError> {
+    if let Some(user_exercise_state) = user_exercise_state {
+        // Once the user has started peer review or self review, they cannot no longer answer the exercise because they have already seen a model solution in the review instructions and they have seen submissions from other users.
+        if user_exercise_state.exercise_progress != ExerciseProgress::NotAnswered {
+            return Ok(false);
+        }
+    }
+
+    let can_post_submission = if let Some(user_id) = user_id {
+        if let Some(exam_id) = exercise.exam_id {
+            exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await?
+        } else {
+            true
+        }
+    } else {
+        false
+    };
+    Ok(can_post_submission)
 }
 
 async fn get_or_select_exercise_slide(

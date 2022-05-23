@@ -54,7 +54,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
     page,
     headless,
     snapshotName: "clickable-multiple-choice-incorrect-answer",
-    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=Your submit has been answered`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
@@ -72,7 +72,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
     page,
     headless,
     snapshotName: "clickable-multiple-choice-correct-answer",
-    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=Your submit has been answered`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
@@ -89,7 +89,7 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
     page,
     headless,
     snapshotName: "clickable-multiple-choice-incorrect-answer-after-correct",
-    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=Your submit has been answered`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 })

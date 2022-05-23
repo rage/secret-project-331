@@ -470,9 +470,10 @@ export interface StudentExerciseTaskSubmissionResult {
 
 export interface CourseMaterialPeerReviewData {
   exercise_slide_submission_id: string
-  exercise_task_submissions: Array<ExerciseTaskSubmissionWithSpec>
-  peer_review_id: string
+  course_material_exercise_tasks: Array<CourseMaterialExerciseTask>
+  peer_review: PeerReview
   peer_review_questions: Array<PeerReviewQuestion>
+  num_peer_reviews_given: number
 }
 
 export interface CourseMaterialPeerReviewQuestionAnswer {
@@ -850,15 +851,6 @@ export interface ExerciseTaskSubmission {
   data_json: unknown | null
   exercise_task_grading_id: string | null
   metadata: unknown | null
-}
-
-export interface ExerciseTaskSubmissionWithSpec {
-  id: string
-  exercise_task_id: string
-  exercise_task_order_number: number
-  public_spec: unknown | null
-  model_solution_spec: unknown | null
-  data_json: unknown | null
 }
 
 export interface RoleUser {

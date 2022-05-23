@@ -9,7 +9,6 @@ import useHeadingData from "../hooks/useHeadingData"
 
 const StyledWrapper = styled.div`
   /* Styling */
-  display: block;
   max-width: 500px;
   max-height: calc(100vh - 40px);
 
@@ -22,7 +21,6 @@ const StyledWrapper = styled.div`
   }
 `
 const StyledTopics = styled.div`
-  box-sizing: border-box;
   border-left: 3px solid #ebedee;
 `
 const StTopic = styled.div`
@@ -40,7 +38,7 @@ const StTopic = styled.div`
   font-size: 20px;
   cursor: pointer;
 
-  li {
+  div {
     max-width: 100%;
     color: #333;
 
@@ -95,6 +93,7 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
   const [offsetpx, setOffsetpx] = useState<number>(Y_OFFSET + TOP_OFFSET)
   const [fixed, setFixed] = useState<boolean>(isRunningOnMobile())
   const [hidden, setHidden] = useState<boolean>(isRunningOnMobile())
+  const [visible, setVisible] = useState<boolean>(false)
   const { headings } = useHeadingData()
   const { t } = useTranslation()
 
@@ -113,6 +112,9 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
   })
 
   useEffect(() => {
+    if (headings.length > 0) {
+      setVisible(true)
+    }
     const eventHandler = () => {
       const pageYOffset = window.pageYOffset
       if (headings) {
@@ -140,6 +142,7 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
           top: ${offsetpx}px;
           transition: transform 0.3s;
           transform: ${hidden ? "translateX(-282px);" : "translateX(0px)"};
+          display: ${!visible ? "none" : "block"};
         `}
       >
         <h3
@@ -153,7 +156,7 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
         </h3>
 
         <StyledTopics role="navigation">
-          <ul>
+          <div>
             {headings &&
               headings.map(({ id, title }) => {
                 return (
@@ -164,7 +167,7 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
                       "background: #DAE6E5; /* border-color: #065853 !important; */ &:before{background: #1F6964 !important}"}
                     `}
                   >
-                    <li>
+                    <div>
                       <a
                         href={`#${id}`}
                         onClick={(e) => {
@@ -176,11 +179,11 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
                       >
                         {title}
                       </a>
-                    </li>
+                    </div>
                   </StTopic>
                 )
               })}
-          </ul>
+          </div>
         </StyledTopics>
       </StyledWrapper>
       <button
@@ -188,8 +191,7 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
         aria-label={hidden ? t("open-heading-menu") : t("close-heading-menu")}
         className={css`
           all: unset;
-          display: inline;
-
+          display: ${!visible ? "none" : "inline"};
           position: ${fixed ? "fixed" : "absolute"};
           left: 0px;
           top: ${offsetpx}px;

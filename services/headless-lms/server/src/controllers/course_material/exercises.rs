@@ -213,7 +213,7 @@ async fn submit_peer_review(
     models::library::peer_reviewing::create_peer_review_submission_for_user(
         &mut conn,
         &exercise,
-        &user_exercise_state,
+        user_exercise_state,
         payload.0,
     )
     .await?;

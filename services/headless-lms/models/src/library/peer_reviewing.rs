@@ -8,11 +8,14 @@ use crate::{
     exercises::Exercise,
     peer_review_question_submissions,
     peer_review_questions::{self, PeerReviewQuestion},
-    peer_review_queue_entries, peer_review_submissions,
+    peer_review_queue_entries::{self, PeerReviewQueueEntry},
+    peer_review_submissions,
     peer_reviews::{self, PeerReview},
     prelude::*,
-    user_exercise_states::{self, ExerciseProgress, UserExerciseState},
+    user_exercise_states::{self, CourseInstanceOrExamId, ExerciseProgress, UserExerciseState},
 };
+
+use super::grading;
 
 const MAX_PEER_REVIEW_CANDIDATES: i64 = 10;
 
@@ -54,9 +57,9 @@ pub struct CourseMaterialPeerReviewQuestionAnswer {
 pub async fn create_peer_review_submission_for_user(
     conn: &mut PgConnection,
     exercise: &Exercise,
-    user_exercise_state: &UserExerciseState,
+    user_exercise_state: UserExerciseState,
     peer_review_submission: CourseMaterialPeerReviewSubmission,
-) -> ModelResult<()> {
+) -> ModelResult<UserExerciseState> {
     let peer_review = peer_reviews::get_by_exercise_or_course_id(
         conn,
         user_exercise_state.exercise_id,
@@ -67,13 +70,6 @@ pub async fn create_peer_review_submission_for_user(
         peer_review_questions::get_all_by_peer_review_id_as_map(conn, peer_review.id).await?,
         peer_review_submission.peer_review_question_answers,
     )?;
-    let users_latest_submission =
-        exercise_slide_submissions::get_users_latest_exercise_slide_submission(
-            conn,
-            user_exercise_state.get_selected_exercise_slide_id()?,
-            user_exercise_state.user_id,
-        )
-        .await?;
 
     let mut tx = conn.begin().await?;
     let peer_review_submission_id = peer_review_submissions::insert(
@@ -95,17 +91,40 @@ pub async fn create_peer_review_submission_for_user(
         )
         .await?;
     }
-    peer_review_queue_entries::upsert(
-        &mut tx,
-        user_exercise_state.user_id,
-        user_exercise_state.exercise_id,
-        user_exercise_state.get_course_instance_id()?,
-        users_latest_submission.id,
-    )
-    .await?;
+    let peer_reviews_given: i32 =
+        peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
+            &mut tx,
+            user_exercise_state.user_id,
+            user_exercise_state.exercise_id,
+            user_exercise_state.get_course_instance_id()?,
+        )
+        .await?
+        .try_into()?;
+    let user_exercise_state = if peer_reviews_given >= peer_review.peer_reviews_to_give {
+        update_peer_review_giver_exercise_progress(
+            &mut tx,
+            exercise,
+            user_exercise_state,
+            peer_reviews_given,
+            peer_review.peer_reviews_to_receive,
+        )
+        .await?
+    } else {
+        user_exercise_state
+    };
+    let receiver_peer_review_queue_entry =
+        peer_review_queue_entries::try_to_get_by_receiving_submission_and_course_instance_ids(
+            &mut tx,
+            peer_review_submission.exercise_slide_submission_id,
+            user_exercise_state.get_course_instance_id()?,
+        )
+        .await?;
+    if let Some(entry) = receiver_peer_review_queue_entry {
+        update_peer_review_receiver_exercise_status(&mut tx, exercise, &peer_review, entry).await?;
+    }
     tx.commit().await?;
 
-    Ok(())
+    Ok(user_exercise_state)
 }
 
 /// Filters submitted peer review answers to those that are part of the peer review.
@@ -134,6 +153,100 @@ fn validate_and_sanitize_peer_review_submission_answers(
     }
 }
 
+/// Creates or updates submitter's exercise state and peer review queue entry.
+async fn update_peer_review_giver_exercise_progress(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    user_exercise_state: UserExerciseState,
+    peer_reviews_given: i32,
+    peer_reviews_to_receive: i32,
+) -> ModelResult<UserExerciseState> {
+    let users_latest_submission =
+        exercise_slide_submissions::get_users_latest_exercise_slide_submission(
+            conn,
+            user_exercise_state.get_selected_exercise_slide_id()?,
+            user_exercise_state.user_id,
+        )
+        .await?;
+    let peer_reviews_received: i32 =
+        peer_review_submissions::count_peer_review_submissions_for_exercise_slide_submission(
+            conn,
+            users_latest_submission.id,
+        )
+        .await?
+        .try_into()?;
+    let peer_review_queue_entry = peer_review_queue_entries::upsert_peer_review_priority(
+        conn,
+        user_exercise_state.user_id,
+        user_exercise_state.exercise_id,
+        user_exercise_state.get_course_instance_id()?,
+        peer_reviews_given,
+        users_latest_submission.id,
+        peer_reviews_received >= peer_reviews_to_receive,
+    )
+    .await?;
+    let user_exercise_state = grading::update_user_exercise_state_peer_review_status(
+        conn,
+        exercise,
+        user_exercise_state,
+        true,
+        peer_review_queue_entry.received_enough_peer_reviews,
+    )
+    .await?;
+    Ok(user_exercise_state)
+}
+
+async fn update_peer_review_receiver_exercise_status(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    peer_review: &PeerReview,
+    peer_review_queue_entry: PeerReviewQueueEntry,
+) -> ModelResult<()> {
+    let peer_reviews_received =
+        peer_review_submissions::count_peer_review_submissions_for_exercise_slide_submission(
+            conn,
+            peer_review_queue_entry.receiving_peer_reviews_exercise_slide_submission_id,
+        )
+        .await?;
+    if peer_reviews_received >= peer_review.peer_reviews_to_receive.try_into()? {
+        // Only ever set this to true
+        let peer_review_queue_entry =
+            peer_review_queue_entries::update_received_enough_peer_reviews(
+                conn,
+                peer_review_queue_entry.id,
+                true,
+            )
+            .await?;
+        let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
+            conn,
+            peer_review_queue_entry.user_id,
+            peer_review_queue_entry.exercise_id,
+            CourseInstanceOrExamId::Instance(peer_review_queue_entry.course_instance_id),
+        )
+        .await?;
+        if let Some(user_exercise_state) = user_exercise_state {
+            let peer_reviews_given: i32 =
+            peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
+                conn,
+                peer_review_queue_entry.user_id,
+                peer_review_queue_entry.exercise_id,
+                peer_review_queue_entry.course_instance_id,
+            )
+            .await?
+            .try_into()?;
+            grading::update_user_exercise_state_peer_review_status(
+                conn,
+                exercise,
+                user_exercise_state,
+                peer_reviews_given >= peer_review.peer_reviews_to_give,
+                true,
+            )
+            .await?;
+        }
+    }
+    Ok(())
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialPeerReviewData {
@@ -160,7 +273,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         exercise.get_course_id()?,
     )
     .await?;
-    let excluded_submission_ids =
+    let excluded_exercise_slide_submission_ids =
         peer_review_submissions::get_users_submission_ids_for_exercise_and_course_instance(
             conn,
             user_exercise_state.user_id,
@@ -172,7 +285,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         conn,
         user_exercise_state.exercise_id,
         user_exercise_state.user_id,
-        &excluded_submission_ids,
+        &excluded_exercise_slide_submission_ids,
     )
     .await?;
     let exercise_slide_submission_to_review = match candidate_submission_id {
@@ -182,11 +295,11 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         None => {
             // At the start of a course there can be a short period when there aren't any peer reviews.
             // In that case just get a random one.
-            // TODO: Filter already submitted also here!!!
-            exercise_slide_submissions::try_to_get_random_from_other_users_by_exercise_id(
+            exercise_slide_submissions::try_to_get_random_filtered_by_user_and_submissions(
                 conn,
                 user_exercise_state.exercise_id,
                 user_exercise_state.user_id,
+                &excluded_exercise_slide_submission_ids,
             )
             .await?
         }

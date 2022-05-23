@@ -379,11 +379,32 @@ async fn create_fixed_grading_for_submission_task(
     })
 }
 
+pub async fn update_user_exercise_state_peer_review_status(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    user_exercise_state: UserExerciseState,
+    given_enough_peer_reviews: bool,
+    received_enough_peer_reviews: bool,
+) -> ModelResult<UserExerciseState> {
+    let user_exercise_state = update_user_exercise_state(
+        conn,
+        exercise,
+        &user_exercise_state,
+        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
+        given_enough_peer_reviews,
+        received_enough_peer_reviews,
+    )
+    .await?;
+    Ok(user_exercise_state)
+}
+
 async fn update_user_exercise_state(
     conn: &mut PgConnection,
     exercise: &Exercise,
     user_exercise_state: &UserExerciseState,
     user_points_update_strategy: UserPointsUpdateStrategy,
+    given_enough_peer_reviews: bool,
+    received_enough_peer_reviews: bool,
 ) -> ModelResult<UserExerciseState> {
     let (points_from_slides, grading_progress) =
         user_exercise_slide_states::get_grading_summary_by_user_exercise_state_id(
@@ -401,6 +422,8 @@ async fn update_user_exercise_state(
         user_exercise_state,
         new_score_given,
         grading_progress,
+        given_enough_peer_reviews,
+        received_enough_peer_reviews,
     );
     let new_user_exercise_state =
         user_exercise_states::update(conn, user_exercise_state_update).await?;
@@ -412,9 +435,16 @@ fn derive_new_user_exercise_state(
     user_exercise_state: &UserExerciseState,
     new_score_given: Option<f32>,
     new_grading_progress: GradingProgress,
+    given_enough_peer_reviews: bool,
+    received_enough_peer_reviews: bool,
 ) -> UserExerciseStateUpdate {
     let exercise_progress = if exercise.needs_peer_review {
-        user_exercise_state.exercise_progress
+        // Separate booleans in case we want more elaborate exercise state later
+        if given_enough_peer_reviews && received_enough_peer_reviews {
+            ExerciseProgress::Complete
+        } else {
+            user_exercise_state.exercise_progress
+        }
     } else {
         ExerciseProgress::Complete
     };
@@ -454,6 +484,8 @@ async fn propagate_user_exercise_state_update_from_slide(
         exercise,
         &user_exercise_state,
         user_points_update_strategy,
+        false,
+        false,
     )
     .await?;
     Ok(user_exercise_state)
@@ -558,6 +590,8 @@ mod tests {
                 &user_exercise_state,
                 Some(1.0),
                 GradingProgress::FullyGraded,
+                false,
+                false,
             );
             assert_results(
                 &new_user_exercise_state,
@@ -582,12 +616,69 @@ mod tests {
                 &user_exercise_state,
                 Some(1.0),
                 GradingProgress::FullyGraded,
+                false,
+                false,
             );
             assert_results(
                 &new_user_exercise_state,
                 Some(0.0),
                 ActivityProgress::Completed,
                 ExerciseProgress::NotAnswered,
+            );
+        }
+
+        #[test]
+        fn updates_score_for_exercise_that_has_been_peer_reviewed() {
+            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let exercise = create_exercise(CourseOrExamId::Course(id), true);
+            let user_exercise_state = create_user_exercise_state(
+                &exercise,
+                Some(0.0),
+                ActivityProgress::Initialized,
+                ExerciseProgress::NotAnswered,
+            );
+            let new_user_exercise_state = derive_new_user_exercise_state(
+                &exercise,
+                &user_exercise_state,
+                Some(1.0),
+                GradingProgress::FullyGraded,
+                true,
+                true,
+            );
+            assert_results(
+                &new_user_exercise_state,
+                Some(1.0),
+                ActivityProgress::Completed,
+                ExerciseProgress::Complete,
+            );
+        }
+
+        // Not sure if this makes sense in the long run, but having to get peer review information
+        // for every single submission would be cumbersome. There shouldn't be any scenario where
+        // we want to (automatically) revert peer review progress back to incomplete.
+        #[test]
+        fn doesnt_degrade_state_if_peer_review_was_once_finished() {
+            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let exercise = create_exercise(CourseOrExamId::Course(id), true);
+            let user_exercise_state = create_user_exercise_state(
+                &exercise,
+                Some(1.0),
+                ActivityProgress::Completed,
+                ExerciseProgress::Complete,
+            );
+            let new_user_exercise_state = derive_new_user_exercise_state(
+                &exercise,
+                &user_exercise_state,
+                Some(1.0),
+                GradingProgress::FullyGraded,
+                false,
+                false,
+            );
+            assert_results(
+                &new_user_exercise_state,
+                Some(1.0),
+                ActivityProgress::Completed,
+                ExerciseProgress::Complete,
             );
         }
 

@@ -4,7 +4,7 @@
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../no_std_compat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"><a href="#">Module collections</a></h2><div class="sidebar-elems"><section><div class="block"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></div></section><div id="sidebar-vars" data-name="collections" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../no_std_compat/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Module <a href="../index.html">no_std_compat</a>::<wbr><a class="mod" href="#">collections</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="srclink" href="https://doc.rust-lang.org/1.60.0/src/std/lib.rs.html#489">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Collection types.</p>
+    <h1 class="fqn"><span class="in-band">Module <a href="../index.html">no_std_compat</a>::<wbr><a class="mod" href="#">collections</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="srclink" href="https://doc.rust-lang.org/1.61.0/src/std/lib.rs.html#490">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Collection types.</p>
 <p>Rust’s standard collection library provides efficient implementations of the
 most common general purpose programming data structures. By using the
 standard implementations, it should be possible for two libraries to
@@ -182,7 +182,7 @@ collection.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">vec</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
 <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">vec</span>.<span class="ident">iter</span>() {
-   <span class="macro">println!</span>(<span class="string">&quot;vec contained {}&quot;</span>, <span class="ident">x</span>);
+   <span class="macro">println!</span>(<span class="string">&quot;vec contained {x:?}&quot;</span>);
 }</code></pre></div>
 <p><code>iter_mut</code> provides an iterator of <em>mutable</em> references in the same order as
 <code>iter</code>. This is great for mutating all the contents of the collection.</p>
@@ -218,7 +218,7 @@ reverse order.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">vec</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
 <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">vec</span>.<span class="ident">iter</span>().<span class="ident">rev</span>() {
-   <span class="macro">println!</span>(<span class="string">&quot;vec contained {}&quot;</span>, <span class="ident">x</span>);
+   <span class="macro">println!</span>(<span class="string">&quot;vec contained {x:?}&quot;</span>);
 }</code></pre></div>
 <p>Several other collection methods also return iterators to yield a sequence
 of results but avoid allocating an entire collection to store the result in.
@@ -266,7 +266,7 @@ example where the logic performed on the values is trivial.</p>
 
 <span class="macro">println!</span>(<span class="string">&quot;Number of occurrences of each character&quot;</span>);
 <span class="kw">for</span> (<span class="ident">char</span>, <span class="ident">count</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">count</span> {
-    <span class="macro">println!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">char</span>, <span class="ident">count</span>);
+    <span class="macro">println!</span>(<span class="string">&quot;{char}: {count}&quot;</span>);
 }</code></pre></div>
 <p>When the logic to be performed on the value is more complex, we may simply
 use the <code>entry</code> API to ensure that the value is initialized and perform the
@@ -294,7 +294,7 @@ logic afterwards.</p>
     <span class="comment">// Check if they&#39;re sober enough to have another beer.</span>
     <span class="kw">if</span> <span class="ident">person</span>.<span class="ident">blood_alcohol</span> <span class="op">&gt;</span> <span class="number">0.3</span> {
         <span class="comment">// Too drunk... for now.</span>
-        <span class="macro">println!</span>(<span class="string">&quot;Sorry {}, I have to cut you off&quot;</span>, <span class="ident">id</span>);
+        <span class="macro">println!</span>(<span class="string">&quot;Sorry {id}, I have to cut you off&quot;</span>);
     } <span class="kw">else</span> {
         <span class="comment">// Have another!</span>
         <span class="ident">person</span>.<span class="ident">blood_alcohol</span> <span class="op">+</span><span class="op">=</span> <span class="number">0.1</span>;
@@ -365,5 +365,5 @@ not update the value of the key. For example:</p>
 </div></div></div><h2 id="enums" class="small-section-header"><a href="#enums">Enums</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left unstable module-item"><a class="enum" href="enum.TryReserveErrorKind.html" title="no_std_compat::collections::TryReserveErrorKind enum">TryReserveErrorKind</a><span class="stab unstable" title="">Experimental</span></div><div class="item-right docblock-short"><p>Details of the allocation that caused a <code>TryReserveError</code></p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.Bound.html" title="no_std_compat::collections::Bound enum">Bound</a></div><div class="item-right docblock-short"><p>An endpoint of a range of keys.</p>
-</div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="no_std_compat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
+</div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="no_std_compat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
 </body></html>

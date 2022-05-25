@@ -40,7 +40,7 @@ use headless_lms_models::{
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
         CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, ContentManagementPage,
-        CoursePageWithUserData, IsFrontPage, Page, PageChapterAndCourseInformation, PageInfo,
+        CoursePageWithUserData, IsChapterFrontPage, Page, PageChapterAndCourseInformation, PageInfo,
         PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
     playground_examples::PlaygroundExample,
@@ -848,9 +848,9 @@ fn main() {
         }
     );
     write_docs!(
-        IsFrontPage,
-        IsFrontPage {
-            is_front_page: true
+        IsChapterFrontPage,
+        IsChapterFrontPage {
+            is_chapter_front_page: true
         }
     );
 }

@@ -86,21 +86,21 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
   label,
   given,
   max,
-  required = 80,
-  current = 40
+  required = 60,
 }) => {
   const [willAnimate, setWillAnimate] = useState(false)
   const { t } = useTranslation()
 
+  const givenScore = given ?? 0
+  const maximum = max ?? 0
+
   const radius = 160;
   const circumference = radius * 2 * Math.PI;
+  const current = givenScore / maximum * 100
 
   const currentStrokeDashoffset = circumference - current / 100 * circumference;
   const requiredStrokeDashoffset = circumference - required / 100 * circumference;
 
-
-  const givenScore = given ?? 0
-  const maximum = max ?? 0
   useLayoutEffect(() => {
     const onScroll = () => {
       const scrollPosition = window.scrollY + window.innerHeight

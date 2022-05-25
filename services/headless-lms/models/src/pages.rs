@@ -195,8 +195,8 @@ pub struct ExerciseWithExerciseTasks {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct IsFrontPage {
-    pub is_front_page: bool,
+pub struct IsChapterFrontPage {
+    pub is_chapter_front_page: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
@@ -2146,15 +2146,15 @@ WHERE pages.order_number = $1
     Ok(())
 }
 
-pub async fn is_front_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<IsFrontPage> {
+pub async fn is_chapter_front_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<IsChapterFrontPage> {
     let chapter = get_chapter_by_page_id(conn, page_id).await?;
 
     Ok(chapter.front_page_id.map_or(
-        IsFrontPage {
-            is_front_page: false,
+        IsChapterFrontPage {
+            is_chapter_front_page: false,
         },
-        |id| IsFrontPage {
-            is_front_page: id == page_id,
+        |id| IsChapterFrontPage {
+            is_chapter_front_page: id == page_id,
         },
     ))
 }

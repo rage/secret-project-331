@@ -75,7 +75,7 @@ import {
   GradingProgress,
   HistoryChangeReason,
   HistoryRestoreData,
-  IsFrontPage,
+  IsChapterFrontPage,
   Login,
   MarkAsRead,
   NewChapter,
@@ -1106,7 +1106,7 @@ export function isPageChapterAndCourseInformation(
   )
 }
 
-export function isIsFrontPage(obj: any, _argumentName?: string): obj is IsFrontPage {
+export function isIsChapterFrontPage(obj: any, _argumentName?: string): obj is IsChapterFrontPage {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.is_front_page === "boolean"

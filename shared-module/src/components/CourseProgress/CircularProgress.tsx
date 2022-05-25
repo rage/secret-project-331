@@ -14,7 +14,6 @@ interface StyledSVGProps {
   current: number
 }
 
-// eslint-disable-next-line i18next/no-literal-string
 const StyledSVG = styled.div<StyledSVGProps>`
   position: relative;
   width: 100%;

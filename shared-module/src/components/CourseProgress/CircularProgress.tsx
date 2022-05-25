@@ -18,25 +18,23 @@ const StyledSVG = styled.div<StyledSVGProps>`
   position: relative;
   width: 100%;
   text-align: center;
+
   svg {
     margin: 0 auto;
     width: 16rem;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
 
     ${respondToOrLarger.sm} {
       width: 25rem;
     }
   }
 
-  svg {
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%,
-  }
-
   svg circle {
     width: 100%;
     height: 100%;
     fill: none;
-    stroke: #F1E4A9;
+    stroke: #f1e4a9;
     stroke-width: 20px;
     transition: stroke-dashoffset 0.35s;
     transform: rotate(0deg);
@@ -44,11 +42,11 @@ const StyledSVG = styled.div<StyledSVGProps>`
   }
 
   svg circle:nth-child(2) {
-    stroke: #B4CDCB;
+    stroke: #b4cdcb;
   }
 
   svg circle:nth-child(3) {
-    stroke: #1F6964;
+    stroke: #1f6964;
   }
 
   p {
@@ -93,12 +91,12 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
   const givenScore = given ?? 0
   const maximum = max ?? 0
 
-  const radius = 160;
-  const circumference = radius * 2 * Math.PI;
-  const current = givenScore / maximum * 100
+  const radius = 160
+  const circumference = radius * 2 * Math.PI
+  const current = (givenScore / maximum) * 100
 
-  const currentStrokeDashoffset = circumference - current / 100 * circumference;
-  const requiredStrokeDashoffset = circumference - required / 100 * circumference;
+  const currentStrokeDashoffset = circumference - (current / 100) * circumference
+  const requiredStrokeDashoffset = circumference - (required / 100) * circumference
 
   useLayoutEffect(() => {
     const onScroll = () => {
@@ -153,8 +151,24 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
               stroke={`${baseTheme.colors.yellow[700]}`}
             >
               <circle cx="160" cy="160" r="160" />
-              <circle cx={radius} cy={radius} r={radius} strokeDasharray={ circumference + ' ' + circumference } style={{strokeDashoffset: requiredStrokeDashoffset}}/>
-              <circle cx={radius} cy={radius} r={radius} strokeDasharray={ circumference + ' ' + circumference } style={{strokeDashoffset: currentStrokeDashoffset}}/>
+              <circle
+                cx={radius}
+                cy={radius}
+                r={radius}
+                strokeDasharray={circumference + " " + circumference}
+                className={css`
+                  stroke-dashoffset: ${requiredStrokeDashoffset};
+                `}
+              />
+              <circle
+                cx={radius}
+                cy={radius}
+                r={radius}
+                strokeDasharray={circumference + " " + circumference}
+                className={css`
+                  stroke-dashoffset: ${currentStrokeDashoffset};
+                `}
+              />
             </g>
           </g>
         </svg>

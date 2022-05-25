@@ -237,6 +237,7 @@ export interface QuizItemOption {
   body: string | null
   successMessage: null | string
   failureMessage: null | string
+  messageAfterSubmissionWhenSelected: null | string
 }
 
 export interface NormalizedQuizItemOption {
@@ -250,6 +251,7 @@ export interface NormalizedQuizItemOption {
   body: string | null
   successMessage: null | string
   failureMessage: null | string
+  messageAfterSubmissionWhenSelected: null | string
 }
 
 /** Only defined for the timeline exercise type */

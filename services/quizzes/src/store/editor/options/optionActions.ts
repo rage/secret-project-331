@@ -24,6 +24,11 @@ export const editedOptionSuccessMessage = createAction(
   }),
 )<{ optionId: string; newMessage: string }>()
 
+export const editedOptionAfterSubmissionSelectedMessage = createAction(
+  "EDITED_OPTION_AFTER_SUBMISSION_SELECTED_MESSAGE",
+  (optionId: string, newMessage: string) => ({ optionId, newMessage }),
+)<{ optionId: string; newMessage: string }>()
+
 export const editedOptionFailureMessage = createAction(
   "EDITED_OPTION_FAILURE_MESSAGE",
   (optionId: string, newMessage: string) => ({

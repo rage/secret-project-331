@@ -3,6 +3,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { QuizItemOption } from "../../../types/types"
+import { ItemAnswerFeedback } from "../../pages/api/grade"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { quizTheme } from "../../styles/QuizStyles"
 import MarkdownText from "../MarkdownText"
@@ -151,6 +152,21 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
             </>
           )
         })}
+        <div
+          className={css`
+            display: flex;
+            flex: 2;
+            justify-content: center;
+            margin: 0.5rem 0;
+          `}
+        >
+          {(quiz_item_feedback as ItemAnswerFeedback).quiz_item_option_feedbacks?.map(
+            (of) =>
+              of.option_message_after_submission && (
+                <MarkdownText key={of.option_id} text={of.option_message_after_submission} />
+              ),
+          )}
+        </div>
       </div>
     </div>
   )
@@ -166,51 +182,54 @@ const RowSubmissionFeedback: React.FC<MultipleChoiceDirectionProps> = ({
   submissionFeedback,
   selectedAnswer,
   feedbackDisplayPolicy,
-}) => (
-  <div>
-    {feedbackDisplayPolicy === "DisplayFeedbackOnQuizItem" && submissionFeedback ? (
-      <>
-        {selectedAnswer ? (
-          <div
-            className={css`
-              margin-left: 0.5em;
-              display: flex;
-              border-left: ${submissionFeedback.correct
-                ? `6px solid #1F6964`
-                : `6px solid #A84835`};
-              box-sizing: border-box;
-              padding: 0.5rem 0px 0.5rem 0.5rem;
-              margin-bottom: 5px !important;
-            `}
-          >
-            <p>
-              {submissionFeedback.correct
-                ? submissionFeedback.successMessage
-                : submissionFeedback.failureMessage}
-            </p>
-          </div>
-        ) : null}
-      </>
-    ) : null}
-    {feedbackDisplayPolicy === "DisplayFeedbackOnAllOptions" && submissionFeedback ? (
-      <div
-        className={css`
-          margin-left: 0.5em;
-          display: flex;
-          border-left: ${submissionFeedback.correct ? `6px solid #1F6964` : `6px solid #A84835`};
-          box-sizing: border-box;
-          padding: 0.5rem 0px 0.5rem 0.5rem;
-          margin-bottom: 5px !important;
-        `}
-      >
-        <p>
-          {submissionFeedback.correct
-            ? submissionFeedback.successMessage
-            : submissionFeedback.failureMessage}
-        </p>
-      </div>
-    ) : null}
-  </div>
-)
+}) => {
+  const feedbackText = submissionFeedback
+    ? submissionFeedback.correct
+      ? submissionFeedback.successMessage
+      : submissionFeedback.failureMessage
+    : null
+  return (
+    <div>
+      {feedbackDisplayPolicy === "DisplayFeedbackOnQuizItem" &&
+      submissionFeedback &&
+      !!feedbackText ? (
+        <>
+          {selectedAnswer ? (
+            <div
+              className={css`
+                margin-left: 0.5em;
+                display: flex;
+                border-left: ${submissionFeedback.correct
+                  ? `6px solid #1F6964`
+                  : `6px solid #A84835`};
+                box-sizing: border-box;
+                padding: 0.5rem 0px 0.5rem 0.5rem;
+                margin-bottom: 5px !important;
+              `}
+            >
+              <p>{feedbackText}</p>
+            </div>
+          ) : null}
+        </>
+      ) : null}
+      {feedbackDisplayPolicy === "DisplayFeedbackOnAllOptions" &&
+      submissionFeedback &&
+      !!feedbackText ? (
+        <div
+          className={css`
+            margin-left: 0.5em;
+            display: flex;
+            border-left: ${submissionFeedback.correct ? `6px solid #1F6964` : `6px solid #A84835`};
+            box-sizing: border-box;
+            padding: 0.5rem 0px 0.5rem 0.5rem;
+            margin-bottom: 5px !important;
+          `}
+        >
+          <p>{feedbackText}</p>
+        </div>
+      ) : null}
+    </div>
+  )
+}
 
 export default MultipleChoiceSubmission

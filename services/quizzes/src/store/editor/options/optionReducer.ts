@@ -13,6 +13,7 @@ import {
 } from "../editorActions"
 
 import {
+  editedOptionAfterSubmissionSelectedMessage,
   editedOptionCorrectness,
   editedOptionFailureMessage,
   editedOptionSuccessMessage,
@@ -49,6 +50,13 @@ export const optionReducer = createReducer<
     })
   })
 
+  .handleAction(editedOptionAfterSubmissionSelectedMessage, (state, action) => {
+    return produce(state, (draftState) => {
+      draftState[action.payload.optionId].messageAfterSubmissionWhenSelected =
+        action.payload.newMessage
+    })
+  })
+
   .handleAction(createdNewOption, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.optionId] = {
@@ -60,6 +68,7 @@ export const optionReducer = createReducer<
         body: "",
         correct: false,
         order: 0,
+        messageAfterSubmissionWhenSelected: "",
         successMessage: "",
         failureMessage: "",
       }

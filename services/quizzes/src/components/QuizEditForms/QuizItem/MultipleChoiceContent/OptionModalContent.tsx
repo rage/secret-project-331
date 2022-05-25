@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux"
 
 import { NormalizedQuizItemOption } from "../../../../../types/types"
 import {
+  editedOptionAfterSubmissionSelectedMessage,
   editedOptionCorrectness,
   editedOptionFailureMessage,
   editedOptionSuccessMessage,
@@ -49,6 +50,15 @@ export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
           label={t("option-title")}
           text={storeOption.title ?? ""}
           onChange={(value) => dispatch(editedOptionTitle(value, storeOption.id))}
+        />
+      </ModalContent>
+      <ModalContent>
+        <MarkdownEditor
+          label={t("message-after-submission-when-selected")}
+          text={storeOption.messageAfterSubmissionWhenSelected ?? ""}
+          onChange={(value) =>
+            dispatch(editedOptionAfterSubmissionSelectedMessage(storeOption.id, value))
+          }
         />
       </ModalContent>
       <ModalContent>

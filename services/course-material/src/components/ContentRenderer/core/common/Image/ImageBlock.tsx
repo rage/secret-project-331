@@ -53,7 +53,6 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
       <Zoom>
         <figure
           className={css`
-            display: table;
             ${align === "center" && `text-align: center; display: table; margin: 0 auto;`}
             ${align !== "center" &&
             `float: ${align};
@@ -95,7 +94,6 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
           </div>
           <figcaption
             className={css`
-              display: table-caption;
               caption-side: bottom;
               text-align: center;
               font-size: 0.8125rem;

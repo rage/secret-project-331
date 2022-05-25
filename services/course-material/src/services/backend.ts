@@ -9,7 +9,7 @@ import {
   CoursePageWithUserData,
   ExamData,
   ExamEnrollment,
-  IsFrontPage,
+  IsChapterFrontPage,
   NewFeedback,
   NewProposedPageEdits,
   OEmbedResponse,
@@ -344,6 +344,6 @@ export const fetchMentimeterEmbed = async (url: string): Promise<OEmbedResponse>
   return validateResponse(response, isOEmbedResponse)
 }
 
-export const isPageFrontPage = async (pageId: string): Promise<IsFrontPage> => {
+export const isPageFrontPage = async (pageId: string): Promise<IsChapterFrontPage> => {
   return (await courseMaterialClient.get(`/pages/${pageId}`)).data
 }

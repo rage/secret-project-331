@@ -3,7 +3,6 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { QuizItemOption } from "../../../types/types"
-import { ItemAnswerFeedback } from "../../pages/api/grade"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { quizTheme } from "../../styles/QuizStyles"
 import MarkdownText from "../MarkdownText"
@@ -148,25 +147,22 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                   selectedAnswer={selectedAnswer}
                   feedbackDisplayPolicy={feedbackDisplayPolicy}
                 ></RowSubmissionFeedback>
+                {feedbackForThisOption?.option_message_after_submission && (
+                  <div
+                    className={css`
+                      display: flex;
+                      flex: 2;
+                      justify-content: center;
+                      margin: 0.5rem 0;
+                    `}
+                  >
+                    <MarkdownText text={feedbackForThisOption.option_message_after_submission} />
+                  </div>
+                )}
               </div>
             </>
           )
         })}
-        <div
-          className={css`
-            display: flex;
-            flex: 2;
-            justify-content: center;
-            margin: 0.5rem 0;
-          `}
-        >
-          {(quiz_item_feedback as ItemAnswerFeedback).quiz_item_option_feedbacks?.map(
-            (of) =>
-              of.option_message_after_submission && (
-                <MarkdownText key={of.option_id} text={of.option_message_after_submission} />
-              ),
-          )}
-        </div>
       </div>
     </div>
   )
@@ -183,11 +179,12 @@ const RowSubmissionFeedback: React.FC<MultipleChoiceDirectionProps> = ({
   selectedAnswer,
   feedbackDisplayPolicy,
 }) => {
-  const feedbackText = submissionFeedback
-    ? submissionFeedback.correct
-      ? submissionFeedback.successMessage
-      : submissionFeedback.failureMessage
-    : null
+  if (!submissionFeedback) {
+    return null
+  }
+  const feedbackText = submissionFeedback.correct
+    ? submissionFeedback.successMessage
+    : submissionFeedback.failureMessage
   return (
     <div>
       {feedbackDisplayPolicy === "DisplayFeedbackOnQuizItem" &&
@@ -210,6 +207,9 @@ const RowSubmissionFeedback: React.FC<MultipleChoiceDirectionProps> = ({
               <p>{feedbackText}</p>
             </div>
           ) : null}
+          {selectedAnswer && submissionFeedback.messageAfterSubmissionWhenSelected && (
+            <MarkdownText text={submissionFeedback.messageAfterSubmissionWhenSelected} />
+          )}
         </>
       ) : null}
       {feedbackDisplayPolicy === "DisplayFeedbackOnAllOptions" &&

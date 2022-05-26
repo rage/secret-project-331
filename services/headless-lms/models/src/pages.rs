@@ -2146,7 +2146,10 @@ WHERE pages.order_number = $1
     Ok(())
 }
 
-pub async fn is_chapter_front_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<IsChapterFrontPage> {
+pub async fn is_chapter_front_page(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<IsChapterFrontPage> {
     let chapter = get_chapter_by_page_id(conn, page_id).await?;
 
     Ok(chapter.front_page_id.map_or(

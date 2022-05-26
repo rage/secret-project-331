@@ -40,8 +40,8 @@ use headless_lms_models::{
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
         CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, ContentManagementPage,
-        CoursePageWithUserData, IsChapterFrontPage, Page, PageChapterAndCourseInformation, PageInfo,
-        PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
+        CoursePageWithUserData, IsChapterFrontPage, Page, PageChapterAndCourseInformation,
+        PageInfo, PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},

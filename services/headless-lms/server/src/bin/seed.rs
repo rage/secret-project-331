@@ -1593,6 +1593,7 @@ async fn seed_sample_course(
         quizzes_exercise_slide_1,
         quizzes_exercise_task_1,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course_id, b"a6ee42d0-2200-43b7-9981-620753a9b5c0"),
         Uuid::new_v5(&course_id, b"8d01d9b3-87d1-4e24-bee2-2726d3853ec6"),
         Uuid::new_v5(&course_id, b"00dd984d-8651-404e-80b8-30fae9cf32ed"),
@@ -1652,6 +1653,7 @@ async fn seed_sample_course(
         quizzes_exercise_slide_2,
         quizzes_exercise_task_2,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course_id, b"949b548f-a87f-4dc6-aafc-9f1e1abe34a7"),
         Uuid::new_v5(&course_id, b"39c36d3f-017e-4c36-a97e-908e25b3678b"),
         Uuid::new_v5(&course_id, b"8ae8971c-95dd-4d8c-b38f-152ad89c6b20"),
@@ -1711,6 +1713,7 @@ async fn seed_sample_course(
         quizzes_exercise_slide_3,
         quizzes_exercise_task_3,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course_id, b"9bcf634d-584c-4fef-892c-3c0e97dab1d5"),
         Uuid::new_v5(&course_id, b"984457f6-bc9b-4604-b54c-80fb4adfab76"),
         Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
@@ -1789,6 +1792,7 @@ async fn seed_sample_course(
         quizzes_exercise_slide_4,
         quizzes_exercise_task_4,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
         Uuid::new_v5(&course_id, b"6a8e65be-f5cd-4c87-b4f9-9522cb37bbcb"),
         Uuid::new_v5(&course_id, b"b5e1e7e87-0678-4296-acf7-a8ac926ff94b"),
@@ -1888,6 +1892,7 @@ async fn seed_sample_course(
         quizzes_exercise_slide_5,
         quizzes_exercise_task_5,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course.id, b"981623c8-baa3-4d14-bb8a-963e167da9ca"),
         Uuid::new_v5(&course.id, b"b1a6d7e4-00b2-43fb-bf39-863f4ef49d09"),
         Uuid::new_v5(&course.id, b"1a2f2c9f-9552-440e-8dd3-1e3703bd0fab"),
@@ -1963,6 +1968,22 @@ async fn seed_sample_course(
           "triesLimited": true,
           "updatedAt": "2022-05-04T09:03:06.271Z"
         }),
+    );
+
+    let (
+        quizzes_exercise_block_6,
+        quizzes_exercise_6,
+        quizzes_exercise_slide_6,
+        quizzes_exercise_task_6,
+    ) = quizzes_exercise(
+        "Multiple choice with feedback".to_string(),
+        Uuid::new_v5(&course.id, b"f7fa3a08-e287-44de-aea8-32133af89d31"),
+        Uuid::new_v5(&course.id, b"31820133-579a-4d9f-8b0c-2120f76d1390"),
+        Uuid::new_v5(&course.id, b"55f929c7-30ab-441d-a0ad-6cd115857b3b"),
+        Uuid::new_v5(&course.id, b"d7a91d07-9bd9-449c-9862-fbacb0b402b0"),
+        Uuid::new_v5(&course.id, b"664ea614-4af4-4ad0-9855-eae1881568e6"),
+        false,
+        serde_json::from_str(include_str!("../assets/quizzes-multiple-choice.json"))?,
     );
 
     let page_3 = create_page(
@@ -2075,6 +2096,29 @@ async fn seed_sample_course(
                     Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27")
                 ),
                 quizzes_exercise_block_5,
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/the-multiple-choice-with-feedback".to_string(),
+            title: "Multiple choice with feedback".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_6],
+            exercise_slides: vec![quizzes_exercise_slide_6],
+            exercise_tasks: vec![quizzes_exercise_task_6],
+            content: serde_json::json!([
+                paragraph(
+                    "Something about rust and feedback.",
+                    Uuid::new_v5(&course_id, b"cbb87878-5af1-4c01-b343-97bf668b8034")
+                ),
+                quizzes_exercise_block_6
             ]),
         },
     )
@@ -2513,6 +2557,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         quizzes_exercise_slide_5,
         quizzes_exercise_task_5,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course.id, b"cd3aa815-620e-43b3-b291-0fb10beca030"),
         Uuid::new_v5(&course.id, b"0b1bbfb0-df56-4e40-92f1-df0a33f1fc70"),
         Uuid::new_v5(&course.id, b"7f011d0e-1cbf-4870-bacf-1873cf360c15"),
@@ -2587,6 +2632,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         quizzes_exercise_slide_6,
         quizzes_exercise_task_6,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course.id, b"925d4a89-0f25-4e8e-bc11-350393d8d894"),
         Uuid::new_v5(&course.id, b"ff92ca4a-aa9c-11ec-ac56-475e57747ad3"),
         Uuid::new_v5(&course.id, b"9037cb17-3841-4a79-8f50-bbe595a4f785"),
@@ -2661,6 +2707,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         quizzes_exercise_slide_7,
         quizzes_exercise_task_7,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course.id, b"57905c8a-aa9d-11ec-92d4-47ab996cb70c"),
         Uuid::new_v5(&course.id, b"5b058552-aa9d-11ec-bc36-57e1c5f8407a"),
         Uuid::new_v5(&course.id, b"5d953894-aa9d-11ec-97e7-2ff4d73f69f1"),
@@ -2736,6 +2783,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         quizzes_exercise_slide_8,
         quizzes_exercise_task_8,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course.id, b"c1a4831c-cc78-4f42-be18-2a35a7f3b506"),
         Uuid::new_v5(&course.id, b"75045b18-aa9d-11ec-b3d1-6f64c2d6d46d"),
         Uuid::new_v5(&course.id, b"712fd37c-e3d7-4569-8a64-371d7dda9c19"),
@@ -3336,6 +3384,7 @@ fn example_exercise_flexible(
 
 #[allow(clippy::too_many_arguments)]
 fn quizzes_exercise(
+    name: String,
     exercise_id: Uuid,
     exercise_slide_id: Uuid,
     exercise_task_id: Uuid,
@@ -3355,14 +3404,14 @@ fn quizzes_exercise(
         is_valid: true,
         attributes: attributes! {
             "id": exercise_id,
-            "name": "Best quizzes exercise".to_string(),
+            "name": name,
             "dropCap": false,
         },
         inner_blocks: vec![],
     };
     let exercise = CmsPageExercise {
         id: exercise_id,
-        name: "Best quizzes exercise".to_string(),
+        name,
         order_number: 1,
         score_maximum: 1,
         max_tries_per_slide: None,

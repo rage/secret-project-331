@@ -55,7 +55,8 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
   const direction: "row" | "column" =
     public_quiz_item.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
 
-  const feedbackDisplayPolicy = quiz_item_model_solution?.feedbackDisplayPolicy
+  const feedbackDisplayPolicyAccordingToModelSolution =
+    quiz_item_model_solution?.feedbackDisplayPolicy
   return (
     <div
       className={css`
@@ -91,9 +92,6 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
       >
         {public_quiz_item.options.map((qo) => {
           const selectedAnswer = user_quiz_item_answer.optionAnswers?.includes(qo.id) ?? false
-          const submissionFeedback = quiz_item_model_solution?.options.find(
-            (option) => option.id === qo.id,
-          )
           const modelSolutionForThisOption =
             quiz_item_model_solution?.options.find((x) => x.id === qo.id) ?? null
           // If correctAnswer is null we don't know whether this option was correct or not
@@ -143,22 +141,15 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                   </div>
                 </div>
                 <RowSubmissionFeedback
-                  submissionFeedback={submissionFeedback}
+                  feedbackDisplayPolicyAccordingToModelSolution={
+                    feedbackDisplayPolicyAccordingToModelSolution
+                  }
+                  submissionFeedback={
+                    feedbackForThisOption?.option_message_after_submission ?? undefined
+                  }
                   selectedAnswer={selectedAnswer}
-                  feedbackDisplayPolicy={feedbackDisplayPolicy}
-                ></RowSubmissionFeedback>
-                {feedbackForThisOption?.option_message_after_submission && (
-                  <div
-                    className={css`
-                      display: flex;
-                      flex: 2;
-                      justify-content: center;
-                      margin: 0.5rem 0;
-                    `}
-                  >
-                    <MarkdownText text={feedbackForThisOption.option_message_after_submission} />
-                  </div>
-                )}
+                  modelSolutionFeedback={modelSolutionForThisOption ?? undefined}
+                />
               </div>
             </>
           )
@@ -169,34 +160,31 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
 }
 
 interface MultipleChoiceDirectionProps {
-  submissionFeedback: QuizItemOption | undefined
+  feedbackDisplayPolicyAccordingToModelSolution:
+    | "DisplayFeedbackOnQuizItem"
+    | "DisplayFeedbackOnAllOptions"
+    | undefined
+  submissionFeedback: string | undefined
   selectedAnswer: boolean
-  feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions" | undefined
+  modelSolutionFeedback: QuizItemOption | undefined
 }
 
 const RowSubmissionFeedback: React.FC<MultipleChoiceDirectionProps> = ({
+  feedbackDisplayPolicyAccordingToModelSolution,
   submissionFeedback,
   selectedAnswer,
-  feedbackDisplayPolicy,
+  modelSolutionFeedback,
 }) => {
-  if (!submissionFeedback) {
-    return null
-  }
-  const feedbackText = submissionFeedback.correct
-    ? submissionFeedback.successMessage
-    : submissionFeedback.failureMessage
   return (
     <div>
-      {feedbackDisplayPolicy === "DisplayFeedbackOnQuizItem" &&
-      submissionFeedback &&
-      !!feedbackText ? (
+      {feedbackDisplayPolicyAccordingToModelSolution === "DisplayFeedbackOnQuizItem" ? (
         <>
-          {selectedAnswer ? (
+          {modelSolutionFeedback && selectedAnswer ? (
             <div
               className={css`
                 margin-left: 0.5em;
                 display: flex;
-                border-left: ${submissionFeedback.correct
+                border-left: ${modelSolutionFeedback.correct
                   ? `6px solid #1F6964`
                   : `6px solid #A84835`};
                 box-sizing: border-box;
@@ -204,30 +192,40 @@ const RowSubmissionFeedback: React.FC<MultipleChoiceDirectionProps> = ({
                 margin-bottom: 5px !important;
               `}
             >
-              <p>{feedbackText}</p>
+              <p>
+                {modelSolutionFeedback.correct
+                  ? modelSolutionFeedback.successMessage
+                  : modelSolutionFeedback.failureMessage}
+              </p>
             </div>
           ) : null}
-          {selectedAnswer && submissionFeedback.messageAfterSubmissionWhenSelected && (
-            <MarkdownText text={submissionFeedback.messageAfterSubmissionWhenSelected} />
-          )}
         </>
       ) : null}
-      {feedbackDisplayPolicy === "DisplayFeedbackOnAllOptions" &&
-      submissionFeedback &&
-      !!feedbackText ? (
-        <div
-          className={css`
-            margin-left: 0.5em;
-            display: flex;
-            border-left: ${submissionFeedback.correct ? `6px solid #1F6964` : `6px solid #A84835`};
-            box-sizing: border-box;
-            padding: 0.5rem 0px 0.5rem 0.5rem;
-            margin-bottom: 5px !important;
-          `}
-        >
-          <p>{feedbackText}</p>
-        </div>
+      {feedbackDisplayPolicyAccordingToModelSolution === "DisplayFeedbackOnAllOptions" ? (
+        <>
+          {modelSolutionFeedback && selectedAnswer ? (
+            <div
+              className={css`
+                margin-left: 0.5em;
+                display: flex;
+                border-left: ${modelSolutionFeedback.correct
+                  ? `6px solid #1F6964`
+                  : `6px solid #A84835`};
+                box-sizing: border-box;
+                padding: 0.5rem 0px 0.5rem 0.5rem;
+                margin-bottom: 5px !important;
+              `}
+            >
+              <p>
+                {modelSolutionFeedback.correct
+                  ? modelSolutionFeedback.successMessage
+                  : modelSolutionFeedback.failureMessage}
+              </p>
+            </div>
+          ) : null}
+        </>
       ) : null}
+      {submissionFeedback && <MarkdownText text={submissionFeedback} />}
     </div>
   )
 }

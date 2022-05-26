@@ -89,5 +89,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{current_page_id}/chapter-and-course-information",
             web::get().to(get_chapter_and_course_information),
         )
-        .route("/{current_page_id}/is_chapter_front_page", web::get().to(is_chapter_front_page));
+        .route("/{current_page_id}/is_front_page", web::get().to(is_chapter_front_page));
 }

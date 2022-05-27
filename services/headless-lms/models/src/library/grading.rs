@@ -5,12 +5,14 @@ use crate::{
     exercise_task_gradings::{
         self, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy,
     },
+    exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, ExerciseTask},
-    exercises::{ActivityProgress, Exercise, ExerciseStatus},
+    exercises::{ActivityProgress, Exercise, ExerciseStatus, GradingProgress},
     prelude::*,
+    regradings,
     user_exercise_slide_states::{self, UserExerciseSlideState},
-    user_exercise_states::{self, UserExerciseState},
+    user_exercise_states::{self, ExerciseProgress, UserExerciseState, UserExerciseStateUpdate},
     user_exercise_task_states,
 };
 
@@ -140,7 +142,6 @@ pub async fn create_user_exercise_slide_submission(
     })
 }
 
-#[inline]
 pub async fn grade_user_submission(
     conn: &mut PgConnection,
     exercise: &Exercise,
@@ -157,7 +158,72 @@ pub async fn grade_user_submission(
     .await
 }
 
-#[inline]
+// Relocated regrading logic to condensate score update logic in a single place.
+// Needs better separation of concerns in the far future.
+pub async fn update_grading_with_single_regrading_result(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    regrading_submission: &ExerciseTaskRegradingSubmission,
+    exercise_task_grading: &ExerciseTaskGrading,
+    exercise_task_grading_result: &ExerciseTaskGradingResult,
+) -> ModelResult<()> {
+    let task_submission = exercise_task_submissions::get_by_id(
+        &mut *conn,
+        regrading_submission.exercise_task_submission_id,
+    )
+    .await?;
+    let slide_submission = exercise_slide_submissions::get_by_id(
+        &mut *conn,
+        task_submission.exercise_slide_submission_id,
+    )
+    .await?;
+    let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+        conn,
+        slide_submission.user_id,
+        exercise.id,
+        slide_submission.course_instance_id,
+        slide_submission.exam_id,
+    )
+    .await?;
+    let user_exercise_slide_state = user_exercise_slide_states::get_or_insert_by_unique_index(
+        &mut *conn,
+        user_exercise_state.id,
+        slide_submission.exercise_slide_id,
+    )
+    .await?;
+    let regrading = regradings::get_by_id(&mut *conn, regrading_submission.regrading_id).await?;
+    propagate_user_exercise_state_update_from_exercise_task_grading_result(
+        conn,
+        exercise,
+        exercise_task_grading,
+        exercise_task_grading_result,
+        user_exercise_slide_state,
+        regrading.user_points_update_strategy,
+    )
+    .await?;
+    Ok(())
+}
+
+pub async fn update_exercise_state_with_single_exercise_task_grading_result(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    exercise_task_grading: &ExerciseTaskGrading,
+    exercise_task_grading_result: &ExerciseTaskGradingResult,
+    user_exercise_slide_state: UserExerciseSlideState,
+    user_points_update_strategy: UserPointsUpdateStrategy,
+) -> ModelResult<()> {
+    propagate_user_exercise_state_update_from_exercise_task_grading_result(
+        conn,
+        exercise,
+        exercise_task_grading,
+        exercise_task_grading_result,
+        user_exercise_slide_state,
+        user_points_update_strategy,
+    )
+    .await?;
+    Ok(())
+}
+
 pub async fn test_only_grade_user_submission_with_fixed_results(
     conn: &mut PgConnection,
     exercise: &Exercise,
@@ -229,9 +295,10 @@ async fn grade_user_submission_internal(
             results.push(submission);
         }
     }
-    let user_exercise_state = update_points_for_user_exercise_state(
+    let user_exercise_state = propagate_user_exercise_state_update_from_slide(
         &mut tx,
-        user_exercise_state,
+        exercise,
+        user_exercise_slide_state,
         exercise_slide_submission.user_points_update_strategy,
     )
     .await?;
@@ -245,36 +312,6 @@ async fn grade_user_submission_internal(
         }),
         exercise_task_submission_results: results,
     })
-}
-
-/// Updates points for given user exercise state and all its related slide states. Returns updated
-/// user exercise state.
-pub async fn update_points_for_user_exercise_state(
-    conn: &mut PgConnection,
-    user_exercise_state: UserExerciseState,
-    user_points_update_strategy: UserPointsUpdateStrategy,
-) -> ModelResult<UserExerciseState> {
-    let mut tx = conn.begin().await?;
-
-    let user_exercise_slide_states = user_exercise_slide_states::get_all_by_user_exercise_state_id(
-        &mut tx,
-        user_exercise_state.id,
-    )
-    .await?;
-    for user_exercise_slide_state in user_exercise_slide_states {
-        update_user_exercise_slide_state(
-            &mut tx,
-            &user_exercise_slide_state,
-            user_points_update_strategy,
-        )
-        .await?;
-    }
-    let new_user_exercise_state =
-        update_user_exercise_state(&mut tx, &user_exercise_state, user_points_update_strategy)
-            .await?;
-
-    tx.commit().await?;
-    Ok(new_user_exercise_state)
 }
 
 async fn grade_user_submission_task(
@@ -342,10 +379,32 @@ async fn create_fixed_grading_for_submission_task(
     })
 }
 
+pub async fn update_user_exercise_state_peer_review_status(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    user_exercise_state: UserExerciseState,
+    given_enough_peer_reviews: bool,
+    received_enough_peer_reviews: bool,
+) -> ModelResult<UserExerciseState> {
+    let user_exercise_state = update_user_exercise_state(
+        conn,
+        exercise,
+        &user_exercise_state,
+        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
+        given_enough_peer_reviews,
+        received_enough_peer_reviews,
+    )
+    .await?;
+    Ok(user_exercise_state)
+}
+
 async fn update_user_exercise_state(
     conn: &mut PgConnection,
+    exercise: &Exercise,
     user_exercise_state: &UserExerciseState,
     user_points_update_strategy: UserPointsUpdateStrategy,
+    given_enough_peer_reviews: bool,
+    received_enough_peer_reviews: bool,
 ) -> ModelResult<UserExerciseState> {
     let (points_from_slides, grading_progress) =
         user_exercise_slide_states::get_grading_summary_by_user_exercise_state_id(
@@ -358,15 +417,78 @@ async fn update_user_exercise_state(
         points_from_slides,
         user_points_update_strategy,
     );
-    let new_user_exercise_state = user_exercise_states::update_grading_state(
-        conn,
-        user_exercise_state.id,
+    let user_exercise_state_update = derive_new_user_exercise_state(
+        exercise,
+        user_exercise_state,
         new_score_given,
         grading_progress,
-        ActivityProgress::Completed,
+        given_enough_peer_reviews,
+        received_enough_peer_reviews,
+    );
+    let new_user_exercise_state =
+        user_exercise_states::update(conn, user_exercise_state_update).await?;
+    Ok(new_user_exercise_state)
+}
+
+fn derive_new_user_exercise_state(
+    exercise: &Exercise,
+    user_exercise_state: &UserExerciseState,
+    new_score_given: Option<f32>,
+    new_grading_progress: GradingProgress,
+    given_enough_peer_reviews: bool,
+    received_enough_peer_reviews: bool,
+) -> UserExerciseStateUpdate {
+    let exercise_progress = if exercise.needs_peer_review {
+        // Separate booleans in case we want more elaborate exercise state later
+        if given_enough_peer_reviews && received_enough_peer_reviews {
+            ExerciseProgress::Complete
+        } else {
+            user_exercise_state.exercise_progress
+        }
+    } else {
+        ExerciseProgress::Complete
+    };
+    let score_given = if exercise_progress == ExerciseProgress::Complete {
+        new_score_given
+    } else {
+        user_exercise_state.score_given
+    };
+    UserExerciseStateUpdate {
+        id: user_exercise_state.id,
+        score_given,
+        grading_progress: new_grading_progress,
+        activity_progress: ActivityProgress::Completed,
+        exercise_progress,
+    }
+}
+
+/// Updates the user exercise state starting from a slide state, and propagates the update up to the
+/// whole user exercise state.
+async fn propagate_user_exercise_state_update_from_slide(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    user_exercise_slide_state: UserExerciseSlideState,
+    user_points_update_strategy: UserPointsUpdateStrategy,
+) -> ModelResult<UserExerciseState> {
+    update_user_exercise_slide_state(
+        conn,
+        &user_exercise_slide_state,
+        user_points_update_strategy,
     )
     .await?;
-    Ok(new_user_exercise_state)
+    let user_exercise_state =
+        user_exercise_states::get_by_id(conn, user_exercise_slide_state.user_exercise_state_id)
+            .await?;
+    let user_exercise_state = update_user_exercise_state(
+        conn,
+        exercise,
+        &user_exercise_state,
+        user_points_update_strategy,
+        false,
+        false,
+    )
+    .await?;
+    Ok(user_exercise_state)
 }
 
 async fn update_user_exercise_slide_state(
@@ -397,4 +519,229 @@ async fn update_user_exercise_slide_state(
         user_exercise_slide_state.id, changes
     );
     Ok(())
+}
+
+/// Updates the user exercise state starting from a single task, and propagates the update up to the
+/// whole user exercise state.
+async fn propagate_user_exercise_state_update_from_exercise_task_grading_result(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    exercise_task_grading: &ExerciseTaskGrading,
+    exercise_task_grading_result: &ExerciseTaskGradingResult,
+    user_exercise_slide_state: UserExerciseSlideState,
+    user_points_update_strategy: UserPointsUpdateStrategy,
+) -> ModelResult<UserExerciseState> {
+    let updated_exercise_task_grading = exercise_task_gradings::update_grading(
+        conn,
+        exercise_task_grading,
+        exercise_task_grading_result,
+        exercise,
+    )
+    .await?;
+    exercise_task_submissions::set_grading_id(
+        conn,
+        updated_exercise_task_grading.id,
+        updated_exercise_task_grading.exercise_task_submission_id,
+    )
+    .await?;
+    let user_exercise_task_state = user_exercise_task_states::upsert_with_grading(
+        conn,
+        user_exercise_slide_state.id,
+        &updated_exercise_task_grading,
+    )
+    .await?;
+    let user_exercise_slide_state = user_exercise_slide_states::get_by_id(
+        conn,
+        user_exercise_task_state.user_exercise_slide_state_id,
+    )
+    .await?;
+    let user_exercise_state = propagate_user_exercise_state_update_from_slide(
+        conn,
+        exercise,
+        user_exercise_slide_state,
+        user_points_update_strategy,
+    )
+    .await?;
+    Ok(user_exercise_state)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod derive_new_user_exercise_state {
+        use chrono::TimeZone;
+        use headless_lms_utils::numbers::f32_approx_eq;
+
+        use super::*;
+
+        #[test]
+        fn updates_state_for_normal_exercise() {
+            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let exercise = create_exercise(CourseOrExamId::Course(id), false);
+            let user_exercise_state = create_user_exercise_state(
+                &exercise,
+                None,
+                ActivityProgress::Initialized,
+                ExerciseProgress::NotAnswered,
+            );
+            let new_user_exercise_state = derive_new_user_exercise_state(
+                &exercise,
+                &user_exercise_state,
+                Some(1.0),
+                GradingProgress::FullyGraded,
+                false,
+                false,
+            );
+            assert_results(
+                &new_user_exercise_state,
+                Some(1.0),
+                ActivityProgress::Completed,
+                ExerciseProgress::Complete,
+            );
+        }
+
+        #[test]
+        fn doesnt_update_score_for_exercise_that_needs_to_be_peer_reviewed() {
+            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let exercise = create_exercise(CourseOrExamId::Course(id), true);
+            let user_exercise_state = create_user_exercise_state(
+                &exercise,
+                Some(0.0),
+                ActivityProgress::Initialized,
+                ExerciseProgress::NotAnswered,
+            );
+            let new_user_exercise_state = derive_new_user_exercise_state(
+                &exercise,
+                &user_exercise_state,
+                Some(1.0),
+                GradingProgress::FullyGraded,
+                false,
+                false,
+            );
+            assert_results(
+                &new_user_exercise_state,
+                Some(0.0),
+                ActivityProgress::Completed,
+                ExerciseProgress::NotAnswered,
+            );
+        }
+
+        #[test]
+        fn updates_score_for_exercise_that_has_been_peer_reviewed() {
+            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let exercise = create_exercise(CourseOrExamId::Course(id), true);
+            let user_exercise_state = create_user_exercise_state(
+                &exercise,
+                Some(0.0),
+                ActivityProgress::Initialized,
+                ExerciseProgress::NotAnswered,
+            );
+            let new_user_exercise_state = derive_new_user_exercise_state(
+                &exercise,
+                &user_exercise_state,
+                Some(1.0),
+                GradingProgress::FullyGraded,
+                true,
+                true,
+            );
+            assert_results(
+                &new_user_exercise_state,
+                Some(1.0),
+                ActivityProgress::Completed,
+                ExerciseProgress::Complete,
+            );
+        }
+
+        // Not sure if this makes sense in the long run, but having to get peer review information
+        // for every single submission would be cumbersome. There shouldn't be any scenario where
+        // we want to (automatically) revert peer review progress back to incomplete.
+        #[test]
+        fn doesnt_degrade_state_if_peer_review_was_once_finished() {
+            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let exercise = create_exercise(CourseOrExamId::Course(id), true);
+            let user_exercise_state = create_user_exercise_state(
+                &exercise,
+                Some(1.0),
+                ActivityProgress::Completed,
+                ExerciseProgress::Complete,
+            );
+            let new_user_exercise_state = derive_new_user_exercise_state(
+                &exercise,
+                &user_exercise_state,
+                Some(1.0),
+                GradingProgress::FullyGraded,
+                false,
+                false,
+            );
+            assert_results(
+                &new_user_exercise_state,
+                Some(1.0),
+                ActivityProgress::Completed,
+                ExerciseProgress::Complete,
+            );
+        }
+
+        fn assert_results(
+            update: &UserExerciseStateUpdate,
+            score_given: Option<f32>,
+            activity_progress: ActivityProgress,
+            exercise_progress: ExerciseProgress,
+        ) {
+            if let Some(score_given) = score_given {
+                assert!(f32_approx_eq(update.score_given.unwrap(), score_given,));
+            } else {
+                assert_eq!(update.score_given, None);
+            }
+            assert_eq!(update.activity_progress, activity_progress);
+            assert_eq!(update.exercise_progress, exercise_progress);
+        }
+
+        fn create_exercise(course_or_exam_id: CourseOrExamId, needs_peer_review: bool) -> Exercise {
+            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
+            Exercise {
+                id,
+                created_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
+                updated_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
+                name: "".to_string(),
+                course_id,
+                exam_id,
+                page_id: id,
+                chapter_id: None,
+                deadline: None,
+                deleted_at: None,
+                score_maximum: 9000,
+                order_number: 0,
+                copied_from: None,
+                max_tries_per_slide: None,
+                limit_number_of_tries: false,
+                needs_peer_review,
+            }
+        }
+
+        fn create_user_exercise_state(
+            exercise: &Exercise,
+            score_given: Option<f32>,
+            activity_progress: ActivityProgress,
+            exercise_progress: ExerciseProgress,
+        ) -> UserExerciseState {
+            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            UserExerciseState {
+                id,
+                user_id: id,
+                exercise_id: exercise.id,
+                course_instance_id: exercise.course_id,
+                exam_id: exercise.exam_id,
+                created_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
+                updated_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
+                deleted_at: None,
+                score_given,
+                grading_progress: GradingProgress::NotReady,
+                activity_progress,
+                exercise_progress,
+                selected_exercise_slide_id: None,
+            }
+        }
+    }
 }

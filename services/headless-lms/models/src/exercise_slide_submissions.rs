@@ -36,6 +36,14 @@ pub struct ExerciseSlideSubmission {
     pub user_points_update_strategy: UserPointsUpdateStrategy,
 }
 
+impl ExerciseSlideSubmission {
+    pub fn get_course_instance_id(&self) -> ModelResult<Uuid> {
+        self.course_instance_id.ok_or_else(|| {
+            ModelError::Generic("Submission is not related to a course instance.".to_string())
+        })
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmissionCount {
@@ -180,6 +188,46 @@ WHERE id = $1
     Ok(exercise_slide_submission)
 }
 
+/// Attempts to find a single random `ExerciseSlideSubmission` that is not related to the provided user.
+///
+/// This function is mostly provided for very specific peer review purposes.
+pub async fn try_to_get_random_filtered_by_user_and_submissions(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    excluded_user_id: Uuid,
+    excluded_ids: &[Uuid],
+) -> ModelResult<Option<ExerciseSlideSubmission>> {
+    // TODO: Filter to only latest submission per student.
+    let res = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _"
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+  AND id <> ALL($2)
+  AND user_id <> $3
+  AND deleted_at IS NULL
+ORDER BY random() ASC
+        "#,
+        exercise_id,
+        excluded_ids,
+        excluded_user_id,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_exercise_id(
     conn: &mut PgConnection,
     exercise_id: Uuid,
@@ -215,9 +263,9 @@ LIMIT $2 OFFSET $3;
 
 pub async fn get_users_latest_exercise_slide_submission(
     conn: &mut PgConnection,
-    exercise_slide_id: &Uuid,
-    user_id: &Uuid,
-) -> ModelResult<Option<ExerciseSlideSubmission>> {
+    exercise_slide_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<ExerciseSlideSubmission> {
     let res = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
@@ -242,9 +290,19 @@ LIMIT 1
         exercise_slide_id,
         user_id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn try_to_get_users_latest_exercise_slide_submission(
+    conn: &mut PgConnection,
+    exercise_slide_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Option<ExerciseSlideSubmission>> {
+    get_users_latest_exercise_slide_submission(conn, exercise_slide_id, user_id)
+        .await
+        .optional()
 }
 
 pub async fn get_course_and_exam_id(

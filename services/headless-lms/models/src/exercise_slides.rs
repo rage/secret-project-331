@@ -226,10 +226,10 @@ WHERE exercise_id = $1
 pub async fn get_course_material_exercise_slide_by_id(
     conn: &mut PgConnection,
     id: Uuid,
-    user_id: Option<&Uuid>,
+    user_id: Option<Uuid>,
 ) -> ModelResult<CourseMaterialExerciseSlide> {
     let exercise_tasks =
-        exercise_tasks::get_course_material_exercise_tasks(conn, &id, user_id).await?;
+        exercise_tasks::get_course_material_exercise_tasks(conn, id, user_id).await?;
     Ok(CourseMaterialExerciseSlide { id, exercise_tasks })
 }
 

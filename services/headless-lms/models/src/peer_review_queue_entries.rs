@@ -46,43 +46,70 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn upsert(
+/// Inserts or updates the queue entry indexed by `user_id`, `exercise_id` and `course_instance_id`.
+///
+/// The value for `receiving_peer_reviews_exercise_slide_submission_id` never changes after the initial
+/// insertion. This is to make sure that all received peer reviews are made for the same exercise slide
+/// submission. The same applies to `received_enough_peer_reviews` to avoid the scenario where it might
+/// be set from `true` back to `false`.
+pub async fn upsert_peer_review_priority(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
     course_instance_id: Uuid,
+    peer_review_priority: i32,
     receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+    received_enough_peer_reviews: bool,
 ) -> ModelResult<PeerReviewQueueEntry> {
-    // Can't do actual upsert due to partial constraint.
-    let peer_review_queue_entry = try_to_get_by_user_and_exercise_and_course_instance_ids(
-        conn,
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+INSERT INTO peer_review_queue_entries (
+    user_id,
+    exercise_id,
+    course_instance_id,
+    peer_review_priority,
+    receiving_peer_reviews_exercise_slide_submission_id,
+    received_enough_peer_reviews
+  )
+VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
+UPDATE
+SET peer_review_priority = $4,
+  deleted_at = NULL
+RETURNING *
+        ",
         user_id,
         exercise_id,
         course_instance_id,
+        peer_review_priority,
+        receiving_peer_reviews_exercise_slide_submission_id,
+        received_enough_peer_reviews,
     )
+    .fetch_one(conn)
     .await?;
-    if let Some(peer_review_queue_entry) = peer_review_queue_entry {
-        let peer_review_queue_entry = update(
-            conn,
-            peer_review_queue_entry.id,
-            receiving_peer_reviews_exercise_slide_submission_id,
-            0,
-        )
-        .await?;
-        Ok(peer_review_queue_entry)
-    } else {
-        let peer_review_queue_entry_id = insert(
-            conn,
-            user_id,
-            exercise_id,
-            course_instance_id,
-            receiving_peer_reviews_exercise_slide_submission_id,
-            0,
-        )
-        .await?;
-        let peer_review_queue_entry = get_by_id(conn, peer_review_queue_entry_id).await?;
-        Ok(peer_review_queue_entry)
-    }
+    Ok(res)
+}
+
+pub async fn update_received_enough_peer_reviews(
+    conn: &mut PgConnection,
+    id: Uuid,
+    received_enough_peer_reviews: bool,
+) -> ModelResult<PeerReviewQueueEntry> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+UPDATE peer_review_queue_entries
+SET received_enough_peer_reviews = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+RETURNING *;
+        ",
+        received_enough_peer_reviews,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn update(
@@ -123,6 +150,42 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+async fn get_by_receiving_peer_reviews_submission_and_course_instance_ids(
+    conn: &mut PgConnection,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<PeerReviewQueueEntry> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+SELECT *
+FROM peer_review_queue_entries
+WHERE receiving_peer_reviews_exercise_slide_submission_id = $1
+  AND course_instance_id = $2
+  AND deleted_at IS NULL
+    ",
+        receiving_peer_reviews_exercise_slide_submission_id,
+        course_instance_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn try_to_get_by_receiving_submission_and_course_instance_ids(
+    conn: &mut PgConnection,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Option<PeerReviewQueueEntry>> {
+    get_by_receiving_peer_reviews_submission_and_course_instance_ids(
+        conn,
+        receiving_peer_reviews_exercise_slide_submission_id,
+        course_instance_id,
+    )
+    .await
+    .optional()
 }
 
 pub async fn get_by_user_and_exercise_and_course_instance_ids(

@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseVariantIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -140,18 +141,14 @@ test("material reference tests", async ({ page, headless }) => {
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-1",
   )
 
-  // Click text=Default >> nth=0
-  await page.locator("text=Default").first().click()
-
-  // Click button:has-text("Continue")
-  await page.locator('button:has-text("Continue")').click()
+  await selectCourseVariantIfPrompted(page)
 
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "citation-paragraph",
     beforeScreenshot: async () =>
-      await page.locator(`text=This paragraph contains a citation[1]`).scrollIntoViewIfNeeded(),
+      await page.locator(`text=This paragraph contains a citation`).scrollIntoViewIfNeeded(),
   })
 
   await page.locator("text=Reference").scrollIntoViewIfNeeded()

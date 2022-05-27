@@ -14,38 +14,40 @@ const useReferences = (courseId: string) => {
   )
 
   useEffect(() => {
-    if (getCourseReferences.isError) {
-      // eslint-disable-next-line i18next/no-literal-string
-      throw "Error while loading course references"
-    }
-    if (getCourseReferences.data) {
-      // eslint-disable-next-line i18next/no-literal-string
-      const refs = document.querySelectorAll<HTMLElement>("sup.reference")
+    setTimeout(() => {
+      if (getCourseReferences.isError) {
+        // eslint-disable-next-line i18next/no-literal-string
+        throw "Error while loading course references"
+      }
+      if (getCourseReferences.data) {
+        // eslint-disable-next-line i18next/no-literal-string
+        const refs = document.querySelectorAll<HTMLElement>("sup.reference")
 
-      const citationIds = Array.from(refs).map((ref) => ref.dataset.citationId)
+        const citationIds = Array.from(refs).map((ref) => ref.dataset.citationId)
 
-      const filteredRefs = getCourseReferences.data.filter(
-        (r) => citationIds.indexOf(r.citation_key) !== -1,
-      )
-      const res = filteredRefs.map((r, idx) => {
-        return { reference: r, referenceNumber: idx + 1 }
-      })
+        const filteredRefs = getCourseReferences.data.filter(
+          (r) => citationIds.indexOf(r.citation_key) !== -1,
+        )
+        const res = filteredRefs.map((r, idx) => {
+          return { reference: r, referenceNumber: idx + 1 }
+        })
 
-      setPageRefs(res)
+        setPageRefs(res)
 
-      const refToNum = fromPairs(
-        filteredRefs.map((r, idx) => {
-          return [r.citation_key, idx + 1]
-        }),
-      )
+        const refToNum = fromPairs(
+          filteredRefs.map((r, idx) => {
+            return [r.citation_key, idx + 1]
+          }),
+        )
 
-      Array.from(refs).forEach(
-        (r) =>
-          (r.innerHTML = `[${
-            refToNum[r.dataset.citationId ? r.dataset.citationId : "citationId"]
-          }]`),
-      )
-    }
+        Array.from(refs).forEach(
+          (r) =>
+            (r.innerHTML = `[${
+              refToNum[r.dataset.citationId ? r.dataset.citationId : "citationId"]
+            }]`),
+        )
+      }
+    }, 1500)
   }, [getCourseReferences.data, getCourseReferences.isError])
 
   return pageRefs

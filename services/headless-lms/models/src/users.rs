@@ -148,8 +148,8 @@ pub async fn find_by_upstream_id(
 // Only used for testing, not to use in production.
 pub async fn authenticate_test_user(
     conn: &mut PgConnection,
-    email: String,
-    password: String,
+    email: &str,
+    password: &str,
     application_configuration: &ApplicationConfiguration,
 ) -> ModelResult<User> {
     // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.

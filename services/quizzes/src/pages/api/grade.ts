@@ -13,7 +13,6 @@ interface QuizzesGradingRequest {
 interface OptionAnswerFeedback {
   option_id: string | null
   option_feedback: string | null
-  option_message_after_submission: string | null
   this_option_was_correct: boolean | null
 }
 
@@ -291,14 +290,12 @@ function submissionFeedback(
                 return {
                   option_id: null,
                   option_feedback: null,
-                  option_message_after_submission: null,
                   this_option_was_correct: null,
                 }
               }
               return {
                 option_id: option.id,
-                option_feedback: option.correct ? option.successMessage : option.failureMessage,
-                option_message_after_submission: option.messageAfterSubmissionWhenSelected,
+                option_feedback: option.messageAfterSubmissionWhenSelected,
                 // We'll reveal whether what the student chose was correct or not. If this is not desirable in the future, we can add a configurable policy for this.
                 this_option_was_correct: option.correct,
               }

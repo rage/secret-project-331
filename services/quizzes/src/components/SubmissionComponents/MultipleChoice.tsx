@@ -2,7 +2,6 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { QuizItemOption } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { quizTheme } from "../../styles/QuizStyles"
 import MarkdownText from "../MarkdownText"
@@ -55,8 +54,6 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
   const direction: "row" | "column" =
     public_quiz_item.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
 
-  const feedbackDisplayPolicyAccordingToModelSolution =
-    quiz_item_model_solution?.feedbackDisplayPolicy
   return (
     <div
       className={css`
@@ -140,92 +137,14 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                     </div>
                   </div>
                 </div>
-                <RowSubmissionFeedback
-                  feedbackDisplayPolicyAccordingToModelSolution={
-                    feedbackDisplayPolicyAccordingToModelSolution
-                  }
-                  submissionFeedback={
-                    feedbackForThisOption?.option_message_after_submission ?? undefined
-                  }
-                  selectedAnswer={selectedAnswer}
-                  modelSolutionFeedback={modelSolutionForThisOption ?? undefined}
-                />
+                {feedbackForThisOption?.option_feedback && (
+                  <MarkdownText text={feedbackForThisOption?.option_feedback} />
+                )}
               </div>
             </>
           )
         })}
       </div>
-    </div>
-  )
-}
-
-interface MultipleChoiceDirectionProps {
-  feedbackDisplayPolicyAccordingToModelSolution:
-    | "DisplayFeedbackOnQuizItem"
-    | "DisplayFeedbackOnAllOptions"
-    | undefined
-  submissionFeedback: string | undefined
-  selectedAnswer: boolean
-  modelSolutionFeedback: QuizItemOption | undefined
-}
-
-const RowSubmissionFeedback: React.FC<MultipleChoiceDirectionProps> = ({
-  feedbackDisplayPolicyAccordingToModelSolution,
-  submissionFeedback,
-  selectedAnswer,
-  modelSolutionFeedback,
-}) => {
-  return (
-    <div>
-      {feedbackDisplayPolicyAccordingToModelSolution === "DisplayFeedbackOnQuizItem" ? (
-        <>
-          {modelSolutionFeedback && selectedAnswer ? (
-            <div
-              className={css`
-                margin-left: 0.5em;
-                display: flex;
-                border-left: ${modelSolutionFeedback.correct
-                  ? `6px solid #1F6964`
-                  : `6px solid #A84835`};
-                box-sizing: border-box;
-                padding: 0.5rem 0px 0.5rem 0.5rem;
-                margin-bottom: 5px !important;
-              `}
-            >
-              <p>
-                {modelSolutionFeedback.correct
-                  ? modelSolutionFeedback.successMessage
-                  : modelSolutionFeedback.failureMessage}
-              </p>
-            </div>
-          ) : null}
-        </>
-      ) : null}
-      {feedbackDisplayPolicyAccordingToModelSolution === "DisplayFeedbackOnAllOptions" ? (
-        <>
-          {modelSolutionFeedback && selectedAnswer ? (
-            <div
-              className={css`
-                margin-left: 0.5em;
-                display: flex;
-                border-left: ${modelSolutionFeedback.correct
-                  ? `6px solid #1F6964`
-                  : `6px solid #A84835`};
-                box-sizing: border-box;
-                padding: 0.5rem 0px 0.5rem 0.5rem;
-                margin-bottom: 5px !important;
-              `}
-            >
-              <p>
-                {modelSolutionFeedback.correct
-                  ? modelSolutionFeedback.successMessage
-                  : modelSolutionFeedback.failureMessage}
-              </p>
-            </div>
-          ) : null}
-        </>
-      ) : null}
-      {submissionFeedback && <MarkdownText text={submissionFeedback} />}
     </div>
   )
 }

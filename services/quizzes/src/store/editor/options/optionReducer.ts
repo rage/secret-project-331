@@ -15,8 +15,6 @@ import {
 import {
   editedOptionAfterSubmissionSelectedMessage,
   editedOptionCorrectness,
-  editedOptionFailureMessage,
-  editedOptionSuccessMessage,
   editedOptionTitle,
 } from "./optionActions"
 
@@ -35,18 +33,6 @@ export const optionReducer = createReducer<
   .handleAction(editedOptionCorrectness, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.optionId].correct = action.payload.correct
-    })
-  })
-
-  .handleAction(editedOptionSuccessMessage, (state, action) => {
-    return produce(state, (draftState) => {
-      draftState[action.payload.optionId].successMessage = action.payload.newMessage
-    })
-  })
-
-  .handleAction(editedOptionFailureMessage, (state, action) => {
-    return produce(state, (draftState) => {
-      draftState[action.payload.optionId].failureMessage = action.payload.newMessage
     })
   })
 
@@ -69,8 +55,6 @@ export const optionReducer = createReducer<
         correct: false,
         order: 0,
         messageAfterSubmissionWhenSelected: "",
-        successMessage: "",
-        failureMessage: "",
       }
     })
   })

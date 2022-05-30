@@ -235,8 +235,6 @@ export interface QuizItemOption {
   updatedAt: Date
   title: string
   body: string | null
-  successMessage: null | string
-  failureMessage: null | string
   messageAfterSubmissionWhenSelected: null | string
 }
 
@@ -249,8 +247,6 @@ export interface NormalizedQuizItemOption {
   updatedAt: string
   title: string
   body: string | null
-  successMessage: null | string
-  failureMessage: null | string
   messageAfterSubmissionWhenSelected: null | string
 }
 

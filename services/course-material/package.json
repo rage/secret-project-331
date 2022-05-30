@@ -42,7 +42,6 @@
     "react-i18next": "^11.16.9",
     "react-is": "^18.1.0",
     "react-medium-image-zoom": "^4.3.7",
-    "react-particles": "0.0.3",
     "react-query": "^3.39.0",
     "react-spring": "^9.4.5",
     "react-tsparticles": "^2.0.6",

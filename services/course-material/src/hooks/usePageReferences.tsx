@@ -1,11 +1,13 @@
 import { fromPairs } from "lodash"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { useQuery } from "react-query"
 
+import PageContext from "../contexts/PageContext"
 import { fetchCourseReferences } from "../services/backend"
 import { MaterialReference } from "../shared-module/bindings"
 
 const useReferences = (courseId: string) => {
+  const page = useContext(PageContext)
   const [pageRefs, setPageRefs] =
     useState<{ reference: MaterialReference; referenceNumber: number }[]>()
 
@@ -14,7 +16,16 @@ const useReferences = (courseId: string) => {
   )
 
   useEffect(() => {
-    setTimeout(() => {
+    if (!page.pageData) {
+      return
+    }
+    let attempt = 0
+    const callback = () => {
+      const numReferences = document.querySelectorAll("sup.reference").length
+      if (numReferences === 0 && attempt < 10) {
+        attempt = attempt + 1
+        setTimeout(callback, 100)
+      }
       if (getCourseReferences.isError) {
         // eslint-disable-next-line i18next/no-literal-string
         throw "Error while loading course references"
@@ -47,8 +58,9 @@ const useReferences = (courseId: string) => {
             }]`),
         )
       }
-    }, 1500)
-  }, [getCourseReferences.data, getCourseReferences.isError])
+    }
+    setTimeout(callback, 10)
+  }, [getCourseReferences.data, getCourseReferences.isError, page])
 
   return pageRefs
 }

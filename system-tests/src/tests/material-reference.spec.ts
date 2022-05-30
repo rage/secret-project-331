@@ -68,6 +68,7 @@ test("material reference tests", async ({ page, headless }) => {
     headless,
     snapshotName: "new-material-reference-added",
     waitForThisToBeVisibleAndStable: ["text=Add new reference"],
+    clearNotifications: true,
   })
 
   await page.locator("text=Edit reference").click()
@@ -97,6 +98,7 @@ test("material reference tests", async ({ page, headless }) => {
     headless,
     snapshotName: "material-reference-edited",
     waitForThisToBeVisibleAndStable: ["text=Add new reference"],
+    clearNotifications: true,
   })
 
   // Click text=Pages

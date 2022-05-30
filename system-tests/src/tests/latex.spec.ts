@@ -90,16 +90,20 @@ test("latex-block renders", async ({ headless, page }) => {
   await page.waitForTimeout(100)
   // - CREATE LATEX BLOCK
   // Click text=No block selected.Pages In Chapter Grid PlaceholderThis block is placed on each  >> button
-  await page.click('[aria-label="Add block"]')
-
-  // Click [placeholder="Search"]
-  await page.click('[placeholder="Search"]')
-  // Fill [placeholder="Search"]
-  await page.fill('[placeholder="Search"]', "latex")
+  // Click [aria-label="Empty block\; start writing or type forward slash to choose a block"]
+  await page
+    .locator('[aria-label="Empty block\\; start writing or type forward slash to choose a block"]')
+    .click()
+  // Click button[role="option"]:has-text("Latex")
+  await page
+    .locator('[aria-label="Empty block\\; start writing or type forward slash to choose a block"]')
+    .type(`/latex`)
   // Click button[role="option"]:has-text("Latex Block")
   await page.click('button[role="option"]:has-text("Latex")')
   // Fill textarea
   await page.fill("textarea", "\\int^\\infty_{-\\infty} e^{-x^2} dx = \\sqrt{\\pi}")
+  // Focus the block
+  await page.click("textarea")
 
   await page.click(`[aria-label="Options"]`)
   await page.waitForTimeout(100)

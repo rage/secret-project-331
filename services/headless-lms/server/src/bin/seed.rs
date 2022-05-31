@@ -1626,7 +1626,6 @@ async fn seed_sample_course(
                 "failureMessage": null,
                 "successMessage": null,
                 "allAnswersCorrect": false,
-                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                 "sharedOptionFeedbackMessage": null,
                 "usesSharedOptionFeedbackMessage": false
             }],
@@ -1686,7 +1685,6 @@ async fn seed_sample_course(
                 "failureMessage": "Oh no! Your answer is not in yyyy-mm-dd format :(".to_string(),
                 "successMessage": "Gongrats! your answer is in yyyy-mm-dd format!".to_string(),
                 "allAnswersCorrect": false,
-                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                 "sharedOptionFeedbackMessage": null,
                 "usesSharedOptionFeedbackMessage": false
             }],
@@ -1765,7 +1763,6 @@ async fn seed_sample_course(
                 "messageAfterSubmissionWhenSelected": null,
                 "additionalCorrectnessExplanationOnModelSolution": null,
                 "allAnswersCorrect": false,
-                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                 "sharedOptionFeedbackMessage": null,
                 "usesSharedOptionFeedbackMessage": false
             }],
@@ -1865,7 +1862,6 @@ async fn seed_sample_course(
                     },
                 ],
                 "allAnswersCorrect": false,
-                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                 "sharedOptionFeedbackMessage": null,
                 "usesSharedOptionFeedbackMessage": false
             }],
@@ -1917,7 +1913,6 @@ async fn seed_sample_course(
               "createdAt": "2022-05-04T09:03:09.167Z",
               "direction": "column",
               "failureMessage": null,
-              "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
               "formatRegex": null,
               "id": "105270c8-e94a-40ec-a159-8fe38f116bb4",
               "maxValue": null,
@@ -2608,7 +2603,6 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "additionalCorrectnessExplanationOnModelSolution": null,
                     },],
                     "allAnswersCorrect": false,
-                    "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                     "sharedOptionFeedbackMessage": null,
                     "usesSharedOptionFeedbackMessage": false
                 }],
@@ -2702,7 +2696,6 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "additionalCorrectnessExplanationOnModelSolution": null,
                     },],
                     "allAnswersCorrect": false,
-                    "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                     "sharedOptionFeedbackMessage": null,
                     "usesSharedOptionFeedbackMessage": false
                 }],
@@ -2778,7 +2771,6 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "additionalCorrectnessExplanationOnModelSolution": null,
                     },],
                     "allAnswersCorrect": false,
-                    "feedbackDisplayPolicy": "DisplayFeedbackOnAllOptions",
                     "sharedOptionFeedbackMessage": null,
                     "usesSharedOptionFeedbackMessage": false
                 }],

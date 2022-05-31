@@ -118,7 +118,6 @@ export interface QuizItem {
   sharedOptionFeedbackMessage: null
   allAnswersCorrect: boolean
   direction: "row" | "column"
-  feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
   timelineItems: QuizItemTimelineItem[] | null
 }
 
@@ -164,7 +163,6 @@ export interface NormalizedQuizItem {
   sharedOptionFeedbackMessage: string | null
   allAnswersCorrect: boolean
   direction: "row" | "column"
-  feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
   /** Only defined for the timeline quiz item type. */
   timelineItems: string[]
 }

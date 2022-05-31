@@ -44,7 +44,6 @@
         }
       ],
       "allAnswersCorrect": false,
-      "feedbackDisplayPolicy": "DisplayFeedbackOnAllOptions",
       "sharedOptionFeedbackMessage": null,
       "usesSharedOptionFeedbackMessage": false
     }

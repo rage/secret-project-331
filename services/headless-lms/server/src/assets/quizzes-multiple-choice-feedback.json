@@ -64,7 +64,6 @@
       "failureMessage": null,
       "successMessage": null,
       "allAnswersCorrect": false,
-      "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
       "sharedOptionFeedbackMessage": null,
       "usesSharedOptionFeedbackMessage": false
     }

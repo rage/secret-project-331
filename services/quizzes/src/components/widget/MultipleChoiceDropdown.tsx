@@ -47,7 +47,7 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
         <div
           className={css`
             display: flex;
-            margin: 0.5rem;
+            margin: 0.5rem 0;
           `}
         >
           {quizItem.title ? (
@@ -95,8 +95,16 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
           onChange={handleOptionSelect}
           aria-label={t("answer")}
           className={css`
-            display: flex;
+            display: grid;
             width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 3px;
+            padding: 10px 12px;
+            font-size: 18px;
+            cursor: pointer;
+            background: #f9f9f9;
+            grid-template-areas: "select";
+            align-items: center;
           `}
         >
           <option

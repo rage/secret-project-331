@@ -83,7 +83,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   return (
     <div
       className={css`
-        margin: 0.8rem 0;
+        margin: 0.7rem 0;
       `}
     >
       <div

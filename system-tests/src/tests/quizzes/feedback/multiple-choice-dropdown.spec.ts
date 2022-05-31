@@ -56,7 +56,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer",
-    waitForThisToBeVisibleAndStable: `text=Your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
@@ -75,7 +75,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "multiple-choice-dropdown-feedback-correct-answer",
-    waitForThisToBeVisibleAndStable: `text=Your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
@@ -94,7 +94,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer-after-correct",
-    waitForThisToBeVisibleAndStable: `text=Your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 })

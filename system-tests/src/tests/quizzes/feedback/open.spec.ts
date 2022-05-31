@@ -58,7 +58,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "open-feedback-incorrect",
-    waitForThisToBeVisibleAndStable: `text=Your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
@@ -79,7 +79,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "open-feedback-correct",
-    waitForThisToBeVisibleAndStable: `text=Your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 })

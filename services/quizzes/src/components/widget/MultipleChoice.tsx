@@ -23,6 +23,7 @@ const optionButton = css`
   margin: 0.3rem;
   padding: 1rem;
   transition: background-color 0.2s;
+  text-align: left;
 `
 
 const optionButtonColumn = css`

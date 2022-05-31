@@ -83,50 +83,56 @@ const Submission: React.FC<SubmissionProps> = ({
   const { t } = useTranslation()
   return (
     <>
-      {publicAlternatives.items.map((item) => {
-        const componentDescriptor = componentDescriptorByTypeName(item.type as QuizItemType)
-        if (!componentDescriptor) {
-          return <div key={item.id}>{t("quiz-type-not-supported")}</div>
-        }
-        const Component = componentDescriptor.component
-        const itemFeedback = feedback_json
-          ? feedback_json.filter((itemFeedback) => itemFeedback.quiz_item_id === item.id)[0]
-          : null
-        const itemModelSolution = modelSolutions
-          ? modelSolutions.items.filter((itemModelSolution) => itemModelSolution.id === item.id)[0]
-          : null
-        const quizItemAnswer = user_answer.itemAnswers.filter((ia) => ia.quizItemId === item.id)[0]
-        return (
-          <div key={item.id}>
-            <Component
-              key={item.id}
-              public_quiz_item={item}
-              quiz_item_feedback={itemFeedback}
-              quiz_item_model_solution={itemModelSolution}
-              user_quiz_item_answer={quizItemAnswer}
-            />
-            {itemFeedback && componentDescriptor.shouldDisplayCorrectnessMessageAfterAnswer && (
-              <div
-                className={css`
-                  background: ${itemFeedback.quiz_item_correct ? "#f1fff2" : "#fff4f5"};
-                  border: 1px solid ${itemFeedback.quiz_item_correct ? "#cbf3cd" : "#f3cbcf"};
-                  box-sizing: border-box;
-                  border-radius: 4px;
-                  color: ${itemFeedback.quiz_item_correct ? "#1c850d" : "#d52a3c"};
-                  margin: 1.5rem auto;
-                  margin-bottom: 0;
-                  padding: 0.25rem 1.5rem;
-                  width: fit-content;
-                `}
-              >
-                {itemFeedback.quiz_item_correct
-                  ? t("your-answer-was-correct")
-                  : t("your-answer-was-not-correct")}
-              </div>
-            )}
-          </div>
-        )
-      })}
+      {publicAlternatives.items
+        .sort((i1, i2) => i1.order - i2.order)
+        .map((item) => {
+          const componentDescriptor = componentDescriptorByTypeName(item.type as QuizItemType)
+          if (!componentDescriptor) {
+            return <div key={item.id}>{t("quiz-type-not-supported")}</div>
+          }
+          const Component = componentDescriptor.component
+          const itemFeedback = feedback_json
+            ? feedback_json.filter((itemFeedback) => itemFeedback.quiz_item_id === item.id)[0]
+            : null
+          const itemModelSolution = modelSolutions
+            ? modelSolutions.items.filter(
+                (itemModelSolution) => itemModelSolution.id === item.id,
+              )[0]
+            : null
+          const quizItemAnswer = user_answer.itemAnswers.filter(
+            (ia) => ia.quizItemId === item.id,
+          )[0]
+          return (
+            <div key={item.id}>
+              <Component
+                key={item.id}
+                public_quiz_item={item}
+                quiz_item_feedback={itemFeedback}
+                quiz_item_model_solution={itemModelSolution}
+                user_quiz_item_answer={quizItemAnswer}
+              />
+              {itemFeedback && componentDescriptor.shouldDisplayCorrectnessMessageAfterAnswer && (
+                <div
+                  className={css`
+                    background: ${itemFeedback.quiz_item_correct ? "#f1fff2" : "#fff4f5"};
+                    border: 1px solid ${itemFeedback.quiz_item_correct ? "#cbf3cd" : "#f3cbcf"};
+                    box-sizing: border-box;
+                    border-radius: 4px;
+                    color: ${itemFeedback.quiz_item_correct ? "#1c850d" : "#d52a3c"};
+                    margin: 1.5rem auto;
+                    margin-bottom: 0;
+                    padding: 0.25rem 1.5rem;
+                    width: fit-content;
+                  `}
+                >
+                  {itemFeedback.quiz_item_correct
+                    ? t("your-answer-was-correct")
+                    : t("your-answer-was-not-correct")}
+                </div>
+              )}
+            </div>
+          )
+        })}
     </>
   )
 }

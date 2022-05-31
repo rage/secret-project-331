@@ -1740,8 +1740,8 @@ async fn seed_sample_course(
                     "title": null,
                     "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                     "correct":true,
-                    "failureMessage": null,
-                    "successMessage": "You chose wisely...".to_string()
+                    "messageAfterSubmissionWhenSelected": "You chose wisely...",
+                    "additionalCorrectnessExplanationOnModelSolution": null,
                 },
                 {
                     "id": "fef8cd36-04ab-48f2-861c-51769ccad52f",
@@ -1750,8 +1750,8 @@ async fn seed_sample_course(
                     "title": null,
                     "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                     "correct":false,
-                    "failureMessage": "You chose poorly...".to_string(),
-                    "successMessage": null
+                    "messageAfterSubmissionWhenSelected": "You chose poorly...",
+                    "additionalCorrectnessExplanationOnModelSolution": null,
                 }],
                 "maxValue": null,
                 "maxWords": null,
@@ -1762,8 +1762,8 @@ async fn seed_sample_course(
                 "updatedAt": "2021-12-17T07:16:23.202Z",
                 "formatRegex": null,
                 "validityRegex": null,
-                "failureMessage": null,
-                "successMessage": null,
+                "messageAfterSubmissionWhenSelected": null,
+                "additionalCorrectnessExplanationOnModelSolution": null,
                 "allAnswersCorrect": false,
                 "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                 "sharedOptionFeedbackMessage": null,
@@ -1820,8 +1820,8 @@ async fn seed_sample_course(
                         "title": null,
                         "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                         "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Java is a programming language".to_string()
+                        "messageAfterSubmissionWhenSelected": "Java is a programming language",
+                        "additionalCorrectnessExplanationOnModelSolution": null
                     },
                     {
                         "id": "534bf512-014e-47b6-a67b-8bea6dc65177",
@@ -1830,8 +1830,8 @@ async fn seed_sample_course(
                         "title": null,
                         "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                         "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Erlang is a programming language".to_string()
+                        "messageAfterSubmissionWhenSelected": "Erlang is a programming language",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },
                     {
                         "id": "ea4e0bb4-f84e-4048-be2f-f819a391396f",
@@ -1840,8 +1840,8 @@ async fn seed_sample_course(
                         "title": null,
                         "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                         "correct":false,
-                        "failureMessage": "Jupiter is not a programming language".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Jupiter is not a programming language",
+                        "additionalCorrectnessExplanationOnModelSolution": null
                     },
                     {
                         "id": "b851f1b3-ae90-46bd-8f10-fd6d968695ef",
@@ -1850,8 +1850,8 @@ async fn seed_sample_course(
                         "title": null,
                         "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                         "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Rust is a programming language".to_string()
+                        "messageAfterSubmissionWhenSelected": "Rust is a programming language",
+                        "additionalCorrectnessExplanationOnModelSolution": null
                     },
                     {
                         "id": "8107ae39-96aa-4f54-aa78-1a33362a19c1",
@@ -1860,8 +1860,8 @@ async fn seed_sample_course(
                         "title": null,
                         "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                         "correct":false,
-                        "failureMessage": "AC is not a programming language".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "AC is not a programming language",
+                        "additionalCorrectnessExplanationOnModelSolution": null
                     },
                 ],
                 "allAnswersCorrect": false,
@@ -1983,7 +1983,9 @@ async fn seed_sample_course(
         Uuid::new_v5(&course.id, b"d7a91d07-9bd9-449c-9862-fbacb0b402b0"),
         Uuid::new_v5(&course.id, b"664ea614-4af4-4ad0-9855-eae1881568e6"),
         false,
-        serde_json::from_str(include_str!("../assets/quizzes-multiple-choice.json"))?,
+        serde_json::from_str(include_str!(
+            "../assets/quizzes-multiple-choice-feedback.json"
+        ))?,
     );
 
     let page_3 = create_page(
@@ -2572,6 +2574,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                     "id": "7b0049ea-de8b-4eef-a4a9-164e0e874ecc",
                     "body": "",
                     "type": "multiple-choice",
+                    "direction": "row",
                     "multi": false,
                     "order": 0,
                     "title": "Choose the first answer",
@@ -2583,8 +2586,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "7b0049ea-de8b-4eef-a4a9-164e0e874ecc",
                         "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Correct! This is indeed the first answer".to_string(),
+                        "messageAfterSubmissionWhenSelected": "Correct! This is indeed the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },{
                         "id": "846c09e2-653a-4471-81ae-25726486b003",
                         "body": "This is second option",
@@ -2592,8 +2595,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "7b0049ea-de8b-4eef-a4a9-164e0e874ecc",
                         "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },{
                         "id": "8107ae39-96aa-4f54-aa78-1a33362a19c1",
                         "body": "This is third option",
@@ -2601,8 +2604,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "7b0049ea-de8b-4eef-a4a9-164e0e874ecc",
                         "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },],
                     "allAnswersCorrect": false,
                     "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
@@ -2639,66 +2642,9 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         Uuid::new_v5(&course.id, b"d6d80ae0-97a1-4db1-8a3b-2bdde3cfbe9a"),
         Uuid::new_v5(&course.id, b"085b60ec-aa9d-11ec-b500-7b1e176646f8"),
         false,
-        serde_json::json!({
-                "id": "783a7697-5e9e-41dc-90b5-c7fe1570bd3a",
-                "body": "very hard",
-                "part": 4,
-                "items": [{
-                    "id": "6100f2ad-55b3-455a-80bc-85a2977628c6",
-                    "body": "",
-                    "type": "multiple-choice",
-                    "multi": false,
-                    "order": 0,
-                    "title": "Choose the first answer",
-                    "quizId": "783a7697-5e9e-41dc-90b5-c7fe1570bd3a",
-                    "options": [{
-                        "id": "fd028533-6ea3-4b05-9354-5501ea7aac71",
-                        "body": "This is first option",
-                        "order": 1,
-                        "title": null,
-                        "quizItemId": "6100f2ad-55b3-455a-80bc-85a2977628c6",
-                        "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Correct! This is indeed the first answer".to_string(),
-                    },{
-                        "id": "7bfd34f7-a2a0-4c5d-8726-cbf627a77624",
-                        "body": "This is second option",
-                        "order": 1,
-                        "title": null,
-                        "quizItemId": "6100f2ad-55b3-455a-80bc-85a2977628c6",
-                        "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
-                    },{
-                        "id": "3e77aa66-739a-4a7a-8e2c-e775356a3b42",
-                        "body": "This is third option",
-                        "order": 1,
-                        "title": null,
-                        "quizItemId": "6100f2ad-55b3-455a-80bc-85a2977628c6",
-                        "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
-                    },],
-                    "allAnswersCorrect": false,
-                    "feedbackDisplayPolicy": "DisplayFeedbackOnAllOptions",
-                    "sharedOptionFeedbackMessage": null,
-                    "usesSharedOptionFeedbackMessage": false
-                }],
-                "title": "Very good exercise",
-                "tries": 1,
-                "points": 3,
-                "section": 0,
-                "courseId": "d6b52ddc-6c34-4a59-9a59-7e8594441007",
-                "deadline": "2021-12-17T07:15:33.479Z",
-                "createdAt": "2021-12-17T07:15:33.479Z",
-                "updatedAt": "2021-12-17T07:15:33.479Z",
-                "autoReject": false,
-                "autoConfirm": true,
-                "triesLimited": true,
-                "submitMessage": "your submit has been answered",
-                "excludedFromScore": true,
-                "grantPointsPolicy": "grant_whenever_possible",
-                "awardPointsEvenIfWrong": false}),
+        serde_json::from_str(include_str!(
+            "../assets/quizzes-multiple-choice-additional-feedback.json"
+        ))?,
     );
 
     let (
@@ -2734,8 +2680,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "395888c8-aa9d-11ec-bb81-cb3a3f2609e4",
                         "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Correct! This is indeed the first answer".to_string(),
+                        "messageAfterSubmissionWhenSelected": "Correct! This is indeed the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },{
                         "id": "45e77450-aa9d-11ec-abea-6b824f5ae1f6",
                         "body": "This is second option",
@@ -2743,8 +2689,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "395888c8-aa9d-11ec-bb81-cb3a3f2609e4",
                         "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },{
                         "id": "43428140-aa9d-11ec-a6b3-83ec8e2dfb88",
                         "body": "This is third option",
@@ -2752,8 +2698,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "395888c8-aa9d-11ec-bb81-cb3a3f2609e4",
                         "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },],
                     "allAnswersCorrect": false,
                     "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
@@ -2810,8 +2756,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "871c3640-aa9d-11ec-8103-633d645899a3",
                         "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Correct! This is indeed the first answer".to_string(),
+                        "messageAfterSubmissionWhenSelected": "Correct! This is indeed the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },{
                         "id": "1d5de4d0-8499-4ac1-b44c-21c1562639cb",
                         "body": "This is second option",
@@ -2819,8 +2765,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "871c3640-aa9d-11ec-8103-633d645899a3",
                         "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },{
                         "id": "93fe358e-aa9d-11ec-9aa1-f3d18a09d58c",
                         "body": "This is third option",
@@ -2828,8 +2774,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "871c3640-aa9d-11ec-8103-633d645899a3",
                         "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },],
                     "allAnswersCorrect": false,
                     "feedbackDisplayPolicy": "DisplayFeedbackOnAllOptions",

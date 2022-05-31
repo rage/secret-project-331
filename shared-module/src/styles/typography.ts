@@ -9,6 +9,7 @@ const fallbackFontsMonospace = `ui-monospace, "Source Code Pro", "Ubuntu Mono", 
 
 export const headingFont = `"Josefin Sans", ${fallbackFontsSansSerif}`
 export const primaryFont = `"Lato", ${fallbackFontsSansSerif}`
+export const secondaryFont = `"Raleway", ${fallbackFontsSansSerif}`
 export const monospaceFont = `"Space Mono", ${fallbackFontsMonospace}`
 
 export const typography = {

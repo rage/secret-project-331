@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux"
 
 import { NormalizedQuizItemOption } from "../../../../../types/types"
 import {
+  editedOptionAdditionalCorrectnessExplanationOnModelSolution,
   editedOptionAfterSubmissionSelectedMessage,
   editedOptionCorrectness,
   editedOptionTitle,
@@ -56,6 +57,17 @@ export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
           text={storeOption.messageAfterSubmissionWhenSelected ?? ""}
           onChange={(value) =>
             dispatch(editedOptionAfterSubmissionSelectedMessage(storeOption.id, value))
+          }
+        />
+      </ModalContent>
+      <ModalContent>
+        <MarkdownEditor
+          label={t("additional-correctness-explanation-on-model-solution")}
+          text={storeOption.additionalCorrectnessExplanationOnModelSolution ?? ""}
+          onChange={(value) =>
+            dispatch(
+              editedOptionAdditionalCorrectnessExplanationOnModelSolution(storeOption.id, value),
+            )
           }
         />
       </ModalContent>

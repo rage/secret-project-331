@@ -13,6 +13,7 @@ import {
 } from "../editorActions"
 
 import {
+  editedOptionAdditionalCorrectnessExplanationOnModelSolution,
   editedOptionAfterSubmissionSelectedMessage,
   editedOptionCorrectness,
   editedOptionTitle,
@@ -43,6 +44,13 @@ export const optionReducer = createReducer<
     })
   })
 
+  .handleAction(editedOptionAdditionalCorrectnessExplanationOnModelSolution, (state, action) => {
+    return produce(state, (draftState) => {
+      draftState[action.payload.optionId].additionalCorrectnessExplanationOnModelSolution =
+        action.payload.newMessage
+    })
+  })
+
   .handleAction(createdNewOption, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.optionId] = {
@@ -55,6 +63,7 @@ export const optionReducer = createReducer<
         correct: false,
         order: 0,
         messageAfterSubmissionWhenSelected: "",
+        additionalCorrectnessExplanationOnModelSolution: "",
       }
     })
   })

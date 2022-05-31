@@ -236,6 +236,7 @@ export interface QuizItemOption {
   title: string
   body: string | null
   messageAfterSubmissionWhenSelected: null | string
+  additionalCorrectnessExplanationOnModelSolution: null | string
 }
 
 export interface NormalizedQuizItemOption {
@@ -247,7 +248,20 @@ export interface NormalizedQuizItemOption {
   updatedAt: string
   title: string
   body: string | null
+  /**
+   * Immediate feedback for user if they chose this answer. Can be used to explain why the answer
+   * was right or wrong.
+   *
+   * Only implemented for row multiple choice at the moment.
+   */
   messageAfterSubmissionWhenSelected: null | string
+  /**
+   * When the user has either ran out of tries or they have gotten full points from the exercise, show
+   * this message on all options that don't have other feedback even if the option was not selected.
+   *
+   * Only implemented for row multiple choice at the moment.
+   */
+  additionalCorrectnessExplanationOnModelSolution: null | string
 }
 
 /** Only defined for the timeline exercise type */

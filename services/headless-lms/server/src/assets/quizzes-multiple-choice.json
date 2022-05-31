@@ -22,9 +22,8 @@
           "createdAt": "2022-05-25T11:56:00.416Z",
           "updatedAt": "2022-05-25T11:56:00.416Z",
           "quizItemId": "0b425ad1-fe4c-424e-a988-ba7160612f15",
-          "failureMessage": "Incorrect answer",
-          "successMessage": "",
-          "messageAfterSubmissionWhenSelected": "Rustup is the installer program for Rust. It allows for managing different versions of the language, but not the actual packages."
+          "messageAfterSubmissionWhenSelected": "Rustup is the installer program for Rust. It allows for managing different versions of the language, but not the actual packages.",
+          "additionalCorrectnessExplanationOnModelSolution": null
         },
         {
           "id": "e93e61ff-bd51-4951-a71f-72eab3cee681",
@@ -35,9 +34,8 @@
           "createdAt": "2022-05-25T11:56:01.910Z",
           "updatedAt": "2022-05-25T11:56:01.910Z",
           "quizItemId": "0b425ad1-fe4c-424e-a988-ba7160612f15",
-          "failureMessage": "",
-          "successMessage": "You chose the right answer.",
-          "messageAfterSubmissionWhenSelected": "Cargo is the package manager for rust dependencies."
+          "messageAfterSubmissionWhenSelected": "Cargo is the package manager for rust dependencies.",
+          "additionalCorrectnessExplanationOnModelSolution": null
         },
         {
           "id": "23143a7b-2917-4c34-89b1-a0ff95912732",
@@ -48,9 +46,8 @@
           "createdAt": "2022-05-25T11:56:03.342Z",
           "updatedAt": "2022-05-25T11:56:03.342Z",
           "quizItemId": "0b425ad1-fe4c-424e-a988-ba7160612f15",
-          "failureMessage": "Wrong answer.",
-          "successMessage": "",
-          "messageAfterSubmissionWhenSelected": "NPM is NODE package manager."
+          "messageAfterSubmissionWhenSelected": "NPM is a NODE package manager.",
+          "additionalCorrectnessExplanationOnModelSolution": null
         }
       ],
       "maxValue": null,

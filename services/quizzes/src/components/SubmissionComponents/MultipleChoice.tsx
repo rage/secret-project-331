@@ -137,9 +137,14 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                     </div>
                   </div>
                 </div>
-                {feedbackForThisOption?.option_feedback && (
-                  <MarkdownText text={feedbackForThisOption?.option_feedback} />
-                )}
+                <RowSubmissionFeedback
+                  correct={correctAnswer ?? false}
+                  feedback={
+                    selectedAnswer
+                      ? feedbackForThisOption?.option_feedback
+                      : modelSolutionForThisOption?.additionalCorrectnessExplanationOnModelSolution
+                  }
+                />
               </div>
             </>
           )
@@ -150,3 +155,27 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
 }
 
 export default MultipleChoiceSubmission
+
+interface RowSubmissionFeedbackProps {
+  feedback: string | null | undefined
+  correct: boolean
+}
+
+const RowSubmissionFeedback: React.FC<RowSubmissionFeedbackProps> = ({ feedback, correct }) => {
+  return feedback ? (
+    <div
+      className={css`
+        margin: 0 0.5rem 1rem;
+        display: flex;
+        border-left: ${correct
+          ? `6px solid ${quizTheme.gradingCorrectItemBackground}`
+          : `6px solid ${quizTheme.gradingWrongItemBackground}`};
+        box-sizing: border-box;
+        background: ${quizTheme.feedbackBackground};
+        padding: 0.5rem 0px 0.5rem 0.5rem;
+      `}
+    >
+      <p>{feedback}</p>
+    </div>
+  ) : null
+}

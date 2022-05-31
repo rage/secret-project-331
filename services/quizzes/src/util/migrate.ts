@@ -36,6 +36,8 @@ function migrateQuizItemOption(oldQuizItemOption: unknown): QuizItemOption {
     correct: (oldQuizItemOption as QuizItemOption).correct,
     createdAt: (oldQuizItemOption as QuizItemOption).createdAt,
     messageAfterSubmissionWhenSelected: feedback,
+    additionalCorrectnessExplanationOnModelSolution:
+      (oldQuizItemOption as QuizItemOption).additionalCorrectnessExplanationOnModelSolution ?? null,
     order: (oldQuizItemOption as QuizItemOption).order,
     title: (oldQuizItemOption as QuizItemOption).title,
     updatedAt: (oldQuizItemOption as QuizItemOption).updatedAt,

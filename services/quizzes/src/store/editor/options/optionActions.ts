@@ -21,10 +21,16 @@ export const editedOptionAfterSubmissionSelectedMessage = createAction(
   (optionId: string, newMessage: string) => ({ optionId, newMessage }),
 )<{ optionId: string; newMessage: string }>()
 
+export const editedOptionAdditionalCorrectnessExplanationOnModelSolution = createAction(
+  "EDITED_OPTION_ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION",
+  (optionId: string, newMessage: string) => ({ optionId, newMessage }),
+)<{ optionId: string; newMessage: string }>()
+
 export const optionActions = [
   editedOptionTitle,
   editedOptionCorrectness,
   editedOptionAfterSubmissionSelectedMessage,
+  editedOptionAdditionalCorrectnessExplanationOnModelSolution,
 ]
 
 export default optionActions

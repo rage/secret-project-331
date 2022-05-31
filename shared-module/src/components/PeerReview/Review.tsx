@@ -53,7 +53,14 @@ const Review: React.FC<ReviewComponentProps> = () => {
 
       <span className="comment">{GENERAL_COMMENTS}</span>
       <TextArea placeholder={t("write-a-review")} onChange={() => null}></TextArea>
-      <LinkertScale question={EXAMPLE_QUESTION} answerRequired={false} />
+      <LinkertScale
+        question={EXAMPLE_QUESTION}
+        answerRequired={false}
+        selectedOption={null}
+        setSelectedOption={function (_value: number | null): void {
+          // NOP
+        }}
+      />
     </Wrapper>
   )
 }

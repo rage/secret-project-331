@@ -1,7 +1,7 @@
 import {
   CourseMaterialPeerReviewQuestionAnswer,
   PeerReviewQuestion as PeerReviewQuestionType,
-} from "../../../../../shared-module/bindings"
+} from "../../../../../../shared-module/bindings"
 
 import EssayPeerReviewQuestion from "./EssayPeerReviewQuestion"
 import ScalePeerReviewQuestion from "./ScalePeerReviewQuestion"
@@ -11,17 +11,20 @@ export interface PeerReviewQuestionProps {
   setPeerReviewQuestionAnswer: (
     answer: Omit<CourseMaterialPeerReviewQuestionAnswer, "peer_review_question_id">,
   ) => void
+  peerReviewQuestionAnswer: CourseMaterialPeerReviewQuestionAnswer | null
 }
 
 const PeerReviewQuestion: React.FC<PeerReviewQuestionProps> = ({
   question,
   setPeerReviewQuestionAnswer,
+  peerReviewQuestionAnswer,
 }) => {
   if (question.question_type === "Scale") {
     return (
       <ScalePeerReviewQuestion
         question={question}
         setPeerReviewQuestionAnswer={setPeerReviewQuestionAnswer}
+        peerReviewQuestionAnswer={peerReviewQuestionAnswer}
       />
     )
   }
@@ -30,6 +33,7 @@ const PeerReviewQuestion: React.FC<PeerReviewQuestionProps> = ({
       <EssayPeerReviewQuestion
         question={question}
         setPeerReviewQuestionAnswer={setPeerReviewQuestionAnswer}
+        peerReviewQuestionAnswer={peerReviewQuestionAnswer}
       />
     )
   }

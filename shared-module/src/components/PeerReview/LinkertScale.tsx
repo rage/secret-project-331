@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Agree from "../../img/linkert/agree.svg"
@@ -63,14 +63,20 @@ const Linkert = styled.div`
 interface LikertScaleProps {
   question: string
   answerRequired: boolean
+  selectedOption: number | null
+  setSelectedOption: (value: number | null) => void
 }
 
 interface StyledProps {
   active: boolean
 }
 
-const LinkertScale: React.FC<LikertScaleProps> = ({ question, answerRequired }) => {
-  const [active, setActive] = useState<string>("")
+const LinkertScale: React.FC<LikertScaleProps> = ({
+  question,
+  answerRequired,
+  selectedOption,
+  setSelectedOption,
+}) => {
   const { t } = useTranslation()
 
   const arr = [
@@ -119,10 +125,16 @@ const LinkertScale: React.FC<LikertScaleProps> = ({ question, answerRequired }) 
       </Question>
 
       <Linkerts>
-        {arr.map(({ text }) => (
-          <Linkert key={text} onClick={() => setActive(text)} active={active === text}>
-            {SVGmatcher(text)}
-            <p className="linkert-scale-text">{text}</p>
+        {arr.map((option, n) => (
+          <Linkert
+            key={n}
+            onClick={() => {
+              setSelectedOption(n)
+            }}
+            active={selectedOption === n}
+          >
+            {SVGmatcher(option.text)}
+            <p className="linkert-scale-text">{option.text}</p>
           </Linkert>
         ))}
       </Linkerts>

@@ -31,7 +31,7 @@ const EssayFeedback: React.FC<QuizItemSubmissionComponentProps> = ({ user_quiz_i
             white-space: pre-wrap;
           `}
         >
-          {text}
+          {text?.trim()}
         </pre>
       </div>
       <div

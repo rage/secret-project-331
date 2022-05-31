@@ -3,7 +3,7 @@
     "score_given": null,
     "activity_progress": "InProgress",
     "grading_progress": "NotReady",
-    "exercise_progress_stage": "NotAnswered"
+    "reviewing_stage": "NotStarted"
   },
   "exercise_task_submission_results": [
     {

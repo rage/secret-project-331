@@ -1,4 +1,9 @@
-use crate::prelude::*;
+use crate::{
+    exercises,
+    library::{self, peer_reviewing::CourseMaterialPeerReviewData},
+    prelude::*,
+    user_exercise_states::{self, ReviewingStage},
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -151,6 +156,52 @@ RETURNING id
     .fetch_one(conn)
     .await?;
     Ok(res.id)
+}
+
+pub async fn get_course_material_peer_review_data(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<CourseMaterialPeerReviewData> {
+    let exercise = exercises::get_by_id(conn, exercise_id).await?;
+    let (_current_exercise_slide, instance_or_exam_id) =
+        exercises::get_or_select_exercise_slide(&mut *conn, Some(user_id), &exercise).await?;
+
+    let user_exercise_state = match instance_or_exam_id {
+        Some(course_instance_or_exam_id) => {
+            user_exercise_states::get_user_exercise_state_if_exists(
+                conn,
+                user_id,
+                exercise.id,
+                course_instance_or_exam_id,
+            )
+            .await?
+        }
+        _ => None,
+    };
+
+    match user_exercise_state {
+        Some(ref user_exercise_state) => {
+            if user_exercise_state.reviewing_stage == ReviewingStage::PeerReview {
+                // Calling library inside a model function. Maybe should be refactored by moving
+                // complicated logic to own library file?
+                let res = library::peer_reviewing::try_to_select_exercise_slide_submission_for_peer_review(
+                    conn,
+                    &exercise,
+                    user_exercise_state,
+                )
+                .await?;
+                Ok(res)
+            } else {
+                Err(ModelError::InvalidRequest(
+                    "You cannot peer review yet".to_string(),
+                ))
+            }
+        }
+        None => Err(ModelError::InvalidRequest(
+            "You haven't answered this exercise".to_string(),
+        )),
+    }
 }
 
 #[cfg(test)]

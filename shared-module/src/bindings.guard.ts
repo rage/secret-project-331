@@ -34,6 +34,7 @@ import {
   CourseMaterialExerciseSlide,
   CourseMaterialExerciseTask,
   CourseMaterialPeerReviewData,
+  CourseMaterialPeerReviewDataAnswerToReview,
   CourseMaterialPeerReviewQuestionAnswer,
   CourseMaterialPeerReviewSubmission,
   CoursePageWithUserData,
@@ -54,7 +55,6 @@ import {
   ExamInstructions,
   ExamInstructionsUpdate,
   Exercise,
-  ExerciseProgress,
   ExerciseService,
   ExerciseServiceInfoApi,
   ExerciseServiceNewOrUpdate,
@@ -113,6 +113,7 @@ import {
   ProposalCount,
   ProposalStatus,
   Resource,
+  ReviewingStage,
   RoleDomain,
   RoleInfo,
   RoleQuery,
@@ -713,10 +714,9 @@ export function isCourseMaterialExercise(
     (isExercise(obj.exercise) as boolean) &&
     typeof obj.can_post_submission === "boolean" &&
     (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
-    (obj.peer_review_info === null ||
-      (isCourseMaterialPeerReviewData(obj.peer_review_info) as boolean)) &&
     (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
-    (isPointMap(obj.exercise_slide_submission_counts) as boolean)
+    (isPointMap(obj.exercise_slide_submission_counts) as boolean) &&
+    (obj.peer_review === null || (isPeerReview(obj.peer_review) as boolean))
   )
 }
 
@@ -748,7 +748,7 @@ export function isExerciseStatus(obj: any, _argumentName?: string): obj is Exerc
     (obj.score_given === null || typeof obj.score_given === "number") &&
     (isActivityProgress(obj.activity_progress) as boolean) &&
     (isGradingProgress(obj.grading_progress) as boolean) &&
-    (isExerciseProgress(obj.exercise_progress_stage) as boolean)
+    (isReviewingStage(obj.reviewing_stage) as boolean)
   )
 }
 
@@ -861,15 +861,24 @@ export function isCourseMaterialPeerReviewData(
 ): obj is CourseMaterialPeerReviewData {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_slide_submission_id === "string" &&
-    Array.isArray(obj.course_material_exercise_tasks) &&
-    obj.course_material_exercise_tasks.every(
-      (e: any) => isCourseMaterialExerciseTask(e) as boolean,
-    ) &&
+    (obj.answer_to_review === null ||
+      (isCourseMaterialPeerReviewDataAnswerToReview(obj.answer_to_review) as boolean)) &&
     (isPeerReview(obj.peer_review) as boolean) &&
     Array.isArray(obj.peer_review_questions) &&
     obj.peer_review_questions.every((e: any) => isPeerReviewQuestion(e) as boolean) &&
     typeof obj.num_peer_reviews_given === "number"
+  )
+}
+
+export function isCourseMaterialPeerReviewDataAnswerToReview(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewDataAnswerToReview {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_slide_submission_id === "string" &&
+    Array.isArray(obj.course_material_exercise_tasks) &&
+    obj.course_material_exercise_tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean)
   )
 }
 
@@ -1556,8 +1565,15 @@ export function isExerciseUserCounts(obj: any, _argumentName?: string): obj is E
   )
 }
 
-export function isExerciseProgress(obj: any, _argumentName?: string): obj is ExerciseProgress {
-  return obj === "NotAnswered" || obj === "PeerReview" || obj === "SelfReview" || obj === "Complete"
+export function isReviewingStage(obj: any, _argumentName?: string): obj is ReviewingStage {
+  return (
+    obj === "NotStarted" ||
+    obj === "PeerReview" ||
+    obj === "SelfReview" ||
+    obj === "WaitingForPeerReviews" ||
+    obj === "WaitingForManualGrading" ||
+    obj === "ReviewedAndLocked"
+  )
 }
 
 export function isUser(obj: any, _argumentName?: string): obj is User {

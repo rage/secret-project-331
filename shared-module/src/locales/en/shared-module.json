@@ -60,7 +60,7 @@
   "submit": "Submit",
   "set-field-value": "Set {{name}}",
   "points": "Points",
-  "peer-review-instruction": "Peer review instruction",
+  "peer-review-instructions": "Evaluate the answer with the given questions and statements.",
   "strongly-disagree": "strongly disagree",
   "disagree": "disagree",
   "neutral": "neutral",

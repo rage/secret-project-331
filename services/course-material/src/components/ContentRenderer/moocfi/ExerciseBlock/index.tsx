@@ -31,6 +31,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import ExerciseTask from "./ExerciseTask"
 import PeerReviewView from "./PeerReviewView"
+import WaitingForPeerReviews from "./PeerReviewView/WaitingForPeerReviews"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -51,6 +52,8 @@ const DeadlineText = styled.div<DeadlineProps>`
   color: ${(DeadlineProps) =>
     DeadlineProps.closingSoon ? baseTheme.colors.red["700"] : baseTheme.colors.green["600"]};
 `
+
+export const getExerciseBlockBeginningScrollingId = (exerciseId: string) => exerciseId
 
 // Special care taken here to ensure exercise content can have full width of
 // the page.
@@ -169,57 +172,62 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
     postThisStateToIFrame?.every((x) => x.view_type === "view-submission") ?? false
   const needsPeerReview = getCourseMaterialExercise.data.exercise.needs_peer_review
 
+  const reviewingStage = getCourseMaterialExercise.data.exercise_status?.reviewing_stage
   return (
     <BreakFromCentered sidebar={false}>
       <div
         className={css`
           width: 100%;
-          background: #f6f6f6;
+          background: #fafafa;
           margin-bottom: 1rem;
-          padding-top: 2rem;
           padding-bottom: 1rem;
         `}
-        id={id}
+        id={getExerciseBlockBeginningScrollingId(id)}
       >
-        <Centered variant="narrow">
-          <div
-            className={css`
-              display: flex;
-              align-items: center;
-              margin-bottom: 1.5rem;
-            `}
-          >
-            <HelpIcon
-              className={css`
-                height: 5rem !important;
-                width: 5rem !important;
-                margin-right: 1rem;
-              `}
-            />{" "}
-            <h2
-              className={css`
-                font-size: 2rem;
-                font-weight: 400;
-              `}
-            >
-              {getCourseMaterialExercise.data.exercise.name}
-            </h2>
+        <div>
+          <Centered variant="narrow">
             <div
               className={css`
-                flex: 1;
-              `}
-            />
-            <div
-              className={css`
-                font-size: 1rem;
-                text-align: center;
+                display: flex;
+                align-items: center;
+                margin-bottom: 1.5rem;
+                padding: 1.5rem 1.75rem;
               `}
             >
-              {t("points-label")}
-              <br />
-              {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
+              <HelpIcon
+                className={css`
+                  height: 5rem !important;
+                  width: 5rem !important;
+                  margin-right: 1rem;
+                `}
+              />{" "}
+              <h2
+                className={css`
+                  font-size: 2rem;
+                  font-weight: 400;
+                `}
+              >
+                {getCourseMaterialExercise.data.exercise.name}
+              </h2>
+              <div
+                className={css`
+                  flex: 1;
+                `}
+              />
+              <div
+                className={css`
+                  font-size: 1rem;
+                  text-align: center;
+                `}
+              >
+                {t("points-label")}
+                <br />
+                {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
+              </div>
             </div>
-          </div>
+          </Centered>
+        </div>
+        <Centered variant="narrow">
           {exerciseDeadline &&
             (Date.now() < exerciseDeadline.getTime() ? (
               <DeadlineText closingSoon={dateInTwoDays.getTime() >= exerciseDeadline.getTime()}>
@@ -234,8 +242,27 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 {t("Deadline-passed-n-days-ago", { days: dateDiffInDays(exerciseDeadline) })}
               </DeadlineText>
             ))}
-          {getCourseMaterialExercise.data.exercise_status?.exercise_progress_stage !==
-            "PeerReview" &&
+
+          {getCourseMaterialExercise.data.peer_review && (
+            <div
+              className={css`
+                padding: 1rem;
+                background-color: ${baseTheme.colors.yellow[200]};
+                color: #493f13;
+                margin: 1rem 0;
+                font-size: clamp(10px, 2.5vw, 16px);
+                text-align: center;
+              `}
+            >
+              {reviewingStage === "ReviewedAndLocked"
+                ? t("help-text-answer-has-been-reviewed-and-locked")
+                : t("help-text-exercise-involves-peer-review", {
+                    peer_reviews_to_give:
+                      getCourseMaterialExercise.data.peer_review.peer_reviews_to_give,
+                  })}
+            </div>
+          )}
+          {(reviewingStage === "NotStarted" || reviewingStage === "ReviewedAndLocked") &&
             getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
               <ExerciseTask
                 key={task.id}
@@ -255,14 +282,14 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
               />
             ))}
-          {getCourseMaterialExercise.data.exercise_status?.exercise_progress_stage ===
-            "PeerReview" && (
+          {reviewingStage === "PeerReview" && (
             <PeerReviewView
               exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
-              peerReviewData={getCourseMaterialExercise.data.peer_review_info}
               exerciseId={id}
+              parentExerciseQuery={getCourseMaterialExercise}
             />
           )}
+          {reviewingStage === "WaitingForPeerReviews" && <WaitingForPeerReviews />}
           <div
             className={css`
               button {
@@ -320,9 +347,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 {t("submit-button")}
               </Button>
             )}
-            {inSubmissionView && (
+            {inSubmissionView && reviewingStage === "NotStarted" && (
               <div>
-                {!ranOutOfTries && !getCourseMaterialExercise.data.peer_review_info && (
+                {!ranOutOfTries && (
                   <Button
                     variant="primary"
                     size="medium"
@@ -337,22 +364,17 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                     }}
                     disabled={
                       getCourseMaterialExercise.isRefetching ||
-                      !getCourseMaterialExercise.data.can_post_submission ||
-                      !!getCourseMaterialExercise.data.peer_review_info
+                      !getCourseMaterialExercise.data.can_post_submission
                     }
                   >
                     {t("try-again")}
                   </Button>
                 )}
-                {needsPeerReview && !getCourseMaterialExercise.data.peer_review_info && (
+                {needsPeerReview && (
                   <Button
                     variant="primary"
                     size="medium"
-                    disabled={
-                      !needsPeerReview ||
-                      !allowStartPeerReview ||
-                      !!getCourseMaterialExercise.data.peer_review_info
-                    }
+                    disabled={!needsPeerReview || !allowStartPeerReview}
                     onClick={async () => {
                       setAllowStartPeerReview(false)
                       await postStartPeerReview(id).finally(() => setAllowStartPeerReview(true))

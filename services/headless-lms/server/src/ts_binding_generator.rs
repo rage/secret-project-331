@@ -120,6 +120,7 @@ fn ts_binding_generator() {
         library::grading::StudentExerciseTaskSubmissionResult,
 
         library::peer_reviewing::CourseMaterialPeerReviewData,
+        library::peer_reviewing::CourseMaterialPeerReviewDataAnswerToReview,
         library::peer_reviewing::CourseMaterialPeerReviewQuestionAnswer,
         library::peer_reviewing::CourseMaterialPeerReviewSubmission,
 
@@ -186,7 +187,7 @@ fn ts_binding_generator() {
         user_exercise_states::UserCourseInstanceChapterExerciseProgress,
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::ExerciseUserCounts,
-        user_exercise_states::ExerciseProgress,
+        user_exercise_states::ReviewingStage,
 
         users::User,
 

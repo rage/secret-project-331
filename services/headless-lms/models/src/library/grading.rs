@@ -12,7 +12,7 @@ use crate::{
     prelude::*,
     regradings,
     user_exercise_slide_states::{self, UserExerciseSlideState},
-    user_exercise_states::{self, ExerciseProgress, UserExerciseState, UserExerciseStateUpdate},
+    user_exercise_states::{self, ReviewingStage, UserExerciseState, UserExerciseStateUpdate},
     user_exercise_task_states,
 };
 
@@ -309,7 +309,7 @@ async fn grade_user_submission_internal(
             score_given: user_exercise_state.score_given,
             activity_progress: user_exercise_state.activity_progress,
             grading_progress: user_exercise_state.grading_progress,
-            exercise_progress_stage: user_exercise_state.exercise_progress,
+            reviewing_stage: user_exercise_state.reviewing_stage,
         }),
         exercise_task_submission_results: results,
     })
@@ -439,27 +439,40 @@ fn derive_new_user_exercise_state(
     given_enough_peer_reviews: bool,
     received_enough_peer_reviews: bool,
 ) -> UserExerciseStateUpdate {
-    let exercise_progress = if exercise.needs_peer_review {
+    let reviewing_stage = if exercise.needs_peer_review {
         // Separate booleans in case we want more elaborate exercise state later
         if given_enough_peer_reviews && received_enough_peer_reviews {
-            ExerciseProgress::Complete
+            ReviewingStage::ReviewedAndLocked
+        } else if given_enough_peer_reviews {
+            ReviewingStage::WaitingForPeerReviews
         } else {
-            user_exercise_state.exercise_progress
+            user_exercise_state.reviewing_stage
         }
     } else {
-        ExerciseProgress::Complete
+        // Don't change the field value ever for exercises that don't need peer review
+        // Most states need to stay in the ReviewingStage::NotStarted stage
+        user_exercise_state.reviewing_stage
     };
-    let score_given = if exercise_progress == ExerciseProgress::Complete {
-        new_score_given
-    } else {
-        user_exercise_state.score_given
+    if user_exercise_state.reviewing_stage != reviewing_stage {
+        info!(
+            "UserExerciseState {} changed reviewing_stage from {:?} to {:?}",
+            user_exercise_state.id, user_exercise_state.reviewing_stage, reviewing_stage
+        );
+    }
+    let score_given = match (exercise.needs_peer_review, reviewing_stage) {
+        (true, ReviewingStage::ReviewedAndLocked) => new_score_given,
+        (false, ReviewingStage::NotStarted) => new_score_given,
+        // This case could happen if an answer without peer review requirement would be marked for manual teacher review
+        (false, ReviewingStage::ReviewedAndLocked) => new_score_given,
+        _ => user_exercise_state.score_given,
     };
+
     UserExerciseStateUpdate {
         id: user_exercise_state.id,
         score_given,
         grading_progress: new_grading_progress,
         activity_progress: ActivityProgress::Completed,
-        exercise_progress,
+        reviewing_stage,
     }
 }
 
@@ -584,7 +597,7 @@ mod tests {
                 &exercise,
                 None,
                 ActivityProgress::Initialized,
-                ExerciseProgress::NotAnswered,
+                ReviewingStage::NotStarted,
             );
             let new_user_exercise_state = derive_new_user_exercise_state(
                 &exercise,
@@ -598,7 +611,7 @@ mod tests {
                 &new_user_exercise_state,
                 Some(1.0),
                 ActivityProgress::Completed,
-                ExerciseProgress::Complete,
+                ReviewingStage::ReviewedAndLocked,
             );
         }
 
@@ -610,7 +623,7 @@ mod tests {
                 &exercise,
                 Some(0.0),
                 ActivityProgress::Initialized,
-                ExerciseProgress::NotAnswered,
+                ReviewingStage::NotStarted,
             );
             let new_user_exercise_state = derive_new_user_exercise_state(
                 &exercise,
@@ -624,7 +637,7 @@ mod tests {
                 &new_user_exercise_state,
                 Some(0.0),
                 ActivityProgress::Completed,
-                ExerciseProgress::NotAnswered,
+                ReviewingStage::NotStarted,
             );
         }
 
@@ -636,7 +649,7 @@ mod tests {
                 &exercise,
                 Some(0.0),
                 ActivityProgress::Initialized,
-                ExerciseProgress::NotAnswered,
+                ReviewingStage::NotStarted,
             );
             let new_user_exercise_state = derive_new_user_exercise_state(
                 &exercise,
@@ -650,7 +663,7 @@ mod tests {
                 &new_user_exercise_state,
                 Some(1.0),
                 ActivityProgress::Completed,
-                ExerciseProgress::Complete,
+                ReviewingStage::ReviewedAndLocked,
             );
         }
 
@@ -665,7 +678,7 @@ mod tests {
                 &exercise,
                 Some(1.0),
                 ActivityProgress::Completed,
-                ExerciseProgress::Complete,
+                ReviewingStage::ReviewedAndLocked,
             );
             let new_user_exercise_state = derive_new_user_exercise_state(
                 &exercise,
@@ -679,7 +692,7 @@ mod tests {
                 &new_user_exercise_state,
                 Some(1.0),
                 ActivityProgress::Completed,
-                ExerciseProgress::Complete,
+                ReviewingStage::ReviewedAndLocked,
             );
         }
 
@@ -687,7 +700,7 @@ mod tests {
             update: &UserExerciseStateUpdate,
             score_given: Option<f32>,
             activity_progress: ActivityProgress,
-            exercise_progress: ExerciseProgress,
+            reviewing_stage: ReviewingStage,
         ) {
             if let Some(score_given) = score_given {
                 assert!(f32_approx_eq(update.score_given.unwrap(), score_given,));
@@ -695,7 +708,7 @@ mod tests {
                 assert_eq!(update.score_given, None);
             }
             assert_eq!(update.activity_progress, activity_progress);
-            assert_eq!(update.exercise_progress, exercise_progress);
+            assert_eq!(update.reviewing_stage, reviewing_stage);
         }
 
         fn create_exercise(course_or_exam_id: CourseOrExamId, needs_peer_review: bool) -> Exercise {
@@ -725,7 +738,7 @@ mod tests {
             exercise: &Exercise,
             score_given: Option<f32>,
             activity_progress: ActivityProgress,
-            exercise_progress: ExerciseProgress,
+            reviewing_stage: ReviewingStage,
         ) -> UserExerciseState {
             let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
             UserExerciseState {
@@ -740,7 +753,7 @@ mod tests {
                 score_given,
                 grading_progress: GradingProgress::NotReady,
                 activity_progress,
-                exercise_progress,
+                reviewing_stage,
                 selected_exercise_slide_id: None,
             }
         }

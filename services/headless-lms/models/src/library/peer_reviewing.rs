@@ -13,7 +13,7 @@ use crate::{
     peer_review_submissions,
     peer_reviews::{self, PeerReview},
     prelude::*,
-    user_exercise_states::{self, CourseInstanceOrExamId, ExerciseProgress, UserExerciseState},
+    user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
 };
 
 use super::grading;
@@ -25,7 +25,7 @@ pub async fn start_peer_review_for_user(
     conn: &mut PgConnection,
     user_exercise_state: UserExerciseState,
 ) -> ModelResult<()> {
-    if user_exercise_state.exercise_progress != ExerciseProgress::NotAnswered {
+    if user_exercise_state.reviewing_stage != ReviewingStage::NotStarted {
         return Err(ModelError::PreconditionFailed(
             "Cannot start peer review anymore.".to_string(),
         ));
@@ -33,7 +33,7 @@ pub async fn start_peer_review_for_user(
     let _user_exercise_state = user_exercise_states::update_exercise_progress(
         conn,
         user_exercise_state.id,
-        ExerciseProgress::PeerReview,
+        ReviewingStage::PeerReview,
     )
     .await?;
     Ok(())
@@ -251,13 +251,20 @@ async fn update_peer_review_receiver_exercise_status(
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialPeerReviewData {
-    pub exercise_slide_submission_id: Uuid,
-    /// Uses the same type as we use when we render and exercise in course material. Allows us to reuse existing logic for getting all the necessary information for rendering the submission.
-    pub course_material_exercise_tasks: Vec<CourseMaterialExerciseTask>,
+    /// If none, no answer was available for review.
+    pub answer_to_review: Option<CourseMaterialPeerReviewDataAnswerToReview>,
     pub peer_review: PeerReview,
     pub peer_review_questions: Vec<PeerReviewQuestion>,
     #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
     pub num_peer_reviews_given: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseMaterialPeerReviewDataAnswerToReview {
+    pub exercise_slide_submission_id: Uuid,
+    /// Uses the same type as we use when we render and exercise in course material. Allows us to reuse existing logic for getting all the necessary information for rendering the submission.
+    pub course_material_exercise_tasks: Vec<CourseMaterialExerciseTask>,
 }
 
 /// Tries to select a submission for user to peer review.
@@ -270,7 +277,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     conn: &mut PgConnection,
     exercise: &Exercise,
     reviewer_user_exercise_state: &UserExerciseState,
-) -> ModelResult<Option<CourseMaterialPeerReviewData>> {
+) -> ModelResult<CourseMaterialPeerReviewData> {
     let peer_review = peer_reviews::get_by_exercise_or_course_id(
         conn,
         reviewer_user_exercise_state.exercise_id,
@@ -309,20 +316,16 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
             .await?
         }
     };
-    let data = match exercise_slide_submission_to_review {
-        Some(exercise_slide_submission) => {
-            let data = get_course_material_peer_review_data(
-                conn,
-                &peer_review,
-                &exercise_slide_submission,
-                reviewer_user_exercise_state.user_id,
-                course_instance_id,
-            )
-            .await?;
-            Some(data)
-        }
-        None => None,
-    };
+    let data = get_course_material_peer_review_data(
+        conn,
+        &peer_review,
+        &exercise_slide_submission_to_review,
+        reviewer_user_exercise_state.user_id,
+        course_instance_id,
+        exercise.id,
+    )
+    .await?;
+
     Ok(data)
 }
 
@@ -368,27 +371,39 @@ async fn try_to_select_peer_review_candidate_from_queue(
 async fn get_course_material_peer_review_data(
     conn: &mut PgConnection,
     peer_review: &PeerReview,
-    exercise_slide_submission: &ExerciseSlideSubmission,
+    exercise_slide_submission: &Option<ExerciseSlideSubmission>,
     reviewer_user_id: Uuid,
     reviewer_course_instance_id: Uuid,
+    exercise_id: Uuid,
 ) -> ModelResult<CourseMaterialPeerReviewData> {
     let peer_review_questions =
         peer_review_questions::get_all_by_peer_review_id(conn, peer_review.id).await?;
-    let course_material_exercise_tasks = exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(
-        conn,
-        exercise_slide_submission.id,
-    ).await?;
     let num_peer_reviews_given =
         peer_review_submissions::get_num_peer_reviews_given_by_user_and_course_instance_and_exercise(
             conn,
             reviewer_user_id,
             reviewer_course_instance_id,
-            exercise_slide_submission.exercise_id,
+            exercise_id,
         )
         .await?;
+
+    let answer_to_review = match exercise_slide_submission {
+        Some(exercise_slide_submission) => {
+            let exercise_slide_submission_id = exercise_slide_submission.id;
+            let course_material_exercise_tasks = exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(
+                conn,
+                exercise_slide_submission_id,
+            ).await?;
+            Some(CourseMaterialPeerReviewDataAnswerToReview {
+                exercise_slide_submission_id,
+                course_material_exercise_tasks,
+            })
+        }
+        None => None,
+    };
+
     Ok(CourseMaterialPeerReviewData {
-        exercise_slide_submission_id: exercise_slide_submission.id,
-        course_material_exercise_tasks,
+        answer_to_review,
         peer_review: peer_review.clone(),
         peer_review_questions,
         num_peer_reviews_given,

@@ -52,7 +52,15 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
         >
           {quizItem.title ? (
             <>
-              <h2>{quizItem.title}</h2>
+              <h2
+                className={css`
+                  font-family: "Lato", sans-serif;
+                  font-weight: 400;
+                  font-size: clamp(18px, 2vw, 20px) !important;
+                `}
+              >
+                {quizItem.title}
+              </h2>
             </>
           ) : null}
         </div>

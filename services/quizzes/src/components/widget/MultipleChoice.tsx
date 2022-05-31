@@ -20,7 +20,7 @@ const optionButton = css`
   display: flex;
   flex: 1;
   justify-content: center;
-  margin: 0.3rem;
+  margin: 0.3rem 0.3rem 0.3rem 0;
   padding: 1rem;
   transition: background-color 0.2s;
   text-align: left;
@@ -83,7 +83,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   return (
     <div
       className={css`
-        margin: 0.5rem;
+        margin: 0.8rem 0;
       `}
     >
       <div

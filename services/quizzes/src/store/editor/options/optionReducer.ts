@@ -13,9 +13,9 @@ import {
 } from "../editorActions"
 
 import {
+  editedOptionAdditionalCorrectnessExplanationOnModelSolution,
+  editedOptionAfterSubmissionSelectedMessage,
   editedOptionCorrectness,
-  editedOptionFailureMessage,
-  editedOptionSuccessMessage,
   editedOptionTitle,
 } from "./optionActions"
 
@@ -37,15 +37,17 @@ export const optionReducer = createReducer<
     })
   })
 
-  .handleAction(editedOptionSuccessMessage, (state, action) => {
+  .handleAction(editedOptionAfterSubmissionSelectedMessage, (state, action) => {
     return produce(state, (draftState) => {
-      draftState[action.payload.optionId].successMessage = action.payload.newMessage
+      draftState[action.payload.optionId].messageAfterSubmissionWhenSelected =
+        action.payload.newMessage
     })
   })
 
-  .handleAction(editedOptionFailureMessage, (state, action) => {
+  .handleAction(editedOptionAdditionalCorrectnessExplanationOnModelSolution, (state, action) => {
     return produce(state, (draftState) => {
-      draftState[action.payload.optionId].failureMessage = action.payload.newMessage
+      draftState[action.payload.optionId].additionalCorrectnessExplanationOnModelSolution =
+        action.payload.newMessage
     })
   })
 
@@ -60,8 +62,8 @@ export const optionReducer = createReducer<
         body: "",
         correct: false,
         order: 0,
-        successMessage: "",
-        failureMessage: "",
+        messageAfterSubmissionWhenSelected: "",
+        additionalCorrectnessExplanationOnModelSolution: "",
       }
     })
   })

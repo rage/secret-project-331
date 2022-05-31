@@ -287,11 +287,15 @@ function submissionFeedback(
           ? ia.optionAnswers.map((oa): OptionAnswerFeedback => {
               const option = item.options.find((o) => o.id === oa) || null
               if (!option) {
-                return { option_id: null, option_feedback: null, this_option_was_correct: null }
+                return {
+                  option_id: null,
+                  option_feedback: null,
+                  this_option_was_correct: null,
+                }
               }
               return {
                 option_id: option.id,
-                option_feedback: option.correct ? option.successMessage : option.failureMessage,
+                option_feedback: option.messageAfterSubmissionWhenSelected,
                 // We'll reveal whether what the student chose was correct or not. If this is not desirable in the future, we can add a configurable policy for this.
                 this_option_was_correct: option.correct,
               }

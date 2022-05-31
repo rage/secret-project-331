@@ -1,6 +1,7 @@
 import { Frame, Page, test } from "@playwright/test"
 
 import expectPath from "../../utils/expect"
+import { closeModal, fillQuizItemOptionModal } from "../../utils/quizzesActions"
 import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
@@ -150,17 +151,22 @@ test("create quizzes test", async ({ page }) => {
   await frame.click(`button:text("Add option")`)
   await frame.click(`button:text("Add option")`)
   await frame.click(`[aria-label="Option 1"]`)
-  await frame.fill(`label:has-text("Option title") input`, `wrong`)
-  await frame.fill(`label:has-text("Failure message") input`, `no`)
-  await closeModal(page, frame)
+  await fillQuizItemOptionModal(page, frame, {
+    type: "multiple-choice",
+    correct: false,
+    title: `wrong`,
+    messageAfterSubmissionWhenSelected: `no`,
+  })
   await frame.click(`[aria-label="Option 2"]`)
   await page.evaluate(() => {
     window.scrollBy(0, 200)
   })
-  await frame.check(`input[type="checkbox"]`)
-  await frame.fill(`label:has-text("Option title") input`, `correct`)
-  await frame.fill(`label:has-text("Success message") input`, `yes`)
-  await closeModal(page, frame)
+  await fillQuizItemOptionModal(page, frame, {
+    type: "multiple-choice",
+    correct: true,
+    title: `correct`,
+    messageAfterSubmissionWhenSelected: `yes`,
+  })
 
   await frame.click(`button:text("Checkbox")`)
   await frame.fill(`label:has-text("Title") input:below(h4:text("checkbox"))`, `Please check this`)
@@ -188,18 +194,23 @@ test("create quizzes test", async ({ page }) => {
   await frame2.click(`button:text("Add option")`)
   await frame2.click(`button:text("Add option")`)
   await frame2.click(`[aria-label="Option 1"]`)
-  await frame2.fill(`label:has-text("Option title") input`, `wrong`)
-  await frame2.fill(`label:has-text("Failure message") input`, `no`)
-  await closeModal(page, frame2)
+  await fillQuizItemOptionModal(page, frame2, {
+    type: "multiple-choice",
+    correct: false,
+    title: `wrong`,
+    messageAfterSubmissionWhenSelected: `no`,
+  })
   await frame2.click(`[aria-label="Option 2"]`)
   // TODO: Figure out why clicking the option makes screen jump upwards
   await page.evaluate(() => {
     window.scrollBy(0, 300)
   })
-  await frame2.check(`input[type="checkbox"]`)
-  await frame2.fill(`label:has-text("Option title") input`, `correct`)
-  await frame2.fill(`label:has-text("Success message") input`, `yes`)
-  await closeModal(page, frame2)
+  await fillQuizItemOptionModal(page, frame2, {
+    type: "multiple-choice",
+    correct: true,
+    title: `correct`,
+    messageAfterSubmissionWhenSelected: `yes`,
+  })
 
   // clickable multiple choice
   await page.click(`[aria-label="Close"]`)
@@ -217,37 +228,27 @@ test("create quizzes test", async ({ page }) => {
   await frame3.click(`button:text("Add option")`)
   await frame3.click(`button:text("Add option")`)
   await frame3.click(`[aria-label="Option 1"]`)
-  await frame3.fill(`label:has-text("Option title") input`, `wrong`)
-  await frame3.fill(`label:has-text("Failure message") input`, `no`)
-  await closeModal(page, frame3)
+  await fillQuizItemOptionModal(page, frame3, {
+    type: "multiple-choice",
+    correct: false,
+    title: `input`,
+    messageAfterSubmissionWhenSelected: `no`,
+  })
   await frame3.click(`[aria-label="Option 2"]`)
   // TODO: Figure out why clicking the option makes screen jump upwards
   await page.evaluate(() => {
     window.scrollBy(0, 300)
   })
-  await frame3.check(`input[type="checkbox"]`)
-  await frame3.fill(`label:has-text("Option title") input`, `correct`)
-  await frame3.fill(`label:has-text("Success message") input`, `yes`)
-  await closeModal(page, frame3)
+  await fillQuizItemOptionModal(page, frame3, {
+    type: "multiple-choice",
+    correct: true,
+    title: `correct`,
+    messageAfterSubmissionWhenSelected: `yes`,
+  })
 
   // Click button:text-is("Save")
   await page.click(`button:text-is("Save") >> visible=true`)
 })
-
-async function closeModal(page: Page, frame: Frame) {
-  // We shouldn't need any scrolling tricks as the modal is already in the viewport
-  // const closeButtonLocator = frame.locator(`[aria-label="Close"]`)
-  // const handle = await closeButtonLocator.elementHandle()
-  // const boundingBox = await handle.boundingBox()
-  // const y = boundingBox.y
-  // await page.evaluate((y) => {
-  //   window.scrollTo(0, y)
-  // }, y)
-  // const frameElement = await frame.frameElement()
-  // frameElement.scrollIntoViewIfNeeded()
-  await frame.click(`[aria-label="Close"]`)
-  await frame.waitForTimeout(100)
-}
 
 async function scrollToFrame(page: Page, frame: Frame) {
   const frameElement = await frame.frameElement()

@@ -16,27 +16,21 @@ export const editedOptionCorrectness = createAction(
   }),
 )<{ optionId: string; correct: boolean }>()
 
-export const editedOptionSuccessMessage = createAction(
-  "EDITED_OPTION_SUCCESS_MESSAGE",
-  (optionId: string, newMessage: string) => ({
-    optionId: optionId,
-    newMessage: newMessage,
-  }),
+export const editedOptionAfterSubmissionSelectedMessage = createAction(
+  "EDITED_OPTION_AFTER_SUBMISSION_SELECTED_MESSAGE",
+  (optionId: string, newMessage: string) => ({ optionId, newMessage }),
 )<{ optionId: string; newMessage: string }>()
 
-export const editedOptionFailureMessage = createAction(
-  "EDITED_OPTION_FAILURE_MESSAGE",
-  (optionId: string, newMessage: string) => ({
-    optionId: optionId,
-    newMessage: newMessage,
-  }),
+export const editedOptionAdditionalCorrectnessExplanationOnModelSolution = createAction(
+  "EDITED_OPTION_ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION",
+  (optionId: string, newMessage: string) => ({ optionId, newMessage }),
 )<{ optionId: string; newMessage: string }>()
 
 export const optionActions = [
   editedOptionTitle,
   editedOptionCorrectness,
-  editedOptionSuccessMessage,
-  editedOptionFailureMessage,
+  editedOptionAfterSubmissionSelectedMessage,
+  editedOptionAdditionalCorrectnessExplanationOnModelSolution,
 ]
 
 export default optionActions

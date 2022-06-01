@@ -467,13 +467,58 @@
 <span id="462">462</span>
 <span id="463">463</span>
 <span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">seq::SliceRandom</span>, <span class="ident">thread_rng</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exercise_slide_submissions</span>::{<span class="self">self</span>, <span class="ident">ExerciseSlideSubmission</span>},
-    <span class="ident">exercise_task_submissions</span>::{<span class="self">self</span>, <span class="ident">ExerciseTaskSubmissionWithSpec</span>},
+    <span class="ident">exercise_task_submissions</span>,
+    <span class="ident">exercise_tasks::CourseMaterialExerciseTask</span>,
     <span class="ident">exercises::Exercise</span>,
     <span class="ident">peer_review_question_submissions</span>,
     <span class="ident">peer_review_questions</span>::{<span class="self">self</span>, <span class="ident">PeerReviewQuestion</span>},
@@ -481,10 +526,10 @@
     <span class="ident">peer_review_submissions</span>,
     <span class="ident">peer_reviews</span>::{<span class="self">self</span>, <span class="ident">PeerReview</span>},
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
-    <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">CourseInstanceOrExamId</span>, <span class="ident">ExerciseProgress</span>, <span class="ident">UserExerciseState</span>},
+    <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">CourseInstanceOrExamId</span>, <span class="ident">ReviewingStage</span>, <span class="ident">UserExerciseState</span>},
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::grading</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::grading</span>::{<span class="self">self</span>, <span class="ident">ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis</span>};
 
 <span class="kw">const</span> <span class="ident">MAX_PEER_REVIEW_CANDIDATES</span>: <span class="ident">i64</span> <span class="op">=</span> <span class="number">10</span>;
 
@@ -493,7 +538,7 @@
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">user_exercise_state</span>: <span class="ident">UserExerciseState</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">user_exercise_state</span>.<span class="ident">exercise_progress</span> <span class="op">!</span><span class="op">=</span> <span class="ident">ExerciseProgress::NotAnswered</span> {
+    <span class="kw">if</span> <span class="ident">user_exercise_state</span>.<span class="ident">reviewing_stage</span> <span class="op">!</span><span class="op">=</span> <span class="ident">ReviewingStage::NotStarted</span> {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::PreconditionFailed</span>(
             <span class="string">&quot;Cannot start peer review anymore.&quot;</span>.<span class="ident">to_string</span>(),
         ));
@@ -501,7 +546,7 @@
     <span class="kw">let</span> <span class="ident">_user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_states::update_exercise_progress</span>(
         <span class="ident">conn</span>,
         <span class="ident">user_exercise_state</span>.<span class="ident">id</span>,
-        <span class="ident">ExerciseProgress::PeerReview</span>,
+        <span class="ident">ReviewingStage::PeerReview</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
@@ -575,7 +620,7 @@
             <span class="ident">exercise</span>,
             <span class="ident">user_exercise_state</span>,
             <span class="ident">peer_reviews_given</span>,
-            <span class="ident">peer_review</span>.<span class="ident">peer_reviews_to_receive</span>,
+            <span class="ident">peer_review</span>.<span class="ident">clone</span>(),
         )
         .<span class="kw">await</span><span class="question-mark">?</span>
     } <span class="kw">else</span> {
@@ -628,7 +673,7 @@
     <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
     <span class="ident">user_exercise_state</span>: <span class="ident">UserExerciseState</span>,
     <span class="ident">peer_reviews_given</span>: <span class="ident">i32</span>,
-    <span class="ident">peer_reviews_to_receive</span>: <span class="ident">i32</span>,
+    <span class="ident">peer_review</span>: <span class="ident">PeerReview</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">users_latest_submission</span> <span class="op">=</span>
         <span class="ident">exercise_slide_submissions::get_users_latest_exercise_slide_submission</span>(
@@ -651,15 +696,21 @@
         <span class="ident">user_exercise_state</span>.<span class="ident">get_course_instance_id</span>()<span class="question-mark">?</span>,
         <span class="ident">peer_reviews_given</span>,
         <span class="ident">users_latest_submission</span>.<span class="ident">id</span>,
-        <span class="ident">peer_reviews_received</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">peer_reviews_to_receive</span>,
+        <span class="ident">peer_reviews_received</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">peer_review</span>.<span class="ident">peer_reviews_to_receive</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">received_peer_review_question_submissions</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::peer_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission</span>(<span class="ident">conn</span>, <span class="ident">users_latest_submission</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">grading::update_user_exercise_state_peer_review_status</span>(
         <span class="ident">conn</span>,
         <span class="ident">exercise</span>,
         <span class="ident">user_exercise_state</span>,
-        <span class="bool-val">true</span>,
-        <span class="ident">peer_review_queue_entry</span>.<span class="ident">received_enough_peer_reviews</span>,
+        <span class="ident">ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis</span> {
+            <span class="ident">given_enough_peer_reviews</span>: <span class="bool-val">true</span>,
+            <span class="ident">received_enough_peer_reviews</span>: <span class="ident">peer_review_queue_entry</span>.<span class="ident">received_enough_peer_reviews</span>,
+            <span class="ident">peer_review_accepting_strategy</span>: <span class="ident">peer_review</span>.<span class="ident">accepting_strategy</span>,
+            <span class="ident">peer_review_accepting_threshold</span>: <span class="ident">peer_review</span>.<span class="ident">accepting_threshold</span>,
+            <span class="ident">received_peer_review_question_submissions</span>,
+        },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">user_exercise_state</span>)
@@ -703,12 +754,19 @@
             )
             .<span class="kw">await</span><span class="question-mark">?</span>
             .<span class="ident">try_into</span>()<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">received_peer_review_question_submissions</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::peer_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission</span>(<span class="ident">conn</span>, <span class="ident">peer_review_queue_entry</span>.<span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="ident">grading::update_user_exercise_state_peer_review_status</span>(
                 <span class="ident">conn</span>,
                 <span class="ident">exercise</span>,
                 <span class="ident">user_exercise_state</span>,
-                <span class="ident">peer_reviews_given</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">peer_review</span>.<span class="ident">peer_reviews_to_give</span>,
-                <span class="bool-val">true</span>,
+                <span class="ident">ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis</span> {
+                    <span class="ident">given_enough_peer_reviews</span>: <span class="ident">peer_reviews_given</span>
+                        <span class="op">&gt;</span><span class="op">=</span> <span class="ident">peer_review</span>.<span class="ident">peer_reviews_to_give</span>,
+                    <span class="ident">received_enough_peer_reviews</span>: <span class="bool-val">true</span>,
+                    <span class="ident">peer_review_accepting_strategy</span>: <span class="ident">peer_review</span>.<span class="ident">accepting_strategy</span>,
+                    <span class="ident">peer_review_accepting_threshold</span>: <span class="ident">peer_review</span>.<span class="ident">accepting_threshold</span>,
+                    <span class="ident">received_peer_review_question_submissions</span>,
+                },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
         }
@@ -716,13 +774,23 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseMaterialPeerReviewData</span> {
-    <span class="kw">pub</span> <span class="ident">exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_task_submissions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseTaskSubmissionWithSpec</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_id</span>: <span class="ident">Uuid</span>,
+    <span class="doccomment">/// If none, no answer was available for review.</span>
+    <span class="kw">pub</span> <span class="ident">answer_to_review</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CourseMaterialPeerReviewDataAnswerToReview</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">peer_review</span>: <span class="ident">PeerReview</span>,
     <span class="kw">pub</span> <span class="ident">peer_review_questions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestion</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">ts</span>(<span class="kw">type</span> <span class="op">=</span> <span class="string">&quot;number&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="ident">num_peer_reviews_given</span>: <span class="ident">i64</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseMaterialPeerReviewDataAnswerToReview</span> {
+    <span class="kw">pub</span> <span class="ident">exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
+    <span class="doccomment">/// Uses the same type as we use when we render and exercise in course material. Allows us to reuse existing logic for getting all the necessary information for rendering the submission.</span>
+    <span class="kw">pub</span> <span class="ident">course_material_exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseMaterialExerciseTask</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Tries to select a submission for user to peer review.</span>
@@ -734,26 +802,27 @@
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_to_select_exercise_slide_submission_for_peer_review</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-    <span class="ident">user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CourseMaterialPeerReviewData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="ident">reviewer_user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseMaterialPeerReviewData</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">peer_review</span> <span class="op">=</span> <span class="ident">peer_reviews::get_by_exercise_or_course_id</span>(
         <span class="ident">conn</span>,
-        <span class="ident">user_exercise_state</span>.<span class="ident">exercise_id</span>,
+        <span class="ident">reviewer_user_exercise_state</span>.<span class="ident">exercise_id</span>,
         <span class="ident">exercise</span>.<span class="ident">get_course_id</span>()<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course_instance_id</span> <span class="op">=</span> <span class="ident">reviewer_user_exercise_state</span>.<span class="ident">get_course_instance_id</span>()<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">excluded_exercise_slide_submission_ids</span> <span class="op">=</span>
         <span class="ident">peer_review_submissions::get_users_submission_ids_for_exercise_and_course_instance</span>(
             <span class="ident">conn</span>,
-            <span class="ident">user_exercise_state</span>.<span class="ident">user_id</span>,
-            <span class="ident">user_exercise_state</span>.<span class="ident">exercise_id</span>,
-            <span class="ident">user_exercise_state</span>.<span class="ident">get_course_instance_id</span>()<span class="question-mark">?</span>,
+            <span class="ident">reviewer_user_exercise_state</span>.<span class="ident">user_id</span>,
+            <span class="ident">reviewer_user_exercise_state</span>.<span class="ident">exercise_id</span>,
+            <span class="ident">course_instance_id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">candidate_submission_id</span> <span class="op">=</span> <span class="ident">try_to_select_peer_review_candidate_from_queue</span>(
         <span class="ident">conn</span>,
-        <span class="ident">user_exercise_state</span>.<span class="ident">exercise_id</span>,
-        <span class="ident">user_exercise_state</span>.<span class="ident">user_id</span>,
+        <span class="ident">reviewer_user_exercise_state</span>.<span class="ident">exercise_id</span>,
+        <span class="ident">reviewer_user_exercise_state</span>.<span class="ident">user_id</span>,
         <span class="kw-2">&amp;</span><span class="ident">excluded_exercise_slide_submission_ids</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -766,25 +835,23 @@
             <span class="comment">// In that case just get a random one.</span>
             <span class="ident">exercise_slide_submissions::try_to_get_random_filtered_by_user_and_submissions</span>(
                 <span class="ident">conn</span>,
-                <span class="ident">user_exercise_state</span>.<span class="ident">exercise_id</span>,
-                <span class="ident">user_exercise_state</span>.<span class="ident">user_id</span>,
+                <span class="ident">reviewer_user_exercise_state</span>.<span class="ident">exercise_id</span>,
+                <span class="ident">reviewer_user_exercise_state</span>.<span class="ident">user_id</span>,
                 <span class="kw-2">&amp;</span><span class="ident">excluded_exercise_slide_submission_ids</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>
         }
     };
-    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">exercise_slide_submission_to_review</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">exercise_slide_submission</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">get_course_material_peer_review_data</span>(
-                <span class="ident">conn</span>,
-                <span class="kw-2">&amp;</span><span class="ident">peer_review</span>,
-                <span class="kw-2">&amp;</span><span class="ident">exercise_slide_submission</span>,
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="prelude-val">Some</span>(<span class="ident">data</span>)
-        }
-        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
-    };
+    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">get_course_material_peer_review_data</span>(
+        <span class="ident">conn</span>,
+        <span class="kw-2">&amp;</span><span class="ident">peer_review</span>,
+        <span class="kw-2">&amp;</span><span class="ident">exercise_slide_submission_to_review</span>,
+        <span class="ident">reviewer_user_exercise_state</span>.<span class="ident">user_id</span>,
+        <span class="ident">course_instance_id</span>,
+        <span class="ident">exercise</span>.<span class="ident">id</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="prelude-val">Ok</span>(<span class="ident">data</span>)
 }
 
@@ -830,21 +897,42 @@
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_material_peer_review_data</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">peer_review</span>: <span class="kw-2">&amp;</span><span class="ident">PeerReview</span>,
-    <span class="ident">exercise_slide_submission</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseSlideSubmission</span>,
+    <span class="ident">exercise_slide_submission</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmission</span><span class="op">&gt;</span>,
+    <span class="ident">reviewer_user_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">reviewer_course_instance_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseMaterialPeerReviewData</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">peer_review_questions</span> <span class="op">=</span>
         <span class="ident">peer_review_questions::get_all_by_peer_review_id</span>(<span class="ident">conn</span>, <span class="ident">peer_review</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exercise_task_submissions</span> <span class="op">=</span>
-        <span class="ident">exercise_task_submissions::get_task_submissions_with_specs_by_exercise_slide_id</span>(
+    <span class="kw">let</span> <span class="ident">num_peer_reviews_given</span> <span class="op">=</span>
+        <span class="ident">peer_review_submissions::get_num_peer_reviews_given_by_user_and_course_instance_and_exercise</span>(
             <span class="ident">conn</span>,
-            <span class="ident">exercise_slide_submission</span>.<span class="ident">id</span>,
+            <span class="ident">reviewer_user_id</span>,
+            <span class="ident">reviewer_course_instance_id</span>,
+            <span class="ident">exercise_id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">answer_to_review</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">exercise_slide_submission</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">exercise_slide_submission</span>) =&gt; {
+            <span class="kw">let</span> <span class="ident">exercise_slide_submission_id</span> <span class="op">=</span> <span class="ident">exercise_slide_submission</span>.<span class="ident">id</span>;
+            <span class="kw">let</span> <span class="ident">course_material_exercise_tasks</span> <span class="op">=</span> <span class="ident">exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id</span>(
+                <span class="ident">conn</span>,
+                <span class="ident">exercise_slide_submission_id</span>,
+            ).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="prelude-val">Some</span>(<span class="ident">CourseMaterialPeerReviewDataAnswerToReview</span> {
+                <span class="ident">exercise_slide_submission_id</span>,
+                <span class="ident">course_material_exercise_tasks</span>,
+            })
+        }
+        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+    };
+
     <span class="prelude-val">Ok</span>(<span class="ident">CourseMaterialPeerReviewData</span> {
-        <span class="ident">exercise_slide_submission_id</span>: <span class="ident">exercise_slide_submission</span>.<span class="ident">id</span>,
-        <span class="ident">exercise_task_submissions</span>,
-        <span class="ident">peer_review_id</span>: <span class="ident">peer_review</span>.<span class="ident">id</span>,
+        <span class="ident">answer_to_review</span>,
+        <span class="ident">peer_review</span>: <span class="ident">peer_review</span>.<span class="ident">clone</span>(),
         <span class="ident">peer_review_questions</span>,
+        <span class="ident">num_peer_reviews_given</span>,
     })
 }
 

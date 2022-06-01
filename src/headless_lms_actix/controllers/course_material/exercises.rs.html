@@ -314,6 +314,33 @@
 <span id="309">309</span>
 <span id="310">310</span>
 <span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/exercises`.</span>
 
 <span class="kw">use</span> <span class="ident">futures::future::OptionFuture</span>;
@@ -322,7 +349,7 @@
     <span class="ident">exercises</span>::{<span class="ident">CourseMaterialExercise</span>, <span class="ident">Exercise</span>},
     <span class="ident">library</span>::{
         <span class="ident">grading</span>::{<span class="ident">StudentExerciseSlideSubmission</span>, <span class="ident">StudentExerciseSlideSubmissionResult</span>},
-        <span class="ident">peer_reviewing::CourseMaterialPeerReviewSubmission</span>,
+        <span class="ident">peer_reviewing</span>::{<span class="ident">CourseMaterialPeerReviewData</span>, <span class="ident">CourseMaterialPeerReviewSubmission</span>},
     },
     <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">CourseInstanceOrExamId</span>},
 };
@@ -383,6 +410,29 @@ expose the correct answers to the user.
         <span class="ident">course_material_exercise</span>.<span class="ident">clear_model_solution_specs</span>();
     }
     <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">course_material_exercise</span>))
+}
+
+<span class="doccomment">/**
+GET `/api/v0/course-material/exercises/:exercise_id/peer-review` - Get peer review for an exercise. This includes the submission to peer review and the questions the user is supposed to answer.ALTER
+
+This request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.
+*/</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_peer_review_for_exercise</span>(
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">exercise_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">CourseMaterialPeerReviewData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">peer_review_data</span> <span class="op">=</span> <span class="ident">models::peer_reviews::get_course_material_peer_review_data</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">user</span>.<span class="ident">id</span>,
+        <span class="ident">exercise_id</span>.<span class="ident">into_inner</span>(),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">peer_review_data</span>))
 }
 
 <span class="doccomment">/**
@@ -619,6 +669,10 @@ We add the routes by calling the route method instead of using the route annotat
         .<span class="ident">route</span>(
             <span class="string">&quot;/{exercise_id}/peer-reviews/start&quot;</span>,
             <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">start_peer_review</span>),
+        )
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{exercise_id}/peer-review&quot;</span>,
+            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_peer_review_for_exercise</span>),
         )
         .<span class="ident">route</span>(
             <span class="string">&quot;/{exercise_id}/submissions&quot;</span>,

@@ -3526,6 +3526,36 @@
 <span id="3521">3521</span>
 <span id="3522">3522</span>
 <span id="3523">3523</span>
+<span id="3524">3524</span>
+<span id="3525">3525</span>
+<span id="3526">3526</span>
+<span id="3527">3527</span>
+<span id="3528">3528</span>
+<span id="3529">3529</span>
+<span id="3530">3530</span>
+<span id="3531">3531</span>
+<span id="3532">3532</span>
+<span id="3533">3533</span>
+<span id="3534">3534</span>
+<span id="3535">3535</span>
+<span id="3536">3536</span>
+<span id="3537">3537</span>
+<span id="3538">3538</span>
+<span id="3539">3539</span>
+<span id="3540">3540</span>
+<span id="3541">3541</span>
+<span id="3542">3542</span>
+<span id="3543">3543</span>
+<span id="3544">3544</span>
+<span id="3545">3545</span>
+<span id="3546">3546</span>
+<span id="3547">3547</span>
+<span id="3548">3548</span>
+<span id="3549">3549</span>
+<span id="3550">3550</span>
+<span id="3551">3551</span>
+<span id="3552">3552</span>
+<span id="3553">3553</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -5168,7 +5198,7 @@
             <span class="string">&quot;autoReject&quot;</span>: <span class="bool-val">false</span>,
             <span class="string">&quot;autoConfirm&quot;</span>: <span class="bool-val">true</span>,
             <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true</span>,
-            <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;your submit has been answered&quot;</span>,
+            <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;This is an extra submit message from the teacher.&quot;</span>,
             <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
             <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
             <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
@@ -5227,7 +5257,7 @@
             <span class="string">&quot;autoReject&quot;</span>: <span class="bool-val">false</span>,
             <span class="string">&quot;autoConfirm&quot;</span>: <span class="bool-val">true</span>,
             <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true</span>,
-            <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;your submit has been answered&quot;</span>,
+            <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;This is an extra submit message from the teacher.&quot;</span>,
             <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
             <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
             <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
@@ -5305,7 +5335,7 @@
             <span class="string">&quot;autoReject&quot;</span>: <span class="bool-val">false</span>,
             <span class="string">&quot;autoConfirm&quot;</span>: <span class="bool-val">true</span>,
             <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true</span>,
-            <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;your submit has been answered&quot;</span>,
+            <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;This is an extra submit message from the teacher.&quot;</span>,
             <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
             <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
             <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
@@ -5404,7 +5434,7 @@
             <span class="string">&quot;autoReject&quot;</span>: <span class="bool-val">false</span>,
             <span class="string">&quot;autoConfirm&quot;</span>: <span class="bool-val">true</span>,
             <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true</span>,
-            <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;your submit has been answered&quot;</span>,
+            <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;This is an extra submit message from the teacher.&quot;</span>,
             <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
             <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
             <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
@@ -5932,14 +5962,44 @@
     <span class="kw">let</span> <span class="ident">new_peer_review_question</span> <span class="op">=</span> <span class="ident">NewPeerReviewQuestion</span> {
         <span class="ident">peer_review_id</span>,
         <span class="ident">order_number</span>: <span class="number">0</span>,
-        <span class="ident">question</span>: <span class="string">&quot;Was the answer properly thought out?&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">question</span>: <span class="string">&quot;General comments&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType::Essay</span>,
-        <span class="ident">answer_required</span>: <span class="bool-val">true</span>,
+        <span class="ident">answer_required</span>: <span class="bool-val">false</span>,
     };
     <span class="kw">let</span> <span class="ident">_peer_review_question_1_id</span> <span class="op">=</span> <span class="ident">peer_review_questions::insert_with_id</span>(
         <span class="ident">conn</span>,
         <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;64717822-ac25-4a7d-8298-f0ac39d73260&quot;</span>),
         <span class="kw-2">&amp;</span><span class="ident">new_peer_review_question</span>,
+    )
+    .<span class="kw">await</span>
+    .<span class="ident">unwrap</span>();
+
+    <span class="kw">let</span> <span class="ident">new_peer_review_question2</span> <span class="op">=</span> <span class="ident">NewPeerReviewQuestion</span> {
+        <span class="ident">peer_review_id</span>,
+        <span class="ident">order_number</span>: <span class="number">1</span>,
+        <span class="ident">question</span>: <span class="string">&quot;The answer was correct&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType::Scale</span>,
+        <span class="ident">answer_required</span>: <span class="bool-val">true</span>,
+    };
+    <span class="kw">let</span> <span class="ident">_peer_review_question_2_id</span> <span class="op">=</span> <span class="ident">peer_review_questions::insert_with_id</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;6365df37-a9b5-4620-b2fb-926b0c29a954&quot;</span>),
+        <span class="kw-2">&amp;</span><span class="ident">new_peer_review_question2</span>,
+    )
+    .<span class="kw">await</span>
+    .<span class="ident">unwrap</span>();
+
+    <span class="kw">let</span> <span class="ident">new_peer_review_question3</span> <span class="op">=</span> <span class="ident">NewPeerReviewQuestion</span> {
+        <span class="ident">peer_review_id</span>,
+        <span class="ident">order_number</span>: <span class="number">2</span>,
+        <span class="ident">question</span>: <span class="string">&quot;The answer was easy to read&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType::Scale</span>,
+        <span class="ident">answer_required</span>: <span class="bool-val">true</span>,
+    };
+    <span class="kw">let</span> <span class="ident">_peer_review_question_3_id</span> <span class="op">=</span> <span class="ident">peer_review_questions::insert_with_id</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;19b81b50-fc7f-4535-a285-8fc0604ed85c&quot;</span>),
+        <span class="kw-2">&amp;</span><span class="ident">new_peer_review_question3</span>,
     )
     .<span class="kw">await</span>
     .<span class="ident">unwrap</span>();
@@ -6145,7 +6205,7 @@
                 <span class="string">&quot;autoReject&quot;</span>: <span class="bool-val">false</span>,
                 <span class="string">&quot;autoConfirm&quot;</span>: <span class="bool-val">true</span>,
                 <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true</span>,
-                <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;your submit has been answered&quot;</span>,
+                <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;This is an extra submit message from the teacher.&quot;</span>,
                 <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
                 <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
                 <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
@@ -6238,7 +6298,7 @@
                 <span class="string">&quot;autoReject&quot;</span>: <span class="bool-val">false</span>,
                 <span class="string">&quot;autoConfirm&quot;</span>: <span class="bool-val">true</span>,
                 <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true</span>,
-                <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;your submit has been answered&quot;</span>,
+                <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;This is an extra submit message from the teacher.&quot;</span>,
                 <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
                 <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
                 <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),
@@ -6313,7 +6373,7 @@
                 <span class="string">&quot;autoReject&quot;</span>: <span class="bool-val">false</span>,
                 <span class="string">&quot;autoConfirm&quot;</span>: <span class="bool-val">true</span>,
                 <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true</span>,
-                <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;your submit has been answered&quot;</span>,
+                <span class="string">&quot;submitMessage&quot;</span>: <span class="string">&quot;This is an extra submit message from the teacher.&quot;</span>,
                 <span class="string">&quot;excludedFromScore&quot;</span>: <span class="bool-val">true</span>,
                 <span class="string">&quot;grantPointsPolicy&quot;</span>: <span class="string">&quot;grant_whenever_possible&quot;</span>,
                 <span class="string">&quot;awardPointsEvenIfWrong&quot;</span>: <span class="bool-val">false</span>}),

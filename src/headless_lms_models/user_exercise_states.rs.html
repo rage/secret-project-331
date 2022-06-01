@@ -777,6 +777,33 @@
 <span id="772">772</span>
 <span id="773">773</span>
 <span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">futures::Stream</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals</span>;
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -788,13 +815,40 @@
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Type</span>)]</span>
-<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;exercise_progress&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;reviewing_stage&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ExerciseProgress</span> {
-    <span class="ident">NotAnswered</span>,
+<span class="doccomment">/**
+Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
+*/</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ReviewingStage</span> {
+    <span class="doccomment">/**
+    In this stage the user submits answers to the exercise. If the exercise allows it, the user can answer the exercise multiple times. If the exercise is not in this stage, the user cannot answer the exercise. Most exercises will never leave this stage because other stages are reseverved for situations when we cannot give the user points just based on the automatic gradings.
+    */</span>
+    <span class="ident">NotStarted</span>,
+    <span class="doccomment">/// In this stage the student is instructed to give peer reviews to other students.</span>
     <span class="ident">PeerReview</span>,
+    <span class="doccomment">/// In this stage the student is instructed to review their own answer.</span>
     <span class="ident">SelfReview</span>,
-    <span class="ident">Complete</span>,
+    <span class="doccomment">/// In this stage the student has completed the neccessary peer and self reviews but is waiting for other students to peer review their answer before we can give points for this exercise.</span>
+    <span class="ident">WaitingForPeerReviews</span>,
+    <span class="doccomment">/**
+    In this stage the student has completed everything they need to do, but before we can give points for this exercise, we need a manual grading from the teacher.
+
+    Reasons for ending up in this stage may be one of these:
+
+    1. The exercise is configured to require all answers to be reviewed by the teacher.
+    2. The answer has received poor reviews from the peers, and the exercise has been configured so that the teacher has to double-check whether it is justified to not give full points to the student.
+    */</span>
+    <span class="ident">WaitingForManualGrading</span>,
+    <span class="doccomment">/**
+    In this stage the the reviews have been completed and the points have been awarded to the student. However, since the answer had to go though the review process, the student may no longer answer the exercise since because
+
+    1. It is likely that we revealed the model solution to the student during the review process.
+    2. In case of peer review, a new answer would have to be reviewed by other students again, and that would be unreasonable extra work for others.
+
+    If the teacher for some reasoon feels bad for the student and wants to give them a new chance, the answers for this exercise should be reset, the reason should be recorded somewhere in the database, and the value of this column should be set to `NotStarted`. Deleting the whole user_exercise_state may also be wise. However, if we end up doing this for a teacher, we should make sure that the teacher realizes that they should not give an unfair advantage to anyone.
+    */</span>
+    <span class="ident">ReviewedAndLocked</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
@@ -810,7 +864,7 @@
     <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
     <span class="kw">pub</span> <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_progress</span>: <span class="ident">ExerciseProgress</span>,
+    <span class="kw">pub</span> <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage</span>,
     <span class="kw">pub</span> <span class="ident">selected_exercise_slide_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
@@ -832,7 +886,7 @@
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_progress</span>: <span class="ident">ExerciseProgress</span>,
+    <span class="kw">pub</span> <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage</span>,
     <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
 }
 
@@ -1087,7 +1141,7 @@ SELECT id,
   score_given,
   grading_progress AS &quot;grading_progress: _&quot;,
   activity_progress AS &quot;activity_progress: _&quot;,
-  exercise_progress AS &quot;exercise_progress: _&quot;,
+  reviewing_stage AS &quot;reviewing_stage: _&quot;,
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
@@ -1121,7 +1175,7 @@ WHERE user_id = $1
       score_given,
       grading_progress as &quot;grading_progress: _&quot;,
       activity_progress as &quot;activity_progress: _&quot;,
-      exercise_progress AS &quot;exercise_progress: _&quot;,
+      reviewing_stage AS &quot;reviewing_stage: _&quot;,
       selected_exercise_slide_id
       &quot;#</span>,
             <span class="ident">user_id</span>,
@@ -1150,7 +1204,7 @@ SELECT id,
   score_given,
   grading_progress AS &quot;grading_progress: _&quot;,
   activity_progress AS &quot;activity_progress: _&quot;,
-  exercise_progress AS &quot;exercise_progress: _&quot;,
+  reviewing_stage AS &quot;reviewing_stage: _&quot;,
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE id = $1
@@ -1212,7 +1266,7 @@ SELECT id,
   score_given,
   grading_progress AS &quot;grading_progress: _&quot;,
   activity_progress AS &quot;activity_progress: _&quot;,
-  exercise_progress AS &quot;exercise_progress: _&quot;,
+  reviewing_stage AS &quot;reviewing_stage: _&quot;,
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
@@ -1303,7 +1357,7 @@ WHERE user_id = $1
 UPDATE user_exercise_states
 SET score_given = $1,
   activity_progress = $2,
-  exercise_progress = $3,
+  reviewing_stage = $3,
   grading_progress = $4
 WHERE id = $5
   AND deleted_at IS NULL
@@ -1318,12 +1372,12 @@ RETURNING id,
   score_given,
   grading_progress AS &quot;grading_progress: _&quot;,
   activity_progress AS &quot;activity_progress: _&quot;,
-  exercise_progress AS &quot;exercise_progress: _&quot;,
+  reviewing_stage AS &quot;reviewing_stage: _&quot;,
   selected_exercise_slide_id
         &quot;#</span>,
         <span class="ident">user_exercise_state_update</span>.<span class="ident">score_given</span>,
         <span class="ident">user_exercise_state_update</span>.<span class="ident">activity_progress</span> <span class="kw">as</span> <span class="ident">ActivityProgress</span>,
-        <span class="ident">user_exercise_state_update</span>.<span class="ident">exercise_progress</span> <span class="kw">as</span> <span class="ident">ExerciseProgress</span>,
+        <span class="ident">user_exercise_state_update</span>.<span class="ident">reviewing_stage</span> <span class="kw">as</span> <span class="ident">ReviewingStage</span>,
         <span class="ident">user_exercise_state_update</span>.<span class="ident">grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,
         <span class="ident">user_exercise_state_update</span>.<span class="ident">id</span>,
     )
@@ -1335,13 +1389,13 @@ RETURNING id,
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_exercise_progress</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_progress</span>: <span class="ident">ExerciseProgress</span>,
+    <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">UserExerciseState</span>,
         <span class="string">r#&quot;
 UPDATE user_exercise_states
-SET exercise_progress = $1
+SET reviewing_stage = $1
 WHERE id = $2
   AND deleted_at IS NULL
 RETURNING id,
@@ -1355,10 +1409,10 @@ RETURNING id,
   score_given,
   grading_progress AS &quot;grading_progress: _&quot;,
   activity_progress AS &quot;activity_progress: _&quot;,
-  exercise_progress AS &quot;exercise_progress: _&quot;,
+  reviewing_stage AS &quot;reviewing_stage: _&quot;,
   selected_exercise_slide_id
         &quot;#</span>,
-        <span class="ident">exercise_progress</span> <span class="kw">as</span> <span class="ident">ExerciseProgress</span>,
+        <span class="ident">reviewing_stage</span> <span class="kw">as</span> <span class="ident">ReviewingStage</span>,
         <span class="ident">id</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
@@ -1393,7 +1447,7 @@ RETURNING id,
   score_given,
   grading_progress AS &quot;grading_progress: _&quot;,
   activity_progress AS &quot;activity_progress: _&quot;,
-  exercise_progress AS &quot;exercise_progress: _&quot;,
+  reviewing_stage AS &quot;reviewing_stage: _&quot;,
   selected_exercise_slide_id
         &quot;#</span>,
         <span class="ident">score_given</span>,

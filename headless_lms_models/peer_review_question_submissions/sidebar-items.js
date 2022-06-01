@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["insert",""]],"struct":[["PeerReviewQuestionSubmission",""]]});
+initSidebarItems({"fn":[["get_received_question_submissions_for_exercise_slide_submission",""],["insert",""]],"struct":[["PeerReviewQuestionSubmission",""]]});

@@ -9,6 +9,7 @@ import { Renderer } from "../components/Renderer"
 import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
+import { migrateQuiz } from "../util/migrate"
 
 import { ItemAnswerFeedback } from "./api/grade"
 
@@ -78,7 +79,7 @@ const IFrame: React.FC = () => {
                 } else {
                   setState({
                     viewType: data.view_type,
-                    privateSpec: JSON.parse(data.data.private_spec as string),
+                    privateSpec: migrateQuiz(JSON.parse(data.data.private_spec as string)),
                   })
                 }
               } else if (data.view_type === "view-submission") {

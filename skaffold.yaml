@@ -1,4 +1,4 @@
-apiVersion: skaffold/v2beta12
+apiVersion: skaffold/v2beta27
 kind: Config
 build:
   tagPolicy:
@@ -65,7 +65,12 @@ deploy:
   kustomize:
     paths:
       - kubernetes/dev
+    hooks:
+      after:
+        - host:
+            command: ["bash", "-c", "bin/warm-routes &"]
   kubeContext: minikube
+
 portForward:
   - resourceType: statefulset
     resourceName: postgres

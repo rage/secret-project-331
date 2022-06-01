@@ -16,7 +16,7 @@ use crate::{
     user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
 };
 
-use super::grading;
+use super::grading::{self, ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis};
 
 const MAX_PEER_REVIEW_CANDIDATES: i64 = 10;
 
@@ -107,7 +107,7 @@ pub async fn create_peer_review_submission_for_user(
             exercise,
             user_exercise_state,
             peer_reviews_given,
-            peer_review.peer_reviews_to_receive,
+            peer_review.clone(),
         )
         .await?
     } else {
@@ -160,7 +160,7 @@ async fn update_peer_review_giver_exercise_progress(
     exercise: &Exercise,
     user_exercise_state: UserExerciseState,
     peer_reviews_given: i32,
-    peer_reviews_to_receive: i32,
+    peer_review: PeerReview,
 ) -> ModelResult<UserExerciseState> {
     let users_latest_submission =
         exercise_slide_submissions::get_users_latest_exercise_slide_submission(
@@ -183,15 +183,21 @@ async fn update_peer_review_giver_exercise_progress(
         user_exercise_state.get_course_instance_id()?,
         peer_reviews_given,
         users_latest_submission.id,
-        peer_reviews_received >= peer_reviews_to_receive,
+        peer_reviews_received >= peer_review.peer_reviews_to_receive,
     )
     .await?;
+    let received_peer_review_question_submissions = crate::peer_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission(conn, users_latest_submission.id).await?;
     let user_exercise_state = grading::update_user_exercise_state_peer_review_status(
         conn,
         exercise,
         user_exercise_state,
-        true,
-        peer_review_queue_entry.received_enough_peer_reviews,
+        ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
+            given_enough_peer_reviews: true,
+            received_enough_peer_reviews: peer_review_queue_entry.received_enough_peer_reviews,
+            peer_review_accepting_strategy: peer_review.accepting_strategy,
+            peer_review_accepting_threshold: peer_review.accepting_threshold,
+            received_peer_review_question_submissions,
+        },
     )
     .await?;
     Ok(user_exercise_state)
@@ -235,12 +241,19 @@ async fn update_peer_review_receiver_exercise_status(
             )
             .await?
             .try_into()?;
+            let received_peer_review_question_submissions = crate::peer_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission(conn, peer_review_queue_entry.receiving_peer_reviews_exercise_slide_submission_id).await?;
             grading::update_user_exercise_state_peer_review_status(
                 conn,
                 exercise,
                 user_exercise_state,
-                peer_reviews_given >= peer_review.peer_reviews_to_give,
-                true,
+                ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
+                    given_enough_peer_reviews: peer_reviews_given
+                        >= peer_review.peer_reviews_to_give,
+                    received_enough_peer_reviews: true,
+                    peer_review_accepting_strategy: peer_review.accepting_strategy,
+                    peer_review_accepting_threshold: peer_review.accepting_threshold,
+                    received_peer_review_question_submissions,
+                },
             )
             .await?;
         }

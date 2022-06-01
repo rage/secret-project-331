@@ -51,7 +51,7 @@ use headless_lms_models::{
         PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
     peer_review_questions::{PeerReviewQuestion, PeerReviewQuestionType},
-    peer_reviews::PeerReview,
+    peer_reviews::{PeerReview, PeerReviewAcceptingStrategy},
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
     proposed_page_edits::{PageProposal, ProposalCount},
@@ -299,6 +299,8 @@ fn main() {
         exercise_id: Some(exercise.id),
         peer_reviews_to_give: 3,
         peer_reviews_to_receive: 2,
+        accepting_threshold: 2.5,
+        accepting_strategy: PeerReviewAcceptingStrategy::ManualReviewEverything,
     };
     let playground_example = PlaygroundExample {
         id,
@@ -581,7 +583,10 @@ fn main() {
                 course_id: id,
                 exercise_id: Some(id),
                 peer_reviews_to_give: 3,
-                peer_reviews_to_receive: 2
+                peer_reviews_to_receive: 2,
+                accepting_threshold: 3.0,
+                accepting_strategy:
+                    PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage
             })
         }
     );

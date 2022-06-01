@@ -147,6 +147,7 @@ fn ts_binding_generator() {
         pages::PageChapterAndCourseInformation,
 
         peer_reviews::PeerReview,
+        peer_reviews::PeerReviewAcceptingStrategy,
 
         peer_review_questions::NewPeerReviewQuestion,
         peer_review_questions::PeerReviewQuestion,

@@ -34,6 +34,7 @@ import {
   CourseMaterialExerciseSlide,
   CourseMaterialExerciseTask,
   CourseMaterialPeerReviewData,
+  CourseMaterialPeerReviewDataAnswerToReview,
   CourseMaterialPeerReviewQuestionAnswer,
   CourseMaterialPeerReviewSubmission,
   CoursePageWithUserData,
@@ -69,7 +70,6 @@ import {
   ExerciseTaskGrading,
   ExerciseTaskGradingResult,
   ExerciseTaskSubmission,
-  ExerciseTaskSubmissionWithSpec,
   ExerciseUserCounts,
   ExerciseWithExerciseTasks,
   Feedback,
@@ -113,6 +113,7 @@ import {
   ProposalCount,
   ProposalStatus,
   Resource,
+  ReviewingStage,
   RoleDomain,
   RoleInfo,
   RoleQuery,
@@ -713,10 +714,9 @@ export function isCourseMaterialExercise(
     (isExercise(obj.exercise) as boolean) &&
     typeof obj.can_post_submission === "boolean" &&
     (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
-    (obj.peer_review_info === null ||
-      (isCourseMaterialPeerReviewData(obj.peer_review_info) as boolean)) &&
     (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
-    (isPointMap(obj.exercise_slide_submission_counts) as boolean)
+    (isPointMap(obj.exercise_slide_submission_counts) as boolean) &&
+    (obj.peer_review === null || (isPeerReview(obj.peer_review) as boolean))
   )
 }
 
@@ -747,7 +747,8 @@ export function isExerciseStatus(obj: any, _argumentName?: string): obj is Exerc
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (obj.score_given === null || typeof obj.score_given === "number") &&
     (isActivityProgress(obj.activity_progress) as boolean) &&
-    (isGradingProgress(obj.grading_progress) as boolean)
+    (isGradingProgress(obj.grading_progress) as boolean) &&
+    (isReviewingStage(obj.reviewing_stage) as boolean)
   )
 }
 
@@ -860,14 +861,24 @@ export function isCourseMaterialPeerReviewData(
 ): obj is CourseMaterialPeerReviewData {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_slide_submission_id === "string" &&
-    Array.isArray(obj.exercise_task_submissions) &&
-    obj.exercise_task_submissions.every(
-      (e: any) => isExerciseTaskSubmissionWithSpec(e) as boolean,
-    ) &&
-    typeof obj.peer_review_id === "string" &&
+    (obj.answer_to_review === null ||
+      (isCourseMaterialPeerReviewDataAnswerToReview(obj.answer_to_review) as boolean)) &&
+    (isPeerReview(obj.peer_review) as boolean) &&
     Array.isArray(obj.peer_review_questions) &&
-    obj.peer_review_questions.every((e: any) => isPeerReviewQuestion(e) as boolean)
+    obj.peer_review_questions.every((e: any) => isPeerReviewQuestion(e) as boolean) &&
+    typeof obj.num_peer_reviews_given === "number"
+  )
+}
+
+export function isCourseMaterialPeerReviewDataAnswerToReview(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewDataAnswerToReview {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_slide_submission_id === "string" &&
+    Array.isArray(obj.course_material_exercise_tasks) &&
+    obj.course_material_exercise_tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean)
   )
 }
 
@@ -1463,18 +1474,6 @@ export function isExerciseTaskSubmission(
   )
 }
 
-export function isExerciseTaskSubmissionWithSpec(
-  obj: any,
-  _argumentName?: string,
-): obj is ExerciseTaskSubmissionWithSpec {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.exercise_task_id === "string" &&
-    typeof obj.exercise_task_order_number === "number"
-  )
-}
-
 export function isRoleUser(obj: any, _argumentName?: string): obj is RoleUser {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1563,6 +1562,17 @@ export function isExerciseUserCounts(obj: any, _argumentName?: string): obj is E
     typeof obj.n_users_attempted === "number" &&
     typeof obj.n_users_with_some_points === "number" &&
     typeof obj.n_users_with_max_points === "number"
+  )
+}
+
+export function isReviewingStage(obj: any, _argumentName?: string): obj is ReviewingStage {
+  return (
+    obj === "NotStarted" ||
+    obj === "PeerReview" ||
+    obj === "SelfReview" ||
+    obj === "WaitingForPeerReviews" ||
+    obj === "WaitingForManualGrading" ||
+    obj === "ReviewedAndLocked"
   )
 }
 

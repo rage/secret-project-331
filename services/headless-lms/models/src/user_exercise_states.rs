@@ -9,13 +9,40 @@ use crate::{
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[sqlx(type_name = "exercise_progress", rename_all = "snake_case")]
+#[sqlx(type_name = "reviewing_stage", rename_all = "snake_case")]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub enum ExerciseProgress {
-    NotAnswered,
+/**
+Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
+*/
+pub enum ReviewingStage {
+    /**
+    In this stage the user submits answers to the exercise. If the exercise allows it, the user can answer the exercise multiple times. If the exercise is not in this stage, the user cannot answer the exercise. Most exercises will never leave this stage because other stages are reseverved for situations when we cannot give the user points just based on the automatic gradings.
+    */
+    NotStarted,
+    /// In this stage the student is instructed to give peer reviews to other students.
     PeerReview,
+    /// In this stage the student is instructed to review their own answer.
     SelfReview,
-    Complete,
+    /// In this stage the student has completed the neccessary peer and self reviews but is waiting for other students to peer review their answer before we can give points for this exercise.
+    WaitingForPeerReviews,
+    /**
+    In this stage the student has completed everything they need to do, but before we can give points for this exercise, we need a manual grading from the teacher.
+
+    Reasons for ending up in this stage may be one of these:
+
+    1. The exercise is configured to require all answers to be reviewed by the teacher.
+    2. The answer has received poor reviews from the peers, and the exercise has been configured so that the teacher has to double-check whether it is justified to not give full points to the student.
+    */
+    WaitingForManualGrading,
+    /**
+    In this stage the the reviews have been completed and the points have been awarded to the student. However, since the answer had to go though the review process, the student may no longer answer the exercise since because
+
+    1. It is likely that we revealed the model solution to the student during the review process.
+    2. In case of peer review, a new answer would have to be reviewed by other students again, and that would be unreasonable extra work for others.
+
+    If the teacher for some reasoon feels bad for the student and wants to give them a new chance, the answers for this exercise should be reset, the reason should be recorded somewhere in the database, and the value of this column should be set to `NotStarted`. Deleting the whole user_exercise_state may also be wise. However, if we end up doing this for a teacher, we should make sure that the teacher realizes that they should not give an unfair advantage to anyone.
+    */
+    ReviewedAndLocked,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -31,7 +58,7 @@ pub struct UserExerciseState {
     pub score_given: Option<f32>,
     pub grading_progress: GradingProgress,
     pub activity_progress: ActivityProgress,
-    pub exercise_progress: ExerciseProgress,
+    pub reviewing_stage: ReviewingStage,
     pub selected_exercise_slide_id: Option<Uuid>,
 }
 
@@ -53,7 +80,7 @@ pub struct UserExerciseStateUpdate {
     pub id: Uuid,
     pub score_given: Option<f32>,
     pub activity_progress: ActivityProgress,
-    pub exercise_progress: ExerciseProgress,
+    pub reviewing_stage: ReviewingStage,
     pub grading_progress: GradingProgress,
 }
 
@@ -308,7 +335,7 @@ SELECT id,
   score_given,
   grading_progress AS "grading_progress: _",
   activity_progress AS "activity_progress: _",
-  exercise_progress AS "exercise_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
@@ -342,7 +369,7 @@ WHERE user_id = $1
       score_given,
       grading_progress as "grading_progress: _",
       activity_progress as "activity_progress: _",
-      exercise_progress AS "exercise_progress: _",
+      reviewing_stage AS "reviewing_stage: _",
       selected_exercise_slide_id
       "#,
             user_id,
@@ -371,7 +398,7 @@ SELECT id,
   score_given,
   grading_progress AS "grading_progress: _",
   activity_progress AS "activity_progress: _",
-  exercise_progress AS "exercise_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE id = $1
@@ -433,7 +460,7 @@ SELECT id,
   score_given,
   grading_progress AS "grading_progress: _",
   activity_progress AS "activity_progress: _",
-  exercise_progress AS "exercise_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
@@ -524,7 +551,7 @@ pub async fn update(
 UPDATE user_exercise_states
 SET score_given = $1,
   activity_progress = $2,
-  exercise_progress = $3,
+  reviewing_stage = $3,
   grading_progress = $4
 WHERE id = $5
   AND deleted_at IS NULL
@@ -539,12 +566,12 @@ RETURNING id,
   score_given,
   grading_progress AS "grading_progress: _",
   activity_progress AS "activity_progress: _",
-  exercise_progress AS "exercise_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
         "#,
         user_exercise_state_update.score_given,
         user_exercise_state_update.activity_progress as ActivityProgress,
-        user_exercise_state_update.exercise_progress as ExerciseProgress,
+        user_exercise_state_update.reviewing_stage as ReviewingStage,
         user_exercise_state_update.grading_progress as GradingProgress,
         user_exercise_state_update.id,
     )
@@ -556,13 +583,13 @@ RETURNING id,
 pub async fn update_exercise_progress(
     conn: &mut PgConnection,
     id: Uuid,
-    exercise_progress: ExerciseProgress,
+    reviewing_stage: ReviewingStage,
 ) -> ModelResult<UserExerciseState> {
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
 UPDATE user_exercise_states
-SET exercise_progress = $1
+SET reviewing_stage = $1
 WHERE id = $2
   AND deleted_at IS NULL
 RETURNING id,
@@ -576,10 +603,10 @@ RETURNING id,
   score_given,
   grading_progress AS "grading_progress: _",
   activity_progress AS "activity_progress: _",
-  exercise_progress AS "exercise_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
         "#,
-        exercise_progress as ExerciseProgress,
+        reviewing_stage as ReviewingStage,
         id
     )
     .fetch_one(conn)
@@ -614,7 +641,7 @@ RETURNING id,
   score_given,
   grading_progress AS "grading_progress: _",
   activity_progress AS "activity_progress: _",
-  exercise_progress AS "exercise_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
         "#,
         score_given,

@@ -160,7 +160,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = () => {
 
   return (
     <Wrapper>
-      <span>{t("peer-review-instruction")}</span>
+      <span>{t("peer-review-instructions")}</span>
       <TextField name={INSTRUCTION} placeholder={PLACEHOLDER} onChange={() => null} />
 
       <h2>{HEADING_TEXT}</h2>

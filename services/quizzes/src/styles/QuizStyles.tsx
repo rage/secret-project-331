@@ -13,6 +13,7 @@ export const quizTheme = {
   errorItemBackgroundColor: baseTheme.colors.crimson[500],
   successItemBackgroundColor: baseTheme.colors.green[600],
   successItemForegroundColor: baseTheme.colors.clear[200],
+  feedbackBackground: baseTheme.colors.clear[100],
   gradingWrongItemBackground: baseTheme.colors.red[600],
   gradingWrongItemColor: baseTheme.colors.clear[200],
   quizBodyColor: baseTheme.colors.grey[700],

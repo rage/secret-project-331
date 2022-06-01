@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { QuizItemAnswer } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import { quizTheme } from "../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
 
@@ -56,7 +57,7 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
                 className={css`
                   font-family: "Raleway", sans-serif;
                   font-weight: bold;
-                  font-size: clamp(18px, 2vw, 20px) !important;
+                  font-size: ${quizTheme.quizTitleFontSize} !important;
                 `}
               >
                 {quizItem.title}
@@ -88,7 +89,7 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
           display: flex;
           width: 30%;
           align-items: center;
-          margin: 0.5rem;
+          margin: 0.5rem 0;
         `}
       >
         <select

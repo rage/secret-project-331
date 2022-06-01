@@ -9,12 +9,15 @@ import Progress from "../../../../shared-module/components/CourseProgress"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 
+import ModuleProgress from "./ModuleProgress"
+
 interface CourseProgressProps {
   courseInstanceId: string
 }
 
 const Wrapper = styled.div`
   background-color: #f5f6f7;
+  margin: 0.5rem 0;
   padding: 2rem 4rem;
 `
 
@@ -25,7 +28,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
   )
 
   return (
-    <Wrapper>
+    <>
       {getUserCourseProgress.isError && (
         <ErrorBanner variant={"readOnly"} error={getUserCourseProgress.error} />
       )}
@@ -34,32 +37,41 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => 
       )}
       {getUserCourseProgress.isSuccess && (
         <>
-          <div
-            className={css`
-              width: 100%;
-              margin: 0 auto;
-              text-align: center;
-              padding: 2em 0;
-            `}
-          >
-            {/* TODO: Verify how it looks when score_given is a floating number */}
-            <Progress
-              variant={"circle"}
-              max={getUserCourseProgress.data.score_maximum}
-              given={getUserCourseProgress.data.score_given}
-              point={50}
-              label={t("course-progress")}
+          <Wrapper>
+            <ModuleProgress
+              exercisesAnswered={getUserCourseProgress.data.attempted_exercises ?? ""}
+              exercisesNeededToAnswer={getUserCourseProgress.data.total_exercises ?? ""}
+              totalExercises={getUserCourseProgress.data.total_exercises ?? ""}
             />
-            <Progress
-              variant={"bar"}
-              showAsPercentage={true}
-              exercisesAttempted={getUserCourseProgress.data.attempted_exercises}
-              exercisesTotal={getUserCourseProgress.data.total_exercises}
-            />
-          </div>
+          </Wrapper>
+          <Wrapper>
+            <div
+              className={css`
+                width: 100%;
+                margin: 0 auto;
+                text-align: center;
+                padding: 2em 0;
+              `}
+            >
+              {/* TODO: Verify how it looks when score_given is a floating number */}
+              <Progress
+                variant={"circle"}
+                max={getUserCourseProgress.data.score_maximum}
+                given={getUserCourseProgress.data.score_given}
+                point={50}
+                label={t("course-progress")}
+              />
+              <Progress
+                variant={"bar"}
+                showAsPercentage={true}
+                exercisesAttempted={getUserCourseProgress.data.attempted_exercises}
+                exercisesTotal={getUserCourseProgress.data.total_exercises}
+              />
+            </div>
+          </Wrapper>
         </>
       )}
-    </Wrapper>
+    </>
   )
 }
 

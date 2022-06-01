@@ -88,8 +88,10 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
     >
       <div
         className={css`
-          font-size: ${quizTheme.quizTitleFontSize};
+          /* font-size: ${quizTheme.quizTitleFontSize}; */
           font-weight: bold;
+          font-family: "Raleway", sans-serif;
+          font-size: clamp(18px, 2vw, 20px) !important;
         `}
       >
         {quizItem.title && <MarkdownText text={quizItem.title} />}

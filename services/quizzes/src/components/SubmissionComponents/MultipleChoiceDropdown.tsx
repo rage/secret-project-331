@@ -9,8 +9,8 @@ import { QuizItemSubmissionComponentProps } from "."
 
 // eslint-disable-next-line i18next/no-literal-string
 const correctAnswer = css`
-  display: flex;
-  flex: 2;
+  width: 100%;
+  padding: 1rem;
   justify-content: center;
   align-items: center;
   margin: 0.5rem;
@@ -21,8 +21,8 @@ const correctAnswer = css`
 
 // eslint-disable-next-line i18next/no-literal-string
 const incorrectAnswer = css`
-  display: flex;
-  flex: 2;
+  width: 100%;
+  padding: 1rem;
   justify-content: center;
   align-items: center;
   margin: 0.5rem;
@@ -54,6 +54,9 @@ const MultipleChoiceDropdownFeedback: React.FC<QuizItemSubmissionComponentProps>
         className={css`
           display: flex;
           margin: 0.5rem;
+          font-family: "Raleway", sans-serif;
+          font-weight: bold;
+          font-size: clamp(18px, 2vw, 20px) !important;
         `}
       >
         {public_quiz_item.title}

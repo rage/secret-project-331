@@ -54,8 +54,8 @@ export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentPr
             <>
               <h2
                 className={css`
-                  font-family: "Lato", sans-serif;
-                  font-weight: 400;
+                  font-family: "Raleway", sans-serif;
+                  font-weight: bold;
                   font-size: clamp(18px, 2vw, 20px) !important;
                 `}
               >

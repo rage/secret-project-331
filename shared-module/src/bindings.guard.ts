@@ -82,6 +82,7 @@ import {
   HistoryRestoreData,
   Login,
   MarkAsRead,
+  Module,
   NewChapter,
   NewCourse,
   NewExam,
@@ -248,7 +249,8 @@ export function isChapter(obj: any, _argumentName?: string): obj is Chapter {
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
-    (obj.copied_from === null || typeof obj.copied_from === "string")
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    (obj.module === null || typeof obj.module === "string")
   )
 }
 
@@ -266,7 +268,8 @@ export function isDatabaseChapter(obj: any, _argumentName?: string): obj is Data
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
-    (obj.copied_from === null || typeof obj.copied_from === "string")
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    (obj.module === null || typeof obj.module === "string")
   )
 }
 
@@ -280,7 +283,8 @@ export function isChapterUpdate(obj: any, _argumentName?: string): obj is Chapte
     typeof obj.name === "string" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
-    (obj.opens_at === null || obj.opens_at instanceof Date)
+    (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.module === null || typeof obj.module === "string")
   )
 }
 
@@ -297,7 +301,8 @@ export function isChapterWithStatus(obj: any, _argumentName?: string): obj is Ch
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (isChapterStatus(obj.status) as boolean) &&
-    (obj.chapter_image_url === null || typeof obj.chapter_image_url === "string")
+    (obj.chapter_image_url === null || typeof obj.chapter_image_url === "string") &&
+    (obj.module === null || typeof obj.module === "string")
   )
 }
 
@@ -309,7 +314,8 @@ export function isNewChapter(obj: any, _argumentName?: string): obj is NewChapte
     typeof obj.chapter_number === "number" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (obj.deadline === null || obj.deadline instanceof Date)
+    (obj.deadline === null || obj.deadline instanceof Date) &&
+    (obj.module === null || typeof obj.module === "string")
   )
 }
 
@@ -356,6 +362,7 @@ export function isChapterScore(obj: any, _argumentName?: string): obj is Chapter
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    (obj.module === null || typeof obj.module === "string") &&
     typeof obj.score_given === "number" &&
     typeof obj.score_total === "number"
   )
@@ -413,6 +420,15 @@ export function isPoints(obj: any, _argumentName?: string): obj is Points {
     Object.entries<any>(obj.user_chapter_points).every(
       ([key, value]) => (isPointMap(value) as boolean) && typeof key === "string",
     )
+  )
+}
+
+export function isModule(obj: any, _argumentName?: string): obj is Module {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.order_number === "number"
   )
 }
 
@@ -1584,6 +1600,8 @@ export function isChaptersWithStatus(obj: any, _argumentName?: string): obj is C
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.is_previewable === "boolean" &&
+    Array.isArray(obj.modules) &&
+    obj.modules.every((e: any) => isModule(e) as boolean) &&
     Array.isArray(obj.chapters) &&
     obj.chapters.every((e: any) => isChapterWithStatus(e) as boolean)
   )

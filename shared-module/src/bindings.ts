@@ -66,6 +66,7 @@ export interface Chapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
+  module: string | null
 }
 
 export interface DatabaseChapter {
@@ -81,6 +82,7 @@ export interface DatabaseChapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
+  module: string | null
 }
 
 export type ChapterStatus = "open" | "closed"
@@ -90,6 +92,7 @@ export interface ChapterUpdate {
   front_page_id: string | null
   deadline: Date | null
   opens_at: Date | null
+  module: string | null
 }
 
 export interface ChapterWithStatus {
@@ -104,6 +107,7 @@ export interface ChapterWithStatus {
   opens_at: Date | null
   status: ChapterStatus
   chapter_image_url: string | null
+  module: string | null
 }
 
 export interface NewChapter {
@@ -113,6 +117,7 @@ export interface NewChapter {
   front_page_id: string | null
   opens_at: Date | null
   deadline: Date | null
+  module: string | null
 }
 
 export interface UserCourseInstanceChapterProgress {
@@ -144,6 +149,7 @@ export interface ChapterScore {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
+  module: string | null
   score_given: number
   score_total: number
 }
@@ -179,6 +185,12 @@ export interface Points {
   chapter_points: Array<ChapterScore>
   users: Array<User>
   user_chapter_points: Record<string, PointMap>
+}
+
+export interface Module {
+  id: string
+  name: string
+  order_number: number
 }
 
 export interface Course {
@@ -923,6 +935,7 @@ export interface User {
 
 export interface ChaptersWithStatus {
   is_previewable: boolean
+  modules: Array<Module>
   chapters: Array<ChapterWithStatus>
 }
 

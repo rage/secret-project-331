@@ -382,9 +382,9 @@ export interface CourseMaterialExercise {
   exercise: Exercise
   can_post_submission: boolean
   current_exercise_slide: CourseMaterialExerciseSlide
-  peer_review_info: CourseMaterialPeerReviewData | null
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
+  peer_review: PeerReview | null
 }
 
 export interface Exercise {
@@ -410,6 +410,7 @@ export interface ExerciseStatus {
   score_given: number | null
   activity_progress: ActivityProgress
   grading_progress: GradingProgress
+  reviewing_stage: ReviewingStage
 }
 
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
@@ -468,10 +469,15 @@ export interface StudentExerciseTaskSubmissionResult {
 }
 
 export interface CourseMaterialPeerReviewData {
-  exercise_slide_submission_id: string
-  exercise_task_submissions: Array<ExerciseTaskSubmissionWithSpec>
-  peer_review_id: string
+  answer_to_review: CourseMaterialPeerReviewDataAnswerToReview | null
+  peer_review: PeerReview
   peer_review_questions: Array<PeerReviewQuestion>
+  num_peer_reviews_given: number
+}
+
+export interface CourseMaterialPeerReviewDataAnswerToReview {
+  exercise_slide_submission_id: string
+  course_material_exercise_tasks: Array<CourseMaterialExerciseTask>
 }
 
 export interface CourseMaterialPeerReviewQuestionAnswer {
@@ -851,15 +857,6 @@ export interface ExerciseTaskSubmission {
   metadata: unknown | null
 }
 
-export interface ExerciseTaskSubmissionWithSpec {
-  id: string
-  exercise_task_id: string
-  exercise_task_order_number: number
-  public_spec: unknown | null
-  model_solution_spec: unknown | null
-  data_json: unknown | null
-}
-
 export interface RoleUser {
   id: string
   first_name: string | null
@@ -909,6 +906,14 @@ export interface ExerciseUserCounts {
   n_users_with_some_points: number
   n_users_with_max_points: number
 }
+
+export type ReviewingStage =
+  | "NotStarted"
+  | "PeerReview"
+  | "SelfReview"
+  | "WaitingForPeerReviews"
+  | "WaitingForManualGrading"
+  | "ReviewedAndLocked"
 
 export interface User {
   id: string

@@ -8,7 +8,7 @@ import { IframeState } from "../../../../shared-module/iframe-protocol-types"
 interface ExerciseTaskIframeProps {
   url: string
   postThisStateToIFrame: IframeState | null
-  setAnswer: (answer: { valid: boolean; data: unknown }) => void
+  setAnswer: ((answer: { valid: boolean; data: unknown }) => void) | null
   title: string
 }
 
@@ -30,7 +30,9 @@ const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({
       onMessageFromIframe={(messageContainer, _responsePort) => {
         console.log(messageContainer)
         const { data, valid } = messageContainer
-        setAnswer({ data, valid })
+        if (setAnswer) {
+          setAnswer({ data, valid })
+        }
       }}
       title={title}
     />

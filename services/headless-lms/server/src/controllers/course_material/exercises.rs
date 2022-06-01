@@ -6,7 +6,7 @@ use models::{
     exercises::{CourseMaterialExercise, Exercise},
     library::{
         grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
-        peer_reviewing::CourseMaterialPeerReviewSubmission,
+        peer_reviewing::{CourseMaterialPeerReviewData, CourseMaterialPeerReviewSubmission},
     },
     user_exercise_states::{self, CourseInstanceOrExamId},
 };
@@ -67,6 +67,29 @@ async fn get_exercise(
         course_material_exercise.clear_model_solution_specs();
     }
     Ok(web::Json(course_material_exercise))
+}
+
+/**
+GET `/api/v0/course-material/exercises/:exercise_id/peer-review` - Get peer review for an exercise. This includes the submission to peer review and the questions the user is supposed to answer.ALTER
+
+This request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_peer_review_for_exercise(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseMaterialPeerReviewData>> {
+    let mut conn = pool.acquire().await?;
+    let peer_review_data = models::peer_reviews::get_course_material_peer_review_data(
+        &mut conn,
+        user.id,
+        exercise_id.into_inner(),
+    )
+    .await?;
+
+    Ok(web::Json(peer_review_data))
 }
 
 /**
@@ -303,6 +326,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{exercise_id}/peer-reviews/start",
             web::post().to(start_peer_review),
+        )
+        .route(
+            "/{exercise_id}/peer-review",
+            web::get().to(get_peer_review_for_exercise),
         )
         .route(
             "/{exercise_id}/submissions",

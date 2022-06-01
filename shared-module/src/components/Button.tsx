@@ -143,16 +143,17 @@ export const BlueButtonStyles = (props: ButtonProps) => {
     padding: ${theme.buttonSizes[props.size].padding};
 
     color: ${theme.tertiary.text};
-    background-color: ${baseTheme.colors.blue[700]};
+    background-color: ${baseTheme.colors.blue[500]};
     border: unset;
     border: 2px solid ${theme.secondary.border};
 
     &:hover {
-      border: 2px solid ${baseTheme.colors.blue[500]};
+      border: 2px solid ${baseTheme.colors.blue[600]};
+      color: ${baseTheme.colors.blue[700]};
     }
 
     &:active {
-      border: 2px solid ${baseTheme.colors.blue[500]};
+      border: 2px solid ${baseTheme.colors.blue[400]};
     }
 
     &:disabled {

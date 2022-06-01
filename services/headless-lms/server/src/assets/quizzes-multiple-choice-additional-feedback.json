@@ -59,7 +59,7 @@
   "autoReject": false,
   "autoConfirm": true,
   "triesLimited": true,
-  "submitMessage": "your submit has been answered",
+  "submitMessage": "This is an extra submit message from the teacher.",
   "excludedFromScore": true,
   "grantPointsPolicy": "grant_whenever_possible",
   "awardPointsEvenIfWrong": false

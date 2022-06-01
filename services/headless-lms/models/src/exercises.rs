@@ -3,10 +3,10 @@ use crate::{
     exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
-    library::{self, peer_reviewing::CourseMaterialPeerReviewData},
+    peer_reviews::PeerReview,
     prelude::*,
     user_course_settings,
-    user_exercise_states::{self, CourseInstanceOrExamId, ExerciseProgress},
+    user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
     CourseOrExamId,
 };
 use std::collections::HashMap;
@@ -45,11 +45,11 @@ pub struct CourseMaterialExercise {
     pub exercise: Exercise,
     pub can_post_submission: bool,
     pub current_exercise_slide: CourseMaterialExerciseSlide,
-    pub peer_review_info: Option<CourseMaterialPeerReviewData>,
     /// None for logged out users.
     pub exercise_status: Option<ExerciseStatus>,
     #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, number>"))]
     pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
+    pub peer_review: Option<PeerReview>,
 }
 
 impl CourseMaterialExercise {
@@ -138,6 +138,7 @@ pub struct ExerciseStatus {
     pub score_given: Option<f32>,
     pub activity_progress: ActivityProgress,
     pub grading_progress: GradingProgress,
+    pub reviewing_stage: ReviewingStage,
 }
 
 pub async fn insert(
@@ -328,38 +329,14 @@ pub async fn get_course_material_exercise(
         _ => None,
     };
 
-    let can_post_submission = if let Some(user_id) = user_id {
-        if let Some(exam_id) = exercise.exam_id {
-            exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await?
-        } else {
-            true
-        }
-    } else {
-        false
-    };
-
-    let peer_review_info = match user_exercise_state {
-        Some(ref user_exercise_state) => {
-            if user_exercise_state.exercise_progress == ExerciseProgress::PeerReview {
-                // Calling library inside a model function. Maybe should be refactored by moving
-                // complicated course material exercise logic to own library file?
-                library::peer_reviewing::try_to_select_exercise_slide_submission_for_peer_review(
-                    conn,
-                    &exercise,
-                    user_exercise_state,
-                )
-                .await?
-            } else {
-                None
-            }
-        }
-        None => None,
-    };
+    let can_post_submission =
+        determine_can_post_submission(&mut *conn, user_id, &exercise, &user_exercise_state).await?;
 
     let exercise_status = user_exercise_state.map(|user_exercise_state| ExerciseStatus {
         score_given: user_exercise_state.score_given,
         activity_progress: user_exercise_state.activity_progress,
         grading_progress: user_exercise_state.grading_progress,
+        reviewing_stage: user_exercise_state.reviewing_stage,
     });
 
     let exercise_slide_submission_counts = if let Some(user_id) = user_id {
@@ -378,17 +355,51 @@ pub async fn get_course_material_exercise(
         HashMap::new()
     };
 
+    let peer_review = match (exercise.needs_peer_review, exercise.course_id) {
+        (true, Some(course_id)) => {
+            crate::peer_reviews::get_by_exercise_or_course_id(conn, exercise.id, course_id)
+                .await
+                .optional()?
+        }
+        _ => None,
+    };
+
     Ok(CourseMaterialExercise {
         exercise,
         can_post_submission,
         current_exercise_slide,
-        peer_review_info,
         exercise_status,
         exercise_slide_submission_counts,
+        peer_review,
     })
 }
 
-async fn get_or_select_exercise_slide(
+async fn determine_can_post_submission(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    exercise: &Exercise,
+    user_exercise_state: &Option<UserExerciseState>,
+) -> Result<bool, ModelError> {
+    if let Some(user_exercise_state) = user_exercise_state {
+        // Once the user has started peer review or self review, they cannot no longer answer the exercise because they have already seen a model solution in the review instructions and they have seen submissions from other users.
+        if user_exercise_state.reviewing_stage != ReviewingStage::NotStarted {
+            return Ok(false);
+        }
+    }
+
+    let can_post_submission = if let Some(user_id) = user_id {
+        if let Some(exam_id) = exercise.exam_id {
+            exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await?
+        } else {
+            true
+        }
+    } else {
+        false
+    };
+    Ok(can_post_submission)
+}
+
+pub async fn get_or_select_exercise_slide(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
     exercise: &Exercise,

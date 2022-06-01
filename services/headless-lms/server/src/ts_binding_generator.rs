@@ -120,6 +120,7 @@ fn ts_binding_generator() {
         library::grading::StudentExerciseTaskSubmissionResult,
 
         library::peer_reviewing::CourseMaterialPeerReviewData,
+        library::peer_reviewing::CourseMaterialPeerReviewDataAnswerToReview,
         library::peer_reviewing::CourseMaterialPeerReviewQuestionAnswer,
         library::peer_reviewing::CourseMaterialPeerReviewSubmission,
 
@@ -146,6 +147,7 @@ fn ts_binding_generator() {
         pages::PageChapterAndCourseInformation,
 
         peer_reviews::PeerReview,
+        peer_reviews::PeerReviewAcceptingStrategy,
 
         peer_review_questions::NewPeerReviewQuestion,
         peer_review_questions::PeerReviewQuestion,
@@ -176,7 +178,6 @@ fn ts_binding_generator() {
         exercise_task_gradings::UserPointsUpdateStrategy,
 
         exercise_task_submissions::ExerciseTaskSubmission,
-        exercise_task_submissions::ExerciseTaskSubmissionWithSpec,
 
         roles::RoleUser,
         roles::RoleDomain,
@@ -187,6 +188,7 @@ fn ts_binding_generator() {
         user_exercise_states::UserCourseInstanceChapterExerciseProgress,
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::ExerciseUserCounts,
+        user_exercise_states::ReviewingStage,
 
         users::User,
 

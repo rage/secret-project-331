@@ -1640,7 +1640,7 @@ async fn seed_sample_course(
             "autoReject": false,
             "autoConfirm": true,
             "triesLimited": true,
-            "submitMessage": "your submit has been answered",
+            "submitMessage": "This is an extra submit message from the teacher.",
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
@@ -1699,7 +1699,7 @@ async fn seed_sample_course(
             "autoReject": false,
             "autoConfirm": true,
             "triesLimited": true,
-            "submitMessage": "your submit has been answered",
+            "submitMessage": "This is an extra submit message from the teacher.",
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
@@ -1777,7 +1777,7 @@ async fn seed_sample_course(
             "autoReject": false,
             "autoConfirm": true,
             "triesLimited": true,
-            "submitMessage": "your submit has been answered",
+            "submitMessage": "This is an extra submit message from the teacher.",
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
@@ -1876,7 +1876,7 @@ async fn seed_sample_course(
             "autoReject": false,
             "autoConfirm": true,
             "triesLimited": true,
-            "submitMessage": "your submit has been answered",
+            "submitMessage": "This is an extra submit message from the teacher.",
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
@@ -2404,14 +2404,44 @@ async fn seed_sample_course(
     let new_peer_review_question = NewPeerReviewQuestion {
         peer_review_id,
         order_number: 0,
-        question: "Was the answer properly thought out?".to_string(),
+        question: "General comments".to_string(),
         question_type: PeerReviewQuestionType::Essay,
-        answer_required: true,
+        answer_required: false,
     };
     let _peer_review_question_1_id = peer_review_questions::insert_with_id(
         conn,
         Uuid::new_v5(&course_id, b"64717822-ac25-4a7d-8298-f0ac39d73260"),
         &new_peer_review_question,
+    )
+    .await
+    .unwrap();
+
+    let new_peer_review_question2 = NewPeerReviewQuestion {
+        peer_review_id,
+        order_number: 1,
+        question: "The answer was correct".to_string(),
+        question_type: PeerReviewQuestionType::Scale,
+        answer_required: true,
+    };
+    let _peer_review_question_2_id = peer_review_questions::insert_with_id(
+        conn,
+        Uuid::new_v5(&course_id, b"6365df37-a9b5-4620-b2fb-926b0c29a954"),
+        &new_peer_review_question2,
+    )
+    .await
+    .unwrap();
+
+    let new_peer_review_question3 = NewPeerReviewQuestion {
+        peer_review_id,
+        order_number: 2,
+        question: "The answer was easy to read".to_string(),
+        question_type: PeerReviewQuestionType::Scale,
+        answer_required: true,
+    };
+    let _peer_review_question_3_id = peer_review_questions::insert_with_id(
+        conn,
+        Uuid::new_v5(&course_id, b"19b81b50-fc7f-4535-a285-8fc0604ed85c"),
+        &new_peer_review_question3,
     )
     .await
     .unwrap();
@@ -2617,7 +2647,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 "autoReject": false,
                 "autoConfirm": true,
                 "triesLimited": true,
-                "submitMessage": "your submit has been answered",
+                "submitMessage": "This is an extra submit message from the teacher.",
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
@@ -2710,7 +2740,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 "autoReject": false,
                 "autoConfirm": true,
                 "triesLimited": true,
-                "submitMessage": "your submit has been answered",
+                "submitMessage": "This is an extra submit message from the teacher.",
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
@@ -2785,7 +2815,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 "autoReject": false,
                 "autoConfirm": true,
                 "triesLimited": true,
-                "submitMessage": "your submit has been answered",
+                "submitMessage": "This is an extra submit message from the teacher.",
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),

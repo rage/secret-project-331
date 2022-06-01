@@ -35,6 +35,7 @@ const CheckBoxContent: React.FC<ContentBoxProps> = ({ item }) => {
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
+  item.timelineItems
   const dispatch = useDispatch()
   return (
     <>

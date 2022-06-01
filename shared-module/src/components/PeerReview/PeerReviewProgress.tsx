@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -7,15 +8,18 @@ import Progress from "../CourseProgress/index"
 const Wrapper = styled.div`
   width: 100%;
   background: #e9efef;
-  padding: 2rem 2rem;
-  display: grid;
-  grid-template-columns: 1fr 240px;
+  padding: 1.75rem 2rem;
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
 `
 
 const Label = styled.div`
   font-weight: 500;
   margin-left: 1.5rem;
   text-align: left;
+  font-size: 17px;
+  text-transform: lowercase;
 
   span {
     color: #1f6964;
@@ -32,16 +36,22 @@ const PeerReviewProgress: React.FC<ReviewComponentProps> = ({ total, attempt }) 
   const { t } = useTranslation()
   return (
     <Wrapper>
-      <Progress
-        variant="bar"
-        exercisesTotal={total}
-        exercisesAttempted={attempt}
-        showAsPercentage={true}
-        height="small"
-        label={false}
-      />
+      <div
+        className={css`
+          flex: 1;
+        `}
+      >
+        <Progress
+          variant="bar"
+          exercisesTotal={total}
+          exercisesAttempted={attempt}
+          showAsPercentage={true}
+          height="small"
+          label={false}
+        />
+      </div>
       <Label>
-        <span>{`${attempt} / ${total} ${t("exercises-attempted")}`}</span>
+        <span>{`${attempt} / ${total} ${t("peer-reviews-given")}`}</span>
       </Label>
     </Wrapper>
   )

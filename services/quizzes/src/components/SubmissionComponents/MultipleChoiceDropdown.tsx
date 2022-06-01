@@ -89,9 +89,7 @@ const MultipleChoiceDropdownFeedback: React.FC<QuizItemSubmissionComponentProps>
                 }
               `}
             >
-              <div className={cx(incorrectAnswer)}>
-                {selectedOption.title || selectedOption.body}
-              </div>
+              <div className={cx(incorrectAnswer)}>{selectedOption.title || selectedOption.body}</div>
               <div className={cx(correctAnswer)}>{correctOption?.title || correctOption?.body}</div>
             </div>
           </div>

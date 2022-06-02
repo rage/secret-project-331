@@ -38,7 +38,7 @@ interface QuizItemSubmissionComponentDescriptor {
 }
 
 const mapTypeToComponent: { [key: string]: QuizItemSubmissionComponentDescriptor } = {
-  essay: { component: EssayFeedback, shouldDisplayCorrectnessMessageAfterAnswer: true },
+  essay: { component: EssayFeedback, shouldDisplayCorrectnessMessageAfterAnswer: false },
   "multiple-choice": {
     component: MultipleChoiceSubmission,
     shouldDisplayCorrectnessMessageAfterAnswer: true,
@@ -88,7 +88,7 @@ const Submission: React.FC<SubmissionProps> = ({
         .map((item) => {
           const componentDescriptor = componentDescriptorByTypeName(item.type as QuizItemType)
           if (!componentDescriptor) {
-            return <>{t("quiz-type-not-supported")}</>
+            return <div key={item.id}>{t("quiz-type-not-supported")}</div>
           }
           const Component = componentDescriptor.component
           const itemFeedback = feedback_json
@@ -103,7 +103,7 @@ const Submission: React.FC<SubmissionProps> = ({
             (ia) => ia.quizItemId === item.id,
           )[0]
           return (
-            <>
+            <div key={item.id}>
               <Component
                 key={item.id}
                 public_quiz_item={item}
@@ -130,7 +130,7 @@ const Submission: React.FC<SubmissionProps> = ({
                     : t("your-answer-was-not-correct")}
                 </div>
               )}
-            </>
+            </div>
           )
         })}
     </>

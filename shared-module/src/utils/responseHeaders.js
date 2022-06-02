@@ -26,7 +26,7 @@ function generateNormalResponseHeaders(options = { requireTrustedTypesFor: false
         "font-src 'self'",
         "frame-src * data: blob:",
         "img-src 'self' data: blob: https://storage.googleapis.com abs.twimg.com https://pbs.twimg.com ton.twimg.com platform.twitter.com",
-        "script-src 'self' 'unsafe-eval' 'inline' 'unsafe-inline' data: blob: https://cdn.syndication.twimg.com platform.twitter.com",
+        "script-src 'self' 'unsafe-eval' 'unsafe-inline' data: blob: https://cdn.syndication.twimg.com platform.twitter.com",
         "style-src 'self' 'unsafe-inline' https://ton.twimg.com platform.twitter.com",
         "object-src 'none'",
         "frame-ancestors 'none'",
@@ -67,7 +67,7 @@ const externallyEmbeddableIFrameResponseHeaders = [
     key: "Content-Security-Policy",
     // Permissive because of this Safari bug: https://bugs.webkit.org/show_bug.cgi?id=223848
     // Should be ok because the iframes are sandboxed
-    value: "default-src * 'self' data: 'unsafe-inline' 'unsafe-hashes' 'unsafe-eval'", // "default-src 'self'; connect-src 'self'; font-src 'self'; frame-src *; img-src 'self' data: blob: https://storage.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'",
+    value: "default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'", // "default-src 'self'; connect-src 'self'; font-src 'self'; frame-src *; img-src 'self' data: blob: https://storage.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'",
   },
   {
     key: "X-XSS-Protection",

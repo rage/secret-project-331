@@ -1,6 +1,11 @@
-use crate::prelude::*;
+use crate::{
+    exercises,
+    library::{self, peer_reviewing::CourseMaterialPeerReviewData},
+    prelude::*,
+    user_exercise_states::{self, ReviewingStage},
+};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerReview {
     pub id: Uuid,
@@ -11,6 +16,28 @@ pub struct PeerReview {
     pub exercise_id: Option<Uuid>,
     pub peer_reviews_to_give: i32,
     pub peer_reviews_to_receive: i32,
+    pub accepting_threshold: f32,
+    pub accepting_strategy: PeerReviewAcceptingStrategy,
+}
+
+/**
+Determines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.
+
+Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
+*/
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[sqlx(
+    type_name = "peer_review_accepting_strategy",
+    rename_all = "snake_case"
+)]
+pub enum PeerReviewAcceptingStrategy {
+    /// If the average of the peer review likert answers is greater than the threshold, the peer review is accepted, otherwise it is rejected.
+    AutomaticallyAcceptOrRejectByAverage,
+    /// If the average of the peer review likert answers is greater than the threshold, the peer review is accepted, otherwise it is sent to be manually reviewed by the teacher.
+    AutomaticallyAcceptOrManualReviewByAverage,
+    /// All answers will be sent to be manually reviewed by the teacher once they have received and given enough peer reviews.
+    ManualReviewEverything,
 }
 
 pub async fn insert(
@@ -75,12 +102,21 @@ RETURNING id
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PeerReview> {
     let res = sqlx::query_as!(
         PeerReview,
-        "
-SELECT *
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  course_id,
+  exercise_id,
+  peer_reviews_to_give,
+  peer_reviews_to_receive,
+  accepting_threshold,
+  accepting_strategy AS "accepting_strategy: _"
 FROM peer_reviews
 WHERE id = $1
   AND deleted_at IS NULL
-        ",
+        "#,
         id
     )
     .fetch_one(conn)
@@ -105,12 +141,21 @@ pub async fn try_to_get_by_exercise_id(
 ) -> ModelResult<Option<PeerReview>> {
     let res = sqlx::query_as!(
         PeerReview,
-        "
-SELECT *
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  course_id,
+  exercise_id,
+  peer_reviews_to_give,
+  peer_reviews_to_receive,
+  accepting_threshold,
+  accepting_strategy AS "accepting_strategy: _"
 FROM peer_reviews
 WHERE exercise_id = $1
   AND deleted_at IS NULL
-        ",
+        "#,
         exercise_id
     )
     .fetch_optional(conn)
@@ -124,13 +169,22 @@ pub async fn get_default_for_course_by_course_id(
 ) -> ModelResult<PeerReview> {
     let res = sqlx::query_as!(
         PeerReview,
-        "
-SELECT *
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  course_id,
+  exercise_id,
+  peer_reviews_to_give,
+  peer_reviews_to_receive,
+  accepting_threshold,
+  accepting_strategy AS "accepting_strategy: _"
 FROM peer_reviews
 WHERE course_id = $1
   AND exercise_id IS NULL
   AND deleted_at IS NULL
-        ",
+        "#,
         course_id
     )
     .fetch_one(conn)
@@ -151,6 +205,52 @@ RETURNING id
     .fetch_one(conn)
     .await?;
     Ok(res.id)
+}
+
+pub async fn get_course_material_peer_review_data(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<CourseMaterialPeerReviewData> {
+    let exercise = exercises::get_by_id(conn, exercise_id).await?;
+    let (_current_exercise_slide, instance_or_exam_id) =
+        exercises::get_or_select_exercise_slide(&mut *conn, Some(user_id), &exercise).await?;
+
+    let user_exercise_state = match instance_or_exam_id {
+        Some(course_instance_or_exam_id) => {
+            user_exercise_states::get_user_exercise_state_if_exists(
+                conn,
+                user_id,
+                exercise.id,
+                course_instance_or_exam_id,
+            )
+            .await?
+        }
+        _ => None,
+    };
+
+    match user_exercise_state {
+        Some(ref user_exercise_state) => {
+            if user_exercise_state.reviewing_stage == ReviewingStage::PeerReview {
+                // Calling library inside a model function. Maybe should be refactored by moving
+                // complicated logic to own library file?
+                let res = library::peer_reviewing::try_to_select_exercise_slide_submission_for_peer_review(
+                    conn,
+                    &exercise,
+                    user_exercise_state,
+                )
+                .await?;
+                Ok(res)
+            } else {
+                Err(ModelError::InvalidRequest(
+                    "You cannot peer review yet".to_string(),
+                ))
+            }
+        }
+        None => Err(ModelError::InvalidRequest(
+            "You haven't answered this exercise".to_string(),
+        )),
+    }
 }
 
 #[cfg(test)]

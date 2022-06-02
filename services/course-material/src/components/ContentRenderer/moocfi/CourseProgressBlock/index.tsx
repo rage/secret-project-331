@@ -14,6 +14,12 @@ import CourseProgress from "./CourseProgress"
 const CourseProgressBlock: React.FC<BlockRendererProps<unknown>> = () => {
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
+  const courseInstanceId = pageContext.instance?.id
+  const getUserCourseProgress = useQuery(
+    `course-instance-${courseInstanceId}-progress`,
+    () => fetchUserCourseProgress(courseInstanceId as NonNullable<typeof courseInstanceId>),
+    { enabled: !!courseInstanceId },
+  )
 
   if (pageContext.state !== "ready") {
     return <Spinner variant={"small"} />
@@ -23,19 +29,6 @@ const CourseProgressBlock: React.FC<BlockRendererProps<unknown>> = () => {
     return <div>{t("select-course-version-to-see-your-progress")}</div>
   }
 
-  return <QueryWrapper courseInstanceId={pageContext.instance.id} />
-}
-
-export default withErrorBoundary(CourseProgressBlock)
-
-interface QueryWrapperProps {
-  courseInstanceId: string
-}
-
-const QueryWrapper: React.FC<QueryWrapperProps> = ({ courseInstanceId }) => {
-  const getUserCourseProgress = useQuery(`course-instance-${courseInstanceId}-progress`, () =>
-    fetchUserCourseProgress(courseInstanceId),
-  )
   return (
     <>
       {getUserCourseProgress.isError && (
@@ -50,3 +43,5 @@ const QueryWrapper: React.FC<QueryWrapperProps> = ({ courseInstanceId }) => {
     </>
   )
 }
+
+export default withErrorBoundary(CourseProgressBlock)

@@ -134,7 +134,7 @@ impl TryFrom<UserExerciseState> for CourseInstanceOrExamId {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseInstanceProgress {
-    /// Temporal placeholder, data should be categorized by module in future.
+    /// Temporary placeholder, data should be categorized by module in future.
     pub module_name: String,
     pub score_given: f32,
     pub score_maximum: Option<u32>,

@@ -1,15 +1,13 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faAngleDown, faAngleUp } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { UserCourseInstanceProgress } from "../../../../shared-module/bindings"
 import Progress from "../../../../shared-module/components/CourseProgress"
-import { runCallbackIfEnterPressed } from "../../../../shared-module/utils/accessibility"
 
-import ModuleProgress from "./ModuleProgress"
+import ExerciseCountDisplay from "./ExerciseCountDisplay"
+import TempAccordionItem from "./TempAccordionItem"
 
 export interface CourseProgressProps {
   userCourseInstanceProgress: UserCourseInstanceProgress
@@ -37,13 +35,13 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgr
         {t("track-your-progress")}
       </h2>
       {/* TO IMPLEMENT: Map module data to accordions. Are we even going to use accordion?*/}
-      <TempAccordion
+      <TempAccordionItem
         onClick={() => setOpenedModule((prev) => (prev !== 0 ? 0 : -1))}
         open={openedModule === 0}
         title={userCourseInstanceProgress.module_name}
       >
         <Wrapper>
-          <ModuleProgress
+          <ExerciseCountDisplay
             exercisesAnswered={userCourseInstanceProgress.attempted_exercises ?? ""}
             exercisesNeededToAnswer={userCourseInstanceProgress.total_exercises ?? ""}
             totalExercises={userCourseInstanceProgress.total_exercises ?? ""}
@@ -64,7 +62,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgr
               max={userCourseInstanceProgress.score_maximum}
               given={userCourseInstanceProgress.score_given}
               point={50}
-              label={t("total-points-in-name", { name: userCourseInstanceProgress.module_name })}
+              label={t("total-points")}
             />
             <Progress
               variant={"bar"}
@@ -74,53 +72,9 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgr
             />
           </div>
         </Wrapper>
-      </TempAccordion>
+      </TempAccordionItem>
     </>
   )
 }
 
 export default CourseProgress
-
-// This should be replaced when the shared module one once it's implemented
-const TempAccordion: React.FC<{ title: string; open: boolean; onClick: () => void }> = ({
-  title,
-  open,
-  onClick,
-  children,
-}) => {
-  const faIcon = open ? faAngleUp : faAngleDown
-  return (
-    <div>
-      <div
-        onClick={onClick}
-        onKeyDown={(e) => runCallbackIfEnterPressed(e, onClick)}
-        role="button"
-        tabIndex={0}
-        className={css`
-          background-color: #f5f6f7;
-          cursor: pointer;
-          display: flex;
-          flex-direction: row;
-          flex-wrap: nowrap;
-          padding: 1rem 2rem;
-        `}
-      >
-        <div
-          className={css`
-            flex: 1;
-          `}
-        >
-          {title}
-        </div>
-        <div
-          className={css`
-            flex: 0 0 auto;
-          `}
-        >
-          <FontAwesomeIcon icon={faIcon} />
-        </div>
-      </div>
-      {open ? <div>{children}</div> : null}
-    </div>
-  )
-}

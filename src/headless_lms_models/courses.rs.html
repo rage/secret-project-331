@@ -864,6 +864,7 @@
 <span id="859">859</span>
 <span id="860">860</span>
 <span id="861">861</span>
+<span id="862">862</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
     <span class="ident">document_schema_processor::GutenbergBlock</span>, <span class="ident">file_store::FileStore</span>,
     <span class="ident">language_tag_to_name::LANGUAGE_TAG_TO_NAME</span>, <span class="ident">ApplicationConfiguration</span>,
@@ -1580,6 +1581,7 @@ WHERE id = $1
                 <span class="ident">name</span>: <span class="string">&quot;Chapter&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
                 <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
+                <span class="ident">module</span>: <span class="prelude-val">None</span>,
             },
             <span class="ident">user_id</span>,
         )

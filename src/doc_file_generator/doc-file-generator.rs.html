@@ -936,6 +936,10 @@
 <span id="931">931</span>
 <span id="932">932</span>
 <span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1195,6 +1199,7 @@
         <span class="ident">opens_at</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>),
         <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>),
+        <span class="ident">module</span>: <span class="prelude-val">None</span>,
     };
     <span class="kw">let</span> <span class="ident">exercise_service</span> <span class="op">=</span> <span class="ident">ExerciseService</span> {
         <span class="ident">id</span>,
@@ -1573,7 +1578,8 @@
                     <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
                     <span class="ident">opens_at</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>),
                     <span class="ident">deadline</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>),
-                    <span class="ident">copied_from</span>: <span class="prelude-val">None</span>
+                    <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">module</span>: <span class="prelude-val">None</span>,
                 },
                 <span class="ident">score_given</span>: <span class="number">1.0</span>,
                 <span class="ident">score_total</span>: <span class="number">2</span>
@@ -1760,6 +1766,7 @@
         <span class="ident">ChaptersWithStatus</span>,
         <span class="ident">ChaptersWithStatus</span> {
             <span class="ident">is_previewable</span>: <span class="bool-val">false</span>,
+            <span class="ident">modules</span>: <span class="macro">vec!</span>[],
             <span class="ident">chapters</span>: <span class="macro">vec!</span>[<span class="ident">ChapterWithStatus</span> {
                 <span class="ident">id</span>,
                 <span class="ident">created_at</span>,
@@ -1772,6 +1779,7 @@
                 <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
                 <span class="ident">status</span>: <span class="ident">ChapterStatus::Open</span>,
                 <span class="ident">chapter_image_url</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg&quot;</span>.<span class="ident">to_string</span>()),
+                <span class="ident">module</span>: <span class="prelude-val">None</span>,
             }]
         }
     );

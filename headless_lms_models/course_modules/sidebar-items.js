@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["delete",""],["for_course",""],["new",""],["rename",""],["reorder",""]],"struct":[["Module",""]]});

@@ -3556,6 +3556,60 @@
 <span id="3551">3551</span>
 <span id="3552">3552</span>
 <span id="3553">3553</span>
+<span id="3554">3554</span>
+<span id="3555">3555</span>
+<span id="3556">3556</span>
+<span id="3557">3557</span>
+<span id="3558">3558</span>
+<span id="3559">3559</span>
+<span id="3560">3560</span>
+<span id="3561">3561</span>
+<span id="3562">3562</span>
+<span id="3563">3563</span>
+<span id="3564">3564</span>
+<span id="3565">3565</span>
+<span id="3566">3566</span>
+<span id="3567">3567</span>
+<span id="3568">3568</span>
+<span id="3569">3569</span>
+<span id="3570">3570</span>
+<span id="3571">3571</span>
+<span id="3572">3572</span>
+<span id="3573">3573</span>
+<span id="3574">3574</span>
+<span id="3575">3575</span>
+<span id="3576">3576</span>
+<span id="3577">3577</span>
+<span id="3578">3578</span>
+<span id="3579">3579</span>
+<span id="3580">3580</span>
+<span id="3581">3581</span>
+<span id="3582">3582</span>
+<span id="3583">3583</span>
+<span id="3584">3584</span>
+<span id="3585">3585</span>
+<span id="3586">3586</span>
+<span id="3587">3587</span>
+<span id="3588">3588</span>
+<span id="3589">3589</span>
+<span id="3590">3590</span>
+<span id="3591">3591</span>
+<span id="3592">3592</span>
+<span id="3593">3593</span>
+<span id="3594">3594</span>
+<span id="3595">3595</span>
+<span id="3596">3596</span>
+<span id="3597">3597</span>
+<span id="3598">3598</span>
+<span id="3599">3599</span>
+<span id="3600">3600</span>
+<span id="3601">3601</span>
+<span id="3602">3602</span>
+<span id="3603">3603</span>
+<span id="3604">3604</span>
+<span id="3605">3605</span>
+<span id="3606">3606</span>
+<span id="3607">3607</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -3570,7 +3624,7 @@
     <span class="ident">course_instance_enrollments::NewCourseInstanceEnrollment</span>,
     <span class="ident">course_instances</span>,
     <span class="ident">course_instances::NewCourseInstance</span>,
-    <span class="ident">courses</span>,
+    <span class="ident">course_modules</span>, <span class="ident">courses</span>,
     <span class="ident">courses::NewCourse</span>,
     <span class="ident">exams</span>,
     <span class="ident">exams::NewExam</span>,
@@ -4947,6 +5001,7 @@
         <span class="ident">name</span>: <span class="string">&quot;The Basics&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">Some</span>(<span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2025</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="ident">module</span>: <span class="prelude-val">None</span>,
     };
     <span class="kw">let</span> (<span class="ident">chapter_1</span>, <span class="ident">_front_page_1</span>) <span class="op">=</span> <span class="ident">chapters::insert_chapter</span>(<span class="ident">conn</span>, <span class="ident">new_chapter</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">chapters::set_opens_at</span>(<span class="ident">conn</span>, <span class="ident">chapter_1</span>.<span class="ident">id</span>, <span class="ident">Utc::now</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -4957,6 +5012,7 @@
         <span class="ident">name</span>: <span class="string">&quot;The intermediaries&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
+        <span class="ident">module</span>: <span class="prelude-val">None</span>,
     };
     <span class="kw">let</span> (<span class="ident">chapter_2</span>, <span class="ident">_front_page_2</span>) <span class="op">=</span> <span class="ident">chapters::insert_chapter</span>(<span class="ident">conn</span>, <span class="ident">new_chapter</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">chapters::set_opens_at</span>(
@@ -4972,6 +5028,7 @@
         <span class="ident">name</span>: <span class="string">&quot;Advanced studies&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
+        <span class="ident">module</span>: <span class="prelude-val">None</span>,
     };
     <span class="kw">let</span> (<span class="ident">chapter_3</span>, <span class="ident">_front_page_3</span>) <span class="op">=</span> <span class="ident">chapters::insert_chapter</span>(<span class="ident">conn</span>, <span class="ident">new_chapter</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">chapters::set_opens_at</span>(
@@ -4987,6 +5044,7 @@
         <span class="ident">name</span>: <span class="string">&quot;Forbidden magicks&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
+        <span class="ident">module</span>: <span class="prelude-val">None</span>,
     };
     <span class="kw">let</span> (<span class="ident">chapter_4</span>, <span class="ident">_front_page_4</span>) <span class="op">=</span> <span class="ident">chapters::insert_chapter</span>(<span class="ident">conn</span>, <span class="ident">new_chapter</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">chapters::set_opens_at</span>(
@@ -4995,6 +5053,54 @@
         <span class="ident">Utc::now</span>() <span class="op">+</span> (<span class="ident">chrono::Duration::days</span>(<span class="number">365</span>) <span class="op">*</span> <span class="number">100</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="macro">tracing::info!</span>(<span class="string">&quot;inserting modules&quot;</span>);
+    <span class="kw">let</span> <span class="ident">module_id</span> <span class="op">=</span> <span class="ident">course_modules::new</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="string">&quot;Another module&quot;</span>, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">new_chapter</span> <span class="op">=</span> <span class="ident">NewChapter</span> {
+        <span class="ident">chapter_number</span>: <span class="number">5</span>,
+        <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
+        <span class="ident">name</span>: <span class="string">&quot;Another chapter&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
+        <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
+        <span class="ident">module</span>: <span class="prelude-val">Some</span>(<span class="ident">module_id</span>),
+    };
+    <span class="kw">let</span> (<span class="ident">_m1_chapter_1</span>, <span class="ident">_m1c1_front_page</span>) <span class="op">=</span>
+        <span class="ident">chapters::insert_chapter</span>(<span class="ident">conn</span>, <span class="ident">new_chapter</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">new_chapter</span> <span class="op">=</span> <span class="ident">NewChapter</span> {
+        <span class="ident">chapter_number</span>: <span class="number">6</span>,
+        <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
+        <span class="ident">name</span>: <span class="string">&quot;Another another chapter&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
+        <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
+        <span class="ident">module</span>: <span class="prelude-val">Some</span>(<span class="ident">module_id</span>),
+    };
+    <span class="kw">let</span> (<span class="ident">_m1_chapter_2</span>, <span class="ident">_m1c2_front_page</span>) <span class="op">=</span>
+        <span class="ident">chapters::insert_chapter</span>(<span class="ident">conn</span>, <span class="ident">new_chapter</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">module_id</span> <span class="op">=</span> <span class="ident">course_modules::new</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="string">&quot;Bonus module&quot;</span>, <span class="number">2</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">new_chapter</span> <span class="op">=</span> <span class="ident">NewChapter</span> {
+        <span class="ident">chapter_number</span>: <span class="number">7</span>,
+        <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
+        <span class="ident">name</span>: <span class="string">&quot;Bonus chapter&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
+        <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
+        <span class="ident">module</span>: <span class="prelude-val">Some</span>(<span class="ident">module_id</span>),
+    };
+    <span class="kw">let</span> (<span class="ident">_m2_chapter_1</span>, <span class="ident">_m2c1_front_page</span>) <span class="op">=</span>
+        <span class="ident">chapters::insert_chapter</span>(<span class="ident">conn</span>, <span class="ident">new_chapter</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">new_chapter</span> <span class="op">=</span> <span class="ident">NewChapter</span> {
+        <span class="ident">chapter_number</span>: <span class="number">8</span>,
+        <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
+        <span class="ident">name</span>: <span class="string">&quot;Another bonus chapter&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
+        <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
+        <span class="ident">module</span>: <span class="prelude-val">Some</span>(<span class="ident">module_id</span>),
+    };
+    <span class="kw">let</span> (<span class="ident">_m2_chapter_2</span>, <span class="ident">_m2c2_front_page</span>) <span class="op">=</span>
+        <span class="ident">chapters::insert_chapter</span>(<span class="ident">conn</span>, <span class="ident">new_chapter</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> (<span class="ident">_page</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">pages::insert_course_page</span>(
         <span class="ident">conn</span>,
@@ -6419,6 +6525,7 @@
         <span class="ident">name</span>: <span class="string">&quot;User Interface&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
+        <span class="ident">module</span>: <span class="prelude-val">None</span>,
     };
     <span class="kw">let</span> (<span class="ident">chapter_1</span>, <span class="ident">front_page_ch_1</span>) <span class="op">=</span> <span class="ident">chapters::insert_chapter</span>(<span class="ident">conn</span>, <span class="ident">new_chapter</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">chapters::set_opens_at</span>(<span class="ident">conn</span>, <span class="ident">chapter_1</span>.<span class="ident">id</span>, <span class="ident">Utc::now</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -6538,6 +6645,7 @@
         <span class="ident">name</span>: <span class="string">&quot;User Experience&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
+        <span class="ident">module</span>: <span class="prelude-val">None</span>,
     };
     <span class="kw">let</span> (<span class="ident">chapter_2</span>, <span class="ident">front_page_ch_2</span>) <span class="op">=</span> <span class="ident">chapters::insert_chapter</span>(<span class="ident">conn</span>, <span class="ident">new_chapter_2</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">chapters::set_opens_at</span>(<span class="ident">conn</span>, <span class="ident">chapter_2</span>.<span class="ident">id</span>, <span class="ident">Utc::now</span>()).<span class="kw">await</span><span class="question-mark">?</span>;

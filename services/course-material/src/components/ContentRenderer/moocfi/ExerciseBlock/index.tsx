@@ -25,7 +25,7 @@ import HideTextInSystemTests from "../../../../shared-module/components/HideText
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import { baseTheme } from "../../../../shared-module/styles"
+import { baseTheme, secondaryFont } from "../../../../shared-module/styles"
 import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
@@ -207,8 +207,11 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 className={css`
                   font-size: 2rem;
                   font-weight: 400;
-                  line-height: 0;
-                  font-family: "Josefin Sans", sans-serif !important;
+                  font-family: ${secondaryFont} !important;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                  padding-top: 6px;
                 `}
               >
                 {getCourseMaterialExercise.data.exercise.name}
@@ -222,7 +225,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 className={css`
                   font-size: 1.2rem;
                   text-align: center;
-                  font-family: "Josefin Sans", sans-serif !important;
+                  font-family: ${secondaryFont} !important;
                 `}
               >
                 {t("points-label")}

@@ -257,6 +257,7 @@ fn main() {
         opens_at: Some(date_time),
         copied_from: None,
         deadline: Some(date_time),
+        module: None,
     };
     let exercise_service = ExerciseService {
         id,
@@ -636,7 +637,8 @@ fn main() {
                     front_page_id: None,
                     opens_at: Some(date_time),
                     deadline: Some(date_time),
-                    copied_from: None
+                    copied_from: None,
+                    module: None,
                 },
                 score_given: 1.0,
                 score_total: 2
@@ -823,6 +825,7 @@ fn main() {
         ChaptersWithStatus,
         ChaptersWithStatus {
             is_previewable: false,
+            modules: vec![],
             chapters: vec![ChapterWithStatus {
                 id,
                 created_at,
@@ -835,6 +838,7 @@ fn main() {
                 opens_at: None,
                 status: ChapterStatus::Open,
                 chapter_image_url: Some("http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg".to_string()),
+                module: None,
             }]
         }
     );

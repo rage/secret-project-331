@@ -64,6 +64,11 @@ const CourseHeading = styled.div`
 
 // eslint-disable-next-line i18next/no-literal-string
 const CourseDescription = styled.div`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+
   font-family: ${primaryFont};
   font-weight: ${fontWeights["normal"]};
   font-size: 20px;

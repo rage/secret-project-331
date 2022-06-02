@@ -104,6 +104,7 @@ import {
   PageWithExercises,
   Pagination,
   PeerReview,
+  PeerReviewAcceptingStrategy,
   PeerReviewQuestion,
   PeerReviewQuestionType,
   PlaygroundExample,
@@ -452,6 +453,7 @@ export function isCourseUpdate(obj: any, _argumentName?: string): obj is CourseU
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.name === "string" &&
+    (obj.description === null || typeof obj.description === "string") &&
     typeof obj.is_draft === "boolean" &&
     typeof obj.is_test_mode === "boolean"
   )
@@ -1182,7 +1184,20 @@ export function isPeerReview(obj: any, _argumentName?: string): obj is PeerRevie
     typeof obj.course_id === "string" &&
     (obj.exercise_id === null || typeof obj.exercise_id === "string") &&
     typeof obj.peer_reviews_to_give === "number" &&
-    typeof obj.peer_reviews_to_receive === "number"
+    typeof obj.peer_reviews_to_receive === "number" &&
+    typeof obj.accepting_threshold === "number" &&
+    (isPeerReviewAcceptingStrategy(obj.accepting_strategy) as boolean)
+  )
+}
+
+export function isPeerReviewAcceptingStrategy(
+  obj: any,
+  _argumentName?: string,
+): obj is PeerReviewAcceptingStrategy {
+  return (
+    obj === "AutomaticallyAcceptOrRejectByAverage" ||
+    obj === "AutomaticallyAcceptOrManualReviewByAverage" ||
+    obj === "ManualReviewEverything"
   )
 }
 

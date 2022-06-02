@@ -206,6 +206,7 @@ export interface CourseStructure {
 
 export interface CourseUpdate {
   name: string
+  description: string | null
   is_draft: boolean
   is_test_mode: boolean
 }
@@ -679,7 +680,14 @@ export interface PeerReview {
   exercise_id: string | null
   peer_reviews_to_give: number
   peer_reviews_to_receive: number
+  accepting_threshold: number
+  accepting_strategy: PeerReviewAcceptingStrategy
 }
+
+export type PeerReviewAcceptingStrategy =
+  | "AutomaticallyAcceptOrRejectByAverage"
+  | "AutomaticallyAcceptOrManualReviewByAverage"
+  | "ManualReviewEverything"
 
 export interface NewPeerReviewQuestion {
   peer_review_id: string

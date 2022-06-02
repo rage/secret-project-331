@@ -104,6 +104,7 @@ import {
   PageWithExercises,
   Pagination,
   PeerReview,
+  PeerReviewAcceptingStrategy,
   PeerReviewQuestion,
   PeerReviewQuestionType,
   PlaygroundExample,
@@ -1182,7 +1183,20 @@ export function isPeerReview(obj: any, _argumentName?: string): obj is PeerRevie
     typeof obj.course_id === "string" &&
     (obj.exercise_id === null || typeof obj.exercise_id === "string") &&
     typeof obj.peer_reviews_to_give === "number" &&
-    typeof obj.peer_reviews_to_receive === "number"
+    typeof obj.peer_reviews_to_receive === "number" &&
+    typeof obj.accepting_threshold === "number" &&
+    (isPeerReviewAcceptingStrategy(obj.accepting_strategy) as boolean)
+  )
+}
+
+export function isPeerReviewAcceptingStrategy(
+  obj: any,
+  _argumentName?: string,
+): obj is PeerReviewAcceptingStrategy {
+  return (
+    obj === "AutomaticallyAcceptOrRejectByAverage" ||
+    obj === "AutomaticallyAcceptOrManualReviewByAverage" ||
+    obj === "ManualReviewEverything"
   )
 }
 
@@ -1544,6 +1558,7 @@ export function isUserCourseInstanceProgress(
 ): obj is UserCourseInstanceProgress {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.module_name === "string" &&
     typeof obj.score_given === "number" &&
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&

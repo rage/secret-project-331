@@ -429,6 +429,7 @@ fn main() {
     write_docs!(
         UserCourseInstanceProgress,
         UserCourseInstanceProgress {
+            module_name: "Module".to_string(),
             score_given: 3.0,
             score_maximum: Some(10),
             total_exercises: Some(66),

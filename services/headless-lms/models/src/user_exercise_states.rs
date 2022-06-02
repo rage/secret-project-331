@@ -3,6 +3,7 @@ use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use serde_json::Value;
 
 use crate::{
+    course_instances, courses,
     exercises::{ActivityProgress, Exercise, GradingProgress},
     prelude::*,
     user_course_settings,
@@ -133,6 +134,8 @@ impl TryFrom<UserExerciseState> for CourseInstanceOrExamId {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseInstanceProgress {
+    /// Temporal placeholder, data should be categorized by module in future.
+    pub module_name: String,
     pub score_given: f32,
     pub score_maximum: Option<u32>,
     pub total_exercises: Option<u32>,
@@ -267,8 +270,13 @@ pub async fn get_user_course_instance_progress(
 ) -> ModelResult<UserCourseInstanceProgress> {
     let course_metrics = get_course_instance_metrics(&mut *conn, course_instance_id).await?;
     let user_metrics = get_user_course_instance_metrics(conn, course_instance_id, user_id).await?;
+    let course_id = course_instances::get_course_instance(conn, course_instance_id)
+        .await?
+        .course_id;
+    let course_name = courses::get_course(conn, course_id).await?.name;
 
     let result = UserCourseInstanceProgress {
+        module_name: course_name,
         score_given: option_f32_to_f32_two_decimals(user_metrics.score_given),
         attempted_exercises: user_metrics
             .attempted_exercises

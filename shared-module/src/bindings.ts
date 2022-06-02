@@ -679,7 +679,14 @@ export interface PeerReview {
   exercise_id: string | null
   peer_reviews_to_give: number
   peer_reviews_to_receive: number
+  accepting_threshold: number
+  accepting_strategy: PeerReviewAcceptingStrategy
 }
+
+export type PeerReviewAcceptingStrategy =
+  | "AutomaticallyAcceptOrRejectByAverage"
+  | "AutomaticallyAcceptOrManualReviewByAverage"
+  | "ManualReviewEverything"
 
 export interface NewPeerReviewQuestion {
   peer_review_id: string
@@ -890,6 +897,7 @@ export interface UserCourseInstanceChapterExerciseProgress {
 }
 
 export interface UserCourseInstanceProgress {
+  module_name: string
   score_given: number
   score_maximum: number | null
   total_exercises: number | null

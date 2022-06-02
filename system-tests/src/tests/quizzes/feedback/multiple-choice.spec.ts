@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-import { selectCourseVariantIfPrompted } from "../../../utils/courseMaterialActions"
+import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 import waitForFunction from "../../../utils/waitForFunction"
 
@@ -24,7 +24,7 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
     page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`),
   ])
 
-  await selectCourseVariantIfPrompted(page)
+  await selectCourseInstanceIfPrompted(page)
 
   await Promise.all([page.waitForNavigation(), await page.click("text=The Basics")])
   expect(page.url()).toBe(

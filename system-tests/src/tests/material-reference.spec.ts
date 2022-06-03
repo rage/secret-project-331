@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-import { selectCourseVariantIfPrompted } from "../utils/courseMaterialActions"
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -143,7 +143,7 @@ test("material reference tests", async ({ page, headless }) => {
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-1",
   )
 
-  await selectCourseVariantIfPrompted(page)
+  await selectCourseInstanceIfPrompted(page)
 
   await expectScreenshotsToMatchSnapshots({
     page,

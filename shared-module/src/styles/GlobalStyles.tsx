@@ -6,6 +6,7 @@ import cssReset from "./cssReset"
 
 import { headingFont, monospaceFont, primaryFont, typography } from "."
 
+import "@fontsource/raleway"
 import "@fontsource/josefin-sans"
 import "@fontsource/josefin-sans/100.css"
 import "@fontsource/josefin-sans/200.css"

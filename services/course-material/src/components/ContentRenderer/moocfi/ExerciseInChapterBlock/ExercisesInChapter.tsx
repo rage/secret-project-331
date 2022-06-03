@@ -32,7 +32,7 @@ const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string
         className={css`
           text-align: center;
           margin-bottom: 2rem;
-          text-transform: uppercase;
+          color: #1a2333;
           font-size: 2rem;
         `}
       >

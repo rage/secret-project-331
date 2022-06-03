@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import React from "react"
 
-import { baseTheme } from "../../styles"
+import { baseTheme, secondaryFont } from "../../styles"
 
 const Wrapper = styled.div`
   border-radius: 10px;
@@ -21,6 +21,7 @@ const PageBoxRow = styled.div`
 
   span {
     vertical-align: top;
+    font-family: ${secondaryFont};
     font-size: clamp(16px, 1vw, 18px);
     display: inline-block;
     width: 75%;

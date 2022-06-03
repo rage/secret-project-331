@@ -195,8 +195,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
           padding-bottom: 1em;
           line-height: 1.1;
           font-size: clamp(2.5rem, 3vw, 3.5rem);
-          margin-bottom: 3rem;
-          text-transform: uppercase;
+          margin-bottom: 2rem;
         `}
       >
         {t("course-overview")}

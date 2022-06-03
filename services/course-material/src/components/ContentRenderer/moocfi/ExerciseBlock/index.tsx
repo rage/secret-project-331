@@ -25,7 +25,7 @@ import HideTextInSystemTests from "../../../../shared-module/components/HideText
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import { baseTheme } from "../../../../shared-module/styles"
+import { baseTheme, secondaryFont } from "../../../../shared-module/styles"
 import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
@@ -191,20 +191,27 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 display: flex;
                 align-items: center;
                 margin-bottom: 1.5rem;
-                padding: 1.5rem 1.75rem;
+                padding: 1.5rem 1.2rem;
+                background: #215887;
+                color: white;
               `}
             >
               <HelpIcon
                 className={css`
-                  height: 5rem !important;
-                  width: 5rem !important;
-                  margin-right: 1rem;
+                  height: 3.5rem !important;
+                  width: 3rem !important;
+                  margin-right: 0.5rem;
                 `}
               />{" "}
               <h2
                 className={css`
                   font-size: 2rem;
                   font-weight: 400;
+                  font-family: ${secondaryFont} !important;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                  padding-top: 6px;
                 `}
               >
                 {getCourseMaterialExercise.data.exercise.name}
@@ -216,8 +223,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               />
               <div
                 className={css`
-                  font-size: 1rem;
+                  font-size: 1.2rem;
                   text-align: center;
+                  font-family: ${secondaryFont} !important;
                 `}
               >
                 {t("points-label")}

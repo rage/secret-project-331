@@ -7,8 +7,9 @@
 const fallbackFontsSansSerif = `system-ui, -apple-system, Cantarell, Ubuntu, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`
 const fallbackFontsMonospace = `ui-monospace, "Source Code Pro", "Ubuntu Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`
 
-export const headingFont = `"Josefin Sans", ${fallbackFontsSansSerif}`
+export const secondaryFont = `"Josefin Sans", ${fallbackFontsSansSerif}`
 export const primaryFont = `"Lato", ${fallbackFontsSansSerif}`
+export const headingFont = `"Raleway", ${fallbackFontsSansSerif}`
 export const monospaceFont = `"Space Mono", ${fallbackFontsMonospace}`
 
 export const typography = {

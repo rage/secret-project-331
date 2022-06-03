@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
 
-import { baseTheme } from "../../styles"
+import { baseTheme, secondaryFont } from "../../styles"
 import CircularProgressBar from "../CircularProgressBar"
 
 const Wrapper = styled.div`
@@ -14,7 +14,7 @@ const Wrapper = styled.div`
   h2 {
     text-align: center;
     color: #3b4754;
-    font-family: "Josefin Sans", sans-serif;
+    font-family: ${secondaryFont};
     text-transform: uppercase;
     font-size: 1.6rem;
     margin-bottom: 2rem;

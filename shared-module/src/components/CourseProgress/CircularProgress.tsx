@@ -4,7 +4,7 @@ import { useLayoutEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useSpring } from "react-spring"
 
-import { baseTheme, headingFont } from "../../styles"
+import { baseTheme, headingFont, secondaryFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
 import { CircularProgressExtraProps } from "."
@@ -72,6 +72,7 @@ const StyledSVG = styled.div<StyledSVGProps>`
     text-transform: uppercase;
     font-weight: 600;
     opacity: 0.5;
+    font-family: ${secondaryFont};
 
     @media (max-width: 767.98px) {
       font-size: 1rem;
@@ -118,10 +119,10 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
     <>
       <h2
         className={css`
-          text-transform: uppercase;
           padding-bottom: 10px;
           font-weight: 500;
-          border-bottom: 2px solid #d8dbdd;
+          border-bottom: 3px solid #d8dbdd;
+          color: #1a2333;
         `}
       >
         {label}

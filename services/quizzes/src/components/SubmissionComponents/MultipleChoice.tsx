@@ -64,6 +64,7 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
         className={css`
           font-size: ${quizTheme.quizTitleFontSize};
           font-weight: bold;
+          font-family: "Raleway", sans-serif;
         `}
       >
         {public_quiz_item.title && <MarkdownText text={public_quiz_item.title} />}

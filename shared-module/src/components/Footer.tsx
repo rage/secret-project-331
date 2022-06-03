@@ -11,6 +11,9 @@ import basePath from "../utils/base-path"
 
 import Banner from "./Banner/Banner"
 
+const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
+const CREATORS_LINK = "https://www.mooc.fi/en/"
+
 const Wrapper = styled.div`
   display: grid;
   background: #d8dbdd;
@@ -136,11 +139,9 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
           >
             {t("resources")}
           </h1>
-          <StyledLink href={"https://www.mooc.fi/faq/tietosuojaseloste/"}>
-            {t("privacy")}
-          </StyledLink>
+          <StyledLink href={PRIVACY_LINK}>{t("privacy")}</StyledLink>
           <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink>
-          <StyledLink href={basePath() + "/creators"}>{t("creators")}</StyledLink>
+          <StyledLink href={CREATORS_LINK}>{t("creators")}</StyledLink>
           {licenseUrl ? <StyledLink href={licenseUrl}>{t("license")}</StyledLink> : null}
         </Links>
       </Wrapper>

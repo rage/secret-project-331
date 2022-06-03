@@ -11,13 +11,20 @@ const FieldContainer = styled.div`
 `
 
 interface NewCourseFormProps {
-  courseInstances: ReadonlyArray<CourseInstance>
+  courseInstances: CourseInstance[]
   onSubmitForm: (courseInstanceId: string) => void
+  initialSelectedInstanceId?: string
 }
 
-const NewCourseForm: React.FC<NewCourseFormProps> = ({ courseInstances, onSubmitForm }) => {
+const NewCourseForm: React.FC<NewCourseFormProps> = ({
+  courseInstances,
+  onSubmitForm,
+  initialSelectedInstanceId,
+}) => {
   const { t } = useTranslation()
-  const [instance, setInstance] = useState(onlyItemOrUndefined(courseInstances)?.id ?? "")
+  const [instance, setInstance] = useState(
+    figureOutInitialValue(courseInstances, initialSelectedInstanceId),
+  )
 
   const enrollOnCourse = async () => {
     if (instance) {
@@ -48,9 +55,15 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({ courseInstances, onSubmit
   )
 }
 
-function onlyItemOrUndefined<T>(items: ReadonlyArray<T>): T | undefined {
+function figureOutInitialValue(
+  items: CourseInstance[],
+  initialSelectedInstanceId: string | undefined,
+): string | undefined {
+  if (initialSelectedInstanceId) {
+    return initialSelectedInstanceId
+  }
   if (items.length === 1) {
-    return items[0]
+    return items[0].id
   }
 }
 

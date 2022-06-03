@@ -7,7 +7,10 @@ import PageNotFound from "../../../../components/PageNotFound"
 import Layout from "../../../../components/layout/Layout"
 import CourseMaterialPageBreadcrumbs from "../../../../components/navigation/CourseMaterialPageBreadcrumbs"
 import CourseTestModeNotification from "../../../../components/notifications/CourseTestModeNotification"
-import PageContext, { CoursePageDispatch, defaultPageState } from "../../../../contexts/PageContext"
+import PageContext, {
+  CoursePageDispatch,
+  getDefaultPageState,
+} from "../../../../contexts/PageContext"
 import useScrollToSelector from "../../../../hooks/useScrollToSelector"
 import pageStateReducer from "../../../../reducers/pageStateReducer"
 import { fetchCoursePageByPath } from "../../../../services/backend"
@@ -32,10 +35,14 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
   const router = useRouter()
   const courseSlug = query.courseSlug
   const path = `/${useQueryParameter("path")}`
-
-  const [pageState, pageStateDispatch] = useReducer(pageStateReducer, defaultPageState)
   const getCoursePageByPath = useQuery(`course-page-${courseSlug}-${path}`, () =>
     fetchCoursePageByPath(courseSlug, path),
+  )
+  const [pageState, pageStateDispatch] = useReducer(
+    pageStateReducer,
+    getDefaultPageState(async () => {
+      await getCoursePageByPath.refetch()
+    }),
   )
 
   useEffect(() => {

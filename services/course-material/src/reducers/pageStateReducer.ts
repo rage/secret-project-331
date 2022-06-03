@@ -8,6 +8,7 @@ interface PageStateLoading {
   exam: null
   isTest: boolean
   error: null
+  refetchPage?: () => Promise<void>
 }
 
 interface PageStateReady {
@@ -18,6 +19,7 @@ interface PageStateReady {
   exam: ExamData | null
   isTest: boolean
   error: null
+  refetchPage?: () => Promise<void>
 }
 
 interface PageStateError {
@@ -28,6 +30,7 @@ interface PageStateError {
   exam: null
   isTest: boolean
   error: unknown
+  refetchPage?: () => Promise<void>
 }
 
 export type PageState = PageStateLoading | PageStateReady | PageStateError

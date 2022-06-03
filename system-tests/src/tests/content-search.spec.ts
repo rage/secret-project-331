@@ -50,7 +50,7 @@ test("content search", async ({ page, headless }) => {
   await page.waitForSelector("text=Human-machine interface")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["aria-hidden-focus", "landmark-unique", "landmark-one-main"],
+    axeSkip: ["aria-hidden-focus", "landmark-unique", "landmark-one-main", "page-has-heading-one"],
     headless,
     page,
     snapshotName: "search-content-with-short-prefix",
@@ -79,7 +79,7 @@ test("content search", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["aria-hidden-focus", "landmark-one-main"],
+    axeSkip: ["aria-hidden-focus", "landmark-one-main", "page-has-heading-one"],
     page,
     headless,
     snapshotName: "search-content-with-two-words-not-just-after-each-other",
@@ -93,7 +93,7 @@ test("content search", async ({ page, headless }) => {
   await page.waitForSelector("text=banana cat enim")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["landmark-one-main"],
+    axeSkip: ["landmark-one-main", "page-has-heading-one"],
     page,
     headless,
     snapshotName: "search-continuous-phrases-ranked-higher-than-word-matches",

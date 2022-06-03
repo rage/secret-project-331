@@ -22,9 +22,6 @@ const ExerciseInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
   if (!chapterId) {
     return <pre>{t("error-page-does-not-belong-to-chapter")}</pre>
   }
-  if (!courseInstanceId) {
-    return <pre>{t("error-missing-course-instance-id")}</pre>
-  }
 
   return (
     <div>

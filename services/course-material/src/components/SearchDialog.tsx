@@ -142,8 +142,6 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
           >
             <HeaderBar>
               <FontAwesomeIcon
-                tabIndex={0}
-                id="search-for-pages-button"
                 className={css`
                   margin-right: -23px;
                   z-index: 2;

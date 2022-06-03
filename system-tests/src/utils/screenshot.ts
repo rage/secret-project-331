@@ -17,7 +17,7 @@ const viewPorts = {
  *
  * The second argument passed to expect(screenshot).toMatchSnapshot(name[, options])
  */
-type ToMatchSnapshotOptions = Parameters<ReturnType<typeof expect>["toMatchSnapshot"]>[1]
+type ToMatchSnapshotOptions = Parameters<ReturnType<typeof expect>["toMatchSnapshot"]>[0]
 
 interface ExpectScreenshotsToMatchSnapshotsProps {
   headless: boolean

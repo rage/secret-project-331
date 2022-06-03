@@ -90,7 +90,7 @@
   "skip-to-content": "Skip to content",
   "tries-remaining-n": "Tries remaining: {{n}}",
   "start-peer-review": "Start peer review",
-  "start-studying": "Start stydying...",
+  "start-studying": "Start studying...",
   "start-the-exam": "Start the exam!",
   "started-at-time": "Started: {{time}}",
   "course-progress": "Course progress",
@@ -102,7 +102,8 @@
   "things-to-know-before-you-start": "Things to know before you start!",
   "this-course-has-no-pages": "This course has no pages",
   "title-congratulations": "Congratulations!",
-  "title-select-course-version-to-continue": "Select course version to continue.",
+  "title-select-course-instance-to-continue": "Select course instance to continue.",
+  "select-course-instance-explanation": "The teachers or administrative staff of the course instance you select will be able to see your points, submissions, completion status, and other information related your course progress.",
   "title-select-course-version-to-see-your-progress": "Select course version to your progress.",
   "title-youtube-video-player": "YouTube video player",
   "try-again": "try again",
@@ -123,5 +124,6 @@
   "button-text-refresh": "Refresh",
   "help-text-exercise-involves-peer-review": "To complete this exercise, you will need to peer review {{peer_reviews_to_give}} answers from other students after submitting your own answer. After that, you'll receive peer reviews from other students before getting the points.",
   "waiting-for-peer-reviews-explanation": "Other students are peer reviewing your answer. Please come back later to see the results.",
-  "help-text-answer-has-been-reviewed-and-locked": "Your answer has been reviewed and graded. New submissions are no longer allowed."
+  "help-text-answer-has-been-reviewed-and-locked": "Your answer has been reviewed and graded. New submissions are no longer allowed.",
+  "additional-module": "Additional module"
 }

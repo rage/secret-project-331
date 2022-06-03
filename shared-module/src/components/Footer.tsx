@@ -136,7 +136,9 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
           >
             {t("resources")}
           </h1>
-          <StyledLink href={basePath() + "/privacy"}>{t("privacy")}</StyledLink>
+          <StyledLink href={"https://www.mooc.fi/faq/tietosuojaseloste/"}>
+            {t("privacy")}
+          </StyledLink>
           <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink>
           <StyledLink href={basePath() + "/creators"}>{t("creators")}</StyledLink>
           {licenseUrl ? <StyledLink href={licenseUrl}>{t("license")}</StyledLink> : null}

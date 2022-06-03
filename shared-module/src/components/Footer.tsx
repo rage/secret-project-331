@@ -7,12 +7,13 @@ import UHLogo from "../img/UHLogo.svg"
 import MOOCfi from "../img/moocfi.svg"
 import { baseTheme, headingFont, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
-import basePath from "../utils/base-path"
 
 import Banner from "./Banner/Banner"
 
 const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
-const CREATORS_LINK = "https://www.mooc.fi/en/"
+
+// To be link in the future
+// const CREATORS_LINK = "https://www.mooc.fi/en/"
 
 const Wrapper = styled.div`
   display: grid;
@@ -140,8 +141,8 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
             {t("resources")}
           </h1>
           <StyledLink href={PRIVACY_LINK}>{t("privacy")}</StyledLink>
-          <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink>
-          <StyledLink href={CREATORS_LINK}>{t("creators")}</StyledLink>
+          {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink>
+          <StyledLink href={CREATORS_LINK}>{t("creators")}</StyledLink> */}
           {licenseUrl ? <StyledLink href={licenseUrl}>{t("license")}</StyledLink> : null}
         </Links>
       </Wrapper>

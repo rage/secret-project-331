@@ -95,7 +95,8 @@ export interface ExerciseBoxExtraProps {
   exerciseTitle: string
   url: string
   scoreMaximum: number
-  userPoints: number
+  /// The caller will set this to null if the user is not logged in
+  userPoints: number | null
   bg?: string
 }
 export interface StyledProps {
@@ -135,11 +136,13 @@ const ExerciseBox: React.FC<ExerciseBox> = ({
                 </div>
               </ImageBox>
               <span>{exerciseTitle}</span>
-              <CircularProgressBar
-                scoreMaximum={scoreMaximum}
-                userPoints={userPoints}
-                className="progress"
-              />
+              {userPoints !== null && (
+                <CircularProgressBar
+                  scoreMaximum={scoreMaximum}
+                  userPoints={userPoints}
+                  className="progress"
+                />
+              )}
             </ExercisePart>
           </a>
         </Link>

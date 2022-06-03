@@ -1,7 +1,4 @@
 import { ClassNamesArg, cx } from "@emotion/css"
-import styled from "@emotion/styled"
-import { faUser as profileIcon } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,10 +7,6 @@ import { logout } from "../services/backend/auth"
 
 import Button from "./Button"
 import Spinner from "./Spinner"
-
-const StyledIcon = styled(FontAwesomeIcon)`
-  margin-right: 0.5rem;
-`
 
 export interface LoginControlsProps {
   styles?: ClassNamesArg[]
@@ -35,12 +28,6 @@ const LoginControls: React.FC<LoginControlsProps> = ({ styles, returnToPath }) =
 
   return loginStateContext.signedIn ? (
     <>
-      <li className={cx(styles)}>
-        <Button size="medium" variant="primary">
-          <StyledIcon icon={profileIcon} />
-          {t("email")}
-        </Button>
-      </li>
       <li className={cx(styles)}>
         <Button size="medium" variant="primary" onClick={submitLogout}>
           {t("log-out")}

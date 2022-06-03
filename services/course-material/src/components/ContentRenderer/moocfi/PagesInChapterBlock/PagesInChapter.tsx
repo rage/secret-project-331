@@ -39,9 +39,8 @@ const PagesInChapter: React.FC<PagesInChapterProps> = ({
               font-size: 2.5rem;
               font-weight: 400;
               text-align: center;
-              color: #505050;
+              color: #1a2333;
               margin-bottom: 2rem;
-              text-transform: uppercase;
             `}
           >
             {t("table-of-contents")}

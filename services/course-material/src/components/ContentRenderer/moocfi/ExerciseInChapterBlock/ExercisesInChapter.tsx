@@ -11,7 +11,7 @@ import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils
 
 import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage"
 
-const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string }> = ({
+const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string | undefined }> = ({
   chapterId,
   courseInstanceId,
 }) => {

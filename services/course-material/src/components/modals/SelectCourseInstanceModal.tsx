@@ -53,6 +53,16 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({
       try {
         await postCourseInstanceEnrollment(instanceId)
         setOpen(false)
+        if (pageState.refetchPage) {
+          // eslint-disable-next-line i18next/no-literal-string
+          console.info("Refetching page because the course instance has changed")
+          pageState.refetchPage()
+        } else {
+          console.warn(
+            // eslint-disable-next-line i18next/no-literal-string
+            "No refetching the page because there's no refetchPage function in the page context.",
+          )
+        }
         onClose()
       } catch (e) {
         setSubmitError(e)
@@ -85,7 +95,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({
           `}
           id="dialog-label"
         >
-          {t("title-select-course-instance-to-continue")}.
+          {t("title-select-course-instance-to-continue")}
         </h1>
         <div
           className={css`
@@ -104,6 +114,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({
           <SelectCourseInstanceForm
             courseInstances={getCourseInstances.data}
             onSubmitForm={handleSubmitAndClose}
+            initialSelectedInstanceId={pageState.instance?.id}
           />
         )}
       </div>

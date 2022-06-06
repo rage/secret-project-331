@@ -78,7 +78,7 @@ const Sponsor: React.FC<SponsorProps> = ({ width = "250px" }, props) => {
 
   return (
     <Container>
-      <h2> {t("Sponsor")} </h2>
+      <h2> {t("sponsor")} </h2>
       <SponsorBox>
         {sponsors.map(({ logo, id }) => (
           <SponsorLogo key={id} {...props} width={width}>

@@ -8,7 +8,7 @@ import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 const SponsorBlock: React.FC<BlockRendererProps<SponsorProps>> = (props) => {
   return (
     <BreakFromCentered sidebar={false}>
-      <Sponsor title={props.data.attributes.title} logos={props.data.innerBlocks} />
+      <Sponsor logos={props.data.innerBlocks} />
     </BreakFromCentered>
   )
 }

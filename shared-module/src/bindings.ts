@@ -66,6 +66,7 @@ export interface Chapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
+  module: string | null
 }
 
 export interface DatabaseChapter {
@@ -81,6 +82,7 @@ export interface DatabaseChapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
+  module: string | null
 }
 
 export type ChapterStatus = "open" | "closed"
@@ -90,6 +92,7 @@ export interface ChapterUpdate {
   front_page_id: string | null
   deadline: Date | null
   opens_at: Date | null
+  module: string | null
 }
 
 export interface ChapterWithStatus {
@@ -104,6 +107,7 @@ export interface ChapterWithStatus {
   opens_at: Date | null
   status: ChapterStatus
   chapter_image_url: string | null
+  module: string | null
 }
 
 export interface NewChapter {
@@ -113,6 +117,7 @@ export interface NewChapter {
   front_page_id: string | null
   opens_at: Date | null
   deadline: Date | null
+  module: string | null
 }
 
 export interface UserCourseInstanceChapterProgress {
@@ -144,6 +149,7 @@ export interface ChapterScore {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
+  module: string | null
   score_given: number
   score_total: number
 }
@@ -179,6 +185,12 @@ export interface Points {
   chapter_points: Array<ChapterScore>
   users: Array<User>
   user_chapter_points: Record<string, PointMap>
+}
+
+export interface Module {
+  id: string
+  name: string
+  order_number: number
 }
 
 export interface Course {
@@ -382,9 +394,9 @@ export interface CourseMaterialExercise {
   exercise: Exercise
   can_post_submission: boolean
   current_exercise_slide: CourseMaterialExerciseSlide
-  peer_review_info: CourseMaterialPeerReviewData | null
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
+  peer_review: PeerReview | null
 }
 
 export interface Exercise {
@@ -410,6 +422,7 @@ export interface ExerciseStatus {
   score_given: number | null
   activity_progress: ActivityProgress
   grading_progress: GradingProgress
+  reviewing_stage: ReviewingStage
 }
 
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
@@ -468,10 +481,15 @@ export interface StudentExerciseTaskSubmissionResult {
 }
 
 export interface CourseMaterialPeerReviewData {
-  exercise_slide_submission_id: string
-  exercise_task_submissions: Array<ExerciseTaskSubmissionWithSpec>
-  peer_review_id: string
+  answer_to_review: CourseMaterialPeerReviewDataAnswerToReview | null
+  peer_review: PeerReview
   peer_review_questions: Array<PeerReviewQuestion>
+  num_peer_reviews_given: number
+}
+
+export interface CourseMaterialPeerReviewDataAnswerToReview {
+  exercise_slide_submission_id: string
+  course_material_exercise_tasks: Array<CourseMaterialExerciseTask>
 }
 
 export interface CourseMaterialPeerReviewQuestionAnswer {
@@ -673,7 +691,14 @@ export interface PeerReview {
   exercise_id: string | null
   peer_reviews_to_give: number
   peer_reviews_to_receive: number
+  accepting_threshold: number
+  accepting_strategy: PeerReviewAcceptingStrategy
 }
+
+export type PeerReviewAcceptingStrategy =
+  | "AutomaticallyAcceptOrRejectByAverage"
+  | "AutomaticallyAcceptOrManualReviewByAverage"
+  | "ManualReviewEverything"
 
 export interface NewPeerReviewQuestion {
   peer_review_id: string
@@ -851,15 +876,6 @@ export interface ExerciseTaskSubmission {
   metadata: unknown | null
 }
 
-export interface ExerciseTaskSubmissionWithSpec {
-  id: string
-  exercise_task_id: string
-  exercise_task_order_number: number
-  public_spec: unknown | null
-  model_solution_spec: unknown | null
-  data_json: unknown | null
-}
-
 export interface RoleUser {
   id: string
   first_name: string | null
@@ -910,6 +926,14 @@ export interface ExerciseUserCounts {
   n_users_with_max_points: number
 }
 
+export type ReviewingStage =
+  | "NotStarted"
+  | "PeerReview"
+  | "SelfReview"
+  | "WaitingForPeerReviews"
+  | "WaitingForManualGrading"
+  | "ReviewedAndLocked"
+
 export interface User {
   id: string
   first_name: string | null
@@ -923,6 +947,7 @@ export interface User {
 
 export interface ChaptersWithStatus {
   is_previewable: boolean
+  modules: Array<Module>
   chapters: Array<ChapterWithStatus>
 }
 

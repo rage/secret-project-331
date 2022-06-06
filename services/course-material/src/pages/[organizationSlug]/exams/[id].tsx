@@ -10,7 +10,7 @@ import ExamStartBanner from "../../../components/exams/ExamStartBanner"
 import ExamTimer from "../../../components/exams/ExamTimer"
 import Layout from "../../../components/layout/Layout"
 import ExamTimeOverModal from "../../../components/modals/ExamTimeOverModal"
-import PageContext, { CoursePageDispatch, defaultPageState } from "../../../contexts/PageContext"
+import PageContext, { CoursePageDispatch, getDefaultPageState } from "../../../contexts/PageContext"
 import useTime from "../../../hooks/useTime"
 import pageStateReducer from "../../../reducers/pageStateReducer"
 import { Block, enrollInExam, fetchExam } from "../../../services/backend"
@@ -32,7 +32,11 @@ interface ExamProps {
 const Exam: React.FC<ExamProps> = ({ query }) => {
   const { t } = useTranslation()
   const examId = query.id
-  const [pageState, pageStateDispatch] = useReducer(pageStateReducer, defaultPageState)
+  const [pageState, pageStateDispatch] = useReducer(
+    pageStateReducer,
+    // We don't pass a refetch function here on purpose because refetching during an exam is risky because we don't want to accidentally lose unsubitted answers
+    getDefaultPageState(undefined),
+  )
   const now = useTime(5000)
 
   const exam = useQuery(`exam-page-${examId}`, () => fetchExam(examId))

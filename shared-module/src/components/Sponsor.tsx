@@ -69,7 +69,6 @@ const SponsorLogo = styled.div<SponsorProps>`
 export interface SponsorExtraProps {
   logos: unknown
   width?: string
-  title: string
 }
 
 export type SponsorProps = React.HTMLAttributes<HTMLDivElement> & SponsorExtraProps

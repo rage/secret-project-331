@@ -718,6 +718,7 @@ mod test {
                 name: "Chapter".to_string(),
                 opens_at: None,
                 deadline: None,
+                module: None,
             },
             user_id,
         )

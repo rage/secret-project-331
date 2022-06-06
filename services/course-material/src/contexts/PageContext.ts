@@ -2,7 +2,7 @@ import React, { Dispatch } from "react"
 
 import { PageState, PageStateAction } from "../reducers/pageStateReducer"
 
-export const defaultPageState: PageState = {
+export const getDefaultPageState = (refetchPage?: () => Promise<void>): PageState => ({
   // eslint-disable-next-line i18next/no-literal-string
   state: "loading",
   error: null,
@@ -11,9 +11,10 @@ export const defaultPageState: PageState = {
   settings: null,
   exam: null,
   isTest: false,
-}
+  refetchPage,
+})
 
-const PageContext = React.createContext<PageState>(defaultPageState)
+const PageContext = React.createContext<PageState>(getDefaultPageState())
 
 export default PageContext
 

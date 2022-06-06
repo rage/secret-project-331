@@ -371,7 +371,8 @@ INSERT INTO chapters (
     front_page_id,
     opens_at,
     chapter_image_path,
-    copied_from
+    copied_from,
+    course_module_id
   )
 SELECT uuid_generate_v5($1, id::text),
   name,
@@ -380,7 +381,8 @@ SELECT uuid_generate_v5($1, id::text),
   front_page_id,
   opens_at,
   chapter_image_path,
-  id
+  id,
+  course_module_id
 FROM chapters
 WHERE (course_id = $2)
 AND deleted_at IS NULL;

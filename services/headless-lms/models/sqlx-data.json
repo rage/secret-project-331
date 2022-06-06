@@ -11426,6 +11426,16 @@
       "nullable": [false, false]
     }
   },
+  "cc8b2ff5d0126040795e3fee5fc00cc9b7714711f5101855af61eb4c1a4f2f45": {
+    "query": "\nINSERT INTO chapters (\n    id,\n    name,\n    course_id,\n    chapter_number,\n    front_page_id,\n    opens_at,\n    chapter_image_path,\n    copied_from,\n    course_module_id\n  )\nSELECT uuid_generate_v5($1, id::text),\n  name,\n  $1,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  chapter_image_path,\n  id,\n  course_module_id\nFROM chapters\nWHERE (course_id = $2)\nAND deleted_at IS NULL;\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "ccdcf7ce3537744686b4a00dc74692d8c5b333e058fcf54fed5891ec2c527d60": {
     "query": "\nUPDATE exercise_services\n    SET name=$1, slug=$2, public_url=$3, internal_url=$4, max_reprocessing_submissions_at_once=$5\nWHERE id=$6\n    RETURNING *\n        ",
     "describe": {
@@ -13948,16 +13958,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, false, false, false, true, false]
-    }
-  },
-  "fa86ecf363520f40b143c5d7ce8241c6be435676f6b4b34e253b8d64983ccd59": {
-    "query": "\nINSERT INTO chapters (\n    id,\n    name,\n    course_id,\n    chapter_number,\n    front_page_id,\n    opens_at,\n    chapter_image_path,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  name,\n  $1,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  chapter_image_path,\n  id\nFROM chapters\nWHERE (course_id = $2)\nAND deleted_at IS NULL;\n    ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
     }
   },
   "fb18b61c85778ef2bffb9dc1d388e1f5d1a7f53af4ffbe102a731c39a353afe8": {

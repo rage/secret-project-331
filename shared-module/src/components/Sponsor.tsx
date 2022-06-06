@@ -30,12 +30,6 @@ const Container = styled.div`
   }
 `
 const SponsorBox = styled.div`
-  /*   padding: 2rem;
-  width: 40px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  margin: 2rem auto; */
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;

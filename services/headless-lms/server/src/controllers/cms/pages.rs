@@ -24,7 +24,7 @@ async fn get_page(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let cms_page = models::pages::get_page_with_exercises(&mut conn, *page_id).await?;
-    token.1.ok(web::Json(cms_page))
+    token.authorized_ok(web::Json(cms_page))
 }
 
 /**
@@ -42,7 +42,7 @@ async fn get_page_info(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let cms_page_info = models::pages::get_page_info(&mut conn, *page_id).await?;
-    token.1.ok(web::Json(cms_page_info))
+    token.authorized_ok(web::Json(cms_page_info))
 }
 
 /**
@@ -92,7 +92,7 @@ async fn update_page(
         is_exam_page,
     )
     .await?;
-    token.1.ok(web::Json(saved))
+    token.authorized_ok(web::Json(saved))
 }
 
 /**

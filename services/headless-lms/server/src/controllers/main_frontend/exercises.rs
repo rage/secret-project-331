@@ -48,7 +48,7 @@ async fn get_exercise_submissions(
 
     let total_pages = pagination.total_pages(submission_count);
 
-    token.1.ok(web::Json(ExerciseSubmissions {
+    token.authorized_ok(web::Json(ExerciseSubmissions {
         data: submissions,
         total_pages,
     }))

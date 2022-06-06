@@ -23,7 +23,7 @@ pub async fn get_exam(
 
     let exam = exams::get(&mut conn, *exam_id).await?;
 
-    token.1.ok(web::Json(exam))
+    token.authorized_ok(web::Json(exam))
 }
 
 #[derive(Debug, Deserialize)]
@@ -48,7 +48,7 @@ pub async fn set_course(
 
     exams::set_course(&mut conn, *exam_id, exam.course_id).await?;
 
-    token.1.ok(web::Json(()))
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -67,7 +67,7 @@ pub async fn unset_course(
 
     exams::unset_course(&mut conn, *exam_id, exam.course_id).await?;
 
-    token.1.ok(web::Json(()))
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -106,18 +106,20 @@ pub async fn export_points(
 
     // return response that streams data from the receiver
 
-    return token.1.ok(HttpResponse::Ok()
-        .append_header((
-            "Content-Disposition",
-            format!(
-                "attachment; filename=\"Exam: {} - Point export {}.csv\"",
-                exam.name,
-                Utc::today().format("%Y-%m-%d")
-            ),
-        ))
-        .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-            receiver,
-        ))));
+    return token.authorized_ok(
+        HttpResponse::Ok()
+            .append_header((
+                "Content-Disposition",
+                format!(
+                    "attachment; filename=\"Exam: {} - Point export {}.csv\"",
+                    exam.name,
+                    Utc::today().format("%Y-%m-%d")
+                ),
+            ))
+            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+                receiver,
+            ))),
+    );
 }
 
 /**
@@ -156,18 +158,20 @@ pub async fn export_submissions(
 
     // return response that streams data from the receiver
 
-    return token.1.ok(HttpResponse::Ok()
-        .append_header((
-            "Content-Disposition",
-            format!(
-                "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
-                exam.name,
-                Utc::today().format("%Y-%m-%d")
-            ),
-        ))
-        .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
-            receiver,
-        ))));
+    return token.authorized_ok(
+        HttpResponse::Ok()
+            .append_header((
+                "Content-Disposition",
+                format!(
+                    "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
+                    exam.name,
+                    Utc::today().format("%Y-%m-%d")
+                ),
+            ))
+            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+                receiver,
+            ))),
+    );
 }
 
 /**
@@ -203,7 +207,7 @@ async fn duplicate_exam(
     .await?;
     tx.commit().await?;
 
-    token.1.ok(web::Json(()))
+    token.authorized_ok(web::Json(()))
 }
 
 /**

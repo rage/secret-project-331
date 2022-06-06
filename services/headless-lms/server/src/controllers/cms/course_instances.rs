@@ -19,7 +19,7 @@ async fn get_organization_id(
     let organization =
         models::course_instances::get_organization_id(&mut conn, *course_instance_id).await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(web::Json(organization))
+    token.authorized_ok(web::Json(organization))
 }
 
 /**

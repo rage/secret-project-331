@@ -40,9 +40,9 @@ async fn add_media(
         user,
     )
     .await?;
-    let download_url = file_store.get_download_url(media_path.0.as_path(), app_conf.as_ref());
+    let download_url = file_store.get_download_url(media_path.data.as_path(), app_conf.as_ref());
 
-    token.1.ok(web::Json(UploadResult { url: download_url }))
+    token.authorized_ok(web::Json(UploadResult { url: download_url }))
 }
 
 /**
@@ -61,7 +61,7 @@ async fn get_exam_instructions(
         models::exams::get_exam_instructions_data(&mut conn, *exam_id).await?;
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
-    token.1.ok(web::Json(exam_instructions_data))
+    token.authorized_ok(web::Json(exam_instructions_data))
 }
 
 /**
@@ -90,7 +90,7 @@ async fn update_exam_instructions(
         models::exams::update_exam_instructions(&mut conn, *exam_id, instructions_update).await?;
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(web::Json(saved_instructions))
+    token.authorized_ok(web::Json(saved_instructions))
 }
 
 /**

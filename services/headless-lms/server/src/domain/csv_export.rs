@@ -18,7 +18,7 @@ use uuid::Uuid;
 
 use crate::controllers::{self, ControllerResult};
 
-use super::authorization::{AuthorizationToken, Authorized};
+use super::authorization::{AuthorizationToken, AuthorizedResponse};
 /// Convenience struct for creating CSV data.
 struct CsvWriter<W: Write> {
     csv_writer: Arc<Mutex<Writer<W>>>,
@@ -234,7 +234,7 @@ where
 
 pub struct CSVExportAdapter {
     pub sender: UnboundedSender<ControllerResult<Bytes>>,
-    pub authorization_token: Authorized<AuthorizationToken>,
+    pub authorization_token: AuthorizationToken,
 }
 impl Write for CSVExportAdapter {
     fn flush(&mut self) -> std::io::Result<()> {
@@ -245,16 +245,18 @@ impl Write for CSVExportAdapter {
         let bytes = Bytes::copy_from_slice(buf);
         let token = self.authorization_token;
         self.sender
-            .send(token.1.ok(bytes))
+            .send(token.authorized_ok(bytes))
             .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
         Ok(buf.len())
     }
 }
 
 pub fn make_authorized_streamable(
-    stream: UnboundedReceiverStream<Result<Authorized<bytes::Bytes>, controllers::ControllerError>>,
+    stream: UnboundedReceiverStream<
+        Result<AuthorizedResponse<bytes::Bytes>, controllers::ControllerError>,
+    >,
 ) -> impl Stream<Item = Result<bytes::Bytes, controllers::ControllerError>> {
-    stream.map(|item| item.map(|item2| item2.0))
+    stream.map(|item| item.map(|item2| item2.data))
 }
 
 #[cfg(test)]

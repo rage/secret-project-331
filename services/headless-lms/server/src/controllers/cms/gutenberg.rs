@@ -92,7 +92,7 @@ async fn get_oembed_data_from_provider(
         .json::<serde_json::Value>()
         .await
         .map_err(|oe| ControllerError::BadRequest(oe.to_string()))?;
-    token.1.ok(web::Json(res))
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -133,7 +133,7 @@ async fn get_theme_settings(
             responsive_embeds: true,
         },
     };
-    token.1.ok(web::Json(response))
+    token.authorized_ok(web::Json(response))
 }
 
 #[generated_doc]
@@ -148,7 +148,7 @@ async fn get_mentimeter_oembed_data(
     let url = query_params.url.to_string();
     let response = mentimeter_oembed_response_builder(url, app_conf.base_url.to_string())?;
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(web::Json(response))
+    token.authorized_ok(web::Json(response))
 }
 
 /**

@@ -13,7 +13,7 @@ async fn update(
     glossary::update(&mut conn, *id, &update.term, &update.definition).await?;
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(HttpResponse::Ok().finish())
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 #[instrument(skip(pool))]
@@ -26,7 +26,7 @@ async fn delete(
     glossary::delete(&mut conn, *id).await?;
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(HttpResponse::Ok().finish())
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**

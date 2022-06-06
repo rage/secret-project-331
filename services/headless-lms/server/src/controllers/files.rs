@@ -110,7 +110,7 @@ async fn serve_upload(
         response.append_header(("content-type", m));
     }
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(response.body(contents))
+    token.authorized_ok(response.body(contents))
 }
 
 /**

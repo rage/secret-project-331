@@ -15,7 +15,7 @@ pub async fn get_user(
     let user = models::users::get_by_id(&mut conn, *user_id).await?;
 
     let token = authorize(&mut conn, Act::Teach, Some(*user_id), Res::AnyCourse).await?;
-    token.1.ok(web::Json(user))
+    token.authorized_ok(web::Json(user))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

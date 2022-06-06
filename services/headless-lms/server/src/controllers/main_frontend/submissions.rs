@@ -26,7 +26,7 @@ async fn get_submission_info(
     )
     .await?;
 
-    token.1.ok(web::Json(res))
+    token.authorized_ok(web::Json(res))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

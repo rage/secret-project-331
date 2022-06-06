@@ -66,7 +66,7 @@ pub async fn authorize_action_on_resource(
     let data = payload.0;
 
     let token = authorize(&mut conn, data.action, Some(user.id), data.resource).await?;
-    token.1.ok(web::Json(true))
+    token.authorized_ok(web::Json(true))
 }
 
 /**
@@ -89,7 +89,7 @@ pub async fn login(
             let user = { models::users::get_by_id(&mut conn, id).await? };
             let token = authorize(&mut conn, Act::View, Some(user.id), Res::User).await?;
             authorization::remember(&session, user)?;
-            return token.1.ok(HttpResponse::Ok().finish());
+            return token.authorized_ok(HttpResponse::Ok().finish());
         };
     }
 
@@ -99,7 +99,7 @@ pub async fn login(
             models::users::authenticate_test_user(&mut conn, &email, &password, &app_conf).await?;
         let token = authorize(&mut conn, Act::View, Some(user.id), Res::User).await?;
         authorization::remember(&session, user)?;
-        return token.1.ok(HttpResponse::Ok().finish());
+        return token.authorized_ok(HttpResponse::Ok().finish());
     }
 
     let token = client
@@ -121,9 +121,9 @@ pub async fn login(
 
     let user = get_user_from_moocfi(&token, &mut conn).await;
     if let Ok(user) = user {
-        let token = authorize(&mut conn, Act::View, Some(user.0.id), Res::User).await?;
-        authorization::remember(&session, user.0)?;
-        token.1.ok(HttpResponse::Ok().finish())
+        let token = authorize(&mut conn, Act::View, Some(user.id), Res::User).await?;
+        authorization::remember(&session, user)?;
+        token.authorized_ok(HttpResponse::Ok().finish())
     } else {
         Err(ControllerError::Unauthorized(
             "Incorrect email or password.".to_string().finish(),
@@ -174,7 +174,7 @@ pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenTyp
 pub async fn get_user_from_moocfi(
     token: &LoginToken,
     conn: &mut PgConnection,
-) -> ControllerResult<User> {
+) -> anyhow::Result<User> {
     info!("Getting user details from mooc.fi");
     let moocfi_graphql_url = "https://www.mooc.fi/api";
     let client = Client::default();
@@ -200,7 +200,7 @@ pub async fn get_user_from_moocfi(
         .await
         .context("Failed to send request to Mooc.fi")?;
     if !res.status().is_success() {
-        return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi").into());
+        return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"));
     }
     let current_user_response: MoocfiCurrentUserResponse = res
         .json()
@@ -242,8 +242,7 @@ pub async fn get_user_from_moocfi(
                 .await?
             }
         };
-    let token = authorize(conn, Act::Edit, Some(user.id), Res::User).await?;
-    token.1.ok(user)
+    Ok(user)
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

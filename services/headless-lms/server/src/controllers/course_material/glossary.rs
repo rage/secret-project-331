@@ -12,7 +12,7 @@ async fn update(
     let mut conn = pool.acquire().await?;
     models::glossary::update(&mut conn, *acronym_id, &update.term, &update.definition).await?;
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(HttpResponse::Ok().finish())
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 #[instrument(skip(pool))]
@@ -24,7 +24,7 @@ async fn delete(
     let mut conn = pool.acquire().await?;
     models::glossary::delete(&mut conn, *acronym_id).await?;
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(HttpResponse::Ok().finish())
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**

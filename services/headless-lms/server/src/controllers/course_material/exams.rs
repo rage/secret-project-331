@@ -19,7 +19,7 @@ pub async fn enrollment(
     let mut conn = pool.acquire().await?;
     let enrollment = exams::get_enrollment(&mut conn, *exam_id, user.id).await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
-    token.1.ok(web::Json(enrollment))
+    token.authorized_ok(web::Json(enrollment))
 }
 
 /**
@@ -47,7 +47,7 @@ pub async fn enroll(
         if now > starts_at {
             exams::enroll(&mut conn, *exam_id, user.id).await?;
             let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-            return token.1.ok(web::Json(()));
+            return token.authorized_ok(web::Json(()));
         }
     }
 
@@ -117,7 +117,7 @@ pub async fn fetch_exam_for_user(
     if starts_at > Utc::now() {
         // exam has not started yet
         let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
-        return token.1.ok(web::Json(ExamData {
+        return token.authorized_ok(web::Json(ExamData {
             id: exam.id,
             name: exam.name,
             instructions: exam.instructions,
@@ -138,7 +138,7 @@ pub async fn fetch_exam_for_user(
         {
             // exam is still open but the student's time has expired
             let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
-            return token.1.ok(web::Json(ExamData {
+            return token.authorized_ok(web::Json(ExamData {
                 id: exam.id,
                 name: exam.name,
                 instructions: exam.instructions,
@@ -153,7 +153,7 @@ pub async fn fetch_exam_for_user(
     } else {
         // user has not started the exam
         let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
-        return token.1.ok(web::Json(ExamData {
+        return token.authorized_ok(web::Json(ExamData {
             id: exam.id,
             name: exam.name,
             instructions: exam.instructions,
@@ -168,7 +168,7 @@ pub async fn fetch_exam_for_user(
     let page = pages::get_page(&mut conn, exam.page_id).await?;
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
-    token.1.ok(web::Json(ExamData {
+    token.authorized_ok(web::Json(ExamData {
         id: exam.id,
         name: exam.name,
         instructions: exam.instructions,

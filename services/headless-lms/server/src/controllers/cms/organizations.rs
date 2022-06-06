@@ -46,8 +46,8 @@ async fn add_media(
         user,
     )
     .await?;
-    let download_url = file_store.get_download_url(media_path.0.as_path(), app_conf.as_ref());
-    token.1.ok(web::Json(UploadResult { url: download_url }))
+    let download_url = file_store.get_download_url(media_path.data.as_path(), app_conf.as_ref());
+    token.authorized_ok(web::Json(UploadResult { url: download_url }))
 }
 
 /**

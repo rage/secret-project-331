@@ -31,7 +31,7 @@ async fn get_all_organizations(
         .collect();
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(web::Json(organizations))
+    token.authorized_ok(web::Json(organizations))
 }
 
 /**
@@ -57,7 +57,7 @@ async fn get_organization_courses(
     .await?;
 
     let token = authorize(&mut conn, Act::View, user, Res::AnyCourse).await?;
-    token.1.ok(web::Json(courses))
+    token.authorized_ok(web::Json(courses))
 }
 
 #[generated_doc]
@@ -72,7 +72,7 @@ async fn get_organization_course_count(
         models::courses::organization_course_count(&mut conn, *request_organization_id).await?;
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(Json(result))
+    token.authorized_ok(Json(result))
 }
 
 #[generated_doc]
@@ -92,7 +92,7 @@ async fn get_organization_active_courses(
     .await?;
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(Json(courses))
+    token.authorized_ok(Json(courses))
 }
 
 #[generated_doc]
@@ -110,7 +110,7 @@ async fn get_organization_active_courses_count(
     .await?;
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(Json(result))
+    token.authorized_ok(Json(result))
 }
 
 /**
@@ -155,7 +155,7 @@ async fn set_organization_image(
         pool,
     )
     .await?
-    .0
+    .data
     .to_string_lossy()
     .to_string();
     let updated_organization = models::organizations::update_organization_image_path(
@@ -180,7 +180,7 @@ async fn set_organization_image(
         file_store.as_ref(),
         app_conf.as_ref(),
     );
-    token.1.ok(web::Json(response))
+    token.authorized_ok(web::Json(response))
 }
 
 /**
@@ -221,7 +221,7 @@ async fn remove_organization_image(
             ControllerError::InternalServerError(original_error.to_string())
         })?;
     }
-    token.1.ok(web::Json(()))
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -243,7 +243,7 @@ async fn get_organization(
         Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(web::Json(organization))
+    token.authorized_ok(web::Json(organization))
 }
 
 /**
@@ -266,7 +266,7 @@ async fn get_course_exams(
         Res::Organization(*organization),
     )
     .await?;
-    token.1.ok(web::Json(exams))
+    token.authorized_ok(web::Json(exams))
 }
 
 /**
@@ -289,7 +289,7 @@ async fn get_org_exams(
         Res::Organization(*organization),
     )
     .await?;
-    token.1.ok(web::Json(exams))
+    token.authorized_ok(web::Json(exams))
 }
 
 /**
@@ -345,7 +345,7 @@ async fn create_exam(
 
     tx.commit().await?;
 
-    token.1.ok(web::Json(()))
+    token.authorized_ok(web::Json(()))
 }
 
 /**

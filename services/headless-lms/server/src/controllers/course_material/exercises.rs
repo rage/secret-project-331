@@ -67,7 +67,7 @@ async fn get_exercise(
         course_material_exercise.clear_model_solution_specs();
     }
     let token = authorize(&mut conn, Act::View, user_id, Res::AnyCourse).await?;
-    token.1.ok(web::Json(course_material_exercise))
+    token.authorized_ok(web::Json(course_material_exercise))
 }
 
 /**
@@ -90,7 +90,7 @@ async fn get_peer_review_for_exercise(
     )
     .await?;
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(web::Json(peer_review_data))
+    token.authorized_ok(web::Json(peer_review_data))
 }
 
 /**
@@ -151,7 +151,7 @@ async fn post_submission(
             payload.exercise_slide_id,
         )
         .await?
-        .0;
+        .data;
 
     // TODO: Should this be an upsert?
     let user_exercise_state = models::user_exercise_states::get_user_exercise_state_if_exists(
@@ -196,7 +196,7 @@ async fn post_submission(
         Res::Exercise(*exercise_id),
     )
     .await?;
-    token.1.ok(web::Json(result))
+    token.authorized_ok(web::Json(result))
 }
 
 /**
@@ -229,7 +229,7 @@ async fn start_peer_review(
         Res::Exercise(*exercise_id),
     )
     .await?;
-    token.1.ok(web::Json(true))
+    token.authorized_ok(web::Json(true))
 }
 
 /**
@@ -258,7 +258,7 @@ async fn submit_peer_review(
     )
     .await?;
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(web::Json(true))
+    token.authorized_ok(web::Json(true))
 }
 
 /// Submissions for exams are posted from course instances or from exams. Make respective validations
@@ -280,7 +280,7 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             .await?;
             if let Some(settings) = settings {
                 let token = authorize(conn, Act::View, Some(user_id), Res::AnyCourse).await?;
-                token.1.ok(CourseInstanceOrExamId::Instance(
+                token.authorized_ok(CourseInstanceOrExamId::Instance(
                     settings.current_course_instance_id,
                 ))
             } else {
@@ -292,7 +292,7 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             // If submitting for an exam, make sure that user's time is not up.
             if models::exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await? {
                 let token = authorize(conn, Act::View, Some(user_id), Res::AnyCourse).await?;
-                token.1.ok(CourseInstanceOrExamId::Exam(exam_id))
+                token.authorized_ok(CourseInstanceOrExamId::Exam(exam_id))
             } else {
                 Err(ControllerError::Unauthorized(
                     "Submissions for this exam are no longer accepted.".to_string(),
@@ -304,7 +304,7 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
                 "Exam doesn't belong to either a course nor exam.".to_string(),
             ))
         }?
-        .0;
+        .data;
     if exercise.limit_number_of_tries {
         if let Some(max_tries_per_slide) = exercise.max_tries_per_slide {
             // check if the user has attempts remaining
@@ -329,7 +329,7 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
         }
     }
     let token = authorize(conn, Act::View, Some(user_id), Res::AnyCourse).await?;
-    token.1.ok((course_instance_id_or_exam_id, last_try))
+    token.authorized_ok((course_instance_id_or_exam_id, last_try))
 }
 
 /**

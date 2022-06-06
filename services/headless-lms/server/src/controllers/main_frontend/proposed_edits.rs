@@ -38,7 +38,7 @@ pub async fn get_edit_proposals(
         Res::Course(*course_id),
     )
     .await?;
-    token.1.ok(web::Json(feedback))
+    token.authorized_ok(web::Json(feedback))
 }
 
 /**
@@ -63,7 +63,7 @@ pub async fn get_edit_proposal_count(
         Res::Course(*course_id),
     )
     .await?;
-    token.1.ok(web::Json(edit_proposal_count))
+    token.authorized_ok(web::Json(edit_proposal_count))
 }
 
 /**
@@ -94,7 +94,7 @@ pub async fn process_edit_proposal(
         Res::Page(proposal.page_id),
     )
     .await?;
-    token.1.ok(HttpResponse::Ok().finish())
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**

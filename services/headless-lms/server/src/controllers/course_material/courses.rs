@@ -40,7 +40,7 @@ async fn get_course(
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
-    token.1.ok(web::Json(course))
+    token.authorized_ok(web::Json(course))
 }
 
 /**
@@ -103,7 +103,7 @@ async fn get_course_page_by_path(
         operating_system,
         operating_system_version,
         device_type,
-    } = temp_request_information.0;
+    } = temp_request_information.data;
 
     let course_or_exam_id = page_with_user_data
         .page
@@ -139,7 +139,7 @@ async fn get_course_page_by_path(
     )
     .await?;
 
-    token.1.ok(web::Json(page_with_user_data))
+    token.authorized_ok(web::Json(page_with_user_data))
 }
 
 struct RequestInformation {
@@ -216,7 +216,7 @@ async fn derive_information_from_requester(
         .map(|ua| ua.os_version.to_string());
     let device_type = parsed_user_agent.as_ref().map(|ua| ua.category.to_string());
     let token = authorize(&mut conn, Act::Teach, user_id, Res::AnyCourse).await?;
-    token.1.ok(RequestInformation {
+    token.authorized_ok(RequestInformation {
         ip,
         user_agent: user_agent
             .and_then(|ua| ua.to_str().ok())
@@ -258,7 +258,7 @@ async fn get_current_course_instance(
             Res::Course(*course_id),
         )
         .await?;
-        token.1.ok(web::Json(instance))
+        token.authorized_ok(web::Json(instance))
     } else {
         Err(ControllerError::NotFound("User not found".to_string()))
     }
@@ -283,7 +283,7 @@ async fn get_course_instances(
         Res::Course(*course_id),
     )
     .await?;
-    token.1.ok(web::Json(instances))
+    token.authorized_ok(web::Json(instances))
 }
 
 /**
@@ -305,7 +305,7 @@ async fn get_course_pages(
         Res::Course(*course_id),
     )
     .await?;
-    token.1.ok(web::Json(pages))
+    token.authorized_ok(web::Json(pages))
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -366,7 +366,7 @@ async fn get_chapters(
         })
         .collect();
     let token = authorize(&mut conn, Act::Teach, user_id, Res::Course(*course_id)).await?;
-    token.1.ok(web::Json(ChaptersWithStatus {
+    token.authorized_ok(web::Json(ChaptersWithStatus {
         is_previewable,
         modules,
         chapters,
@@ -391,7 +391,7 @@ async fn get_user_course_settings(
         )
         .await?;
         let token = authorize(&mut conn, Act::Teach, user_id, Res::Course(*course_id)).await?;
-        token.1.ok(web::Json(settings))
+        token.authorized_ok(web::Json(settings))
     } else {
         Err(ControllerError::NotFound("User not found".to_string()))
     }
@@ -433,7 +433,7 @@ async fn search_pages_with_phrase(
         Res::Course(*course_id),
     )
     .await?;
-    token.1.ok(web::Json(res))
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -472,7 +472,7 @@ async fn search_pages_with_words(
         Res::Course(*course_id),
     )
     .await?;
-    token.1.ok(web::Json(res))
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -518,7 +518,7 @@ pub async fn feedback(
     }
     tx.commit().await?;
     let token = authorize(&mut conn, Act::Teach, user_id, Res::Course(*course_id)).await?;
-    token.1.ok(web::Json(ids))
+    token.authorized_ok(web::Json(ids))
 }
 
 /**
@@ -542,7 +542,7 @@ async fn propose_edit(
     )
     .await?;
     let token = authorize(&mut conn, Act::Teach, Some(id), Res::Course(course_id)).await?;
-    token.1.ok(web::Json(id))
+    token.authorized_ok(web::Json(id))
 }
 
 #[generated_doc]
@@ -561,7 +561,7 @@ async fn glossary(
         Res::Course(*course_id),
     )
     .await?;
-    token.1.ok(web::Json(glossary))
+    token.authorized_ok(web::Json(glossary))
 }
 
 /**

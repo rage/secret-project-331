@@ -22,7 +22,7 @@ pub async fn mark_as_read(
     feedback::mark_as_read(&mut conn, *feedback_id, mark_as_read.into_inner().read).await?;
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.1.ok(HttpResponse::Ok().finish())
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**

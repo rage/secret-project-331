@@ -43,7 +43,7 @@ async fn post_new_chapter(
     let new_chapter = payload.0;
     let (database_chapter, ..) =
         models::chapters::insert_chapter(&mut conn, new_chapter, user.id).await?;
-    return token.1.ok(web::Json(Chapter::from_database_chapter(
+    return token.authorized_ok(web::Json(Chapter::from_database_chapter(
         &database_chapter,
         file_store.as_ref(),
         app_conf.as_ref(),
@@ -66,7 +66,7 @@ async fn delete_chapter(
     let course_id = Uuid::from_str(&chapter_id)?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
     let deleted_chapter = models::chapters::delete_chapter(&mut conn, course_id).await?;
-    return token.1.ok(web::Json(Chapter::from_database_chapter(
+    return token.authorized_ok(web::Json(Chapter::from_database_chapter(
         &deleted_chapter,
         file_store.as_ref(),
         app_conf.as_ref(),
@@ -110,7 +110,7 @@ async fn update_chapter(
 
     let response = Chapter::from_database_chapter(&chapter, file_store.as_ref(), app_conf.as_ref());
 
-    token.1.ok(web::Json(response))
+    token.authorized_ok(web::Json(response))
 }
 
 /**
@@ -157,7 +157,7 @@ async fn set_chapter_image(
         user,
     )
     .await?
-    .0
+    .data
     .to_string_lossy()
     .to_string();
     let updated_chapter =
@@ -177,7 +177,7 @@ async fn set_chapter_image(
     let response =
         Chapter::from_database_chapter(&updated_chapter, file_store.as_ref(), app_conf.as_ref());
 
-    token.1.ok(web::Json(response))
+    token.authorized_ok(web::Json(response))
 }
 
 /**
@@ -216,7 +216,7 @@ async fn remove_chapter_image(
             ControllerError::InternalServerError(original_error.to_string())
         })?;
     }
-    token.1.ok(web::Json(()))
+    token.authorized_ok(web::Json(()))
 }
 
 /**

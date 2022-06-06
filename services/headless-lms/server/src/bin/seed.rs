@@ -1382,7 +1382,7 @@ async fn seed_sample_course(
 
     // chapters and pages
 
-    let course_module_id = course_modules::insert(conn, course.id, "Module", 0)
+    let course_module_id = course_modules::insert(conn, course.id, None, 0)
         .await
         .unwrap();
     let new_chapter = NewChapter {
@@ -1446,7 +1446,8 @@ async fn seed_sample_course(
     .await?;
 
     tracing::info!("inserting modules");
-    let second_module_id = course_modules::insert(conn, course.id, "Another module", 1).await?;
+    let second_module_id =
+        course_modules::insert(conn, course.id, Some("Another module"), 1).await?;
     let new_chapter = NewChapter {
         chapter_number: 5,
         course_id: course.id,
@@ -1469,7 +1470,7 @@ async fn seed_sample_course(
     };
     let (_m1_chapter_2, _m1c2_front_page) =
         chapters::insert_chapter(conn, new_chapter, admin).await?;
-    let module_id = course_modules::insert(conn, course.id, "Bonus module", 2).await?;
+    let module_id = course_modules::insert(conn, course.id, Some("Bonus module"), 2).await?;
     let new_chapter = NewChapter {
         chapter_number: 7,
         course_id: course.id,
@@ -2907,7 +2908,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     // FAQ, we should add card/accordion block to visualize here.
     let (_page, _history) =
         pages::insert_course_page(conn, course.id, "/faq", "FAQ", 1, admin).await?;
-    let course_module_id = course_modules::insert(conn, course.id, "Module", 0).await?;
+    let course_module_id = course_modules::insert(conn, course.id, None, 0).await?;
 
     // Chapter-1
     let new_chapter = NewChapter {

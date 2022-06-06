@@ -3,7 +3,7 @@ use crate::prelude::*;
 pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,
-    name: &str,
+    name: Option<&str>,
     order_number: i32,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
@@ -68,7 +68,7 @@ WHERE id = $1
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Module {
     pub id: Uuid,
-    pub name: String,
+    pub name: Option<String>,
     pub order_number: i32,
 }
 

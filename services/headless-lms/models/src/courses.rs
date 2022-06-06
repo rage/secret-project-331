@@ -705,7 +705,7 @@ mod test {
         )
         .await
         .unwrap();
-        let course_module_id = course_modules::insert(tx.as_mut(), course.id, "Module", 0)
+        let course_module_id = course_modules::insert(tx.as_mut(), course.id, None, 0)
             .await
             .unwrap();
         let (chapter, chapter_front_page) = chapters::insert_chapter(

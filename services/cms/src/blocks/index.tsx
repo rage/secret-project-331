@@ -16,7 +16,7 @@ import InfoBox from "./InfoBox"
 import LandingPageHeroSection from "./LandingPageHeroSection"
 import Latex from "./Latex"
 import PagesInChapter from "./PagesInChapter"
-import SponsorBlock from "./SponsorBlock"
+import SponsorBlock from "./Sponsor"
 import UnsupportedBlock from "./UnsupportedBlock"
 
 /**

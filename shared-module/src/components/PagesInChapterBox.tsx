@@ -4,7 +4,7 @@ import Link from "next/link"
 import React from "react"
 
 import ArrowSVGIcon from "../img/blackArrow.svg"
-import { baseTheme, headingFont } from "../styles"
+import { baseTheme, secondaryFont } from "../styles"
 
 const Wrapper = styled.div`
   border-radius: 10px;
@@ -15,7 +15,7 @@ const Wrapper = styled.div`
 const PageNumberBox = styled.div`
   position: relative;
   display: inline-block;
-  font-family: ${headingFont};
+  font-family: ${secondaryFont};
   margin: 0 1rem;
 `
 const StyledArrow = styled(ArrowSVGIcon)`

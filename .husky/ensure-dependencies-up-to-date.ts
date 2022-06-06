@@ -33,7 +33,7 @@ async function detectChange(
   if (hash === savedHash) {
     return
   }
-  console.log(`Detected a change in '${relativePath}'.`)
+  console.log(`Detected a change in '${relativePath}'. (Saved hash: '${savedHash}', New hash: '${hash}')`)
   await onChangeDetected()
   await writeFile(`${savedCommitHashesPath}/${key}`, hash)
 }

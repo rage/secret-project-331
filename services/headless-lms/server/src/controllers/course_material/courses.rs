@@ -10,6 +10,7 @@ use isbot::Bots;
 use models::{
     chapters::{ChapterStatus, ChapterWithStatus},
     course_instances::CourseInstance,
+    course_modules::Module,
     courses,
     courses::Course,
     feedback,
@@ -278,6 +279,7 @@ async fn get_course_pages(
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChaptersWithStatus {
     pub is_previewable: bool,
+    pub modules: Vec<Module>,
     pub chapters: Vec<ChapterWithStatus>,
 }
 
@@ -301,6 +303,7 @@ async fn get_chapters(
     .await
     .is_some();
     let chapters = models::chapters::course_chapters(&mut conn, *course_id).await?;
+    let modules = models::course_modules::for_course(&mut conn, *course_id).await?;
     let chapters = chapters
         .into_iter()
         .map(|chapter| {
@@ -324,11 +327,13 @@ async fn get_chapters(
                 chapter_image_url: chapter
                     .chapter_image_path
                     .map(|path| file_store.get_download_url(Path::new(&path), &app_conf)),
+                module: chapter.module,
             }
         })
         .collect();
     Ok(web::Json(ChaptersWithStatus {
         is_previewable,
+        modules,
         chapters,
     }))
 }

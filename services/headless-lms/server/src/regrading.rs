@@ -302,7 +302,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_submission() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
@@ -398,7 +398,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_complete() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
@@ -489,7 +489,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_partial() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, slide: slide_1);
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, slide: slide_1);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
@@ -644,7 +644,7 @@ mod test {
 
     #[tokio::test]
     async fn updates_exercise_state() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
@@ -761,7 +761,7 @@ mod test {
 
     #[tokio::test]
     async fn fail_on_missing_service() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,

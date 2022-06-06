@@ -2,13 +2,12 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import SponsorLogoSVG from "../img/UHLogo.svg"
 import { respondToOrLarger } from "../styles/respond"
 
-const sponsors = [
+/* const sponsors = [
   { id: "1", logo: <SponsorLogoSVG /> },
   { id: "2", logo: <SponsorLogoSVG /> },
-]
+] */
 
 const Container = styled.div`
   margin: 6rem 0;
@@ -55,7 +54,7 @@ const SponsorBox = styled.div`
   }
 `
 // eslint-disable-next-line i18next/no-literal-string
-const SponsorLogo = styled.div<SponsorProps>`
+const SponsorLogo = styled.div<StyledSponsor>`
   width: ${({ width }) => (width ? width : "200px")};
   aspect-ratio: 2 / 1;
   font-size: 1.6rem;
@@ -64,27 +63,38 @@ const SponsorLogo = styled.div<SponsorProps>`
   align-items: center;
   margin-bottom: 50px;
   opacity: 0.9;
+
+  img {
+    width: ${({ width }) => (width ? width : "200px")};
+  }
 `
 
 export interface SponsorExtraProps {
-  logos: unknown
+  logos: any
+  width?: string
+}
+interface StyledSponsor {
   width?: string
 }
 
 export type SponsorProps = React.HTMLAttributes<HTMLDivElement> & SponsorExtraProps
 
-const Sponsor: React.FC<SponsorProps> = ({ width = "250px" }, props) => {
+const Sponsor: React.FC<SponsorProps> = ({ width = "250px", logos }, props) => {
   const { t } = useTranslation()
+  // eslint-disable-next-line i18next/no-literal-string
+  console.log("logos", logos)
 
   return (
     <Container>
       <h2> {t("sponsor")} </h2>
       <SponsorBox>
-        {sponsors.map(({ logo, id }) => (
-          <SponsorLogo key={id} {...props} width={width}>
-            {logo}
-          </SponsorLogo>
-        ))}
+        {logos.map(({ attributes, clientId }: any) => {
+          return (
+            <SponsorLogo width={width} key={clientId}>
+              <img src={attributes.url} key={clientId} alt={attributes.alt} />
+            </SponsorLogo>
+          )
+        })}
       </SponsorBox>
     </Container>
   )

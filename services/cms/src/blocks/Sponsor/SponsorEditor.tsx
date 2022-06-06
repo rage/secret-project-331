@@ -1,19 +1,18 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
-import { useTranslation } from "react-i18next"
 
-import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
+import BlockWrapper from "../BlockWrapper"
 
-const ALLOWED_NESTED_BLOCKS = [""]
+/* const ALLOWED_NESTED_BLOCKS = [""] */
 
 const SponsorEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ clientId }) => {
-  const { t } = useTranslation()
   return (
-    <BlockPlaceholderWrapper id={clientId}>
-      <p>{t("chapters-grid-placeholder-explanation")}</p>
-      <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
-    </BlockPlaceholderWrapper>
+    <BlockWrapper id={clientId}>
+      <div>
+        <InnerBlocks />
+      </div>
+    </BlockWrapper>
   )
 }
 

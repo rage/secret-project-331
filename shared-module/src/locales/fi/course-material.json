@@ -102,7 +102,7 @@
   "things-to-know-before-you-start": "Asioita mitä tietää ennen kuin aloitat!",
   "this-course-has-no-pages": "Tällä kurssilla ei ole yhtään sivua",
   "title-congratulations": "Onneksi olkoon!",
-  "title-select-course-version-to-continue": "Valitse kurssiversio",
+  "title-select-course-instance-to-continue": "Valitse kurssiversio",
   "title-select-course-version-to-see-your-progress": "Valitse kurssioversio edistymiseesi",
   "title-youtube-video-player": "YouTube -videosoitin",
   "total-exercises": "Tehtävää yhteensä",
@@ -113,5 +113,6 @@
   "written-feedback": "Kirjallinen palaute",
   "youve-made-changes": "Olet tehnyt muutoksia",
   "youve-selected-material-for-editing": "Olet valinnut materiaalia muokkaukseen",
-  "additional-module": "Ylimääräinen moduuli"
+  "additional-module": "Ylimääräinen moduuli",
+  "please-log-in-to-see-your-progress": "Kirjaudu sisään nähdäksesi edistymisesi"
 }

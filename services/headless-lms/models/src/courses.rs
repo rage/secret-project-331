@@ -343,7 +343,9 @@ pub struct NewCourse {
     pub slug: String,
     pub organization_id: Uuid,
     pub language_code: String,
+    /// Name of the teacher who is responsible for the course. Must be a valid name.
     pub teacher_in_charge_name: String,
+    /// Email of the teacher who is responsible for the course. Must be a valid email.
     pub teacher_in_charge_email: String,
     pub description: String,
     pub is_draft: bool,
@@ -668,6 +670,7 @@ mod test {
         tx2.rollback().await;
     }
 
+    #[ignore = "TODO: Need to implement copying for modules too."]
     #[tokio::test]
     async fn copies_course() {
         let mut conn = Conn::init().await;

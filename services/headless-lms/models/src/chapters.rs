@@ -485,3 +485,60 @@ pub async fn get_user_course_instance_chapter_progress(
     };
     Ok(result)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod constraints {
+        use super::*;
+        use crate::{
+            courses::{self, NewCourse},
+            test_helper::*,
+        };
+
+        #[tokio::test]
+        async fn cannot_create_chapter_for_different_course_than_its_module() {
+            insert_data!(:tx, :user, :org, course: course_1, instance: _instance, :course_module);
+            let course_2 = courses::insert_course(
+                tx.as_mut(),
+                Uuid::new_v4(),
+                Uuid::new_v4(),
+                NewCourse {
+                    name: "".to_string(),
+                    slug: "course-2".to_string(),
+                    organization_id: org,
+                    language_code: "en-US".to_string(),
+                    teacher_in_charge_name: "Teacher".to_string(),
+                    teacher_in_charge_email: "teacher@example.com".to_string(),
+                    description: "".to_string(),
+                    is_draft: false,
+                    is_test_mode: false,
+                },
+                user,
+            )
+            .await
+            .unwrap()
+            .0
+            .id;
+            let chapter_result_2 = insert_chapter(
+                tx.as_mut(),
+                NewChapter {
+                    name: "Chapter of second course".to_string(),
+                    course_id: course_2,
+                    chapter_number: 0,
+                    front_page_id: None,
+                    opens_at: None,
+                    deadline: None,
+                    course_module_id: course_module,
+                },
+                user,
+            )
+            .await;
+            assert!(
+                chapter_result_2.is_err(),
+                "Expected chapter creation to fail when course module belongs to a different course."
+            );
+        }
+    }
+}

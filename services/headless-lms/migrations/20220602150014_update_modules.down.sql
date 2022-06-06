@@ -14,9 +14,12 @@ WHERE chapters.course_module_id = course_modules.id
 -- Delete default course modules
 DELETE FROM course_modules
 WHERE name IS NULL;
+-- Rever constraint on chapter module references
+ALTER TABLE chapters DROP CONSTRAINT chapters_course_modules_course_fkey;
 -- Revert make course_modules.name constraints
+DROP INDEX course_modules_courses_key;
 ALTER TABLE course_modules DROP CONSTRAINT default_course_module_is_first_in_order;
-DROP INDEX default_course_module_uniqueness;
+DROP INDEX course_modules_order_number_uniqueness;
 ALTER TABLE course_modules
 ALTER COLUMN name
 SET NOT NULL;

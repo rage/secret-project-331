@@ -5,12 +5,15 @@ ALTER TABLE chapters
 -- Make course_modules.name nullable. That in addition to order_number = 0 will mean the default module.
 ALTER TABLE course_modules
 ALTER COLUMN name DROP NOT NULL;
-CREATE UNIQUE INDEX default_course_module_uniqueness ON course_modules (course_id)
-WHERE name IS NULL
-  AND deleted_at IS NULL;
+CREATE UNIQUE INDEX course_modules_order_number_uniqueness ON course_modules (course_id, order_number)
+WHERE deleted_at IS NULL;
 ALTER TABLE course_modules
 ADD CONSTRAINT default_course_module_is_first_in_order CHECK ((name IS NULL) = (order_number = 0));
--- Make course_module_id column non-nullable. Seed missing data with defailt modules.
+CREATE UNIQUE INDEX course_modules_courses_key ON course_modules (id, course_id);
+-- Add constraint to chapters to make sure, that chapters belong in the same course as course modules.
+ALTER TABLE chapters
+ADD CONSTRAINT chapters_course_modules_course_fkey FOREIGN KEY (course_module_id, course_id) REFERENCES course_modules(id, course_id);
+-- Seed missing data with defailt modules.
 INSERT INTO course_modules (course_id, order_number)
 SELECT DISTINCT chapters.course_id,
   0

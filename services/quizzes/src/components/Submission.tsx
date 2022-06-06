@@ -6,6 +6,7 @@ import { ModelSolutionQuiz, PublicQuiz, QuizAnswer } from "../../types/types"
 import { ItemAnswerFeedback } from "../pages/api/grade"
 
 import { QuizItemSubmissionComponentProps } from "./SubmissionComponents"
+import CheckBoxFeedback from "./SubmissionComponents/Checkbox"
 import EssayFeedback from "./SubmissionComponents/Essay"
 import MatrixSubmission from "./SubmissionComponents/Matrix"
 import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
@@ -14,7 +15,6 @@ import MultipleChoiceDropdownFeedback from "./SubmissionComponents/MultipleChoic
 import OpenFeedback from "./SubmissionComponents/Open"
 import Timeline from "./SubmissionComponents/Timeline"
 import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
-import CheckBoxFeedback from "./SubmissionComponents/checkbox"
 
 interface SubmissionProps {
   user_answer: QuizAnswer

@@ -19,7 +19,7 @@ async fn delete_email_template(
         models::email_templates::delete_email_template(&mut conn, *email_template_id).await?;
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(web::Json(deleted))
+    token.1.ok(web::Json(deleted))
 }
 
 /**

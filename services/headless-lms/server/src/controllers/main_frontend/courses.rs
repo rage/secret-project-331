@@ -30,7 +30,7 @@ async fn get_course(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    token.0.ok(web::Json(course))
+    token.1.ok(web::Json(course))
 }
 
 /**
@@ -90,7 +90,7 @@ async fn post_new_course(
     .await?;
     tx.commit().await?;
 
-    token.0.ok(web::Json(course))
+    token.1.ok(web::Json(course))
 }
 
 /**
@@ -120,7 +120,7 @@ async fn update_course(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let course_update = payload.0;
     let course = models::courses::update_course(&mut conn, *course_id, course_update).await?;
-    token.0.ok(web::Json(course))
+    token.1.ok(web::Json(course))
 }
 
 /**
@@ -143,7 +143,7 @@ async fn delete_course(
     .await?;
     let course = models::courses::delete_course(&mut conn, *course_id).await?;
 
-    token.0.ok(web::Json(course))
+    token.1.ok(web::Json(course))
 }
 
 /**
@@ -217,7 +217,7 @@ async fn get_course_structure(
     )
     .await?;
 
-    token.0.ok(web::Json(course_structure))
+    token.1.ok(web::Json(course_structure))
 }
 
 /**
@@ -259,7 +259,7 @@ async fn add_media_for_course(
     .await?;
     let download_url = file_store.get_download_url(media_path.0.as_path(), app_conf.as_ref());
 
-    token.0.ok(web::Json(UploadResult { url: download_url }))
+    token.1.ok(web::Json(UploadResult { url: download_url }))
 }
 
 /**
@@ -276,7 +276,7 @@ async fn get_all_exercises(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let exercises = models::exercises::get_exercises_by_course_id(&mut conn, *course_id).await?;
 
-    token.0.ok(web::Json(exercises))
+    token.1.ok(web::Json(exercises))
 }
 
 /**
@@ -303,7 +303,7 @@ async fn get_all_course_language_versions(
     let language_versions =
         models::courses::get_all_language_versions_of_course(&mut conn, &course).await?;
 
-    token.0.ok(web::Json(language_versions))
+    token.1.ok(web::Json(language_versions))
 }
 
 /**
@@ -345,7 +345,7 @@ pub async fn post_new_course_language_version(
     )
     .await?;
 
-    token.0.ok(web::Json(copied_course))
+    token.1.ok(web::Json(copied_course))
 }
 
 /**
@@ -384,7 +384,7 @@ pub async fn post_new_course_duplicate(
     .await?;
     let copied_course = models::courses::copy_course(&mut conn, *course_id, &payload.0).await?;
 
-    token.0.ok(web::Json(copied_course))
+    token.1.ok(web::Json(copied_course))
 }
 
 /**
@@ -410,7 +410,7 @@ async fn get_daily_submission_counts(
         exercise_slide_submissions::get_course_daily_slide_submission_counts(&mut conn, &course)
             .await?;
 
-    token.0.ok(web::Json(res))
+    token.1.ok(web::Json(res))
 }
 
 /**
@@ -437,7 +437,7 @@ async fn get_weekday_hour_submission_counts(
     )
     .await?;
 
-    token.0.ok(web::Json(res))
+    token.1.ok(web::Json(res))
 }
 
 /**
@@ -464,7 +464,7 @@ async fn get_submission_counts_by_exercise(
     )
     .await?;
 
-    token.0.ok(web::Json(res))
+    token.1.ok(web::Json(res))
 }
 
 /**
@@ -488,7 +488,7 @@ async fn get_course_instances(
     let course_instances =
         models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
 
-    token.0.ok(web::Json(course_instances))
+    token.1.ok(web::Json(course_instances))
 }
 
 #[derive(Debug, Deserialize)]
@@ -522,7 +522,7 @@ pub async fn get_feedback(
         feedback::get_feedback_for_course(&mut conn, *course_id, read.read, read.pagination)
             .await?;
 
-    token.0.ok(web::Json(feedback))
+    token.1.ok(web::Json(feedback))
 }
 
 /**
@@ -546,7 +546,7 @@ pub async fn get_feedback_count(
 
     let feedback_count = feedback::get_feedback_count_for_course(&mut conn, *course_id).await?;
 
-    token.0.ok(web::Json(feedback_count))
+    token.1.ok(web::Json(feedback_count))
 }
 
 /**
@@ -576,7 +576,7 @@ async fn new_course_instance(
     };
     let ci = models::course_instances::insert(&mut conn, new).await?;
 
-    token.0.ok(web::Json(ci.id))
+    token.1.ok(web::Json(ci.id))
 }
 
 #[generated_doc]
@@ -590,7 +590,7 @@ async fn glossary(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
 
-    token.0.ok(web::Json(glossary))
+    token.1.ok(web::Json(glossary))
 }
 
 #[generated_doc]
@@ -604,7 +604,7 @@ async fn new_term(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
 
-    token.0.ok(web::Json(glossary))
+    token.1.ok(web::Json(glossary))
 }
 
 #[generated_doc]
@@ -620,7 +620,7 @@ async fn new_glossary_term(
     let TermUpdate { term, definition } = new_term.into_inner();
     let term = models::glossary::insert(&mut conn, &term, &definition, *course_id).await?;
 
-    token.0.ok(web::Json(term))
+    token.1.ok(web::Json(term))
 }
 
 /**
@@ -640,7 +640,7 @@ pub async fn get_course_users_counts_by_exercise(
         models::user_exercise_states::get_course_users_counts_by_exercise(&mut conn, course_id)
             .await?;
 
-    token.0.ok(web::Json(res))
+    token.1.ok(web::Json(res))
 }
 
 /**
@@ -661,7 +661,7 @@ pub async fn post_new_page_ordering(
 
     models::pages::reorder_pages(&mut conn, &payload, course_id).await?;
 
-    token.0.ok(web::Json(()))
+    token.1.ok(web::Json(()))
 }
 
 /**

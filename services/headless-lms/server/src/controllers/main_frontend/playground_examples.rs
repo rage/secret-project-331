@@ -14,8 +14,8 @@ async fn get_playground_examples(
     let mut conn = pool.acquire().await?;
     let res = models::playground_examples::get_all_playground_examples(&mut conn).await?;
 
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse)?;
-    token.0.ok(web::Json(res))
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    token.1.ok(web::Json(res))
 }
 
 /**
@@ -34,7 +34,7 @@ async fn insert_playground_example(
         models::playground_examples::insert_playground_example(&mut conn, new_example).await?;
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::PlaygroundExample).await?;
-    token.0.ok(web::Json(res))
+    token.1.ok(web::Json(res))
 }
 
 /**
@@ -53,7 +53,7 @@ async fn update_playground_example(
     let res = models::playground_examples::update_playground_example(&mut conn, example).await?;
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::PlaygroundExample).await?;
-    token.0.ok(web::Json(res))
+    token.1.ok(web::Json(res))
 }
 
 /**
@@ -71,7 +71,7 @@ async fn delete_playground_example(
     let res = models::playground_examples::delete_playground_example(&mut conn, example_id).await?;
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::PlaygroundExample).await?;
-    token.0.ok(web::Json(res))
+    token.1.ok(web::Json(res))
 }
 
 /**

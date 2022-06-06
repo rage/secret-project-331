@@ -33,7 +33,7 @@ async fn authorize_role_management(
         RoleDomain::Exam(id) => authorize(conn, Act::Edit, Some(user_id), Res::Exam(id)).await?,
     };
 
-    token.0.ok(())
+    token.1.ok(())
 }
 
 /**
@@ -64,7 +64,7 @@ pub async fn set(
         Res::AnyCourse,
     )
     .await?;
-    token.0.ok(HttpResponse::Ok().finish())
+    token.1.ok(HttpResponse::Ok().finish())
 }
 
 /**
@@ -95,7 +95,7 @@ pub async fn unset(
         Res::AnyCourse,
     )
     .await?;
-    token.0.ok(HttpResponse::Ok().finish())
+    token.1.ok(HttpResponse::Ok().finish())
 }
 
 #[derive(Debug, Deserialize)]
@@ -158,7 +158,7 @@ pub async fn fetch(
     let roles = roles::get(&mut conn, domain).await?;
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(web::Json(roles))
+    token.1.ok(web::Json(roles))
 }
 
 /**

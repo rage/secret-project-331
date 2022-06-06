@@ -8,10 +8,8 @@ use std::{env, time::Duration};
 use actix_session::Session;
 use models::users::User;
 use oauth2::{
-    basic::{BasicErrorResponseType, BasicTokenType},
-    reqwest::AsyncHttpClientError,
-    EmptyExtraTokenFields, RequestTokenError, ResourceOwnerPassword, ResourceOwnerUsername,
-    StandardErrorResponse, StandardTokenResponse, TokenResponse,
+    basic::BasicTokenType, reqwest::AsyncHttpClientError, EmptyExtraTokenFields,
+    ResourceOwnerPassword, ResourceOwnerUsername, StandardTokenResponse, TokenResponse,
 };
 use reqwest::Client;
 use url::form_urlencoded::Target;
@@ -68,7 +66,7 @@ pub async fn authorize_action_on_resource(
     let data = payload.0;
 
     let token = authorize(&mut conn, data.action, Some(user.id), data.resource).await?;
-    return token.0.ok(web::Json(true));
+    token.1.ok(web::Json(true))
 }
 
 /**
@@ -91,53 +89,41 @@ pub async fn login(
             let user = { models::users::get_by_id(&mut conn, id).await? };
             let token = authorize(&mut conn, Act::View, Some(user.id), Res::User).await?;
             authorization::remember(&session, user)?;
-            return Ok((HttpResponse::Ok().finish(), token.0));
+            return token.1.ok(HttpResponse::Ok().finish());
         };
     }
 
     if app_conf.test_mode {
         warn!("Using test credentials. Normal accounts won't work.");
-        let user = {
-            models::users::authenticate_test_user(
-                &mut conn,
-                email.clone(),
-                password.clone(),
-                &app_conf,
-            )
-            .await
-        };
-
-        if let Ok(user) = user {
-            let token = authorize(&mut conn, Act::View, Some(user.id), Res::User).await?;
-            authorization::remember(&session, user)?;
-            return Ok((HttpResponse::Ok().finish(), token.0));
-        } else {
-            return Err(ControllerError::Unauthorized(
-                "Incorrect email or password.".to_string(),
-            ));
-        };
+        let user =
+            models::users::authenticate_test_user(&mut conn, &email, &password, &app_conf).await?;
+        let token = authorize(&mut conn, Act::View, Some(user.id), Res::User).await?;
+        authorization::remember(&session, user)?;
+        return token.1.ok(HttpResponse::Ok().finish());
     }
 
     let token = client
         .exchange_password(
-            &ResourceOwnerUsername::new(email.clone()),
-            &ResourceOwnerPassword::new(password.clone()),
+            &ResourceOwnerUsername::new(email),
+            &ResourceOwnerPassword::new(password),
         )
         .request_async(async_http_client_with_headers)
         .await;
-
-    if let Err(error) = token {
-        info!(token_error = ?error, "Token error when fetching");
-        return Err(ControllerError::Unauthorized(
-            "Incorrect email or password.".to_string(),
-        ));
-    }
+    let token = match token {
+        Ok(token) => token,
+        Err(error) => {
+            info!(token_error = ?error, "Token error when fetching");
+            return Err(ControllerError::Unauthorized(
+                "Incorrect email or password.".to_string(),
+            ));
+        }
+    };
 
     let user = get_user_from_moocfi(&token, &mut conn).await;
     if let Ok(user) = user {
         let token = authorize(&mut conn, Act::View, Some(user.0.id), Res::User).await?;
         authorization::remember(&session, user.0)?;
-        return Ok((HttpResponse::Ok().finish(), token.0));
+        token.1.ok(HttpResponse::Ok().finish())
     } else {
         Err(ControllerError::Unauthorized(
             "Incorrect email or password.".to_string().finish(),
@@ -183,28 +169,21 @@ pub async fn logged_in(session: Session) -> web::Json<bool> {
     web::Json(logged_in)
 }
 
-pub type LoginToken = Result<
-    StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>,
-    RequestTokenError<
-        oauth2::reqwest::Error<reqwest::Error>,
-        StandardErrorResponse<BasicErrorResponseType>,
-    >,
->;
+pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>;
 
 pub async fn get_user_from_moocfi(
     token: &LoginToken,
     conn: &mut PgConnection,
 ) -> ControllerResult<User> {
     info!("Getting user details from mooc.fi");
-    if let Ok(token) = token {
-        let moocfi_graphql_url = "https://www.mooc.fi/api";
-        let client = Client::default();
-        let res = client
-            .post(moocfi_graphql_url)
-            .header(reqwest::header::CONTENT_TYPE, "application/json")
-            .header(reqwest::header::ACCEPT, "application/json")
-            .json(&GraphQLRquest {
-                query: r#"
+    let moocfi_graphql_url = "https://www.mooc.fi/api";
+    let client = Client::default();
+    let res = client
+        .post(moocfi_graphql_url)
+        .header(reqwest::header::CONTENT_TYPE, "application/json")
+        .header(reqwest::header::ACCEPT, "application/json")
+        .json(&GraphQLRquest {
+            query: r#"
 {
     currentUser {
     id
@@ -215,28 +194,29 @@ pub async fn get_user_from_moocfi(
     }
 }
             "#,
-            })
-            .bearer_auth(token.access_token().secret())
-            .send()
-            .await
-            .context("Failed to send request to Mooc.fi")?;
-        if !res.status().is_success() {
-            return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi").into());
-        }
-        let current_user_response: MoocfiCurrentUserResponse = res
-            .json()
-            .await
-            .context("Unexpected response from Mooc.fi")?;
-        let MoocfiCurrentUser {
-            id: moocfi_id,
-            first_name,
-            last_name,
-            email,
-            upstream_id,
-        } = current_user_response.data.current_user;
+        })
+        .bearer_auth(token.access_token().secret())
+        .send()
+        .await
+        .context("Failed to send request to Mooc.fi")?;
+    if !res.status().is_success() {
+        return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi").into());
+    }
+    let current_user_response: MoocfiCurrentUserResponse = res
+        .json()
+        .await
+        .context("Unexpected response from Mooc.fi")?;
+    let MoocfiCurrentUser {
+        id: moocfi_id,
+        first_name,
+        last_name,
+        email,
+        upstream_id,
+    } = current_user_response.data.current_user;
 
-        // fetch existing user or create new one
-        let user = match models::users::find_by_upstream_id(conn, upstream_id)
+    // fetch existing user or create new one
+    let user =
+        match models::users::find_by_upstream_id(conn, upstream_id)
             .await
             .context("Error while trying to find user")?
         {
@@ -262,13 +242,8 @@ pub async fn get_user_from_moocfi(
                 .await?
             }
         };
-        let token = authorize(conn, Act::Edit, Some(user.id), Res::User).await?;
-        return Ok((user, token.0));
-    } else {
-        Err(ControllerError::NotFound(
-            "User not found.".to_string().finish(),
-        ))
-    }
+    let token = authorize(conn, Act::Edit, Some(user.id), Res::User).await?;
+    token.1.ok(user)
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

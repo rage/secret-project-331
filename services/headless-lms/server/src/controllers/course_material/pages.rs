@@ -17,7 +17,7 @@ async fn get_by_exam_id(
     let mut conn = pool.acquire().await?;
     let page = models::pages::get_by_exam_id(&mut conn, *exam_id).await?;
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(web::Json(page))
+    token.1.ok(web::Json(page))
 }
 
 /**
@@ -37,7 +37,7 @@ async fn get_next_page(
         models::pages::get_next_page_with_chapter_status(next_page_data).await?;
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(web::Json(next_page_data_with_status))
+    token.1.ok(web::Json(next_page_data_with_status))
 }
 
 /**
@@ -54,7 +54,7 @@ async fn get_chapter_and_course_information(
     let res = models::pages::get_page_chapter_and_course_information(&mut conn, *page_id).await?;
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(web::Json(res))
+    token.1.ok(web::Json(res))
 }
 
 /**
@@ -74,7 +74,7 @@ async fn get_url_path(
     let page = models::pages::get_page(&mut conn, *page_id).await?;
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(page.url_path)
+    token.1.ok(page.url_path)
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

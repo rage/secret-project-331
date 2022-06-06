@@ -25,18 +25,8 @@ async fn get_submission_info(
         submission_id.into_inner(),
     )
     .await?;
-    let grading = if let Some(id) = task_submission.exercise_task_grading_id {
-        Some(models::exercise_task_gradings::get_by_id(&mut conn, id).await?)
-    } else {
-        None
-    };
-    let exercise_service_info = models::exercise_service_info::get_service_info_by_exercise_type(
-        &mut conn,
-        &exercise_task.exercise_type,
-    )
-    .await?;
 
-    token.0.ok(web::Json(res))
+    token.1.ok(web::Json(res))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

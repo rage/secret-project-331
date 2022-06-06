@@ -23,7 +23,7 @@ async fn get_organization_by_slug(
         Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(web::Json(organization))
+    token.1.ok(web::Json(organization))
 }
 
 /**

@@ -31,7 +31,7 @@ async fn get_all_organizations(
         .collect();
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(web::Json(organizations))
+    token.1.ok(web::Json(organizations))
 }
 
 /**
@@ -46,7 +46,7 @@ async fn get_organization_courses(
     pagination: web::Query<Pagination>,
 ) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-    let user_id = user.map(|u| u.id);
+
     let user = user.map(|u| u.id);
     let courses = models::courses::organization_courses_visible_to_user_paginated(
         &mut conn,
@@ -56,8 +56,8 @@ async fn get_organization_courses(
     )
     .await?;
 
-    let token = authorize(&mut conn, Act::View, Some(user_id), Res::AnyCourse).await?;
-    token.0.ok(web::Json(courses))
+    let token = authorize(&mut conn, Act::View, user, Res::AnyCourse).await?;
+    token.1.ok(web::Json(courses))
 }
 
 #[generated_doc]
@@ -72,7 +72,7 @@ async fn get_organization_course_count(
         models::courses::organization_course_count(&mut conn, *request_organization_id).await?;
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(Json(result))
+    token.1.ok(Json(result))
 }
 
 #[generated_doc]
@@ -92,7 +92,7 @@ async fn get_organization_active_courses(
     .await?;
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(Json(courses))
+    token.1.ok(Json(courses))
 }
 
 #[generated_doc]
@@ -110,7 +110,7 @@ async fn get_organization_active_courses_count(
     .await?;
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(Json(result))
+    token.1.ok(Json(result))
 }
 
 /**
@@ -180,7 +180,7 @@ async fn set_organization_image(
         file_store.as_ref(),
         app_conf.as_ref(),
     );
-    token.0.ok(web::Json(response))
+    token.1.ok(web::Json(response))
 }
 
 /**
@@ -221,7 +221,7 @@ async fn remove_organization_image(
             ControllerError::InternalServerError(original_error.to_string())
         })?;
     }
-    token.0.ok(web::Json(()))
+    token.1.ok(web::Json(()))
 }
 
 /**
@@ -243,7 +243,7 @@ async fn get_organization(
         Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(web::Json(organization))
+    token.1.ok(web::Json(organization))
 }
 
 /**
@@ -266,7 +266,7 @@ async fn get_course_exams(
         Res::Organization(*organization),
     )
     .await?;
-    token.0.ok(web::Json(exams))
+    token.1.ok(web::Json(exams))
 }
 
 /**
@@ -289,7 +289,7 @@ async fn get_org_exams(
         Res::Organization(*organization),
     )
     .await?;
-    token.0.ok(web::Json(exams))
+    token.1.ok(web::Json(exams))
 }
 
 /**
@@ -345,7 +345,7 @@ async fn create_exam(
 
     tx.commit().await?;
 
-    token.0.ok(web::Json(()))
+    token.1.ok(web::Json(()))
 }
 
 /**

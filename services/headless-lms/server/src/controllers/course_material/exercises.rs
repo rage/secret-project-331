@@ -6,7 +6,7 @@ use models::{
     exercises::{CourseMaterialExercise, Exercise},
     library::{
         grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
-        peer_reviewing::CourseMaterialPeerReviewSubmission,
+        peer_reviewing::{CourseMaterialPeerReviewData, CourseMaterialPeerReviewSubmission},
     },
     user_exercise_states::{self, CourseInstanceOrExamId},
 };
@@ -67,7 +67,30 @@ async fn get_exercise(
         course_material_exercise.clear_model_solution_specs();
     }
     let token = authorize(&mut conn, Act::View, user_id, Res::AnyCourse).await?;
-    token.0.ok(web::Json(course_material_exercise))
+    token.1.ok(web::Json(course_material_exercise))
+}
+
+/**
+GET `/api/v0/course-material/exercises/:exercise_id/peer-review` - Get peer review for an exercise. This includes the submission to peer review and the questions the user is supposed to answer.ALTER
+
+This request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_peer_review_for_exercise(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseMaterialPeerReviewData>> {
+    let mut conn = pool.acquire().await?;
+    let peer_review_data = models::peer_reviews::get_course_material_peer_review_data(
+        &mut conn,
+        user.id,
+        exercise_id.into_inner(),
+    )
+    .await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.1.ok(web::Json(peer_review_data))
 }
 
 /**
@@ -120,14 +143,15 @@ async fn post_submission(
         }
     }
 
-    let ((course_instance_or_exam_id, last_try), course_instance_or_exam_id_auth) =
+    let (course_instance_or_exam_id, last_try) =
         resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             &mut conn,
             user.id,
             &exercise,
             payload.exercise_slide_id,
         )
-        .await?;
+        .await?
+        .0;
 
     // TODO: Should this be an upsert?
     let user_exercise_state = models::user_exercise_states::get_user_exercise_state_if_exists(
@@ -172,7 +196,7 @@ async fn post_submission(
         Res::Exercise(*exercise_id),
     )
     .await?;
-    token.0.ok(web::Json(result))
+    token.1.ok(web::Json(result))
 }
 
 /**
@@ -198,7 +222,14 @@ async fn start_peer_review(
     models::library::peer_reviewing::start_peer_review_for_user(&mut conn, user_exercise_state)
         .await?;
 
-    Ok(web::Json(true))
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Exercise(*exercise_id),
+    )
+    .await?;
+    token.1.ok(web::Json(true))
 }
 
 /**
@@ -214,18 +245,20 @@ async fn submit_peer_review(
     user: AuthUser,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
-    // Authorization
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    // Authorization
+
     let user_exercise_state =
         user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
     models::library::peer_reviewing::create_peer_review_submission_for_user(
         &mut conn,
         &exercise,
-        &user_exercise_state,
+        user_exercise_state,
         payload.0,
     )
     .await?;
-    Ok(web::Json(true))
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.1.ok(web::Json(true))
 }
 
 /// Submissions for exams are posted from course instances or from exams. Make respective validations
@@ -247,7 +280,7 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             .await?;
             if let Some(settings) = settings {
                 let token = authorize(conn, Act::View, Some(user_id), Res::AnyCourse).await?;
-                token.0.ok(CourseInstanceOrExamId::Instance(
+                token.1.ok(CourseInstanceOrExamId::Instance(
                     settings.current_course_instance_id,
                 ))
             } else {
@@ -259,7 +292,7 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             // If submitting for an exam, make sure that user's time is not up.
             if models::exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await? {
                 let token = authorize(conn, Act::View, Some(user_id), Res::AnyCourse).await?;
-                token.0.ok(CourseInstanceOrExamId::Exam(exam_id))
+                token.1.ok(CourseInstanceOrExamId::Exam(exam_id))
             } else {
                 Err(ControllerError::Unauthorized(
                     "Submissions for this exam are no longer accepted.".to_string(),
@@ -296,7 +329,7 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
         }
     }
     let token = authorize(conn, Act::View, Some(user_id), Res::AnyCourse).await?;
-    token.0.ok((course_instance_id_or_exam_id, last_try))
+    token.1.ok((course_instance_id_or_exam_id, last_try))
 }
 
 /**
@@ -315,6 +348,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{exercise_id}/peer-reviews/start",
             web::post().to(start_peer_review),
+        )
+        .route(
+            "/{exercise_id}/peer-review",
+            web::get().to(get_peer_review_for_exercise),
         )
         .route(
             "/{exercise_id}/submissions",

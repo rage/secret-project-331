@@ -5,7 +5,7 @@ use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
     controllers::prelude::*,
-    domain::csv_export::{self, CSVExportAdapter},
+    domain::csv_export::{self, make_authorized_streamable, CSVExportAdapter},
 };
 
 /**
@@ -23,7 +23,7 @@ pub async fn get_exam(
 
     let exam = exams::get(&mut conn, *exam_id).await?;
 
-    token.0.ok(web::Json(exam))
+    token.1.ok(web::Json(exam))
 }
 
 #[derive(Debug, Deserialize)]
@@ -48,7 +48,7 @@ pub async fn set_course(
 
     exams::set_course(&mut conn, *exam_id, exam.course_id).await?;
 
-    token.0.ok(web::Json(()))
+    token.1.ok(web::Json(()))
 }
 
 /**
@@ -67,7 +67,7 @@ pub async fn unset_course(
 
     exams::unset_course(&mut conn, *exam_id, exam.course_id).await?;
 
-    token.0.ok(web::Json(()))
+    token.1.ok(web::Json(()))
 }
 
 /**
@@ -88,9 +88,15 @@ pub async fn export_points(
     // spawn handle that writes the csv row by row into the sender
     let mut handle_conn = pool.acquire().await?;
     let _handle = tokio::spawn(async move {
-        let res =
-            csv_export::export_exam_points(&mut handle_conn, exam_id, CSVExportAdapter { sender })
-                .await;
+        let res = csv_export::export_exam_points(
+            &mut handle_conn,
+            exam_id,
+            CSVExportAdapter {
+                sender,
+                authorization_token: token,
+            },
+        )
+        .await;
         if let Err(err) = res {
             tracing::error!("Failed to export exam points: {}", err);
         }
@@ -100,7 +106,7 @@ pub async fn export_points(
 
     // return response that streams data from the receiver
 
-    return token.0.ok(HttpResponse::Ok()
+    return token.1.ok(HttpResponse::Ok()
         .append_header((
             "Content-Disposition",
             format!(
@@ -109,7 +115,9 @@ pub async fn export_points(
                 Utc::today().format("%Y-%m-%d")
             ),
         ))
-        .streaming(UnboundedReceiverStream::new(receiver)));
+        .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+            receiver,
+        ))));
 }
 
 /**
@@ -133,7 +141,10 @@ pub async fn export_submissions(
         let res = csv_export::export_exam_submissions(
             &mut handle_conn,
             exam_id,
-            CSVExportAdapter { sender },
+            CSVExportAdapter {
+                sender,
+                authorization_token: token,
+            },
         )
         .await;
         if let Err(err) = res {
@@ -145,7 +156,7 @@ pub async fn export_submissions(
 
     // return response that streams data from the receiver
 
-    return token.0.ok(HttpResponse::Ok()
+    return token.1.ok(HttpResponse::Ok()
         .append_header((
             "Content-Disposition",
             format!(
@@ -154,8 +165,9 @@ pub async fn export_submissions(
                 Utc::today().format("%Y-%m-%d")
             ),
         ))
-        .0
-        .streaming(UnboundedReceiverStream::new(receiver)));
+        .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+            receiver,
+        ))));
 }
 
 /**
@@ -191,7 +203,7 @@ async fn duplicate_exam(
     .await?;
     tx.commit().await?;
 
-    token.0.ok(web::Json(()))
+    token.1.ok(web::Json(()))
 }
 
 /**
@@ -208,7 +220,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("/{id}/export-points", web::get().to(export_points))
         .route(
             "/{id}/export-submissions",
-            web::get().0.to(export_submissions),
+            web::get().to(export_submissions),
         )
         .route("/{id}/duplicate", web::post().to(duplicate_exam));
 }

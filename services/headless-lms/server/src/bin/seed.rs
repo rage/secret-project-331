@@ -12,7 +12,7 @@ use headless_lms_models::{
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances,
     course_instances::NewCourseInstance,
-    courses,
+    course_modules, courses,
     courses::NewCourse,
     exams,
     exams::NewExam,
@@ -1389,6 +1389,7 @@ async fn seed_sample_course(
         name: "The Basics".to_string(),
         opens_at: None,
         deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
+        module: None,
     };
     let (chapter_1, _front_page_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
@@ -1399,6 +1400,7 @@ async fn seed_sample_course(
         name: "The intermediaries".to_string(),
         opens_at: None,
         deadline: None,
+        module: None,
     };
     let (chapter_2, _front_page_2) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1414,6 +1416,7 @@ async fn seed_sample_course(
         name: "Advanced studies".to_string(),
         opens_at: None,
         deadline: None,
+        module: None,
     };
     let (chapter_3, _front_page_3) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1429,6 +1432,7 @@ async fn seed_sample_course(
         name: "Forbidden magicks".to_string(),
         opens_at: None,
         deadline: None,
+        module: None,
     };
     let (chapter_4, _front_page_4) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1437,6 +1441,54 @@ async fn seed_sample_course(
         Utc::now() + (chrono::Duration::days(365) * 100),
     )
     .await?;
+
+    tracing::info!("inserting modules");
+    let module_id = course_modules::new(conn, course.id, "Another module", 1).await?;
+    let new_chapter = NewChapter {
+        chapter_number: 5,
+        course_id: course.id,
+        front_page_id: None,
+        name: "Another chapter".to_string(),
+        opens_at: None,
+        deadline: None,
+        module: Some(module_id),
+    };
+    let (_m1_chapter_1, _m1c1_front_page) =
+        chapters::insert_chapter(conn, new_chapter, admin).await?;
+    let new_chapter = NewChapter {
+        chapter_number: 6,
+        course_id: course.id,
+        front_page_id: None,
+        name: "Another another chapter".to_string(),
+        opens_at: None,
+        deadline: None,
+        module: Some(module_id),
+    };
+    let (_m1_chapter_2, _m1c2_front_page) =
+        chapters::insert_chapter(conn, new_chapter, admin).await?;
+    let module_id = course_modules::new(conn, course.id, "Bonus module", 2).await?;
+    let new_chapter = NewChapter {
+        chapter_number: 7,
+        course_id: course.id,
+        front_page_id: None,
+        name: "Bonus chapter".to_string(),
+        opens_at: None,
+        deadline: None,
+        module: Some(module_id),
+    };
+    let (_m2_chapter_1, _m2c1_front_page) =
+        chapters::insert_chapter(conn, new_chapter, admin).await?;
+    let new_chapter = NewChapter {
+        chapter_number: 8,
+        course_id: course.id,
+        front_page_id: None,
+        name: "Another bonus chapter".to_string(),
+        opens_at: None,
+        deadline: None,
+        module: Some(module_id),
+    };
+    let (_m2_chapter_2, _m2c2_front_page) =
+        chapters::insert_chapter(conn, new_chapter, admin).await?;
 
     let (_page, _) = pages::insert_course_page(
         conn,
@@ -1593,6 +1645,7 @@ async fn seed_sample_course(
         quizzes_exercise_slide_1,
         quizzes_exercise_task_1,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course_id, b"a6ee42d0-2200-43b7-9981-620753a9b5c0"),
         Uuid::new_v5(&course_id, b"8d01d9b3-87d1-4e24-bee2-2726d3853ec6"),
         Uuid::new_v5(&course_id, b"00dd984d-8651-404e-80b8-30fae9cf32ed"),
@@ -1625,7 +1678,6 @@ async fn seed_sample_course(
                 "failureMessage": null,
                 "successMessage": null,
                 "allAnswersCorrect": false,
-                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                 "sharedOptionFeedbackMessage": null,
                 "usesSharedOptionFeedbackMessage": false
             }],
@@ -1640,7 +1692,7 @@ async fn seed_sample_course(
             "autoReject": false,
             "autoConfirm": true,
             "triesLimited": true,
-            "submitMessage": "your submit has been answered",
+            "submitMessage": "This is an extra submit message from the teacher.",
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
@@ -1652,6 +1704,7 @@ async fn seed_sample_course(
         quizzes_exercise_slide_2,
         quizzes_exercise_task_2,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course_id, b"949b548f-a87f-4dc6-aafc-9f1e1abe34a7"),
         Uuid::new_v5(&course_id, b"39c36d3f-017e-4c36-a97e-908e25b3678b"),
         Uuid::new_v5(&course_id, b"8ae8971c-95dd-4d8c-b38f-152ad89c6b20"),
@@ -1684,7 +1737,6 @@ async fn seed_sample_course(
                 "failureMessage": "Oh no! Your answer is not in yyyy-mm-dd format :(".to_string(),
                 "successMessage": "Gongrats! your answer is in yyyy-mm-dd format!".to_string(),
                 "allAnswersCorrect": false,
-                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                 "sharedOptionFeedbackMessage": null,
                 "usesSharedOptionFeedbackMessage": false
             }],
@@ -1699,7 +1751,7 @@ async fn seed_sample_course(
             "autoReject": false,
             "autoConfirm": true,
             "triesLimited": true,
-            "submitMessage": "your submit has been answered",
+            "submitMessage": "This is an extra submit message from the teacher.",
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
@@ -1711,6 +1763,7 @@ async fn seed_sample_course(
         quizzes_exercise_slide_3,
         quizzes_exercise_task_3,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course_id, b"9bcf634d-584c-4fef-892c-3c0e97dab1d5"),
         Uuid::new_v5(&course_id, b"984457f6-bc9b-4604-b54c-80fb4adfab76"),
         Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
@@ -1737,8 +1790,8 @@ async fn seed_sample_course(
                     "title": null,
                     "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                     "correct":true,
-                    "failureMessage": null,
-                    "successMessage": "You chose wisely...".to_string()
+                    "messageAfterSubmissionWhenSelected": "You chose wisely...",
+                    "additionalCorrectnessExplanationOnModelSolution": null,
                 },
                 {
                     "id": "fef8cd36-04ab-48f2-861c-51769ccad52f",
@@ -1747,8 +1800,8 @@ async fn seed_sample_course(
                     "title": null,
                     "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                     "correct":false,
-                    "failureMessage": "You chose poorly...".to_string(),
-                    "successMessage": null
+                    "messageAfterSubmissionWhenSelected": "You chose poorly...",
+                    "additionalCorrectnessExplanationOnModelSolution": null,
                 }],
                 "maxValue": null,
                 "maxWords": null,
@@ -1759,10 +1812,9 @@ async fn seed_sample_course(
                 "updatedAt": "2021-12-17T07:16:23.202Z",
                 "formatRegex": null,
                 "validityRegex": null,
-                "failureMessage": null,
-                "successMessage": null,
+                "messageAfterSubmissionWhenSelected": null,
+                "additionalCorrectnessExplanationOnModelSolution": null,
                 "allAnswersCorrect": false,
-                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                 "sharedOptionFeedbackMessage": null,
                 "usesSharedOptionFeedbackMessage": false
             }],
@@ -1777,7 +1829,7 @@ async fn seed_sample_course(
             "autoReject": false,
             "autoConfirm": true,
             "triesLimited": true,
-            "submitMessage": "your submit has been answered",
+            "submitMessage": "This is an extra submit message from the teacher.",
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
@@ -1789,6 +1841,7 @@ async fn seed_sample_course(
         quizzes_exercise_slide_4,
         quizzes_exercise_task_4,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
         Uuid::new_v5(&course_id, b"6a8e65be-f5cd-4c87-b4f9-9522cb37bbcb"),
         Uuid::new_v5(&course_id, b"b5e1e7e87-0678-4296-acf7-a8ac926ff94b"),
@@ -1816,8 +1869,8 @@ async fn seed_sample_course(
                         "title": null,
                         "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                         "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Java is a programming language".to_string()
+                        "messageAfterSubmissionWhenSelected": "Java is a programming language",
+                        "additionalCorrectnessExplanationOnModelSolution": null
                     },
                     {
                         "id": "534bf512-014e-47b6-a67b-8bea6dc65177",
@@ -1826,8 +1879,8 @@ async fn seed_sample_course(
                         "title": null,
                         "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                         "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Erlang is a programming language".to_string()
+                        "messageAfterSubmissionWhenSelected": "Erlang is a programming language",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },
                     {
                         "id": "ea4e0bb4-f84e-4048-be2f-f819a391396f",
@@ -1836,8 +1889,8 @@ async fn seed_sample_course(
                         "title": null,
                         "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                         "correct":false,
-                        "failureMessage": "Jupiter is not a programming language".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Jupiter is not a programming language",
+                        "additionalCorrectnessExplanationOnModelSolution": null
                     },
                     {
                         "id": "b851f1b3-ae90-46bd-8f10-fd6d968695ef",
@@ -1846,8 +1899,8 @@ async fn seed_sample_course(
                         "title": null,
                         "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                         "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Rust is a programming language".to_string()
+                        "messageAfterSubmissionWhenSelected": "Rust is a programming language",
+                        "additionalCorrectnessExplanationOnModelSolution": null
                     },
                     {
                         "id": "8107ae39-96aa-4f54-aa78-1a33362a19c1",
@@ -1856,12 +1909,11 @@ async fn seed_sample_course(
                         "title": null,
                         "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                         "correct":false,
-                        "failureMessage": "AC is not a programming language".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "AC is not a programming language",
+                        "additionalCorrectnessExplanationOnModelSolution": null
                     },
                 ],
                 "allAnswersCorrect": false,
-                "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                 "sharedOptionFeedbackMessage": null,
                 "usesSharedOptionFeedbackMessage": false
             }],
@@ -1876,7 +1928,7 @@ async fn seed_sample_course(
             "autoReject": false,
             "autoConfirm": true,
             "triesLimited": true,
-            "submitMessage": "your submit has been answered",
+            "submitMessage": "This is an extra submit message from the teacher.",
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
@@ -1888,6 +1940,7 @@ async fn seed_sample_course(
         quizzes_exercise_slide_5,
         quizzes_exercise_task_5,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course.id, b"981623c8-baa3-4d14-bb8a-963e167da9ca"),
         Uuid::new_v5(&course.id, b"b1a6d7e4-00b2-43fb-bf39-863f4ef49d09"),
         Uuid::new_v5(&course.id, b"1a2f2c9f-9552-440e-8dd3-1e3703bd0fab"),
@@ -1912,7 +1965,6 @@ async fn seed_sample_course(
               "createdAt": "2022-05-04T09:03:09.167Z",
               "direction": "column",
               "failureMessage": null,
-              "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
               "formatRegex": null,
               "id": "105270c8-e94a-40ec-a159-8fe38f116bb4",
               "maxValue": null,
@@ -1963,6 +2015,24 @@ async fn seed_sample_course(
           "triesLimited": true,
           "updatedAt": "2022-05-04T09:03:06.271Z"
         }),
+    );
+
+    let (
+        quizzes_exercise_block_6,
+        quizzes_exercise_6,
+        quizzes_exercise_slide_6,
+        quizzes_exercise_task_6,
+    ) = quizzes_exercise(
+        "Multiple choice with feedback".to_string(),
+        Uuid::new_v5(&course.id, b"f7fa3a08-e287-44de-aea8-32133af89d31"),
+        Uuid::new_v5(&course.id, b"31820133-579a-4d9f-8b0c-2120f76d1390"),
+        Uuid::new_v5(&course.id, b"55f929c7-30ab-441d-a0ad-6cd115857b3b"),
+        Uuid::new_v5(&course.id, b"d7a91d07-9bd9-449c-9862-fbacb0b402b0"),
+        Uuid::new_v5(&course.id, b"664ea614-4af4-4ad0-9855-eae1881568e6"),
+        false,
+        serde_json::from_str(include_str!(
+            "../assets/quizzes-multiple-choice-feedback.json"
+        ))?,
     );
 
     let page_3 = create_page(
@@ -2075,6 +2145,29 @@ async fn seed_sample_course(
                     Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27")
                 ),
                 quizzes_exercise_block_5,
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/the-multiple-choice-with-feedback".to_string(),
+            title: "Multiple choice with feedback".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_6],
+            exercise_slides: vec![quizzes_exercise_slide_6],
+            exercise_tasks: vec![quizzes_exercise_task_6],
+            content: serde_json::json!([
+                paragraph(
+                    "Something about rust and feedback.",
+                    Uuid::new_v5(&course_id, b"cbb87878-5af1-4c01-b343-97bf668b8034")
+                ),
+                quizzes_exercise_block_6
             ]),
         },
     )
@@ -2363,14 +2456,44 @@ async fn seed_sample_course(
     let new_peer_review_question = NewPeerReviewQuestion {
         peer_review_id,
         order_number: 0,
-        question: "Was the answer properly thought out?".to_string(),
+        question: "General comments".to_string(),
         question_type: PeerReviewQuestionType::Essay,
-        answer_required: true,
+        answer_required: false,
     };
     let _peer_review_question_1_id = peer_review_questions::insert_with_id(
         conn,
         Uuid::new_v5(&course_id, b"64717822-ac25-4a7d-8298-f0ac39d73260"),
         &new_peer_review_question,
+    )
+    .await
+    .unwrap();
+
+    let new_peer_review_question2 = NewPeerReviewQuestion {
+        peer_review_id,
+        order_number: 1,
+        question: "The answer was correct".to_string(),
+        question_type: PeerReviewQuestionType::Scale,
+        answer_required: true,
+    };
+    let _peer_review_question_2_id = peer_review_questions::insert_with_id(
+        conn,
+        Uuid::new_v5(&course_id, b"6365df37-a9b5-4620-b2fb-926b0c29a954"),
+        &new_peer_review_question2,
+    )
+    .await
+    .unwrap();
+
+    let new_peer_review_question3 = NewPeerReviewQuestion {
+        peer_review_id,
+        order_number: 2,
+        question: "The answer was easy to read".to_string(),
+        question_type: PeerReviewQuestionType::Scale,
+        answer_required: true,
+    };
+    let _peer_review_question_3_id = peer_review_questions::insert_with_id(
+        conn,
+        Uuid::new_v5(&course_id, b"19b81b50-fc7f-4535-a285-8fc0604ed85c"),
+        &new_peer_review_question3,
     )
     .await
     .unwrap();
@@ -2513,6 +2636,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         quizzes_exercise_slide_5,
         quizzes_exercise_task_5,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course.id, b"cd3aa815-620e-43b3-b291-0fb10beca030"),
         Uuid::new_v5(&course.id, b"0b1bbfb0-df56-4e40-92f1-df0a33f1fc70"),
         Uuid::new_v5(&course.id, b"7f011d0e-1cbf-4870-bacf-1873cf360c15"),
@@ -2527,6 +2651,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                     "id": "7b0049ea-de8b-4eef-a4a9-164e0e874ecc",
                     "body": "",
                     "type": "multiple-choice",
+                    "direction": "row",
                     "multi": false,
                     "order": 0,
                     "title": "Choose the first answer",
@@ -2538,8 +2663,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "7b0049ea-de8b-4eef-a4a9-164e0e874ecc",
                         "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Correct! This is indeed the first answer".to_string(),
+                        "messageAfterSubmissionWhenSelected": "Correct! This is indeed the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },{
                         "id": "846c09e2-653a-4471-81ae-25726486b003",
                         "body": "This is second option",
@@ -2547,8 +2672,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "7b0049ea-de8b-4eef-a4a9-164e0e874ecc",
                         "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },{
                         "id": "8107ae39-96aa-4f54-aa78-1a33362a19c1",
                         "body": "This is third option",
@@ -2556,11 +2681,10 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "7b0049ea-de8b-4eef-a4a9-164e0e874ecc",
                         "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },],
                     "allAnswersCorrect": false,
-                    "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                     "sharedOptionFeedbackMessage": null,
                     "usesSharedOptionFeedbackMessage": false
                 }],
@@ -2575,7 +2699,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 "autoReject": false,
                 "autoConfirm": true,
                 "triesLimited": true,
-                "submitMessage": "your submit has been answered",
+                "submitMessage": "This is an extra submit message from the teacher.",
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
@@ -2587,72 +2711,16 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         quizzes_exercise_slide_6,
         quizzes_exercise_task_6,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course.id, b"925d4a89-0f25-4e8e-bc11-350393d8d894"),
         Uuid::new_v5(&course.id, b"ff92ca4a-aa9c-11ec-ac56-475e57747ad3"),
         Uuid::new_v5(&course.id, b"9037cb17-3841-4a79-8f50-bbe595a4f785"),
         Uuid::new_v5(&course.id, b"d6d80ae0-97a1-4db1-8a3b-2bdde3cfbe9a"),
         Uuid::new_v5(&course.id, b"085b60ec-aa9d-11ec-b500-7b1e176646f8"),
         false,
-        serde_json::json!({
-                "id": "783a7697-5e9e-41dc-90b5-c7fe1570bd3a",
-                "body": "very hard",
-                "part": 4,
-                "items": [{
-                    "id": "6100f2ad-55b3-455a-80bc-85a2977628c6",
-                    "body": "",
-                    "type": "multiple-choice",
-                    "multi": false,
-                    "order": 0,
-                    "title": "Choose the first answer",
-                    "quizId": "783a7697-5e9e-41dc-90b5-c7fe1570bd3a",
-                    "options": [{
-                        "id": "fd028533-6ea3-4b05-9354-5501ea7aac71",
-                        "body": "This is first option",
-                        "order": 1,
-                        "title": null,
-                        "quizItemId": "6100f2ad-55b3-455a-80bc-85a2977628c6",
-                        "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Correct! This is indeed the first answer".to_string(),
-                    },{
-                        "id": "7bfd34f7-a2a0-4c5d-8726-cbf627a77624",
-                        "body": "This is second option",
-                        "order": 1,
-                        "title": null,
-                        "quizItemId": "6100f2ad-55b3-455a-80bc-85a2977628c6",
-                        "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
-                    },{
-                        "id": "3e77aa66-739a-4a7a-8e2c-e775356a3b42",
-                        "body": "This is third option",
-                        "order": 1,
-                        "title": null,
-                        "quizItemId": "6100f2ad-55b3-455a-80bc-85a2977628c6",
-                        "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
-                    },],
-                    "allAnswersCorrect": false,
-                    "feedbackDisplayPolicy": "DisplayFeedbackOnAllOptions",
-                    "sharedOptionFeedbackMessage": null,
-                    "usesSharedOptionFeedbackMessage": false
-                }],
-                "title": "Very good exercise",
-                "tries": 1,
-                "points": 3,
-                "section": 0,
-                "courseId": "d6b52ddc-6c34-4a59-9a59-7e8594441007",
-                "deadline": "2021-12-17T07:15:33.479Z",
-                "createdAt": "2021-12-17T07:15:33.479Z",
-                "updatedAt": "2021-12-17T07:15:33.479Z",
-                "autoReject": false,
-                "autoConfirm": true,
-                "triesLimited": true,
-                "submitMessage": "your submit has been answered",
-                "excludedFromScore": true,
-                "grantPointsPolicy": "grant_whenever_possible",
-                "awardPointsEvenIfWrong": false}),
+        serde_json::from_str(include_str!(
+            "../assets/quizzes-multiple-choice-additional-feedback.json"
+        ))?,
     );
 
     let (
@@ -2661,6 +2729,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         quizzes_exercise_slide_7,
         quizzes_exercise_task_7,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course.id, b"57905c8a-aa9d-11ec-92d4-47ab996cb70c"),
         Uuid::new_v5(&course.id, b"5b058552-aa9d-11ec-bc36-57e1c5f8407a"),
         Uuid::new_v5(&course.id, b"5d953894-aa9d-11ec-97e7-2ff4d73f69f1"),
@@ -2687,8 +2756,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "395888c8-aa9d-11ec-bb81-cb3a3f2609e4",
                         "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Correct! This is indeed the first answer".to_string(),
+                        "messageAfterSubmissionWhenSelected": "Correct! This is indeed the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },{
                         "id": "45e77450-aa9d-11ec-abea-6b824f5ae1f6",
                         "body": "This is second option",
@@ -2696,8 +2765,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "395888c8-aa9d-11ec-bb81-cb3a3f2609e4",
                         "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },{
                         "id": "43428140-aa9d-11ec-a6b3-83ec8e2dfb88",
                         "body": "This is third option",
@@ -2705,11 +2774,10 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "395888c8-aa9d-11ec-bb81-cb3a3f2609e4",
                         "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },],
                     "allAnswersCorrect": false,
-                    "feedbackDisplayPolicy": "DisplayFeedbackOnQuizItem",
                     "sharedOptionFeedbackMessage": null,
                     "usesSharedOptionFeedbackMessage": false
                 }],
@@ -2724,7 +2792,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 "autoReject": false,
                 "autoConfirm": true,
                 "triesLimited": true,
-                "submitMessage": "your submit has been answered",
+                "submitMessage": "This is an extra submit message from the teacher.",
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
@@ -2736,6 +2804,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         quizzes_exercise_slide_8,
         quizzes_exercise_task_8,
     ) = quizzes_exercise(
+        "Best quizzes exercise".to_string(),
         Uuid::new_v5(&course.id, b"c1a4831c-cc78-4f42-be18-2a35a7f3b506"),
         Uuid::new_v5(&course.id, b"75045b18-aa9d-11ec-b3d1-6f64c2d6d46d"),
         Uuid::new_v5(&course.id, b"712fd37c-e3d7-4569-8a64-371d7dda9c19"),
@@ -2762,8 +2831,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "871c3640-aa9d-11ec-8103-633d645899a3",
                         "correct":true,
-                        "failureMessage": null,
-                        "successMessage": "Correct! This is indeed the first answer".to_string(),
+                        "messageAfterSubmissionWhenSelected": "Correct! This is indeed the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },{
                         "id": "1d5de4d0-8499-4ac1-b44c-21c1562639cb",
                         "body": "This is second option",
@@ -2771,8 +2840,8 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "871c3640-aa9d-11ec-8103-633d645899a3",
                         "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },{
                         "id": "93fe358e-aa9d-11ec-9aa1-f3d18a09d58c",
                         "body": "This is third option",
@@ -2780,11 +2849,10 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                         "title": null,
                         "quizItemId": "871c3640-aa9d-11ec-8103-633d645899a3",
                         "correct":false,
-                        "failureMessage": "Incorrect. This is not the first answer".to_string(),
-                        "successMessage": null
+                        "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first answer",
+                        "additionalCorrectnessExplanationOnModelSolution": null,
                     },],
                     "allAnswersCorrect": false,
-                    "feedbackDisplayPolicy": "DisplayFeedbackOnAllOptions",
                     "sharedOptionFeedbackMessage": null,
                     "usesSharedOptionFeedbackMessage": false
                 }],
@@ -2799,7 +2867,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 "autoReject": false,
                 "autoConfirm": true,
                 "triesLimited": true,
-                "submitMessage": "your submit has been answered",
+                "submitMessage": "This is an extra submit message from the teacher.",
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
@@ -2845,6 +2913,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         name: "User Interface".to_string(),
         opens_at: None,
         deadline: None,
+        module: None,
     };
     let (chapter_1, front_page_ch_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
@@ -2964,6 +3033,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         name: "User Experience".to_string(),
         opens_at: None,
         deadline: None,
+        module: None,
     };
     let (chapter_2, front_page_ch_2) = chapters::insert_chapter(conn, new_chapter_2, admin).await?;
     chapters::set_opens_at(conn, chapter_2.id, Utc::now()).await?;
@@ -3336,6 +3406,7 @@ fn example_exercise_flexible(
 
 #[allow(clippy::too_many_arguments)]
 fn quizzes_exercise(
+    name: String,
     exercise_id: Uuid,
     exercise_slide_id: Uuid,
     exercise_task_id: Uuid,
@@ -3355,14 +3426,14 @@ fn quizzes_exercise(
         is_valid: true,
         attributes: attributes! {
             "id": exercise_id,
-            "name": "Best quizzes exercise".to_string(),
+            "name": name,
             "dropCap": false,
         },
         inner_blocks: vec![],
     };
     let exercise = CmsPageExercise {
         id: exercise_id,
-        name: "Best quizzes exercise".to_string(),
+        name,
         order_number: 1,
         score_maximum: 1,
         max_tries_per_slide: None,

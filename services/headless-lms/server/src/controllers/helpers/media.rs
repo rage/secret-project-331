@@ -2,8 +2,8 @@
 
 use std::{path::PathBuf, sync::Arc};
 
-use crate::controllers::prelude::*;
 pub use crate::domain::authorization::AuthorizationToken;
+use crate::{controllers::prelude::*, domain::authorization::Authorized};
 use actix_http::header::HeaderMap;
 use actix_multipart::Field;
 use actix_web::http::header;
@@ -38,14 +38,14 @@ pub async fn upload_media<'a>(
         .ok_or_else(|| ControllerError::BadRequest("Missing form data".into()))?;
     match file_payload {
         Ok(field) => {
-            let path: (PathBuf, AuthorizationToken) = match field.content_type().type_() {
-                mime::AUDIO => generate_audio_path(&field, store_kind, &user, &pool).await,
-                mime::IMAGE => generate_image_path(&field, store_kind, &user, &pool).await,
-                _ => generate_file_path(&field, store_kind, &user, &pool).await,
-            }?;
+            let path: Authorized<PathBuf> = match field.content_type().type_() {
+                mime::AUDIO => generate_audio_path(&field, store_kind, &user, &pool).await?,
+                mime::IMAGE => generate_image_path(&field, store_kind, &user, &pool).await?,
+                _ => generate_file_path(&field, store_kind, &user, &pool).await?,
+            };
             upload_media_to_storage(&path.0, field, file_store).await?;
             let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-            token.0.ok(path.0)
+            token.1.ok(path.0)
         }
         Err(err) => Err(ControllerError::InternalServerError(err.to_string())),
     }
@@ -76,16 +76,16 @@ pub async fn upload_image_for_organization(
                         &user,
                         &pool,
                     )
-                    .await?
-                    .0
+                    .await
                 }
                 unsupported => Err(ControllerError::BadRequest(format!(
                     "Unsupported image Mime type: {}",
                     unsupported
                 ))),
-            }?;
+            }
+            .map(|value| value.0)?;
             upload_media_to_storage(&path, field, file_store.as_ref()).await?;
-            Ok((path, token.0))
+            token.1.ok(path)
         }
         Err(err) => Err(ControllerError::InternalServerError(err.to_string())),
     }
@@ -118,7 +118,7 @@ async fn generate_audio_path(
     file_name.push_str(extension);
     let path = path(&file_name, FileType::Audio, store_kind);
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(path)
+    token.1.ok(path)
 }
 
 async fn generate_file_path(
@@ -142,7 +142,7 @@ async fn generate_file_path(
     let path = path(&file_name, FileType::File, store_kind);
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(path)
+    token.1.ok(path)
 }
 
 async fn generate_image_path(
@@ -176,7 +176,7 @@ async fn generate_image_path(
     let path = path(&file_name, FileType::Image, store_kind);
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(path)
+    token.1.ok(path)
 }
 
 async fn validate_media_headers(
@@ -213,7 +213,7 @@ async fn validate_media_headers(
     }
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
-    token.0.ok(())
+    token.1.ok(())
 }
 
 enum FileType {

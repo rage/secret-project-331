@@ -16,7 +16,7 @@ async fn post_proposed_edits(
     let user_id = user.map(|u| u.id);
     models::proposed_page_edits::insert(&mut conn, *course_id, user_id, &payload).await?;
     let token = authorize(&mut conn, Act::Edit, user_id, Res::AnyCourse).await?;
-    token.0.ok(HttpResponse::Ok().finish())
+    token.1.ok(HttpResponse::Ok().finish())
 }
 
 /**

@@ -1,11 +1,7 @@
-use crate::controllers::prelude::*;
-use crate::domain::authorization::authorize;
-use crate::domain::authorization::AuthUser;
-use actix_web::http::header;
 use anyhow::{Context, Result};
 use bytes::Bytes;
 use csv::Writer;
-use futures::stream::FuturesUnordered;
+use futures::{stream::FuturesUnordered, Stream};
 use headless_lms_models::{
     chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
 };
@@ -17,11 +13,12 @@ use std::{
     sync::{Arc, Mutex},
 };
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
-use tokio_stream::StreamExt;
+use tokio_stream::{wrappers::UnboundedReceiverStream, StreamExt};
 use uuid::Uuid;
 
-use crate::controllers::ControllerResult;
+use crate::controllers::{self, ControllerResult};
 
+use super::authorization::{AuthorizationToken, Authorized};
 /// Convenience struct for creating CSV data.
 struct CsvWriter<W: Write> {
     csv_writer: Arc<Mutex<Writer<W>>>,
@@ -237,26 +234,27 @@ where
 
 pub struct CSVExportAdapter {
     pub sender: UnboundedSender<ControllerResult<Bytes>>,
+    pub authorization_token: Authorized<AuthorizationToken>,
 }
 impl Write for CSVExportAdapter {
     fn flush(&mut self) -> std::io::Result<()> {
         Ok(())
     }
 
-    fn write(
-        &mut self,
-        buf: &[u8],
-        pool: web::Data<PgPool>,
-        user: AuthUser,
-    ) -> std::io::Result<usize> {
-        let mut conn = pool.acquire()?;
-        let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse);
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         let bytes = Bytes::copy_from_slice(buf);
+        let token = self.authorization_token;
         self.sender
-            .send(Ok((bytes, token.0)))
+            .send(token.1.ok(bytes))
             .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
         Ok(buf.len())
     }
+}
+
+pub fn make_authorized_streamable(
+    stream: UnboundedReceiverStream<Result<Authorized<bytes::Bytes>, controllers::ControllerError>>,
+) -> impl Stream<Item = Result<bytes::Bytes, controllers::ControllerError>> {
+    stream.map(|item| item.map(|item2| item2.0))
 }
 
 #[cfg(test)]
@@ -287,7 +285,9 @@ mod test {
         let u2 = users::insert(tx.as_mut(), "second@example.org", None, None)
             .await
             .unwrap();
-        let c2 = chapters::insert(tx.as_mut(), "", course, 2).await.unwrap();
+        let c2 = chapters::insert(tx.as_mut(), "", course, 2, None)
+            .await
+            .unwrap();
         let e2 = exercises::insert(tx.as_mut(), course, "", page, c2, 0)
             .await
             .unwrap();
@@ -419,12 +419,7 @@ mod test {
             Ok(())
         }
 
-        fn write(
-            &mut self,
-            buf: &[u8],
-            pool: web::Data<PgPool>,
-            user: AuthUser,
-        ) -> std::io::Result<usize> {
+        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
             let bytes = Bytes::copy_from_slice(buf);
             self.sender
                 .send(bytes)

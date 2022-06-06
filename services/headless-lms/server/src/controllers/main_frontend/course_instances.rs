@@ -11,7 +11,7 @@ use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
     controllers::prelude::*,
-    domain::csv_export::{self, CSVExportAdapter},
+    domain::csv_export::{self, make_authorized_streamable, CSVExportAdapter},
 };
 
 /**
@@ -34,7 +34,7 @@ async fn get_course_instance(
     .await?;
     let course_instance =
         models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
-    return token.0.ok(web::Json(course_instance));
+    token.1.ok(web::Json(course_instance))
 }
 
 #[generated_doc]
@@ -61,7 +61,7 @@ async fn post_new_email_template(
         None,
     )
     .await?;
-    return token.0.ok(web::Json(email_template));
+    token.1.ok(web::Json(email_template))
 }
 
 #[generated_doc]
@@ -82,7 +82,7 @@ async fn get_email_templates_by_course_instance_id(
 
     let email_templates =
         models::email_templates::get_email_templates(&mut conn, *course_instance_id).await?;
-    return token.0.ok(web::Json(email_templates));
+    token.1.ok(web::Json(email_templates))
 }
 
 #[instrument(skip(pool))]
@@ -107,7 +107,10 @@ pub async fn point_export(
         let res = csv_export::export_course_instance_points(
             &mut handle_conn,
             course_instance_id,
-            CSVExportAdapter { sender },
+            CSVExportAdapter {
+                sender,
+                authorization_token: token,
+            },
         )
         .await;
         if let Err(err) = res {
@@ -121,7 +124,7 @@ pub async fn point_export(
 
     // return response that streams data from the receiver
 
-    return token.0.ok(HttpResponse::Ok()
+    return token.1.ok(HttpResponse::Ok()
         .append_header((
             "Content-Disposition",
             format!(
@@ -131,7 +134,9 @@ pub async fn point_export(
                 Utc::today().format("%Y-%m-%d")
             ),
         ))
-        .streaming(UnboundedReceiverStream::new(receiver)));
+        .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+            receiver,
+        ))));
 }
 
 #[generated_doc]
@@ -151,7 +156,7 @@ async fn points(
     )
     .await?;
     let points = course_instances::get_points(&mut conn, *course_instance_id, *pagination).await?;
-    return token.0.ok(web::Json(points));
+    token.1.ok(web::Json(points))
 }
 
 /**
@@ -173,7 +178,7 @@ pub async fn edit(
     )
     .await?;
     course_instances::edit(&mut conn, *course_instance_id, update.into_inner()).await?;
-    return token.0.ok(HttpResponse::Ok().finish());
+    token.1.ok(HttpResponse::Ok().finish())
 }
 
 /**
@@ -194,7 +199,7 @@ async fn delete(
     )
     .await?;
     models::course_instances::delete(&mut conn, *id).await?;
-    return token.0.ok(HttpResponse::Ok().finish());
+    token.1.ok(HttpResponse::Ok().finish())
 }
 
 /**

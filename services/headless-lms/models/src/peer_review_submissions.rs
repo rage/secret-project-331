@@ -87,3 +87,68 @@ WHERE user_id = $1
     .collect();
     Ok(res)
 }
+
+pub async fn get_num_peer_reviews_given_by_user_and_course_instance_and_exercise(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<i64> {
+    let res = sqlx::query!(
+        "
+SELECT COUNT(*)
+FROM peer_review_submissions
+WHERE user_id = $1
+  AND exercise_id = $3
+  AND course_instance_id = $2
+  AND deleted_at IS NULL
+    ",
+        user_id,
+        course_instance_id,
+        exercise_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.count.unwrap_or(0))
+}
+pub async fn get_users_submission_count_for_exercise_and_course_instance(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<u32> {
+    let res = sqlx::query!(
+        "
+SELECT COUNT(*) AS count
+FROM peer_review_submissions
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND course_instance_id = $3
+  AND deleted_at IS NULL
+        ",
+        user_id,
+        exercise_id,
+        course_instance_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.count.unwrap_or(0).try_into()?)
+}
+
+pub async fn count_peer_review_submissions_for_exercise_slide_submission(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<u32> {
+    let res = sqlx::query!(
+        "
+SELECT COUNT(*) AS count
+FROM peer_review_submissions
+WHERE exercise_slide_submission_id = $1
+  AND deleted_at IS NULL
+        ",
+        exercise_slide_submission_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.count.unwrap_or(0).try_into()?)
+}

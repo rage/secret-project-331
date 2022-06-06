@@ -13,3 +13,7 @@ debug = 0
 # Speeds up development builds because the sqlx macros do a lot of work during compile time
 [profile.dev.package.sqlx-macros]
 opt-level = 3
+
+# Speeds up development server startup time because parsing ip to country mappings benefits from the optimizations.
+[profile.dev.package.ipnet]
+opt-level = 3

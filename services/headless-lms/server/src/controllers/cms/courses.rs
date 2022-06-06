@@ -43,7 +43,7 @@ async fn add_media(
     .await?;
     let download_url = file_store.get_download_url(media_path.0.as_path(), app_conf.as_ref());
 
-    return token.0.ok(web::Json(UploadResult { url: download_url }));
+    token.1.ok(web::Json(UploadResult { url: download_url }))
 }
 
 /**

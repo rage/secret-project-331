@@ -10,6 +10,7 @@ use isbot::Bots;
 use models::{
     chapters::{ChapterStatus, ChapterWithStatus},
     course_instances::CourseInstance,
+    course_modules::Module,
     courses,
     courses::Course,
     feedback,
@@ -39,7 +40,7 @@ async fn get_course(
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
-    token.0.ok(web::Json(course))
+    token.1.ok(web::Json(course))
 }
 
 /**
@@ -86,8 +87,8 @@ async fn get_course_page_by_path(
     )
     .await?;
 
-    let tempRequestInformation =
-        derive_information_from_requester(req, ip_to_country_mapper, pool, user_id)?;
+    let temp_request_information =
+        derive_information_from_requester(req, ip_to_country_mapper, pool, user_id).await?;
 
     let RequestInformation {
         ip,
@@ -102,7 +103,7 @@ async fn get_course_page_by_path(
         operating_system,
         operating_system_version,
         device_type,
-    } = tempRequestInformation.0;
+    } = temp_request_information.0;
 
     let course_or_exam_id = page_with_user_data
         .page
@@ -138,7 +139,7 @@ async fn get_course_page_by_path(
     )
     .await?;
 
-    return token.0.ok(web::Json(page_with_user_data));
+    token.1.ok(web::Json(page_with_user_data))
 }
 
 struct RequestInformation {
@@ -157,13 +158,13 @@ struct RequestInformation {
 }
 
 /// Used in get_course_page_by_path for path for anonymous visitor counts
-fn derive_information_from_requester(
+async fn derive_information_from_requester(
     req: HttpRequest,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
     pool: web::Data<PgPool>,
-    user: Option<Uuid>,
+    user_id: Option<Uuid>,
 ) -> ControllerResult<RequestInformation> {
-    let mut conn = pool.acquire()?;
+    let mut conn = pool.acquire().await?;
     let headers = req.headers();
     let user_agent = headers.get(header::USER_AGENT);
     let bots = Bots::default();
@@ -214,8 +215,8 @@ fn derive_information_from_requester(
         .as_ref()
         .map(|ua| ua.os_version.to_string());
     let device_type = parsed_user_agent.as_ref().map(|ua| ua.category.to_string());
-    let token = authorize(&mut conn, Act::Teach, Some(user), Res::AnyCourse)?;
-    token.0.ok(RequestInformation {
+    let token = authorize(&mut conn, Act::Teach, user_id, Res::AnyCourse).await?;
+    token.1.ok(RequestInformation {
         ip,
         user_agent: user_agent
             .and_then(|ua| ua.to_str().ok())
@@ -257,7 +258,7 @@ async fn get_current_course_instance(
             Res::Course(*course_id),
         )
         .await?;
-        token.0.ok(web::Json(instance))
+        token.1.ok(web::Json(instance))
     } else {
         Err(ControllerError::NotFound("User not found".to_string()))
     }
@@ -282,7 +283,7 @@ async fn get_course_instances(
         Res::Course(*course_id),
     )
     .await?;
-    token.0.ok(web::Json(instances))
+    token.1.ok(web::Json(instances))
 }
 
 /**
@@ -304,13 +305,14 @@ async fn get_course_pages(
         Res::Course(*course_id),
     )
     .await?;
-    token.0.ok(web::Json(pages))
+    token.1.ok(web::Json(pages))
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChaptersWithStatus {
     pub is_previewable: bool,
+    pub modules: Vec<Module>,
     pub chapters: Vec<ChapterWithStatus>,
 }
 
@@ -335,6 +337,7 @@ async fn get_chapters(
     .await
     .is_some();
     let chapters = models::chapters::course_chapters(&mut conn, *course_id).await?;
+    let modules = models::course_modules::for_course(&mut conn, *course_id).await?;
     let chapters = chapters
         .into_iter()
         .map(|chapter| {
@@ -358,12 +361,14 @@ async fn get_chapters(
                 chapter_image_url: chapter
                     .chapter_image_path
                     .map(|path| file_store.get_download_url(Path::new(&path), &app_conf)),
+                module: chapter.module,
             }
         })
         .collect();
     let token = authorize(&mut conn, Act::Teach, user_id, Res::Course(*course_id)).await?;
-    token.0.ok(web::Json(ChaptersWithStatus {
+    token.1.ok(web::Json(ChaptersWithStatus {
         is_previewable,
+        modules,
         chapters,
     }))
 }
@@ -386,7 +391,7 @@ async fn get_user_course_settings(
         )
         .await?;
         let token = authorize(&mut conn, Act::Teach, user_id, Res::Course(*course_id)).await?;
-        token.0.ok(web::Json(settings))
+        token.1.ok(web::Json(settings))
     } else {
         Err(ControllerError::NotFound("User not found".to_string()))
     }
@@ -428,7 +433,7 @@ async fn search_pages_with_phrase(
         Res::Course(*course_id),
     )
     .await?;
-    token.0.ok(web::Json(res))
+    token.1.ok(web::Json(res))
 }
 
 /**
@@ -467,7 +472,7 @@ async fn search_pages_with_words(
         Res::Course(*course_id),
     )
     .await?;
-    token.0.ok(web::Json(res))
+    token.1.ok(web::Json(res))
 }
 
 /**
@@ -513,7 +518,7 @@ pub async fn feedback(
     }
     tx.commit().await?;
     let token = authorize(&mut conn, Act::Teach, user_id, Res::Course(*course_id)).await?;
-    token.0.ok(web::Json(ids))
+    token.1.ok(web::Json(ids))
 }
 
 /**
@@ -537,7 +542,7 @@ async fn propose_edit(
     )
     .await?;
     let token = authorize(&mut conn, Act::Teach, Some(id), Res::Course(course_id)).await?;
-    token.0.ok(web::Json(id))
+    token.1.ok(web::Json(id))
 }
 
 #[generated_doc]
@@ -556,7 +561,7 @@ async fn glossary(
         Res::Course(*course_id),
     )
     .await?;
-    token.0.ok(web::Json(glossary))
+    token.1.ok(web::Json(glossary))
 }
 
 /**

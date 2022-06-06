@@ -1,7 +1,7 @@
 use actix_http::Payload;
 use actix_session::Session;
 use actix_session::SessionExt;
-use actix_web::{FromRequest, HttpRequest};
+use actix_web::{FromRequest, HttpRequest, Responder};
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use futures::future::{err, ok, Ready};
@@ -128,11 +128,23 @@ pub enum Resource {
     PlaygroundExample,
     ExerciseService,
 }
+#[derive(Copy, Clone)]
 pub struct AuthorizationToken(());
 
 impl AuthorizationToken {
     pub fn ok<T>(self, t: T) -> ControllerResult<T> {
-        Ok((t, self))
+        Ok(Authorized(t, self))
+    }
+}
+
+#[derive(Copy, Clone)]
+pub struct Authorized<T>(pub T, pub AuthorizationToken);
+
+impl<T: Responder> Responder for Authorized<T> {
+    type Body = T::Body;
+
+    fn respond_to(self, req: &HttpRequest) -> actix_web::HttpResponse<Self::Body> {
+        T::respond_to(self.0, req)
     }
 }
 
@@ -156,7 +168,7 @@ pub async fn authorize(
     // check global role
     for role in &user_roles {
         if role.is_global() && has_permission(role.role, action) {
-            return Ok((AuthorizationToken(()), AuthorizationToken(())));
+            return Ok(Authorized(AuthorizationToken(()), AuthorizationToken(())));
         }
     }
 
@@ -164,7 +176,7 @@ pub async fn authorize(
     if resource == Resource::AnyCourse {
         for role in &user_roles {
             if has_permission(role.role, action) {
-                return Ok((AuthorizationToken(()), AuthorizationToken(())));
+                return Ok(Authorized(AuthorizationToken(()), AuthorizationToken(())));
             }
         }
     }
@@ -241,13 +253,13 @@ async fn check_organization_permission(
 ) -> ControllerResult<AuthorizationToken> {
     if action == Action::View {
         // anyone can view an organization regardless of roles
-        return Ok((AuthorizationToken(()), AuthorizationToken(())));
+        return Ok(Authorized(AuthorizationToken(()), AuthorizationToken(())));
     };
 
     // check organization role
     for role in roles {
         if role.is_role_for_organization(organization_id) && has_permission(role.role, action) {
-            return Ok((AuthorizationToken(()), AuthorizationToken(())));
+            return Ok(Authorized(AuthorizationToken(()), AuthorizationToken(())));
         }
     }
     Err(ControllerError::Forbidden("Unauthorized".to_string()))
@@ -268,7 +280,7 @@ async fn check_course_permission(
     // check course role
     for role in roles {
         if role.is_role_for_course(course_id) && has_permission(role.role, action) {
-            return Ok((AuthorizationToken(()), AuthorizationToken(())));
+            return Ok(Authorized(AuthorizationToken(()), AuthorizationToken(())));
         }
     }
     let organization_id = models::courses::get_organization_id(conn, course_id).await?;
@@ -293,7 +305,7 @@ async fn check_course_instance_permission(
     for role in roles {
         if role.is_role_for_course_instance(course_instance_id) && has_permission(role.role, action)
         {
-            return Ok((AuthorizationToken(()), AuthorizationToken(())));
+            return Ok(Authorized(AuthorizationToken(()), AuthorizationToken(())));
         }
     }
     let course_id = models::course_instances::get_course_id(conn, course_instance_id).await?;
@@ -310,7 +322,7 @@ async fn check_exam_permission(
     // check exam role
     for role in roles {
         if role.is_role_for_exam(exam_id) && has_permission(role.role, action) {
-            return Ok((AuthorizationToken(()), AuthorizationToken(())));
+            return Ok(Authorized(AuthorizationToken(()), AuthorizationToken(())));
         }
     }
     let organization_id = models::exams::get_organization_id(conn, exam_id).await?;
@@ -383,7 +395,7 @@ mod test {
             Resource::Organization(org),
         )
         .await
-        .unwrap_err();
+        .unwrap();
 
         roles::insert(
             tx.as_mut(),
@@ -415,7 +427,7 @@ mod test {
             Resource::Chapter(chapter),
         )
         .await
-        .unwrap_err();
+        .unwrap();
 
         roles::insert(
             tx.as_mut(),

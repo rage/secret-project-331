@@ -85,8 +85,15 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({
           `}
           id="dialog-label"
         >
-          {t("title-select-course-version-to-continue")}.
+          {t("title-select-course-instance-to-continue")}.
         </h1>
+        <div
+          className={css`
+            margin-bottom: 0.6rem;
+          `}
+        >
+          {t("select-course-instance-explanation")}
+        </div>
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}

@@ -24,7 +24,7 @@ async fn get_chapters_pages(
     .await?;
 
     let chapter_pages: Vec<Page> = models::pages::chapter_pages(&mut conn, *chapter_id).await?;
-    return token.0.ok(web::Json(chapter_pages));
+    token.1.ok(web::Json(chapter_pages))
 }
 
 /**
@@ -48,7 +48,7 @@ async fn get_chapters_exercises(
 
     let chapter_pages_with_exercises =
         models::pages::get_chapters_pages_with_exercises(&mut conn, *chapter_id).await?;
-    return token.0.ok(web::Json(chapter_pages_with_exercises));
+    token.1.ok(web::Json(chapter_pages_with_exercises))
 }
 
 /**
@@ -72,7 +72,7 @@ async fn get_chapters_pages_without_main_frontpage(
 
     let chapter_pages =
         models::pages::get_chapters_pages_exclude_main_frontpage(&mut conn, *chapter_id).await?;
-    return token.0.ok(web::Json(chapter_pages));
+    token.1.ok(web::Json(chapter_pages))
 }
 
 /**

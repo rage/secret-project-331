@@ -20,7 +20,7 @@ async fn delete_exercise_service(
     let deleted =
         models::exercise_services::delete_exercise_service(&mut conn, *exercise_service_id).await?;
 
-    token.0.ok(web::Json(deleted))
+    token.1.ok(web::Json(deleted))
 }
 
 /**
@@ -40,7 +40,7 @@ async fn add_exercise_service(
     let created =
         models::exercise_services::insert_exercise_service(&mut conn, &exercise_service).await?;
 
-    token.0.ok(web::Json(created))
+    token.1.ok(web::Json(created))
 }
 
 /**
@@ -58,7 +58,7 @@ async fn get_exercise_service_by_id(
         models::exercise_services::get_exercise_service(&mut conn, *exercise_service_id).await?;
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::ExerciseService).await?;
-    token.0.ok(web::Json(exercise_service))
+    token.1.ok(web::Json(exercise_service))
 }
 
 /**
@@ -74,7 +74,7 @@ async fn get_exercise_services(
     let exercise_services = models::exercise_services::get_exercise_services(&mut conn).await?;
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::ExerciseService).await?;
-    token.0.ok(web::Json(exercise_services))
+    token.1.ok(web::Json(exercise_services))
 }
 
 /**
@@ -99,7 +99,7 @@ async fn update_exercise_service(
     )
     .await?;
 
-    token.0.ok(web::Json(updated_service))
+    token.1.ok(web::Json(updated_service))
 }
 
 /**

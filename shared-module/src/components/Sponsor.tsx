@@ -4,11 +4,6 @@ import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "../styles/respond"
 
-/* const sponsors = [
-  { id: "1", logo: <SponsorLogoSVG /> },
-  { id: "2", logo: <SponsorLogoSVG /> },
-] */
-
 const Container = styled.div`
   margin: 6rem 0;
   height: 100%;
@@ -79,10 +74,8 @@ interface StyledSponsor {
 
 export type SponsorProps = React.HTMLAttributes<HTMLDivElement> & SponsorExtraProps
 
-const Sponsor: React.FC<SponsorProps> = ({ width = "250px", logos }, props) => {
+const Sponsor: React.FC<SponsorProps> = ({ width = "250px", logos }) => {
   const { t } = useTranslation()
-  // eslint-disable-next-line i18next/no-literal-string
-  console.log("logos", logos)
 
   return (
     <Container>

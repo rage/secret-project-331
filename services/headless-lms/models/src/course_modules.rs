@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub async fn new(
+pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,
     name: &str,

@@ -327,7 +327,7 @@ async fn get_chapters(
                 chapter_image_url: chapter
                     .chapter_image_path
                     .map(|path| file_store.get_download_url(Path::new(&path), &app_conf)),
-                module: chapter.module,
+                course_module_id: chapter.course_module_id,
             }
         })
         .collect();

@@ -589,7 +589,7 @@ mod test {
     use super::*;
     use crate::{
         chapters::{self, DatabaseChapter, NewChapter},
-        courses, exercise_slides,
+        course_modules, courses, exercise_slides,
         exercise_tasks::{self, ExerciseTask, NewExerciseTask},
         exercises::{self, Exercise},
         organizations, pages,
@@ -705,6 +705,9 @@ mod test {
         )
         .await
         .unwrap();
+        let course_module_id = course_modules::insert(tx.as_mut(), course.id, "Module", 0)
+            .await
+            .unwrap();
         let (chapter, chapter_front_page) = chapters::insert_chapter(
             tx.as_mut(),
             NewChapter {
@@ -714,7 +717,7 @@ mod test {
                 name: "Chapter".to_string(),
                 opens_at: None,
                 deadline: None,
-                module: None,
+                course_module_id: course_module_id,
             },
             user_id,
         )

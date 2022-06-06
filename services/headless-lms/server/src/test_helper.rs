@@ -179,7 +179,7 @@ macro_rules! insert_data {
         .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident; course_module: $course_module:ident) => {
-        let $course_module = headless_lms_models::course_modules::new($tx.as_mut(), $course, "module", 0).await.unwrap();
+        let $course_module = headless_lms_models::course_modules::insert($tx.as_mut(), $course, "module", 0).await.unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident; chapter: $chapter:ident) => {
         let $chapter = headless_lms_models::chapters::insert_chapter(
@@ -191,7 +191,7 @@ macro_rules! insert_data {
                 front_page_id: None,
                 deadline: None,
                 opens_at: None,
-                module: Some($course_module),
+                course_module_id: $course_module,
             },
             $user
         )

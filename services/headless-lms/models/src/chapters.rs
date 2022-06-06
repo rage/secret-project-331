@@ -25,7 +25,7 @@ pub struct DatabaseChapter {
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
-    pub module: Option<Uuid>,
+    pub course_module_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -43,7 +43,7 @@ pub struct Chapter {
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
-    pub module: Option<Uuid>,
+    pub course_module_id: Uuid,
 }
 
 impl Chapter {
@@ -69,7 +69,7 @@ impl Chapter {
             opens_at: chapter.opens_at,
             copied_from: chapter.copied_from,
             deadline: chapter.deadline,
-            module: chapter.module,
+            course_module_id: chapter.course_module_id,
         }
     }
 }
@@ -110,7 +110,7 @@ pub struct NewChapter {
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
-    pub module: Option<Uuid>,
+    pub course_module_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -128,18 +128,23 @@ pub async fn insert(
     name: &str,
     course_id: Uuid,
     chapter_number: i32,
-    module: Option<Uuid>,
+    course_module_id: Uuid,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO chapters (name, course_id, chapter_number, module)
+INSERT INTO chapters (
+    name,
+    course_id,
+    chapter_number,
+    course_module_id
+  )
 VALUES ($1, $2, $3, $4)
 RETURNING id
 ",
         name,
         course_id,
         chapter_number,
-        module
+        course_module_id,
     )
     .fetch_one(conn)
     .await?;
@@ -229,7 +234,7 @@ UPDATE chapters
 SET name = $2,
   deadline = $3,
   opens_at = $4,
-  module = $5
+  course_module_id = $5
 WHERE id = $1
 RETURNING *;
     "#,
@@ -278,7 +283,7 @@ pub struct ChapterWithStatus {
     pub opens_at: Option<DateTime<Utc>>,
     pub status: ChapterStatus,
     pub chapter_image_url: Option<String>,
-    pub module: Option<Uuid>,
+    pub course_module_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
@@ -309,7 +314,7 @@ SELECT id,
   opens_at,
   copied_from,
   deadline,
-  module
+  course_module_id
 FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -340,7 +345,7 @@ SELECT id,
   opens_at,
   copied_from,
   deadline,
-  module
+  course_module_id
 FROM chapters
 WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
   AND deleted_at IS NULL;
@@ -368,7 +373,7 @@ INSERT INTO chapters(
     chapter_number,
     deadline,
     opens_at,
-    module
+    course_module_id
   )
 VALUES($1, $2, $3, $4, $5, $6)
 RETURNING *;
@@ -378,7 +383,7 @@ RETURNING *;
         chapter.chapter_number,
         chapter.deadline,
         chapter.opens_at,
-        chapter.module
+        chapter.course_module_id,
     )
     .fetch_one(&mut tx)
     .await?;

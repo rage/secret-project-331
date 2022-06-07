@@ -18,15 +18,17 @@ const Container = styled.div`
   }
   ${respondToOrLarger.xxs} {
     width: 100%;
-    margin: 0;
+    margin: 4rem 0;
     padding: 0;
   }
   ${respondToOrLarger.xs} {
     padding: 0;
+    margin: 5rem 0;
   }
   ${respondToOrLarger.sm} {
     width: 100%;
     padding: 0;
+    margin: 6rem 0;
   }
 `
 const SponsorBox = styled.div`
@@ -54,7 +56,12 @@ const SponsorLogo = styled.div<StyledSponsor>`
   opacity: 0.9;
 
   img {
-    width: ${({ width }) => (width ? width : "200px")};
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  @media (max-width: 767.98px) {
+    width: 150px;
   }
 `
 
@@ -78,7 +85,7 @@ const Sponsor: React.FC<SponsorProps> = ({ width = "250px", logos }) => {
         {logos.map(({ attributes, clientId }: any) => {
           return (
             <SponsorLogo width={width} key={clientId}>
-              <img src={attributes.url} key={clientId} alt={attributes.alt} />
+              <img src={attributes.url} alt={attributes.alt} />
             </SponsorLogo>
           )
         })}

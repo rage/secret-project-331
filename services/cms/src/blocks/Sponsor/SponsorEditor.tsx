@@ -4,13 +4,13 @@ import React from "react"
 
 import BlockWrapper from "../BlockWrapper"
 
-/* const ALLOWED_NESTED_BLOCKS = [""] */
+const ALLOWED_NESTED_BLOCKS = ["core/image"]
 
 const SponsorEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ clientId }) => {
   return (
     <BlockWrapper id={clientId}>
       <div>
-        <InnerBlocks />
+        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
       </div>
     </BlockWrapper>
   )

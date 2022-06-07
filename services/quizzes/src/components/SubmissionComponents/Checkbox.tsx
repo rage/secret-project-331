@@ -8,7 +8,7 @@ import { baseTheme } from "../../shared-module/styles"
 import { QuizItemSubmissionComponentProps } from "."
 
 interface StyledProps {
-  correct: boolean
+  checked: boolean
 }
 
 const Option = styled.div<StyledProps>`
@@ -16,7 +16,7 @@ const Option = styled.div<StyledProps>`
   flex-direction: row;
   flex-wrap: wrap;
   border: 3px solid
-    ${({ correct }) => (correct ? baseTheme.colors.green[400] : baseTheme.colors.red[400])};
+    ${({ checked }) => (checked ? baseTheme.colors.green[400] : baseTheme.colors.red[400])};
   border-radius: 3px;
   margin-bottom: 10px;
   padding: 5px;
@@ -27,13 +27,13 @@ const CheckBoxFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
   user_quiz_item_answer,
   quiz_item_feedback,
 }) => {
-  const correct = user_quiz_item_answer.intData === 1
+  const checked = user_quiz_item_answer.intData === 1
 
   return (
     <div>
       <div>
-        {correct ? (
-          <Option correct={correct}>
+        {checked ? (
+          <Option checked={checked}>
             <div
               className={css`
                 flex: 0.3;
@@ -42,7 +42,7 @@ const CheckBoxFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
                 justify-content: flex-end;
               `}
             >
-              <input type="checkbox" checked={correct} aria-label={public_quiz_item.title} />
+              <input type="checkbox" checked={checked} aria-label={public_quiz_item.title} />
             </div>
             <div
               className={css`
@@ -54,7 +54,7 @@ const CheckBoxFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
             </div>
           </Option>
         ) : (
-          <Option correct={correct}>
+          <Option checked={checked}>
             <div
               className={css`
                 flex: 0.3;
@@ -63,7 +63,7 @@ const CheckBoxFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
                 justify-content: flex-end;
               `}
             >
-              <input type="checkbox" checked={correct} aria-label={public_quiz_item.title} />
+              <input type="checkbox" checked={checked} aria-label={public_quiz_item.title} />
             </div>
             <div
               className={css`

@@ -12,7 +12,6 @@ import { CourseMaterialPeerReviewQuestionAnswer } from "../../../../../shared-mo
 import Button from "../../../../../shared-module/components/Button"
 import BreakFromCentered from "../../../../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../../../../shared-module/components/Centering/Centered"
-import DebugModal from "../../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
 import PeerReviewProgress from "../../../../../shared-module/components/PeerReview/PeerReviewProgress"
 import Spinner from "../../../../../shared-module/components/Spinner"
@@ -260,7 +259,6 @@ const PeerReviewViewImpl: React.FC<PeerReviewViewProps> = ({
       >
         {t("submit-button")}
       </Button>
-      <DebugModal data={peerReviewData} />
     </div>
   )
 }

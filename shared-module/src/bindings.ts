@@ -66,7 +66,7 @@ export interface Chapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
-  module: string | null
+  course_module_id: string
 }
 
 export interface DatabaseChapter {
@@ -82,7 +82,7 @@ export interface DatabaseChapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
-  module: string | null
+  course_module_id: string
 }
 
 export type ChapterStatus = "open" | "closed"
@@ -107,7 +107,7 @@ export interface ChapterWithStatus {
   opens_at: Date | null
   status: ChapterStatus
   chapter_image_url: string | null
-  module: string | null
+  course_module_id: string
 }
 
 export interface NewChapter {
@@ -117,7 +117,7 @@ export interface NewChapter {
   front_page_id: string | null
   opens_at: Date | null
   deadline: Date | null
-  module: string | null
+  course_module_id: string
 }
 
 export interface UserCourseInstanceChapterProgress {
@@ -149,7 +149,7 @@ export interface ChapterScore {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
-  module: string | null
+  course_module_id: string
   score_given: number
   score_total: number
 }
@@ -189,7 +189,7 @@ export interface Points {
 
 export interface Module {
   id: string
-  name: string
+  name: string | null
   order_number: number
 }
 
@@ -948,8 +948,15 @@ export interface User {
 
 export interface ChaptersWithStatus {
   is_previewable: boolean
-  modules: Array<Module>
+  modules: Array<CourseMaterialCourseModule>
+}
+
+export interface CourseMaterialCourseModule {
   chapters: Array<ChapterWithStatus>
+  id: string
+  is_default: boolean
+  name: string | null
+  order_number: number
 }
 
 export interface RoleQuery {

@@ -286,6 +286,38 @@ pub struct ChapterWithStatus {
     pub course_module_id: Uuid,
 }
 
+impl ChapterWithStatus {
+    pub fn from_database_chapter_timestamp_and_image_url(
+        database_chapter: DatabaseChapter,
+        timestamp: DateTime<Utc>,
+        chapter_image_url: Option<String>,
+    ) -> Self {
+        let open = database_chapter
+            .opens_at
+            .map(|o| o <= timestamp)
+            .unwrap_or(true);
+        let status = if open {
+            ChapterStatus::Open
+        } else {
+            ChapterStatus::Closed
+        };
+        ChapterWithStatus {
+            id: database_chapter.id,
+            created_at: database_chapter.created_at,
+            updated_at: database_chapter.updated_at,
+            name: database_chapter.name,
+            course_id: database_chapter.course_id,
+            deleted_at: database_chapter.deleted_at,
+            chapter_number: database_chapter.chapter_number,
+            front_page_id: database_chapter.front_page_id,
+            opens_at: database_chapter.opens_at,
+            status,
+            chapter_image_url,
+            course_module_id: database_chapter.course_module_id,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseInstanceChapterProgress {

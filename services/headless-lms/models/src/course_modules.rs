@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::prelude::*;
 
 pub async fn insert(
@@ -72,7 +74,10 @@ pub struct Module {
     pub order_number: i32,
 }
 
-pub async fn for_course(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Module>> {
+pub async fn get_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Module>> {
     let modules = sqlx::query_as!(
         Module,
         "
@@ -87,4 +92,17 @@ WHERE course_id = $1
     .fetch_all(conn)
     .await?;
     Ok(modules)
+}
+
+/// Gets course modules for the given course as a map, indexed by the `id` field.
+pub async fn get_by_course_id_as_map(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, Module>> {
+    let res = get_by_course_id(conn, course_id)
+        .await?
+        .into_iter()
+        .map(|course_module| (course_module.id, course_module))
+        .collect();
+    Ok(res)
 }

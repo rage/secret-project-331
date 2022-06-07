@@ -73,6 +73,8 @@ RETURNING id,
     .fetch_one(&mut tx)
     .await?;
 
+    copy_course_modules(&mut tx, copied_course.id, course_id).await?;
+
     copy_course_chapters(&mut tx, copied_course.id, course_id).await?;
 
     // Copy course pages. At this point, exercise ids in content will point to old course's exercises.
@@ -356,6 +358,35 @@ async fn set_chapter_front_pages(
     Ok(())
 }
 
+async fn copy_course_modules(
+    tx: &mut Transaction<'_, Postgres>,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO course_modules (
+    id,
+    course_id,
+    name,
+    order_number
+  )
+SELECT uuid_generate_v5($1, id::text),
+  $1,
+  name,
+  order_number
+FROM course_modules
+WHERE course_id = $2
+  AND deleted_at IS NULL
+        ",
+        new_course_id,
+        old_course_id,
+    )
+    .execute(tx)
+    .await?;
+    Ok(())
+}
+
 async fn copy_course_chapters(
     tx: &mut Transaction<'_, Postgres>,
     namespace_id: Uuid,
@@ -382,7 +413,7 @@ SELECT uuid_generate_v5($1, id::text),
   opens_at,
   chapter_image_path,
   id,
-  course_module_id
+  uuid_generate_v5($1, course_module_id::text)
 FROM chapters
 WHERE (course_id = $2)
 AND deleted_at IS NULL;
@@ -596,7 +627,6 @@ mod tests {
         users,
     };
 
-    #[ignore = "TODO: Need to implement copying for modules too."]
     #[tokio::test]
     async fn copies_course() {
         let mut conn = Conn::init().await;

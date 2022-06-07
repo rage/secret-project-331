@@ -4594,6 +4594,16 @@
       ]
     }
   },
+  "47f6263f110fb34bedaca77322fdf2da160006f60fa8b284be5e4a49bffba714": {
+    "query": "\nINSERT INTO chapters (\n    id,\n    name,\n    course_id,\n    chapter_number,\n    front_page_id,\n    opens_at,\n    chapter_image_path,\n    copied_from,\n    course_module_id\n  )\nSELECT uuid_generate_v5($1, id::text),\n  name,\n  $1,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  chapter_image_path,\n  id,\n  uuid_generate_v5($1, course_module_id::text)\nFROM chapters\nWHERE (course_id = $2)\nAND deleted_at IS NULL;\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "4bcf93034b7f1e2a30d12f895c2e8c394094dd5b057cbbd89a5715ad9518ef9d": {
     "query": "\n  UPDATE exercises\n  SET deleted_at = now()\n  WHERE page_id = $1\n          ",
     "describe": {
@@ -11426,16 +11436,6 @@
       "nullable": [false, false]
     }
   },
-  "cc8b2ff5d0126040795e3fee5fc00cc9b7714711f5101855af61eb4c1a4f2f45": {
-    "query": "\nINSERT INTO chapters (\n    id,\n    name,\n    course_id,\n    chapter_number,\n    front_page_id,\n    opens_at,\n    chapter_image_path,\n    copied_from,\n    course_module_id\n  )\nSELECT uuid_generate_v5($1, id::text),\n  name,\n  $1,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  chapter_image_path,\n  id,\n  course_module_id\nFROM chapters\nWHERE (course_id = $2)\nAND deleted_at IS NULL;\n    ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "ccdcf7ce3537744686b4a00dc74692d8c5b333e058fcf54fed5891ec2c527d60": {
     "query": "\nUPDATE exercise_services\n    SET name=$1, slug=$2, public_url=$3, internal_url=$4, max_reprocessing_submissions_at_once=$5\nWHERE id=$6\n    RETURNING *\n        ",
     "describe": {
@@ -12514,6 +12514,16 @@
         false,
         false
       ]
+    }
+  },
+  "dd3784cd95534495b9ab3782f70206d28fcb35e2d9d4879c8b97a18f46bbde80": {
+    "query": "\nINSERT INTO course_modules (\n    id,\n    course_id,\n    name,\n    order_number\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  name,\n  order_number\nFROM course_modules\nWHERE course_id = $2\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "dd98dd1240aa56bb5ba42647e870c187d85c5ab801c6f0cca33757734a97df5b": {

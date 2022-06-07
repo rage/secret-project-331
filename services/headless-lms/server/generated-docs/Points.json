@@ -13,6 +13,7 @@
       "opens_at": "2021-12-31T22:00:00Z",
       "deadline": "2021-12-31T22:00:00Z",
       "copied_from": null,
+      "module": null,
       "score_given": 1.0,
       "score_total": 2
     }

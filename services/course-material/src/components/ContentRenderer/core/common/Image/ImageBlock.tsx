@@ -50,11 +50,11 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
         margin-right: 1em;`}
       `}
     >
-      <Zoom>
+      {/* eslint-disable-next-line i18next/no-literal-string*/}
+      <Zoom wrapStyle={{ display: "block" }}>
         <figure
           className={css`
-            display: table;
-            ${align === "center" && `text-align: center; display: table; margin: 0 auto;`}
+            ${align === "center" && `text-align: center;display: table;  margin: 0 auto;`}
             ${align !== "center" &&
             `float: ${align};
           margin-top: 3rem;
@@ -82,6 +82,7 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
                 width={width}
                 className={css`
                   max-width: 100%;
+                  height: auto;
                   margin: 1rem 0;
                   ${className === "is-style-rounded" && "border-radius: 9999px"}
                 `}
@@ -95,7 +96,6 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
           </div>
           <figcaption
             className={css`
-              display: table-caption;
               caption-side: bottom;
               text-align: center;
               font-size: 0.8125rem;

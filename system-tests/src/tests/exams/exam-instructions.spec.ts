@@ -49,8 +49,8 @@ test("test", async ({ page, headless }) => {
   // Click text=List
   await page.click("text=List")
   // Press Enter
-  await page.click('[aria-label="Block\\:\\ List"] li')
-  await page.type('[aria-label="Block\\:\\ List"] li', "One")
+  await page.click('[aria-label="Block\\:\\ List"]')
+  await page.type('[aria-label="Block\\:\\ List"]', "One")
   await page.press('[aria-label="Block\\:\\ List"]', "Enter")
   await page.type('[aria-label="Block\\:\\ List"] >> :nth-match(li, 2)', "Two")
   // Click button:text-is("Save")

@@ -85,15 +85,16 @@ test("test", async ({ page, headless }) => {
   // Click button:text-is("Save")
   await page.click(`button:text-is("Save") >> visible=true`)
 
-  await page.evaluate(() => {
-    window.scrollTo(0, 538)
-  })
-
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "added-new-term",
     waitForThisToBeVisibleAndStable: "text=Success",
+    beforeScreenshot: async () => {
+      await page.evaluate(() => {
+        window.scrollTo(0, 538)
+      })
+    },
   })
 
   // Click text=Edit

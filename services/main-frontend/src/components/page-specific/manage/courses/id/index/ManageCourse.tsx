@@ -141,8 +141,6 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
         {t("button-text-new")}
       </Button>
       <CourseCourseInstances courseId={course.id} />
-      <h2>{t("title-all-exercises")}</h2>
-      <ExerciseList courseId={course.id} />
     </>
   )
 }

@@ -276,7 +276,6 @@ export interface HeadingAttributes {
   className?: string
   backgroundColor?: string
   textColor?: string
-  fontFamily?: string
   fontSize?: string
   style?: {
     [k: string]: unknown
@@ -592,9 +591,13 @@ export interface ButtonDeprecated3Attributes {
   linkTarget?: string
   rel?: string
   placeholder?: string
+  borderRadius?: number
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  style?: {
+    [k: string]: unknown
+  }
   width?: number
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
@@ -602,11 +605,6 @@ export interface ButtonDeprecated3Attributes {
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -654,12 +652,10 @@ export interface ButtonDeprecated5Attributes {
   style?: {
     [k: string]: unknown
   }
-  width?: number
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
-  anchor?: string
   className?: string
 }
 
@@ -668,31 +664,6 @@ export interface ButtonDeprecated5Attributes {
  */
 
 export interface ButtonDeprecated6Attributes {
-  url?: string
-  title?: string
-  text?: string
-  linkTarget?: string
-  rel?: string
-  placeholder?: string
-  borderRadius?: number
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  style?: {
-    [k: string]: unknown
-  }
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-}
-
-/**
- * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
- */
-
-export interface ButtonDeprecated7Attributes {
   url?: string
   title?: string
   text?: string
@@ -717,7 +688,7 @@ export interface ButtonDeprecated7Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ButtonDeprecated8Attributes {
+export interface ButtonDeprecated7Attributes {
   url?: string
   title?: string
   text?: string
@@ -739,7 +710,7 @@ export interface ButtonDeprecated8Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ButtonDeprecated9Attributes {
+export interface ButtonDeprecated8Attributes {
   url?: string
   title?: string
   text?: string
@@ -758,7 +729,7 @@ export interface ButtonDeprecated9Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ButtonDeprecated10Attributes {
+export interface ButtonDeprecated9Attributes {
   url?: string
   title?: string
   text?: string
@@ -775,7 +746,7 @@ export interface ButtonDeprecated10Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ButtonDeprecated11Attributes {
+export interface ButtonDeprecated10Attributes {
   url?: string
   title?: string
   text?: string

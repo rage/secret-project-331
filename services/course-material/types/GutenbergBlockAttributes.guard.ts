@@ -11,7 +11,6 @@ import {
   BlockAttributes,
   ButtonAttributes,
   ButtonDeprecated10Attributes,
-  ButtonDeprecated11Attributes,
   ButtonDeprecated1Attributes,
   ButtonDeprecated2Attributes,
   ButtonDeprecated3Attributes,
@@ -383,7 +382,6 @@ export function isHeadingAttributes(obj: any, _argumentName?: string): obj is He
     (typeof obj.className === "undefined" || typeof obj.className === "string") &&
     (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
     (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.fontFamily === "undefined" || typeof obj.fontFamily === "string") &&
     (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
     (typeof obj.style === "undefined" ||
       (obj.style !== null && typeof obj.style === "object") ||
@@ -765,9 +763,13 @@ export function isButtonDeprecated3Attributes(
     (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
     (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
     (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
+    (typeof obj.borderRadius === "undefined" || typeof obj.borderRadius === "number") &&
     (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
     (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
     (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
+    (typeof obj.style === "undefined" ||
+      (obj.style !== null && typeof obj.style === "object") ||
+      typeof obj.style === "function") &&
     (typeof obj.width === "undefined" || typeof obj.width === "number") &&
     (typeof obj.align === "undefined" ||
       obj.align === "" ||
@@ -780,12 +782,7 @@ export function isButtonDeprecated3Attributes(
       (obj.lock !== null && typeof obj.lock === "object") ||
       typeof obj.lock === "function") &&
     (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.fontFamily === "undefined" || typeof obj.fontFamily === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    (typeof obj.className === "undefined" || typeof obj.className === "string")
   )
 }
 
@@ -843,7 +840,6 @@ export function isButtonDeprecated5Attributes(
     (typeof obj.style === "undefined" ||
       (obj.style !== null && typeof obj.style === "object") ||
       typeof obj.style === "function") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
     (typeof obj.align === "undefined" ||
       obj.align === "" ||
       obj.align === "left" ||
@@ -854,7 +850,6 @@ export function isButtonDeprecated5Attributes(
     (typeof obj.lock === "undefined" ||
       (obj.lock !== null && typeof obj.lock === "object") ||
       typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
     (typeof obj.className === "undefined" || typeof obj.className === "string")
   )
 }
@@ -863,39 +858,6 @@ export function isButtonDeprecated6Attributes(
   obj: any,
   _argumentName?: string,
 ): obj is ButtonDeprecated6Attributes {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.text === "undefined" || typeof obj.text === "string") &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.borderRadius === "undefined" || typeof obj.borderRadius === "number") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
-  )
-}
-
-export function isButtonDeprecated7Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ButtonDeprecated7Attributes {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (typeof obj.url === "undefined" || typeof obj.url === "string") &&
@@ -926,10 +888,10 @@ export function isButtonDeprecated7Attributes(
   )
 }
 
-export function isButtonDeprecated8Attributes(
+export function isButtonDeprecated7Attributes(
   obj: any,
   _argumentName?: string,
-): obj is ButtonDeprecated8Attributes {
+): obj is ButtonDeprecated7Attributes {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (typeof obj.url === "undefined" || typeof obj.url === "string") &&
@@ -951,10 +913,10 @@ export function isButtonDeprecated8Attributes(
   )
 }
 
-export function isButtonDeprecated9Attributes(
+export function isButtonDeprecated8Attributes(
   obj: any,
   _argumentName?: string,
-): obj is ButtonDeprecated9Attributes {
+): obj is ButtonDeprecated8Attributes {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (typeof obj.url === "undefined" || typeof obj.url === "string") &&
@@ -973,10 +935,10 @@ export function isButtonDeprecated9Attributes(
   )
 }
 
-export function isButtonDeprecated10Attributes(
+export function isButtonDeprecated9Attributes(
   obj: any,
   _argumentName?: string,
-): obj is ButtonDeprecated10Attributes {
+): obj is ButtonDeprecated9Attributes {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (typeof obj.url === "undefined" || typeof obj.url === "string") &&
@@ -992,10 +954,10 @@ export function isButtonDeprecated10Attributes(
   )
 }
 
-export function isButtonDeprecated11Attributes(
+export function isButtonDeprecated10Attributes(
   obj: any,
   _argumentName?: string,
-): obj is ButtonDeprecated11Attributes {
+): obj is ButtonDeprecated10Attributes {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (typeof obj.url === "undefined" || typeof obj.url === "string") &&

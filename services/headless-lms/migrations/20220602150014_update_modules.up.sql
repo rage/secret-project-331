@@ -24,7 +24,8 @@ UPDATE chapters
 SET course_module_id = course_modules.id
 FROM course_modules
 WHERE chapters.course_id = course_modules.course_id
-  AND chapters.course_module_id IS NULL;
+  AND chapters.course_module_id IS NULL
+  AND course_modules.order_number = 0;
 ALTER TABLE chapters
 ALTER COLUMN course_module_id
 SET NOT NULL;

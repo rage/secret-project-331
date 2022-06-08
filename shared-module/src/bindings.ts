@@ -826,6 +826,12 @@ export interface ExerciseSlideSubmissionCountByWeekAndHour {
   count: number | null
 }
 
+export interface ExerciseSlideSubmissionInfo {
+  tasks: Array<CourseMaterialExerciseTask>
+  exercise: Exercise
+  exercise_slide_submission: ExerciseSlideSubmission
+}
+
 export interface ExerciseTaskGrading {
   id: string
   created_at: Date

@@ -616,210 +616,248 @@ AND deleted_at IS NULL;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        chapters::{self, DatabaseChapter, NewChapter},
-        course_modules, courses, exercise_slides,
-        exercise_tasks::{self, ExerciseTask, NewExerciseTask},
-        exercises::{self, Exercise},
-        organizations,
-        pages::{self, Page},
-        test_helper::*,
-        users,
-    };
 
-    #[tokio::test]
-    async fn copies_course() {
-        let mut conn = Conn::init().await;
-        let mut tx = conn.begin().await;
+    mod course_copying {
+        use super::*;
+        use crate::{exercise_tasks::ExerciseTask, pages::Page, test_helper::*};
 
-        // Create test data
-        let organization_id = organizations::insert(
-            tx.as_mut(),
-            "",
-            "",
-            "description",
-            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
-        )
-        .await
-        .unwrap();
-        let user_id = users::insert(tx.as_mut(), "copies_course_user@example.com", None, None)
+        #[tokio::test]
+        async fn copies_course_as_different_course_language_group() {
+            insert_data!(:tx, :user, :org, :course);
+            let course = crate::courses::get_course(tx.as_mut(), course)
+                .await
+                .unwrap();
+            let new_course = create_new_course(org);
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, false)
+                .await
+                .unwrap();
+            assert_eq!(copied_course.name, "Copied course".to_string());
+            assert_eq!(copied_course.copied_from, Some(course.id));
+            assert_ne!(course.id, copied_course.id);
+            assert_ne!(
+                course.course_language_group_id,
+                copied_course.course_language_group_id
+            );
+        }
+
+        #[tokio::test]
+        async fn copies_course_as_same_course_language_group() {
+            insert_data!(:tx, :user, :org, :course);
+            let course = crate::courses::get_course(tx.as_mut(), course)
+                .await
+                .unwrap();
+            let new_course = create_new_course(org);
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+                .await
+                .unwrap();
+            assert_eq!(copied_course.name, "Copied course".to_string());
+            assert_eq!(copied_course.copied_from, Some(course.id));
+            assert_ne!(course.id, copied_course.id);
+            assert_eq!(
+                course.course_language_group_id,
+                copied_course.course_language_group_id
+            );
+        }
+
+        #[tokio::test]
+        async fn copies_course_instances() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance);
+            let course = crate::courses::get_course(tx.as_mut(), course)
+                .await
+                .unwrap();
+            let new_course = create_new_course(org);
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+                .await
+                .unwrap();
+            let copied_instances = crate::course_instances::get_course_instances_for_course(
+                tx.as_mut(),
+                copied_course.id,
+            )
             .await
             .unwrap();
-        let (course, _page, _instance) = courses::insert_course(
-            tx.as_mut(),
-            Uuid::parse_str("86ede846-db97-4204-94c3-29cc2e71818e").unwrap(),
-            Uuid::new_v4(),
+            assert_eq!(copied_instances.len(), 1);
+            // Instances are missing the copied_from record.
+        }
+
+        #[tokio::test]
+        async fn copies_course_modules() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, course_module: _course_module);
+            let course = crate::courses::get_course(tx.as_mut(), course)
+                .await
+                .unwrap();
+            let new_course = create_new_course(org);
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+                .await
+                .unwrap();
+            let copied_modules =
+                crate::course_modules::get_by_course_id(tx.as_mut(), copied_course.id)
+                    .await
+                    .unwrap();
+            assert_eq!(copied_modules.len(), 1);
+            // Course modules are missing the copied_from record.
+        }
+
+        #[tokio::test]
+        async fn copies_course_chapters() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, :chapter);
+            let course = crate::courses::get_course(tx.as_mut(), course)
+                .await
+                .unwrap();
+            let new_course = create_new_course(org);
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+                .await
+                .unwrap();
+            let copied_chapters = crate::chapters::course_chapters(tx.as_mut(), copied_course.id)
+                .await
+                .unwrap();
+            assert_eq!(copied_chapters.len(), 1);
+            assert_eq!(copied_chapters.get(0).unwrap().copied_from, Some(chapter));
+        }
+
+        #[tokio::test]
+        async fn updates_chapter_front_pages() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, chapter: _chapter);
+            let course = crate::courses::get_course(tx.as_mut(), course)
+                .await
+                .unwrap();
+            let new_course = create_new_course(org);
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+                .await
+                .unwrap();
+            let copied_chapters = crate::chapters::course_chapters(tx.as_mut(), copied_course.id)
+                .await
+                .unwrap();
+            let copied_chapter = copied_chapters.get(0).unwrap();
+            let copied_chapter_front_page =
+                crate::pages::get_page(tx.as_mut(), copied_chapter.front_page_id.unwrap())
+                    .await
+                    .unwrap();
+            assert_eq!(copied_chapter_front_page.course_id, Some(copied_course.id));
+        }
+
+        #[tokio::test]
+        async fn copies_course_pages() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, :chapter, page: _page);
+            let course = crate::courses::get_course(tx.as_mut(), course)
+                .await
+                .unwrap();
+            let new_course = create_new_course(org);
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+                .await
+                .unwrap();
+            let mut original_pages_by_id: HashMap<Uuid, Page> =
+                crate::pages::course_pages(tx.as_mut(), course.id)
+                    .await
+                    .unwrap()
+                    .into_iter()
+                    .map(|page| (page.id, page))
+                    .collect();
+            let copied_pages = crate::pages::course_pages(tx.as_mut(), copied_course.id)
+                .await
+                .unwrap();
+            // Creating a course and a chapter both lead to an additional page being created.
+            assert_eq!(copied_pages.len(), 3);
+            copied_pages.into_iter().for_each(|copied_page| {
+                assert!(original_pages_by_id
+                    .remove(&copied_page.copied_from.unwrap())
+                    .is_some());
+            });
+            assert!(original_pages_by_id.is_empty());
+        }
+
+        #[tokio::test]
+        async fn updates_exercise_id_in_content() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, :chapter, :page, :exercise);
+            let course = crate::courses::get_course(tx.as_mut(), course)
+                .await
+                .unwrap();
+            crate::pages::update_page_content(
+                tx.as_mut(),
+                page,
+                &serde_json::json!([{
+                    "name": "moocfi/exercise",
+                    "isValid": true,
+                    "clientId": "b2ecb473-38cc-4df1-84f7-06709cc63e95",
+                    "attributes": {
+                        "id": exercise,
+                        "name": "Exercise"
+                    },
+                    "innerBlocks": []
+                }]),
+            )
+            .await
+            .unwrap();
+            let new_course = create_new_course(org);
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+                .await
+                .unwrap();
+            let copied_pages = crate::pages::course_pages(tx.as_mut(), copied_course.id)
+                .await
+                .unwrap();
+            let copied_page = copied_pages
+                .into_iter()
+                .find(|copied_page| copied_page.copied_from == Some(page))
+                .unwrap();
+            let copied_exercise_id_in_content =
+                Uuid::parse_str(copied_page.content[0]["attributes"]["id"].as_str().unwrap())
+                    .unwrap();
+            let copied_exercise =
+                crate::exercises::get_by_id(tx.as_mut(), copied_exercise_id_in_content)
+                    .await
+                    .unwrap();
+            assert_eq!(copied_exercise.course_id.unwrap(), copied_course.id);
+        }
+
+        #[tokio::test]
+        async fn copies_exercises_tasks_and_slides() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, :chapter, :page, :exercise, :slide, :task);
+            let course = crate::courses::get_course(tx.as_mut(), course)
+                .await
+                .unwrap();
+            let new_course = create_new_course(org);
+            let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
+                .await
+                .unwrap();
+            let copied_exercises =
+                crate::exercises::get_exercises_by_course_id(tx.as_mut(), copied_course.id)
+                    .await
+                    .unwrap();
+            assert_eq!(copied_exercises.len(), 1);
+            let copied_exercise = copied_exercises.first().unwrap();
+            assert_eq!(copied_exercise.copied_from, Some(exercise));
+            let copied_slides = crate::exercise_slides::get_exercise_slides_by_exercise_id(
+                tx.as_mut(),
+                copied_exercise.id,
+            )
+            .await
+            .unwrap();
+            assert_eq!(copied_slides.len(), 1);
+            let copied_slide = copied_slides.first().unwrap();
+            // Exercise slides don't have copied_from field
+            let copied_tasks: Vec<ExerciseTask> =
+                crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_id(
+                    tx.as_mut(),
+                    &copied_slide.id,
+                )
+                .await
+                .unwrap();
+            assert_eq!(copied_tasks.len(), 1);
+            let copied_task = copied_tasks.first().unwrap();
+            assert_eq!(copied_task.copied_from, Some(task))
+        }
+
+        fn create_new_course(organization_id: Uuid) -> NewCourse {
             NewCourse {
+                name: "Copied course".to_string(),
+                slug: "copied-course".to_string(),
+                organization_id,
                 language_code: "en-US".to_string(),
-                name: "Course".to_string(),
-                organization_id,
-                slug: "course".to_string(),
-                teacher_in_charge_name: "admin".to_string(),
-                teacher_in_charge_email: "admin@example.org".to_string(),
-                description: "description".to_string(),
+                teacher_in_charge_name: "Teacher".to_string(),
+                teacher_in_charge_email: "teacher@example.com".to_string(),
+                description: "".to_string(),
                 is_draft: false,
                 is_test_mode: false,
-            },
-            user_id,
-        )
-        .await
-        .unwrap();
-        let course_module_id = course_modules::insert(tx.as_mut(), course.id, None, 0)
-            .await
-            .unwrap();
-        let (chapter, chapter_front_page) = chapters::insert_chapter(
-            tx.as_mut(),
-            NewChapter {
-                chapter_number: 1,
-                course_id: course.id,
-                front_page_id: None,
-                name: "Chapter".to_string(),
-                opens_at: None,
-                deadline: None,
-                course_module_id: course_module_id,
-            },
-            user_id,
-        )
-        .await
-        .unwrap();
-        let exercise_id = exercises::insert(
-            tx.as_mut(),
-            course.id,
-            "Exercise",
-            chapter_front_page.id,
-            chapter.id,
-            1,
-        )
-        .await
-        .unwrap();
-        let exercise_slide_id = exercise_slides::insert_with_id(
-            tx.as_mut(),
-            Uuid::parse_str("a676876f-1827-4db6-abbb-f41079cc0315").unwrap(),
-            exercise_id,
-            0,
-        )
-        .await
-        .unwrap();
-        let exercise_task_id = exercise_tasks::insert(
-            tx.as_mut(),
-            NewExerciseTask {
-                exercise_slide_id,
-                exercise_type: "test-exercise".to_string(),
-                assignment: vec![],
-                public_spec: Some(Value::Null),
-                private_spec: Some(Value::Null),
-                spec_file_id: None,
-                model_solution_spec: Some(Value::Null),
-                order_number: 1,
-            },
-        )
-        .await
-        .unwrap();
-        pages::update_page_content(
-            tx.as_mut(),
-            chapter_front_page.id,
-            &serde_json::json!([{
-                "name": "moocfi/exercise",
-                "isValid": true,
-                "clientId": "b2ecb473-38cc-4df1-84f7-06709cc63e95",
-                "attributes": {
-                    "id": exercise_id,
-                    "name": "Exercise"
-                },
-                "innerBlocks": []
-            }]),
-        )
-        .await
-        .unwrap();
-
-        // Copy the course
-        let copied_course = copy_course(
-            tx.as_mut(),
-            course.id,
-            &NewCourse {
-                language_code: "fi-FI".to_string(),
-                name: "Kurssi".to_string(),
-                organization_id,
-                slug: "kurssi".to_string(),
-                teacher_in_charge_name: "admin".to_string(),
-                teacher_in_charge_email: "admin@example.org".to_string(),
-                description: "description".to_string(),
-                is_draft: false,
-                is_test_mode: false,
-            },
-            true,
-        )
-        .await
-        .unwrap();
-        assert_eq!(copied_course.copied_from, Some(course.id));
-
-        // Assuming there's only one chapter per course in test data.
-        let copied_chapter = sqlx::query_as!(
-            DatabaseChapter,
-            "SELECT * FROM chapters WHERE course_id = $1;",
-            copied_course.id,
-        )
-        .fetch_one(tx.as_mut())
-        .await
-        .unwrap();
-        assert_eq!(copied_chapter.copied_from, Some(chapter.id));
-
-        // Assuming there's only one page per chapter in test data.
-        let copied_page = sqlx::query_as!(
-            Page,
-            "
-SELECT id,
-  created_at,
-  updated_at,
-  course_id,
-  exam_id,
-  chapter_id,
-  url_path,
-  title,
-  deleted_at,
-  content,
-  order_number,
-  copied_from
-FROM pages
-WHERE chapter_id = $1
-  AND course_id IS NOT NULL
-",
-            copied_chapter.id
-        )
-        .fetch_one(tx.as_mut())
-        .await
-        .unwrap();
-        assert_eq!(copied_page.copied_from, Some(chapter_front_page.id));
-
-        // Assuming there's only one exercise per page in test data.
-        let copied_exercise = sqlx::query_as!(
-            Exercise,
-            "SELECT * FROM exercises WHERE page_id = $1;",
-            copied_page.id
-        )
-        .fetch_one(tx.as_mut())
-        .await
-        .unwrap();
-        assert_eq!(copied_exercise.copied_from, Some(exercise_id));
-        assert_eq!(
-            copied_page.content[0]["attributes"]["id"],
-            Value::String(copied_exercise.id.to_string())
-        );
-
-        // Assuming there's only one exercise task per exercise in test data.
-        let copied_exercise_task = sqlx::query_as!(
-            ExerciseTask,
-            "
-SELECT t.*
-FROM exercise_tasks t
-  JOIN exercise_slides s ON (t.exercise_slide_id = s.id)
-WHERE s.exercise_id = $1;
-            ",
-            copied_exercise.id
-        )
-        .fetch_one(tx.as_mut())
-        .await
-        .unwrap();
-        assert_eq!(copied_exercise_task.copied_from, Some(exercise_task_id));
+            }
+        }
     }
 }

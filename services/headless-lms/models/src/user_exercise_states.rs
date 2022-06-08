@@ -1,9 +1,13 @@
+use std::collections::HashMap;
+
 use futures::Stream;
 use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use serde_json::Value;
 
 use crate::{
-    course_instances, courses,
+    course_instances,
+    course_modules::{self, Module},
+    courses,
     exercises::{ActivityProgress, Exercise, GradingProgress},
     prelude::*,
     user_course_settings,
@@ -134,8 +138,9 @@ impl TryFrom<UserExerciseState> for CourseInstanceOrExamId {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseInstanceProgress {
-    /// Temporary placeholder, data should be categorized by module in future.
-    pub module_name: String,
+    pub course_module_id: Uuid,
+    pub course_module_name: String,
+    pub course_module_order_number: i32,
     pub score_given: f32,
     pub score_maximum: Option<u32>,
     pub total_exercises: Option<u32>,
@@ -163,12 +168,14 @@ pub struct UserChapterMetrics {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct UserCourseInstanceMetrics {
+    course_module_id: Uuid,
     score_given: Option<f32>,
     attempted_exercises: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct CourseInstanceExerciseMetrics {
+    course_module_id: Uuid,
     total_exercises: Option<i64>,
     score_maximum: Option<i64>,
 }
@@ -192,21 +199,36 @@ pub struct ExerciseUserCounts {
 pub async fn get_course_instance_metrics(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
-) -> ModelResult<CourseInstanceExerciseMetrics> {
+) -> ModelResult<Vec<CourseInstanceExerciseMetrics>> {
     let res = sqlx::query_as!(
         CourseInstanceExerciseMetrics,
-        r#"
-SELECT COUNT(e.id) AS total_exercises,
-  SUM(e.score_maximum) AS score_maximum
-FROM course_instances AS ci
-  LEFT JOIN exercises AS e ON ci.course_id = e.course_id
-WHERE e.deleted_at IS NULL
-  AND ci.id = $1;
-        "#,
+        r"
+SELECT chapters.course_module_id,
+  COUNT(exercises.id) AS total_exercises,
+  SUM(exercises.score_maximum) AS score_maximum
+FROM course_instances
+  LEFT JOIN exercises ON (course_instances.course_id = exercises.course_id)
+  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
+WHERE exercises.deleted_at IS NULL
+  AND course_instances.id = $1
+GROUP BY chapters.course_module_id
+        ",
         course_instance_id
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn get_course_instance_metrics_indexed_by_module_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<HashMap<Uuid, CourseInstanceExerciseMetrics>> {
+    let res = get_course_instance_metrics(conn, course_instance_id)
+        .await?
+        .into_iter()
+        .map(|x| (x.course_module_id, x))
+        .collect();
     Ok(res)
 }
 
@@ -214,23 +236,40 @@ pub async fn get_user_course_instance_metrics(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<UserCourseInstanceMetrics> {
+) -> ModelResult<Vec<UserCourseInstanceMetrics>> {
     let res = sqlx::query_as!(
         UserCourseInstanceMetrics,
-        r#"
-SELECT COUNT(ues.exercise_id) AS attempted_exercises,
+        r"
+SELECT chapters.course_module_id,
+  COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
+  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)
+  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
 WHERE ues.course_instance_id = $1
   AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
-  AND ues.deleted_at IS NULL;
-        "#,
+  AND ues.deleted_at IS NULL
+GROUP BY chapters.course_module_id;
+        ",
         course_instance_id,
-        user_id
+        user_id,
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn get_user_course_instance_metrics_indexed_by_module_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<HashMap<Uuid, UserCourseInstanceMetrics>> {
+    let res = get_user_course_instance_metrics(conn, course_instance_id, user_id)
+        .await?
+        .into_iter()
+        .map(|x| (x.course_module_id, x))
+        .collect();
     Ok(res)
 }
 
@@ -267,31 +306,57 @@ pub async fn get_user_course_instance_progress(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<UserCourseInstanceProgress> {
-    let course_metrics = get_course_instance_metrics(&mut *conn, course_instance_id).await?;
-    let user_metrics = get_user_course_instance_metrics(conn, course_instance_id, user_id).await?;
+) -> ModelResult<Vec<UserCourseInstanceProgress>> {
+    let course_metrics =
+        get_course_instance_metrics_indexed_by_module_id(&mut *conn, course_instance_id).await?;
+    let user_metrics =
+        get_user_course_instance_metrics_indexed_by_module_id(conn, course_instance_id, user_id)
+            .await?;
     let course_id = course_instances::get_course_instance(conn, course_instance_id)
         .await?
         .course_id;
     let course_name = courses::get_course(conn, course_id).await?.name;
+    let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
+    merge_modules_with_metrics(course_modules, &course_metrics, &user_metrics, &course_name)
+}
 
-    let result = UserCourseInstanceProgress {
-        module_name: course_name,
-        score_given: option_f32_to_f32_two_decimals(user_metrics.score_given),
-        attempted_exercises: user_metrics
-            .attempted_exercises
-            .map(TryInto::try_into)
-            .transpose()?,
-        score_maximum: course_metrics
-            .score_maximum
-            .map(TryInto::try_into)
-            .transpose()?,
-        total_exercises: course_metrics
-            .total_exercises
-            .map(TryInto::try_into)
-            .transpose()?,
-    };
-    Ok(result)
+fn merge_modules_with_metrics(
+    course_modules: Vec<Module>,
+    course_metrics_by_course_module_id: &HashMap<Uuid, CourseInstanceExerciseMetrics>,
+    user_metrics_by_course_module_id: &HashMap<Uuid, UserCourseInstanceMetrics>,
+    default_course_module_name_placeholder: &str,
+) -> ModelResult<Vec<UserCourseInstanceProgress>> {
+    course_modules
+        .into_iter()
+        .map(|course_module| {
+            let user_metrics = user_metrics_by_course_module_id.get(&course_module.id);
+            let course_metrics = course_metrics_by_course_module_id.get(&course_module.id);
+            let progress = UserCourseInstanceProgress {
+                course_module_id: course_module.id,
+                // Only default course module doesn't have a name.
+                course_module_name: course_module
+                    .name
+                    .unwrap_or_else(|| default_course_module_name_placeholder.to_string()),
+                course_module_order_number: course_module.order_number,
+                score_given: option_f32_to_f32_two_decimals(
+                    user_metrics.and_then(|x| x.score_given),
+                ),
+                attempted_exercises: user_metrics
+                    .and_then(|x| x.attempted_exercises)
+                    .map(TryInto::try_into)
+                    .transpose()?,
+                score_maximum: course_metrics
+                    .and_then(|x| x.score_maximum)
+                    .map(TryInto::try_into)
+                    .transpose()?,
+                total_exercises: course_metrics
+                    .and_then(|x| x.total_exercises)
+                    .map(TryInto::try_into)
+                    .transpose()?,
+            };
+            Ok(progress)
+        })
+        .collect::<ModelResult<_>>()
 }
 
 pub async fn get_user_course_instance_chapter_exercises_progress(
@@ -806,4 +871,49 @@ SELECT exercises.name as exercise_name,
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn merges_course_modules_with_metrics() {
+        let module_id = Uuid::parse_str("9e831ecc-9751-42f1-ae7e-9b2f06e523e8").unwrap();
+        let course_modules = vec![Module {
+            id: module_id,
+            name: None,
+            order_number: 0,
+        }];
+        let course_metrics_by_course_module_id = HashMap::from([(
+            module_id,
+            CourseInstanceExerciseMetrics {
+                course_module_id: module_id,
+                total_exercises: Some(4),
+                score_maximum: Some(10),
+            },
+        )]);
+        let user_metrics_by_course_module_id = HashMap::from([(
+            module_id,
+            UserCourseInstanceMetrics {
+                course_module_id: module_id,
+                score_given: Some(1.0),
+                attempted_exercises: Some(3),
+            },
+        )]);
+        let metrics = merge_modules_with_metrics(
+            course_modules,
+            &course_metrics_by_course_module_id,
+            &user_metrics_by_course_module_id,
+            "Default module",
+        )
+        .unwrap();
+        assert_eq!(metrics.len(), 1);
+        let metric = metrics.first().unwrap();
+        assert_eq!(metric.attempted_exercises, Some(3));
+        assert_eq!(&metric.course_module_name, "Default module");
+        assert_eq!(metric.score_given, 1.0);
+        assert_eq!(metric.score_maximum, Some(10));
+        assert_eq!(metric.total_exercises, Some(4));
+    }
 }

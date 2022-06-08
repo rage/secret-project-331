@@ -10,7 +10,7 @@ import ExerciseCountDisplay from "./ExerciseCountDisplay"
 import TempAccordionItem from "./TempAccordionItem"
 
 export interface CourseProgressProps {
-  userCourseInstanceProgress: UserCourseInstanceProgress
+  userCourseInstanceProgress: UserCourseInstanceProgress[]
 }
 
 const Wrapper = styled.div`
@@ -22,6 +22,11 @@ const Wrapper = styled.div`
 const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgress }) => {
   const [openedModule, setOpenedModule] = useState(0)
   const { t } = useTranslation()
+
+  const handleAccordionToggle = (sourceId: number) => {
+    setOpenedModule((prev) => (prev !== sourceId ? sourceId : -1))
+  }
+
   return (
     <>
       <h2
@@ -34,45 +39,49 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgr
       >
         {t("track-your-progress")}
       </h2>
-      {/* TO IMPLEMENT: Map module data to accordions. Are we even going to use accordion?*/}
-      <TempAccordionItem
-        onClick={() => setOpenedModule((prev) => (prev !== 0 ? 0 : -1))}
-        open={openedModule === 0}
-        title={userCourseInstanceProgress.module_name}
-      >
-        <Wrapper>
-          <ExerciseCountDisplay
-            exercisesAnswered={userCourseInstanceProgress.attempted_exercises ?? ""}
-            exercisesNeededToAnswer={userCourseInstanceProgress.total_exercises ?? ""}
-            totalExercises={userCourseInstanceProgress.total_exercises ?? ""}
-          />
-        </Wrapper>
-        <Wrapper>
-          <div
-            className={css`
-              width: 100%;
-              margin: 0 auto;
-              text-align: center;
-              padding: 2em 0;
-            `}
+      {userCourseInstanceProgress
+        .sort((a, b) => a.course_module_order_number - b.course_module_order_number)
+        .map((courseModuleProgress) => (
+          <TempAccordionItem
+            onClick={() => handleAccordionToggle(courseModuleProgress.course_module_order_number)}
+            open={openedModule === courseModuleProgress.course_module_order_number}
+            title={courseModuleProgress.course_module_name}
+            key={courseModuleProgress.course_module_id}
           >
-            {/* TODO: Verify how it looks when score_given is a floating number */}
-            <Progress
-              variant={"circle"}
-              max={userCourseInstanceProgress.score_maximum}
-              given={userCourseInstanceProgress.score_given}
-              point={50}
-              label={t("total-points")}
-            />
-            <Progress
-              variant={"bar"}
-              showAsPercentage={true}
-              exercisesAttempted={userCourseInstanceProgress.attempted_exercises}
-              exercisesTotal={userCourseInstanceProgress.total_exercises}
-            />
-          </div>
-        </Wrapper>
-      </TempAccordionItem>
+            <Wrapper>
+              <ExerciseCountDisplay
+                exercisesAnswered={courseModuleProgress.attempted_exercises ?? 0}
+                exercisesNeededToAnswer={courseModuleProgress.total_exercises ?? 0}
+                totalExercises={courseModuleProgress.total_exercises ?? 0}
+              />
+            </Wrapper>
+            <Wrapper>
+              <div
+                className={css`
+                  width: 100%;
+                  margin: 0 auto;
+                  text-align: center;
+                  padding: 2em 0;
+                `}
+              >
+                {/* TODO: Verify how it looks when score_given is a floating number */}
+                <Progress
+                  variant={"circle"}
+                  max={courseModuleProgress.score_maximum}
+                  given={courseModuleProgress.score_given}
+                  point={50}
+                  label={t("total-points")}
+                />
+                <Progress
+                  variant={"bar"}
+                  showAsPercentage={true}
+                  exercisesAttempted={courseModuleProgress.attempted_exercises}
+                  exercisesTotal={courseModuleProgress.total_exercises}
+                />
+              </div>
+            </Wrapper>
+          </TempAccordionItem>
+        ))}
     </>
   )
 }

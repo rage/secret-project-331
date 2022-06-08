@@ -6949,6 +6949,32 @@
       "nullable": [false, false, false, true, false, false, false, false, false, false]
     }
   },
+  "7ac092aa73f25fe5f40a136af9ce3f9ff9b370f2b118be04b49c3f4a5fa8dafd": {
+    "query": "\nSELECT chapters.course_module_id,\n  COUNT(ues.exercise_id) AS attempted_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\n  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\nWHERE ues.course_instance_id = $1\n  AND ues.activity_progress IN ('completed', 'submitted')\n  AND ues.user_id = $2\n  AND ues.deleted_at IS NULL\nGROUP BY chapters.course_module_id;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_module_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "attempted_exercises",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 2,
+          "name": "score_given",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [false, null, null]
+    }
+  },
   "7afc90f9381a04e4c0390b627468f4e98af77da0570168747ef9fb7cc3c86042": {
     "query": "\n        INSERT INTO exercises (\n            id,\n            course_id,\n            name,\n            deadline,\n            page_id,\n            score_maximum,\n            order_number,\n            chapter_id,\n            copied_from\n          )\n        SELECT uuid_generate_v5($1, id::text),\n          $1,\n          name,\n          deadline,\n          uuid_generate_v5($1, page_id::text),\n          score_maximum,\n          order_number,\n          chapter_id,\n          id\n        FROM exercises\n        WHERE course_id = $2\n        AND deleted_at IS NULL\n        RETURNING id,\n          copied_from;\n            ",
     "describe": {
@@ -11647,27 +11673,6 @@
       "nullable": [null, null]
     }
   },
-  "d1fa7c86c85fe788acf082f887a34058fe2a040299ac8ee70a541cd74ef78156": {
-    "query": "\nSELECT COUNT(ues.exercise_id) AS attempted_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.course_instance_id = $1\n  AND ues.activity_progress IN ('completed', 'submitted')\n  AND ues.user_id = $2\n  AND ues.deleted_at IS NULL;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "attempted_exercises",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 1,
-          "name": "score_given",
-          "type_info": "Float4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": [null, null]
-    }
-  },
   "d21fdc6eb89bf28c479b64ee9a5fff8dbb67f4c8bb02b25779e672187fed4fd7": {
     "query": "\n    INSERT INTO user_exercise_states (\n        user_id,\n        exercise_id,\n        course_instance_id,\n        selected_exercise_slide_id,\n        exam_id\n      )\n    VALUES ($1, $2, $3, $4, $5)\n    ",
     "describe": {
@@ -12625,27 +12630,6 @@
       "nullable": [null]
     }
   },
-  "e398cd25e0ebe20fbc1cb9bd3d525aacadb8604da50269598f265f9e2f099d49": {
-    "query": "\nSELECT COUNT(e.id) AS total_exercises,\n  SUM(e.score_maximum) AS score_maximum\nFROM course_instances AS ci\n  LEFT JOIN exercises AS e ON ci.course_id = e.course_id\nWHERE e.deleted_at IS NULL\n  AND ci.id = $1;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "total_exercises",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 1,
-          "name": "score_maximum",
-          "type_info": "Int8"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [null, null]
-    }
-  },
   "e3c6cc19ea36187a8e99b3ccb88eceedaf4e65d67406df70be92017971b74d7c": {
     "query": "\n    UPDATE chapters\n    SET front_page_id = uuid_generate_v5(course_id, front_page_id::text)\n    WHERE course_id = $1\n        AND front_page_id IS NOT NULL;\n            ",
     "describe": {
@@ -12710,6 +12694,32 @@
         "Left": []
       },
       "nullable": [false, false, false, true, false, false, false, true, false]
+    }
+  },
+  "e50a489e4b63d0ccb43c85b02a0b085c7ba0d5d9e54d073df9ddc679010bf1d7": {
+    "query": "\nSELECT chapters.course_module_id,\n  COUNT(exercises.id) AS total_exercises,\n  SUM(exercises.score_maximum) AS score_maximum\nFROM course_instances\n  LEFT JOIN exercises ON (course_instances.course_id = exercises.course_id)\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\nWHERE exercises.deleted_at IS NULL\n  AND course_instances.id = $1\nGROUP BY chapters.course_module_id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_module_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "total_exercises",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 2,
+          "name": "score_maximum",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, null, null]
     }
   },
   "e51930274913bb5238ab3d9bead1b6a2747b38ab840e9ec51397e26162e0d6c2": {

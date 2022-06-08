@@ -1575,7 +1575,9 @@ export function isUserCourseInstanceProgress(
 ): obj is UserCourseInstanceProgress {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.module_name === "string" &&
+    typeof obj.course_module_id === "string" &&
+    typeof obj.course_module_name === "string" &&
+    typeof obj.course_module_order_number === "number" &&
     typeof obj.score_given === "number" &&
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&

@@ -12,9 +12,9 @@ const HilightContainer = styled.div`
 `
 
 export interface ExerciseCountDisplayProps {
-  exercisesAnswered: string | number
-  exercisesNeededToAnswer: string | number
-  totalExercises: string | number
+  exercisesAnswered: number
+  exercisesNeededToAnswer: number
+  totalExercises: number
 }
 
 const ExerciseCountDisplay: React.FC<ExerciseCountDisplayProps> = ({

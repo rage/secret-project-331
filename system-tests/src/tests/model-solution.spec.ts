@@ -26,10 +26,12 @@ test.describe("Model solutions", () => {
 
     expectPath(page, "/manage/courses/[id]")
     // Click text=view submissions
-    await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/manage/exercises/6460b318-254c-4b70-9e1f-9ff6b2c3d461/submissions' }*/),
-      page.click("text=view submissions"),
-    ])
+    // await Promise.all([
+    //   page.waitForNavigation(/*{ url: 'http://project-331.local/manage/exercises/6460b318-254c-4b70-9e1f-9ff6b2c3d461/submissions' }*/),
+    //   page.click("text=view submissions"),
+    // ])
+    await page.click("text=Exercises")
+    await page.click("text=view submissions")
     // Click a:has-text("link")
     await Promise.all([page.waitForNavigation(), page.click('a:has-text("link")')])
     expectPath(page, "/submissions/[id]")

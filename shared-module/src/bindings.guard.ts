@@ -33,6 +33,10 @@ import {
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseSlide,
   CourseMaterialExerciseTask,
+  CourseMaterialPeerReviewData,
+  CourseMaterialPeerReviewDataAnswerToReview,
+  CourseMaterialPeerReviewQuestionAnswer,
+  CourseMaterialPeerReviewSubmission,
   CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
@@ -59,6 +63,7 @@ import {
   ExerciseSlideSubmissionCount,
   ExerciseSlideSubmissionCountByExercise,
   ExerciseSlideSubmissionCountByWeekAndHour,
+  ExerciseSlideSubmissionInfo,
   ExerciseStatus,
   ExerciseSubmissions,
   ExerciseTask,
@@ -78,11 +83,13 @@ import {
   IsChapterFrontPage,
   Login,
   MarkAsRead,
+  Module,
   NewChapter,
   NewCourse,
   NewExam,
   NewFeedback,
   NewPage,
+  NewPeerReviewQuestion,
   NewProposedBlockEdit,
   NewProposedPageEdits,
   OEmbedResponse,
@@ -98,6 +105,10 @@ import {
   PageSearchResult,
   PageWithExercises,
   Pagination,
+  PeerReview,
+  PeerReviewAcceptingStrategy,
+  PeerReviewQuestion,
+  PeerReviewQuestionType,
   PlaygroundExample,
   PlaygroundExampleData,
   PointMap,
@@ -105,6 +116,7 @@ import {
   ProposalCount,
   ProposalStatus,
   Resource,
+  ReviewingStage,
   RoleDomain,
   RoleInfo,
   RoleQuery,
@@ -113,7 +125,6 @@ import {
   StudentExerciseSlideSubmissionResult,
   StudentExerciseTaskSubmission,
   StudentExerciseTaskSubmissionResult,
-  SubmissionInfo,
   Term,
   TermUpdate,
   UploadResult,
@@ -241,7 +252,8 @@ export function isChapter(obj: any, _argumentName?: string): obj is Chapter {
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
-    (obj.copied_from === null || typeof obj.copied_from === "string")
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    (obj.module === null || typeof obj.module === "string")
   )
 }
 
@@ -259,7 +271,8 @@ export function isDatabaseChapter(obj: any, _argumentName?: string): obj is Data
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
-    (obj.copied_from === null || typeof obj.copied_from === "string")
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    (obj.module === null || typeof obj.module === "string")
   )
 }
 
@@ -273,7 +286,8 @@ export function isChapterUpdate(obj: any, _argumentName?: string): obj is Chapte
     typeof obj.name === "string" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
-    (obj.opens_at === null || obj.opens_at instanceof Date)
+    (obj.opens_at === null || obj.opens_at instanceof Date) &&
+    (obj.module === null || typeof obj.module === "string")
   )
 }
 
@@ -290,7 +304,8 @@ export function isChapterWithStatus(obj: any, _argumentName?: string): obj is Ch
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (isChapterStatus(obj.status) as boolean) &&
-    (obj.chapter_image_url === null || typeof obj.chapter_image_url === "string")
+    (obj.chapter_image_url === null || typeof obj.chapter_image_url === "string") &&
+    (obj.module === null || typeof obj.module === "string")
   )
 }
 
@@ -302,7 +317,8 @@ export function isNewChapter(obj: any, _argumentName?: string): obj is NewChapte
     typeof obj.chapter_number === "number" &&
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (obj.deadline === null || obj.deadline instanceof Date)
+    (obj.deadline === null || obj.deadline instanceof Date) &&
+    (obj.module === null || typeof obj.module === "string")
   )
 }
 
@@ -349,6 +365,7 @@ export function isChapterScore(obj: any, _argumentName?: string): obj is Chapter
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    (obj.module === null || typeof obj.module === "string") &&
     typeof obj.score_given === "number" &&
     typeof obj.score_total === "number"
   )
@@ -406,6 +423,15 @@ export function isPoints(obj: any, _argumentName?: string): obj is Points {
     Object.entries<any>(obj.user_chapter_points).every(
       ([key, value]) => (isPointMap(value) as boolean) && typeof key === "string",
     )
+  )
+}
+
+export function isModule(obj: any, _argumentName?: string): obj is Module {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.order_number === "number"
   )
 }
 
@@ -707,7 +733,8 @@ export function isCourseMaterialExercise(
     typeof obj.can_post_submission === "boolean" &&
     (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
     (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
-    (isPointMap(obj.exercise_slide_submission_counts) as boolean)
+    (isPointMap(obj.exercise_slide_submission_counts) as boolean) &&
+    (obj.peer_review === null || (isPeerReview(obj.peer_review) as boolean))
   )
 }
 
@@ -728,7 +755,8 @@ export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
     typeof obj.order_number === "number" &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
     (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
-    typeof obj.limit_number_of_tries === "boolean"
+    typeof obj.limit_number_of_tries === "boolean" &&
+    typeof obj.needs_peer_review === "boolean"
   )
 }
 
@@ -737,7 +765,8 @@ export function isExerciseStatus(obj: any, _argumentName?: string): obj is Exerc
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     (obj.score_given === null || typeof obj.score_given === "number") &&
     (isActivityProgress(obj.activity_progress) as boolean) &&
-    (isGradingProgress(obj.grading_progress) as boolean)
+    (isGradingProgress(obj.grading_progress) as boolean) &&
+    (isReviewingStage(obj.reviewing_stage) as boolean)
   )
 }
 
@@ -844,6 +873,60 @@ export function isStudentExerciseTaskSubmissionResult(
   )
 }
 
+export function isCourseMaterialPeerReviewData(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewData {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.answer_to_review === null ||
+      (isCourseMaterialPeerReviewDataAnswerToReview(obj.answer_to_review) as boolean)) &&
+    (isPeerReview(obj.peer_review) as boolean) &&
+    Array.isArray(obj.peer_review_questions) &&
+    obj.peer_review_questions.every((e: any) => isPeerReviewQuestion(e) as boolean) &&
+    typeof obj.num_peer_reviews_given === "number"
+  )
+}
+
+export function isCourseMaterialPeerReviewDataAnswerToReview(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewDataAnswerToReview {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_slide_submission_id === "string" &&
+    Array.isArray(obj.course_material_exercise_tasks) &&
+    obj.course_material_exercise_tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean)
+  )
+}
+
+export function isCourseMaterialPeerReviewQuestionAnswer(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewQuestionAnswer {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.peer_review_question_id === "string" &&
+    (obj.text_data === null || typeof obj.text_data === "string") &&
+    (obj.number_data === null || typeof obj.number_data === "number")
+  )
+}
+
+export function isCourseMaterialPeerReviewSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewSubmission {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_slide_submission_id === "string" &&
+    typeof obj.peer_review_id === "string" &&
+    Array.isArray(obj.peer_review_question_answers) &&
+    obj.peer_review_question_answers.every(
+      (e: any) => isCourseMaterialPeerReviewQuestionAnswer(e) as boolean,
+    )
+  )
+}
+
 export function isOrganization(obj: any, _argumentName?: string): obj is Organization {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -886,7 +969,8 @@ export function isCmsPageExercise(obj: any, _argumentName?: string): obj is CmsP
     typeof obj.score_maximum === "number" &&
     (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
     typeof obj.limit_number_of_tries === "boolean" &&
-    (obj.deadline === null || obj.deadline instanceof Date)
+    (obj.deadline === null || obj.deadline instanceof Date) &&
+    typeof obj.needs_peer_review === "boolean"
   )
 }
 
@@ -1113,6 +1197,69 @@ export function isIsChapterFrontPage(obj: any, _argumentName?: string): obj is I
   )
 }
 
+export function isPeerReview(obj: any, _argumentName?: string): obj is PeerReview {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.course_id === "string" &&
+    (obj.exercise_id === null || typeof obj.exercise_id === "string") &&
+    typeof obj.peer_reviews_to_give === "number" &&
+    typeof obj.peer_reviews_to_receive === "number" &&
+    typeof obj.accepting_threshold === "number" &&
+    (isPeerReviewAcceptingStrategy(obj.accepting_strategy) as boolean)
+  )
+}
+
+export function isPeerReviewAcceptingStrategy(
+  obj: any,
+  _argumentName?: string,
+): obj is PeerReviewAcceptingStrategy {
+  return (
+    obj === "AutomaticallyAcceptOrRejectByAverage" ||
+    obj === "AutomaticallyAcceptOrManualReviewByAverage" ||
+    obj === "ManualReviewEverything"
+  )
+}
+
+export function isNewPeerReviewQuestion(
+  obj: any,
+  _argumentName?: string,
+): obj is NewPeerReviewQuestion {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.peer_review_id === "string" &&
+    typeof obj.order_number === "number" &&
+    typeof obj.question === "string" &&
+    (isPeerReviewQuestionType(obj.question_type) as boolean) &&
+    typeof obj.answer_required === "boolean"
+  )
+}
+
+export function isPeerReviewQuestion(obj: any, _argumentName?: string): obj is PeerReviewQuestion {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.peer_review_id === "string" &&
+    typeof obj.order_number === "number" &&
+    typeof obj.question === "string" &&
+    (isPeerReviewQuestionType(obj.question_type) as boolean) &&
+    typeof obj.answer_required === "boolean"
+  )
+}
+
+export function isPeerReviewQuestionType(
+  obj: any,
+  _argumentName?: string,
+): obj is PeerReviewQuestionType {
+  return obj === "Essay" || obj === "Scale"
+}
+
 export function isPlaygroundExample(obj: any, _argumentName?: string): obj is PlaygroundExample {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1289,6 +1436,19 @@ export function isExerciseSlideSubmissionCountByWeekAndHour(
   )
 }
 
+export function isExerciseSlideSubmissionInfo(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseSlideSubmissionInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.tasks) &&
+    obj.tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean) &&
+    (isExercise(obj.exercise) as boolean) &&
+    (isExerciseSlideSubmission(obj.exercise_slide_submission) as boolean)
+  )
+}
+
 export function isExerciseTaskGrading(
   obj: any,
   _argumentName?: string,
@@ -1349,17 +1509,6 @@ export function isExerciseTaskSubmission(
     typeof obj.exercise_task_id === "string" &&
     typeof obj.exercise_slide_id === "string" &&
     (obj.exercise_task_grading_id === null || typeof obj.exercise_task_grading_id === "string")
-  )
-}
-
-export function isSubmissionInfo(obj: any, _argumentName?: string): obj is SubmissionInfo {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isExerciseTaskSubmission(obj.submission) as boolean) &&
-    (isExercise(obj.exercise) as boolean) &&
-    (isExerciseTask(obj.exercise_task) as boolean) &&
-    (obj.grading === null || (isExerciseTaskGrading(obj.grading) as boolean)) &&
-    typeof obj.iframe_path === "string"
   )
 }
 
@@ -1454,6 +1603,17 @@ export function isExerciseUserCounts(obj: any, _argumentName?: string): obj is E
   )
 }
 
+export function isReviewingStage(obj: any, _argumentName?: string): obj is ReviewingStage {
+  return (
+    obj === "NotStarted" ||
+    obj === "PeerReview" ||
+    obj === "SelfReview" ||
+    obj === "WaitingForPeerReviews" ||
+    obj === "WaitingForManualGrading" ||
+    obj === "ReviewedAndLocked"
+  )
+}
+
 export function isUser(obj: any, _argumentName?: string): obj is User {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1472,6 +1632,8 @@ export function isChaptersWithStatus(obj: any, _argumentName?: string): obj is C
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.is_previewable === "boolean" &&
+    Array.isArray(obj.modules) &&
+    obj.modules.every((e: any) => isModule(e) as boolean) &&
     Array.isArray(obj.chapters) &&
     obj.chapters.every((e: any) => isChapterWithStatus(e) as boolean)
   )

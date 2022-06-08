@@ -6,10 +6,11 @@ import {
   Course,
   CourseInstance,
   CourseMaterialExercise,
+  CourseMaterialPeerReviewData,
+  CourseMaterialPeerReviewSubmission,
   CoursePageWithUserData,
   ExamData,
   ExamEnrollment,
-  IsChapterFrontPage,
   NewFeedback,
   NewProposedPageEdits,
   OEmbedResponse,
@@ -33,6 +34,7 @@ import {
   isCourse,
   isCourseInstance,
   isCourseMaterialExercise,
+  isCourseMaterialPeerReviewData,
   isCoursePageWithUserData,
   isExamData,
   isOEmbedResponse,
@@ -201,6 +203,15 @@ export const fetchExerciseById = async (id: string): Promise<CourseMaterialExerc
   return validateResponse(response, isCourseMaterialExercise)
 }
 
+export const fetchPeerReviewDataByExerciseId = async (
+  id: string,
+): Promise<CourseMaterialPeerReviewData> => {
+  const response = await courseMaterialClient.get(`/exercises/${id}/peer-review`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isCourseMaterialPeerReviewData)
+}
+
 export const fetchChaptersPagesWithExercises = async (
   chapterId: string,
 ): Promise<Array<PageWithExercises>> => {
@@ -300,6 +311,19 @@ export const postProposedEdits = async (
   await courseMaterialClient.post(`/proposed-edits/${courseId}`, newProposedEdits)
 }
 
+export const postPeerReviewSubmission = async (
+  exerciseId: string,
+  peerReviewSubmission: CourseMaterialPeerReviewSubmission,
+): Promise<void> => {
+  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews`, peerReviewSubmission, {
+    responseType: "json",
+  })
+}
+
+export const postStartPeerReview = async (exerciseId: string): Promise<void> => {
+  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews/start`)
+}
+
 export const fetchExamEnrollment = async (examId: string): Promise<ExamEnrollment | null> => {
   const response = await courseMaterialClient.get(`/exams/${examId}/enrollment`)
   return response.data
@@ -342,8 +366,4 @@ export const fetchMentimeterEmbed = async (url: string): Promise<OEmbedResponse>
     { responseType: "json" },
   )
   return validateResponse(response, isOEmbedResponse)
-}
-
-export const isPageFrontPage = async (pageId: string): Promise<IsChapterFrontPage> => {
-  return (await courseMaterialClient.get(`/pages/${pageId}`)).data
 }

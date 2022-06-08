@@ -20,9 +20,10 @@ const optionButton = css`
   display: flex;
   flex: 1;
   justify-content: center;
-  margin: 0.3rem;
+  margin: 0.3rem 0.3rem 0.3rem 0;
   padding: 1rem;
   transition: background-color 0.2s;
+  text-align: left;
 `
 
 const optionButtonColumn = css`
@@ -82,13 +83,15 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   return (
     <div
       className={css`
-        margin: 0.5rem;
+        margin: 0.7rem 0;
       `}
     >
       <div
         className={css`
-          font-size: ${quizTheme.quizTitleFontSize};
+          /* font-size: ${quizTheme.quizTitleFontSize}; */
           font-weight: bold;
+          font-family: "Raleway", sans-serif;
+          font-size: clamp(18px, 2vw, 20px) !important;
         `}
       >
         {quizItem.title && <MarkdownText text={quizItem.title} />}

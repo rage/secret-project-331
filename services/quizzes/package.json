@@ -5,7 +5,8 @@
     "dev": "node server.js",
     "build": "NODE_ENV=production next build",
     "export": "next export",
-    "start": "NODE_ENV=production PORT=3004 node server.js"
+    "start": "NODE_ENV=production PORT=3004 node server.js",
+    "test": "jest"
   },
   "dependencies": {
     "@date-io/date-fns": "^2.13.1",
@@ -13,10 +14,11 @@
     "@emotion/css": "^11.9.0",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
-    "@fontsource/josefin-sans": "^4.5.6",
-    "@fontsource/lato": "^4.5.5",
-    "@fontsource/roboto-mono": "^4.5.5",
-    "@fontsource/space-mono": "^4.5.5",
+    "@fontsource/josefin-sans": "^4.5.9",
+    "@fontsource/lato": "^4.5.8",
+    "@fontsource/raleway": "^4.5.8",
+    "@fontsource/roboto-mono": "^4.5.7",
+    "@fontsource/space-mono": "^4.5.8",
     "@fortawesome/fontawesome-svg-core": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.1.18",
@@ -52,13 +54,15 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.181",
-    "@types/luxon": "^2.3.1",
+    "@types/jest": "^27.5.0",
+    "@types/lodash": "^4.14.182",
+    "@types/luxon": "^2.3.2",
     "@types/react": "^17.0.39",
     "@types/react-dom": "^17.0.13",
     "@types/react-redux": "^7.1.23",
     "@types/styled-components": "^5.1.25",
     "@types/uuid": "^8.3.4",
+    "jest": "^27.5.1",
     "redux-devtools-extension": "^2.13.9",
     "stylelint": "^14.6.1",
     "typescript": "^4.6.3"

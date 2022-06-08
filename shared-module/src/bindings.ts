@@ -66,6 +66,7 @@ export interface Chapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
+  module: string | null
 }
 
 export interface DatabaseChapter {
@@ -81,6 +82,7 @@ export interface DatabaseChapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
+  module: string | null
 }
 
 export type ChapterStatus = "open" | "closed"
@@ -90,6 +92,7 @@ export interface ChapterUpdate {
   front_page_id: string | null
   deadline: Date | null
   opens_at: Date | null
+  module: string | null
 }
 
 export interface ChapterWithStatus {
@@ -104,6 +107,7 @@ export interface ChapterWithStatus {
   opens_at: Date | null
   status: ChapterStatus
   chapter_image_url: string | null
+  module: string | null
 }
 
 export interface NewChapter {
@@ -113,6 +117,7 @@ export interface NewChapter {
   front_page_id: string | null
   opens_at: Date | null
   deadline: Date | null
+  module: string | null
 }
 
 export interface UserCourseInstanceChapterProgress {
@@ -144,6 +149,7 @@ export interface ChapterScore {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
+  module: string | null
   score_given: number
   score_total: number
 }
@@ -179,6 +185,12 @@ export interface Points {
   chapter_points: Array<ChapterScore>
   users: Array<User>
   user_chapter_points: Record<string, PointMap>
+}
+
+export interface Module {
+  id: string
+  name: string
+  order_number: number
 }
 
 export interface Course {
@@ -384,6 +396,7 @@ export interface CourseMaterialExercise {
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
+  peer_review: PeerReview | null
 }
 
 export interface Exercise {
@@ -408,6 +421,7 @@ export interface ExerciseStatus {
   score_given: number | null
   activity_progress: ActivityProgress
   grading_progress: GradingProgress
+  reviewing_stage: ReviewingStage
 }
 
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
@@ -463,6 +477,30 @@ export interface StudentExerciseTaskSubmissionResult {
   submission: ExerciseTaskSubmission
   grading: ExerciseTaskGrading | null
   model_solution_spec: unknown | null
+}
+
+export interface CourseMaterialPeerReviewData {
+  answer_to_review: CourseMaterialPeerReviewDataAnswerToReview | null
+  peer_review: PeerReview
+  peer_review_questions: Array<PeerReviewQuestion>
+  num_peer_reviews_given: number
+}
+
+export interface CourseMaterialPeerReviewDataAnswerToReview {
+  exercise_slide_submission_id: string
+  course_material_exercise_tasks: Array<CourseMaterialExerciseTask>
+}
+
+export interface CourseMaterialPeerReviewQuestionAnswer {
+  peer_review_question_id: string
+  text_data: string | null
+  number_data: number | null
+}
+
+export interface CourseMaterialPeerReviewSubmission {
+  exercise_slide_submission_id: string
+  peer_review_id: string
+  peer_review_question_answers: Array<CourseMaterialPeerReviewQuestionAnswer>
 }
 
 export interface Organization {
@@ -646,6 +684,46 @@ export interface IsChapterFrontPage {
   is_chapter_front_page: boolean
 }
 
+export interface PeerReview {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_id: string
+  exercise_id: string | null
+  peer_reviews_to_give: number
+  peer_reviews_to_receive: number
+  accepting_threshold: number
+  accepting_strategy: PeerReviewAcceptingStrategy
+}
+
+export type PeerReviewAcceptingStrategy =
+  | "AutomaticallyAcceptOrRejectByAverage"
+  | "AutomaticallyAcceptOrManualReviewByAverage"
+  | "ManualReviewEverything"
+
+export interface NewPeerReviewQuestion {
+  peer_review_id: string
+  order_number: number
+  question: string
+  question_type: PeerReviewQuestionType
+  answer_required: boolean
+}
+
+export interface PeerReviewQuestion {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  peer_review_id: string
+  order_number: number
+  question: string
+  question_type: PeerReviewQuestionType
+  answer_required: boolean
+}
+
+export type PeerReviewQuestionType = "Essay" | "Scale"
+
 export interface PlaygroundExample {
   id: string
   created_at: Date
@@ -794,14 +872,6 @@ export interface ExerciseTaskSubmission {
   metadata: unknown | null
 }
 
-export interface SubmissionInfo {
-  submission: ExerciseTaskSubmission
-  exercise: Exercise
-  exercise_task: ExerciseTask
-  grading: ExerciseTaskGrading | null
-  iframe_path: string
-}
-
 export interface RoleUser {
   id: string
   first_name: string | null
@@ -852,6 +922,14 @@ export interface ExerciseUserCounts {
   n_users_with_max_points: number
 }
 
+export type ReviewingStage =
+  | "NotStarted"
+  | "PeerReview"
+  | "SelfReview"
+  | "WaitingForPeerReviews"
+  | "WaitingForManualGrading"
+  | "ReviewedAndLocked"
+
 export interface User {
   id: string
   first_name: string | null
@@ -865,6 +943,7 @@ export interface User {
 
 export interface ChaptersWithStatus {
   is_previewable: boolean
+  modules: Array<Module>
   chapters: Array<ChapterWithStatus>
 }
 

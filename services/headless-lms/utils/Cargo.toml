@@ -29,7 +29,7 @@ chrono = { version = "0.4.19", features = ["serde"] }
 serde_json = "1.0.79"
 # A crate for uploading files to Google cloud storage, and for generating download urls.
 # Using a fork until this gets merged: https://github.com/ThouCheese/cloud-storage-rs/pull/101
-cloud-storage = { git = "https://github.com/Dec-things/cloud-storage-rs", rev = "2b01e5728ba2614d2079b9167b03f8623706e613", default_features=false, features=["rustls-tls"]}
+cloud-storage = { version="0.11.1", default_features=false, features=["rustls-tls"]}
 # A library for managing a temporary directory and deleting all contents when it's dropped.
 tempdir = "0.3.7"
 # Type erasure for async trait methods

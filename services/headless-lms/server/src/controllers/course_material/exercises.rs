@@ -4,8 +4,11 @@ use futures::future::OptionFuture;
 use models::{
     exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
     exercises::{CourseMaterialExercise, Exercise},
-    library::grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
-    user_exercise_states::CourseInstanceOrExamId,
+    library::{
+        grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
+        peer_reviewing::{CourseMaterialPeerReviewData, CourseMaterialPeerReviewSubmission},
+    },
+    user_exercise_states::{self, CourseInstanceOrExamId},
 };
 
 use chrono::{Duration, Utc};
@@ -64,6 +67,29 @@ async fn get_exercise(
         course_material_exercise.clear_model_solution_specs();
     }
     Ok(web::Json(course_material_exercise))
+}
+
+/**
+GET `/api/v0/course-material/exercises/:exercise_id/peer-review` - Get peer review for an exercise. This includes the submission to peer review and the questions the user is supposed to answer.ALTER
+
+This request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_peer_review_for_exercise(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseMaterialPeerReviewData>> {
+    let mut conn = pool.acquire().await?;
+    let peer_review_data = models::peer_reviews::get_course_material_peer_review_data(
+        &mut conn,
+        user.id,
+        exercise_id.into_inner(),
+    )
+    .await?;
+
+    Ok(web::Json(peer_review_data))
 }
 
 /**
@@ -164,6 +190,59 @@ async fn post_submission(
     Ok(web::Json(result))
 }
 
+/**
+ * POST `/api/v0/course-material/exercises/:exercise_id/peer-reviews/start` - Post a signal indicating that
+ * the user will start peer reviewing process.
+ *
+ * This operation is only valid for exercises marked for peer reviews. No further submissions will be
+ * accepted after posting to this endpoint.
+ */
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn start_peer_review(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    // Authorization
+
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    let user_exercise_state =
+        user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
+    models::library::peer_reviewing::start_peer_review_for_user(&mut conn, user_exercise_state)
+        .await?;
+
+    Ok(web::Json(true))
+}
+
+/**
+ * POST `/api/v0/course-material/exercises/:exercise_id/peer-reviews - Post a peer review for an
+ * exercise submission.
+ */
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn submit_peer_review(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    payload: web::Json<CourseMaterialPeerReviewSubmission>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    // Authorization
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    let user_exercise_state =
+        user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
+    models::library::peer_reviewing::create_peer_review_submission_for_user(
+        &mut conn,
+        &exercise,
+        user_exercise_state,
+        payload.0,
+    )
+    .await?;
+    Ok(web::Json(true))
+}
+
 /// Submissions for exams are posted from course instances or from exams. Make respective validations
 /// while figuring out which.
 async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
@@ -240,6 +319,18 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{exercise_id}", web::get().to(get_exercise))
+        .route(
+            "/{exercise_id}/peer-reviews",
+            web::post().to(submit_peer_review),
+        )
+        .route(
+            "/{exercise_id}/peer-reviews/start",
+            web::post().to(start_peer_review),
+        )
+        .route(
+            "/{exercise_id}/peer-review",
+            web::get().to(get_peer_review_for_exercise),
+        )
         .route(
             "/{exercise_id}/submissions",
             web::post().to(post_submission),

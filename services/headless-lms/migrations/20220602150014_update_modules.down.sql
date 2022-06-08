@@ -23,6 +23,8 @@ DROP INDEX course_modules_order_number_uniqueness;
 ALTER TABLE course_modules
 ALTER COLUMN name
 SET NOT NULL;
+-- Remove added update trigger
+DROP TRIGGER set_timestamp ON course_modules;
 -- Revert rename chapters.module
 ALTER TABLE chapters
   RENAME COLUMN course_module_id to module;

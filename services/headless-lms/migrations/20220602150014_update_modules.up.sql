@@ -2,6 +2,9 @@
 -- Rename module foreign key to follow convention
 ALTER TABLE chapters
   RENAME COLUMN module to course_module_id;
+-- Add missing update trigger
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON course_modules FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 -- Make course_modules.name nullable. That in addition to order_number = 0 will mean the default module.
 ALTER TABLE course_modules
 ALTER COLUMN name DROP NOT NULL;

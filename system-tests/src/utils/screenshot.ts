@@ -32,6 +32,8 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   pageScreenshotOptions?: PageScreenshotOptions
   axeSkip?: boolean | string[]
   skipMobile?: boolean
+  /** If defined, the page will scroll to this y coordinate before taking the screenshot */
+  scrollToYCoordinate?: number
 }
 
 export default async function expectScreenshotsToMatchSnapshots({
@@ -48,6 +50,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   // keep false for new screenshots
   axeSkip = false,
   skipMobile = false,
+  scrollToYCoordinate,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
   if (!page && !frame) {
     throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
@@ -97,6 +100,7 @@ export default async function expectScreenshotsToMatchSnapshots({
       headless,
       pageScreenshotOptions,
       axeSkip,
+      scrollToYCoordinate,
     })
   }
 
@@ -112,6 +116,7 @@ export default async function expectScreenshotsToMatchSnapshots({
     headless,
     pageScreenshotOptions,
     axeSkip,
+    scrollToYCoordinate,
   })
 
   // always restore the original viewport
@@ -131,6 +136,7 @@ interface SnapshotWithViewPortProps {
   persistMousePosition?: boolean
   pageScreenshotOptions?: PageScreenshotOptions
   axeSkip: boolean | string[]
+  scrollToYCoordinate?: number
 }
 
 async function snapshotWithViewPort({
@@ -146,6 +152,7 @@ async function snapshotWithViewPort({
   persistMousePosition,
   pageScreenshotOptions,
   axeSkip,
+  scrollToYCoordinate,
 }: SnapshotWithViewPortProps) {
   if (!persistMousePosition && page) {
     await page.mouse.move(0, 0)
@@ -183,6 +190,14 @@ async function snapshotWithViewPort({
     await pageObjectToUse.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
     await pageObjectToUse.waitForTimeout(100)
     await waitToBeStable({ waitForThisToBeStable })
+  }
+
+  // Last thing before taking the screenshot so that nothing will accidentally scroll the page after this.
+  if (scrollToYCoordinate) {
+    await page.evaluate(async (coord) => {
+      window.scrollTo(0, coord)
+    }, scrollToYCoordinate)
+    await pageObjectToUse.waitForTimeout(10)
   }
 
   const screenshotName = `${snapshotName}-${viewPortName}.png`

@@ -2,7 +2,7 @@
 
 use models::pages::{Page, PageChapterAndCourseInformation, PageRoutingDataWithChapterStatus};
 
-use crate::controllers::prelude::*;
+use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
 
 /**
 GET /api/v0/course-material/pages/exam/{page_id}
@@ -16,7 +16,7 @@ async fn get_by_exam_id(
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
     let page = models::pages::get_by_exam_id(&mut conn, *exam_id).await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let token = skip_authorize()?;
     token.authorized_ok(web::Json(page))
 }
 
@@ -36,7 +36,7 @@ async fn get_next_page(
     let next_page_data_with_status =
         models::pages::get_next_page_with_chapter_status(next_page_data).await?;
 
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let token = skip_authorize()?;
     token.authorized_ok(web::Json(next_page_data_with_status))
 }
 
@@ -53,7 +53,7 @@ async fn get_chapter_and_course_information(
     let mut conn = pool.acquire().await?;
     let res = models::pages::get_page_chapter_and_course_information(&mut conn, *page_id).await?;
 
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let token = skip_authorize()?;
     token.authorized_ok(web::Json(res))
 }
 
@@ -73,7 +73,7 @@ async fn get_url_path(
     let mut conn = pool.acquire().await?;
     let page = models::pages::get_page(&mut conn, *page_id).await?;
 
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let token = skip_authorize()?;
     token.authorized_ok(page.url_path)
 }
 

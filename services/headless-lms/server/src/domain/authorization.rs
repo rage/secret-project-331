@@ -128,7 +128,7 @@ pub enum Resource {
     PlaygroundExample,
     ExerciseService,
 }
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct AuthorizationToken(());
 
 impl AuthorizationToken {
@@ -152,6 +152,10 @@ impl<T: Responder> Responder for AuthorizedResponse<T> {
     fn respond_to(self, req: &HttpRequest) -> actix_web::HttpResponse<Self::Body> {
         T::respond_to(self.data, req)
     }
+}
+
+pub fn skip_authorize() -> anyhow::Result<AuthorizationToken> {
+    Ok(AuthorizationToken(()))
 }
 
 /// Can user_id action the resource?
@@ -401,7 +405,7 @@ mod test {
             Resource::Organization(org),
         )
         .await
-        .unwrap();
+        .unwrap_err();
 
         roles::insert(
             tx.as_mut(),
@@ -433,7 +437,7 @@ mod test {
             Resource::Chapter(chapter),
         )
         .await
-        .unwrap();
+        .unwrap_err();
 
         roles::insert(
             tx.as_mut(),

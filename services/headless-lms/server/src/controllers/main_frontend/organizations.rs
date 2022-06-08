@@ -9,7 +9,10 @@ use models::{
     pages::{self, NewPage},
 };
 
-use crate::controllers::{helpers::media::upload_image_for_organization, prelude::*};
+use crate::{
+    controllers::{helpers::media::upload_image_for_organization, prelude::*},
+    domain::authorization::skip_authorize,
+};
 use actix_web::web::{self, Json};
 
 /**
@@ -30,7 +33,7 @@ async fn get_all_organizations(
         .map(|org| Organization::from_database_organization(org, file_store.as_ref(), &app_conf))
         .collect();
 
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let token = skip_authorize()?;
     token.authorized_ok(web::Json(organizations))
 }
 
@@ -56,7 +59,7 @@ async fn get_organization_courses(
     )
     .await?;
 
-    let token = authorize(&mut conn, Act::View, user, Res::AnyCourse).await?;
+    let token = skip_authorize()?;
     token.authorized_ok(web::Json(courses))
 }
 
@@ -71,7 +74,7 @@ async fn get_organization_course_count(
     let result =
         models::courses::organization_course_count(&mut conn, *request_organization_id).await?;
 
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let token = skip_authorize()?;
     token.authorized_ok(Json(result))
 }
 
@@ -91,7 +94,7 @@ async fn get_organization_active_courses(
     )
     .await?;
 
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let token = skip_authorize()?;
     token.authorized_ok(Json(courses))
 }
 
@@ -109,7 +112,7 @@ async fn get_organization_active_courses_count(
     )
     .await?;
 
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let token = skip_authorize()?;
     token.authorized_ok(Json(result))
 }
 
@@ -242,7 +245,7 @@ async fn get_organization(
     let organization =
         Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
 
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let token = skip_authorize()?;
     token.authorized_ok(web::Json(organization))
 }
 
@@ -259,13 +262,7 @@ async fn get_course_exams(
     let mut conn = pool.acquire().await?;
     let exams = models::exams::get_course_exams_for_organization(&mut conn, *organization).await?;
 
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::Organization(*organization),
-    )
-    .await?;
+    let token = skip_authorize()?;
     token.authorized_ok(web::Json(exams))
 }
 
@@ -282,13 +279,7 @@ async fn get_org_exams(
     let mut conn = pool.acquire().await?;
     let exams = models::exams::get_exams_for_organization(&mut conn, *organization).await?;
 
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::Organization(*organization),
-    )
-    .await?;
+    let token = skip_authorize()?;
     token.authorized_ok(web::Json(exams))
 }
 

@@ -3,7 +3,7 @@ use models::{
     users,
 };
 
-use crate::controllers::prelude::*;
+use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
 
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -88,13 +88,7 @@ pub async fn unset(
     let user = users::get_by_email(&mut conn, &role_info.email).await?;
     roles::remove(&mut conn, user.id, role_info.role, role_info.domain).await?;
 
-    let token = authorize(
-        &mut conn,
-        Act::EditRole(role_info.role),
-        Some(user.id),
-        Res::AnyCourse,
-    )
-    .await?;
+    let token = skip_authorize()?;
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 

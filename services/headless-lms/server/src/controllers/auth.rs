@@ -16,7 +16,7 @@ use url::form_urlencoded::Target;
 
 use crate::{
     controllers::prelude::*,
-    domain::authorization::{self, ActionOnResource},
+    domain::authorization::{self, skip_authorize, ActionOnResource},
     OAuthClient,
 };
 
@@ -87,7 +87,7 @@ pub async fn login(
         warn!("Trying development mode UUID login");
         if let Ok(id) = Uuid::parse_str(&email) {
             let user = { models::users::get_by_id(&mut conn, id).await? };
-            let token = authorize(&mut conn, Act::View, Some(user.id), Res::User).await?;
+            let token = skip_authorize()?;
             authorization::remember(&session, user)?;
             return token.authorized_ok(HttpResponse::Ok().finish());
         };
@@ -97,7 +97,7 @@ pub async fn login(
         warn!("Using test credentials. Normal accounts won't work.");
         let user =
             models::users::authenticate_test_user(&mut conn, &email, &password, &app_conf).await?;
-        let token = authorize(&mut conn, Act::View, Some(user.id), Res::User).await?;
+        let token = skip_authorize()?;
         authorization::remember(&session, user)?;
         return token.authorized_ok(HttpResponse::Ok().finish());
     }

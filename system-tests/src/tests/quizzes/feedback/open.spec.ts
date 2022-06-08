@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-import { selectCourseVariantIfPrompted } from "../../../utils/courseMaterialActions"
+import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 import waitForFunction from "../../../utils/waitForFunction"
 
@@ -24,7 +24,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
     page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`),
   ])
 
-  await selectCourseVariantIfPrompted(page)
+  await selectCourseInstanceIfPrompted(page)
 
   await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
   expect(page.url()).toBe(
@@ -58,7 +58,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "open-feedback-incorrect",
-    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
@@ -79,7 +79,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "open-feedback-correct",
-    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 })

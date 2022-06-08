@@ -57,6 +57,8 @@
   "shared-feedback-message-option": "Jaettu palauteviesti jokaiselle vaihtoehdolle",
   "submit-message": "Viesti palautuksessa",
   "success-message": "Oikean vastauksen viesti",
+  "message-after-submission-when-selected": "Valitun vaihtoehdon palaute palautuksen jälkeen",
+  "additional-correctness-explanation-on-model-solution": "Lisäselitys vaihtoehdon oikeellisuudelle mallivastauksessa",
   "title": "Otsikko",
   "title-advanced-editing": "Edistynyt muokkaustyökalu",
   "title-options": "Vaihtoehdot",

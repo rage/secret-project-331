@@ -5,9 +5,9 @@ import { useDispatch } from "react-redux"
 
 import { NormalizedQuizItemOption } from "../../../../../types/types"
 import {
+  editedOptionAdditionalCorrectnessExplanationOnModelSolution,
+  editedOptionAfterSubmissionSelectedMessage,
   editedOptionCorrectness,
-  editedOptionFailureMessage,
-  editedOptionSuccessMessage,
   editedOptionTitle,
 } from "../../../../store/editor/options/optionActions"
 import { useTypedSelector } from "../../../../store/store"
@@ -53,16 +53,21 @@ export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
       </ModalContent>
       <ModalContent>
         <MarkdownEditor
-          label={storeOption.correct ? t("success-message") : t("failure-message")}
-          text={
-            storeOption.correct
-              ? storeOption.successMessage ?? ""
-              : storeOption.failureMessage ?? ""
+          label={t("message-after-submission-when-selected")}
+          text={storeOption.messageAfterSubmissionWhenSelected ?? ""}
+          onChange={(value) =>
+            dispatch(editedOptionAfterSubmissionSelectedMessage(storeOption.id, value))
           }
-          onChange={
-            storeOption.correct
-              ? (value) => dispatch(editedOptionSuccessMessage(storeOption.id, value))
-              : (value) => dispatch(editedOptionFailureMessage(storeOption.id, value))
+        />
+      </ModalContent>
+      <ModalContent>
+        <MarkdownEditor
+          label={t("additional-correctness-explanation-on-model-solution")}
+          text={storeOption.additionalCorrectnessExplanationOnModelSolution ?? ""}
+          onChange={(value) =>
+            dispatch(
+              editedOptionAdditionalCorrectnessExplanationOnModelSolution(storeOption.id, value),
+            )
           }
         />
       </ModalContent>

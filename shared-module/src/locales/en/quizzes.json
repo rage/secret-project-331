@@ -58,6 +58,8 @@
   "shared-feedback-message-option": "Shared feedback message for option",
   "submit-message": "Submit message",
   "success-message": "Success message",
+  "message-after-submission-when-selected": "Message after submission when selected",
+  "additional-correctness-explanation-on-model-solution": "Additional correctness explanation on model solution",
   "title": "Title",
   "title-advanced-editing": "Advanced editing",
   "title-options": "Options",

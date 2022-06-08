@@ -73,6 +73,8 @@ fn ts_binding_generator() {
         course_instances::PointMap,
         course_instances::Points,
 
+        course_modules::Module,
+
         courses::Course,
         courses::CourseStructure,
         courses::CourseUpdate,
@@ -119,6 +121,11 @@ fn ts_binding_generator() {
         library::grading::StudentExerciseTaskSubmission,
         library::grading::StudentExerciseTaskSubmissionResult,
 
+        library::peer_reviewing::CourseMaterialPeerReviewData,
+        library::peer_reviewing::CourseMaterialPeerReviewDataAnswerToReview,
+        library::peer_reviewing::CourseMaterialPeerReviewQuestionAnswer,
+        library::peer_reviewing::CourseMaterialPeerReviewSubmission,
+
         organizations::Organization,
 
         page_history::PageHistory,
@@ -141,6 +148,13 @@ fn ts_binding_generator() {
         pages::NewPage,
         pages::PageChapterAndCourseInformation,
         pages::IsChapterFrontPage,
+
+        peer_reviews::PeerReview,
+        peer_reviews::PeerReviewAcceptingStrategy,
+
+        peer_review_questions::NewPeerReviewQuestion,
+        peer_review_questions::PeerReviewQuestion,
+        peer_review_questions::PeerReviewQuestionType,
 
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,
@@ -177,6 +191,7 @@ fn ts_binding_generator() {
         user_exercise_states::UserCourseInstanceChapterExerciseProgress,
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::ExerciseUserCounts,
+        user_exercise_states::ReviewingStage,
 
         users::User,
 

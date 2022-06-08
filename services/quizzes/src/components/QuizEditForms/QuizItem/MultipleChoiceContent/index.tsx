@@ -92,7 +92,7 @@ const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) =
       </StyledModal>
       <MarkdownEditor
         label={t("title")}
-        onChange={(value) => dispatch(editedQuizItemTitle(value, storeItem.id))}
+        onChange={(value) => dispatch(editedQuizItemTitle(value.trimStart(), storeItem.id))}
         text={storeItem.title ?? ""}
       />
       <h3

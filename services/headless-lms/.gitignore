@@ -2,6 +2,4 @@
 .env
 uploads
 dbdoc
-
-# Shared module that has been copied to this project
 shared-module

@@ -1,6 +1,6 @@
 import { test } from "@playwright/test"
 
-import { selectCourseVariantIfPrompted } from "../../../utils/courseMaterialActions"
+import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
 test.use({
@@ -20,7 +20,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/the-timeline",
   )
 
-  await selectCourseVariantIfPrompted(page)
+  await selectCourseInstanceIfPrompted(page)
 
   await expectScreenshotsToMatchSnapshots({
     page,

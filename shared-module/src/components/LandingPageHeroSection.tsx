@@ -28,7 +28,6 @@ const TextBox = styled.div`
     font-weight: bold;
     max-width: 80rem;
     line-height: 1.1;
-    text-transform: uppercase;
   }
 
   span {

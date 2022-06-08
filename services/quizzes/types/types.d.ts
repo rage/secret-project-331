@@ -118,7 +118,6 @@ export interface QuizItem {
   sharedOptionFeedbackMessage: null
   allAnswersCorrect: boolean
   direction: "row" | "column"
-  feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
   timelineItems: QuizItemTimelineItem[] | null
 }
 
@@ -164,7 +163,6 @@ export interface NormalizedQuizItem {
   sharedOptionFeedbackMessage: string | null
   allAnswersCorrect: boolean
   direction: "row" | "column"
-  feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
   /** Only defined for the timeline quiz item type. */
   timelineItems: string[]
 }
@@ -235,8 +233,8 @@ export interface QuizItemOption {
   updatedAt: Date
   title: string
   body: string | null
-  successMessage: null | string
-  failureMessage: null | string
+  messageAfterSubmissionWhenSelected: null | string
+  additionalCorrectnessExplanationOnModelSolution: null | string
 }
 
 export interface NormalizedQuizItemOption {
@@ -248,8 +246,20 @@ export interface NormalizedQuizItemOption {
   updatedAt: string
   title: string
   body: string | null
-  successMessage: null | string
-  failureMessage: null | string
+  /**
+   * Immediate feedback for user if they chose this answer. Can be used to explain why the answer
+   * was right or wrong.
+   *
+   * Only implemented for row multiple choice at the moment.
+   */
+  messageAfterSubmissionWhenSelected: null | string
+  /**
+   * When the user has either ran out of tries or they have gotten full points from the exercise, show
+   * this message on all options that don't have other feedback even if the option was not selected.
+   *
+   * Only implemented for row multiple choice at the moment.
+   */
+  additionalCorrectnessExplanationOnModelSolution: null | string
 }
 
 /** Only defined for the timeline exercise type */

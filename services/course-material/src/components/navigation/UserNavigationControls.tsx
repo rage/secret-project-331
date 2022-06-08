@@ -1,7 +1,4 @@
 import { ClassNamesArg, cx } from "@emotion/css"
-import styled from "@emotion/styled"
-import { faUser as profileIcon } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,10 +7,6 @@ import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import { logout } from "../../shared-module/services/backend/auth"
 import SelectCourseInstanceModal from "../modals/SelectCourseInstanceModal"
-
-const StyledIcon = styled(FontAwesomeIcon)`
-  margin-right: 0.5rem;
-`
 
 export interface UserNavigationControlsProps {
   styles?: ClassNamesArg[]
@@ -49,12 +42,6 @@ const UserNavigationControls: React.FC<UserNavigationControlsProps> = ({
           manualOpen={showSettings}
         />
       )}
-      <li className={cx(styles)}>
-        <Button size="medium" variant="primary">
-          <StyledIcon icon={profileIcon} />
-          {t("email")}
-        </Button>
-      </li>
       {courseId && (
         <li>
           <Button

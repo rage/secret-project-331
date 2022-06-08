@@ -205,7 +205,8 @@ macro_rules! insert_data {
                 chapter_number: 1,
                 front_page_id: None,
                 deadline: None,
-                opens_at: None
+                opens_at: None,
+                module: None,
             },
             $user
         )

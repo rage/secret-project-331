@@ -1,4 +1,6 @@
 import { css } from "@emotion/css"
+import { faCircleInfo as infoIcon } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -7,6 +9,7 @@ import { Block } from "../../../../services/backend"
 import { CourseMaterialExerciseTask } from "../../../../shared-module/bindings"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import { IframeState } from "../../../../shared-module/iframe-protocol-types"
+import { baseTheme } from "../../../../shared-module/styles"
 import { narrowContainerWidthPx } from "../../../../shared-module/styles/constants"
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
@@ -74,8 +77,19 @@ const ExerciseTask: React.FC<ExerciseTaskProps> = ({
         <div
           className={css`
             margin: 1rem 0;
+            margin-top: -1rem;
+            background: white;
+            font-weight: 400;
+            color: ${baseTheme.colors.grey[500]};
+            padding: 0.75rem 1rem;
+
+            svg {
+              margin-right: 0.5rem;
+              color: ${baseTheme.colors.blue[500]};
+            }
           `}
         >
+          <FontAwesomeIcon icon={infoIcon} />
           {feedbackText}
         </div>
       )}

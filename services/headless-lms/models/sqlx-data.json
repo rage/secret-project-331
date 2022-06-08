@@ -76,7 +76,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Text"]
+        "Left": [
+          "Text"
+        ]
       },
       "nullable": [
         false,
@@ -172,7 +174,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -273,7 +277,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -305,9 +311,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "036ca022aaa61a639202afffa66f21d3ca72ad8413d1ac55fc476050c89a3dcc": {
@@ -356,9 +368,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "05e28c3b8fea893a5745e8c81456ef688765008f07a6f09e52ea9f50b12d778b": {
@@ -416,7 +439,15 @@
           "Timestamptz"
         ]
       },
-      "nullable": [false, false, false, false, true, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true
+      ]
     }
   },
   "06518b02100124d605ae4cd2b84008fe94e46360284a701d60f79c7dcb117ea6": {
@@ -460,9 +491,19 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false
+      ]
     }
   },
   "072ecb29b589e56f6fc04bb0787efd82beab771ae9d87752f80b0734b16c56e4": {
@@ -516,9 +557,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Varchar", "Varchar", "Varchar", "Int4"]
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "07d58fc96db7000b5057c5e66b12d87ec627e6f56d735a3733518ad23b6a6f0f": {
@@ -526,7 +583,11 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Text", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Text",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -547,9 +608,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Jsonb", "Uuid"]
+        "Left": [
+          "Jsonb",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false]
+      "nullable": [
+        false,
+        false
+      ]
     }
   },
   "0a3ec731af676e23b67bd6eb547415800aa436639f2dfde55ad17b3ed904a27b": {
@@ -557,7 +624,11 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Varchar", "Text", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Text",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -567,7 +638,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -613,9 +687,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "0c8461a6308d09d435968b157266abe5a98c2f162db755aaa129eb69ca6ec577": {
@@ -649,16 +734,30 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, true, true, false, false]
+      "nullable": [
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
     }
   },
   "0cad1ed88151ce17ea1b859b43de22620aaf28c6a0149937d7f865da67c19797": {
@@ -672,9 +771,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Date"]
+        "Left": [
+          "Date"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "0cb6f9e6d5c8bc8f0196ec503ba5654ac5af8fc3e61746ddcadc30668bca65eb": {
@@ -713,9 +816,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true
+      ]
     }
   },
   "0cbd2eca2e4b7731be86fdf5ed0eafe142dc9c358ecd78476bb54d407f3e6aea": {
@@ -764,9 +878,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, true, true, true, true, true, true, true]
+      "nullable": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "0eb1973f9ce1c28fdf44969a8691da1e88b58501a1eff1e236eed1310dfe2464": {
@@ -812,7 +937,13 @@
           "Text"
         ]
       },
-      "nullable": [false, null, null, null, false]
+      "nullable": [
+        false,
+        null,
+        null,
+        null,
+        false
+      ]
     }
   },
   "0ed1883e278007de6c43a3db3d4a14e0150bc27f462f085e2a35d861d80b680b": {
@@ -832,14 +963,22 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           },
           "Uuid"
         ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "0f8ebb278dc89487e24c2b9729baa1c012e2242bfa7b984ec77b1df0a84a6a7a": {
@@ -847,7 +986,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Bool", "Uuid"]
+        "Left": [
+          "Bool",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -857,9 +999,99 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Int4"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Int4"
+        ]
       },
       "nullable": []
+    }
+  },
+  "11b2b2a2b79ad45fee6f6ff02bcfaf2a79d58e7247708d1c8a50dc1c4383bc6b": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  accepting_strategy AS \"accepting_strategy: _\"\nFROM peer_reviews\nWHERE course_id = $1\n  AND exercise_id IS NULL\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "peer_reviews_to_give",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "peer_reviews_to_receive",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 8,
+          "name": "accepting_threshold",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 9,
+          "name": "accepting_strategy: _",
+          "type_info": {
+            "Custom": {
+              "name": "peer_review_accepting_strategy",
+              "kind": {
+                "Enum": [
+                  "automatically_accept_or_reject_by_average",
+                  "automatically_accept_or_manual_review_by_average",
+                  "manual_review_everything"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "12678b433a9c84513a0c100571b2d82db27fbc569e2b9c79b23e31906be0f559": {
@@ -890,7 +1122,12 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, true, true]
+      "nullable": [
+        false,
+        false,
+        true,
+        true
+      ]
     }
   },
   "12a3f2d81ee4d4ffd5f6b44a159b1febef51515f477b92735db44d3968493503": {
@@ -909,9 +1146,16 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray", "Uuid", "Uuid"]
+        "Left": [
+          "UuidArray",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [null, null]
+      "nullable": [
+        null,
+        null
+      ]
     }
   },
   "12ca747f44759f66feeb79358eafa59184d090a9a37fefcc951eb221e4cebe9f": {
@@ -945,7 +1189,10 @@
             "Custom": {
               "name": "history_change_reason",
               "kind": {
-                "Enum": ["page-saved", "history-restored"]
+                "Enum": [
+                  "page-saved",
+                  "history-restored"
+                ]
               }
             }
           }
@@ -962,9 +1209,21 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Int8", "Int8"]
+        "Left": [
+          "Uuid",
+          "Int8",
+          "Int8"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "13b0e10930d6dfb86d0ca5bf493c6741ec5faa14fd199a7c407197568f40f3f3": {
@@ -1038,7 +1297,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -1052,6 +1313,91 @@
         true,
         true,
         true,
+        false,
+        false
+      ]
+    }
+  },
+  "1458e1d4f78cf9977b3398903abb905f861f733d2389cccb34213a92c67bfa1d": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  accepting_strategy AS \"accepting_strategy: _\"\nFROM peer_reviews\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "peer_reviews_to_give",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "peer_reviews_to_receive",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 8,
+          "name": "accepting_threshold",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 9,
+          "name": "accepting_strategy: _",
+          "type_info": {
+            "Custom": {
+              "name": "peer_review_accepting_strategy",
+              "kind": {
+                "Enum": [
+                  "automatically_accept_or_reject_by_average",
+                  "automatically_accept_or_manual_review_by_average",
+                  "manual_review_everything"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
         false,
         false
       ]
@@ -1123,80 +1469,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
-    }
-  },
-  "1755101ef02ef55fc7a4f62b23d63942128ce26c424e88b1703b563a92e0cad2": {
-    "query": "\nUPDATE chapters\nSET name = $2,\n  deadline = $3,\n  opens_at = $4\nWHERE id = $1\nRETURNING *;\n    ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 3,
-          "name": "chapter_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 4,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 7,
-          "name": "front_page_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 8,
-          "name": "opens_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 9,
-          "name": "chapter_image_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 10,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 11,
-          "name": "deadline",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Timestamptz", "Timestamptz"]
-      },
-      "nullable": [false, false, false, false, false, false, true, true, true, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "17a169b73b18097f58673f55f404032b00da8d5fc54b35567a4ef226f022111e": {
@@ -1230,9 +1520,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "17bc8217e956a003b026fa4c2a13670229d5426c0d89bb9338dcecb5068621cc": {
@@ -1291,7 +1589,11 @@
             "Custom": {
               "name": "proposal_status",
               "kind": {
-                "Enum": ["pending", "accepted", "rejected"]
+                "Enum": [
+                  "pending",
+                  "accepted",
+                  "rejected"
+                ]
               }
             }
           }
@@ -1313,7 +1615,12 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Bool", "Int8", "Int8"]
+        "Left": [
+          "Uuid",
+          "Bool",
+          "Int8",
+          "Int8"
+        ]
       },
       "nullable": [
         true,
@@ -1358,7 +1665,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -1380,9 +1693,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, true, true, false, false]
+      "nullable": [
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
     }
   },
   "18cad5d0cf2a854a36655738b9a05c4fe5376c77174239b17cdf7e21bc739b1f": {
@@ -1466,7 +1787,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -1487,22 +1810,6 @@
       ]
     }
   },
-  "19a6e3aaaddd659eb5cee0d7361c6ce7b72a8f77a14561cb51427fb4490fa36b": {
-    "query": "\nINSERT INTO chapters (name, course_id, chapter_number)\nVALUES ($1, $2, $3)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Uuid", "Int4"]
-      },
-      "nullable": [false]
-    }
-  },
   "19b82b88fdc09a5b8f4f3c197771eb838c846beb80b27f27e69eb1f5f69e9e16": {
     "query": "\nSELECT DATE(created_at) date, count(*)::integer\nFROM exercise_slide_submissions\nWHERE course_id = $1\nGROUP BY date\nORDER BY date;\n          ",
     "describe": {
@@ -1519,9 +1826,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null, null]
+      "nullable": [
+        null,
+        null
+      ]
     }
   },
   "1a466519782c720ea49eb0fc4fb4986acd32e545f81103d39dd9d1e3e682af02": {
@@ -1590,9 +1902,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "1aafb5cc9aca5edc7cbe9d5018abd31d4bc7c3ff89448f1231a07de3072c3011": {
@@ -1606,16 +1933,24 @@
             "Custom": {
               "name": "proposal_status",
               "kind": {
-                "Enum": ["pending", "accepted", "rejected"]
+                "Enum": [
+                  "pending",
+                  "accepted",
+                  "rejected"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "1bd4f59437059ecaad581abd354c57e15849038d7b9138fb0894a2efc6f94576": {
@@ -1644,9 +1979,38 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray"]
+        "Left": [
+          "UuidArray"
+        ]
       },
-      "nullable": [false, true, true, true]
+      "nullable": [
+        false,
+        true,
+        true,
+        true
+      ]
+    }
+  },
+  "1d2a3e5c866dc5658632b9dd9e1dd9599ce0ec2008a1ef0fee538f07865ed804": {
+    "query": "\nINSERT INTO course_modules (course_id, name, order_number)\nVALUES ($1, $2, $3)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Int4"
+        ]
+      },
+      "nullable": [
+        false
+      ]
     }
   },
   "1e26900e33b2a6f1baafb787523f3539beb5c20be6a2a0857d6510e597217134": {
@@ -1717,7 +2081,20 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "1e7b36b82611573fc4018fc50e03c255e15ae4f8410fdced069aa422e72930ae": {
@@ -1766,9 +2143,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Text"]
+        "Left": [
+          "Text"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "20fc12ac7e010520d3a0fc268c01c6fd85802b41adc867ed79edb32b74bcbc17": {
@@ -1842,9 +2230,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
     }
   },
   "21f873be8ae7d46b9aafa8b49f108fd8fadacc2334da674241ac2a6e221b2719": {
@@ -1903,9 +2305,22 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false
+      ]
     }
   },
   "22f6c2c2cdd99910cb9f2095b97e3228b7e221d42b5677c8715226dbf4e886b3": {
@@ -1925,14 +2340,22 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           },
           "Uuid"
         ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "2327eff57553a33838e6dcdddca821ffd3cee0c0637332d1942eea2bac657834": {
@@ -2001,9 +2424,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "2593cfb3820c00b89eef7987b9f14e510916882e68abbd691e970b001e7d5329": {
@@ -2072,9 +2510,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "261b050648c959dca1d48033d8415f25076bb225aaa1d9c8d7b9adf96f17046b": {
@@ -2093,9 +2546,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, null]
+      "nullable": [
+        false,
+        null
+      ]
     }
   },
   "267c9d76696bc99642ad6a55744d7effbef43cdc34d12e1ad786385bad6f6a62": {
@@ -2169,7 +2627,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -2188,6 +2648,120 @@
       ]
     }
   },
+  "26a30241f9021ba2d6bc24e125d3957406816b401c8b84668f28d384fc3f0a8f": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND id <> ALL($2)\n  AND user_id <> $3\n  AND deleted_at IS NULL\nORDER BY random() ASC\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "exercise_slide_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 10,
+          "name": "user_points_update_strategy: _",
+          "type_info": {
+            "Custom": {
+              "name": "user_points_update_strategy",
+              "kind": {
+                "Enum": [
+                  "can-add-points-but-cannot-remove-points",
+                  "can-add-points-and-can-remove-points"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "UuidArray",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "2747949af670b45066518efe972a7a5a01580cf78d465361330c818aa6970788": {
+    "query": "\nSELECT exercise_slide_submission_id\nFROM peer_review_submissions\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "exercise_slide_submission_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
   "28bfce5519da0502894a0ee396ee94c5c498958c55f4883409c9cb450b6218be": {
     "query": "\nDELETE FROM roles\nWHERE user_id = $1\n  AND role = $2\n  AND course_instance_id = $3\n",
     "describe": {
@@ -2199,7 +2773,13 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           },
@@ -2207,6 +2787,98 @@
         ]
       },
       "nullable": []
+    }
+  },
+  "2997b3d573c15edd72c5737fd80c7d66c4839445ed8119399c232630c85c4029": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  name,\n  course_id,\n  deleted_at,\n  chapter_image_path,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  copied_from,\n  deadline,\n  module\nFROM chapters\nWHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)\n  AND deleted_at IS NULL;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "chapter_image_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 8,
+          "name": "front_page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "opens_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 10,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 11,
+          "name": "deadline",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 12,
+          "name": "module",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "2a8d2052e1e241693b19cfc230ea0e1e087f74820b5344b333b2dbe5b3071b89": {
@@ -2255,9 +2927,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "2abaee65f94d36fb9360d9eb3232dcb45b7aa9badbc06563c2e9fc1e2c53e357": {
@@ -2279,7 +2962,10 @@
             "Custom": {
               "name": "history_change_reason",
               "kind": {
-                "Enum": ["page-saved", "history-restored"]
+                "Enum": [
+                  "page-saved",
+                  "history-restored"
+                ]
               }
             }
           },
@@ -2287,7 +2973,9 @@
           "Uuid"
         ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "2b8baf4e767a3e3d591a65f5b99bfe8f1a44e8dce3d446800c8ae7ae5a3717a5": {
@@ -2326,9 +3014,19 @@
         }
       ],
       "parameters": {
-        "Left": ["Int4", "Uuid"]
+        "Left": [
+          "Int4",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
     }
   },
   "2be6fd20afaeeb95299a5020a8455a6fc6e7ce347a0003cca2d87441f324d422": {
@@ -2367,14 +3065,22 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           },
           "Uuid"
         ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "2e2e94fc2223f01242fa594ea0cb6183aeceab3dd62b9da489a26ffc94ea274d": {
@@ -2423,9 +3129,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Text"]
+        "Left": [
+          "Text"
+        ]
       },
-      "nullable": [false, false, false, false, true, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "2e8c7d2dd7b81803591de13bb697c898ea9a2554f47e175907398112082cd2f6": {
@@ -2441,7 +3158,9 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "3017bc588af2b26b7c70ce4428288527aa9873e485b253fd0f35e551544efff9": {
@@ -2455,9 +3174,148 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "3022858e7e2efda184b444d442db5141acaad7f64a6b73a3395d14cb1b98a6bf": {
+    "query": "\nSELECT id,\n  user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress AS \"grading_progress: _\",\n  activity_progress AS \"activity_progress: _\",\n  reviewing_stage AS \"reviewing_stage: _\",\n  selected_exercise_slide_id\nFROM user_exercise_states\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND (course_instance_id = $3 OR exam_id = $4)\n      ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 9,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 10,
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "reviewing_stage: _",
+          "type_info": {
+            "Custom": {
+              "name": "reviewing_stage",
+              "kind": {
+                "Enum": [
+                  "not_started",
+                  "peer_review",
+                  "self_review",
+                  "waiting_for_peer_reviews",
+                  "waiting_for_manual_grading",
+                  "reviewed_and_locked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 12,
+          "name": "selected_exercise_slide_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true
+      ]
     }
   },
   "306820247b9533af5d464aa15a58f9fcde6a59b1666a3709b32bc1823ad2e970": {
@@ -2541,7 +3399,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -2567,7 +3427,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -2648,7 +3511,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar", "Uuid", "Varchar", "Uuid", "Bool", "Bool"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Uuid",
+          "Varchar",
+          "Uuid",
+          "Bool",
+          "Bool"
+        ]
       },
       "nullable": [
         false,
@@ -2734,9 +3606,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, true, true, true, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "32b2e273cd76d67a815caa719ad77495b38155aac7e8fe2be06e6f15cbb63228": {
@@ -2750,9 +3637,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "346af2b8f77a86c90b599b24167da4aee650d1bc3694c8603c4a60fc8cdbe477": {
@@ -2766,9 +3660,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Text", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Text",
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "35113aa3e7d61c91d5f9befed9ad66e3cd72c77d21b7639dd18af3f4feb8c12f": {
@@ -2817,9 +3719,21 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "351fb02061a7a4e72a1197c536b8cbde04ddef1697e46dc78e32d8bdebc1af53": {
@@ -2893,9 +3807,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Int8", "Int8"]
+        "Left": [
+          "Uuid",
+          "Int8",
+          "Int8"
+        ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
     }
   },
   "375b467ba026680d07ba6fa844de91afd942e86b2715431e41b6788df0d2b3c0": {
@@ -2944,9 +3874,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Int4"]
+        "Left": [
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "37dfaa87dd74a4c1f409cd120e6997847616214878ae8a66b326699fa8633ad3": {
@@ -3012,12 +3953,33 @@
           "ordinal": 11,
           "name": "deadline",
           "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 12,
+          "name": "module",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, true, true, true, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "3924a8462c26cbf1dd766605810cc5db4b523ae7cbe412d5d07fe3c4d4944e51": {
@@ -3025,7 +3987,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -3046,9 +4010,50 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray", "Uuid", "Uuid"]
+        "Left": [
+          "UuidArray",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [null, false]
+      "nullable": [
+        null,
+        false
+      ]
+    }
+  },
+  "3bb077ad577e36fde77fb49923128af173cd07b8196dceb6810c676ccd2b79ef": {
+    "query": "\nINSERT INTO peer_review_questions (\n    peer_review_id,\n    order_number,\n    question,\n    question_type,\n    answer_required\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Int4",
+          "Varchar",
+          {
+            "Custom": {
+              "name": "peer_review_question_type",
+              "kind": {
+                "Enum": [
+                  "essay",
+                  "scale"
+                ]
+              }
+            }
+          },
+          "Bool"
+        ]
+      },
+      "nullable": [
+        false
+      ]
     }
   },
   "3cfa60a3aa02306a61d9a0fc8faadefde42a9c78b5c3a71b12ed35e17f7dd9f3": {
@@ -3072,9 +4077,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, null]
+      "nullable": [
+        false,
+        false,
+        null
+      ]
     }
   },
   "3e428bdd951fadaeac24cab7e991c4928f8c58df8dd45c61fbb8779b5ddcbe85": {
@@ -3082,7 +4093,11 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -3148,7 +4163,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -3190,7 +4211,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -3211,6 +4234,182 @@
         true,
         true,
         true
+      ]
+    }
+  },
+  "3f7a962110ce3ffd58501ee157fcacabeaa35b83c728222bc211a77b7bd5a393": {
+    "query": "\nINSERT INTO chapters(\n    name,\n    course_id,\n    chapter_number,\n    deadline,\n    opens_at,\n    module\n  )\nVALUES($1, $2, $3, $4, $5, $6)\nRETURNING *;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "front_page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "opens_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "chapter_image_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 10,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 11,
+          "name": "deadline",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 12,
+          "name": "module",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Uuid",
+          "Int4",
+          "Timestamptz",
+          "Timestamptz",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    }
+  },
+  "3ff0e91cf2a285227d0547aef21fa461f206f0f30e0fae1161df71136ed75971": {
+    "query": "\nINSERT INTO peer_review_queue_entries (\n    user_id,\n    exercise_id,\n    course_instance_id,\n    peer_review_priority,\n    receiving_peer_reviews_exercise_slide_submission_id,\n    received_enough_peer_reviews\n  )\nVALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, exercise_id, course_instance_id) DO\nUPDATE\nSET peer_review_priority = $4,\n  deleted_at = NULL\nRETURNING *\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "received_enough_peer_reviews",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 9,
+          "name": "peer_review_priority",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Int4",
+          "Uuid",
+          "Bool"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
       ]
     }
   },
@@ -3321,9 +4520,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Text", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Text",
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "42bb90fd049adc897da8bdd2b82ab5b13af558433fae08261cecd5facb0c2f4f": {
@@ -3337,9 +4542,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null]
+      "nullable": [
+        null
+      ]
     }
   },
   "436a4b6e66a08b6449ee12211e083a2291b3665a8b580e585fb211f451bd3a15": {
@@ -3405,12 +4614,166 @@
           "ordinal": 11,
           "name": "deadline",
           "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 12,
+          "name": "module",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, true, true, true, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    }
+  },
+  "43857d321dfe6b676094b0de143893c351bacd10d427c8c5e04109c1f1391877": {
+    "query": "\nSELECT id,\n  user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress AS \"grading_progress: _\",\n  activity_progress AS \"activity_progress: _\",\n  reviewing_stage AS \"reviewing_stage: _\",\n  selected_exercise_slide_id\nFROM user_exercise_states\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 9,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 10,
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "reviewing_stage: _",
+          "type_info": {
+            "Custom": {
+              "name": "reviewing_stage",
+              "kind": {
+                "Enum": [
+                  "not_started",
+                  "peer_review",
+                  "self_review",
+                  "waiting_for_peer_reviews",
+                  "waiting_for_manual_grading",
+                  "reviewed_and_locked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 12,
+          "name": "selected_exercise_slide_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true
+      ]
     }
   },
   "438826ebe59c90f50b22e0cbd7c3599c21a2cd6f5727f077c6fa9b4f9b1aedd6": {
@@ -3418,7 +4781,12 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Uuid",
+          "Int4"
+        ]
       },
       "nullable": []
     }
@@ -3486,12 +4854,34 @@
           "ordinal": 11,
           "name": "deadline",
           "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 12,
+          "name": "module",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, true, true, true, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "4422d198c0e9c4502344c5b1145df37a6cf0b8a85e43390dfc3c5a1ed57549d2": {
@@ -3520,13 +4910,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
-  "4a941f65ffdb7975654d492932697491dff81a72f4738383b310c2fcad159639": {
-    "query": "\nSELECT id,\n  user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  activity_progress as \"activity_progress: _\",\n  selected_exercise_slide_id\nFROM user_exercise_states\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND (course_instance_id = $3 OR exam_id = $4)\n      ",
+  "45588a702103617d3699fa0f8bba0e9e287228116a68b6e1987ee94d48f54ef6": {
+    "query": "\nSELECT id,\n  user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress AS \"grading_progress: _\",\n  activity_progress AS \"activity_progress: _\",\n  reviewing_stage AS \"reviewing_stage: _\",\n  selected_exercise_slide_id\nFROM user_exercise_states\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND (course_instance_id = $3 OR exam_id = $4)\n",
     "describe": {
       "columns": [
         {
@@ -3581,7 +4978,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -3593,21 +4996,65 @@
             "Custom": {
               "name": "activity_progress",
               "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
               }
             }
           }
         },
         {
           "ordinal": 11,
+          "name": "reviewing_stage: _",
+          "type_info": {
+            "Custom": {
+              "name": "reviewing_stage",
+              "kind": {
+                "Enum": [
+                  "not_started",
+                  "peer_review",
+                  "self_review",
+                  "waiting_for_peer_reviews",
+                  "waiting_for_manual_grading",
+                  "reviewed_and_locked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 12,
           "name": "selected_exercise_slide_id",
           "type_info": "Uuid"
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, false, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true
+      ]
     }
   },
   "4bcf93034b7f1e2a30d12f895c2e8c394094dd5b057cbbd89a5715ad9518ef9d": {
@@ -3615,7 +5062,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -3686,9 +5135,28 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Jsonb",
+          "Varchar",
+          "Varchar",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "4c7587a63fa11311dbe3b3466599276be54d129f90ce6721b7ae33c08156b83b": {
@@ -3712,9 +5180,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null, null, null]
+      "nullable": [
+        null,
+        null,
+        null
+      ]
     }
   },
   "4c8deb63a67f9626f7f8c82f88241ba6e7802693940d26952c4579943b450ac2": {
@@ -3735,13 +5209,21 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
         ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "4d463289b30366e199adbf4801cc8a685da54990989a74b6c07e592234f41e1b": {
@@ -3749,7 +5231,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -3802,7 +5286,16 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, false, false, true, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "4dffcac2b11a34fa08132bc4b28e097e1c150fba42f6c7b10bbb1239767997cd": {
@@ -3846,16 +5339,33 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false
+      ]
     }
   },
   "4e0c321cdf774495ae5abb90d777362066957858b50f1da00e85dcb062f573e8": {
@@ -3924,9 +5434,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Text"]
+        "Left": [
+          "Uuid",
+          "Text"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "4f7e2b9650e10a87e8df9091b99fb43d3eb68974730a3c08dc6a63ae3ec4f92e": {
@@ -3970,9 +5496,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "50b4bf67ea475c5c88a749b74348226173feaa6a71905709ac869270ee7b4c62": {
@@ -3991,9 +5528,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, false]
+      "nullable": [
+        true,
+        false
+      ]
     }
   },
   "53bfa80a5ca2c543393bbe2266c1129ea103eb4699aaf0fd1445b8daeb408cd0": {
@@ -4007,9 +5549,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "55d2baac7d8ce3670047a6388219d46faaac72bb6f7f6769b28fa320d601652c": {
@@ -4053,9 +5599,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar", "Varchar", "Varchar"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "576035aeb9e877869815eabed2f331073438c344f65a06022c74c23592c51dd6": {
@@ -4069,9 +5629,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true]
+      "nullable": [
+        true
+      ]
     }
   },
   "5866622c871cf13ddcf8be4db233bc7b1773b3fc978f96b6ccee1386e6e3a48e": {
@@ -4079,7 +5643,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Int4"
+        ]
       },
       "nullable": []
     }
@@ -4165,7 +5732,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -4222,9 +5791,18 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray"]
+        "Left": [
+          "UuidArray"
+        ]
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "5bf296199f464130717be2910f6d241261334a31a65e9a6911d6e795d1435d8f": {
@@ -4232,7 +5810,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Bool", "Uuid"]
+        "Left": [
+          "Bool",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -4253,9 +5834,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, true]
+      "nullable": [
+        true,
+        true
+      ]
     }
   },
   "5c2d00b7d8e7f5656b0c77ba75fdb90aaac7dcdafbd40bf0c6ac411ee1debeac": {
@@ -4263,7 +5849,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -4285,13 +5873,21 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           }
         ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "5cf04047f64dad53b0b701fcb9e2c49da51b2d4c22944103a24f57f4bc37045f": {
@@ -4360,9 +5956,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "5e92276cd35f5b56591706b2e6b9e5229aba70df37b21a2654298bf9a0caf783": {
@@ -4376,9 +5987,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar", "Varchar"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "6141fad2b713a433352e117c4832df0e54c0750210ebee7c647f1fe142cd84b6": {
@@ -4437,7 +6055,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -4449,7 +6073,13 @@
             "Custom": {
               "name": "activity_progress",
               "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
               }
             }
           }
@@ -4467,7 +6097,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           },
@@ -4475,14 +6111,33 @@
             "Custom": {
               "name": "activity_progress",
               "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
               }
             }
           },
           "Uuid"
         ]
       },
-      "nullable": [false, false, false, true, true, false, false, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "6263426899d28575a326f3f969a391461c623bc4397d4236f1a2bf048785927d": {
@@ -4551,9 +6206,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "62eb815d156490c85deffee0a43a04e454890fe62b07edebe2ad8b9616268ba4": {
@@ -4592,9 +6262,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "64fe3f5421ad33305f9f1daef9da4fb63db3edc86b7e769e21e689b67f2d9839": {
@@ -4658,7 +6337,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -4700,7 +6385,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -4724,6 +6415,167 @@
       ]
     }
   },
+  "6564a27105258d6d977c932e89f5982bded6756283e98f3bfcb028971f98f828": {
+    "query": "\nUPDATE user_exercise_states\nSET score_given = $1,\n  grading_progress = $2,\n  activity_progress = $3\nWHERE id = $4\n  AND deleted_at IS NULL\nRETURNING id,\n  user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress AS \"grading_progress: _\",\n  activity_progress AS \"activity_progress: _\",\n  reviewing_stage AS \"reviewing_stage: _\",\n  selected_exercise_slide_id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 9,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 10,
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "reviewing_stage: _",
+          "type_info": {
+            "Custom": {
+              "name": "reviewing_stage",
+              "kind": {
+                "Enum": [
+                  "not_started",
+                  "peer_review",
+                  "self_review",
+                  "waiting_for_peer_reviews",
+                  "waiting_for_manual_grading",
+                  "reviewed_and_locked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 12,
+          "name": "selected_exercise_slide_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Float4",
+          {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
+              }
+            }
+          },
+          {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
+              }
+            }
+          },
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true
+      ]
+    }
+  },
   "65cc3c8d7fd2610ad86c2aec0773281029298a5165fcb245bdb10c1dfc9e73c6": {
     "query": "SELECT cfgname::text FROM pg_ts_config WHERE cfgname = $1",
     "describe": {
@@ -4735,9 +6587,49 @@
         }
       ],
       "parameters": {
-        "Left": ["Name"]
+        "Left": [
+          "Name"
+        ]
       },
-      "nullable": [null]
+      "nullable": [
+        null
+      ]
+    }
+  },
+  "663e31fd872e32b921b8f11fd23e23a9e06206f10edcd30d697446de9f293210": {
+    "query": "\nINSERT INTO peer_reviews (\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Int4",
+          "Int4"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "66937c58727136756cceb8266a07c70c7c43ff50168a495af197c5f61782cbe4": {
+    "query": "\nUPDATE course_modules\nSET order_number = $1\nWHERE id = $2\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Uuid"
+        ]
+      },
+      "nullable": []
     }
   },
   "680c5eed3c49d67d404af7d0a2df7dc8f9391db14848e8aff877a8a117335be2": {
@@ -4821,7 +6713,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -4878,16 +6772,31 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, true, true, true, true, false]
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "684da3248694cb9460fd8b524fc4ad1644c72671cbc1b76b144440e9f7a0a31b": {
@@ -4926,9 +6835,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb", "Jsonb", "Int4"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Jsonb",
+          "Jsonb",
+          "Jsonb",
+          "Jsonb",
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "69ce80ab82e60eebfbd382f16c0e5ea305457176ea0868b935835b4398e09106": {
@@ -4947,16 +6872,27 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, false]
+      "nullable": [
+        true,
+        false
+      ]
     }
   },
   "6abae7185ea5e131996a7792bce21e0e1f30b0bce4bae05061259a63cfc92a01": {
@@ -5051,7 +6987,19 @@
           }
         ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
     }
   },
   "6b8536e8f4621ec17b4b6a7aea1b2df02d5f86d70df29eaa89dd00c028aa4e67": {
@@ -5065,9 +7013,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Text", "Text", "Text"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Text",
+          "Text",
+          "Text"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "6bc403d5e34e4661d2e6930c35e5d8caafea81db10220cdaf612d9be967a056b": {
@@ -5106,9 +7062,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "6c851f2866f37f7c17cc393acffeedaa93942e9e4f54e06428e833fedbd8ab86": {
@@ -5127,9 +7092,76 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, true]
+      "nullable": [
+        true,
+        true
+      ]
+    }
+  },
+  "6e839a249fbc2dbf1ff7dc7bc4c46bf6b93f0f0ff5f1ca8488e177c46490d389": {
+    "query": "\nSELECT prqs.*\nFROM peer_review_submissions prs\n  JOIN peer_review_question_submissions prqs on prs.id = prqs.peer_review_submission_id\nWHERE prs.exercise_slide_submission_id = $1\n  AND prs.deleted_at IS NULL\n  AND prqs.deleted_at IS NULL\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "peer_review_question_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "peer_review_submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "text_data",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "number_data",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true
+      ]
     }
   },
   "6eb06f9e457be39ce3a14caba6aaadf8bcf4590ff5c1df048d7ace1aa4087e0d": {
@@ -5159,7 +7191,9 @@
           "Varchar"
         ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "6ec055f71048c1e451d31c648ccff19d8001aaca71fa3acf0786afb30a8f3a69": {
@@ -5193,16 +7227,30 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, true, true, false, false]
+      "nullable": [
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
     }
   },
   "6f5ab6a5fb0636d714701ea1c4d6c01ca9b3a54efc33322c8bf81d98d356d8e6": {
@@ -5253,7 +7301,16 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, false, true, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "6f8f4d10cf21c3161689fb6679e155733244a3b133f02eec2fef880f1ba88544": {
@@ -5267,9 +7324,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "70153b30b4c994da2fcc85853bc4a56e406477b77390a85d8d2c4436a038e67a": {
@@ -5288,9 +7351,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, null]
+      "nullable": [
+        false,
+        null
+      ]
     }
   },
   "704d2ff21bfbe8be852572082c673e2f021de2d503e97fa6cca5d92900ba1fbc": {
@@ -5349,7 +7419,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -5361,7 +7437,13 @@
             "Custom": {
               "name": "activity_progress",
               "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
               }
             }
           }
@@ -5373,9 +7455,27 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, false, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "7074164915eca8a60f6f1d36ba2dfaf2df3b8b430c01f15a37b4a8ec4fd62470": {
@@ -5444,9 +7544,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "70d9446d80cf86ae0dac235c0a2f87d600e2328fa2c2cf56686b78105694d3b5": {
@@ -5495,16 +7610,33 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "72ccb19101a587401452123425b5659747e50e8cd0693b33a914a4aa10875521": {
@@ -5518,9 +7650,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Int4"]
+        "Left": [
+          "Uuid",
+          "Jsonb",
+          "Varchar",
+          "Varchar",
+          "Int4"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "730d9d3474c329d22e509b14cef2eca33b1fe2c99df9bce0836a8f1f4a47a1ab": {
@@ -5534,9 +7674,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Jsonb"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Jsonb"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "744d6db0137323cc6398d3dacc9a6a59866b6e23798c33e118a0683f6a58cd36": {
@@ -5580,9 +7728,19 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "75c86b3ca30ccd7322ac790122f61827d673c3bdce6509a9c27b2b8103c012a2": {
@@ -5596,16 +7754,26 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "76ce92c1173e95b850a803ae754c1a94af1c02eb4e5e553df48901d90eb6e923": {
@@ -5654,9 +7822,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "76f8b3bfe9c901af8bc4bf83f5bafd31a8e3b27db20bbeede1f0e5453707b9b2": {
@@ -5670,9 +7849,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Varchar", "Varchar"]
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "79a997ae3e7010fc4411554484753bc5f48823c4142a410d09e4ba93310e2596": {
@@ -5680,7 +7865,13 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -5696,9 +7887,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Uuid", "Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Uuid",
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "7a76df8c10629d8afcfc6863e2ada85d9108c74ccae8ffe4f5e2fd7c6a36432a": {
@@ -5712,9 +7911,90 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray"]
+        "Left": [
+          "UuidArray"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "7ab863f21bcea5451f12a42acd2f2b3157bbbe893a02fff769ae496005c553e6": {
+    "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE exercise_id = $1\n  AND user_id <> $2\n  AND receiving_peer_reviews_exercise_slide_submission_id <> ALL($3)\n  AND received_enough_peer_reviews = 'false'\n  AND deleted_at IS NULL\nORDER BY peer_review_priority DESC\nLIMIT $4\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "received_enough_peer_reviews",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 9,
+          "name": "peer_review_priority",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "UuidArray",
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "7afc90f9381a04e4c0390b627468f4e98af77da0570168747ef9fb7cc3c86042": {
@@ -5733,9 +8013,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, true]
+      "nullable": [
+        false,
+        true
+      ]
     }
   },
   "7b20a0607bcc9030593d45c58002b5adf794d5956f57c4262ef3868b443e2a35": {
@@ -5743,7 +8029,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -5769,9 +8058,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false]
+      "nullable": [
+        false,
+        false,
+        false
+      ]
     }
   },
   "7f1cb8b1bbc4ed001fa4fc6dcbbc90e30e0d509e64de0d75461ae1c82a285268": {
@@ -5779,7 +8074,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Timestamptz", "Uuid"]
+        "Left": [
+          "Timestamptz",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -5860,7 +8158,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -5931,9 +8231,21 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "8198f7adf5e5c8c71a7d632e7ccc1e8d139d30af2e410b57d710321fad7e18ba": {
@@ -5972,9 +8284,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "831476e084bba9486fd435565e46067716e6738cc05f393a1dba87a68edc27f7": {
@@ -5998,9 +8319,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, true]
+      "nullable": [
+        false,
+        false,
+        true
+      ]
     }
   },
   "8418000fb3d50f52e42766c3884416520d434ea9588248e26c3b4fbfb1abae90": {
@@ -6059,9 +8386,27 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Varchar", "Jsonb", "Int4", "Int4", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Jsonb",
+          "Int4",
+          "Int4",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "8492979938e25727c88d0aa43f2def59b6d913247be736fd18d03ba7e9a7973a": {
@@ -6069,9 +8414,158 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
+    }
+  },
+  "84ed121289ad070f6f78698fbf408aff79602d7c059567fc5c94c3f85f777a19": {
+    "query": "\nUPDATE user_exercise_states\nSET reviewing_stage = $1\nWHERE id = $2\n  AND deleted_at IS NULL\nRETURNING id,\n  user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress AS \"grading_progress: _\",\n  activity_progress AS \"activity_progress: _\",\n  reviewing_stage AS \"reviewing_stage: _\",\n  selected_exercise_slide_id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 9,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 10,
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "reviewing_stage: _",
+          "type_info": {
+            "Custom": {
+              "name": "reviewing_stage",
+              "kind": {
+                "Enum": [
+                  "not_started",
+                  "peer_review",
+                  "self_review",
+                  "waiting_for_peer_reviews",
+                  "waiting_for_manual_grading",
+                  "reviewed_and_locked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 12,
+          "name": "selected_exercise_slide_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          {
+            "Custom": {
+              "name": "reviewing_stage",
+              "kind": {
+                "Enum": [
+                  "not_started",
+                  "peer_review",
+                  "self_review",
+                  "waiting_for_peer_reviews",
+                  "waiting_for_manual_grading",
+                  "reviewed_and_locked"
+                ]
+              }
+            }
+          },
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true
+      ]
     }
   },
   "84f4e609ee774821c19ffe693d79e6175066c745aa7ac8a3d947cd7ef04fdc0e": {
@@ -6099,7 +8593,9 @@
           }
         ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "852a2e8b28b656b8e676b846827ea1244ca82ff1dfe59676b8933ed03022924f": {
@@ -6113,9 +8609,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null]
+      "nullable": [
+        null
+      ]
     }
   },
   "85d460d9a14e12b66d387b3cdf0caf930e42725cd706c38a85d02613ae14130e": {
@@ -6156,7 +8656,14 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "85e47523e7b4b49b41f59c9683ebe4d279bd3f18957a4e156bbd9ac639222755": {
@@ -6170,9 +8677,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Jsonb"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Jsonb"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "8698ccb5049f1ab2e0d9e0d4e5922dc8bbf6dae00c9d9320a7a42097be0fe315": {
@@ -6196,9 +8710,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false]
+      "nullable": [
+        false,
+        false,
+        false
+      ]
     }
   },
   "87848a65cafd33187ebbc6ed99b0a6eaaff44a09d3efb17759ee3604fc39f49c": {
@@ -6244,7 +8765,13 @@
           "Text"
         ]
       },
-      "nullable": [false, null, null, null, false]
+      "nullable": [
+        false,
+        null,
+        null,
+        null,
+        false
+      ]
     }
   },
   "882525a929728d222af1a0946c0c6d0291a891d67d8fc81e2c8400cf400baeef": {
@@ -6252,7 +8779,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -6298,7 +8828,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -6313,13 +8849,27 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
         ]
       },
-      "nullable": [false, false, false, false, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false
+      ]
     }
   },
   "88890869dabe25130451185ec231260f8cdc6121649923e7209346dded7d0014": {
@@ -6333,9 +8883,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "89042c2cdd2a99289a3cc9e493f47ee914734c7af0e53ae63206bbf62fc02df0": {
@@ -6349,9 +8903,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar", "Varchar"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "8996c28a928545504a3741a926ceb7831d752406f9f3c6871854343bb7b1aa4b": {
@@ -6390,9 +8951,19 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "8aa2929ece3e236aa14649c45da2a6d7fe15787fda833ad97628c86b001fb790": {
@@ -6406,9 +8977,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null]
+      "nullable": [
+        null
+      ]
     }
   },
   "8abe3a7678cd7eda31e23b2bbcbd53177b04d8be5a43a56cf01644f53aa8f626": {
@@ -6561,9 +9136,21 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "8ccdf9e32ae384f6124487d607971e09c002db1bbc7ba5fa895cdd58c919c76f": {
@@ -6577,9 +9164,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "8db74ac0f9b12b45233fec8e0bf8e9f76d90085c4a8c766f784a1aca3c370662": {
@@ -6592,7 +9183,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           },
@@ -6607,7 +9204,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Int4", "Uuid"]
+        "Left": [
+          "Int4",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -6623,9 +9223,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "93a182f7fc32e82990af03dbda3d31cd678d99869b3bd5d4b75831d5cc96e0f7": {
@@ -6694,84 +9298,28 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
-  "953a7a6c530a84cb10466c75502f14177a8e2bc1dfefded26185e0802115bd77": {
-    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  name,\n  course_id,\n  deleted_at,\n  chapter_image_path,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  copied_from,\n  deadline\nFROM chapters\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "chapter_image_path",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 7,
-          "name": "chapter_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 8,
-          "name": "front_page_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 9,
-          "name": "opens_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 10,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 11,
-          "name": "deadline",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, false, false, true, true, false, true, true, true, true]
-    }
-  },
-  "95cd532d3cf66f58ae74382c3c8572c9841be6557ec3285add31609f08d6b7f7": {
-    "query": "\nINSERT INTO chapters(name, course_id, chapter_number, deadline, opens_at)\nVALUES($1, $2, $3, $4, $5)\nRETURNING *;\n",
+  "95a1ff972052309d446950cea426b516c7c97eb4f7a6c5a53d38c827d65b459b": {
+    "query": "\nUPDATE chapters\nSET name = $2,\n  deadline = $3,\n  opens_at = $4,\n  module = $5\nWHERE id = $1\nRETURNING *;\n    ",
     "describe": {
       "columns": [
         {
@@ -6833,12 +9381,122 @@
           "ordinal": 11,
           "name": "deadline",
           "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 12,
+          "name": "module",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Uuid", "Int4", "Timestamptz", "Timestamptz"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Timestamptz",
+          "Timestamptz",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, true, true, true, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    }
+  },
+  "9652669420679dc10d0189abe8ae6aa4b91651089117194ffc941cfcc3156572": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  accepting_strategy AS \"accepting_strategy: _\"\nFROM peer_reviews\nWHERE exercise_id = $1\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "peer_reviews_to_give",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "peer_reviews_to_receive",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 8,
+          "name": "accepting_threshold",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 9,
+          "name": "accepting_strategy: _",
+          "type_info": {
+            "Custom": {
+              "name": "peer_review_accepting_strategy",
+              "kind": {
+                "Enum": [
+                  "automatically_accept_or_reject_by_average",
+                  "automatically_accept_or_manual_review_by_average",
+                  "manual_review_everything"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "9725efd61b9041c572a3a1cfe81bbbf6ac6497b62d3c9194757cf3f9e423977c": {
@@ -6902,7 +9560,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -6950,7 +9614,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           },
@@ -6994,7 +9664,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           },
@@ -7009,7 +9685,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -7065,9 +9743,153 @@
         }
       ],
       "parameters": {
-        "Left": ["TextArray"]
+        "Left": [
+          "TextArray"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
+    }
+  },
+  "9926983716d96fd291a81fa728ed1ce1ba268570fee21794fa8a406332c8384d": {
+    "query": "\nINSERT INTO peer_reviews (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Int4",
+          "Int4"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "9b22240e7ed6238509fccd2191dfed47215d59363003b204f7f666a587d34a48": {
+    "query": "\nUPDATE peer_review_queue_entries\nSET receiving_peer_reviews_exercise_slide_submission_id = $1,\n  peer_review_priority = $2\nWHERE id = $3\nRETURNING *\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "received_enough_peer_reviews",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 9,
+          "name": "peer_review_priority",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Int4",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "9ba4643daef2c6a850568745bcc6f8d42b40feacedb4f78f945a5454138486e4": {
+    "query": "\nSELECT id,\n  name,\n  order_number\nFROM course_modules\nWHERE course_id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "order_number",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false
+      ]
     }
   },
   "9bc0b3ae6672ff787250bbbfbf353634b598e814cb2e3b8ca26235466b22ee63": {
@@ -7081,9 +9903,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "9bc1bac822159d94c6c183c68a533ef75edfd38992ad82398afd5fc65a95880a": {
@@ -7162,7 +9988,11 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Int8", "Int8"]
+        "Left": [
+          "Uuid",
+          "Int8",
+          "Int8"
+        ]
       },
       "nullable": [
         false,
@@ -7193,9 +10023,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "9c6243474cc02c99f6974e143c88dde690c982125071ddc69df713350de1f875": {
@@ -7269,7 +10105,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -7369,7 +10207,9 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray"]
+        "Left": [
+          "UuidArray"
+        ]
       },
       "nullable": [
         false,
@@ -7441,9 +10281,21 @@
         }
       ],
       "parameters": {
-        "Left": ["Text"]
+        "Left": [
+          "Text"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "9f31d0d3d1943980f58b78597e60339681c9f451b85a34d67c8bc64ba71c790d": {
@@ -7472,9 +10324,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "a034dee244e1330c8c79e833f718afbe34df340690b20293155eefb513b315d9": {
@@ -7538,9 +10397,29 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Uuid", "Jsonb", "Timestamptz", "Timestamptz", "Varchar", "Int4"]
+        "Left": [
+          "Varchar",
+          "Uuid",
+          "Jsonb",
+          "Timestamptz",
+          "Timestamptz",
+          "Varchar",
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, true, true, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false
+      ]
     }
   },
   "a0506edd480e7dec860a33702092c243a207450909a69db5a44ad6fcb72b2fb2": {
@@ -7548,7 +10427,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -7609,7 +10491,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -7621,7 +10509,13 @@
             "Custom": {
               "name": "activity_progress",
               "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
               }
             }
           }
@@ -7633,13 +10527,44 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, false, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
-  "a30dd050694b11436fa9f039719f4f0817460468c40fe0649880ff7f7023bdcc": {
-    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  name,\n  course_id,\n  deleted_at,\n  chapter_image_path,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  copied_from,\n  deadline\nFROM chapters\nWHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)\n  AND deleted_at IS NULL;\n",
+  "a31f19aeb82cb164528744c6ca787c1c69bcab7575494559728a80de5ad5231a": {
+    "query": "\nDELETE FROM course_exams\nWHERE exam_id = $1\n  AND course_id = $2\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "a32343d6d6a1285b5d0c8f47e31e1731f2bbfed3df606357f158067ec7ed4033": {
+    "query": "\nUPDATE user_exercise_states\nSET score_given = $1,\n  activity_progress = $2,\n  reviewing_stage = $3,\n  grading_progress = $4\nWHERE id = $5\n  AND deleted_at IS NULL\nRETURNING id,\n  user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress AS \"grading_progress: _\",\n  activity_progress AS \"activity_progress: _\",\n  reviewing_stage AS \"reviewing_stage: _\",\n  selected_exercise_slide_id\n        ",
     "describe": {
       "columns": [
         {
@@ -7649,74 +10574,169 @@
         },
         {
           "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
+          "name": "user_id",
+          "type_info": "Uuid"
         },
         {
           "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
+          "name": "exercise_id",
+          "type_info": "Uuid"
         },
         {
           "ordinal": 3,
-          "name": "name",
-          "type_info": "Varchar"
+          "name": "course_instance_id",
+          "type_info": "Uuid"
         },
         {
           "ordinal": 4,
-          "name": "course_id",
+          "name": "exam_id",
           "type_info": "Uuid"
         },
         {
           "ordinal": 5,
-          "name": "deleted_at",
+          "name": "created_at",
           "type_info": "Timestamptz"
         },
         {
           "ordinal": 6,
-          "name": "chapter_image_path",
-          "type_info": "Varchar"
+          "name": "updated_at",
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 7,
-          "name": "chapter_number",
-          "type_info": "Int4"
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
         },
         {
           "ordinal": 8,
-          "name": "front_page_id",
-          "type_info": "Uuid"
+          "name": "score_given",
+          "type_info": "Float4"
         },
         {
           "ordinal": 9,
-          "name": "opens_at",
-          "type_info": "Timestamptz"
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
+              }
+            }
+          }
         },
         {
           "ordinal": 10,
-          "name": "copied_from",
-          "type_info": "Uuid"
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
+              }
+            }
+          }
         },
         {
           "ordinal": 11,
-          "name": "deadline",
-          "type_info": "Timestamptz"
+          "name": "reviewing_stage: _",
+          "type_info": {
+            "Custom": {
+              "name": "reviewing_stage",
+              "kind": {
+                "Enum": [
+                  "not_started",
+                  "peer_review",
+                  "self_review",
+                  "waiting_for_peer_reviews",
+                  "waiting_for_manual_grading",
+                  "reviewed_and_locked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 12,
+          "name": "selected_exercise_slide_id",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Float4",
+          {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
+              }
+            }
+          },
+          {
+            "Custom": {
+              "name": "reviewing_stage",
+              "kind": {
+                "Enum": [
+                  "not_started",
+                  "peer_review",
+                  "self_review",
+                  "waiting_for_peer_reviews",
+                  "waiting_for_manual_grading",
+                  "reviewed_and_locked"
+                ]
+              }
+            }
+          },
+          {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
+              }
+            }
+          },
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, true, false, true, true, true, true]
-    }
-  },
-  "a31f19aeb82cb164528744c6ca787c1c69bcab7575494559728a80de5ad5231a": {
-    "query": "\nDELETE FROM course_exams\nWHERE exam_id = $1\n  AND course_id = $2\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true
+      ]
     }
   },
   "a379554670b6a21848d7ce7ef170224105b8378aa5907eba65bd1ee110f24ca0": {
@@ -7730,9 +10750,19 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb", "Jsonb", "Int4"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Jsonb",
+          "Jsonb",
+          "Jsonb",
+          "Jsonb",
+          "Int4"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "a76579e426500a1f99f9e02cf2c523658f58d86dcb036aef2aa3bdf71d8a563e": {
@@ -7740,7 +10770,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -7836,7 +10868,19 @@
           }
         ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
     }
   },
   "a963c734bc1f9c48be192fa5c8537d461c9ded7412268b17b64085e4f44b174a": {
@@ -7875,9 +10919,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "a9e6bf7e1afec5191482ce2cfaca22c670d50759540e166270fa2881e5db1dc4": {
@@ -7946,9 +10999,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "aabbcdc5984f0c7fc03acf0c2f53ebb8f0ff5f2b8993a81bd988be4bbf240a70": {
@@ -7962,9 +11031,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "ab512d5393d172dfdeb96e097b1214c65f66cededf3a2ca08c10fdb3759c8c2a": {
@@ -7978,9 +11053,19 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Jsonb", "Timestamptz", "Timestamptz", "Int4", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Jsonb",
+          "Timestamptz",
+          "Timestamptz",
+          "Int4",
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "abc0210de7968d0ccb49bd0a87e73d0cd22194379982298739789ada0a84bfe8": {
@@ -7999,9 +11084,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Text"]
+        "Left": [
+          "Text"
+        ]
       },
-      "nullable": [false, false]
+      "nullable": [
+        false,
+        false
+      ]
     }
   },
   "ad05712486467ad76850b5d365d57b87a302263d16b4bdc830f02e8a1092e6cc": {
@@ -8015,9 +11105,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null]
+      "nullable": [
+        null
+      ]
     }
   },
   "ad44e66896540a92d76d8b584ae7142955baf3641d83702179e92fe60f8e3836": {
@@ -8086,9 +11180,30 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Varchar", "Varchar", "Varchar", "Varchar", "Varchar"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "aee1ac79f9af758cf20f1b486a12b0f07ced3949ab6f2256bc792291ed7424b5": {
@@ -8107,9 +11222,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, true]
+      "nullable": [
+        true,
+        true
+      ]
     }
   },
   "af86245330f55f4771e41e635d60ba19a00c9170f775429caa4af0c9c4372ffe": {
@@ -8123,9 +11243,26 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null]
+      "nullable": [
+        null
+      ]
+    }
+  },
+  "b071b7164ccc528dc6f1eb0c23b8de2057612836eec60ab6de5d1418f03b5b00": {
+    "query": "\nUPDATE course_modules\nSET name = $1\nWHERE id = $2\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Uuid"
+        ]
+      },
+      "nullable": []
     }
   },
   "b1df8260d01f98fc33b24144e0f6414c49242ff5de2f130c2a7649201decbc0b": {
@@ -8194,9 +11331,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Text"]
+        "Left": [
+          "Uuid",
+          "Text"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "b3594457d4aea521525b2348f2f95336c0bfa761cf13b7878ca3a9691ded8ce9": {
@@ -8215,9 +11368,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false]
+      "nullable": [
+        false,
+        false
+      ]
     }
   },
   "b39dda257f5f1f2db1905fdb6616a93c5d587d89c51ca1c1ca67152d7677de65": {
@@ -8266,9 +11424,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "b41487fa1202843faad2ed61acd3c377c6ee5fd68b0d81abfd4dc70a0ddc601f": {
@@ -8312,9 +11481,19 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "b4aa488f4f835c2b3900955ae54fd4bdff8818c3c2935c88aa89848bb276dea6": {
@@ -8388,7 +11567,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -8478,9 +11659,28 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Bool", "Int8", "Int8"]
+        "Left": [
+          "Uuid",
+          "Bool",
+          "Int8",
+          "Int8"
+        ]
       },
-      "nullable": [true, true, true, true, true, true, true, true, true, true, true, true, true]
+      "nullable": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "b5f1ec1669cfc199d6b65c0d841eba7c1bdf11241cba798728ef4bb290a4ba47": {
@@ -8514,7 +11714,13 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           }
@@ -8523,7 +11729,13 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [true, true, true, true, true]
+      "nullable": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "b6def96f6973719237ce93811fd8a9215bf24529cab71d262f22f11d13ddf526": {
@@ -8607,7 +11819,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -8628,6 +11842,18 @@
       ]
     }
   },
+  "b760c129bfee373c2b75a8e5c699dc0ec999dc53890162b111e1f106e52a1f1e": {
+    "query": "\nDELETE FROM course_modules\nWHERE id = $1\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": []
+    }
+  },
   "b762efb77876e893abf712da8e1568b7406c5efd2cbe92e54520b6c93558794b": {
     "query": "\nSELECT course_id\nfrom exercise_task_gradings\nwhere id = $1\n        ",
     "describe": {
@@ -8639,9 +11865,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true]
+      "nullable": [
+        true
+      ]
     }
   },
   "b9159ddd17dc391f0bd7b726633dff02d1530aa2b0b270b4947d749442850451": {
@@ -8649,7 +11879,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -8730,7 +11963,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -8826,7 +12061,12 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Bool", "Bool", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Bool",
+          "Bool",
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -8912,9 +12152,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Jsonb", "Uuid"]
+        "Left": [
+          "Jsonb",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "bc4390dec143c0bbc96fdebad02b5673dc9037d1115322b71620583fd9f1b82b": {
@@ -8999,7 +12255,20 @@
           }
         ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "bc9ec84596a94fb96cb6efa0bc1ea8e7b99add5da3e67ec659365c02623a770c": {
@@ -9048,16 +12317,33 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "bd0d6dbc44d2430327d775796d4ab1ec8a2c6eb29d27592fe5cffbfd9dc98213": {
@@ -9076,9 +12362,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, true]
+      "nullable": [
+        true,
+        true
+      ]
     }
   },
   "bf72e4f9ddb0fde913ffd9dbc6031cf822382d1bad16b900e6fbb347b3d329a6": {
@@ -9092,9 +12383,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Text", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Text",
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "bfa02fde6602f70bb732851aaa2e194cdff03a3562341959cc4b2791bc5176fb": {
@@ -9178,7 +12475,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -9235,9 +12534,20 @@
         }
       ],
       "parameters": {
-        "Left": ["Int4", "Uuid", "Int4"]
+        "Left": [
+          "Int4",
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
     }
   },
   "c00028f92949b3e8d712a87d620c60b033e48b43583ed796d2e73d219df2931b": {
@@ -9256,9 +12566,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null, null]
+      "nullable": [
+        null,
+        null
+      ]
     }
   },
   "c0e77b688094cd88143669d7562d1412e2cb9c49374c1a95c75419f3ff7ac8cc": {
@@ -9272,7 +12587,13 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           },
@@ -9293,9 +12614,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "c1077b721fbdb17d2e726008507f9ddb90eb026821339890bdda90e4de4f68d2": {
@@ -9303,7 +12628,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -9313,7 +12640,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -9337,13 +12666,21 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
         ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "c41883ff57f67f01814525030af67d4a3bc472010ee6871a3191dcd0ee3e8f53": {
@@ -9372,9 +12709,16 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "c4db451cf0d08b2fca14976798e0883a3961533b35d7dd4d5057e1662d482592": {
@@ -9433,9 +12777,22 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "c515ee82610c997f53c83f72ddf8426145e47cf0d9476d2281506c139af86cb6": {
@@ -9443,7 +12800,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Jsonb", "Uuid"]
+        "Left": [
+          "Jsonb",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -9453,7 +12813,13 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Timestamptz", "Timestamptz", "Int4"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Timestamptz",
+          "Timestamptz",
+          "Int4"
+        ]
       },
       "nullable": []
     }
@@ -9463,7 +12829,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Text", "Uuid"]
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -9473,7 +12842,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -9509,16 +12880,30 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, true, true, false, false]
+      "nullable": [
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
     }
   },
   "cb4274ae34447c4c5f7629ca692a91b49faea0db90cc160062b393fca15537b1": {
@@ -9562,9 +12947,19 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ]
     }
   },
   "cb67a9dfb5be8ec9ba7cf67b4dd511093fc64f0556f4ffdae15c3286ba70d83d": {
@@ -9572,7 +12967,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Date"]
+        "Left": [
+          "Date"
+        ]
       },
       "nullable": []
     }
@@ -9593,9 +12990,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false]
+      "nullable": [
+        false,
+        false
+      ]
     }
   },
   "ccdcf7ce3537744686b4a00dc74692d8c5b333e058fcf54fed5891ec2c527d60": {
@@ -9649,9 +13052,26 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Varchar", "Varchar", "Varchar", "Int4", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "cdb8d8f63e7ba458f01b559fe4f0571a47ccac7eda5c84ab415e227d76ebca7e": {
@@ -9665,7 +13085,13 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           },
@@ -9686,9 +13112,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "d0037081bdb7d84526483a12e5070037392d36867f011134e611cfab8753b6e3": {
@@ -9702,9 +13132,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "d0362064383044fd4696b44c87594e64ea8ec4c3b4905d39a3464a756454eaf5": {
@@ -9712,7 +13146,12 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -9722,7 +13161,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -9783,9 +13225,22 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false
+      ]
     }
   },
   "d1b9e023f5c44a5e7d40094eabe5441cc88db7fb1fd77a72062f2884aab2ac6a": {
@@ -9804,9 +13259,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null, null]
+      "nullable": [
+        null,
+        null
+      ]
     }
   },
   "d1fa7c86c85fe788acf082f887a34058fe2a040299ac8ee70a541cd74ef78156": {
@@ -9825,9 +13285,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [null, null]
+      "nullable": [
+        null,
+        null
+      ]
     }
   },
   "d21fdc6eb89bf28c479b64ee9a5fff8dbb67f4c8bb02b25779e672187fed4fd7": {
@@ -9835,7 +13301,13 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -9845,7 +13317,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -9861,9 +13335,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "d649285a0c9cf46bdad2303ee6d7793ff5d1a7ce58f402e070c69f7187b57085": {
@@ -9871,7 +13349,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -9922,9 +13403,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Varchar", "Int4", "Jsonb"]
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Jsonb"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "d724f9b31998cfc4677cf3f3a006ab15dd17bdad59b2b290e47d648e9e03d03d": {
@@ -9988,7 +13483,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -10030,7 +13531,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -10130,7 +13633,9 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": [
         false,
@@ -10221,9 +13726,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
     }
   },
   "d9d04909a35ed8edd343a0be75ee10041e50a42d8ca3547d001672a9557b6d9d": {
@@ -10231,7 +13751,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Jsonb", "Uuid"]
+        "Left": [
+          "Jsonb",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -10241,7 +13764,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Varchar", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -10292,9 +13818,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar", "Varchar", "Int4"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true
+      ]
     }
   },
   "db5cd5b4719b69e217948320994bd8f3f6ae513f1378eb76d2fe6391acf179fc": {
@@ -10333,9 +13874,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, true, true, false, false]
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
     }
   },
   "db64bea6f7dc10dd47f4c41c5efa78c95cf5b6d97fcfcefda66847c20861ac56": {
@@ -10349,9 +13899,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Int4"]
+        "Left": [
+          "Uuid",
+          "Jsonb",
+          "Varchar",
+          "Varchar",
+          "Int4"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "dc6a94949ce20d11fa55e247dc706fdc88018bf1ba528487fcd0ef02f5c40ca7": {
@@ -10410,9 +13968,45 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false
+      ]
+    }
+  },
+  "dca9962cde61fb16b1beda03b37bdae5bf72f2a6f6e68636ea4d90e8c8f060f1": {
+    "query": "\nINSERT INTO peer_review_question_submissions (\n    peer_review_question_id,\n    peer_review_submission_id,\n    text_data,\n    number_data\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Varchar",
+          "Float4"
+        ]
+      },
+      "nullable": [
+        false
+      ]
     }
   },
   "dd2b4d1486d6e0b252e4bb035caf52bf4190a7df990599c24b686315db49e280": {
@@ -10491,7 +14085,12 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Int8", "Int8"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Int8",
+          "Int8"
+        ]
       },
       "nullable": [
         false,
@@ -10527,9 +14126,106 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, true]
+      "nullable": [
+        true,
+        true
+      ]
+    }
+  },
+  "ddc206a99d33b0bd741ef6cd354d2f4f373e16c831c9d5888bdeb9c864ce481c": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  name,\n  course_id,\n  deleted_at,\n  chapter_image_path,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  copied_from,\n  deadline,\n  module\nFROM chapters\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "chapter_image_path",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 7,
+          "name": "chapter_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 8,
+          "name": "front_page_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "opens_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 10,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 11,
+          "name": "deadline",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 12,
+          "name": "module",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "ddf7fa1dca876b806f407c7bdd5b40d3318c7d01e3664399accedb2bd5856855": {
@@ -10568,9 +14264,18 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "debb71ad011d9e3973c03668f6f2e738f672314b7b0b12d11e7ac338652b79f5": {
@@ -10589,9 +14294,37 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, true]
+      "nullable": [
+        true,
+        true
+      ]
+    }
+  },
+  "e29bb7cde78b61380d365a9125aeba138e1931002e8fd9ccedf277a6ed3d9b2d": {
+    "query": "\nINSERT INTO chapters (name, course_id, chapter_number, module)\nVALUES ($1, $2, $3, $4)\nRETURNING id\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Uuid",
+          "Int4",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false
+      ]
     }
   },
   "e2fe96906db5d05fa1a8b0aabc25e9027c386b349f11d4c26bcf7db1864af6cf": {
@@ -10605,9 +14338,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null]
+      "nullable": [
+        null
+      ]
     }
   },
   "e398cd25e0ebe20fbc1cb9bd3d525aacadb8604da50269598f265f9e2f099d49": {
@@ -10626,9 +14363,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null, null]
+      "nullable": [
+        null,
+        null
+      ]
     }
   },
   "e3c6cc19ea36187a8e99b3ccb88eceedaf4e65d67406df70be92017971b74d7c": {
@@ -10636,7 +14378,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -10694,7 +14438,17 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "e51930274913bb5238ab3d9bead1b6a2747b38ab840e9ec51397e26162e0d6c2": {
@@ -10728,9 +14482,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "e579b39acffdcb76d174340755962a875f7dad304bb6c6a1bbaab61674296024": {
@@ -10774,9 +14536,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Varchar", "Varchar", "Varchar", "Varchar"]
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "e5c1c53b9d9439e3f552f486c3a9916ea8e8a5bce4678d7515a6e24cd9d0f19e": {
@@ -10795,9 +14571,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false]
+      "nullable": [
+        false,
+        false
+      ]
     }
   },
   "e5db6a3bd6793923334f9a040d99b022099caf632357702ffb1be47602ec4820": {
@@ -10821,9 +14603,17 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false, false, false]
+      "nullable": [
+        false,
+        false,
+        false
+      ]
     }
   },
   "e5e90260825ef39797acd231ed10db86eb9dbaf18d7eb6a2d5004971e5de2a23": {
@@ -10847,9 +14637,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, true, true]
+      "nullable": [
+        true,
+        true,
+        true
+      ]
     }
   },
   "e6f687f777bbf1f390fd79b39ebe2f71adc27844198a74a5370382ba150abb44": {
@@ -10865,7 +14661,9 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "e81f68320c722d60ef526f006e39003a1349551bacebb0fc4907f93a26b0411b": {
@@ -10909,9 +14707,19 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
     }
   },
   "e966783963c11d6fa57df792d1bfff0dccf163f9cf5f474c1f3c724972229d4e": {
@@ -10977,12 +14785,33 @@
           "ordinal": 11,
           "name": "deadline",
           "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 12,
+          "name": "module",
+          "type_info": "Uuid"
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, false, false, false, true, true, true, true, true, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
     }
   },
   "ea1cf40426369528975ef35ee1410e8288388f7d392b0464945dc2add9e2787f": {
@@ -11001,16 +14830,27 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true, false]
+      "nullable": [
+        true,
+        false
+      ]
     }
   },
   "ea9d08bf76031e4623c82bb7ec98c5cbb01d838675c3eb081532b1580d6f94c5": {
@@ -11034,9 +14874,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, true]
+      "nullable": [
+        false,
+        false,
+        true
+      ]
     }
   },
   "eb5c16a276498ed4260c1b31fcd67d79dfcb0e517003bc8d8b5b5732646d44e3": {
@@ -11050,7 +14896,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           },
@@ -11091,16 +14943,30 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, true, true, false, false]
+      "nullable": [
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
     }
   },
   "ee7145229275ac980ffb6c1f156e3bd4e793b17a5c28c5eda9549fdb68eb6187": {
@@ -11149,16 +15015,34 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "f0c80207c86e95e0dcd70759a548490be39fa00c3221c45ed27b1e00b5721624": {
@@ -11166,7 +15050,9 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Date"]
+        "Left": [
+          "Date"
+        ]
       },
       "nullable": []
     }
@@ -11182,7 +15068,13 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           },
@@ -11208,9 +15100,15 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, true]
+      "nullable": [
+        false,
+        true
+      ]
     }
   },
   "f2beb11b5e6318b712b0af9bd4fde454472ce8eda3612295b788958148a376b5": {
@@ -11269,9 +15167,22 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "f3ac0ff191c33364eb12bef118fed4c6afa634fab2a65a85b19752d5e995b516": {
@@ -11330,9 +15241,23 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false
+      ]
     }
   },
   "f3b0334549648445a49ba006091a3c14401a9fce0ef0edc49b4dbc2c7df7d1be": {
@@ -11347,7 +15272,13 @@
             "Custom": {
               "name": "grading_progress",
               "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
               }
             }
           }
@@ -11361,9 +15292,146 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
       "nullable": []
+    }
+  },
+  "f3e5eccb66e0e605625aaee3055e5e850eebfb781a13516a9894e28befa91e89": {
+    "query": "\n    INSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id, exam_id)\n    VALUES ($1, $2, $3, $4)\n    RETURNING id,\n      user_id,\n      exercise_id,\n      course_instance_id,\n      exam_id,\n      created_at,\n      updated_at,\n      deleted_at,\n      score_given,\n      grading_progress as \"grading_progress: _\",\n      activity_progress as \"activity_progress: _\",\n      reviewing_stage AS \"reviewing_stage: _\",\n      selected_exercise_slide_id\n      ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "exercise_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 3,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "exam_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 9,
+          "name": "grading_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "grading_progress",
+              "kind": {
+                "Enum": [
+                  "fully-graded",
+                  "pending",
+                  "pending-manual",
+                  "failed",
+                  "not-ready"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 10,
+          "name": "activity_progress: _",
+          "type_info": {
+            "Custom": {
+              "name": "activity_progress",
+              "kind": {
+                "Enum": [
+                  "initialized",
+                  "started",
+                  "in-progress",
+                  "submitted",
+                  "completed"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 11,
+          "name": "reviewing_stage: _",
+          "type_info": {
+            "Custom": {
+              "name": "reviewing_stage",
+              "kind": {
+                "Enum": [
+                  "not_started",
+                  "peer_review",
+                  "self_review",
+                  "waiting_for_peer_reviews",
+                  "waiting_for_manual_grading",
+                  "reviewed_and_locked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 12,
+          "name": "selected_exercise_slide_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true
+      ]
     }
   },
   "f4027fdbb6bf446e8c75423168c3c97e5509c4e44d2246e9894494a96e8f752d": {
@@ -11383,14 +15451,22 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           },
           "Uuid"
         ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "f4975555bb0c4f1063c0f8f89e371c9b94a48a69c5e1ec92473db99adfce7601": {
@@ -11404,9 +15480,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [true]
+      "nullable": [
+        true
+      ]
     }
   },
   "f4c732597c3cdf6484a20f41348183e56353ecdafbd4da0b6544f356e50e2424": {
@@ -11475,9 +15555,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "f4dfbd49766b87036e450b1ec67c42af7b0ddfd27420630d6d60a0284ffd5d82": {
@@ -11491,9 +15586,14 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Int4"]
+        "Left": [
+          "Uuid",
+          "Int4"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "f4f6c13de771e2521337c4b144e9909899288d7986a559b1752ca2622888e8be": {
@@ -11507,7 +15607,13 @@
             "Custom": {
               "name": "user_role",
               "kind": {
-                "Enum": ["admin", "assistant", "teacher", "reviewer", "course_or_exam_creator"]
+                "Enum": [
+                  "admin",
+                  "assistant",
+                  "teacher",
+                  "reviewer",
+                  "course_or_exam_creator"
+                ]
               }
             }
           }
@@ -11572,9 +15678,44 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false
+      ]
+    }
+  },
+  "f5f6f6ee7f41b785b8b8b4bdd59d6d82338f119d2099cdb332bc2c89a7778721": {
+    "query": "\nSELECT COUNT(*)\nFROM peer_review_submissions\nWHERE user_id = $1\n  AND exercise_id = $3\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "count",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        null
+      ]
     }
   },
   "f75a47ca2444e4cbaade9a44f7104ede569c4660c573e5fa4034805f1597c361": {
@@ -11588,9 +15729,13 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray"]
+        "Left": [
+          "UuidArray"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "f7841567b90206f7d7aba83b520e1cb7933c33d203d9a1df88e3db961ab83681": {
@@ -11649,9 +15794,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Uuid", "Varchar"]
+        "Left": [
+          "Varchar",
+          "Uuid",
+          "Varchar"
+        ]
       },
-      "nullable": [false, false, false, true, true, false, true, true, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false
+      ]
     }
   },
   "f801f26dc4e64a8b5d153887f13f858752e27b44b003ccbb2e539e7958d39875": {
@@ -11725,9 +15885,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Int8", "Int8"]
+        "Left": [
+          "Uuid",
+          "Int8",
+          "Int8"
+        ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
     }
   },
   "f8ef09f81ca6d7912306640c0789b9aa8eee7fcf682c433b782e42582c362f0b": {
@@ -11781,9 +15957,21 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, true, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
     }
   },
   "fa86ecf363520f40b143c5d7ce8241c6be435676f6b4b34e253b8d64983ccd59": {
@@ -11791,7 +15979,10 @@
     "describe": {
       "columns": [],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
       "nullable": []
     }
@@ -11862,9 +16053,25 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid", "Uuid"]
+        "Left": [
+          "Uuid",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
     }
   },
   "fca8672f757656db6332543f9d4351224a1218c4387310e9447e70dad48af7cf": {
@@ -11878,9 +16085,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [false]
+      "nullable": [
+        false
+      ]
     }
   },
   "fefaaa5c5e1de08eb78712713351fe1623b3a9b9a9e416bfd8135c4d571cb4fb": {
@@ -11894,9 +16105,13 @@
         }
       ],
       "parameters": {
-        "Left": ["Uuid"]
+        "Left": [
+          "Uuid"
+        ]
       },
-      "nullable": [null]
+      "nullable": [
+        null
+      ]
     }
   },
   "ffceb3f0780f56e249bcc6983105d897534b65d8fc362fc56ea275d45661e617": {
@@ -11945,9 +16160,24 @@
         }
       ],
       "parameters": {
-        "Left": ["Varchar", "Varchar", "Int4", "Jsonb", "Uuid"]
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Int4",
+          "Jsonb",
+          "Uuid"
+        ]
       },
-      "nullable": [false, false, false, true, false, false, false, false]
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "ffdcee66fc7df1125bb7f1fe5e05367efcef5525207938af4b7d69fc784f2396": {
@@ -12021,7 +16251,9 @@
         }
       ],
       "parameters": {
-        "Left": ["UuidArray"]
+        "Left": [
+          "UuidArray"
+        ]
       },
       "nullable": [
         false,

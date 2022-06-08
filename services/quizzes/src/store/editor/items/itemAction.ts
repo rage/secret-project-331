@@ -132,14 +132,6 @@ export const editedItemDirection = createAction(
   (itemId: string, newDirection) => ({ itemId, newDirection }),
 )<{ itemId: string; newDirection: "row" | "column" }>()
 
-export const editedQuizItemFeedbackDisplayPolicy = createAction(
-  "EDITED_QUIZ_ITEM_FEEDBACK_POLICY",
-  (itemId: string, newPolicy) => ({ itemId, newPolicy }),
-)<{
-  itemId: string
-  newPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions"
-}>()
-
 export const editedQuizItemOptionCells = createAction(
   "EDITED_OPTION_CELLS",
   (itemId: string, newOptionCells: string[][]) => ({
@@ -168,7 +160,6 @@ export const itemActions = [
   increasedItemOrder,
   toggledAllAnswersCorrect,
   editedItemDirection,
-  editedQuizItemFeedbackDisplayPolicy,
   editedQuizItemOptionCells,
 ]
 

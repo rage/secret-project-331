@@ -31,7 +31,6 @@ const TextBox = styled.div`
     padding-bottom: 1em;
     line-height: 1.1;
     margin-bottom: 0.5em;
-    text-transform: uppercase;
   }
 
   span {

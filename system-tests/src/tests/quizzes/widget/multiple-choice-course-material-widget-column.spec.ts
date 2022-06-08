@@ -134,7 +134,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     axeSkip: ["color-contrast"],
     headless,
     snapshotName: "course-material-multiple-choice-after-success-click-column-multi",
-    waitForThisToBeVisibleAndStable: `text="Correct! This is indeed the first answer"`,
+    waitForThisToBeVisibleAndStable: `text="Correct! This is indeed the first option"`,
     frame: frame2,
     page,
     clearNotifications: true,
@@ -164,7 +164,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-material-multiple-choice-after-failure-click-column-multi",
-    waitForThisToBeVisibleAndStable: `text="Incorrect. This is not the first answer"`,
+    waitForThisToBeVisibleAndStable: `text="Incorrect. This is not the first option"`,
     frame: frame2,
     page,
     clearNotifications: true,

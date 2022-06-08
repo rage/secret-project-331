@@ -9,10 +9,8 @@ import {
   FormGroup,
   FormHelperText,
   FormLabel,
-  MenuItem,
   Radio,
   RadioGroup,
-  Select,
   Switch,
 } from "@mui/material"
 import React from "react"
@@ -25,7 +23,6 @@ import {
   editedItemDirection,
   editedItemFailureMessage,
   editedItemSuccessMessage,
-  editedQuizItemFeedbackDisplayPolicy,
   editedQuizItemTitle,
   editedSharedOptionsFeedbackMessage,
   toggledAllAnswersCorrect,
@@ -117,24 +114,6 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
             }
           />
         </FormGroup>
-      </ModalContent>
-      <ModalContent>
-        <Select
-          fullWidth
-          label={t("feedback-display policy")}
-          variant="outlined"
-          value={storeItem.feedbackDisplayPolicy}
-          onChange={(event) =>
-            dispatch(editedQuizItemFeedbackDisplayPolicy(storeItem.id, event.target.value))
-          }
-        >
-          {/* eslint-disable-next-line i18next/no-literal-string */}
-          <MenuItem value="DisplayFeedbackOnQuizItem">{t("on-quiz-item")}</MenuItem>
-          {/* eslint-disable-next-line i18next/no-literal-string */}
-          <MenuItem value="DisplayFeedbackOnAllOptions">
-            {t("on-each-quiz-item-answer-option")}
-          </MenuItem>
-        </Select>
       </ModalContent>
       <ModalContent>
         <MarkdownEditor

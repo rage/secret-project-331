@@ -1,9 +1,9 @@
 import { Page } from "playwright"
 
-export async function selectCourseVariantIfPrompted(page: Page, courseVariantName = "default") {
+export async function selectCourseInstanceIfPrompted(page: Page, courseVariantName = "default") {
   // Give a moment for the dialog to appear
   await page.waitForTimeout(200)
-  const courseVariantSelector = await page.$$("text=Select course version to continue.")
+  const courseVariantSelector = await page.$$("text=Select course instance to continue.")
 
   if (courseVariantSelector.length > 0) {
     await page.click(`label:has-text("${courseVariantName}")`)

@@ -80,3 +80,16 @@ jobs:
       - name: Run tests
         run: npm run test
         working-directory: ./shared-module
+
+  quizzes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: npm ci for the root of the repo
+        run: npm ci
+      - name: npm ci
+        run: npm ci
+        working-directory: ./services/quizzes
+      - name: Run tests
+        run: npm run test
+        working-directory: ./services/quizzes

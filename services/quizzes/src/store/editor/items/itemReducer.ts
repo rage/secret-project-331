@@ -26,7 +26,6 @@ import {
   editedItemMinWords,
   editedItemSuccessMessage,
   editedQuizItemBody,
-  editedQuizItemFeedbackDisplayPolicy,
   editedQuizItemOptionCells,
   editedQuizItemTitle,
   editedScaleMaxValue,
@@ -121,12 +120,6 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
     })
   })
 
-  .handleAction(editedQuizItemFeedbackDisplayPolicy, (state, action) => {
-    return produce(state, (draftState) => {
-      draftState[action.payload.itemId].feedbackDisplayPolicy = action.payload.newPolicy
-    })
-  })
-
   .handleAction(createdNewItem, (state, action) => {
     return produce(state, (draftState) => {
       const newItem: NormalizedQuizItem = {
@@ -153,7 +146,6 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
         optionCells: null,
         allAnswersCorrect: false,
         direction: "column",
-        feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem",
         timelineItems: [],
       }
       draftState[action.payload.itemId] = newItem

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-import { selectCourseVariantIfPrompted } from "../../../utils/courseMaterialActions"
+import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 import waitForFunction from "../../../utils/waitForFunction"
 
@@ -20,7 +20,7 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-course-instance-management' }*/),
     page.locator("text=Introduction to Course Material").click(),
   ])
-  await selectCourseVariantIfPrompted(page)
+  await selectCourseInstanceIfPrompted(page)
   await page.locator("text=User Experience").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2",

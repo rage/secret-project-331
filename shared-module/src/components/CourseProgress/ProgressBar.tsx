@@ -3,7 +3,7 @@ import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme, headingFont } from "../../styles"
+import { baseTheme, secondaryFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
 import { ProgressBarExtraProps } from "."
@@ -62,7 +62,7 @@ const Label = styled.div`
   span:first-of-type {
     font-size: 0.8em;
     font-weight: 400;
-    font-family: ${headingFont};
+    font-family: ${secondaryFont};
     opacity: 0.9;
     text-transform: uppercase;
   }

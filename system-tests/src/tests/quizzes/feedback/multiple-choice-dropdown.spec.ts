@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-import { selectCourseVariantIfPrompted } from "../../../utils/courseMaterialActions"
+import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 import waitForFunction from "../../../utils/waitForFunction"
 
@@ -24,7 +24,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
     page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`),
   ])
 
-  await selectCourseVariantIfPrompted(page)
+  await selectCourseInstanceIfPrompted(page)
 
   await Promise.all([page.waitForNavigation(), await page.click("text=The Basics")])
   expect(page.url()).toBe(
@@ -56,7 +56,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer",
-    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
@@ -75,7 +75,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "multiple-choice-dropdown-feedback-correct-answer",
-    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 
@@ -94,7 +94,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
     page,
     headless,
     snapshotName: "multiple-choice-dropdown-feedback-incorrect-answer-after-correct",
-    waitForThisToBeVisibleAndStable: `text=your submit has been answered`,
+    waitForThisToBeVisibleAndStable: `text=This is an extra submit message from the teacher.`,
     toMatchSnapshotOptions: { threshold: 0.4 },
   })
 })

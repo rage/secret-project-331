@@ -74,6 +74,4 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
 
   // Click text=Submit
   await page.locator("text=Submit").click()
-
-  await page.click("text=Close")
 })

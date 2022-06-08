@@ -25,6 +25,7 @@ pub struct DatabaseChapter {
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
+    pub module: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -42,6 +43,7 @@ pub struct Chapter {
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
+    pub module: Option<Uuid>,
 }
 
 impl Chapter {
@@ -67,6 +69,7 @@ impl Chapter {
             opens_at: chapter.opens_at,
             copied_from: chapter.copied_from,
             deadline: chapter.deadline,
+            module: chapter.module,
         }
     }
 }
@@ -107,6 +110,7 @@ pub struct NewChapter {
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
+    pub module: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -116,6 +120,7 @@ pub struct ChapterUpdate {
     pub front_page_id: Option<Uuid>,
     pub deadline: Option<DateTime<Utc>>,
     pub opens_at: Option<DateTime<Utc>>,
+    pub module: Option<Uuid>,
 }
 
 pub async fn insert(
@@ -123,16 +128,18 @@ pub async fn insert(
     name: &str,
     course_id: Uuid,
     chapter_number: i32,
+    module: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO chapters (name, course_id, chapter_number)
-VALUES ($1, $2, $3)
+INSERT INTO chapters (name, course_id, chapter_number, module)
+VALUES ($1, $2, $3, $4)
 RETURNING id
 ",
         name,
         course_id,
-        chapter_number
+        chapter_number,
+        module
     )
     .fetch_one(conn)
     .await?;
@@ -221,7 +228,8 @@ pub async fn update_chapter(
 UPDATE chapters
 SET name = $2,
   deadline = $3,
-  opens_at = $4
+  opens_at = $4,
+  module = $5
 WHERE id = $1
 RETURNING *;
     "#,
@@ -229,6 +237,7 @@ RETURNING *;
         chapter_update.name,
         chapter_update.deadline,
         chapter_update.opens_at,
+        chapter_update.module
     )
     .fetch_one(conn)
     .await?;
@@ -269,7 +278,9 @@ pub struct ChapterWithStatus {
     pub opens_at: Option<DateTime<Utc>>,
     pub status: ChapterStatus,
     pub chapter_image_url: Option<String>,
+    pub module: Option<Uuid>,
 }
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseInstanceChapterProgress {
@@ -297,7 +308,8 @@ SELECT id,
   front_page_id,
   opens_at,
   copied_from,
-  deadline
+  deadline,
+  module
 FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -327,7 +339,8 @@ SELECT id,
   front_page_id,
   opens_at,
   copied_from,
-  deadline
+  deadline,
+  module
 FROM chapters
 WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
   AND deleted_at IS NULL;
@@ -349,15 +362,23 @@ pub async fn insert_chapter(
     let chapter = sqlx::query_as!(
         DatabaseChapter,
         r#"
-INSERT INTO chapters(name, course_id, chapter_number, deadline, opens_at)
-VALUES($1, $2, $3, $4, $5)
+INSERT INTO chapters(
+    name,
+    course_id,
+    chapter_number,
+    deadline,
+    opens_at,
+    module
+  )
+VALUES($1, $2, $3, $4, $5, $6)
 RETURNING *;
 "#,
         chapter.name,
         chapter.course_id,
         chapter.chapter_number,
         chapter.deadline,
-        chapter.opens_at
+        chapter.opens_at,
+        chapter.module
     )
     .fetch_one(&mut tx)
     .await?;

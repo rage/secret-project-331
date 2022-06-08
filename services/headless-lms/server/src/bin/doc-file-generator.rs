@@ -30,12 +30,21 @@ use headless_lms_models::{
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
     exercise_task_submissions::{ExerciseTaskSubmission, SubmissionInfo},
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
+    exercise_task_submissions::ExerciseTaskSubmission,
+    exercise_tasks::CourseMaterialExerciseTask,
     exercises::{
         ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
     },
     feedback::{Feedback, FeedbackBlock, FeedbackCount},
     glossary::Term,
     library::grading::{StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult},
+    library::{
+        grading::{StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult},
+        peer_reviewing::{
+            CourseMaterialPeerReviewData, CourseMaterialPeerReviewDataAnswerToReview,
+            CourseMaterialPeerReviewQuestionAnswer, CourseMaterialPeerReviewSubmission,
+        },
+    },
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
@@ -43,6 +52,8 @@ use headless_lms_models::{
         CoursePageWithUserData, IsChapterFrontPage, Page, PageChapterAndCourseInformation,
         PageInfo, PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
+    peer_review_questions::{PeerReviewQuestion, PeerReviewQuestionType},
+    peer_reviews::{PeerReview, PeerReviewAcceptingStrategy},
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
     proposed_page_edits::{PageProposal, ProposalCount},
@@ -247,6 +258,7 @@ fn main() {
         opens_at: Some(date_time),
         copied_from: None,
         deadline: Some(date_time),
+        module: None,
     };
     let exercise_service = ExerciseService {
         id,
@@ -269,6 +281,29 @@ fn main() {
         upstream_id: None,
         email: "email@example.com".to_string(),
     };
+    let peer_review_question = PeerReviewQuestion {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        peer_review_id: id,
+        order_number: 0,
+        question: "Was the answer well thought out?".to_string(),
+        question_type: PeerReviewQuestionType::Essay,
+        answer_required: true,
+    };
+    let peer_review = PeerReview {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        course_id: course.id,
+        exercise_id: Some(exercise.id),
+        peer_reviews_to_give: 3,
+        peer_reviews_to_receive: 2,
+        accepting_threshold: 2.5,
+        accepting_strategy: PeerReviewAcceptingStrategy::ManualReviewEverything,
+    };
     let playground_example = PlaygroundExample {
         id,
         created_at,
@@ -278,6 +313,16 @@ fn main() {
         url: "http://example.com".to_string(),
         width: 123,
         data: serde_json::json! {{}},
+    };
+
+    let course_material_peer_review_submission = CourseMaterialPeerReviewSubmission {
+        exercise_slide_submission_id: exercise_slide_submission.id,
+        peer_review_id: peer_review.id,
+        peer_review_question_answers: vec![CourseMaterialPeerReviewQuestionAnswer {
+            peer_review_question_id: id,
+            text_data: Some("I think that the answer was well written.".to_string()),
+            number_data: None,
+        }],
     };
     let submission_result = StudentExerciseTaskSubmissionResult {
         submission: exercise_task_submission.clone(),
@@ -290,6 +335,7 @@ fn main() {
             score_given: None,
             activity_progress: ActivityProgress::InProgress,
             grading_progress: GradingProgress::NotReady,
+            reviewing_stage: headless_lms_models::user_exercise_states::ReviewingStage::NotStarted,
         }),
     };
     let organization = Organization {
@@ -371,6 +417,9 @@ fn main() {
             }
         ]
     );
+    write_docs!(PeerReview, peer_review.clone());
+    write_docs!(PeerReviewQuestion, peer_review_question.clone());
+    write_docs!(Vec<PeerReviewQuestion>, vec![peer_review_question.clone()]);
     write_docs!(
         Vec<PageWithExercises>,
         vec![PageWithExercises {
@@ -513,7 +562,9 @@ fn main() {
             exercise_status: Some(ExerciseStatus {
                 score_given: None,
                 activity_progress: ActivityProgress::InProgress,
-                grading_progress: GradingProgress::NotReady
+                grading_progress: GradingProgress::NotReady,
+                reviewing_stage:
+                    headless_lms_models::user_exercise_states::ReviewingStage::NotStarted
             }),
             exercise_slide_submission_counts: HashMap::from([
                 (
@@ -524,7 +575,20 @@ fn main() {
                     Uuid::parse_str("7dea54af-3d38-4f7c-8969-ecb17b55ec02").unwrap(),
                     4_i64
                 )
-            ])
+            ]),
+            peer_review: Some(PeerReview {
+                id,
+                created_at,
+                updated_at,
+                deleted_at,
+                course_id: id,
+                exercise_id: Some(id),
+                peer_reviews_to_give: 3,
+                peer_reviews_to_receive: 2,
+                accepting_threshold: 3.0,
+                accepting_strategy:
+                    PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage
+            })
         }
     );
     write_docs!(
@@ -568,7 +632,8 @@ fn main() {
                     front_page_id: None,
                     opens_at: Some(date_time),
                     deadline: Some(date_time),
-                    copied_from: None
+                    copied_from: None,
+                    module: None,
                 },
                 score_given: 1.0,
                 score_total: 2
@@ -801,6 +866,7 @@ fn main() {
         ChaptersWithStatus,
         ChaptersWithStatus {
             is_previewable: false,
+            modules: vec![],
             chapters: vec![ChapterWithStatus {
                 id,
                 created_at,
@@ -813,6 +879,7 @@ fn main() {
                 opens_at: None,
                 status: ChapterStatus::Open,
                 chapter_image_url: Some("http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg".to_string()),
+                module: None,
             }]
         }
     );
@@ -848,9 +915,58 @@ fn main() {
         }
     );
     write_docs!(
-        IsChapterFrontPage,
-        IsChapterFrontPage {
-            is_chapter_front_page: true
+                IsChapterFrontPage,
+                IsChapterFrontPage {
+                    is_chapter_front_page: true
+        }
+    );
+    write_docs!(
+        ExerciseSlideSubmissionInfo,
+        ExerciseSlideSubmissionInfo {
+            tasks: vec![CourseMaterialExerciseTask {
+                id,
+                exercise_slide_id: id,
+                exercise_iframe_url: Some(
+                    "http://project-331.local/example-exercise/exercise".to_string()
+                ),
+                assignment: serde_json::json! {{"name":"core/paragraph","isValid":true,"clientId":"187a0aea-c088-4354-a1ea-f0cab082c065","attributes":{"content":"Answer this question.","dropCap":false},"innerBlocks":[]}},
+                public_spec: Some(
+                    serde_json::json! {[{"id":"7ab2591c-b0f3-4543-9548-a113849b0f94","name":"a"},{"id":"a833d1df-f27b-4fbf-b516-883a62c09d88","name":"b"},{"id":"03d4b3d4-88af-4125-88b7-4ee052fd876f","name":"c"}]}
+                ),
+                model_solution_spec: None,
+                previous_submission: Some(exercise_task_submission.clone()),
+                previous_submission_grading: Some(grading.clone()),
+                order_number: 1
+            }],
+            exercise,
+            exercise_slide_submission: exercise_slide_submission.clone(),
+        }
+    );
+    write_docs!(
+        CourseMaterialPeerReviewData,
+        CourseMaterialPeerReviewData {
+            peer_review: peer_review.clone(),
+            peer_review_questions: vec![peer_review_question.clone()],
+
+            num_peer_reviews_given: 2,
+            answer_to_review: Some(CourseMaterialPeerReviewDataAnswerToReview {
+                course_material_exercise_tasks: vec![CourseMaterialExerciseTask {
+                    id,
+                    exercise_slide_id: id,
+                    exercise_iframe_url: Some(
+                        "http://project-331.local/example-exercise/exercise".to_string(),
+                    ),
+                    assignment: serde_json::json! {{"name":"core/paragraph","isValid":true,"clientId":"187a0aea-c088-4354-a1ea-f0cab082c065","attributes":{"content":"Answer this question.","dropCap":false},"innerBlocks":[]}},
+                    public_spec: Some(
+                        serde_json::json! {[{"id":"7ab2591c-b0f3-4543-9548-a113849b0f94","name":"a"},{"id":"a833d1df-f27b-4fbf-b516-883a62c09d88","name":"b"},{"id":"03d4b3d4-88af-4125-88b7-4ee052fd876f","name":"c"}]},
+                    ),
+                    model_solution_spec: None,
+                    previous_submission: Some(exercise_task_submission.clone()),
+                    previous_submission_grading: Some(grading.clone()),
+                    order_number: 0,
+                }],
+                exercise_slide_submission_id: exercise_slide_submission.id,
+            }),
         }
     );
 }

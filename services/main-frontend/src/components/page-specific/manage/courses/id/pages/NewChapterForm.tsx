@@ -81,6 +81,7 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
           front_page_id: null,
           opens_at: data.opens_at,
           deadline: data.deadline,
+          module: null,
         })
       })}
       className={css`

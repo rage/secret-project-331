@@ -14,7 +14,8 @@ use crate::{
     CourseOrExamId,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+/// Information necessary for the frontend to render an exercise task
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExerciseTask {
     pub id: Uuid,

@@ -2,8 +2,10 @@ use futures::Stream;
 use serde_json::Value;
 
 use crate::{
-    exercise_slide_submissions, exercise_task_gradings::ExerciseTaskGrading,
-    exercise_tasks::ExerciseTask, exercises::Exercise, prelude::*, CourseOrExamId,
+    exercise_slide_submissions,
+    exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
+    prelude::*,
+    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -19,16 +21,6 @@ pub struct ExerciseTaskSubmission {
     pub data_json: Option<serde_json::Value>,
     pub exercise_task_grading_id: Option<Uuid>,
     pub metadata: Option<serde_json::Value>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct SubmissionInfo {
-    pub submission: ExerciseTaskSubmission,
-    pub exercise: Exercise,
-    pub exercise_task: ExerciseTask,
-    pub grading: Option<ExerciseTaskGrading>,
-    pub iframe_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -166,11 +158,11 @@ WHERE exercise_slide_submission_id = $1
 
 pub async fn get_users_latest_exercise_task_submissions_for_exercise_slide(
     conn: &mut PgConnection,
-    exercise_slide_id: &Uuid,
-    user_id: &Uuid,
+    exercise_slide_id: Uuid,
+    user_id: Uuid,
 ) -> ModelResult<Option<Vec<ExerciseTaskSubmission>>> {
     let exercise_slide_submission =
-        exercise_slide_submissions::get_users_latest_exercise_slide_submission(
+        exercise_slide_submissions::try_to_get_users_latest_exercise_slide_submission(
             conn,
             exercise_slide_id,
             user_id,
@@ -263,4 +255,57 @@ WHERE exercise_slide_submissions.exam_id = $1
         exam_id
     )
     .fetch(conn)
+}
+
+/// Used to get the necessary info for rendering a submission either when we're viewing a submission, or we're conducting a peer review.
+pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
+    let task_submisssions = crate::exercise_task_submissions::get_by_exercise_slide_submission_id(
+        &mut *conn,
+        exercise_slide_submission_id,
+    )
+    .await?;
+    let exercise_task_gradings =
+        crate::exercise_task_gradings::get_all_gradings_by_exercise_slide_submission_id(
+            &mut *conn,
+            exercise_slide_submission_id,
+        )
+        .await?;
+
+    let exercise_tasks = crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_id::<
+        Vec<ExerciseTask>,
+    >(&mut *conn, &task_submisssions[0].exercise_slide_id)
+    .await?;
+    let mut res = Vec::with_capacity(task_submisssions.len());
+    for ts in task_submisssions {
+        let grading = exercise_task_gradings
+            .iter()
+            .find(|g| Some(g.id) == ts.exercise_task_grading_id)
+            .ok_or_else(|| ModelError::NotFound("Grading not found".to_string()))?;
+        let task = exercise_tasks
+            .iter()
+            .find(|t| t.id == ts.exercise_task_id)
+            .ok_or_else(|| ModelError::NotFound("Exercise task not found".to_string()))?;
+        let exercise_iframe_url = crate::exercise_service_info::get_service_info_by_exercise_type(
+            &mut *conn,
+            &task.exercise_type,
+        )
+        .await?
+        .exercise_type_specific_user_interface_iframe;
+        let course_material_exercise_task = CourseMaterialExerciseTask {
+            id: task.id,
+            exercise_slide_id: task.exercise_slide_id,
+            exercise_iframe_url: Some(exercise_iframe_url),
+            assignment: task.assignment.clone(),
+            public_spec: task.public_spec.clone(),
+            model_solution_spec: task.model_solution_spec.clone(),
+            previous_submission: Some(ts),
+            previous_submission_grading: Some(grading.clone()),
+            order_number: task.order_number,
+        };
+        res.push(course_material_exercise_task);
+    }
+    Ok(res)
 }

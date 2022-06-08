@@ -23,7 +23,7 @@ const Checkbox: React.FC<QuizItemComponentProps> = ({
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        border: 2px solid #bec3c7;
+        border: 3px solid #bec3c7;
         border-radius: 3px;
         margin-bottom: 10px;
         padding: 5px;

@@ -77,7 +77,13 @@ async fn get_course_page_by_path(
     )
     .await?;
 
-    let token = skip_authorize()?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        user.map(|u| u.id),
+        Res::Page(page_with_user_data.page.id),
+    )
+    .await?;
 
     let temp_request_information =
         derive_information_from_requester(req, ip_to_country_mapper).await?;
@@ -299,14 +305,13 @@ async fn get_chapters(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<ChaptersWithStatus>> {
     let mut conn = pool.acquire().await?;
-    let user_id = user.as_ref().map(|u| u.id);
 
     let is_previewable = OptionFuture::from(user.map(|u| {
         authorize(&mut conn, Act::Teach, Some(u.id), Res::Course(*course_id)).map(|r| r.ok())
     }))
     .await
     .is_some();
-    let token = authorize(&mut conn, Act::View, user_id, Res::Course(*course_id)).await?;
+    let token = skip_authorize()?;
 
     let chapters = models::chapters::course_chapters(&mut conn, *course_id).await?;
     let modules = models::course_modules::for_course(&mut conn, *course_id).await?;

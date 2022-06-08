@@ -164,7 +164,7 @@ pub async fn authorize(
     action: Action,
     user_id: Option<Uuid>,
     resource: Resource,
-) -> anyhow::Result<AuthorizationToken> {
+) -> Result<AuthorizationToken, ControllerError> {
     let user_roles = if let Some(user_id) = user_id {
         models::roles::get_roles(conn, user_id)
             .await
@@ -251,7 +251,7 @@ pub async fn authorize(
         | Resource::ExerciseService
         | Resource::GlobalPermissions => {
             // permissions for these resources have already been checked
-            Err(anyhow::anyhow!("Unauthorized".to_string()))
+            Err(ControllerError::Forbidden("Unauthorized".to_string()))
         }
     }
 }
@@ -260,7 +260,7 @@ async fn check_organization_permission(
     roles: &[Role],
     action: Action,
     organization_id: Uuid,
-) -> anyhow::Result<AuthorizationToken> {
+) -> Result<AuthorizationToken, ControllerError> {
     if action == Action::View {
         // anyone can view an organization regardless of roles
         return Ok(AuthorizationToken(()));
@@ -272,7 +272,7 @@ async fn check_organization_permission(
             return Ok(AuthorizationToken(()));
         }
     }
-    Err(anyhow::anyhow!("Unauthorized".to_string()))
+    Err(ControllerError::Forbidden("Unauthorized".to_string()))
 }
 
 /// Also checks organization role which is valid for courses.
@@ -281,7 +281,7 @@ async fn check_course_permission(
     roles: &[Role],
     mut action: Action,
     course_id: Uuid,
-) -> anyhow::Result<AuthorizationToken> {
+) -> Result<AuthorizationToken, ControllerError> {
     // if trying to View a draft course, check for permission to Teach instead
     if action == Action::View && models::courses::is_draft(conn, course_id).await? {
         action = Action::Teach;
@@ -303,7 +303,7 @@ async fn check_course_instance_permission(
     roles: &[Role],
     mut action: Action,
     course_instance_id: Uuid,
-) -> anyhow::Result<AuthorizationToken> {
+) -> Result<AuthorizationToken, ControllerError> {
     // if trying to View a course instance that is not open, we check for permission to Teach
     if action == Action::View
         && !models::course_instances::is_open(conn, course_instance_id).await?
@@ -328,7 +328,7 @@ async fn check_exam_permission(
     roles: &[Role],
     action: Action,
     exam_id: Uuid,
-) -> anyhow::Result<AuthorizationToken> {
+) -> Result<AuthorizationToken, ControllerError> {
     // check exam role
     for role in roles {
         if role.is_role_for_exam(exam_id) && has_permission(role.role, action) {
@@ -344,7 +344,7 @@ async fn check_course_or_exam_permission(
     roles: &[Role],
     action: Action,
     course_or_exam_id: CourseOrExamId,
-) -> anyhow::Result<AuthorizationToken> {
+) -> Result<AuthorizationToken, ControllerError> {
     match course_or_exam_id {
         CourseOrExamId::Course(course_id) => {
             check_course_permission(conn, roles, action, course_id).await

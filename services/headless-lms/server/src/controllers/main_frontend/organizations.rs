@@ -24,7 +24,6 @@ async fn get_all_organizations(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Organization>>> {
     let mut conn = pool.acquire().await?;
     let organizations = models::organizations::all_organizations(&mut conn)
@@ -68,7 +67,6 @@ async fn get_organization_courses(
 async fn get_organization_course_count(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-    user: AuthUser,
 ) -> ControllerResult<Json<CourseCount>> {
     let mut conn = pool.acquire().await?;
     let result =
@@ -84,7 +82,6 @@ async fn get_organization_active_courses(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     pagination: web::Query<Pagination>,
-    user: AuthUser,
 ) -> ControllerResult<Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
     let courses = models::courses::get_active_courses_for_organization(
@@ -103,7 +100,6 @@ async fn get_organization_active_courses(
 async fn get_organization_active_courses_count(
     request_organization_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-    user: AuthUser,
 ) -> ControllerResult<Json<CourseCount>> {
     let mut conn = pool.acquire().await?;
     let result = models::courses::get_active_courses_for_organization_count(
@@ -237,7 +233,6 @@ async fn get_organization(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-    user: AuthUser,
 ) -> ControllerResult<web::Json<Organization>> {
     let mut conn = pool.acquire().await?;
     let db_organization =
@@ -257,7 +252,6 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Retur
 async fn get_course_exams(
     pool: web::Data<PgPool>,
     organization: web::Path<Uuid>,
-    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<CourseExam>>> {
     let mut conn = pool.acquire().await?;
     let exams = models::exams::get_course_exams_for_organization(&mut conn, *organization).await?;
@@ -274,7 +268,6 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an o
 async fn get_org_exams(
     pool: web::Data<PgPool>,
     organization: web::Path<Uuid>,
-    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<OrgExam>>> {
     let mut conn = pool.acquire().await?;
     let exams = models::exams::get_exams_for_organization(&mut conn, *organization).await?;

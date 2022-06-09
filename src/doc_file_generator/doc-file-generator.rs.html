@@ -940,6 +940,26 @@
 <span id="935">935</span>
 <span id="936">936</span>
 <span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -985,6 +1005,7 @@
             <span class="ident">CourseMaterialPeerReviewQuestionAnswer</span>, <span class="ident">CourseMaterialPeerReviewSubmission</span>,
         },
     },
+    <span class="ident">material_references</span>::{<span class="ident">MaterialReference</span>, <span class="ident">NewMaterialReference</span>},
     <span class="ident">organizations::Organization</span>,
     <span class="ident">page_history</span>::{<span class="ident">HistoryChangeReason</span>, <span class="ident">PageHistory</span>},
     <span class="ident">pages</span>::{
@@ -1812,6 +1833,25 @@
             <span class="ident">course_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Introduction to everything&quot;</span>.<span class="ident">to_string</span>()),
             <span class="ident">course_slug</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;introduction-to-everything&quot;</span>.<span class="ident">to_string</span>()),
             <span class="ident">organization_slug</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;uh-cs&quot;</span>.<span class="ident">to_string</span>())
+        }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MaterialReference</span><span class="op">&gt;</span>,
+        <span class="macro">vec!</span>[<span class="ident">MaterialReference</span> {
+            <span class="ident">id</span>,
+            <span class="ident">course_id</span>: <span class="ident">id2</span>,
+            <span class="ident">citation_key</span>: <span class="string">&quot;NeuralNetworks2022&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">reference</span>: <span class="string">&quot;bibtex reference&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">created_at</span>,
+            <span class="ident">updated_at</span>,
+            <span class="ident">deleted_at</span>
+        }]
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">NewMaterialReference</span>,
+        <span class="ident">NewMaterialReference</span> {
+            <span class="ident">citation_key</span>: <span class="string">&quot;NeuralNetworks2022&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">reference</span>: <span class="string">&quot;bibtex reference&quot;</span>.<span class="ident">to_string</span>(),
         }
     );
     <span class="macro">write_docs!</span>(

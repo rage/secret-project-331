@@ -443,6 +443,21 @@
 <span id="438">438</span>
 <span id="439">439</span>
 <span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">actix_http::Payload</span>;
 <span class="kw">use</span> <span class="ident">actix_session::Session</span>;
 <span class="kw">use</span> <span class="ident">actix_session::SessionExt</span>;
@@ -452,7 +467,6 @@
 <span class="kw">use</span> <span class="ident">futures::future</span>::{<span class="ident">err</span>, <span class="ident">ok</span>, <span class="ident">Ready</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{<span class="self">self</span> <span class="kw">as</span> <span class="ident">models</span>, <span class="ident">roles::UserRole</span>};
 <span class="kw">use</span> <span class="ident">models</span>::{<span class="ident">roles::Role</span>, <span class="ident">CourseOrExamId</span>};
-
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
@@ -572,6 +586,7 @@
     <span class="ident">User</span>,
     <span class="ident">PlaygroundExample</span>,
     <span class="ident">ExerciseService</span>,
+    <span class="ident">MaterialReference</span>,
 }
 
 <span class="doccomment">/// Can user_id action the resource?</span>
@@ -668,6 +683,9 @@
         <span class="op">|</span> <span class="ident">Resource::GlobalPermissions</span> =&gt; {
             <span class="comment">// permissions for these resources have already been checked</span>
             <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Forbidden</span>(<span class="string">&quot;Unauthorized&quot;</span>.<span class="ident">to_string</span>()))
+        }
+        <span class="ident">Resource::MaterialReference</span> =&gt; {
+            <span class="ident">check_material_reference_permissions</span>(<span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>).<span class="kw">await</span>
         }
     }
 }
@@ -767,6 +785,18 @@
         }
         <span class="ident">CourseOrExamId::Exam</span>(<span class="ident">exam_id</span>) =&gt; <span class="ident">check_exam_permission</span>(<span class="ident">conn</span>, <span class="ident">roles</span>, <span class="ident">action</span>, <span class="ident">exam_id</span>).<span class="kw">await</span>,
     }
+}
+
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">check_material_reference_permissions</span>(
+    <span class="ident">roles</span>: <span class="kw-2">&amp;</span>[<span class="ident">Role</span>],
+    <span class="ident">action</span>: <span class="ident">Action</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">for</span> <span class="ident">role</span> <span class="kw">in</span> <span class="ident">roles</span> {
+        <span class="kw">if</span> <span class="ident">has_permission</span>(<span class="ident">role</span>.<span class="ident">role</span>, <span class="ident">action</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+        }
+    }
+    <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Forbidden</span>(<span class="string">&quot;Unauthorized&quot;</span>.<span class="ident">to_string</span>()))
 }
 
 <span class="comment">// checks whether the role is allowed to perform the action</span>

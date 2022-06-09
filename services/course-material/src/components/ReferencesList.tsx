@@ -4,7 +4,6 @@ import React from "react"
 
 import usePageReferences from "../hooks/usePageReferences"
 import Reference from "../shared-module/components/Reference"
-import Spinner from "../shared-module/components/Spinner"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 
 interface ReferencesProps {
@@ -19,8 +18,8 @@ const BIBLIOGRAPHY = "bibliography"
 const ReferenceList: React.FC<ReferencesProps> = ({ courseId }) => {
   const pageRefs = usePageReferences(courseId)
 
-  if (!pageRefs) {
-    return <Spinner variant="medium" />
+  if (!pageRefs || pageRefs.length === 0) {
+    return null
   }
 
   const refs: { id: string; text: string }[] = pageRefs.map((r) => {

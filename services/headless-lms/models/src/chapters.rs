@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use crate::{
+    course_modules,
     pages::{NewPage, Page, PageWithExercises},
     prelude::*,
     user_exercise_states::get_user_course_instance_chapter_metrics,
@@ -110,7 +111,8 @@ pub struct NewChapter {
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
-    pub course_module_id: Uuid,
+    /// If undefined when creating a chapter, will use the course default one.
+    pub course_module_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -120,7 +122,7 @@ pub struct ChapterUpdate {
     pub front_page_id: Option<Uuid>,
     pub deadline: Option<DateTime<Utc>>,
     pub opens_at: Option<DateTime<Utc>>,
-    pub module: Option<Uuid>,
+    pub course_module_id: Option<Uuid>,
 }
 
 pub async fn insert(
@@ -242,7 +244,7 @@ RETURNING *;
         chapter_update.name,
         chapter_update.deadline,
         chapter_update.opens_at,
-        chapter_update.module
+        chapter_update.course_module_id,
     )
     .fetch_one(conn)
     .await?;
@@ -395,7 +397,13 @@ pub async fn insert_chapter(
     user: Uuid,
 ) -> ModelResult<(DatabaseChapter, Page)> {
     let mut tx = conn.begin().await?;
-
+    let course_module_id = if let Some(course_module_id) = chapter.course_module_id {
+        course_module_id
+    } else {
+        course_modules::get_default_by_course_id(&mut tx, chapter.course_id)
+            .await?
+            .id
+    };
     let chapter = sqlx::query_as!(
         DatabaseChapter,
         r#"
@@ -415,7 +423,7 @@ RETURNING *;
         chapter.chapter_number,
         chapter.deadline,
         chapter.opens_at,
-        chapter.course_module_id,
+        course_module_id,
     )
     .fetch_one(&mut tx)
     .await?;
@@ -562,7 +570,7 @@ mod tests {
                     front_page_id: None,
                     opens_at: None,
                     deadline: None,
-                    course_module_id: course_module,
+                    course_module_id: Some(course_module),
                 },
                 user,
             )

@@ -92,7 +92,7 @@ export interface ChapterUpdate {
   front_page_id: string | null
   deadline: Date | null
   opens_at: Date | null
-  module: string | null
+  course_module_id: string | null
 }
 
 export interface ChapterWithStatus {
@@ -117,7 +117,7 @@ export interface NewChapter {
   front_page_id: string | null
   opens_at: Date | null
   deadline: Date | null
-  course_module_id: string
+  course_module_id: string | null
 }
 
 export interface UserCourseInstanceChapterProgress {

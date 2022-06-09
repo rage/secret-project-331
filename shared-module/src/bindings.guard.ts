@@ -287,7 +287,7 @@ export function isChapterUpdate(obj: any, _argumentName?: string): obj is Chapte
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (obj.module === null || typeof obj.module === "string")
+    (obj.course_module_id === null || typeof obj.course_module_id === "string")
   )
 }
 
@@ -318,7 +318,7 @@ export function isNewChapter(obj: any, _argumentName?: string): obj is NewChapte
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
-    typeof obj.course_module_id === "string"
+    (obj.course_module_id === null || typeof obj.course_module_id === "string")
   )
 }
 

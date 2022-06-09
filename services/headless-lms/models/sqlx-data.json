@@ -1110,6 +1110,37 @@
       "nullable": [false, false, false, true, false, true, false, false, false, false]
     }
   },
+  "11d8067ed2a2a3aa0dd64dd1d87f208dfb4ff63e47ad9c34fd12680dec333c78": {
+    "query": "\nSELECT id,\n  name,\n  order_number,\n  copied_from\nFROM course_modules\nWHERE course_id = $1\n  AND name IS NULL\n  AND order_number = 0\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, true, false, true]
+    }
+  },
   "12678b433a9c84513a0c100571b2d82db27fbc569e2b9c79b23e31906be0f559": {
     "query": "\nSELECT ed.id AS id,\n  u.id AS to,\n  et.subject AS subject,\n  et.content AS body\nFROM email_deliveries ed\n  JOIN email_templates et ON et.id = ed.email_template_id\n  JOIN users u ON u.id = ed.user_id\nWHERE ed.deleted_at IS NULL\n  AND ed.sent = FALSE\n  AND ed.error IS NULL\nLIMIT 10000;\n  ",
     "describe": {

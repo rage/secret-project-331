@@ -96,6 +96,30 @@ WHERE course_id = $1
     Ok(modules)
 }
 
+pub async fn get_default_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Module> {
+    let res = sqlx::query_as!(
+        Module,
+        "
+SELECT id,
+  name,
+  order_number,
+  copied_from
+FROM course_modules
+WHERE course_id = $1
+  AND name IS NULL
+  AND order_number = 0
+  AND deleted_at IS NULL
+        ",
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Gets course modules for the given course as a map, indexed by the `id` field.
 pub async fn get_by_course_id_as_map(
     conn: &mut PgConnection,

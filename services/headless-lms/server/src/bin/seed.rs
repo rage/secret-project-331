@@ -1392,7 +1392,7 @@ async fn seed_sample_course(
         name: "The Basics".to_string(),
         opens_at: None,
         deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
-        course_module_id,
+        course_module_id: Some(course_module_id),
     };
     let (chapter_1, _front_page_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
@@ -1403,7 +1403,7 @@ async fn seed_sample_course(
         name: "The intermediaries".to_string(),
         opens_at: None,
         deadline: None,
-        course_module_id,
+        course_module_id: Some(course_module_id),
     };
     let (chapter_2, _front_page_2) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1419,7 +1419,7 @@ async fn seed_sample_course(
         name: "Advanced studies".to_string(),
         opens_at: None,
         deadline: None,
-        course_module_id,
+        course_module_id: Some(course_module_id),
     };
     let (chapter_3, _front_page_3) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1435,7 +1435,7 @@ async fn seed_sample_course(
         name: "Forbidden magicks".to_string(),
         opens_at: None,
         deadline: None,
-        course_module_id,
+        course_module_id: Some(course_module_id),
     };
     let (chapter_4, _front_page_4) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1455,7 +1455,7 @@ async fn seed_sample_course(
         name: "Another chapter".to_string(),
         opens_at: None,
         deadline: None,
-        course_module_id: second_module_id,
+        course_module_id: Some(second_module_id),
     };
     let (_m1_chapter_1, _m1c1_front_page) =
         chapters::insert_chapter(conn, new_chapter, admin).await?;
@@ -1466,7 +1466,7 @@ async fn seed_sample_course(
         name: "Another another chapter".to_string(),
         opens_at: None,
         deadline: None,
-        course_module_id: second_module_id,
+        course_module_id: Some(second_module_id),
     };
     let (_m1_chapter_2, _m1c2_front_page) =
         chapters::insert_chapter(conn, new_chapter, admin).await?;
@@ -1478,7 +1478,7 @@ async fn seed_sample_course(
         name: "Bonus chapter".to_string(),
         opens_at: None,
         deadline: None,
-        course_module_id: module_id,
+        course_module_id: Some(module_id),
     };
     let (_m2_chapter_1, _m2c1_front_page) =
         chapters::insert_chapter(conn, new_chapter, admin).await?;
@@ -1489,7 +1489,7 @@ async fn seed_sample_course(
         name: "Another bonus chapter".to_string(),
         opens_at: None,
         deadline: None,
-        course_module_id: module_id,
+        course_module_id: Some(module_id),
     };
     let (_m2_chapter_2, _m2c2_front_page) =
         chapters::insert_chapter(conn, new_chapter, admin).await?;
@@ -2918,7 +2918,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         name: "User Interface".to_string(),
         opens_at: None,
         deadline: None,
-        course_module_id,
+        course_module_id: Some(course_module_id),
     };
     let (chapter_1, front_page_ch_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
@@ -3038,7 +3038,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         name: "User Experience".to_string(),
         opens_at: None,
         deadline: None,
-        course_module_id,
+        course_module_id: Some(course_module_id),
     };
     let (chapter_2, front_page_ch_2) = chapters::insert_chapter(conn, new_chapter_2, admin).await?;
     chapters::set_opens_at(conn, chapter_2.id, Utc::now()).await?;

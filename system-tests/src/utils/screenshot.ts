@@ -197,7 +197,8 @@ async function snapshotWithViewPort({
     await page.evaluate(async (coord) => {
       window.scrollTo(0, coord)
     }, scrollToYCoordinate)
-    await pageObjectToUse.waitForTimeout(10)
+    // 100ms was not enough at the time of writing this
+    await pageObjectToUse.waitForTimeout(200)
   }
 
   const screenshotName = `${snapshotName}-${viewPortName}.png`

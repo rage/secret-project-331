@@ -6929,6 +6929,16 @@
       "nullable": [false]
     }
   },
+  "73d6bdb5dd8621a4dbb5dad30c263e16bb810646f7eb7f9d893335edec0ba4d3": {
+    "query": "\nUPDATE course_module_completion_study_registry_registrations\nSET deleted_at = now()\nWHERE id = $1\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "744d6db0137323cc6398d3dacc9a6a59866b6e23798c33e118a0683f6a58cd36": {
     "query": "\nSELECT *\nFROM exercise_service_info\nWHERE exercise_service_id = $1\n    ",
     "describe": {
@@ -8012,6 +8022,67 @@
         "Left": ["Uuid"]
       },
       "nullable": [false]
+    }
+  },
+  "88cb45223bc42897f29c09e2e9b1f4793c5faecda5cc27c6e2b8c87ef2d8f043": {
+    "query": "\nSELECT *\nFROM course_module_completion_study_registry_registrations\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "course_module_completion_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "course_module_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "study_registry_registrar_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 9,
+          "name": "real_student_number",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, false, false, false, false, false, false]
     }
   },
   "89042c2cdd2a99289a3cc9e493f47ee914734c7af0e53ae63206bbf62fc02df0": {
@@ -12640,6 +12711,22 @@
       ],
       "parameters": {
         "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Int4"]
+      },
+      "nullable": [false]
+    }
+  },
+  "dbc6e8127ec414b263b8d88d025d06ed2a02daf0b2fa5f195c1f28d200f774ed": {
+    "query": "\nINSERT INTO course_module_completion_study_registry_registrations (\n    id,\n    course_id,\n    course_module_completion_id,\n    course_module_id,\n    study_registry_registrar_id,\n    user_id,\n    real_student_number\n  )\nVALUES (\n    COALESCE($1, uuid_generate_v4()),\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7\n  )\nRETURNING id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid", "Uuid", "Varchar"]
       },
       "nullable": [false]
     }

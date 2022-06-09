@@ -7,6 +7,7 @@ pub mod chapters;
 pub mod course_instance_enrollments;
 pub mod course_instances;
 pub mod course_language_groups;
+pub mod course_module_completion_study_registry_registrations;
 pub mod course_module_completions;
 pub mod course_modules;
 pub mod courses;

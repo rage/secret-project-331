@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-0.3.5/src/formatting/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-0.3.9/src/formatting/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://avatars0.githubusercontent.com/u/55999857"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../time/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/55999857" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -462,7 +462,6 @@
 <span id="455">455</span>
 <span id="456">456</span>
 <span id="457">457</span>
-<span id="458">458</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Formatting for various types.</span>
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">formattable</span>;
@@ -597,7 +596,7 @@
     <span class="kw">match</span> <span class="ident">padding</span> {
         <span class="ident">modifier::Padding::Space</span> =&gt; <span class="ident">format_number_pad_space</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">WIDTH</span><span class="op">&gt;</span>(<span class="ident">output</span>, <span class="ident">value</span>),
         <span class="ident">modifier::Padding::Zero</span> =&gt; <span class="ident">format_number_pad_zero</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">WIDTH</span><span class="op">&gt;</span>(<span class="ident">output</span>, <span class="ident">value</span>),
-        <span class="ident">modifier::Padding::None</span> =&gt; <span class="ident">itoa::write</span>(<span class="ident">output</span>, <span class="ident">value</span>),
+        <span class="ident">modifier::Padding::None</span> =&gt; <span class="ident">write</span>(<span class="ident">output</span>, <span class="ident">itoa::Buffer::new</span>().<span class="ident">format</span>(<span class="ident">value</span>).<span class="ident">as_bytes</span>()),
     }
 }
 
@@ -616,7 +615,7 @@
     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..(<span class="ident">WIDTH</span>.<span class="ident">saturating_sub</span>(<span class="ident">value</span>.<span class="ident">num_digits</span>())) {
         <span class="ident">bytes</span> <span class="op">+</span><span class="op">=</span> <span class="ident">write</span>(<span class="ident">output</span>, <span class="kw-2">&amp;</span>[<span class="string">b&#39; &#39;</span>])<span class="question-mark">?</span>;
     }
-    <span class="ident">bytes</span> <span class="op">+</span><span class="op">=</span> <span class="ident">itoa::write</span>(<span class="ident">output</span>, <span class="ident">value</span>)<span class="question-mark">?</span>;
+    <span class="ident">bytes</span> <span class="op">+</span><span class="op">=</span> <span class="ident">write</span>(<span class="ident">output</span>, <span class="ident">itoa::Buffer::new</span>().<span class="ident">format</span>(<span class="ident">value</span>).<span class="ident">as_bytes</span>())<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>)
 }
 
@@ -635,7 +634,7 @@
     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..(<span class="ident">WIDTH</span>.<span class="ident">saturating_sub</span>(<span class="ident">value</span>.<span class="ident">num_digits</span>())) {
         <span class="ident">bytes</span> <span class="op">+</span><span class="op">=</span> <span class="ident">write</span>(<span class="ident">output</span>, <span class="kw-2">&amp;</span>[<span class="string">b&#39;0&#39;</span>])<span class="question-mark">?</span>;
     }
-    <span class="ident">bytes</span> <span class="op">+</span><span class="op">=</span> <span class="ident">itoa::write</span>(<span class="ident">output</span>, <span class="ident">value</span>)<span class="question-mark">?</span>;
+    <span class="ident">bytes</span> <span class="op">+</span><span class="op">=</span> <span class="ident">write</span>(<span class="ident">output</span>, <span class="ident">itoa::Buffer::new</span>().<span class="ident">format</span>(<span class="ident">value</span>).<span class="ident">as_bytes</span>())<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>)
 }
 
@@ -807,10 +806,9 @@
         <span class="ident">is_12_hour_clock</span>,
     }: <span class="ident">modifier::Hour</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">io::Error</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::unnested_or_patterns</span>)]</span>
     <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">time</span>.<span class="ident">hour</span>(), <span class="ident">is_12_hour_clock</span>) {
         (<span class="ident">hour</span>, <span class="bool-val">false</span>) =&gt; <span class="ident">hour</span>,
-        (<span class="number">0</span>, <span class="bool-val">true</span>) <span class="op">|</span> (<span class="number">12</span>, <span class="bool-val">true</span>) =&gt; <span class="number">12</span>,
+        (<span class="number">0</span> <span class="op">|</span> <span class="number">12</span>, <span class="bool-val">true</span>) =&gt; <span class="number">12</span>,
         (<span class="ident">hour</span>, <span class="bool-val">true</span>) <span class="kw">if</span> <span class="ident">hour</span> <span class="op">&lt;</span> <span class="number">12</span> =&gt; <span class="ident">hour</span>,
         (<span class="ident">hour</span>, <span class="bool-val">true</span>) =&gt; <span class="ident">hour</span> <span class="op">-</span> <span class="number">12</span>,
     };

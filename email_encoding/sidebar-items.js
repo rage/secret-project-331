@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["headers",""]]});
+initSidebarItems({"mod":[["body",""],["headers",""]]});

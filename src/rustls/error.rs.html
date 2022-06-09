@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.2/src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.6/src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -360,7 +360,7 @@
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Error::InappropriateMessage</span> {
+            <span class="ident"><span class="self">Self</span>::InappropriateMessage</span> {
                 <span class="kw-2">ref</span> <span class="ident">expect_types</span>,
                 <span class="kw-2">ref</span> <span class="ident">got_type</span>,
             } =&gt; <span class="macro">write!</span>(
@@ -369,7 +369,7 @@
                 <span class="ident">got_type</span>,
                 <span class="ident">join</span>::<span class="op">&lt;</span><span class="ident">ContentType</span><span class="op">&gt;</span>(<span class="ident">expect_types</span>)
             ),
-            <span class="ident">Error::InappropriateHandshakeMessage</span> {
+            <span class="ident"><span class="self">Self</span>::InappropriateHandshakeMessage</span> {
                 <span class="kw-2">ref</span> <span class="ident">expect_types</span>,
                 <span class="kw-2">ref</span> <span class="ident">got_type</span>,
             } =&gt; <span class="macro">write!</span>(
@@ -378,39 +378,39 @@
                 <span class="ident">got_type</span>,
                 <span class="ident">join</span>::<span class="op">&lt;</span><span class="ident">HandshakeType</span><span class="op">&gt;</span>(<span class="ident">expect_types</span>)
             ),
-            <span class="ident">Error::CorruptMessagePayload</span>(<span class="kw-2">ref</span> <span class="ident">typ</span>) =&gt; {
+            <span class="ident"><span class="self">Self</span>::CorruptMessagePayload</span>(<span class="kw-2">ref</span> <span class="ident">typ</span>) =&gt; {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;received corrupt message of type {:?}&quot;</span>, <span class="ident">typ</span>)
             }
-            <span class="ident">Error::PeerIncompatibleError</span>(<span class="kw-2">ref</span> <span class="ident">why</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;peer is incompatible: {}&quot;</span>, <span class="ident">why</span>),
-            <span class="ident">Error::PeerMisbehavedError</span>(<span class="kw-2">ref</span> <span class="ident">why</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;peer misbehaved: {}&quot;</span>, <span class="ident">why</span>),
-            <span class="ident">Error::AlertReceived</span>(<span class="kw-2">ref</span> <span class="ident">alert</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;received fatal alert: {:?}&quot;</span>, <span class="ident">alert</span>),
-            <span class="ident">Error::InvalidCertificateEncoding</span> =&gt; {
+            <span class="ident"><span class="self">Self</span>::PeerIncompatibleError</span>(<span class="kw-2">ref</span> <span class="ident">why</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;peer is incompatible: {}&quot;</span>, <span class="ident">why</span>),
+            <span class="ident"><span class="self">Self</span>::PeerMisbehavedError</span>(<span class="kw-2">ref</span> <span class="ident">why</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;peer misbehaved: {}&quot;</span>, <span class="ident">why</span>),
+            <span class="ident"><span class="self">Self</span>::AlertReceived</span>(<span class="kw-2">ref</span> <span class="ident">alert</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;received fatal alert: {:?}&quot;</span>, <span class="ident">alert</span>),
+            <span class="ident"><span class="self">Self</span>::InvalidCertificateEncoding</span> =&gt; {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;invalid peer certificate encoding&quot;</span>)
             }
-            <span class="ident">Error::InvalidCertificateSignatureType</span> =&gt; {
+            <span class="ident"><span class="self">Self</span>::InvalidCertificateSignatureType</span> =&gt; {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;invalid peer certificate signature type&quot;</span>)
             }
-            <span class="ident">Error::InvalidCertificateSignature</span> =&gt; {
+            <span class="ident"><span class="self">Self</span>::InvalidCertificateSignature</span> =&gt; {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;invalid peer certificate signature&quot;</span>)
             }
-            <span class="ident">Error::InvalidCertificateData</span>(<span class="kw-2">ref</span> <span class="ident">reason</span>) =&gt; {
+            <span class="ident"><span class="self">Self</span>::InvalidCertificateData</span>(<span class="kw-2">ref</span> <span class="ident">reason</span>) =&gt; {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;invalid peer certificate contents: {}&quot;</span>, <span class="ident">reason</span>)
             }
-            <span class="ident">Error::CorruptMessage</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;received corrupt message&quot;</span>),
-            <span class="ident">Error::NoCertificatesPresented</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;peer sent no certificates&quot;</span>),
-            <span class="ident">Error::UnsupportedNameType</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;presented server name type wasn&#39;t supported&quot;</span>),
-            <span class="ident">Error::DecryptError</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;cannot decrypt peer&#39;s message&quot;</span>),
-            <span class="ident">Error::EncryptError</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;cannot encrypt message&quot;</span>),
-            <span class="ident">Error::PeerSentOversizedRecord</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;peer sent excess record size&quot;</span>),
-            <span class="ident">Error::HandshakeNotComplete</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;handshake not complete&quot;</span>),
-            <span class="ident">Error::NoApplicationProtocol</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;peer doesn&#39;t support any known protocol&quot;</span>),
-            <span class="ident">Error::InvalidSct</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;invalid certificate timestamp: {:?}&quot;</span>, <span class="ident">err</span>),
-            <span class="ident">Error::FailedToGetCurrentTime</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;failed to get current time&quot;</span>),
-            <span class="ident">Error::FailedToGetRandomBytes</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;failed to get random bytes&quot;</span>),
-            <span class="ident">Error::BadMaxFragmentSize</span> =&gt; {
+            <span class="ident"><span class="self">Self</span>::CorruptMessage</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;received corrupt message&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::NoCertificatesPresented</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;peer sent no certificates&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::UnsupportedNameType</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;presented server name type wasn&#39;t supported&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::DecryptError</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;cannot decrypt peer&#39;s message&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::EncryptError</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;cannot encrypt message&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::PeerSentOversizedRecord</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;peer sent excess record size&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::HandshakeNotComplete</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;handshake not complete&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::NoApplicationProtocol</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;peer doesn&#39;t support any known protocol&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::InvalidSct</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;invalid certificate timestamp: {:?}&quot;</span>, <span class="ident">err</span>),
+            <span class="ident"><span class="self">Self</span>::FailedToGetCurrentTime</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;failed to get current time&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::FailedToGetRandomBytes</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;failed to get random bytes&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::BadMaxFragmentSize</span> =&gt; {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;the supplied max_fragment_size was too small or large&quot;</span>)
             }
-            <span class="ident">Error::General</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;unexpected error: {}&quot;</span>, <span class="ident">err</span>),
+            <span class="ident"><span class="self">Self</span>::General</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;unexpected error: {}&quot;</span>, <span class="ident">err</span>),
         }
     }
 }

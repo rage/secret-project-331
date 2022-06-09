@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.0-rc.6/src/message/body.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>body.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.0-rc.7/src/message/body.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>body.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -580,97 +580,7 @@
 <span id="573">573</span>
 <span id="574">574</span>
 <span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
-<span id="590">590</span>
-<span id="591">591</span>
-<span id="592">592</span>
-<span id="593">593</span>
-<span id="594">594</span>
-<span id="595">595</span>
-<span id="596">596</span>
-<span id="597">597</span>
-<span id="598">598</span>
-<span id="599">599</span>
-<span id="600">600</span>
-<span id="601">601</span>
-<span id="602">602</span>
-<span id="603">603</span>
-<span id="604">604</span>
-<span id="605">605</span>
-<span id="606">606</span>
-<span id="607">607</span>
-<span id="608">608</span>
-<span id="609">609</span>
-<span id="610">610</span>
-<span id="611">611</span>
-<span id="612">612</span>
-<span id="613">613</span>
-<span id="614">614</span>
-<span id="615">615</span>
-<span id="616">616</span>
-<span id="617">617</span>
-<span id="618">618</span>
-<span id="619">619</span>
-<span id="620">620</span>
-<span id="621">621</span>
-<span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
-<span id="625">625</span>
-<span id="626">626</span>
-<span id="627">627</span>
-<span id="628">628</span>
-<span id="629">629</span>
-<span id="630">630</span>
-<span id="631">631</span>
-<span id="632">632</span>
-<span id="633">633</span>
-<span id="634">634</span>
-<span id="635">635</span>
-<span id="636">636</span>
-<span id="637">637</span>
-<span id="638">638</span>
-<span id="639">639</span>
-<span id="640">640</span>
-<span id="641">641</span>
-<span id="642">642</span>
-<span id="643">643</span>
-<span id="644">644</span>
-<span id="645">645</span>
-<span id="646">646</span>
-<span id="647">647</span>
-<span id="648">648</span>
-<span id="649">649</span>
-<span id="650">650</span>
-<span id="651">651</span>
-<span id="652">652</span>
-<span id="653">653</span>
-<span id="654">654</span>
-<span id="655">655</span>
-<span id="656">656</span>
-<span id="657">657</span>
-<span id="658">658</span>
-<span id="659">659</span>
-<span id="660">660</span>
-<span id="661">661</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">Write</span>},
-    <span class="ident">mem</span>,
-    <span class="ident">ops::Deref</span>,
-};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">mem</span>, <span class="ident">ops::Deref</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::message::header::ContentTransferEncoding</span>;
 
@@ -709,7 +619,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MaybeString</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">buf</span>: <span class="ident">B</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span>: <span class="ident">MaybeString</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">into</span>();
 
-        <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">encoding</span>();
+        <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">encoding</span>(<span class="bool-val">false</span>);
         <span class="ident">buf</span>.<span class="ident">encode_crlf</span>();
         <span class="ident"><span class="self">Self</span>::new_impl</span>(<span class="ident">buf</span>.<span class="ident">into</span>(), <span class="ident">encoding</span>)
     }
@@ -729,7 +639,22 @@
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span>: <span class="ident">MaybeString</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">into</span>();
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">buf</span>.<span class="ident">is_encoding_ok</span>(<span class="ident">encoding</span>) {
+        <span class="kw">let</span> <span class="ident">best_encoding</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">encoding</span>(<span class="bool-val">true</span>);
+        <span class="kw">let</span> <span class="ident">ok</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">encoding</span>, <span class="ident">best_encoding</span>) {
+            (<span class="ident">ContentTransferEncoding::SevenBit</span>, <span class="ident">ContentTransferEncoding::SevenBit</span>) =&gt; <span class="bool-val">true</span>,
+            (
+                <span class="ident">ContentTransferEncoding::EightBit</span>,
+                <span class="ident">ContentTransferEncoding::SevenBit</span> <span class="op">|</span> <span class="ident">ContentTransferEncoding::EightBit</span>,
+            ) =&gt; <span class="bool-val">true</span>,
+            (<span class="ident">ContentTransferEncoding::SevenBit</span> <span class="op">|</span> <span class="ident">ContentTransferEncoding::EightBit</span>, <span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
+            (
+                <span class="ident">ContentTransferEncoding::QuotedPrintable</span>
+                <span class="op">|</span> <span class="ident">ContentTransferEncoding::Base64</span>
+                <span class="op">|</span> <span class="ident">ContentTransferEncoding::Binary</span>,
+                <span class="kw">_</span>,
+            ) =&gt; <span class="bool-val">true</span>,
+        };
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">ok</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">buf</span>.<span class="ident">into</span>());
         }
 
@@ -759,36 +684,13 @@
                 <span class="ident"><span class="self">Self</span>::dangerous_pre_encoded</span>(<span class="ident">encoded</span>, <span class="ident">ContentTransferEncoding::QuotedPrintable</span>)
             }
             <span class="ident">ContentTransferEncoding::Base64</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">base64_len</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="number">4</span> <span class="op">/</span> <span class="number">3</span> <span class="op">+</span> <span class="number">4</span>;
-                <span class="kw">let</span> <span class="ident">base64_endings_len</span> <span class="op">=</span> <span class="ident">base64_len</span> <span class="op">+</span> <span class="ident">base64_len</span> <span class="op">/</span> <span class="ident">LINE_MAX_LENGTH</span>;
+                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">email_encoding::body::base64::encoded_len</span>(<span class="ident">buf</span>.<span class="ident">len</span>());
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">base64_endings_len</span>);
-                {
-                    <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">LineWrappingWriter::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">out</span>, <span class="ident">LINE_MAX_LENGTH</span>);
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">base64::write::EncoderWriter::new</span>(<span class="ident">writer</span>, <span class="ident">base64::STANDARD</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">String::with_capacity</span>(<span class="ident">len</span>);
+                <span class="ident">email_encoding::body::base64::encode</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out</span>)
+                    .<span class="ident">expect</span>(<span class="string">&quot;encode body as base64&quot;</span>);
 
-                    <span class="comment">// TODO: use writer.write_all(self.as_ref()).expect(&quot;base64 encoding never fails&quot;);</span>
-
-                    <span class="comment">// modified Write::write_all to work around base64 crate bug</span>
-                    <span class="comment">// TODO: remove once https://github.com/marshallpierce/rust-base64/issues/148 is fixed</span>
-                    {
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">as_ref</span>();
-                        <span class="kw">while</span> <span class="op">!</span><span class="ident">buf</span>.<span class="ident">is_empty</span>() {
-                            <span class="kw">match</span> <span class="ident">writer</span>.<span class="ident">write</span>(<span class="ident">buf</span>) {
-                                <span class="prelude-val">Ok</span>(<span class="number">0</span>) =&gt; {
-                                    <span class="comment">// ignore 0 writes</span>
-                                }
-                                <span class="prelude-val">Ok</span>(<span class="ident">n</span>) =&gt; {
-                                    <span class="ident">buf</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="ident">n</span>..];
-                                }
-                                <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">==</span> <span class="ident">std::io::ErrorKind::Interrupted</span> =&gt; {}
-                                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;base64 encoding never fails: {}&quot;</span>, <span class="ident">e</span>),
-                            }
-                        }
-                    }
-                }
-
-                <span class="ident"><span class="self">Self</span>::dangerous_pre_encoded</span>(<span class="ident">out</span>, <span class="ident">ContentTransferEncoding::Base64</span>)
+                <span class="ident"><span class="self">Self</span>::dangerous_pre_encoded</span>(<span class="ident">out</span>.<span class="ident">into_bytes</span>(), <span class="ident">ContentTransferEncoding::Base64</span>)
             }
         }
     }
@@ -821,21 +723,20 @@
 <span class="kw">impl</span> <span class="ident">MaybeString</span> {
     <span class="doccomment">/// Suggests the best `Content-Transfer-Encoding` to be used for this `MaybeString`</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// If the `MaybeString` was created from a `String` composed only of US-ASCII</span>
-    <span class="doccomment">/// characters, with no lines longer than 1000 characters, then 7bit</span>
-    <span class="doccomment">/// encoding will be used, else quoted-printable will be chosen.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the `MaybeString` was instead created from a `Vec&lt;u8&gt;`, base64 encoding is always</span>
-    <span class="doccomment">/// chosen.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `8bit` and `binary` encodings are never returned, as they may not be</span>
-    <span class="doccomment">/// supported by all SMTP servers.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ContentTransferEncoding</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">s</span>) <span class="kw">if</span> <span class="ident">is_7bit_encoded</span>(<span class="ident">s</span>.<span class="ident">as_ref</span>()) =&gt; <span class="ident">ContentTransferEncoding::SevenBit</span>,
-            <span class="comment">// TODO: consider when base64 would be a better option because of output size</span>
-            <span class="ident"><span class="self">Self</span>::String</span>(<span class="kw">_</span>) =&gt; <span class="ident">ContentTransferEncoding::QuotedPrintable</span>,
-            <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="kw">_</span>) =&gt; <span class="ident">ContentTransferEncoding::Base64</span>,
+    <span class="doccomment">/// The `binary` encoding is never returned</span>
+    <span class="kw">fn</span> <span class="ident">encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">supports_utf8</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ContentTransferEncoding</span> {
+        <span class="kw">use</span> <span class="ident">email_encoding::body::Encoding</span>;
+
+        <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">s</span>) =&gt; <span class="ident">Encoding::choose</span>(<span class="ident">s</span>.<span class="ident">as_str</span>(), <span class="ident">supports_utf8</span>),
+            <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="ident">b</span>) =&gt; <span class="ident">Encoding::choose</span>(<span class="ident">b</span>.<span class="ident">as_slice</span>(), <span class="ident">supports_utf8</span>),
+        };
+
+        <span class="kw">match</span> <span class="ident">output</span> {
+            <span class="ident">Encoding::SevenBit</span> =&gt; <span class="ident">ContentTransferEncoding::SevenBit</span>,
+            <span class="ident">Encoding::EightBit</span> =&gt; <span class="ident">ContentTransferEncoding::EightBit</span>,
+            <span class="ident">Encoding::QuotedPrintable</span> =&gt; <span class="ident">ContentTransferEncoding::QuotedPrintable</span>,
+            <span class="ident">Encoding::Base64</span> =&gt; <span class="ident">ContentTransferEncoding::Base64</span>,
         }
     }
 
@@ -844,18 +745,6 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">string</span>) =&gt; <span class="ident">in_place_crlf_line_endings</span>(<span class="ident">string</span>),
             <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="kw">_</span>) =&gt; {}
-        }
-    }
-
-    <span class="doccomment">/// Returns `true` if using `encoding` to encode this `MaybeString`</span>
-    <span class="doccomment">/// would result into an invalid encoded body.</span>
-    <span class="kw">fn</span> <span class="ident">is_encoding_ok</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">encoding</span>: <span class="ident">ContentTransferEncoding</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="ident">encoding</span> {
-            <span class="ident">ContentTransferEncoding::SevenBit</span> =&gt; <span class="ident">is_7bit_encoded</span>(<span class="self">self</span>),
-            <span class="ident">ContentTransferEncoding::EightBit</span> =&gt; <span class="ident">is_8bit_encoded</span>(<span class="self">self</span>),
-            <span class="ident">ContentTransferEncoding::Binary</span>
-            <span class="op">|</span> <span class="ident">ContentTransferEncoding::QuotedPrintable</span>
-            <span class="op">|</span> <span class="ident">ContentTransferEncoding::Base64</span> =&gt; <span class="bool-val">true</span>,
         }
     }
 }
@@ -941,73 +830,6 @@
     }
 }
 
-<span class="doccomment">/// Checks whether it contains only US-ASCII characters,</span>
-<span class="doccomment">/// and no lines are longer than 1000 characters including the `\n` character.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Most efficient content encoding available</span>
-<span class="kw">fn</span> <span class="ident">is_7bit_encoded</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
-    <span class="ident">buf</span>.<span class="ident">is_ascii</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">contains_too_long_lines</span>(<span class="ident">buf</span>)
-}
-
-<span class="doccomment">/// Checks that no lines are longer than 1000 characters,</span>
-<span class="doccomment">/// including the `\n` character.</span>
-<span class="doccomment">/// NOTE: 8bit isn&#39;t supported by all SMTP servers.</span>
-<span class="kw">fn</span> <span class="ident">is_8bit_encoded</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
-    <span class="op">!</span><span class="ident">contains_too_long_lines</span>(<span class="ident">buf</span>)
-}
-
-<span class="doccomment">/// Checks if there are lines that are longer than 1000 characters,</span>
-<span class="doccomment">/// including the `\n` character.</span>
-<span class="kw">fn</span> <span class="ident">contains_too_long_lines</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
-    <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1000</span> <span class="op">&amp;&amp;</span> <span class="ident">buf</span>.<span class="ident">split</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span> <span class="op">==</span> <span class="string">b&#39;\n&#39;</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">line</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">999</span>)
-}
-
-<span class="kw">const</span> <span class="ident">LINE_SEPARATOR</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;\r\n&quot;</span>;
-<span class="kw">const</span> <span class="ident">LINE_MAX_LENGTH</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">78</span> <span class="op">-</span> <span class="ident">LINE_SEPARATOR</span>.<span class="ident">len</span>();
-
-<span class="doccomment">/// A `Write`r that inserts a line separator `\r\n` every `max_line_length` bytes.</span>
-<span class="kw">struct</span> <span class="ident">LineWrappingWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">W</span>,
-    <span class="ident">current_line_length</span>: <span class="ident">usize</span>,
-    <span class="ident">max_line_length</span>: <span class="ident">usize</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span> <span class="ident">LineWrappingWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">max_line_length</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">writer</span>,
-            <span class="ident">current_line_length</span>: <span class="number">0</span>,
-            <span class="ident">max_line_length</span>,
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">LineWrappingWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">W</span>: <span class="ident">Write</span>,
-{
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">remaining_line_len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_line_length</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">current_line_length</span>;
-        <span class="kw">let</span> <span class="ident">write_len</span> <span class="op">=</span> <span class="ident">std::cmp::min</span>(<span class="ident">buf</span>.<span class="ident">len</span>(), <span class="ident">remaining_line_len</span>);
-
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[..<span class="ident">write_len</span>])<span class="question-mark">?</span>;
-
-        <span class="kw">if</span> <span class="ident">remaining_line_len</span> <span class="op">==</span> <span class="ident">write_len</span> {
-            <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="ident">LINE_SEPARATOR</span>)<span class="question-mark">?</span>;
-
-            <span class="self">self</span>.<span class="ident">current_line_length</span> <span class="op">=</span> <span class="number">0</span>;
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">current_line_length</span> <span class="op">+</span><span class="op">=</span> <span class="ident">write_len</span>;
-        }
-
-        <span class="prelude-val">Ok</span>(<span class="ident">write_len</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">flush</span>()
-    }
-}
-
 <span class="doccomment">/// In place conversion to CRLF line endings</span>
 <span class="kw">fn</span> <span class="ident">in_place_crlf_line_endings</span>(<span class="ident">string</span>: <span class="kw-2">&amp;mut</span> <span class="ident">String</span>) {
     <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">find_all_lf_char_indices</span>(<span class="ident">string</span>);
@@ -1045,6 +867,8 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
+    <span class="kw">use</span> <span class="ident">pretty_assertions::assert_eq</span>;
+
     <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">in_place_crlf_line_endings</span>, <span class="ident">Body</span>, <span class="ident">ContentTransferEncoding</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1177,13 +1001,10 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">quoted_printable_detect</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;Привет, мир!&quot;</span>));
+        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;Questo messaggio è corto&quot;</span>));
 
         <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::QuotedPrintable</span>);
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">encoded</span>.<span class="ident">as_ref</span>(),
-            <span class="string">b&quot;=D0=9F=D1=80=D0=B8=D0=B2=D0=B5=D1=82, =D0=BC=D0=B8=D1=80!&quot;</span>.<span class="ident">as_ref</span>()
-        );
+        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">as_ref</span>(), <span class="string">b&quot;Questo messaggio =C3=A8 corto&quot;</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1215,14 +1036,17 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">quoted_printable_encode_line_wrap</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;Текст письма в уникоде&quot;</span>));
+        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="ident">String::from</span>(
+            <span class="string">&quot;Se lo standard 📬 fosse stato più semplice avremmo finito molto prima.&quot;</span>,
+        ));
 
         <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::QuotedPrintable</span>);
+        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">std::str::from_utf8</span>(<span class="ident">encoded</span>.<span class="ident">as_ref</span>()).<span class="ident">unwrap</span>());
         <span class="macro">assert_eq!</span>(
             <span class="ident">encoded</span>.<span class="ident">as_ref</span>(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;=D0=A2=D0=B5=D0=BA=D1=81=D1=82 =D0=BF=D0=B8=D1=81=D1=8C=D0=BC=D0=B0 =D0=B2 =\r\n&quot;</span>,
-                <span class="string">&quot;=D1=83=D0=BD=D0=B8=D0=BA=D0=BE=D0=B4=D0=B5&quot;</span>
+                <span class="string">&quot;Se lo standard =F0=9F=93=AC fosse stato pi=C3=B9 semplice avremmo finito mo=\r\n&quot;</span>,
+                <span class="string">&quot;lto prima.&quot;</span>
             )
             .<span class="ident">as_bytes</span>()
         );
@@ -1230,21 +1054,25 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">base64_detect</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]);
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">80</span>]);
         <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">encoding</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">encoding</span>, <span class="ident">ContentTransferEncoding::Base64</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">base64_encode_bytes</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new_with_encoding</span>(
-            <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>],
-            <span class="ident">ContentTransferEncoding::Base64</span>,
-        )
-        .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span>
+            <span class="ident">Body::new_with_encoding</span>(<span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">80</span>], <span class="ident">ContentTransferEncoding::Base64</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::Base64</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">as_ref</span>(), <span class="string">b&quot;AAECAwQFBgcICQ==&quot;</span>);
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">encoded</span>.<span class="ident">as_ref</span>(),
+            <span class="macro">concat!</span>(
+                <span class="string">&quot;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\r\n&quot;</span>,
+                <span class="string">&quot;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=&quot;</span>
+            )
+            .<span class="ident">as_bytes</span>()
+        );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>

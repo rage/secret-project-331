@@ -39,10 +39,10 @@ file that <code>path</code> points to match the MIME type associated with the pa
 <h6 id="note-http-applications"><a href="#note-http-applications">Note: HTTP Applications</a></h6>
 <p>For HTTP request and response bodies if a value for the <code>Content-Type</code> header
 cannot be determined it might be preferable to not send one at all instead of defaulting to
-<code>application/content-stream</code> as the recipient will expect to infer the format directly from
+<code>application/octet-stream</code> as the recipient will expect to infer the format directly from
 the content instead. (<a href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">RFC 7231, Section 3.1.1.5</a>)</p>
 <p>On the contrary, for <code>multipart/form-data</code> bodies, the <code>Content-Type</code> of a form-data part is
-assumed to be <code>text/plain</code> unless specified so a default of <code>application/content-stream</code>
+assumed to be <code>text/plain</code> unless specified so a default of <code>application/octet-stream</code>
 for non-text parts is safer. (<a href="https://tools.ietf.org/html/rfc7578#section-4.4">RFC 7578, Section 4.4</a>)</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.first_or_text_plain" class="method has-srclink"><span class="rightside"><a class="srclink" href="../src/mime_guess/lib.rs.html#143-145">source</a></span><a href="#method.first_or_text_plain" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.first_or_text_plain" class="fnname">first_or_text_plain</a>(&amp;self) -&gt; <a class="struct" href="struct.Mime.html" title="struct mime_guess::Mime">Mime</a></h4></section></summary><div class="docblock"><p>Get the first guessed <code>Mime</code>, or if the guess is empty, return
 <a href="../mime/constant.TEXT_PLAIN.html"><code>text/plain</code></a> instead.</p>

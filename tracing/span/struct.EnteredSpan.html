@@ -48,7 +48,7 @@ following:</p>
 <ul>
 <li>
 <p>To enter a span for a synchronous section of code within an async
-block or function, prefer <a href="#method.in_scope"><code>Span::in_scope</code></a>. Since <code>in_scope</code> takes a
+block or function, prefer <a href="../struct.Span.html#method.in_scope"><code>Span::in_scope</code></a>. Since <code>in_scope</code> takes a
 synchronous closure and exits the span when the closure returns, the
 span will always be exited before the next await point. For example:</p>
 
@@ -68,7 +68,7 @@ span will always be exited before the next await point. For example:</p>
 </li>
 <li>
 <p>For instrumenting asynchronous code, <code>tracing</code> provides the
-<a href="https://docs.rs/tracing/latest/tracing/trait.Instrument.html"><code>Future::instrument</code> combinator</a> for
+<a href="../trait.Instrument.html"><code>Future::instrument</code> combinator</a> for
 attaching a span to a future (async function or block). This will
 enter the span <em>every</em> time the future is polled, and exit it whenever
 the future yields.</p>
@@ -256,10 +256,10 @@ value was already recorded:</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.record_all" class="method has-srclink"><span class="rightside"><a class="srclink" href="../../src/tracing/span.rs.html#1213-1235">source</a></span><a href="#method.record_all" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.record_all" class="fnname">record_all</a>(&amp;self, values: &amp;<a class="struct" href="../field/struct.ValueSet.html" title="struct tracing::field::ValueSet">ValueSet</a>&lt;'_&gt;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.61.0/std/primitive.reference.html">&amp;</a>Self</h4></section></summary><div class="docblock"><p>Records all the fields in the provided <code>ValueSet</code>.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.is_disabled" class="method has-srclink"><span class="rightside"><a class="srclink" href="../../src/tracing/span.rs.html#1244-1246">source</a></span><a href="#method.is_disabled" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.is_disabled" class="fnname">is_disabled</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.61.0/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns <code>true</code> if this span was disabled by the subscriber and does not
 exist.</p>
-<p>See also <a href="#method.is_none"><code>is_none</code></a>.</p>
-</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.is_none" class="method has-srclink"><span class="rightside"><a class="srclink" href="../../src/tracing/span.rs.html#1259-1261">source</a></span><a href="#method.is_none" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.is_none" class="fnname">is_none</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.61.0/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns <code>true</code> if this span was constructed by <a href="#method.none"><code>Span::none</code></a> and is
+<p>See also <a href="../struct.Span.html#method.is_none"><code>is_none</code></a>.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.is_none" class="method has-srclink"><span class="rightside"><a class="srclink" href="../../src/tracing/span.rs.html#1259-1261">source</a></span><a href="#method.is_none" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.is_none" class="fnname">is_none</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.61.0/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns <code>true</code> if this span was constructed by <a href="../struct.Span.html#method.none"><code>Span::none</code></a> and is
 empty.</p>
-<p>If <code>is_none</code> returns <code>true</code> for a given span, then <a href="#method.is_disabled"><code>is_disabled</code></a> will
+<p>If <code>is_none</code> returns <code>true</code> for a given span, then <a href="../struct.Span.html#method.is_disabled"><code>is_disabled</code></a> will
 also return <code>true</code>. However, when a span is disabled by the subscriber
 rather than constructed by <code>Span::none</code>, this method will return
 <code>false</code>, while <code>is_disabled</code> will return <code>true</code>.</p>

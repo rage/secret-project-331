@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["quoted_string",""],["rfc2231",""]],"struct":[["EmailWriter",""]]});
+initSidebarItems({"mod":[["quoted_string",""],["rfc2047",""],["rfc2231",""],["writer",""]]});

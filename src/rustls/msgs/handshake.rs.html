@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.2/src/msgs/handshake.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handshake.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.6/src/msgs/handshake.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handshake.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -2321,6 +2321,40 @@
 <span id="2316">2316</span>
 <span id="2317">2317</span>
 <span id="2318">2318</span>
+<span id="2319">2319</span>
+<span id="2320">2320</span>
+<span id="2321">2321</span>
+<span id="2322">2322</span>
+<span id="2323">2323</span>
+<span id="2324">2324</span>
+<span id="2325">2325</span>
+<span id="2326">2326</span>
+<span id="2327">2327</span>
+<span id="2328">2328</span>
+<span id="2329">2329</span>
+<span id="2330">2330</span>
+<span id="2331">2331</span>
+<span id="2332">2332</span>
+<span id="2333">2333</span>
+<span id="2334">2334</span>
+<span id="2335">2335</span>
+<span id="2336">2336</span>
+<span id="2337">2337</span>
+<span id="2338">2338</span>
+<span id="2339">2339</span>
+<span id="2340">2340</span>
+<span id="2341">2341</span>
+<span id="2342">2342</span>
+<span id="2343">2343</span>
+<span id="2344">2344</span>
+<span id="2345">2345</span>
+<span id="2346">2346</span>
+<span id="2347">2347</span>
+<span id="2348">2348</span>
+<span id="2349">2349</span>
+<span id="2350">2350</span>
+<span id="2351">2351</span>
+<span id="2352">2352</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::key</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::base</span>::{<span class="ident">Payload</span>, <span class="ident">PayloadU16</span>, <span class="ident">PayloadU24</span>, <span class="ident">PayloadU8</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::codec</span>;
@@ -2375,8 +2409,14 @@
 <span class="macro">declare_u16_vec!</span>(<span class="ident">VecU16OfPayloadU8</span>, <span class="ident">PayloadU8</span>);
 <span class="macro">declare_u16_vec!</span>(<span class="ident">VecU16OfPayloadU16</span>, <span class="ident">PayloadU16</span>);
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Random</span>(<span class="kw">pub</span> [<span class="ident">u8</span>; <span class="number">32</span>]);
+
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Random</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
+        <span class="ident"><span class="kw">super</span>::base::hex</span>(<span class="ident">f</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>)
+    }
+}
 
 <span class="kw">static</span> <span class="ident">HELLO_RETRY_REQUEST_RANDOM</span>: <span class="ident">Random</span> <span class="op">=</span> <span class="ident">Random</span>([
     <span class="number">0xcf</span>, <span class="number">0x21</span>, <span class="number">0xad</span>, <span class="number">0x74</span>, <span class="number">0xe5</span>, <span class="number">0x9a</span>, <span class="number">0x61</span>, <span class="number">0x11</span>, <span class="number">0xbe</span>, <span class="number">0x1d</span>, <span class="number">0x8c</span>, <span class="number">0x02</span>, <span class="number">0x1e</span>, <span class="number">0x65</span>, <span class="number">0xb8</span>, <span class="number">0x91</span>,
@@ -2426,10 +2466,8 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">SessionID</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_tuple</span>(<span class="string">&quot;SessionID&quot;</span>)
-            .<span class="ident">field</span>(<span class="op">&amp;&amp;</span><span class="self">self</span>.<span class="ident">data</span>[..<span class="self">self</span>.<span class="ident">len</span>]) <span class="comment">// must be `Sized` to cast to `dyn Debug`</span>
-            .<span class="ident">finish</span>()
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
+        <span class="ident"><span class="kw">super</span>::base::hex</span>(<span class="ident">f</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>[..<span class="self">self</span>.<span class="ident">len</span>])
     }
 }
 
@@ -2823,9 +2861,9 @@
 
 <span class="kw">impl</span> <span class="ident">Codec</span> <span class="kw">for</span> <span class="ident">CertificateStatusRequest</span> {
     <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::OCSP</span>(<span class="kw-2">ref</span> <span class="ident">r</span>) =&gt; <span class="ident">r</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident"><span class="self">Self</span>::Unknown</span>((<span class="ident">typ</span>, <span class="kw-2">ref</span> <span class="ident">payload</span>)) =&gt; {
+            <span class="ident"><span class="self">Self</span>::Unknown</span>((<span class="ident">typ</span>, <span class="ident">payload</span>)) =&gt; {
                 <span class="ident">typ</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>);
                 <span class="ident">payload</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>);
             }
@@ -3537,7 +3575,10 @@
         <span class="self">self</span>.<span class="ident">session_id</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>);
         <span class="self">self</span>.<span class="ident">cipher_suite</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>);
         <span class="self">self</span>.<span class="ident">compression_method</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>);
-        <span class="ident">codec::encode_vec_u16</span>(<span class="ident">bytes</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">extensions</span>);
+
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">extensions</span>.<span class="ident">is_empty</span>() {
+            <span class="ident">codec::encode_vec_u16</span>(<span class="ident">bytes</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">extensions</span>);
+        }
     }
 
     <span class="comment">// minus version and random, which have already been read.</span>
@@ -3545,7 +3586,16 @@
         <span class="kw">let</span> <span class="ident">session_id</span> <span class="op">=</span> <span class="ident">SessionID::read</span>(<span class="ident">r</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">suite</span> <span class="op">=</span> <span class="ident">CipherSuite::read</span>(<span class="ident">r</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">compression</span> <span class="op">=</span> <span class="ident">Compression::read</span>(<span class="ident">r</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">extensions</span> <span class="op">=</span> <span class="ident">codec::read_vec_u16</span>::<span class="op">&lt;</span><span class="ident">ServerExtension</span><span class="op">&gt;</span>(<span class="ident">r</span>)<span class="question-mark">?</span>;
+
+        <span class="comment">// RFC5246:</span>
+        <span class="comment">// &quot;The presence of extensions can be detected by determining whether</span>
+        <span class="comment">//  there are bytes following the compression_method field at the end of</span>
+        <span class="comment">//  the ServerHello.&quot;</span>
+        <span class="kw">let</span> <span class="ident">extensions</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">any_left</span>() {
+            <span class="ident">codec::read_vec_u16</span>::<span class="op">&lt;</span><span class="ident">ServerExtension</span><span class="op">&gt;</span>(<span class="ident">r</span>)<span class="question-mark">?</span>
+        } <span class="kw">else</span> {
+            <span class="macro">vec!</span>[]
+        };
 
         <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="self">Self</span> {
             <span class="ident">legacy_version</span>: <span class="ident">ProtocolVersion::Unknown</span>(<span class="number">0</span>),
@@ -3839,7 +3889,7 @@
             .<span class="ident">first</span>()
             .<span class="ident">and_then</span>(<span class="ident">CertificateEntry::get_ocsp_response</span>)
             .<span class="ident">cloned</span>()
-            .<span class="ident">unwrap_or_else</span>(<span class="ident">Vec::new</span>)
+            .<span class="ident">unwrap_or_default</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_end_entity_scts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SCTList</span><span class="op">&gt;</span> {
@@ -4348,6 +4398,21 @@
         }
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_duplicate_extension</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">collections::HashSet::new</span>();
+
+        <span class="kw">for</span> <span class="ident">ext</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">exts</span> {
+            <span class="kw">let</span> <span class="ident">typ</span> <span class="op">=</span> <span class="ident">ext</span>.<span class="ident">get_type</span>().<span class="ident">get_u16</span>();
+
+            <span class="kw">if</span> <span class="ident">seen</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">typ</span>) {
+                <span class="kw">return</span> <span class="bool-val">true</span>;
+            }
+            <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">typ</span>);
+        }
+
+        <span class="bool-val">false</span>
+    }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_extension</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ext</span>: <span class="ident">ExtensionType</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">NewSessionTicketExtension</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">exts</span>
             .<span class="ident">iter</span>()
@@ -4440,7 +4505,6 @@
     <span class="ident">CertificateRequestTLS13</span>(<span class="ident">CertificateRequestPayloadTLS13</span>),
     <span class="ident">CertificateVerify</span>(<span class="ident">DigitallySignedStruct</span>),
     <span class="ident">ServerHelloDone</span>,
-    <span class="ident">EarlyData</span>,
     <span class="ident">EndOfEarlyData</span>,
     <span class="ident">ClientKeyExchange</span>(<span class="ident">Payload</span>),
     <span class="ident">NewSessionTicket</span>(<span class="ident">NewSessionTicketPayload</span>),
@@ -4455,29 +4519,27 @@
 
 <span class="kw">impl</span> <span class="ident">HandshakePayload</span> {
     <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
+        <span class="kw">use</span> <span class="ident"><span class="self">self</span>::HandshakePayload</span>::<span class="kw-2">*</span>;
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">HandshakePayload::HelloRequest</span>
-            <span class="op">|</span> <span class="ident">HandshakePayload::ServerHelloDone</span>
-            <span class="op">|</span> <span class="ident">HandshakePayload::EarlyData</span>
-            <span class="op">|</span> <span class="ident">HandshakePayload::EndOfEarlyData</span> =&gt; {}
-            <span class="ident">HandshakePayload::ClientHello</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::ServerHello</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::HelloRetryRequest</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::Certificate</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::CertificateTLS13</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::ServerKeyExchange</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::ClientKeyExchange</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::CertificateRequest</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::CertificateRequestTLS13</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::CertificateVerify</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::NewSessionTicket</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::NewSessionTicketTLS13</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::EncryptedExtensions</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::KeyUpdate</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::Finished</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::CertificateStatus</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::MessageHash</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident">HandshakePayload::Unknown</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">HelloRequest</span> <span class="op">|</span> <span class="ident">ServerHelloDone</span> <span class="op">|</span> <span class="ident">EndOfEarlyData</span> =&gt; {}
+            <span class="ident">ClientHello</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">ServerHello</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">HelloRetryRequest</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">Certificate</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">CertificateTLS13</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">ServerKeyExchange</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">ClientKeyExchange</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">CertificateRequest</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">CertificateRequestTLS13</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">CertificateVerify</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">NewSessionTicket</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">NewSessionTicketTLS13</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">EncryptedExtensions</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">KeyUpdate</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">Finished</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">CertificateStatus</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">MessageHash</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident">Unknown</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
         }
     }
 }
@@ -4580,6 +4642,12 @@
             }
             <span class="ident">HandshakeType::KeyUpdate</span> =&gt; {
                 <span class="ident">HandshakePayload::KeyUpdate</span>(<span class="ident">KeyUpdateRequest::read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">sub</span>)<span class="question-mark">?</span>)
+            }
+            <span class="ident">HandshakeType::EndOfEarlyData</span> =&gt; {
+                <span class="kw">if</span> <span class="ident">sub</span>.<span class="ident">any_left</span>() {
+                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+                }
+                <span class="ident">HandshakePayload::EndOfEarlyData</span>
             }
             <span class="ident">HandshakeType::Finished</span> =&gt; <span class="ident">HandshakePayload::Finished</span>(<span class="ident">Payload::read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">sub</span>)),
             <span class="ident">HandshakeType::CertificateStatus</span> =&gt; {

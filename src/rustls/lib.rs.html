@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.6/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -516,6 +516,23 @@
 <span id="511">511</span>
 <span id="512">512</span>
 <span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
 </pre><pre class="rust"><code><span class="doccomment">//! # Rustls - a modern TLS library</span>
 <span class="doccomment">//! Rustls is a TLS library that aims to provide a good level of cryptographic security,</span>
 <span class="doccomment">//! requires no configuration to achieve that security, and provides no unsafe features or</span>
@@ -537,6 +554,7 @@
 <span class="doccomment">//! * TLS1.2 resumption via tickets ([RFC5077](https://tools.ietf.org/html/rfc5077)).</span>
 <span class="doccomment">//! * TLS1.3 resumption via tickets or session storage.</span>
 <span class="doccomment">//! * TLS1.3 0-RTT data for clients.</span>
+<span class="doccomment">//! * TLS1.3 0-RTT data for servers.</span>
 <span class="doccomment">//! * Client authentication by clients.</span>
 <span class="doccomment">//! * Client authentication by servers.</span>
 <span class="doccomment">//! * Extended master secret support ([RFC7627](https://tools.ietf.org/html/rfc7627)).</span>
@@ -769,9 +787,13 @@
 <span class="doccomment">//!   it for your application. If you want to disable TLS 1.2 for security reasons,</span>
 <span class="doccomment">//!   consider explicitly enabling TLS 1.3 only in the config builder API.</span>
 <span class="doccomment">//!</span>
+<span class="doccomment">//! - `read_buf`: When building with Rust Nightly, adds support for the unstable</span>
+<span class="doccomment">//!   `std::io::ReadBuf` and related APIs. This reduces costs from initializing</span>
+<span class="doccomment">//!   buffers. Will do nothing on non-Nightly releases.</span>
 
 <span class="comment">// Require docs for public APIs, deny unsafe code, etc.</span>
-<span class="attribute">#![<span class="ident">forbid</span>(<span class="ident">unsafe_code</span>, <span class="ident">unused_must_use</span>, <span class="ident">unstable_features</span>)]</span>
+<span class="attribute">#![<span class="ident">forbid</span>(<span class="ident">unsafe_code</span>, <span class="ident">unused_must_use</span>)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">read_buf</span>), <span class="ident">forbid</span>(<span class="ident">unstable_features</span>))]</span>
 <span class="attribute">#![<span class="ident">deny</span>(
     <span class="ident">clippy::clone_on_ref_ptr</span>,
     <span class="ident">clippy::use_self</span>,
@@ -802,6 +824,15 @@
 )]</span>
 <span class="comment">// Enable documentation for all features on docs.rs</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
+<span class="comment">// XXX: Because of https://github.com/rust-lang/rust/issues/54726, we cannot</span>
+<span class="comment">// write `#![rustversion::attr(nightly, feature(read_buf))]` here. Instead,</span>
+<span class="comment">// build.rs set `read_buf` for (only) Rust Nightly to get the same effect.</span>
+<span class="comment">//</span>
+<span class="comment">// All the other conditional logic in the crate could use</span>
+<span class="comment">// `#[rustversion::nightly]` instead of `#[cfg(read_buf)]`; `#[cfg(read_buf)]`</span>
+<span class="comment">// is used to avoid needing `rustversion` to be compiled twice during</span>
+<span class="comment">// cross-compiling.</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">read_buf</span>, <span class="ident">feature</span>(<span class="ident">read_buf</span>))]</span>
 
 <span class="comment">// log for logging (optional).</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>)]</span>
@@ -841,7 +872,8 @@
 <span class="kw">mod</span> <span class="ident">bs_debug</span>;
 <span class="kw">mod</span> <span class="ident">builder</span>;
 <span class="kw">mod</span> <span class="ident">key</span>;
-<span class="kw">mod</span> <span class="ident">keylog</span>;
+<span class="kw">mod</span> <span class="ident">key_log</span>;
+<span class="kw">mod</span> <span class="ident">key_log_file</span>;
 <span class="kw">mod</span> <span class="ident">kx</span>;
 <span class="kw">mod</span> <span class="ident">suites</span>;
 <span class="kw">mod</span> <span class="ident">ticketer</span>;
@@ -870,7 +902,8 @@
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::key</span>::{<span class="ident">Certificate</span>, <span class="ident">PrivateKey</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::keylog</span>::{<span class="ident">KeyLog</span>, <span class="ident">KeyLogFile</span>, <span class="ident">NoKeyLog</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::key_log</span>::{<span class="ident">KeyLog</span>, <span class="ident">NoKeyLog</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::key_log_file::KeyLogFile</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::kx</span>::{<span class="ident">SupportedKxGroup</span>, <span class="ident">ALL_KX_GROUPS</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::enums::CipherSuite</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::enums::ProtocolVersion</span>;
@@ -943,7 +976,7 @@
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">server_conn::ServerQuicExt</span>;
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">server_conn::StoresServerSessions</span>;
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">server_conn</span>::{
-        <span class="ident">Accepted</span>, <span class="ident">Acceptor</span>, <span class="ident">ServerConfig</span>, <span class="ident">ServerConnection</span>, <span class="ident">ServerConnectionData</span>,
+        <span class="ident">Accepted</span>, <span class="ident">Acceptor</span>, <span class="ident">ReadEarlyData</span>, <span class="ident">ServerConfig</span>, <span class="ident">ServerConnection</span>, <span class="ident">ServerConnectionData</span>,
     };
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">server_conn</span>::{<span class="ident">ClientHello</span>, <span class="ident">ProducesTickets</span>, <span class="ident">ResolvesServerCert</span>};
 
@@ -958,6 +991,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`ALL_CIPHER_SUITES`] is provided as an array of all of these values.</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">cipher_suite</span> {
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::suites::CipherSuiteCommon</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tls12&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tls12::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tls12&quot;</span>)]</span>
@@ -1017,7 +1051,7 @@
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">WebPKIVerifier</span> <span class="op">=</span> <span class="ident">client::WebPkiVerifier</span>;
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::upper_case_acronyms</span>)]</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.20.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Use TlsError&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.20.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Use Error&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">TLSError</span> <span class="op">=</span> <span class="ident">Error</span>;
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.20.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Use ClientConnection&quot;</span>)]</span>

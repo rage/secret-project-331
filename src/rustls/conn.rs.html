@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.2/src/conn.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>conn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.6/src/conn.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>conn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -1322,6 +1322,100 @@
 <span id="1317">1317</span>
 <span id="1318">1318</span>
 <span id="1319">1319</span>
+<span id="1320">1320</span>
+<span id="1321">1321</span>
+<span id="1322">1322</span>
+<span id="1323">1323</span>
+<span id="1324">1324</span>
+<span id="1325">1325</span>
+<span id="1326">1326</span>
+<span id="1327">1327</span>
+<span id="1328">1328</span>
+<span id="1329">1329</span>
+<span id="1330">1330</span>
+<span id="1331">1331</span>
+<span id="1332">1332</span>
+<span id="1333">1333</span>
+<span id="1334">1334</span>
+<span id="1335">1335</span>
+<span id="1336">1336</span>
+<span id="1337">1337</span>
+<span id="1338">1338</span>
+<span id="1339">1339</span>
+<span id="1340">1340</span>
+<span id="1341">1341</span>
+<span id="1342">1342</span>
+<span id="1343">1343</span>
+<span id="1344">1344</span>
+<span id="1345">1345</span>
+<span id="1346">1346</span>
+<span id="1347">1347</span>
+<span id="1348">1348</span>
+<span id="1349">1349</span>
+<span id="1350">1350</span>
+<span id="1351">1351</span>
+<span id="1352">1352</span>
+<span id="1353">1353</span>
+<span id="1354">1354</span>
+<span id="1355">1355</span>
+<span id="1356">1356</span>
+<span id="1357">1357</span>
+<span id="1358">1358</span>
+<span id="1359">1359</span>
+<span id="1360">1360</span>
+<span id="1361">1361</span>
+<span id="1362">1362</span>
+<span id="1363">1363</span>
+<span id="1364">1364</span>
+<span id="1365">1365</span>
+<span id="1366">1366</span>
+<span id="1367">1367</span>
+<span id="1368">1368</span>
+<span id="1369">1369</span>
+<span id="1370">1370</span>
+<span id="1371">1371</span>
+<span id="1372">1372</span>
+<span id="1373">1373</span>
+<span id="1374">1374</span>
+<span id="1375">1375</span>
+<span id="1376">1376</span>
+<span id="1377">1377</span>
+<span id="1378">1378</span>
+<span id="1379">1379</span>
+<span id="1380">1380</span>
+<span id="1381">1381</span>
+<span id="1382">1382</span>
+<span id="1383">1383</span>
+<span id="1384">1384</span>
+<span id="1385">1385</span>
+<span id="1386">1386</span>
+<span id="1387">1387</span>
+<span id="1388">1388</span>
+<span id="1389">1389</span>
+<span id="1390">1390</span>
+<span id="1391">1391</span>
+<span id="1392">1392</span>
+<span id="1393">1393</span>
+<span id="1394">1394</span>
+<span id="1395">1395</span>
+<span id="1396">1396</span>
+<span id="1397">1397</span>
+<span id="1398">1398</span>
+<span id="1399">1399</span>
+<span id="1400">1400</span>
+<span id="1401">1401</span>
+<span id="1402">1402</span>
+<span id="1403">1403</span>
+<span id="1404">1404</span>
+<span id="1405">1405</span>
+<span id="1406">1406</span>
+<span id="1407">1407</span>
+<span id="1408">1408</span>
+<span id="1409">1409</span>
+<span id="1410">1410</span>
+<span id="1411">1411</span>
+<span id="1412">1412</span>
+<span id="1413">1413</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::key</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>)]</span>
@@ -1531,7 +1625,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the peer closes the TLS session cleanly, this returns `Ok(0)`  once all</span>
     <span class="doccomment">/// the pending data has been read. No further data can be received on that</span>
-    <span class="doccomment">/// connection, so the underlying TCP connection should half-closed too.</span>
+    <span class="doccomment">/// connection, so the underlying TCP connection should be half-closed too.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the peer closes the TLS session uncleanly (a TCP EOF without sending a</span>
     <span class="doccomment">/// `close_notify` alert) this function returns `Err(ErrorKind::UnexpectedEof.into())`</span>
@@ -1564,6 +1658,49 @@
         }
 
         <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
+    }
+
+    <span class="doccomment">/// Obtain plaintext data received from the peer over this TLS connection.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the peer closes the TLS session, this returns `Ok(())` without filling</span>
+    <span class="doccomment">/// any more of the buffer once all the pending data has been read. No further</span>
+    <span class="doccomment">/// data can be received on that connection, so the underlying TCP connection</span>
+    <span class="doccomment">/// should be half-closed too.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the peer closes the TLS session uncleanly (a TCP EOF without sending a</span>
+    <span class="doccomment">/// `close_notify` alert) this function returns `Err(ErrorKind::UnexpectedEof.into())`</span>
+    <span class="doccomment">/// once any pending data has been read.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note that support for `close_notify` varies in peer TLS libraries: many do not</span>
+    <span class="doccomment">/// support it and uncleanly close the TCP connection (this might be</span>
+    <span class="doccomment">/// vulnerable to truncation attacks depending on the application protocol).</span>
+    <span class="doccomment">/// This means applications using rustls must both handle EOF</span>
+    <span class="doccomment">/// from this function, *and* unexpected EOF of the underlying TCP connection.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If there are no bytes to read, this returns `Err(ErrorKind::WouldBlock.into())`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// You may learn the number of bytes available at any time by inspecting</span>
+    <span class="doccomment">/// the return of [`Connection::process_new_packets`].</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">read_buf</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">read_buf</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">io::ReadBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">filled_len</span>();
+        <span class="self">self</span>.<span class="ident">received_plaintext</span>.<span class="ident">read_buf</span>(<span class="ident">buf</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">filled_len</span>() <span class="op">-</span> <span class="ident">before</span>;
+
+        <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">buf</span>.<span class="ident">capacity</span>() <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="comment">// No bytes available:</span>
+            <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">peer_cleanly_closed</span>, <span class="self">self</span>.<span class="ident">has_seen_eof</span>) {
+                <span class="comment">// cleanly closed; don&#39;t care about TCP EOF: express this as Ok(0)</span>
+                (<span class="bool-val">true</span>, <span class="kw">_</span>) =&gt; {}
+                <span class="comment">// unclean closure</span>
+                (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::ErrorKind::UnexpectedEof</span>.<span class="ident">into</span>()),
+                <span class="comment">// connection still going, but need more data: signal `WouldBlock` so that</span>
+                <span class="comment">// the caller knows this</span>
+                (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::ErrorKind::WouldBlock</span>.<span class="ident">into</span>()),
+            }
+        }
+
+        <span class="prelude-val">Ok</span>(())
     }
 }
 
@@ -1639,41 +1776,33 @@
     <span class="ident">Quic</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">ConnectionRandoms</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">we_are_client</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">client</span>: [<span class="ident">u8</span>; <span class="number">32</span>],
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">server</span>: [<span class="ident">u8</span>; <span class="number">32</span>],
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tls12&quot;</span>)]</span>
-<span class="kw">static</span> <span class="ident">TLS12_DOWNGRADE_SENTINEL</span>: [<span class="ident">u8</span>; <span class="number">8</span>] <span class="op">=</span> [<span class="number">0x44</span>, <span class="number">0x4f</span>, <span class="number">0x57</span>, <span class="number">0x4e</span>, <span class="number">0x47</span>, <span class="number">0x52</span>, <span class="number">0x44</span>, <span class="number">0x01</span>];
+<span class="doccomment">/// How many ChangeCipherSpec messages we accept and drop in TLS1.3 handshakes.</span>
+<span class="doccomment">/// The spec says 1, but implementations (namely the boringssl test suite) get</span>
+<span class="doccomment">/// this wrong.  BoringSSL itself accepts up to 32.</span>
+<span class="kw">static</span> <span class="ident">TLS13_MAX_DROPPED_CCS</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">2u8</span>;
 
 <span class="kw">impl</span> <span class="ident">ConnectionRandoms</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">client</span>: <span class="ident">Random</span>, <span class="ident">server</span>: <span class="ident">Random</span>, <span class="ident">we_are_client</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">client</span>: <span class="ident">Random</span>, <span class="ident">server</span>: <span class="ident">Random</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">we_are_client</span>,
             <span class="ident">client</span>: <span class="ident">client</span>.<span class="number">0</span>,
             <span class="ident">server</span>: <span class="ident">server</span>.<span class="number">0</span>,
         }
     }
-
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tls12&quot;</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">set_tls12_downgrade_marker</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">we_are_client</span>);
-        <span class="self">self</span>.<span class="ident">server</span>[<span class="number">24</span>..].<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">TLS12_DOWNGRADE_SENTINEL</span>);
-    }
-
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tls12&quot;</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">has_tls12_downgrade_marker</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">we_are_client</span>);
-        <span class="comment">// both the server random and TLS12_DOWNGRADE_SENTINEL are</span>
-        <span class="comment">// public values and don&#39;t require constant time comparison</span>
-        <span class="self">self</span>.<span class="ident">server</span>[<span class="number">24</span>..] <span class="op">==</span> <span class="ident">TLS12_DOWNGRADE_SENTINEL</span>
-    }
 }
 
 <span class="comment">// --- Common (to client and server) connection functions ---</span>
+
+<span class="kw">fn</span> <span class="ident">is_valid_ccs</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">OpaqueMessage</span>) -&gt; <span class="ident">bool</span> {
+    <span class="comment">// nb. this is prior to the record layer, so is unencrypted. see</span>
+    <span class="comment">// third paragraph of section 5 in RFC8446.</span>
+    <span class="ident">msg</span>.<span class="ident">typ</span> <span class="op">==</span> <span class="ident">ContentType::ChangeCipherSpec</span> <span class="op">&amp;&amp;</span> <span class="ident">msg</span>.<span class="ident">payload</span>.<span class="number">0</span> <span class="op">==</span> [<span class="number">0x01</span>]
+}
 
 <span class="kw">enum</span> <span class="ident">Limit</span> {
     <span class="ident">Yes</span>,
@@ -1767,10 +1896,21 @@
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">rdlen</span>, <span class="ident">wrlen</span>));
             }
 
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">eof</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">wants_read</span>() {
-                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">read_tls</span>(<span class="ident">io</span>)<span class="question-mark">?</span> {
-                    <span class="number">0</span> =&gt; <span class="ident">eof</span> <span class="op">=</span> <span class="bool-val">true</span>,
-                    <span class="ident">n</span> =&gt; <span class="ident">rdlen</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>,
+            <span class="kw">while</span> <span class="op">!</span><span class="ident">eof</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">wants_read</span>() {
+                <span class="kw">let</span> <span class="ident">read_size</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">read_tls</span>(<span class="ident">io</span>) {
+                    <span class="prelude-val">Ok</span>(<span class="number">0</span>) =&gt; {
+                        <span class="ident">eof</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                        <span class="prelude-val">Some</span>(<span class="number">0</span>)
+                    }
+                    <span class="prelude-val">Ok</span>(<span class="ident">n</span>) =&gt; {
+                        <span class="ident">rdlen</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>;
+                        <span class="prelude-val">Some</span>(<span class="ident">n</span>)
+                    }
+                    <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">kind</span>() <span class="op">==</span> <span class="ident">io::ErrorKind::Interrupted</span> =&gt; <span class="prelude-val">None</span>, <span class="comment">// nothing to do</span>
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
+                };
+                <span class="kw">if</span> <span class="ident">read_size</span>.<span class="ident">is_some</span>() {
+                    <span class="kw">break</span>;
                 }
             }
 
@@ -1837,21 +1977,26 @@
         <span class="ident">msg</span>: <span class="ident">OpaqueMessage</span>,
         <span class="ident">state</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">Data</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">Data</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="comment">// pass message to handshake state machine if any of these are true:</span>
-        <span class="comment">// - TLS1.2 (where it&#39;s part of the state machine),</span>
-        <span class="comment">// - prior to determining the version (it&#39;s illegal as a first message)</span>
-        <span class="comment">// - if it&#39;s not a CCS at all</span>
-        <span class="comment">// - if we&#39;ve finished the handshake</span>
+        <span class="comment">// Drop CCS messages during handshake in TLS1.3</span>
         <span class="kw">if</span> <span class="ident">msg</span>.<span class="ident">typ</span> <span class="op">==</span> <span class="ident">ContentType::ChangeCipherSpec</span>
-            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">common_state</span>.<span class="ident">traffic</span>
+            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>
+                .<span class="ident">common_state</span>
+                .<span class="ident">may_receive_application_data</span>
             <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">common_state</span>.<span class="ident">is_tls13</span>()
         {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">common_state</span>.<span class="ident">received_middlebox_ccs</span> {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">is_valid_ccs</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>)
+                <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">common_state</span>.<span class="ident">received_middlebox_ccs</span> <span class="op">&gt;</span> <span class="ident">TLS13_MAX_DROPPED_CCS</span>
+            {
+                <span class="comment">// &quot;An implementation which receives any other change_cipher_spec value or</span>
+                <span class="comment">//  which receives a protected change_cipher_spec record MUST abort the</span>
+                <span class="comment">//  handshake with an &quot;unexpected_message&quot; alert.&quot;</span>
+                <span class="self">self</span>.<span class="ident">common_state</span>
+                    .<span class="ident">send_fatal_alert</span>(<span class="ident">AlertDescription::UnexpectedMessage</span>);
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::PeerMisbehavedError</span>(
                     <span class="string">&quot;illegal middlebox CCS received&quot;</span>.<span class="ident">into</span>(),
                 ));
             } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">common_state</span>.<span class="ident">received_middlebox_ccs</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="self">self</span>.<span class="ident">common_state</span>.<span class="ident">received_middlebox_ccs</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 <span class="macro">trace!</span>(<span class="string">&quot;Dropping CCS&quot;</span>);
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">state</span>);
             }
@@ -1863,15 +2008,27 @@
             .<span class="ident">record_layer</span>
             .<span class="ident">is_decrypting</span>()
         {
-            <span class="bool-val">true</span> =&gt; <span class="self">self</span>
-                .<span class="ident">common_state</span>
-                .<span class="ident">decrypt_incoming</span>(<span class="ident">msg</span>)<span class="question-mark">?</span>,
+            <span class="bool-val">true</span> =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">common_state</span>.<span class="ident">decrypt_incoming</span>(<span class="ident">msg</span>) {
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
+                    <span class="comment">// message dropped</span>
+                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">state</span>);
+                }
+                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
+                }
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">msg</span>)) =&gt; <span class="ident">msg</span>,
+            },
             <span class="bool-val">false</span> =&gt; <span class="ident">msg</span>.<span class="ident">into_plain_message</span>(),
         };
 
         <span class="comment">// For handshake messages, we need to join them before parsing</span>
         <span class="comment">// and processing.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">handshake_joiner</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>) {
+            <span class="comment">// First decryptable handshake message concludes trial decryption</span>
+            <span class="self">self</span>.<span class="ident">common_state</span>
+                .<span class="ident">record_layer</span>
+                .<span class="ident">finish_trial_decryption</span>();
+
             <span class="self">self</span>.<span class="ident">handshake_joiner</span>
                 .<span class="ident">take_message</span>(<span class="ident">msg</span>)
                 .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
@@ -2059,18 +2216,19 @@
 <span class="doccomment">/// Connection state common to both client and server connections.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CommonState</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">negotiated_version</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ProtocolVersion</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">is_client</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">side</span>: <span class="ident">Side</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">record_layer</span>: <span class="ident">record_layer::RecordLayer</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">suite</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SupportedCipherSuite</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">alpn_protocol</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">aligned_handshake</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">traffic</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">may_send_application_data</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">may_receive_application_data</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">early_traffic</span>: <span class="ident">bool</span>,
     <span class="ident">sent_fatal_alert</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// If the peer has signaled end of stream.</span>
     <span class="ident">has_received_close_notify</span>: <span class="ident">bool</span>,
     <span class="ident">has_seen_eof</span>: <span class="ident">bool</span>,
-    <span class="ident">received_middlebox_ccs</span>: <span class="ident">bool</span>,
+    <span class="ident">received_middlebox_ccs</span>: <span class="ident">u8</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">peer_certificates</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">key::Certificate</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">message_fragmenter</span>: <span class="ident">MessageFragmenter</span>,
     <span class="ident">received_plaintext</span>: <span class="ident">ChunkVecBuffer</span>,
@@ -2084,20 +2242,21 @@
 }
 
 <span class="kw">impl</span> <span class="ident">CommonState</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">max_fragment_size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="ident">is_client</span>: <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">max_fragment_size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="ident">side</span>: <span class="ident">Side</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
             <span class="ident">negotiated_version</span>: <span class="prelude-val">None</span>,
-            <span class="ident">is_client</span>,
+            <span class="ident">side</span>,
             <span class="ident">record_layer</span>: <span class="ident">record_layer::RecordLayer::new</span>(),
             <span class="ident">suite</span>: <span class="prelude-val">None</span>,
             <span class="ident">alpn_protocol</span>: <span class="prelude-val">None</span>,
             <span class="ident">aligned_handshake</span>: <span class="bool-val">true</span>,
-            <span class="ident">traffic</span>: <span class="bool-val">false</span>,
+            <span class="ident">may_send_application_data</span>: <span class="bool-val">false</span>,
+            <span class="ident">may_receive_application_data</span>: <span class="bool-val">false</span>,
             <span class="ident">early_traffic</span>: <span class="bool-val">false</span>,
             <span class="ident">sent_fatal_alert</span>: <span class="bool-val">false</span>,
             <span class="ident">has_received_close_notify</span>: <span class="bool-val">false</span>,
             <span class="ident">has_seen_eof</span>: <span class="bool-val">false</span>,
-            <span class="ident">received_middlebox_ccs</span>: <span class="bool-val">false</span>,
+            <span class="ident">received_middlebox_ccs</span>: <span class="number">0</span>,
             <span class="ident">peer_certificates</span>: <span class="prelude-val">None</span>,
             <span class="ident">message_fragmenter</span>: <span class="ident">MessageFragmenter::new</span>(<span class="ident">max_fragment_size</span>)
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error::BadMaxFragmentSize</span>)<span class="question-mark">?</span>,
@@ -2123,7 +2282,7 @@
     <span class="doccomment">/// [`Connection::process_new_packets`] has been called, this might start to return `false`</span>
     <span class="doccomment">/// while the final handshake packets still need to be extracted from the connection&#39;s buffers.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_handshaking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="op">!</span><span class="self">self</span>.<span class="ident">traffic</span>
+        <span class="op">!</span>(<span class="self">self</span>.<span class="ident">may_send_application_data</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">may_receive_application_data</span>)
     }
 
     <span class="doccomment">/// Retrieves the certificate chain used by the peer to authenticate.</span>
@@ -2172,9 +2331,6 @@
         <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">negotiated_version</span>, <span class="prelude-val">Some</span>(<span class="ident">ProtocolVersion::TLSv1_3</span>))
     }
 
-    <span class="doccomment">/// Process `msg`.  First, we get the current state.  Then we ask what messages</span>
-    <span class="doccomment">/// that state expects, enforced via `check_message`.  Finally, we ask the handler</span>
-    <span class="doccomment">/// to handle the message.</span>
     <span class="kw">fn</span> <span class="ident">process_main_protocol</span><span class="op">&lt;</span><span class="ident">Data</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">msg</span>: <span class="ident">Message</span>,
@@ -2183,10 +2339,10 @@
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">Data</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="comment">// For TLS1.2, outside of the handshake, send rejection alerts for</span>
         <span class="comment">// renegotiation requests.  These can occur any time.</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">traffic</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_tls13</span>() {
-            <span class="kw">let</span> <span class="ident">reject_ty</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">is_client</span> {
-                <span class="bool-val">true</span> =&gt; <span class="ident">HandshakeType::HelloRequest</span>,
-                <span class="bool-val">false</span> =&gt; <span class="ident">HandshakeType::ClientHello</span>,
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">may_receive_application_data</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_tls13</span>() {
+            <span class="kw">let</span> <span class="ident">reject_ty</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">side</span> {
+                <span class="ident">Side::Client</span> =&gt; <span class="ident">HandshakeType::HelloRequest</span>,
+                <span class="ident">Side::Server</span> =&gt; <span class="ident">HandshakeType::ClientHello</span>,
             };
             <span class="kw">if</span> <span class="ident">msg</span>.<span class="ident">is_handshake_type</span>(<span class="ident">reject_ty</span>) {
                 <span class="self">self</span>.<span class="ident">send_warning_alert</span>(<span class="ident">AlertDescription::NoRenegotiation</span>);
@@ -2250,7 +2406,10 @@
         <span class="ident">Error::PeerMisbehavedError</span>(<span class="ident">why</span>.<span class="ident">to_string</span>())
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">decrypt_incoming</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">encr</span>: <span class="ident">OpaqueMessage</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PlainMessage</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">decrypt_incoming</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">encr</span>: <span class="ident">OpaqueMessage</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PlainMessage</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>
             .<span class="ident">record_layer</span>
             .<span class="ident">wants_close_before_decrypt</span>()
@@ -2258,11 +2417,29 @@
             <span class="self">self</span>.<span class="ident">send_close_notify</span>();
         }
 
-        <span class="kw">let</span> <span class="ident">rc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">record_layer</span>.<span class="ident">decrypt_incoming</span>(<span class="ident">encr</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">Error::PeerSentOversizedRecord</span>) <span class="op">=</span> <span class="ident">rc</span> {
-            <span class="self">self</span>.<span class="ident">send_fatal_alert</span>(<span class="ident">AlertDescription::RecordOverflow</span>);
+        <span class="kw">let</span> <span class="ident">encrypted_len</span> <span class="op">=</span> <span class="ident">encr</span>.<span class="ident">payload</span>.<span class="number">0</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="ident">plain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">record_layer</span>.<span class="ident">decrypt_incoming</span>(<span class="ident">encr</span>);
+
+        <span class="kw">match</span> <span class="ident">plain</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">Error::PeerSentOversizedRecord</span>) =&gt; {
+                <span class="self">self</span>.<span class="ident">send_fatal_alert</span>(<span class="ident">AlertDescription::RecordOverflow</span>);
+                <span class="prelude-val">Err</span>(<span class="ident">Error::PeerSentOversizedRecord</span>)
+            }
+            <span class="prelude-val">Err</span>(<span class="ident">Error::DecryptError</span>)
+                <span class="kw">if</span> <span class="self">self</span>
+                    .<span class="ident">record_layer</span>
+                    .<span class="ident">doing_trial_decryption</span>(<span class="ident">encrypted_len</span>) =&gt;
+            {
+                <span class="macro">trace!</span>(<span class="string">&quot;Dropping undecryptable message after aborted early_data&quot;</span>);
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+            }
+            <span class="prelude-val">Err</span>(<span class="ident">Error::DecryptError</span>) =&gt; {
+                <span class="self">self</span>.<span class="ident">send_fatal_alert</span>(<span class="ident">AlertDescription::BadRecordMac</span>);
+                <span class="prelude-val">Err</span>(<span class="ident">Error::DecryptError</span>)
+            }
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="prelude-val">Ok</span>(<span class="ident">plain</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">plain</span>)),
         }
-        <span class="ident">rc</span>
     }
 
     <span class="doccomment">/// Fragment `m`, encrypt the fragments, and then queue</span>
@@ -2342,7 +2519,7 @@
     <span class="doccomment">/// Returns the number of bytes written from `data`: this might</span>
     <span class="doccomment">/// be less than `data.len()` if buffer limits were exceeded.</span>
     <span class="kw">fn</span> <span class="ident">send_plain</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">limit</span>: <span class="ident">Limit</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">traffic</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">may_send_application_data</span> {
             <span class="comment">// If we haven&#39;t completed handshaking, buffer</span>
             <span class="comment">// plaintext to send once we do.</span>
             <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">limit</span> {
@@ -2366,9 +2543,14 @@
         <span class="self">self</span>.<span class="ident">send_appdata_encrypt</span>(<span class="ident">data</span>, <span class="ident">limit</span>)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">start_traffic</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">traffic</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">start_outgoing_traffic</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">may_send_application_data</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>.<span class="ident">flush_plaintext</span>();
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">start_traffic</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">may_receive_application_data</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="self">self</span>.<span class="ident">start_outgoing_traffic</span>();
     }
 
     <span class="doccomment">/// Sets a limit on the internal buffers used to buffer</span>
@@ -2418,7 +2600,7 @@
     <span class="doccomment">/// Send any buffered plaintext.  Plaintext is buffered if</span>
     <span class="doccomment">/// written during handshake.</span>
     <span class="kw">fn</span> <span class="ident">flush_plaintext</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">traffic</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">may_send_application_data</span> {
             <span class="kw">return</span>;
         }
 
@@ -2441,7 +2623,7 @@
                     <span class="self">self</span>.<span class="ident">quic</span>.<span class="ident">alert</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">alert</span>.<span class="ident">description</span>);
                 } <span class="kw">else</span> {
                     <span class="macro">debug_assert!</span>(
-                        <span class="macro">matches!</span>(<span class="ident">m</span>.<span class="ident">payload</span>, <span class="ident">MessagePayload::Handshake</span>(<span class="kw">_</span>)),
+                        <span class="macro">matches!</span>(<span class="ident">m</span>.<span class="ident">payload</span>, <span class="ident">MessagePayload::Handshake</span> { .. }),
                         <span class="string">&quot;QUIC uses TLS for the cryptographic handshake only&quot;</span>
                     );
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -2470,8 +2652,8 @@
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tls12&quot;</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">start_encryption_tls12</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">secrets</span>: <span class="kw-2">&amp;</span><span class="ident">ConnectionSecrets</span>) {
-        <span class="kw">let</span> (<span class="ident">dec</span>, <span class="ident">enc</span>) <span class="op">=</span> <span class="ident">secrets</span>.<span class="ident">make_cipher_pair</span>();
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">start_encryption_tls12</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">secrets</span>: <span class="kw-2">&amp;</span><span class="ident">ConnectionSecrets</span>, <span class="ident">side</span>: <span class="ident">Side</span>) {
+        <span class="kw">let</span> (<span class="ident">dec</span>, <span class="ident">enc</span>) <span class="op">=</span> <span class="ident">secrets</span>.<span class="ident">make_cipher_pair</span>(<span class="ident">side</span>);
         <span class="self">self</span>.<span class="ident">record_layer</span>
             .<span class="ident">prepare_message_encrypter</span>(<span class="ident">enc</span>);
         <span class="self">self</span>.<span class="ident">record_layer</span>
@@ -2564,7 +2746,7 @@
         <span class="comment">// completed, but also don&#39;t want to read if we still have sendable tls.</span>
         <span class="self">self</span>.<span class="ident">received_plaintext</span>.<span class="ident">is_empty</span>()
             <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">has_received_close_notify</span>
-            <span class="op">&amp;&amp;</span> (<span class="self">self</span>.<span class="ident">traffic</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">sendable_tls</span>.<span class="ident">is_empty</span>())
+            <span class="op">&amp;&amp;</span> (<span class="self">self</span>.<span class="ident">may_send_application_data</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">sendable_tls</span>.<span class="ident">is_empty</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">current_io_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">IoState</span> {
@@ -2635,6 +2817,12 @@
             <span class="ident">returned_traffic_keys</span>: <span class="bool-val">false</span>,
         }
     }
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">Side</span> {
+    <span class="ident">Client</span>,
+    <span class="ident">Server</span>,
 }
 
 <span class="doccomment">/// Data specific to the peer&#39;s side (client or server).</span>

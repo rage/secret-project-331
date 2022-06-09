@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.2/src/msgs/message.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>message.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.6/src/msgs/message.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>message.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -273,6 +273,19 @@
 <span id="268">268</span>
 <span id="269">269</span>
 <span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::alert::AlertMessagePayload</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::base::Payload</span>;
@@ -288,18 +301,28 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MessagePayload</span> {
     <span class="ident">Alert</span>(<span class="ident">AlertMessagePayload</span>),
-    <span class="ident">Handshake</span>(<span class="ident">HandshakeMessagePayload</span>),
+    <span class="ident">Handshake</span> {
+        <span class="ident">parsed</span>: <span class="ident">HandshakeMessagePayload</span>,
+        <span class="ident">encoded</span>: <span class="ident">Payload</span>,
+    },
     <span class="ident">ChangeCipherSpec</span>(<span class="ident">ChangeCipherSpecPayload</span>),
     <span class="ident">ApplicationData</span>(<span class="ident">Payload</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">MessagePayload</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Alert</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident"><span class="self">Self</span>::Handshake</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident"><span class="self">Self</span>::ChangeCipherSpec</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
-            <span class="ident"><span class="self">Self</span>::ApplicationData</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Alert</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident"><span class="self">Self</span>::Handshake</span> { <span class="ident">encoded</span>, .. } =&gt; <span class="ident">bytes</span>.<span class="ident">extend</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>.<span class="number">0</span>),
+            <span class="ident"><span class="self">Self</span>::ChangeCipherSpec</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+            <span class="ident"><span class="self">Self</span>::ApplicationData</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">encode</span>(<span class="ident">bytes</span>),
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handshake</span>(<span class="ident">parsed</span>: <span class="ident">HandshakeMessagePayload</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Handshake</span> {
+            <span class="ident">encoded</span>: <span class="ident">Payload::new</span>(<span class="ident">parsed</span>.<span class="ident">get_encoding</span>()),
+            <span class="ident">parsed</span>,
         }
     }
 
@@ -307,25 +330,28 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">Reader::init</span>(<span class="kw-2">&amp;</span><span class="ident">payload</span>.<span class="number">0</span>);
         <span class="kw">let</span> <span class="ident">parsed</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">typ</span> {
             <span class="ident">ContentType::ApplicationData</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::ApplicationData</span>(<span class="ident">payload</span>)),
-            <span class="ident">ContentType::Alert</span> =&gt; <span class="ident">AlertMessagePayload::read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">r</span>).<span class="ident">map</span>(<span class="ident">MessagePayload::Alert</span>),
-            <span class="ident">ContentType::Handshake</span> =&gt; {
-                <span class="ident">HandshakeMessagePayload::read_version</span>(<span class="kw-2">&amp;mut</span> <span class="ident">r</span>, <span class="ident">vers</span>).<span class="ident">map</span>(<span class="ident">MessagePayload::Handshake</span>)
-            }
-            <span class="ident">ContentType::ChangeCipherSpec</span> =&gt; {
-                <span class="ident">ChangeCipherSpecPayload::read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">r</span>).<span class="ident">map</span>(<span class="ident">MessagePayload::ChangeCipherSpec</span>)
-            }
+            <span class="ident">ContentType::Alert</span> =&gt; <span class="ident">AlertMessagePayload::read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">r</span>)
+                .<span class="ident">filter</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">any_left</span>())
+                .<span class="ident">map</span>(<span class="ident">MessagePayload::Alert</span>),
+            <span class="ident">ContentType::Handshake</span> =&gt; <span class="ident">HandshakeMessagePayload::read_version</span>(<span class="kw-2">&amp;mut</span> <span class="ident">r</span>, <span class="ident">vers</span>)
+                .<span class="ident">filter</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">any_left</span>())
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">parsed</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::Handshake</span> {
+                    <span class="ident">parsed</span>,
+                    <span class="ident">encoded</span>: <span class="ident">payload</span>,
+                }),
+            <span class="ident">ContentType::ChangeCipherSpec</span> =&gt; <span class="ident">ChangeCipherSpecPayload::read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">r</span>)
+                .<span class="ident">filter</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">any_left</span>())
+                .<span class="ident">map</span>(<span class="ident">MessagePayload::ChangeCipherSpec</span>),
             <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         };
 
-        <span class="ident">parsed</span>
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">any_left</span>())
-            .<span class="ident">ok_or</span>(<span class="ident">Error::CorruptMessagePayload</span>(<span class="ident">typ</span>))
+        <span class="ident">parsed</span>.<span class="ident">ok_or</span>(<span class="ident">Error::CorruptMessagePayload</span>(<span class="ident">typ</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ContentType</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Alert</span>(<span class="kw">_</span>) =&gt; <span class="ident">ContentType::Alert</span>,
-            <span class="ident"><span class="self">Self</span>::Handshake</span>(<span class="kw">_</span>) =&gt; <span class="ident">ContentType::Handshake</span>,
+            <span class="ident"><span class="self">Self</span>::Handshake</span> { .. } =&gt; <span class="ident">ContentType::Handshake</span>,
             <span class="ident"><span class="self">Self</span>::ChangeCipherSpec</span>(<span class="kw">_</span>) =&gt; <span class="ident">ContentType::ChangeCipherSpec</span>,
             <span class="ident"><span class="self">Self</span>::ApplicationData</span>(<span class="kw">_</span>) =&gt; <span class="ident">ContentType::ApplicationData</span>,
         }
@@ -481,8 +507,8 @@
 <span class="kw">impl</span> <span class="ident">Message</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_handshake_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">hstyp</span>: <span class="ident">HandshakeType</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// Bit of a layering violation, but OK.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">MessagePayload::Handshake</span>(<span class="kw-2">ref</span> <span class="ident">hsp</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">payload</span> {
-            <span class="ident">hsp</span>.<span class="ident">typ</span> <span class="op">==</span> <span class="ident">hstyp</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">MessagePayload::Handshake</span> { <span class="ident">parsed</span>, .. } <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">payload</span> {
+            <span class="ident">parsed</span>.<span class="ident">typ</span> <span class="op">==</span> <span class="ident">hstyp</span>
         } <span class="kw">else</span> {
             <span class="bool-val">false</span>
         }
@@ -501,7 +527,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_key_update_notify</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">version</span>: <span class="ident">ProtocolVersion::TLSv1_3</span>,
-            <span class="ident">payload</span>: <span class="ident">MessagePayload::Handshake</span>(<span class="ident">HandshakeMessagePayload::build_key_update_notify</span>()),
+            <span class="ident">payload</span>: <span class="ident">MessagePayload::handshake</span>(<span class="ident">HandshakeMessagePayload::build_key_update_notify</span>()),
         }
     }
 }

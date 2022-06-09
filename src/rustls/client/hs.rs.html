@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.2/src/client/hs.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>hs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.6/src/client/hs.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>hs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -811,9 +811,37 @@
 <span id="806">806</span>
 <span id="807">807</span>
 <span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::bs_debug</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::check::check_message</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::check::inappropriate_handshake_message</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conn</span>::{<span class="ident">CommonState</span>, <span class="ident">ConnectionRandoms</span>, <span class="ident">State</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::hash_hs::HandshakeHashBuffer</span>;
@@ -824,9 +852,11 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;quic&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::base::PayloadU16</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::codec</span>::{<span class="ident">Codec</span>, <span class="ident">Reader</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::enums</span>::{<span class="ident">AlertDescription</span>, <span class="ident">CipherSuite</span>, <span class="ident">Compression</span>, <span class="ident">ProtocolVersion</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::enums</span>::{<span class="ident">ContentType</span>, <span class="ident">ExtensionType</span>, <span class="ident">HandshakeType</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::enums</span>::{
+    <span class="ident">AlertDescription</span>, <span class="ident">CipherSuite</span>, <span class="ident">Compression</span>, <span class="ident">ContentType</span>, <span class="ident">ProtocolVersion</span>,
+};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::enums</span>::{<span class="ident">ECPointFormat</span>, <span class="ident">PSKKeyExchangeMode</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::enums</span>::{<span class="ident">ExtensionType</span>, <span class="ident">HandshakeType</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::handshake</span>::{<span class="ident">CertificateStatusRequest</span>, <span class="ident">ClientSessionTicket</span>, <span class="ident">SCTList</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::handshake</span>::{<span class="ident">ClientExtension</span>, <span class="ident">HasServerExtensions</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::handshake</span>::{<span class="ident">ClientHelloPayload</span>, <span class="ident">HandshakeMessagePayload</span>, <span class="ident">HandshakePayload</span>};
@@ -870,6 +900,7 @@
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_mut</span>)]</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">Reader::init</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>[<span class="number">2</span>..]);
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::bind_instead_of_map</span>)]</span> <span class="comment">// https://github.com/rust-lang/rust-clippy/issues/8082</span>
     <span class="ident">CipherSuite::read_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>[..<span class="number">2</span>])
         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">suite</span><span class="op">|</span> {
             <span class="ident">persist::ClientSessionValue::read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">reader</span>, <span class="ident">suite</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>.<span class="ident">cipher_suites</span>)
@@ -1031,32 +1062,31 @@
         <span class="ident">supported_versions</span>.<span class="ident">push</span>(<span class="ident">ProtocolVersion::TLSv1_2</span>);
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">supported_versions</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">exts</span>.<span class="ident">push</span>(<span class="ident">ClientExtension::SupportedVersions</span>(<span class="ident">supported_versions</span>));
-    }
+    <span class="comment">// should be unreachable thanks to config builder</span>
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">supported_versions</span>.<span class="ident">is_empty</span>());
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exts</span> <span class="op">=</span> <span class="macro">vec!</span>[
+        <span class="ident">ClientExtension::SupportedVersions</span>(<span class="ident">supported_versions</span>),
+        <span class="ident">ClientExtension::ECPointFormats</span>(<span class="ident">ECPointFormatList::supported</span>()),
+        <span class="ident">ClientExtension::NamedGroups</span>(
+            <span class="ident">config</span>
+                .<span class="ident">kx_groups</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">skxg</span><span class="op">|</span> <span class="ident">skxg</span>.<span class="ident">name</span>)
+                .<span class="ident">collect</span>(),
+        ),
+        <span class="ident">ClientExtension::SignatureAlgorithms</span>(
+            <span class="ident">config</span>
+                .<span class="ident">verifier</span>
+                .<span class="ident">supported_verify_schemes</span>(),
+        ),
+        <span class="ident">ClientExtension::ExtendedMasterSecretRequest</span>,
+        <span class="ident">ClientExtension::CertificateStatusRequest</span>(<span class="ident">CertificateStatusRequest::build_ocsp</span>()),
+    ];
+
     <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">sni_name</span>), <span class="bool-val">true</span>) <span class="op">=</span> (<span class="ident">server_name</span>.<span class="ident">for_sni</span>(), <span class="ident">config</span>.<span class="ident">enable_sni</span>) {
         <span class="ident">exts</span>.<span class="ident">push</span>(<span class="ident">ClientExtension::make_sni</span>(<span class="ident">sni_name</span>));
     }
-    <span class="ident">exts</span>.<span class="ident">push</span>(<span class="ident">ClientExtension::ECPointFormats</span>(
-        <span class="ident">ECPointFormatList::supported</span>(),
-    ));
-    <span class="ident">exts</span>.<span class="ident">push</span>(<span class="ident">ClientExtension::NamedGroups</span>(
-        <span class="ident">config</span>
-            .<span class="ident">kx_groups</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">skxg</span><span class="op">|</span> <span class="ident">skxg</span>.<span class="ident">name</span>)
-            .<span class="ident">collect</span>(),
-    ));
-    <span class="ident">exts</span>.<span class="ident">push</span>(<span class="ident">ClientExtension::SignatureAlgorithms</span>(
-        <span class="ident">config</span>
-            .<span class="ident">verifier</span>
-            .<span class="ident">supported_verify_schemes</span>(),
-    ));
-    <span class="ident">exts</span>.<span class="ident">push</span>(<span class="ident">ClientExtension::ExtendedMasterSecretRequest</span>);
-    <span class="ident">exts</span>.<span class="ident">push</span>(<span class="ident">ClientExtension::CertificateStatusRequest</span>(
-        <span class="ident">CertificateStatusRequest::build_ocsp</span>(),
-    ));
 
     <span class="kw">if</span> <span class="ident">may_send_sct_list</span> {
         <span class="ident">exts</span>.<span class="ident">push</span>(<span class="ident">ClientExtension::SignedCertificateTimestampRequest</span>);
@@ -1177,7 +1207,7 @@
         } <span class="kw">else</span> {
             <span class="ident">ProtocolVersion::TLSv1_0</span>
         },
-        <span class="ident">payload</span>: <span class="ident">MessagePayload::Handshake</span>(<span class="ident">chp</span>),
+        <span class="ident">payload</span>: <span class="ident">MessagePayload::handshake</span>(<span class="ident">chp</span>),
     };
 
     <span class="kw">if</span> <span class="ident">retryreq</span>.<span class="ident">is_some</span>() {
@@ -1232,26 +1262,38 @@
 }
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">process_alpn_protocol</span>(
-    <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ClientContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+    <span class="ident">common</span>: <span class="kw-2">&amp;mut</span> <span class="ident">CommonState</span>,
     <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ClientConfig</span>,
     <span class="ident">proto</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="ident">cx</span>.<span class="ident">common</span>.<span class="ident">alpn_protocol</span> <span class="op">=</span> <span class="ident">proto</span>.<span class="ident">map</span>(<span class="ident">ToOwned::to_owned</span>);
+    <span class="ident">common</span>.<span class="ident">alpn_protocol</span> <span class="op">=</span> <span class="ident">proto</span>.<span class="ident">map</span>(<span class="ident">ToOwned::to_owned</span>);
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alpn_protocol</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">cx</span>.<span class="ident">common</span>.<span class="ident">alpn_protocol</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alpn_protocol</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">common</span>.<span class="ident">alpn_protocol</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">config</span>
             .<span class="ident">alpn_protocols</span>
             .<span class="ident">contains</span>(<span class="ident">alpn_protocol</span>)
         {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">cx</span>
-                .<span class="ident">common</span>
-                .<span class="ident">illegal_param</span>(<span class="string">&quot;server sent non-offered ALPN protocol&quot;</span>));
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">common</span>.<span class="ident">illegal_param</span>(<span class="string">&quot;server sent non-offered ALPN protocol&quot;</span>));
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;quic&quot;</span>)]</span>
+    {
+        <span class="comment">// RFC 9001 says: &quot;While ALPN only specifies that servers use this alert, QUIC clients MUST</span>
+        <span class="comment">// use error 0x0178 to terminate a connection when ALPN negotiation fails.&quot; We judge that</span>
+        <span class="comment">// the user intended to use ALPN (rather than some out-of-band protocol negotiation</span>
+        <span class="comment">// mechanism) iff any ALPN protocols were configured. This defends against badly-behaved</span>
+        <span class="comment">// servers which accept a connection that requires an application-layer protocol they do not</span>
+        <span class="comment">// understand.</span>
+        <span class="kw">if</span> <span class="ident">common</span>.<span class="ident">is_quic</span>() <span class="op">&amp;&amp;</span> <span class="ident">common</span>.<span class="ident">alpn_protocol</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">config</span>.<span class="ident">alpn_protocols</span>.<span class="ident">is_empty</span>() {
+            <span class="ident">common</span>.<span class="ident">send_fatal_alert</span>(<span class="ident">AlertDescription::NoApplicationProtocol</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::NoApplicationProtocol</span>);
         }
     }
 
     <span class="macro">debug!</span>(
         <span class="string">&quot;ALPN protocol is {:?}&quot;</span>,
-        <span class="ident">cx</span>.<span class="ident">common</span>
+        <span class="ident">common</span>
             .<span class="ident">alpn_protocol</span>
             .<span class="ident">as_ref</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">bs_debug::BsDebug</span>(<span class="ident">v</span>))
@@ -1343,7 +1385,7 @@
 
         <span class="comment">// Extract ALPN protocol</span>
         <span class="kw">if</span> <span class="op">!</span><span class="ident">cx</span>.<span class="ident">common</span>.<span class="ident">is_tls13</span>() {
-            <span class="ident">process_alpn_protocol</span>(<span class="ident">cx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config</span>, <span class="ident">server_hello</span>.<span class="ident">get_alpn_protocol</span>())<span class="question-mark">?</span>;
+            <span class="ident">process_alpn_protocol</span>(<span class="ident">cx</span>.<span class="ident">common</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config</span>, <span class="ident">server_hello</span>.<span class="ident">get_alpn_protocol</span>())<span class="question-mark">?</span>;
         }
 
         <span class="comment">// If ECPointFormats extension is supplied by the server, it must contain</span>
@@ -1392,7 +1434,7 @@
             .<span class="ident">start_hash</span>(<span class="ident">suite</span>.<span class="ident">hash_algorithm</span>());
         <span class="ident">transcript</span>.<span class="ident">add_message</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>);
 
-        <span class="kw">let</span> <span class="ident">randoms</span> <span class="op">=</span> <span class="ident">ConnectionRandoms::new</span>(<span class="self">self</span>.<span class="ident">random</span>, <span class="ident">server_hello</span>.<span class="ident">random</span>, <span class="bool-val">true</span>);
+        <span class="kw">let</span> <span class="ident">randoms</span> <span class="op">=</span> <span class="ident">ConnectionRandoms::new</span>(<span class="self">self</span>.<span class="ident">random</span>, <span class="ident">server_hello</span>.<span class="ident">random</span>);
         <span class="comment">// For TLS1.3, start message encryption using</span>
         <span class="comment">// handshake_traffic_secret.</span>
         <span class="kw">match</span> <span class="ident">suite</span> {
@@ -1590,16 +1632,30 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">ClientConnectionData</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExpectServerHelloOrHelloRetryRequest</span> {
     <span class="kw">fn</span> <span class="ident">handle</span>(<span class="self">self</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ClientContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">m</span>: <span class="ident">Message</span>) -&gt; <span class="ident">NextStateOrError</span> {
-        <span class="ident">check_message</span>(
-            <span class="kw-2">&amp;</span><span class="ident">m</span>,
-            <span class="kw-2">&amp;</span>[<span class="ident">ContentType::Handshake</span>],
-            <span class="kw-2">&amp;</span>[<span class="ident">HandshakeType::ServerHello</span>, <span class="ident">HandshakeType::HelloRetryRequest</span>],
-        )<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">is_handshake_type</span>(<span class="ident">HandshakeType::ServerHello</span>) {
-            <span class="self">self</span>.<span class="ident">into_expect_server_hello</span>()
-                .<span class="ident">handle</span>(<span class="ident">cx</span>, <span class="ident">m</span>)
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">handle_hello_retry_request</span>(<span class="ident">cx</span>, <span class="ident">m</span>)
+        <span class="kw">match</span> <span class="ident">m</span>.<span class="ident">payload</span> {
+            <span class="ident">MessagePayload::Handshake</span> {
+                <span class="ident">parsed</span>:
+                    <span class="ident">HandshakeMessagePayload</span> {
+                        <span class="ident">payload</span>: <span class="ident">HandshakePayload::ServerHello</span>(..),
+                        ..
+                    },
+                ..
+            } =&gt; <span class="self">self</span>
+                .<span class="ident">into_expect_server_hello</span>()
+                .<span class="ident">handle</span>(<span class="ident">cx</span>, <span class="ident">m</span>),
+            <span class="ident">MessagePayload::Handshake</span> {
+                <span class="ident">parsed</span>:
+                    <span class="ident">HandshakeMessagePayload</span> {
+                        <span class="ident">payload</span>: <span class="ident">HandshakePayload::HelloRetryRequest</span>(..),
+                        ..
+                    },
+                ..
+            } =&gt; <span class="self">self</span>.<span class="ident">handle_hello_retry_request</span>(<span class="ident">cx</span>, <span class="ident">m</span>),
+            <span class="ident">payload</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">inappropriate_handshake_message</span>(
+                <span class="kw-2">&amp;</span><span class="ident">payload</span>,
+                <span class="kw-2">&amp;</span>[<span class="ident">ContentType::Handshake</span>],
+                <span class="kw-2">&amp;</span>[<span class="ident">HandshakeType::ServerHello</span>, <span class="ident">HandshakeType::HelloRetryRequest</span>],
+            )),
         }
     }
 }

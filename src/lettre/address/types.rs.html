@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.0-rc.6/src/address/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.0-rc.7/src/address/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -287,6 +287,26 @@
 <span id="280">280</span>
 <span id="281">281</span>
 <span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Representation of an email address</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{
@@ -297,9 +317,8 @@
     <span class="ident">str::FromStr</span>,
 };
 
+<span class="kw">use</span> <span class="ident">email_address::EmailAddress</span>;
 <span class="kw">use</span> <span class="ident">idna::domain_to_ascii</span>;
-<span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
-<span class="kw">use</span> <span class="ident">regex::Regex</span>;
 
 <span class="doccomment">/// Represents an email address with a user and a domain name.</span>
 <span class="doccomment">///</span>
@@ -343,20 +362,6 @@
     <span class="doccomment">/// Index into `serialized` before the &#39;@&#39;</span>
     <span class="ident">at_start</span>: <span class="ident">usize</span>,
 }
-
-<span class="comment">// Regex from the specs</span>
-<span class="comment">// https://html.spec.whatwg.org/multipage/forms.html#valid-e-mail-address</span>
-<span class="comment">// It will mark esoteric email addresses like quoted string as invalid</span>
-<span class="kw">static</span> <span class="ident">USER_RE</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Regex</span><span class="op">&gt;</span> <span class="op">=</span>
-    <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;^(?i)[a-z0-9.!#$%&amp;&#39;*+/=?^_`{|}~-]+\z&quot;</span>).<span class="ident">unwrap</span>());
-<span class="kw">static</span> <span class="ident">DOMAIN_RE</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Regex</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> {
-    <span class="ident">Regex::new</span>(
-        <span class="string">r&quot;(?i)^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$&quot;</span>,
-    )
-    .<span class="ident">unwrap</span>()
-});
-<span class="comment">// literal form, ipv4 or ipv6 address (SMTP 4.1.3)</span>
-<span class="kw">static</span> <span class="ident">LITERAL_RE</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Regex</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;(?i)\[([A-f0-9:\.]+)\]\z&quot;</span>).<span class="ident">unwrap</span>());
 
 <span class="kw">impl</span> <span class="ident">Address</span> {
     <span class="doccomment">/// Creates a new email address from a user and domain.</span>
@@ -415,7 +420,7 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">check_user</span>(<span class="ident">user</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">AddressError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">USER_RE</span>.<span class="ident">is_match</span>(<span class="ident">user</span>) {
+        <span class="kw">if</span> <span class="ident">EmailAddress::is_valid_local_part</span>(<span class="ident">user</span>) {
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else</span> {
             <span class="prelude-val">Err</span>(<span class="ident">AddressError::InvalidUser</span>)
@@ -431,16 +436,19 @@
     }
 
     <span class="kw">fn</span> <span class="ident">check_domain_ascii</span>(<span class="ident">domain</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">AddressError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">DOMAIN_RE</span>.<span class="ident">is_match</span>(<span class="ident">domain</span>) {
+        <span class="comment">// Domain</span>
+        <span class="kw">if</span> <span class="ident">EmailAddress::is_valid_domain</span>(<span class="ident">domain</span>) {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">caps</span>) <span class="op">=</span> <span class="ident">LITERAL_RE</span>.<span class="ident">captures</span>(<span class="ident">domain</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cap</span>) <span class="op">=</span> <span class="ident">caps</span>.<span class="ident">get</span>(<span class="number">1</span>) {
-                <span class="kw">if</span> <span class="ident">cap</span>.<span class="ident">as_str</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>().<span class="ident">is_ok</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
-                }
-            }
+        <span class="comment">// IP</span>
+        <span class="kw">let</span> <span class="ident">ip</span> <span class="op">=</span> <span class="ident">domain</span>
+            .<span class="ident">strip_prefix</span>(<span class="string">&#39;[&#39;</span>)
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ip</span><span class="op">|</span> <span class="ident">ip</span>.<span class="ident">strip_suffix</span>(<span class="string">&#39;]&#39;</span>))
+            .<span class="ident">unwrap_or</span>(<span class="ident">domain</span>);
+
+        <span class="kw">if</span> <span class="ident">ip</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>().<span class="ident">is_ok</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
         }
 
         <span class="prelude-val">Err</span>(<span class="ident">AddressError::InvalidDomain</span>)
@@ -558,7 +566,7 @@
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_address</span>() {
+    <span class="kw">fn</span> <span class="ident">ascii_address</span>() {
         <span class="kw">let</span> <span class="ident">addr_str</span> <span class="op">=</span> <span class="string">&quot;something@example.com&quot;</span>;
         <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">Address::from_str</span>(<span class="ident">addr_str</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">addr2</span> <span class="op">=</span> <span class="ident">Address::new</span>(<span class="string">&quot;something&quot;</span>, <span class="string">&quot;example.com&quot;</span>).<span class="ident">unwrap</span>();
@@ -567,6 +575,38 @@
         <span class="macro">assert_eq!</span>(<span class="ident">addr</span>.<span class="ident">domain</span>(), <span class="string">&quot;example.com&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">addr2</span>.<span class="ident">user</span>(), <span class="string">&quot;something&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">addr2</span>.<span class="ident">domain</span>(), <span class="string">&quot;example.com&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">ascii_address_ipv4</span>() {
+        <span class="kw">let</span> <span class="ident">addr_str</span> <span class="op">=</span> <span class="string">&quot;something@1.1.1.1&quot;</span>;
+        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">Address::from_str</span>(<span class="ident">addr_str</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">addr2</span> <span class="op">=</span> <span class="ident">Address::new</span>(<span class="string">&quot;something&quot;</span>, <span class="string">&quot;1.1.1.1&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>, <span class="ident">addr2</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>.<span class="ident">user</span>(), <span class="string">&quot;something&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>.<span class="ident">domain</span>(), <span class="string">&quot;1.1.1.1&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">addr2</span>.<span class="ident">user</span>(), <span class="string">&quot;something&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">addr2</span>.<span class="ident">domain</span>(), <span class="string">&quot;1.1.1.1&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">ascii_address_ipv6</span>() {
+        <span class="kw">let</span> <span class="ident">addr_str</span> <span class="op">=</span> <span class="string">&quot;something@[2606:4700:4700::1111]&quot;</span>;
+        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">Address::from_str</span>(<span class="ident">addr_str</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">addr2</span> <span class="op">=</span> <span class="ident">Address::new</span>(<span class="string">&quot;something&quot;</span>, <span class="string">&quot;[2606:4700:4700::1111]&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>, <span class="ident">addr2</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>.<span class="ident">user</span>(), <span class="string">&quot;something&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>.<span class="ident">domain</span>(), <span class="string">&quot;[2606:4700:4700::1111]&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">addr2</span>.<span class="ident">user</span>(), <span class="string">&quot;something&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">addr2</span>.<span class="ident">domain</span>(), <span class="string">&quot;[2606:4700:4700::1111]&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">check_parts</span>() {
+        <span class="macro">assert!</span>(<span class="ident">Address::check_user</span>(<span class="string">&quot;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&quot;</span>).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(
+            <span class="ident">Address::check_domain</span>(<span class="string">&quot;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com&quot;</span>).<span class="ident">is_err</span>()
+        );
     }
 }
 </code></pre></div>

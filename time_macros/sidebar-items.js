@@ -1,1 +1,1 @@
-initSidebarItems({"macro":[["date",""],["datetime",""],["format_description",""],["offset",""],["time",""]]});
+initSidebarItems({"macro":[["date",""],["datetime",""],["format_description",""],["offset",""],["serde_format_description",""],["time",""]]});

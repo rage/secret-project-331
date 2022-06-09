@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.2/src/msgs/hsjoiner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>hsjoiner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/rustls-0.20.6/src/msgs/hsjoiner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>hsjoiner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -295,8 +295,13 @@
 <span id="290">290</span>
 <span id="291">291</span>
 <span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
 
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::base::Payload</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::codec</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::enums</span>::{<span class="ident">ContentType</span>, <span class="ident">ProtocolVersion</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::msgs::handshake::HandshakeMessagePayload</span>;
@@ -416,14 +421,17 @@
     <span class="kw">fn</span> <span class="ident">deframe_one</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">version</span>: <span class="ident">ProtocolVersion</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">used</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rd</span> <span class="op">=</span> <span class="ident">codec::Reader::init</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buf</span>);
-            <span class="kw">let</span> <span class="ident">payload</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">HandshakeMessagePayload::read_version</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rd</span>, <span class="ident">version</span>) {
+            <span class="kw">let</span> <span class="ident">parsed</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">HandshakeMessagePayload::read_version</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rd</span>, <span class="ident">version</span>) {
                 <span class="prelude-val">Some</span>(<span class="ident">p</span>) =&gt; <span class="ident">p</span>,
                 <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
             };
 
             <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Message</span> {
                 <span class="ident">version</span>,
-                <span class="ident">payload</span>: <span class="ident">MessagePayload::Handshake</span>(<span class="ident">payload</span>),
+                <span class="ident">payload</span>: <span class="ident">MessagePayload::Handshake</span> {
+                    <span class="ident">parsed</span>,
+                    <span class="ident">encoded</span>: <span class="ident">Payload::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buf</span>[..<span class="ident">rd</span>.<span class="ident">used</span>()]),
+                },
             };
 
             <span class="self">self</span>.<span class="ident">frames</span>.<span class="ident">push_back</span>(<span class="ident">m</span>);
@@ -446,7 +454,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">want</span>() {
         <span class="kw">let</span> <span class="ident">hj</span> <span class="op">=</span> <span class="ident">HandshakeJoiner::new</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">is_empty</span>(), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="ident">hj</span>.<span class="ident">is_empty</span>());
 
         <span class="kw">let</span> <span class="ident">wanted</span> <span class="op">=</span> <span class="ident">PlainMessage</span> {
             <span class="ident">typ</span>: <span class="ident">ContentType::Handshake</span>,
@@ -460,8 +468,8 @@
             <span class="ident">payload</span>: <span class="ident">Payload::new</span>(<span class="string">b&quot;ponytown&quot;</span>.<span class="ident">to_vec</span>()),
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">wanted</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">unwanted</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">wanted</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">unwanted</span>));
     }
 
     <span class="kw">fn</span> <span class="ident">pop_eq</span>(<span class="ident">expect</span>: <span class="kw-2">&amp;</span><span class="ident">PlainMessage</span>, <span class="ident">hj</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HandshakeJoiner</span>) {
@@ -488,13 +496,13 @@
             <span class="ident">payload</span>: <span class="ident">Payload::new</span>(<span class="string">b&quot;\x00\x00\x00\x00\x00\x00\x00\x00&quot;</span>.<span class="ident">to_vec</span>()),
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">take_message</span>(<span class="ident">msg</span>), <span class="prelude-val">Some</span>(<span class="number">2</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">is_empty</span>(), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="ident">hj</span>.<span class="ident">is_empty</span>());
 
         <span class="kw">let</span> <span class="ident">expect</span> <span class="op">=</span> <span class="ident">Message</span> {
             <span class="ident">version</span>: <span class="ident">ProtocolVersion::TLSv1_2</span>,
-            <span class="ident">payload</span>: <span class="ident">MessagePayload::Handshake</span>(<span class="ident">HandshakeMessagePayload</span> {
+            <span class="ident">payload</span>: <span class="ident">MessagePayload::handshake</span>(<span class="ident">HandshakeMessagePayload</span> {
                 <span class="ident">typ</span>: <span class="ident">HandshakeType::HelloRequest</span>,
                 <span class="ident">payload</span>: <span class="ident">HandshakePayload::HelloRequest</span>,
             }),
@@ -517,7 +525,7 @@
             <span class="ident">payload</span>: <span class="ident">Payload::new</span>(<span class="string">b&quot;\x01\x00\x00\x02\xff\xff&quot;</span>.<span class="ident">to_vec</span>()),
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">take_message</span>(<span class="ident">msg</span>), <span class="prelude-val">None</span>);
     }
 
@@ -525,7 +533,7 @@
     <span class="kw">fn</span> <span class="ident">join</span>() {
         <span class="comment">// Check we join one handshake message split over two PDUs.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hj</span> <span class="op">=</span> <span class="ident">HandshakeJoiner::new</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">is_empty</span>(), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="ident">hj</span>.<span class="ident">is_empty</span>());
 
         <span class="comment">// Introduce Finished of 16 bytes, providing 4.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">PlainMessage</span> {
@@ -534,9 +542,9 @@
             <span class="ident">payload</span>: <span class="ident">Payload::new</span>(<span class="string">b&quot;\x14\x00\x00\x10\x00\x01\x02\x03\x04&quot;</span>.<span class="ident">to_vec</span>()),
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">take_message</span>(<span class="ident">msg</span>), <span class="prelude-val">Some</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">is_empty</span>(), <span class="bool-val">false</span>);
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">hj</span>.<span class="ident">is_empty</span>());
 
         <span class="comment">// 11 more bytes.</span>
         <span class="ident">msg</span> <span class="op">=</span> <span class="ident">PlainMessage</span> {
@@ -545,9 +553,9 @@
             <span class="ident">payload</span>: <span class="ident">Payload::new</span>(<span class="string">b&quot;\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e&quot;</span>.<span class="ident">to_vec</span>()),
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">take_message</span>(<span class="ident">msg</span>), <span class="prelude-val">Some</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">is_empty</span>(), <span class="bool-val">false</span>);
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">hj</span>.<span class="ident">is_empty</span>());
 
         <span class="comment">// Final 1 byte.</span>
         <span class="ident">msg</span> <span class="op">=</span> <span class="ident">PlainMessage</span> {
@@ -556,14 +564,14 @@
             <span class="ident">payload</span>: <span class="ident">Payload::new</span>(<span class="string">b&quot;\x0f&quot;</span>.<span class="ident">to_vec</span>()),
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">take_message</span>(<span class="ident">msg</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">is_empty</span>(), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="ident">hj</span>.<span class="ident">is_empty</span>());
 
         <span class="kw">let</span> <span class="ident">payload</span> <span class="op">=</span> <span class="string">b&quot;\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f&quot;</span>.<span class="ident">to_vec</span>();
         <span class="kw">let</span> <span class="ident">expect</span> <span class="op">=</span> <span class="ident">Message</span> {
             <span class="ident">version</span>: <span class="ident">ProtocolVersion::TLSv1_2</span>,
-            <span class="ident">payload</span>: <span class="ident">MessagePayload::Handshake</span>(<span class="ident">HandshakeMessagePayload</span> {
+            <span class="ident">payload</span>: <span class="ident">MessagePayload::handshake</span>(<span class="ident">HandshakeMessagePayload</span> {
                 <span class="ident">typ</span>: <span class="ident">HandshakeType::Finished</span>,
                 <span class="ident">payload</span>: <span class="ident">HandshakePayload::Finished</span>(<span class="ident">Payload::new</span>(<span class="ident">payload</span>)),
             }),
@@ -582,9 +590,9 @@
             <span class="ident">payload</span>: <span class="ident">Payload::new</span>(<span class="string">b&quot;\x0b\x01\x00\x04\x01\x00\x01\x00\xff\xfe&quot;</span>.<span class="ident">to_vec</span>()),
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="ident">hj</span>.<span class="ident">want_message</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">take_message</span>(<span class="ident">msg</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">hj</span>.<span class="ident">is_empty</span>(), <span class="bool-val">false</span>);
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">hj</span>.<span class="ident">is_empty</span>());
     }
 }
 </code></pre></div>

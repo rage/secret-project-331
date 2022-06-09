@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/raw-cpuid-10.2.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/raw-cpuid-10.3.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../raw_cpuid/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -5327,6 +5327,46 @@
 <span id="5322">5322</span>
 <span id="5323">5323</span>
 <span id="5324">5324</span>
+<span id="5325">5325</span>
+<span id="5326">5326</span>
+<span id="5327">5327</span>
+<span id="5328">5328</span>
+<span id="5329">5329</span>
+<span id="5330">5330</span>
+<span id="5331">5331</span>
+<span id="5332">5332</span>
+<span id="5333">5333</span>
+<span id="5334">5334</span>
+<span id="5335">5335</span>
+<span id="5336">5336</span>
+<span id="5337">5337</span>
+<span id="5338">5338</span>
+<span id="5339">5339</span>
+<span id="5340">5340</span>
+<span id="5341">5341</span>
+<span id="5342">5342</span>
+<span id="5343">5343</span>
+<span id="5344">5344</span>
+<span id="5345">5345</span>
+<span id="5346">5346</span>
+<span id="5347">5347</span>
+<span id="5348">5348</span>
+<span id="5349">5349</span>
+<span id="5350">5350</span>
+<span id="5351">5351</span>
+<span id="5352">5352</span>
+<span id="5353">5353</span>
+<span id="5354">5354</span>
+<span id="5355">5355</span>
+<span id="5356">5356</span>
+<span id="5357">5357</span>
+<span id="5358">5358</span>
+<span id="5359">5359</span>
+<span id="5360">5360</span>
+<span id="5361">5361</span>
+<span id="5362">5362</span>
+<span id="5363">5363</span>
+<span id="5364">5364</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A library to parse the x86 CPUID instruction, written in rust with no</span>
 <span class="doccomment">//! external dependencies. The implementation closely resembles the Intel CPUID</span>
 <span class="doccomment">//! manual description. The library works with no_std.</span>
@@ -5394,7 +5434,20 @@
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">bitflags</span>;
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
+    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serialize&quot;</span>,
+    <span class="ident">not</span>(<span class="ident">any</span>(
+        <span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86&quot;</span>, <span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;sgx&quot;</span>), <span class="ident">target_feature</span> <span class="op">=</span> <span class="string">&quot;sse&quot;</span>),
+        <span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86_64&quot;</span>, <span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;sgx&quot;</span>))
+    ))
+))]</span>
+<span class="macro">core::compile_error!</span>(<span class="string">&quot;Feature `serialize` is not supported on targets that do not have native cpuid. x86 and x86_64 targets with SGX and x86 targets without SSE are consider to not have native cpuid.&quot;</span>);
+
 <span class="doccomment">/// Uses Rust&#39;s `cpuid` function from the `arch` module.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
+    <span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86&quot;</span>, <span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;sgx&quot;</span>), <span class="ident">target_feature</span> <span class="op">=</span> <span class="string">&quot;sse&quot;</span>),
+    <span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86_64&quot;</span>, <span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;sgx&quot;</span>))
+))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">native_cpuid</span> {
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::CpuIdResult</span>;
 
@@ -5434,6 +5487,10 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// First parameter is cpuid leaf (EAX register value),</span>
 <span class="doccomment">/// second optional parameter is the subleaf (ECX register value).</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
+    <span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86&quot;</span>, <span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;sgx&quot;</span>), <span class="ident">target_feature</span> <span class="op">=</span> <span class="string">&quot;sse&quot;</span>),
+    <span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86_64&quot;</span>, <span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;sgx&quot;</span>))
+))]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">cpuid</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">eax</span>:<span class="ident">expr</span>) =&gt; {
@@ -5504,6 +5561,10 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
+    <span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86&quot;</span>, <span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;sgx&quot;</span>), <span class="ident">target_feature</span> <span class="op">=</span> <span class="string">&quot;sse&quot;</span>),
+    <span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86_64&quot;</span>, <span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;sgx&quot;</span>))
+))]</span>
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">CpuIdReader</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
@@ -5552,6 +5613,10 @@
     <span class="ident">supported_extended_leafs</span>: <span class="ident">u32</span>,
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
+    <span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86&quot;</span>, <span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;sgx&quot;</span>), <span class="ident">target_feature</span> <span class="op">=</span> <span class="string">&quot;sse&quot;</span>),
+    <span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86_64&quot;</span>, <span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;sgx&quot;</span>))
+))]</span>
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">CpuId</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">CpuId</span> {
         <span class="ident">CpuId::with_cpuid_fn</span>(<span class="ident">native_cpuid::cpuid_count</span>)
@@ -5633,6 +5698,10 @@
 
 <span class="kw">impl</span> <span class="ident">CpuId</span> {
     <span class="doccomment">/// Return new CpuId struct.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
+        <span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86&quot;</span>, <span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;sgx&quot;</span>), <span class="ident">target_feature</span> <span class="op">=</span> <span class="string">&quot;sse&quot;</span>),
+        <span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86_64&quot;</span>, <span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;sgx&quot;</span>))
+    ))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::default</span>()
     }
@@ -8695,6 +8764,14 @@
         <span class="self">self</span>.<span class="ident">ecx</span>.<span class="ident">contains</span>(<span class="ident">ExtendedFeaturesEcx::OSPKE</span>)
     }
 
+    <span class="doccomment">/// AVX512VNNI</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Platforms</span>
+    <span class="doccomment">/// ❌ AMD (reserved) ✅ Intel</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_avx512vnni</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">ecx</span>.<span class="ident">contains</span>(<span class="ident">ExtendedFeaturesEcx::AVX512VNNI</span>)
+    }
+
     <span class="doccomment">/// RDPID and IA32_TSC_AUX are available.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Bug</span>
@@ -8821,6 +8898,9 @@
 
         <span class="doccomment">/// Bit 04: OSPKE. If 1, OS has set CR4.PKE to enable protection keys (and the RDPKRU/WRPKRU instruc-tions).</span>
         <span class="kw">const</span> <span class="ident">OSPKE</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">4</span>;
+
+        <span class="doccomment">/// Bit 11: AVX512_VNNI</span>
+        <span class="kw">const</span> <span class="ident">AVX512VNNI</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">11</span>;
 
         <span class="comment">// Bits 16 - 5: Reserved.</span>
         <span class="comment">// Bits 21 - 17: The value of MAWAU used by the BNDLDX and BNDSTX instructions in 64-bit mode.</span>
@@ -10447,9 +10527,9 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_vendor_brand</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SoCVendorBrand</span><span class="op">&gt;</span> {
         <span class="comment">// Leaf 17H is valid if MaxSOCID_Index &gt;= 3.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eax</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">3</span> {
-            <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="macro">cpuid!</span>(<span class="ident">EAX_SOC_VENDOR_INFO</span>, <span class="number">1</span>);
-            <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="macro">cpuid!</span>(<span class="ident">EAX_SOC_VENDOR_INFO</span>, <span class="number">2</span>);
-            <span class="kw">let</span> <span class="ident">r3</span> <span class="op">=</span> <span class="macro">cpuid!</span>(<span class="ident">EAX_SOC_VENDOR_INFO</span>, <span class="number">3</span>);
+            <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">read</span>.<span class="ident">cpuid2</span>(<span class="ident">EAX_SOC_VENDOR_INFO</span>, <span class="number">1</span>);
+            <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">read</span>.<span class="ident">cpuid2</span>(<span class="ident">EAX_SOC_VENDOR_INFO</span>, <span class="number">2</span>);
+            <span class="kw">let</span> <span class="ident">r3</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">read</span>.<span class="ident">cpuid2</span>(<span class="ident">EAX_SOC_VENDOR_INFO</span>, <span class="number">3</span>);
             <span class="prelude-val">Some</span>(<span class="ident">SoCVendorBrand</span> { <span class="ident">data</span>: [<span class="ident">r1</span>, <span class="ident">r2</span>, <span class="ident">r3</span>] })
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>

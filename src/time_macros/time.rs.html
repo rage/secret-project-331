@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-macros-0.2.3/src/time.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/time-macros-0.2.4/src/time.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../time_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -121,13 +121,12 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
-<span id="119">119</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::iter::Peekable</span>;
 
-<span class="kw">use</span> <span class="ident">proc_macro</span>::{<span class="ident">token_stream</span>, <span class="ident">Span</span>, <span class="ident">TokenStream</span>};
+<span class="kw">use</span> <span class="ident">proc_macro</span>::{<span class="ident">token_stream</span>, <span class="ident">Span</span>, <span class="ident">TokenTree</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::helpers</span>::{<span class="ident">consume_any_ident</span>, <span class="ident">consume_number</span>, <span class="ident">consume_punct</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::to_tokens::ToTokens</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::to_tokens::ToTokenTree</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
 
 <span class="kw">enum</span> <span class="ident">Period</span> {
@@ -181,9 +180,8 @@
             }
         };
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::unnested_or_patterns</span>)]</span>
     <span class="kw">let</span> <span class="ident">hour</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">hour</span>, <span class="ident">period</span>) {
-        (<span class="number">0</span>, <span class="ident">Period::Am</span>) <span class="op">|</span> (<span class="number">0</span>, <span class="ident">Period::Pm</span>) =&gt; {
+        (<span class="number">0</span>, <span class="ident">Period::Am</span> <span class="op">|</span> <span class="ident">Period::Pm</span>) =&gt; {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::InvalidComponent</span> {
                 <span class="ident">name</span>: <span class="string">&quot;hour&quot;</span>,
                 <span class="ident">value</span>: <span class="ident">hour</span>.<span class="ident">to_string</span>(),
@@ -193,7 +191,7 @@
         }
         (<span class="number">12</span>, <span class="ident">Period::Am</span>) =&gt; <span class="number">0</span>,
         (<span class="number">12</span>, <span class="ident">Period::Pm</span>) =&gt; <span class="number">12</span>,
-        (<span class="ident">hour</span>, <span class="ident">Period::Am</span>) <span class="op">|</span> (<span class="ident">hour</span>, <span class="ident">Period::_24</span>) =&gt; <span class="ident">hour</span>,
+        (<span class="ident">hour</span>, <span class="ident">Period::Am</span> <span class="op">|</span> <span class="ident">Period::_24</span>) =&gt; <span class="ident">hour</span>,
         (<span class="ident">hour</span>, <span class="ident">Period::Pm</span>) =&gt; <span class="ident">hour</span> <span class="op">+</span> <span class="number">12</span>,
     };
 
@@ -228,9 +226,9 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">fn</span> <span class="ident">into_token_stream</span>(<span class="self">self</span>) -&gt; <span class="ident">TokenStream</span> {
-        <span class="macro">quote!</span> {{
+<span class="kw">impl</span> <span class="ident">ToTokenTree</span> <span class="kw">for</span> <span class="ident">Time</span> {
+    <span class="kw">fn</span> <span class="ident">into_token_tree</span>(<span class="self">self</span>) -&gt; <span class="ident">TokenTree</span> {
+        <span class="macro">quote_group!</span> {{
             <span class="kw">const</span> <span class="ident">TIME</span>: <span class="ident">::time::Time</span> <span class="op">=</span> <span class="ident">::time::Time::__from_hms_nanos_unchecked</span>(
                 #(<span class="self">self</span>.<span class="ident">hour</span>),
                 #(<span class="self">self</span>.<span class="ident">minute</span>),

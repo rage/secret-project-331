@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.0-rc.6/src/message/header/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.0-rc.7/src/message/header/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -741,120 +741,16 @@
 <span id="734">734</span>
 <span id="735">735</span>
 <span id="736">736</span>
-<span id="737">737</span>
-<span id="738">738</span>
-<span id="739">739</span>
-<span id="740">740</span>
-<span id="741">741</span>
-<span id="742">742</span>
-<span id="743">743</span>
-<span id="744">744</span>
-<span id="745">745</span>
-<span id="746">746</span>
-<span id="747">747</span>
-<span id="748">748</span>
-<span id="749">749</span>
-<span id="750">750</span>
-<span id="751">751</span>
-<span id="752">752</span>
-<span id="753">753</span>
-<span id="754">754</span>
-<span id="755">755</span>
-<span id="756">756</span>
-<span id="757">757</span>
-<span id="758">758</span>
-<span id="759">759</span>
-<span id="760">760</span>
-<span id="761">761</span>
-<span id="762">762</span>
-<span id="763">763</span>
-<span id="764">764</span>
-<span id="765">765</span>
-<span id="766">766</span>
-<span id="767">767</span>
-<span id="768">768</span>
-<span id="769">769</span>
-<span id="770">770</span>
-<span id="771">771</span>
-<span id="772">772</span>
-<span id="773">773</span>
-<span id="774">774</span>
-<span id="775">775</span>
-<span id="776">776</span>
-<span id="777">777</span>
-<span id="778">778</span>
-<span id="779">779</span>
-<span id="780">780</span>
-<span id="781">781</span>
-<span id="782">782</span>
-<span id="783">783</span>
-<span id="784">784</span>
-<span id="785">785</span>
-<span id="786">786</span>
-<span id="787">787</span>
-<span id="788">788</span>
-<span id="789">789</span>
-<span id="790">790</span>
-<span id="791">791</span>
-<span id="792">792</span>
-<span id="793">793</span>
-<span id="794">794</span>
-<span id="795">795</span>
-<span id="796">796</span>
-<span id="797">797</span>
-<span id="798">798</span>
-<span id="799">799</span>
-<span id="800">800</span>
-<span id="801">801</span>
-<span id="802">802</span>
-<span id="803">803</span>
-<span id="804">804</span>
-<span id="805">805</span>
-<span id="806">806</span>
-<span id="807">807</span>
-<span id="808">808</span>
-<span id="809">809</span>
-<span id="810">810</span>
-<span id="811">811</span>
-<span id="812">812</span>
-<span id="813">813</span>
-<span id="814">814</span>
-<span id="815">815</span>
-<span id="816">816</span>
-<span id="817">817</span>
-<span id="818">818</span>
-<span id="819">819</span>
-<span id="820">820</span>
-<span id="821">821</span>
-<span id="822">822</span>
-<span id="823">823</span>
-<span id="824">824</span>
-<span id="825">825</span>
-<span id="826">826</span>
-<span id="827">827</span>
-<span id="828">828</span>
-<span id="829">829</span>
-<span id="830">830</span>
-<span id="831">831</span>
-<span id="832">832</span>
-<span id="833">833</span>
-<span id="834">834</span>
-<span id="835">835</span>
-<span id="836">836</span>
-<span id="837">837</span>
-<span id="838">838</span>
-<span id="839">839</span>
-<span id="840">840</span>
-<span id="841">841</span>
-<span id="842">842</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Headers widely used in email messages</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">borrow::Cow</span>,
     <span class="ident">error::Error</span>,
-    <span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>, <span class="ident">Formatter</span>},
+    <span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>, <span class="ident">Formatter</span>, <span class="ident">Write</span>},
     <span class="ident">ops::Deref</span>,
 };
+
+<span class="kw">use</span> <span class="ident">email_encoding::headers::EmailWriter</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">content</span>::<span class="kw-2">*</span>,
@@ -970,7 +866,7 @@
         <span class="self">self</span>.<span class="ident">find_header_index</span>(<span class="ident">name</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">remove</span>(<span class="ident">i</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">find_header</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">find_header</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">headers</span>
             .<span class="ident">iter</span>()
             .<span class="ident">find</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">name</span>))
@@ -1154,57 +1050,46 @@
             <span class="ident">encoded_value</span>,
         }
     }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">raw_value</span>
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_encoded</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">encoded_value</span>
+    }
 }
 
-<span class="kw">const</span> <span class="ident">ENCODING_START_PREFIX</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;=?utf-8?b?&quot;</span>;
-<span class="kw">const</span> <span class="ident">ENCODING_END_SUFFIX</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;?=&quot;</span>;
-<span class="kw">const</span> <span class="ident">MAX_LINE_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">76</span>;
-
 <span class="doccomment">/// [RFC 1522](https://tools.ietf.org/html/rfc1522) header value encoder</span>
-<span class="kw">struct</span> <span class="ident">HeaderValueEncoder</span> {
-    <span class="ident">line_len</span>: <span class="ident">usize</span>,
+<span class="kw">struct</span> <span class="ident">HeaderValueEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">writer</span>: <span class="ident">EmailWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="ident">encode_buf</span>: <span class="ident">String</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">HeaderValueEncoder</span> {
-    <span class="kw">fn</span> <span class="ident">encode</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">let</span> (<span class="ident">words_iter</span>, <span class="ident">encoder</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">name</span>, <span class="ident">value</span>);
-        <span class="ident">encoder</span>.<span class="ident">format</span>(<span class="ident">words_iter</span>, <span class="ident">f</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">HeaderValueEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">encode</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="kw">impl</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
+        <span class="kw">let</span> (<span class="ident">words_iter</span>, <span class="ident">encoder</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">name</span>, <span class="ident">value</span>, <span class="ident">f</span>);
+        <span class="ident">encoder</span>.<span class="ident">format</span>(<span class="ident">words_iter</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; (<span class="ident">WordsPlusFillIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="self">Self</span>) {
+    <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
+        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Write</span>,
+    ) -&gt; (<span class="ident">WordsPlusFillIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="self">Self</span>) {
+        <span class="kw">let</span> <span class="ident">line_len</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="string">&quot;: &quot;</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">EmailWriter::new</span>(<span class="ident">writer</span>, <span class="ident">line_len</span>, <span class="bool-val">false</span>);
+
         (
             <span class="ident">WordsPlusFillIterator</span> { <span class="ident">s</span>: <span class="ident">value</span> },
             <span class="self">Self</span> {
-                <span class="ident">line_len</span>: <span class="ident">name</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="string">&quot;: &quot;</span>.<span class="ident">len</span>(),
+                <span class="ident">writer</span>,
                 <span class="ident">encode_buf</span>: <span class="ident">String::new</span>(),
             },
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">format</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">words_iter</span>: <span class="ident">WordsPlusFillIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">fmt::Write</span>,
-    ) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="doccomment">/// Estimate if an encoded string of `len` would fix in an empty line</span>
-        <span class="kw">fn</span> <span class="ident">would_fit_new_line</span>(<span class="ident">len</span>: <span class="ident">usize</span>) -&gt; <span class="ident">bool</span> {
-            <span class="ident">len</span> <span class="op">&lt;</span> (<span class="ident">MAX_LINE_LEN</span> <span class="op">-</span> <span class="string">&quot; &quot;</span>.<span class="ident">len</span>())
-        }
-
-        <span class="doccomment">/// Estimate how long a string of `len` would be after base64 encoding plus</span>
-        <span class="doccomment">/// adding the encoding prefix and suffix to it</span>
-        <span class="kw">fn</span> <span class="ident">base64_len</span>(<span class="ident">len</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
-            <span class="ident">ENCODING_START_PREFIX</span>.<span class="ident">len</span>() <span class="op">+</span> (<span class="ident">len</span> <span class="op">*</span> <span class="number">4</span> <span class="op">/</span> <span class="number">3</span> <span class="op">+</span> <span class="number">4</span>) <span class="op">+</span> <span class="ident">ENCODING_END_SUFFIX</span>.<span class="ident">len</span>()
-        }
-
-        <span class="doccomment">/// Estimate how many more bytes we can fit in the current line</span>
-        <span class="kw">fn</span> <span class="ident">available_len_to_max_encode_len</span>(<span class="ident">len</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
-            <span class="ident">len</span>.<span class="ident">saturating_sub</span>(
-                <span class="ident">ENCODING_START_PREFIX</span>.<span class="ident">len</span>() <span class="op">+</span> (<span class="ident">len</span> <span class="op">*</span> <span class="number">3</span> <span class="op">/</span> <span class="number">4</span> <span class="op">+</span> <span class="number">4</span>) <span class="op">+</span> <span class="ident">ENCODING_END_SUFFIX</span>.<span class="ident">len</span>(),
-            )
-        }
-
+    <span class="kw">fn</span> <span class="ident">format</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">words_iter</span>: <span class="ident">WordsPlusFillIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">for</span> <span class="ident">next_word</span> <span class="kw">in</span> <span class="ident">words_iter</span> {
             <span class="kw">let</span> <span class="ident">allowed</span> <span class="op">=</span> <span class="ident">allowed_str</span>(<span class="ident">next_word</span>);
 
@@ -1212,161 +1097,64 @@
                 <span class="comment">// This word only contains allowed characters</span>
 
                 <span class="comment">// the next word is allowed, but we may have accumulated some words to encode</span>
-                <span class="self">self</span>.<span class="ident">flush_encode_buf</span>(<span class="ident">f</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">flush_encode_buf</span>()<span class="question-mark">?</span>;
 
-                <span class="kw">if</span> <span class="ident">next_word</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">remaining_line_len</span>() {
-                    <span class="comment">// not enough space left on this line to encode word</span>
-
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">something_written_to_this_line</span>() <span class="op">&amp;&amp;</span> <span class="ident">would_fit_new_line</span>(<span class="ident">next_word</span>.<span class="ident">len</span>())
-                    {
-                        <span class="comment">// word doesn&#39;t fit this line, but something had already been written to it,</span>
-                        <span class="comment">// and word would fit the next line, so go to a new line</span>
-                        <span class="comment">// so go to new line</span>
-                        <span class="self">self</span>.<span class="ident">new_line</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
-                    } <span class="kw">else</span> {
-                        <span class="comment">// word neither fits this line and the next one, cut it</span>
-                        <span class="comment">// in the middle and make it fit</span>
-
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next_word</span> <span class="op">=</span> <span class="ident">next_word</span>;
-
-                        <span class="kw">while</span> <span class="op">!</span><span class="ident">next_word</span>.<span class="ident">is_empty</span>() {
-                            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">remaining_line_len</span>() <span class="op">==</span> <span class="number">0</span> {
-                                <span class="self">self</span>.<span class="ident">new_line</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
-                            }
-
-                            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">remaining_line_len</span>().<span class="ident">min</span>(<span class="ident">next_word</span>.<span class="ident">len</span>());
-                            <span class="kw">let</span> <span class="ident">first_part</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">next_word</span>[..<span class="ident">len</span>];
-                            <span class="ident">next_word</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">next_word</span>[<span class="ident">len</span>..];
-
-                            <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="ident">first_part</span>)<span class="question-mark">?</span>;
-                            <span class="self">self</span>.<span class="ident">line_len</span> <span class="op">+</span><span class="op">=</span> <span class="ident">first_part</span>.<span class="ident">len</span>();
-                        }
-
-                        <span class="kw">continue</span>;
-                    }
-                }
-
-                <span class="comment">// word fits, write it!</span>
-                <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="ident">next_word</span>)<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">line_len</span> <span class="op">+</span><span class="op">=</span> <span class="ident">next_word</span>.<span class="ident">len</span>();
+                <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">folding</span>().<span class="ident">write_str</span>(<span class="ident">next_word</span>)<span class="question-mark">?</span>;
             } <span class="kw">else</span> {
                 <span class="comment">// This word contains unallowed characters</span>
-
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">remaining_line_len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">base64_len</span>(<span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">next_word</span>.<span class="ident">len</span>())
-                {
-                    <span class="comment">// next_word fits</span>
-                    <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">push_str</span>(<span class="ident">next_word</span>);
-                    <span class="kw">continue</span>;
-                }
-
-                <span class="comment">// next_word doesn&#39;t fit this line</span>
-
-                <span class="kw">if</span> <span class="ident">would_fit_new_line</span>(<span class="ident">base64_len</span>(<span class="ident">next_word</span>.<span class="ident">len</span>())) {
-                    <span class="comment">// ...but it would fit the next one</span>
-
-                    <span class="self">self</span>.<span class="ident">flush_encode_buf</span>(<span class="ident">f</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
-                    <span class="self">self</span>.<span class="ident">new_line</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
-
-                    <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">push_str</span>(<span class="ident">next_word</span>);
-                    <span class="kw">continue</span>;
-                }
-
-                <span class="comment">// ...and also wouldn&#39;t fit the next one.</span>
-                <span class="comment">// chop it up into pieces</span>
-
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next_word</span> <span class="op">=</span> <span class="ident">next_word</span>;
-
-                <span class="kw">while</span> <span class="op">!</span><span class="ident">next_word</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">available_len_to_max_encode_len</span>(<span class="self">self</span>.<span class="ident">remaining_line_len</span>())
-                        .<span class="ident">min</span>(<span class="ident">next_word</span>.<span class="ident">len</span>());
-
-                    <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">0</span> {
-                        <span class="self">self</span>.<span class="ident">flush_encode_buf</span>(<span class="ident">f</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
-                        <span class="self">self</span>.<span class="ident">new_line</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
-                    }
-
-                    <span class="comment">// avoid slicing on a char boundary</span>
-                    <span class="kw">while</span> <span class="op">!</span><span class="ident">next_word</span>.<span class="ident">is_char_boundary</span>(<span class="ident">len</span>) {
-                        <span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                    }
-                    <span class="kw">let</span> <span class="ident">first_part</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">next_word</span>[..<span class="ident">len</span>];
-                    <span class="ident">next_word</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">next_word</span>[<span class="ident">len</span>..];
-
-                    <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">push_str</span>(<span class="ident">first_part</span>);
-                }
+                <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">push_str</span>(<span class="ident">next_word</span>);
             }
         }
 
-        <span class="self">self</span>.<span class="ident">flush_encode_buf</span>(<span class="ident">f</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">flush_encode_buf</span>()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns the number of bytes left for the current line</span>
-    <span class="kw">fn</span> <span class="ident">remaining_line_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="ident">MAX_LINE_LEN</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">line_len</span>
-    }
-
-    <span class="doccomment">/// Returns true if something has been written to the current line</span>
-    <span class="kw">fn</span> <span class="ident">something_written_to_this_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">line_len</span> <span class="op">&gt;</span> <span class="number">1</span>
-    }
-
-    <span class="kw">fn</span> <span class="ident">flush_encode_buf</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">fmt::Write</span>,
-        <span class="ident">switching_to_allowed</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">flush_encode_buf</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">is_empty</span>() {
             <span class="comment">// nothing to encode</span>
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">write_after</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="comment">// It is important that we don&#39;t encode leading whitespace otherwise it breaks wrapping.</span>
+        <span class="kw">let</span> <span class="ident">first_not_allowed</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">encode_buf</span>
+            .<span class="ident">bytes</span>()
+            .<span class="ident">enumerate</span>()
+            .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">_i</span>, <span class="ident">c</span>)<span class="op">|</span> <span class="op">!</span><span class="ident">allowed_char</span>(<span class="kw-2">*</span><span class="ident">c</span>))
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">i</span>);
+        <span class="comment">// May as well also write the tail in plain text.</span>
+        <span class="kw">let</span> <span class="ident">last_not_allowed</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">encode_buf</span>
+            .<span class="ident">bytes</span>()
+            .<span class="ident">enumerate</span>()
+            .<span class="ident">rev</span>()
+            .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">_i</span>, <span class="ident">c</span>)<span class="op">|</span> <span class="op">!</span><span class="ident">allowed_char</span>(<span class="kw-2">*</span><span class="ident">c</span>))
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>);
 
-        <span class="kw">if</span> <span class="ident">switching_to_allowed</span> {
-            <span class="comment">// If the next word only contains allowed characters, and the string to encode</span>
-            <span class="comment">// ends with a space, take the space out of the part to encode</span>
+        <span class="kw">let</span> (<span class="ident">prefix</span>, <span class="ident">to_encode</span>, <span class="ident">suffix</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">first_not_allowed</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">first_not_allowed</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">last_not_allowed</span> <span class="op">=</span> <span class="ident">last_not_allowed</span>.<span class="ident">unwrap</span>();
 
-            <span class="kw">let</span> <span class="ident">last_char</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">pop</span>().<span class="ident">expect</span>(<span class="string">&quot;self.encode_buf isn&#39;t empty&quot;</span>);
-            <span class="kw">if</span> <span class="ident">is_space_like</span>(<span class="ident">last_char</span>) {
-                <span class="ident">write_after</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">last_char</span>);
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">push</span>(<span class="ident">last_char</span>);
+                <span class="kw">let</span> (<span class="ident">remaining</span>, <span class="ident">suffix</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">split_at</span>(<span class="ident">last_not_allowed</span>);
+                <span class="kw">let</span> (<span class="ident">prefix</span>, <span class="ident">to_encode</span>) <span class="op">=</span> <span class="ident">remaining</span>.<span class="ident">split_at</span>(<span class="ident">first_not_allowed</span>);
+
+                (<span class="ident">prefix</span>, <span class="ident">to_encode</span>, <span class="ident">suffix</span>)
             }
-        }
+            <span class="prelude-val">None</span> =&gt; (<span class="string">&quot;&quot;</span>, <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">as_str</span>(), <span class="string">&quot;&quot;</span>),
+        };
 
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="ident">ENCODING_START_PREFIX</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">base64::display::Base64Display::with_config</span>(
-            <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">as_bytes</span>(),
-            <span class="ident">base64::STANDARD</span>,
-        );
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">encoded</span>)<span class="question-mark">?</span>;
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="ident">ENCODING_END_SUFFIX</span>)<span class="question-mark">?</span>;
-
-        <span class="self">self</span>.<span class="ident">line_len</span> <span class="op">+</span><span class="op">=</span> <span class="ident">ENCODING_START_PREFIX</span>.<span class="ident">len</span>();
-        <span class="self">self</span>.<span class="ident">line_len</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="number">4</span> <span class="op">/</span> <span class="number">3</span> <span class="op">+</span> <span class="number">4</span>;
-        <span class="self">self</span>.<span class="ident">line_len</span> <span class="op">+</span><span class="op">=</span> <span class="ident">ENCODING_END_SUFFIX</span>.<span class="ident">len</span>();
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">write_after</span>) <span class="op">=</span> <span class="ident">write_after</span> {
-            <span class="ident">f</span>.<span class="ident">write_char</span>(<span class="ident">write_after</span>)<span class="question-mark">?</span>;
-            <span class="self">self</span>.<span class="ident">line_len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        }
+        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">folding</span>().<span class="ident">write_str</span>(<span class="ident">prefix</span>)<span class="question-mark">?</span>;
+        <span class="ident">email_encoding::headers::rfc2047::encode</span>(<span class="ident">to_encode</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">writer</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">folding</span>().<span class="ident">write_str</span>(<span class="ident">suffix</span>)<span class="question-mark">?</span>;
 
         <span class="self">self</span>.<span class="ident">encode_buf</span>.<span class="ident">clear</span>();
         <span class="prelude-val">Ok</span>(())
     }
-
-    <span class="kw">fn</span> <span class="ident">new_line</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">fmt::Write</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;\r\n &quot;</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">line_len</span> <span class="op">=</span> <span class="number">1</span>;
-
-        <span class="prelude-val">Ok</span>(())
-    }
 }
 
-<span class="doccomment">/// Iterator yielding a string split space by space, but including all space</span>
-<span class="doccomment">/// characters between it and the next word</span>
+<span class="doccomment">/// Iterator yielding a string split by space, but spaces are included before the next word.</span>
 <span class="kw">struct</span> <span class="ident">WordsPlusFillIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
 }
@@ -1381,35 +1169,31 @@
 
         <span class="kw">let</span> <span class="ident">next_word</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">s</span>
-            .<span class="ident">char_indices</span>()
+            .<span class="ident">bytes</span>()
+            .<span class="ident">enumerate</span>()
             .<span class="ident">skip</span>(<span class="number">1</span>)
-            .<span class="ident">skip_while</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="ident">_i</span>, <span class="ident">c</span>)<span class="op">|</span> <span class="op">!</span><span class="ident">is_space_like</span>(<span class="ident">c</span>))
-            .<span class="ident">find</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="ident">_i</span>, <span class="ident">c</span>)<span class="op">|</span> <span class="op">!</span><span class="ident">is_space_like</span>(<span class="ident">c</span>))
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">i</span>);
+            .<span class="ident">find</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="ident">_i</span>, <span class="ident">c</span>)<span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">b&#39; &#39;</span>)
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">i</span>)
+            .<span class="ident">unwrap_or</span>(<span class="self">self</span>.<span class="ident">s</span>.<span class="ident">len</span>());
 
-        <span class="kw">let</span> <span class="ident">word</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">s</span>[..<span class="ident">next_word</span>.<span class="ident">unwrap_or</span>(<span class="self">self</span>.<span class="ident">s</span>.<span class="ident">len</span>())];
+        <span class="kw">let</span> <span class="ident">word</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">s</span>[..<span class="ident">next_word</span>];
         <span class="self">self</span>.<span class="ident">s</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">s</span>[<span class="ident">word</span>.<span class="ident">len</span>()..];
         <span class="prelude-val">Some</span>(<span class="ident">word</span>)
     }
 }
 
-<span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_space_like</span>(<span class="ident">c</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;,&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39; &#39;</span>
-}
-
 <span class="kw">fn</span> <span class="ident">allowed_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="ident">allowed_char</span>)
+    <span class="ident">s</span>.<span class="ident">bytes</span>().<span class="ident">all</span>(<span class="ident">allowed_char</span>)
 }
 
-<span class="kw">const</span> <span class="kw">fn</span> <span class="ident">allowed_char</span>(<span class="ident">c</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">c</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span> <span class="kw">as</span> <span class="ident">char</span> <span class="op">&amp;&amp;</span> <span class="ident">c</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">9</span> <span class="kw">as</span> <span class="ident">char</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="number">11</span> <span class="kw">as</span> <span class="ident">char</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="number">12</span> <span class="kw">as</span> <span class="ident">char</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">14</span> <span class="kw">as</span> <span class="ident">char</span> <span class="op">&amp;&amp;</span> <span class="ident">c</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">127</span> <span class="kw">as</span> <span class="ident">char</span>
+<span class="kw">const</span> <span class="kw">fn</span> <span class="ident">allowed_char</span>(<span class="ident">c</span>: <span class="ident">u8</span>) -&gt; <span class="ident">bool</span> {
+    <span class="ident">c</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">c</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">9</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="number">11</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="number">12</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">14</span> <span class="op">&amp;&amp;</span> <span class="ident">c</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">127</span>
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="ident">pretty_assertions::assert_eq</span>;
+
     <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">Headers</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1493,8 +1277,8 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;To: Ascii &lt;example@example.com&gt;, John Doe &lt;johndoe@example.com, John Smith \r\n&quot;</span>,
-                <span class="string">&quot; &lt;johnsmith@example.com&gt;, Pinco Pallino &lt;pincopallino@example.com&gt;, Jemand \r\n&quot;</span>,
+                <span class="string">&quot;To: Ascii &lt;example@example.com&gt;, John Doe &lt;johndoe@example.com, John Smith\r\n&quot;</span>,
+                <span class="string">&quot; &lt;johnsmith@example.com&gt;, Pinco Pallino &lt;pincopallino@example.com&gt;, Jemand\r\n&quot;</span>,
                 <span class="string">&quot; &lt;jemand@example.com&gt;, Jean Dupont &lt;jean@example.com&gt;\r\n&quot;</span>
             )
         );
@@ -1511,8 +1295,8 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: Hello! This is lettre, and this \r\n &quot;</span>,
-                <span class="string">&quot;IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I \r\n&quot;</span>,
+                <span class="string">&quot;Subject: Hello! This is lettre, and this\r\n&quot;</span>,
+                <span class="string">&quot; IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I\r\n&quot;</span>,
                 <span class="string">&quot; guess that&#39;s it!\r\n&quot;</span>
             )
         );
@@ -1530,8 +1314,9 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: Hello! IGuessTheLastLineWasntLongEnoughSoLetsTryAgainShallWeWhatDoY\r\n&quot;</span>,
-                <span class="string">&quot; ouThinkItsGoingToHappenIGuessWereAboutToFindOut! I don&#39;t know\r\n&quot;</span>,
+                <span class="string">&quot;Subject: Hello!\r\n&quot;</span>,
+                <span class="string">&quot; IGuessTheLastLineWasntLongEnoughSoLetsTryAgainShallWeWhatDoYouThinkItsGoingToHappenIGuessWereAboutToFindOut!\r\n&quot;</span>,
+                <span class="string">&quot; I don&#39;t know\r\n&quot;</span>,
             )
         );
     }
@@ -1546,11 +1331,7 @@
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
-            <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: 1abcdefghijklmnopqrstuvwxyz2abcdefghijklmnopqrstuvwxyz3abcdefghijkl\r\n&quot;</span>,
-                <span class="string">&quot; mnopqrstuvwxyz4abcdefghijklmnopqrstuvwxyz5abcdefghijklmnopqrstuvwxyz6abcdef\r\n&quot;</span>,
-                <span class="string">&quot; ghijklmnopqrstuvwxyz\r\n&quot;</span>,
-            )
+            <span class="string">&quot;Subject: 1abcdefghijklmnopqrstuvwxyz2abcdefghijklmnopqrstuvwxyz3abcdefghijklmnopqrstuvwxyz4abcdefghijklmnopqrstuvwxyz5abcdefghijklmnopqrstuvwxyz6abcdefghijklmnopqrstuvwxyz\r\n&quot;</span>,
         );
     }
 
@@ -1564,7 +1345,7 @@
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
-            <span class="string">&quot;To: =?utf-8?b?U2XDoW4=?= &lt;sean@example.com&gt;\r\n&quot;</span>
+            <span class="string">&quot;To: Se=?utf-8?b?w6E=?=n &lt;sean@example.com&gt;\r\n&quot;</span>
         );
     }
 
@@ -1593,11 +1374,11 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;To: =?utf-8?b?8J+MjQ==?= &lt;world@example.com&gt;, =?utf-8?b?8J+mhg==?= \r\n&quot;</span>,
-                <span class="string">&quot; Everywhere &lt;ducks@example.com&gt;, =?utf-8?b?0JjQstCw0L3QvtCyIA==?=\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?0JjQstCw0L0g0JjQstCw0L3QvtCy0LjRhw==?= &lt;ivanov@example.com&gt;, \r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?SsSBbmlzIELEk3J6acWGxaE=?= &lt;janis@example.com&gt;, \r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?U2XDoW4gw5MgUnVkYcOt?= &lt;sean@example.com&gt;\r\n&quot;</span>
+                <span class="string">&quot;To: =?utf-8?b?8J+MjQ==?= &lt;world@example.com&gt;, =?utf-8?b?8J+mhg==?= Everywhere\r\n&quot;</span>,
+                <span class="string">&quot; &lt;ducks@example.com&gt;, =?utf-8?b?0JjQstCw0L3QvtCyINCY0LLQsNC9INCY0LLQsNC9?=\r\n&quot;</span>,
+                <span class="string">&quot; =?utf-8?b?0L7QstC40Yc=?= &lt;ivanov@example.com&gt;, J=?utf-8?b?xIFuaXMgQsST?=\r\n&quot;</span>,
+                <span class="string">&quot; =?utf-8?b?cnppxYbFoQ==?= &lt;janis@example.com&gt;, Se=?utf-8?b?w6FuIMOTIFJ1?=\r\n&quot;</span>,
+                <span class="string">&quot; =?utf-8?b?ZGHDrQ==?= &lt;sean@example.com&gt;\r\n&quot;</span>,
             )
         );
     }
@@ -1613,7 +1394,14 @@
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
-            <span class="string">&quot;Subject: =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz?=\r\n&quot;</span>
+            <span class="macro">concat!</span>(
+                <span class="string">&quot;Subject: =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz?=\r\n&quot;</span>,
+                <span class="string">&quot; =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbM=?=\r\n&quot;</span>,
+                <span class="string">&quot; =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbM=?=\r\n&quot;</span>,
+                <span class="string">&quot; =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbM=?=\r\n&quot;</span>,
+                <span class="string">&quot; =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+ls/CfpbM=?=\r\n&quot;</span>,
+                <span class="string">&quot; =?utf-8?b?8J+ls/CfpbPwn6Wz8J+ls/CfpbPwn6Wz8J+lsw==?=\r\n&quot;</span>
+            )
         );
     }
 
@@ -1658,14 +1446,14 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: Hello! This is lettre, and this \r\n&quot;</span>,
-                <span class="string">&quot; IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I \r\n&quot;</span>,
+                <span class="string">&quot;Subject: Hello! This is lettre, and this\r\n&quot;</span>,
+                <span class="string">&quot; IsAVeryLongLineDoYouKnowWhatsGoingToHappenIGuessWeAreGoingToFindOut. Ok I\r\n&quot;</span>,
                 <span class="string">&quot; guess that&#39;s it!\r\n&quot;</span>,
-                <span class="string">&quot;To: =?utf-8?b?8J+MjQ==?= &lt;world@example.com&gt;, =?utf-8?b?8J+mhg==?= \r\n&quot;</span>,
-                <span class="string">&quot; Everywhere &lt;ducks@example.com&gt;, =?utf-8?b?0JjQstCw0L3QvtCyIA==?=\r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?0JjQstCw0L0g0JjQstCw0L3QvtCy0LjRhw==?= &lt;ivanov@example.com&gt;, \r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?SsSBbmlzIELEk3J6acWGxaE=?= &lt;janis@example.com&gt;, \r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?U2XDoW4gw5MgUnVkYcOt?= &lt;sean@example.com&gt;\r\n&quot;</span>,
+                <span class="string">&quot;To: =?utf-8?b?8J+MjQ==?= &lt;world@example.com&gt;, =?utf-8?b?8J+mhg==?= Everywhere\r\n&quot;</span>,
+                <span class="string">&quot; &lt;ducks@example.com&gt;, =?utf-8?b?0JjQstCw0L3QvtCyINCY0LLQsNC9INCY0LLQsNC9?=\r\n&quot;</span>,
+                <span class="string">&quot; =?utf-8?b?0L7QstC40Yc=?= &lt;ivanov@example.com&gt;, J=?utf-8?b?xIFuaXMgQsST?=\r\n&quot;</span>,
+                <span class="string">&quot; =?utf-8?b?cnppxYbFoQ==?= &lt;janis@example.com&gt;, Se=?utf-8?b?w6FuIMOTIFJ1?=\r\n&quot;</span>,
+                <span class="string">&quot; =?utf-8?b?ZGHDrQ==?= &lt;sean@example.com&gt;\r\n&quot;</span>,
                 <span class="string">&quot;From: Someone &lt;somewhere@example.com&gt;\r\n&quot;</span>,
                 <span class="string">&quot;Content-Transfer-Encoding: quoted-printable\r\n&quot;</span>,
             )
@@ -1683,8 +1471,8 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">headers</span>.<span class="ident">to_string</span>(),
             <span class="macro">concat!</span>(
-                <span class="string">&quot;Subject: =?utf-8?b?77yL5Luu5ZCN?= :a;go; \r\n&quot;</span>,
-                <span class="string">&quot; =?utf-8?b?Ozs7OztzOzs7Ozs7Ozs7Ozs7Ozs7O2ZmZmVpbm1qZ2dnZ2dnZ2dn772G44Gj?=\r\n&quot;</span>
+                <span class="string">&quot;Subject: =?utf-8?b?77yL5Luu5ZCN?= :a;go;\r\n&quot;</span>,
+                <span class="string">&quot; ;;;;;s;;;;;;;;;;;;;;;;fffeinmjggggggggg=?utf-8?b?772G44Gj?=\r\n&quot;</span>
             )
         );
     }

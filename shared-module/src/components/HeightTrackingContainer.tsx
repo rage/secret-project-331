@@ -6,6 +6,8 @@ interface Props {
   children?: ReactNode
 }
 
+const WAITING = "waiting, if changes"
+
 const HeightTrackingContainer: React.FC<Props> = ({ port, children }) => {
   const contentRef = useRef<HTMLDivElement>(null)
   const [height, setHeight] = useState(0)
@@ -14,6 +16,7 @@ const HeightTrackingContainer: React.FC<Props> = ({ port, children }) => {
   useEffect(() => {
     const onResize = () => {
       const ref = contentRef.current
+      setTimeout(() => console.log(WAITING), 10)
       if (!ref) {
         return
       }

@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -22,11 +23,7 @@ test("test", async ({ page, headless }) => {
     page.click("text=Glossary course"),
   ])
 
-  // Click text=Default
-  await page.click("text=Default")
-
-  // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseInstanceIfPrompted(page)
 
   // Go to http://project-331.local/org/uh-cs/courses/glossary-course/glossary
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")

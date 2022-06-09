@@ -210,7 +210,10 @@ fn ts_binding_generator() {
         ErrorResponse,
         ErrorData,
         Pagination,
-        OEmbedResponse
+        OEmbedResponse,
+
+        material_references::MaterialReference,
+        material_references::NewMaterialReference
     };
     res.unwrap();
 }

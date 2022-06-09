@@ -1,3 +1,5 @@
+import { StringMap } from "i18next"
+
 import {
   Course,
   CourseInstance,
@@ -8,7 +10,9 @@ import {
   ExerciseSlideSubmissionCount,
   ExerciseSlideSubmissionCountByWeekAndHour,
   ExerciseUserCounts,
+  MaterialReference,
   NewCourse,
+  NewMaterialReference,
   Page,
   Term,
   TermUpdate,
@@ -165,4 +169,27 @@ export const postNewTerm = async (
 
 export const postNewPageOrdering = async (courseId: string, pages: Page[]): Promise<void> => {
   await mainFrontendClient.post(`/courses/${courseId}/new-page-ordering`, pages)
+}
+
+export const fetchCourseReferences = async (courseId: string): Promise<MaterialReference[]> => {
+  return (await mainFrontendClient.get(`/courses/${courseId}/references`)).data
+}
+
+export const postNewReferences = async (
+  courseId: string,
+  data: NewMaterialReference[],
+): Promise<void> => {
+  await mainFrontendClient.post(`/courses/${courseId}/references`, data)
+}
+
+export const postReferenceUpdate = async (
+  courseId: string,
+  referenceId: string,
+  reference: NewMaterialReference,
+): Promise<void> => {
+  await mainFrontendClient.post(`/courses/${courseId}/references/${referenceId}`, reference)
+}
+
+export const deleteReference = async (courseId: string, referenceId: string): Promise<void> => {
+  await mainFrontendClient.delete(`/courses/${courseId}/references/${referenceId}`)
 }

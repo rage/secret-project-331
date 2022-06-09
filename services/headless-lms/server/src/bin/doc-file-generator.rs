@@ -43,6 +43,7 @@ use headless_lms_models::{
             CourseMaterialPeerReviewQuestionAnswer, CourseMaterialPeerReviewSubmission,
         },
     },
+    material_references::{MaterialReference, NewMaterialReference},
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
@@ -892,6 +893,25 @@ fn main() {
             course_name: Some("Introduction to everything".to_string()),
             course_slug: Some("introduction-to-everything".to_string()),
             organization_slug: Some("uh-cs".to_string())
+        }
+    );
+    write_docs!(
+        Vec<MaterialReference>,
+        vec![MaterialReference {
+            id,
+            course_id: id2,
+            citation_key: "NeuralNetworks2022".to_string(),
+            reference: "bibtex reference".to_string(),
+            created_at,
+            updated_at,
+            deleted_at
+        }]
+    );
+    write_docs!(
+        NewMaterialReference,
+        NewMaterialReference {
+            citation_key: "NeuralNetworks2022".to_string(),
+            reference: "bibtex reference".to_string(),
         }
     );
     write_docs!(

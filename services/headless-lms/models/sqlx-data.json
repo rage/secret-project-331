@@ -2085,6 +2085,52 @@
       "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
     }
   },
+  "1e72401b4ba225d0a53fff1b132fcb10bf77ab6b168c1eca7b613eb7f33a762a": {
+    "query": "\nSELECT *\nFROM material_references\nWHERE id = $1;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "citation_key",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "reference",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, false, false, true]
+    }
+  },
   "1e7b36b82611573fc4018fc50e03c255e15ae4f8410fdced069aa422e72930ae": {
     "query": "\nSELECT *\nFROM users\nWHERE email = $1\n        ",
     "describe": {
@@ -3676,6 +3722,16 @@
       "nullable": []
     }
   },
+  "398cddba416318e36683334088580e67fd4a2b995045c3ef01ed5a737194e30c": {
+    "query": "\nUPDATE material_references\nSET reference = $1, citation_key = $2\nWHERE id = $3;\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Text", "Text", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "3a3fa537038bdbeb11c9454487111b56afaa5230c97546dc0b29554446bfa27d": {
     "query": "\nSELECT COALESCE(ues.score_given, 0) AS score_given,\n  ues.exercise_id AS exercise_id\nFROM user_exercise_states AS ues\nWHERE ues.deleted_at IS NULL\n  AND ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.course_instance_id = $2\n  AND ues.user_id = $3;\n        ",
     "describe": {
@@ -4623,6 +4679,52 @@
         false,
         true
       ]
+    }
+  },
+  "4713ef1238437d6952f073fce7db826fac893b938edacba02855eeef03ae1133": {
+    "query": "\nSELECT *\nFROM material_references\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "citation_key",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "reference",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false, false, false, true]
     }
   },
   "47f6263f110fb34bedaca77322fdf2da160006f60fa8b284be5e4a49bffba714": {
@@ -11140,6 +11242,16 @@
       "nullable": [null, null]
     }
   },
+  "c0b9a180c35f5891305a61ef57a65bceba00f6e0190612ad7348ad7185ca89f2": {
+    "query": "\nUPDATE material_references\nSET deleted_at = now()\nWHERE material_references.id = $1;\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "c0e77b688094cd88143669d7562d1412e2cb9c49374c1a95c75419f3ff7ac8cc": {
     "query": "\nDELETE FROM roles\nWHERE user_id = $1\n  AND role = $2\n  AND course_id = $3\n",
     "describe": {
@@ -12067,6 +12179,16 @@
         false,
         false
       ]
+    }
+  },
+  "d972ea4bdedc2b6d93055c4c244a579960ff3a65213ed3e78f21d641c8d800c7": {
+    "query": "\n    INSERT INTO material_references(course_id, citation_key, reference)\n    VALUES ($1, $2, $3)\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Text", "Text"]
+      },
+      "nullable": []
     }
   },
   "d9b9672a30ff30810ac269307fa33154ced5dcc064a05d69a0440113713d3573": {

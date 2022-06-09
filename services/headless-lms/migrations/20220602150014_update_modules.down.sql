@@ -23,6 +23,8 @@ DROP INDEX course_modules_order_number_uniqueness;
 ALTER TABLE course_modules
 ALTER COLUMN name
 SET NOT NULL;
+-- Remove copied_frm field
+ALTER TABLE course_modules DROP COLUMN copied_from;
 -- Remove added update trigger
 DROP TRIGGER set_timestamp ON course_modules;
 -- Revert rename chapters.module

@@ -72,6 +72,7 @@ pub struct Module {
     pub id: Uuid,
     pub name: Option<String>,
     pub order_number: i32,
+    pub copied_from: Option<Uuid>,
 }
 
 pub async fn get_by_course_id(
@@ -83,7 +84,8 @@ pub async fn get_by_course_id(
         "
 SELECT id,
   name,
-  order_number
+  order_number,
+  copied_from
 FROM course_modules
 WHERE course_id = $1
 ",

@@ -440,6 +440,19 @@ fn main() {
         }
     );
     write_docs!(
+        Vec<UserCourseInstanceProgress>,
+        vec![UserCourseInstanceProgress {
+            course_module_id: id,
+            course_module_name: "Module".to_string(),
+            course_module_order_number: 0,
+            score_given: 3.0,
+            score_maximum: Some(10),
+            total_exercises: Some(66),
+            attempted_exercises: Some(13)
+        }]
+    );
+
+    write_docs!(
         UserCourseInstanceChapterProgress,
         UserCourseInstanceChapterProgress {
             score_given: 1.0,

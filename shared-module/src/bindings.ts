@@ -191,6 +191,7 @@ export interface Module {
   id: string
   name: string | null
   order_number: number
+  copied_from: string | null
 }
 
 export interface Course {

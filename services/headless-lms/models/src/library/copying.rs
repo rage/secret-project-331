@@ -369,12 +369,14 @@ INSERT INTO course_modules (
     id,
     course_id,
     name,
-    order_number
+    order_number,
+    copied_from
   )
 SELECT uuid_generate_v5($1, id::text),
   $1,
   name,
-  order_number
+  order_number,
+  id
 FROM course_modules
 WHERE course_id = $2
   AND deleted_at IS NULL
@@ -681,7 +683,7 @@ mod tests {
 
         #[tokio::test]
         async fn copies_course_modules() {
-            insert_data!(:tx, :user, :org, :course, instance: _instance, course_module: _course_module);
+            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
@@ -694,7 +696,10 @@ mod tests {
                     .await
                     .unwrap();
             assert_eq!(copied_modules.len(), 1);
-            // Course modules are missing the copied_from record.
+            assert_eq!(
+                copied_modules.first().unwrap().copied_from,
+                Some(course_module)
+            )
         }
 
         #[tokio::test]

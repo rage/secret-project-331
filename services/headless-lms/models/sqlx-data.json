@@ -5897,6 +5897,16 @@
       ]
     }
   },
+  "65c2e4824bd1690a7ab8fcdb1125f546b9fe47ec2851ce6febc0c6aba3e9d3d0": {
+    "query": "\nINSERT INTO course_modules (\n    id,\n    course_id,\n    name,\n    order_number,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  name,\n  order_number,\n  id\nFROM course_modules\nWHERE course_id = $2\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "65cc3c8d7fd2610ad86c2aec0773281029298a5165fcb245bdb10c1dfc9e73c6": {
     "query": "SELECT cfgname::text FROM pg_ts_config WHERE cfgname = $1",
     "describe": {
@@ -8609,32 +8619,6 @@
         "Left": ["Uuid", "Int4", "Uuid"]
       },
       "nullable": [false, false, false, true, false, false, false, false, false, false]
-    }
-  },
-  "9ba4643daef2c6a850568745bcc6f8d42b40feacedb4f78f945a5454138486e4": {
-    "query": "\nSELECT id,\n  name,\n  order_number\nFROM course_modules\nWHERE course_id = $1\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "order_number",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, true, false]
     }
   },
   "9bb97ffe80fa21b7ad33c0f2ae7f70d3bb1ea9157b2bd9c3835fa9d324862c72": {
@@ -12521,16 +12505,6 @@
       ]
     }
   },
-  "dd3784cd95534495b9ab3782f70206d28fcb35e2d9d4879c8b97a18f46bbde80": {
-    "query": "\nINSERT INTO course_modules (\n    id,\n    course_id,\n    name,\n    order_number\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  name,\n  order_number\nFROM course_modules\nWHERE course_id = $2\n  AND deleted_at IS NULL\n        ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "dd98dd1240aa56bb5ba42647e870c187d85c5ab801c6f0cca33757734a97df5b": {
     "query": "\nSELECT course_id,\n  exam_id\nFROM exercises\nWHERE id = $1\n",
     "describe": {
@@ -13753,6 +13727,37 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [null]
+    }
+  },
+  "f6f64c3ae9ccd94ee16c42300cba986d792f2627c7983135caa2886edfe44099": {
+    "query": "\nSELECT id,\n  name,\n  order_number,\n  copied_from\nFROM course_modules\nWHERE course_id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, true, false, true]
     }
   },
   "f75a47ca2444e4cbaade9a44f7104ede569c4660c573e5fa4034805f1597c361": {

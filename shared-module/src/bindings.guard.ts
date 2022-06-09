@@ -431,7 +431,8 @@ export function isModule(obj: any, _argumentName?: string): obj is Module {
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     (obj.name === null || typeof obj.name === "string") &&
-    typeof obj.order_number === "number"
+    typeof obj.order_number === "number" &&
+    (obj.copied_from === null || typeof obj.copied_from === "string")
   )
 }
 

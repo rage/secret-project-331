@@ -5,6 +5,10 @@ ALTER TABLE chapters
 -- Add missing update trigger
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON course_modules FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+-- Add copied from record
+ALTER TABLE course_modules
+ADD COLUMN copied_from UUID REFERENCES course_modules(id);
+COMMENT ON COLUMN course_modules.copied_from IS 'The original course modules record of a copy.';
 -- Make course_modules.name nullable. That in addition to order_number = 0 will mean the default module.
 ALTER TABLE course_modules
 ALTER COLUMN name DROP NOT NULL;

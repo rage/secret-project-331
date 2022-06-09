@@ -884,6 +884,7 @@ mod tests {
             id: module_id,
             name: None,
             order_number: 0,
+            copied_from: None,
         }];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,

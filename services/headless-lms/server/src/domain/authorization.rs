@@ -161,21 +161,14 @@ impl<T: Responder> Responder for AuthorizedResponse<T> {
 
 We need skip to get all organizations on the homepage
 
-```no_run
- async fn get_all_organizations(
 
-    pool: web::Data<PgPool>,
-    file_store: web::Data<dyn FileStore>,
-    app_conf: web::Data<ApplicationConfiguration>,
+ async fn get_all_organizations ->
 
- ) -> ControllerResult<web::Json<Vec<Organization>>> {
+ token = skip_authorize()?;
 
-    ...
+token.authorized_ok(Json(courses))
 
-    let token = skip_authorize()?;
-    token.authorized_ok(Json(courses))
-}
-```
+
 */
 pub fn skip_authorize() -> anyhow::Result<AuthorizationToken> {
     Ok(AuthorizationToken(()))

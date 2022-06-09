@@ -81,7 +81,8 @@ async fn post_new_course(
         user.id,
     )
     .await?;
-
+    // Create default course module
+    models::course_modules::insert_default_for_course(&mut tx, course.id).await?;
     models::roles::insert(
         &mut tx,
         user.id,
@@ -341,10 +342,9 @@ pub async fn post_new_course_language_version(
         Res::Course(*course_id),
     )
     .await?;
-    let copied_course = models::courses::copy_course_as_language_version_of_course(
-        &mut conn, *course_id, &payload.0,
-    )
-    .await?;
+
+    let copied_course =
+        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, true).await?;
 
     token.authorized_ok(web::Json(copied_course))
 }
@@ -383,7 +383,8 @@ pub async fn post_new_course_duplicate(
         Res::Course(*course_id),
     )
     .await?;
-    let copied_course = models::courses::copy_course(&mut conn, *course_id, &payload.0).await?;
+    let copied_course =
+        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, false).await?;
 
     token.authorized_ok(web::Json(copied_course))
 }

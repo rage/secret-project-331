@@ -472,7 +472,7 @@ mod test {
 
     #[tokio::test]
     async fn course_role_chapter_resource() {
-        insert_data!(:tx, :user, :org, :course, instance: _instance, :chapter);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, :chapter);
 
         authorize(
             tx.as_mut(),

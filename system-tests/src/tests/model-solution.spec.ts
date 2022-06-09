@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectPath from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 import waitForFunction from "../utils/waitForFunction"
@@ -79,10 +80,7 @@ test.describe("Model solutions", () => {
       page.click("text=Introduction to Everything"),
     ])
 
-    // Click text=default
-    await page.click("text=default")
-    // Click button:has-text("Continue")
-    await page.click('button:has-text("Continue")')
+    await selectCourseInstanceIfPrompted(page)
     // Click text=Chapter 1: The Basics
     await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
     expectPath(page, "/org/uh-cs/courses/introduction-to-everything/chapter-1")

@@ -41,6 +41,7 @@ export type Resource =
   | { type: "user" }
   | { type: "playground_example" }
   | { type: "exercise_service" }
+  | { type: "material_reference" }
 
 export interface Term {
   id: string
@@ -1038,4 +1039,19 @@ export interface OEmbedResponse {
   provider_url: string
   title: string
   version: string
+}
+
+export interface MaterialReference {
+  id: string
+  course_id: string
+  citation_key: string
+  reference: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+}
+
+export interface NewMaterialReference {
+  citation_key: string
+  reference: string
 }

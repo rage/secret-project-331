@@ -11,6 +11,7 @@ pub struct CourseModuleCompletion {
     pub user_id: Uuid,
     pub completion_date: Option<DateTime<Utc>>,
     pub completion_registration_attempt_date: Option<DateTime<Utc>>,
+    pub completion_language: String,
     pub eligible_for_ects: bool,
     pub email: String,
     // TODO: Grade here
@@ -23,6 +24,7 @@ pub struct NewCourseModuleCompletion {
     pub user_id: Uuid,
     pub completion_date: Option<DateTime<Utc>>,
     pub completion_registration_attempt_date: Option<DateTime<Utc>>,
+    pub completion_language: String,
     pub eligible_for_ects: bool,
     pub email: String,
 }
@@ -41,6 +43,7 @@ INSERT INTO course_module_completions (
     user_id,
     completion_date,
     completion_registration_attempt_date,
+    completion_language,
     eligible_for_ects,
     email
   )
@@ -52,7 +55,8 @@ VALUES (
     $5,
     $6,
     $7,
-    $8
+    $8,
+    $9
   )
 RETURNING id
         ",
@@ -62,6 +66,7 @@ RETURNING id
         new_course_module_completion.user_id,
         new_course_module_completion.completion_date,
         new_course_module_completion.completion_registration_attempt_date,
+        new_course_module_completion.completion_language,
         new_course_module_completion.eligible_for_ects,
         new_course_module_completion.email,
     )
@@ -89,7 +94,9 @@ WHERE id = $1
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
-DELETE FROM course_module_completions
+
+UPDATE course_module_completions
+SET deleted_at = now()
 WHERE id = $1
         ",
         id,

@@ -7,7 +7,6 @@ use chrono::{DateTime, Utc};
 use futures::future::{err, ok, Ready};
 use headless_lms_models::{self as models, roles::UserRole};
 use models::{roles::Role, CourseOrExamId};
-
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 #[cfg(feature = "ts_rs")]
@@ -127,6 +126,7 @@ pub enum Resource {
     User,
     PlaygroundExample,
     ExerciseService,
+    MaterialReference,
 }
 
 /// Can user_id action the resource?
@@ -223,6 +223,9 @@ pub async fn authorize(
         | Resource::GlobalPermissions => {
             // permissions for these resources have already been checked
             Err(ControllerError::Forbidden("Unauthorized".to_string()))
+        }
+        Resource::MaterialReference => {
+            check_material_reference_permissions(&user_roles, action).await
         }
     }
 }
@@ -322,6 +325,18 @@ async fn check_course_or_exam_permission(
         }
         CourseOrExamId::Exam(exam_id) => check_exam_permission(conn, roles, action, exam_id).await,
     }
+}
+
+async fn check_material_reference_permissions(
+    roles: &[Role],
+    action: Action,
+) -> ControllerResult<()> {
+    for role in roles {
+        if has_permission(role.role, action) {
+            return Ok(());
+        }
+    }
+    Err(ControllerError::Forbidden("Unauthorized".to_string()))
 }
 
 // checks whether the role is allowed to perform the action

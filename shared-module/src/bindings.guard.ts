@@ -82,11 +82,13 @@ import {
   HistoryRestoreData,
   Login,
   MarkAsRead,
+  MaterialReference,
   Module,
   NewChapter,
   NewCourse,
   NewExam,
   NewFeedback,
+  NewMaterialReference,
   NewPage,
   NewPeerReviewQuestion,
   NewProposedBlockEdit,
@@ -216,7 +218,9 @@ export function isResource(obj: any, _argumentName?: string): obj is Resource {
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.type === "playground_example") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "exercise_service")
+      obj.type === "exercise_service") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "material_reference")
   )
 }
 
@@ -1777,5 +1781,29 @@ export function isOEmbedResponse(obj: any, _argumentName?: string): obj is OEmbe
     typeof obj.provider_url === "string" &&
     typeof obj.title === "string" &&
     typeof obj.version === "string"
+  )
+}
+
+export function isMaterialReference(obj: any, _argumentName?: string): obj is MaterialReference {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.course_id === "string" &&
+    typeof obj.citation_key === "string" &&
+    typeof obj.reference === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date)
+  )
+}
+
+export function isNewMaterialReference(
+  obj: any,
+  _argumentName?: string,
+): obj is NewMaterialReference {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.citation_key === "string" &&
+    typeof obj.reference === "string"
   )
 }

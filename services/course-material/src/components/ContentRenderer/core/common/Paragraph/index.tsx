@@ -16,6 +16,7 @@ const Paragraph = dynamic(() => import("./BasicParagraph"))
 const LatexParagraph = dynamic(() => import("./LatexParagraph"))
 
 const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
+const LATEX_CITE_REGEX = /\\cite{(.*?)}/g
 const HTML_ESCAPED_AMPERSAND = "&amp;"
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 
@@ -37,6 +38,15 @@ const convertToLatex = (data: string) => {
   })
 
   return { count, converted }
+}
+
+const parseCitation = (data: string) => {
+  const converted = data.replace(
+    LATEX_CITE_REGEX,
+    // eslint-disable-next-line i18next/no-literal-string
+    (_, citationId) => `<sup class="reference" data-citation-id=${citationId}>[?]</sup>`,
+  )
+  return converted
 }
 
 const hasDropCap = css`
@@ -152,6 +162,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
 
   const sanitizedHTML = sanitizeCourseMaterialHtml(content)
   const { count, converted } = convertToLatex(sanitizedHTML)
+  const convertedParsed = parseCitation(converted)
   const P = count > 0 ? LatexParagraph : Paragraph
 
   return (
@@ -168,7 +179,7 @@ const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
         ${backgroundColor && `padding: 1.25em 2.375em !important;`}
       `}
       dangerouslySetInnerHTML={{
-        __html: converted,
+        __html: convertedParsed,
       }}
       {...(anchor ? { id: anchor } : {})}
     />

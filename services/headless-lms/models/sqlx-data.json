@@ -3306,6 +3306,32 @@
       ]
     }
   },
+  "306da548ddeab33ed3369d36a0df59f4e87a36ec1999291b67fcf300a3b7501e": {
+    "query": "\nINSERT INTO course_module_completions (\n    id,\n    course_id,\n    course_module_id,\n    user_id,\n    completion_date,\n    completion_registration_attempt_date,\n    completion_language,\n    eligible_for_ects,\n    email\n  )\nVALUES (\n    COALESCE($1, uuid_generate_v4()),\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9\n  )\nRETURNING id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Timestamptz",
+          "Timestamptz",
+          "Varchar",
+          "Bool",
+          "Varchar"
+        ]
+      },
+      "nullable": [false]
+    }
+  },
   "3086750b6507141d9cde0b6fbb88c242f4e5605e18145ab8fe63b33501255dfb": {
     "query": "\nINSERT INTO exercise_tasks (\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    spec_file_id,\n    public_spec,\n    model_solution_spec,\n    order_number,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  uuid_generate_v5($1, exercise_slide_id::text),\n  exercise_type,\n  assignment,\n  private_spec,\n  spec_file_id,\n  public_spec,\n  model_solution_spec,\n  order_number,\n  id\nFROM exercise_tasks\nWHERE exercise_slide_id IN (\n    SELECT s.id\n    FROM exercise_slides s\n      JOIN exercises e ON (e.id = s.exercise_id)\n    WHERE e.course_id = $2 OR e.exam_id = $2\n    AND e.deleted_at IS NULL\n    AND s.deleted_at IS NULL\n  )\nAND deleted_at IS NULL;\n    ",
     "describe": {
@@ -5827,11 +5853,16 @@
         },
         {
           "ordinal": 9,
+          "name": "completion_language",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 10,
           "name": "eligible_for_ects",
           "type_info": "Bool"
         },
         {
-          "ordinal": 10,
+          "ordinal": 11,
           "name": "email",
           "type_info": "Varchar"
         }
@@ -5839,7 +5870,7 @@
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, true, true, false, false]
+      "nullable": [false, false, false, true, false, false, false, true, true, false, false, false]
     }
   },
   "64fe3f5421ad33305f9f1daef9da4fb63db3edc86b7e769e21e689b67f2d9839": {
@@ -7615,6 +7646,16 @@
       "nullable": [false, false, false, true, true, false, true, true, true, false]
     }
   },
+  "847259eb536964b60b3e3f63e8f17953c122882180424f85dc800e6eab2eca2f": {
+    "query": "\n\nUPDATE course_module_completions\nSET deleted_at = now()\nWHERE id = $1\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "8492979938e25727c88d0aa43f2def59b6d913247be736fd18d03ba7e9a7973a": {
     "query": "\nUPDATE exercise_slides\nSET deleted_at = now()\nWHERE exercise_id IN (\n    SELECT id\n    FROM exercises\n    WHERE page_id = $1\n  );\n        ",
     "describe": {
@@ -8410,16 +8451,6 @@
       "nullable": []
     }
   },
-  "8dc1ee1d3af3f5c335daa2ba03616b12625536a55e33028b21388e96f236da07": {
-    "query": "\nDELETE FROM course_module_completions\nWHERE id = $1\n        ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "9042f4a78140ea8061a5d2f7ea3f6d8ae53b484871e869ebd0dd4cb31da6d9fb": {
     "query": "UPDATE pages\nSET order_number = floor(random() * (2000000 -200000 + 1) + 200000)\nWHERE pages.order_number = $1\n  AND pages.chapter_id = $2\n  AND deleted_at IS NULL",
     "describe": {
@@ -8603,22 +8634,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false, true, false, true, false, false, false, false]
-    }
-  },
-  "96fa724c6639ecad93db337ad387cb34609cae0730f560fdee08166dcec38616": {
-    "query": "\nINSERT INTO course_module_completions (\n    id,\n    course_id,\n    course_module_id,\n    user_id,\n    completion_date,\n    completion_registration_attempt_date,\n    eligible_for_ects,\n    email\n  )\nVALUES (\n    COALESCE($1, uuid_generate_v4()),\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8\n  )\nRETURNING id\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Timestamptz", "Timestamptz", "Bool", "Varchar"]
-      },
-      "nullable": [false]
     }
   },
   "9725efd61b9041c572a3a1cfe81bbbf6ac6497b62d3c9194757cf3f9e423977c": {

@@ -804,11 +804,135 @@
 <span id="799">799</span>
 <span id="800">800</span>
 <span id="801">801</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">futures::Stream</span>;
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+
+<span class="kw">use</span> <span class="ident">futures::Stream</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals</span>;
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">course_instances</span>,
+    <span class="ident">course_modules</span>::{<span class="self">self</span>, <span class="ident">Module</span>},
+    <span class="ident">courses</span>,
     <span class="ident">exercises</span>::{<span class="ident">ActivityProgress</span>, <span class="ident">Exercise</span>, <span class="ident">GradingProgress</span>},
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
     <span class="ident">user_course_settings</span>,
@@ -939,6 +1063,9 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserCourseInstanceProgress</span> {
+    <span class="kw">pub</span> <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">course_module_name</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">course_module_order_number</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="ident">f32</span>,
     <span class="kw">pub</span> <span class="ident">score_maximum</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">total_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
@@ -966,12 +1093,14 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserCourseInstanceMetrics</span> {
+    <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
     <span class="ident">attempted_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseInstanceExerciseMetrics</span> {
+    <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">total_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
     <span class="ident">score_maximum</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
 }
@@ -995,21 +1124,36 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_instance_metrics</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseInstanceExerciseMetrics</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseInstanceExerciseMetrics</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">CourseInstanceExerciseMetrics</span>,
-        <span class="string">r#&quot;
-SELECT COUNT(e.id) AS total_exercises,
-  SUM(e.score_maximum) AS score_maximum
-FROM course_instances AS ci
-  LEFT JOIN exercises AS e ON ci.course_id = e.course_id
-WHERE e.deleted_at IS NULL
-  AND ci.id = $1;
-        &quot;#</span>,
+        <span class="string">r&quot;
+SELECT chapters.course_module_id,
+  COUNT(exercises.id) AS total_exercises,
+  SUM(exercises.score_maximum) AS score_maximum
+FROM course_instances
+  LEFT JOIN exercises ON (course_instances.course_id = exercises.course_id)
+  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
+WHERE exercises.deleted_at IS NULL
+  AND course_instances.id = $1
+GROUP BY chapters.course_module_id
+        &quot;</span>,
         <span class="ident">course_instance_id</span>
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_instance_metrics_indexed_by_module_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CourseInstanceExerciseMetrics</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">get_course_instance_metrics</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">x</span>.<span class="ident">course_module_id</span>, <span class="ident">x</span>))
+        .<span class="ident">collect</span>();
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 
@@ -1017,23 +1161,40 @@ WHERE e.deleted_at IS NULL
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceMetrics</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceMetrics</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">UserCourseInstanceMetrics</span>,
-        <span class="string">r#&quot;
-SELECT COUNT(ues.exercise_id) AS attempted_exercises,
+        <span class="string">r&quot;
+SELECT chapters.course_module_id,
+  COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
+  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)
+  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
 WHERE ues.course_instance_id = $1
   AND ues.activity_progress IN (&#39;completed&#39;, &#39;submitted&#39;)
   AND ues.user_id = $2
-  AND ues.deleted_at IS NULL;
-        &quot;#</span>,
+  AND ues.deleted_at IS NULL
+GROUP BY chapters.course_module_id;
+        &quot;</span>,
         <span class="ident">course_instance_id</span>,
-        <span class="ident">user_id</span>
+        <span class="ident">user_id</span>,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_course_instance_metrics_indexed_by_module_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">UserCourseInstanceMetrics</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">get_user_course_instance_metrics</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>, <span class="ident">user_id</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">x</span>.<span class="ident">course_module_id</span>, <span class="ident">x</span>))
+        .<span class="ident">collect</span>();
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 
@@ -1070,26 +1231,57 @@ WHERE ues.exercise_id IN (
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceProgress</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_metrics</span> <span class="op">=</span> <span class="ident">get_course_instance_metrics</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user_metrics</span> <span class="op">=</span> <span class="ident">get_user_course_instance_metrics</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>, <span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceProgress</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">course_metrics</span> <span class="op">=</span>
+        <span class="ident">get_course_instance_metrics_indexed_by_module_id</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">user_metrics</span> <span class="op">=</span>
+        <span class="ident">get_user_course_instance_metrics_indexed_by_module_id</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>, <span class="ident">user_id</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">course_instances::get_course_instance</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">course_id</span>;
+    <span class="kw">let</span> <span class="ident">course_name</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">name</span>;
+    <span class="kw">let</span> <span class="ident">course_modules</span> <span class="op">=</span> <span class="ident">course_modules::get_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">merge_modules_with_metrics</span>(<span class="ident">course_modules</span>, <span class="kw-2">&amp;</span><span class="ident">course_metrics</span>, <span class="kw-2">&amp;</span><span class="ident">user_metrics</span>, <span class="kw-2">&amp;</span><span class="ident">course_name</span>)
+}
 
-    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">UserCourseInstanceProgress</span> {
-        <span class="ident">score_given</span>: <span class="ident">option_f32_to_f32_two_decimals</span>(<span class="ident">user_metrics</span>.<span class="ident">score_given</span>),
-        <span class="ident">attempted_exercises</span>: <span class="ident">user_metrics</span>
-            .<span class="ident">attempted_exercises</span>
-            .<span class="ident">map</span>(<span class="ident">TryInto::try_into</span>)
-            .<span class="ident">transpose</span>()<span class="question-mark">?</span>,
-        <span class="ident">score_maximum</span>: <span class="ident">course_metrics</span>
-            .<span class="ident">score_maximum</span>
-            .<span class="ident">map</span>(<span class="ident">TryInto::try_into</span>)
-            .<span class="ident">transpose</span>()<span class="question-mark">?</span>,
-        <span class="ident">total_exercises</span>: <span class="ident">course_metrics</span>
-            .<span class="ident">total_exercises</span>
-            .<span class="ident">map</span>(<span class="ident">TryInto::try_into</span>)
-            .<span class="ident">transpose</span>()<span class="question-mark">?</span>,
-    };
-    <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
+<span class="kw">fn</span> <span class="ident">merge_modules_with_metrics</span>(
+    <span class="ident">course_modules</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Module</span><span class="op">&gt;</span>,
+    <span class="ident">course_metrics_by_course_module_id</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CourseInstanceExerciseMetrics</span><span class="op">&gt;</span>,
+    <span class="ident">user_metrics_by_course_module_id</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">UserCourseInstanceMetrics</span><span class="op">&gt;</span>,
+    <span class="ident">default_course_module_name_placeholder</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceProgress</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="ident">course_modules</span>
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">course_module</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">user_metrics</span> <span class="op">=</span> <span class="ident">user_metrics_by_course_module_id</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">course_module</span>.<span class="ident">id</span>);
+            <span class="kw">let</span> <span class="ident">course_metrics</span> <span class="op">=</span> <span class="ident">course_metrics_by_course_module_id</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">course_module</span>.<span class="ident">id</span>);
+            <span class="kw">let</span> <span class="ident">progress</span> <span class="op">=</span> <span class="ident">UserCourseInstanceProgress</span> {
+                <span class="ident">course_module_id</span>: <span class="ident">course_module</span>.<span class="ident">id</span>,
+                <span class="comment">// Only default course module doesn&#39;t have a name.</span>
+                <span class="ident">course_module_name</span>: <span class="ident">course_module</span>
+                    .<span class="ident">name</span>
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default_course_module_name_placeholder</span>.<span class="ident">to_string</span>()),
+                <span class="ident">course_module_order_number</span>: <span class="ident">course_module</span>.<span class="ident">order_number</span>,
+                <span class="ident">score_given</span>: <span class="ident">option_f32_to_f32_two_decimals</span>(
+                    <span class="ident">user_metrics</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">score_given</span>),
+                ),
+                <span class="ident">attempted_exercises</span>: <span class="ident">user_metrics</span>
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">attempted_exercises</span>)
+                    .<span class="ident">map</span>(<span class="ident">TryInto::try_into</span>)
+                    .<span class="ident">transpose</span>()<span class="question-mark">?</span>,
+                <span class="ident">score_maximum</span>: <span class="ident">course_metrics</span>
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">score_maximum</span>)
+                    .<span class="ident">map</span>(<span class="ident">TryInto::try_into</span>)
+                    .<span class="ident">transpose</span>()<span class="question-mark">?</span>,
+                <span class="ident">total_exercises</span>: <span class="ident">course_metrics</span>
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">total_exercises</span>)
+                    .<span class="ident">map</span>(<span class="ident">TryInto::try_into</span>)
+                    .<span class="ident">transpose</span>()<span class="question-mark">?</span>,
+            };
+            <span class="prelude-val">Ok</span>(<span class="ident">progress</span>)
+        })
+        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">ModelResult</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_course_instance_chapter_exercises_progress</span>(
@@ -1604,6 +1796,52 @@ SELECT exercises.name as exercise_name,
     .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">merges_course_modules_with_metrics</span>() {
+        <span class="kw">let</span> <span class="ident">module_id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;9e831ecc-9751-42f1-ae7e-9b2f06e523e8&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">course_modules</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Module</span> {
+            <span class="ident">id</span>: <span class="ident">module_id</span>,
+            <span class="ident">name</span>: <span class="prelude-val">None</span>,
+            <span class="ident">order_number</span>: <span class="number">0</span>,
+            <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
+        }];
+        <span class="kw">let</span> <span class="ident">course_metrics_by_course_module_id</span> <span class="op">=</span> <span class="ident">HashMap::from</span>([(
+            <span class="ident">module_id</span>,
+            <span class="ident">CourseInstanceExerciseMetrics</span> {
+                <span class="ident">course_module_id</span>: <span class="ident">module_id</span>,
+                <span class="ident">total_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">4</span>),
+                <span class="ident">score_maximum</span>: <span class="prelude-val">Some</span>(<span class="number">10</span>),
+            },
+        )]);
+        <span class="kw">let</span> <span class="ident">user_metrics_by_course_module_id</span> <span class="op">=</span> <span class="ident">HashMap::from</span>([(
+            <span class="ident">module_id</span>,
+            <span class="ident">UserCourseInstanceMetrics</span> {
+                <span class="ident">course_module_id</span>: <span class="ident">module_id</span>,
+                <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
+                <span class="ident">attempted_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">3</span>),
+            },
+        )]);
+        <span class="kw">let</span> <span class="ident">metrics</span> <span class="op">=</span> <span class="ident">merge_modules_with_metrics</span>(
+            <span class="ident">course_modules</span>,
+            <span class="kw-2">&amp;</span><span class="ident">course_metrics_by_course_module_id</span>,
+            <span class="kw-2">&amp;</span><span class="ident">user_metrics_by_course_module_id</span>,
+            <span class="string">&quot;Default module&quot;</span>,
+        )
+        .<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">metrics</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="kw">let</span> <span class="ident">metric</span> <span class="op">=</span> <span class="ident">metrics</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">metric</span>.<span class="ident">attempted_exercises</span>, <span class="prelude-val">Some</span>(<span class="number">3</span>));
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">metric</span>.<span class="ident">course_module_name</span>, <span class="string">&quot;Default module&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">metric</span>.<span class="ident">score_given</span>, <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">metric</span>.<span class="ident">score_maximum</span>, <span class="prelude-val">Some</span>(<span class="number">10</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">metric</span>.<span class="ident">total_exercises</span>, <span class="prelude-val">Some</span>(<span class="number">4</span>));
+    }
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>

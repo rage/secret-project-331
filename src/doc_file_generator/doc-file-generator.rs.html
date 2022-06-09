@@ -960,6 +960,28 @@
 <span id="955">955</span>
 <span id="956">956</span>
 <span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -967,7 +989,7 @@
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">NaiveDate</span>, <span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_actix::controllers</span>::{
     <span class="ident">course_material</span>::{
-        <span class="ident">courses::ChaptersWithStatus</span>,
+        <span class="ident">courses</span>::{<span class="ident">ChaptersWithStatus</span>, <span class="ident">CourseMaterialCourseModule</span>},
         <span class="ident">exams</span>::{<span class="ident">ExamData</span>, <span class="ident">ExamEnrollmentData</span>},
     },
     <span class="ident">main_frontend::exercises::ExerciseSubmissions</span>,
@@ -1220,7 +1242,7 @@
         <span class="ident">opens_at</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>),
         <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>),
-        <span class="ident">module</span>: <span class="prelude-val">None</span>,
+        <span class="ident">course_module_id</span>: <span class="ident">id</span>,
     };
     <span class="kw">let</span> <span class="ident">exercise_service</span> <span class="op">=</span> <span class="ident">ExerciseService</span> {
         <span class="ident">id</span>,
@@ -1393,12 +1415,28 @@
     <span class="macro">write_docs!</span>(
         <span class="ident">UserCourseInstanceProgress</span>,
         <span class="ident">UserCourseInstanceProgress</span> {
+            <span class="ident">course_module_id</span>: <span class="ident">id</span>,
+            <span class="ident">course_module_name</span>: <span class="string">&quot;Module&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">course_module_order_number</span>: <span class="number">0</span>,
             <span class="ident">score_given</span>: <span class="number">3.0</span>,
             <span class="ident">score_maximum</span>: <span class="prelude-val">Some</span>(<span class="number">10</span>),
             <span class="ident">total_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">66</span>),
             <span class="ident">attempted_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">13</span>)
         }
     );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceProgress</span><span class="op">&gt;</span>,
+        <span class="macro">vec!</span>[<span class="ident">UserCourseInstanceProgress</span> {
+            <span class="ident">course_module_id</span>: <span class="ident">id</span>,
+            <span class="ident">course_module_name</span>: <span class="string">&quot;Module&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">course_module_order_number</span>: <span class="number">0</span>,
+            <span class="ident">score_given</span>: <span class="number">3.0</span>,
+            <span class="ident">score_maximum</span>: <span class="prelude-val">Some</span>(<span class="number">10</span>),
+            <span class="ident">total_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">66</span>),
+            <span class="ident">attempted_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">13</span>)
+        }]
+    );
+
     <span class="macro">write_docs!</span>(
         <span class="ident">UserCourseInstanceChapterProgress</span>,
         <span class="ident">UserCourseInstanceChapterProgress</span> {
@@ -1600,7 +1638,7 @@
                     <span class="ident">opens_at</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>),
                     <span class="ident">deadline</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>),
                     <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">module</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">course_module_id</span>: <span class="ident">id</span>,
                 },
                 <span class="ident">score_given</span>: <span class="number">1.0</span>,
                 <span class="ident">score_total</span>: <span class="number">2</span>
@@ -1787,21 +1825,27 @@
         <span class="ident">ChaptersWithStatus</span>,
         <span class="ident">ChaptersWithStatus</span> {
             <span class="ident">is_previewable</span>: <span class="bool-val">false</span>,
-            <span class="ident">modules</span>: <span class="macro">vec!</span>[],
-            <span class="ident">chapters</span>: <span class="macro">vec!</span>[<span class="ident">ChapterWithStatus</span> {
+            <span class="ident">modules</span>: <span class="macro">vec!</span>[<span class="ident">CourseMaterialCourseModule</span> {
+                <span class="ident">chapters</span>: <span class="macro">vec!</span>[<span class="ident">ChapterWithStatus</span> {
+                    <span class="ident">id</span>,
+                    <span class="ident">created_at</span>,
+                    <span class="ident">updated_at</span>,
+                    <span class="ident">name</span>: <span class="string">&quot;The Basics&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="ident">course_id</span>: <span class="ident">id2</span>,
+                    <span class="ident">deleted_at</span>,
+                    <span class="ident">chapter_number</span>: <span class="number">1</span>,
+                    <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">status</span>: <span class="ident">ChapterStatus::Open</span>,
+                    <span class="ident">chapter_image_url</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg&quot;</span>.<span class="ident">to_string</span>()),
+                    <span class="ident">course_module_id</span>: <span class="ident">id</span>,
+                }],
                 <span class="ident">id</span>,
-                <span class="ident">created_at</span>,
-                <span class="ident">updated_at</span>,
-                <span class="ident">name</span>: <span class="string">&quot;The Basics&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">course_id</span>: <span class="ident">id2</span>,
-                <span class="ident">deleted_at</span>,
-                <span class="ident">chapter_number</span>: <span class="number">1</span>,
-                <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
-                <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
-                <span class="ident">status</span>: <span class="ident">ChapterStatus::Open</span>,
-                <span class="ident">chapter_image_url</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg&quot;</span>.<span class="ident">to_string</span>()),
-                <span class="ident">module</span>: <span class="prelude-val">None</span>,
-            }]
+                <span class="ident">is_default</span>: <span class="bool-val">true</span>,
+                <span class="ident">name</span>: <span class="prelude-val">None</span>,
+                <span class="ident">order_number</span>: <span class="number">0</span>
+            }],
+
         }
     );
     <span class="macro">write_docs!</span>(

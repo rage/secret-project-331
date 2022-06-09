@@ -4451,7 +4451,7 @@ WHERE pages.order_number = $1
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">gets_organization_id</span>() {
-        <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, <span class="ident">instance</span>: <span class="ident">_instance</span>, <span class="ident">chapter</span>: <span class="ident">_chapter</span>, :<span class="ident">page</span>);
+        <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, <span class="ident">instance</span>: <span class="ident">_instance</span>, :<span class="ident">course_module</span>, <span class="ident">chapter</span>: <span class="ident">_chapter</span>, :<span class="ident">page</span>);
 
         <span class="kw">let</span> <span class="ident">course_page_org</span> <span class="op">=</span> <span class="ident">get_organization_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">page</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">org</span>, <span class="ident">course_page_org</span>);

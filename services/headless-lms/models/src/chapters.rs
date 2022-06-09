@@ -112,6 +112,7 @@ pub struct NewChapter {
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
     /// If undefined when creating a chapter, will use the course default one.
+    /// CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
     pub course_module_id: Option<Uuid>,
 }
 
@@ -122,6 +123,7 @@ pub struct ChapterUpdate {
     pub front_page_id: Option<Uuid>,
     pub deadline: Option<DateTime<Utc>>,
     pub opens_at: Option<DateTime<Utc>>,
+    /// CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
     pub course_module_id: Option<Uuid>,
 }
 

@@ -387,10 +387,10 @@ async fn check_course_or_exam_permission(
 async fn check_material_reference_permissions(
     roles: &[Role],
     action: Action,
-) -> ControllerResult<()> {
+) -> Result<AuthorizationToken, ControllerError> {
     for role in roles {
         if has_permission(role.role, action) {
-            return Ok(());
+            return Ok(AuthorizationToken(()));
         }
     }
     Err(ControllerError::Forbidden("Unauthorized".to_string()))

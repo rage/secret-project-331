@@ -673,11 +673,11 @@ async fn get_material_references_by_course_id(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<MaterialReference>>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
     let res =
         models::material_references::get_references_by_course_id(&mut conn, *course_id).await?;
-    Ok(web::Json(res))
+    token.authorized_ok(web::Json(res))
 }
 
 #[generated_doc]
@@ -689,11 +689,11 @@ async fn insert_material_references(
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
     models::material_references::insert_reference(&mut conn, *course_id, payload.0).await?;
 
-    Ok(web::Json(()))
+    token.authorized_ok(web::Json(()))
 }
 
 #[generated_doc]
@@ -706,7 +706,7 @@ async fn update_material_reference(
 ) -> ControllerResult<web::Json<()>> {
     let (course_id, reference_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
     let res = models::material_references::update_material_reference_by_id(
         &mut conn,
@@ -714,7 +714,7 @@ async fn update_material_reference(
         payload.0,
     )
     .await?;
-    Ok(web::Json(res))
+    token.authorized_ok(web::Json(res))
 }
 
 #[generated_doc]
@@ -726,10 +726,10 @@ async fn delete_material_reference_by_id(
 ) -> ControllerResult<web::Json<()>> {
     let (course_id, reference_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
     let res = models::material_references::delete_reference(&mut conn, reference_id).await?;
-    Ok(web::Json(res))
+    token.authorized_ok(web::Json(res))
 }
 
 /**

@@ -525,10 +525,11 @@ async fn get_material_references_by_course_id(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<MaterialReference>>> {
     let mut conn = pool.acquire().await?;
-
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
     let res =
         models::material_references::get_references_by_course_id(&mut conn, *course_id).await?;
-    Ok(web::Json(res))
+
+    token.authorized_ok(web::Json(res))
 }
 
 /**

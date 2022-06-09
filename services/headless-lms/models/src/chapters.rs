@@ -488,14 +488,14 @@ pub async fn get_chapter_by_page_id(
     let chapter = sqlx::query_as!(
         DatabaseChapter,
         "
-    SELECT *
-    FROM chapters
-    WHERE chapters.id = (
-        SELECT chapter_id
-        FROM pages
-        WHERE pages.id = $1
-    );
-        ",
+SELECT *
+FROM chapters
+WHERE chapters.id = (
+    SELECT chapter_id
+    FROM pages
+    WHERE pages.id = $1
+  );
+    ",
         page_id
     )
     .fetch_one(conn)

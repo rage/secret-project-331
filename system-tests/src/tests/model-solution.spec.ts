@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectPath from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 import waitForFunction from "../utils/waitForFunction"
@@ -26,10 +27,13 @@ test.describe("Model solutions", () => {
 
     expectPath(page, "/manage/courses/[id]")
     // Click text=view submissions
-    await Promise.all([
-      page.waitForNavigation(/*{ url: 'http://project-331.local/manage/exercises/6460b318-254c-4b70-9e1f-9ff6b2c3d461/submissions' }*/),
-      page.click("text=view submissions"),
-    ])
+    // await Promise.all([
+    //   page.waitForNavigation(/*{ url: 'http://project-331.local/manage/exercises/6460b318-254c-4b70-9e1f-9ff6b2c3d461/submissions' }*/),
+    //   page.click("text=view submissions"),
+    // ])
+    await page.click("text=Exercises")
+    await page.click("text=view submissions")
+    await page.locator(`text="Submission time"`).waitFor()
     // Click a:has-text("link")
     await Promise.all([page.waitForNavigation(), page.click('a:has-text("link")')])
     expectPath(page, "/submissions/[id]")
@@ -77,10 +81,7 @@ test.describe("Model solutions", () => {
       page.click("text=Introduction to Everything"),
     ])
 
-    // Click text=default
-    await page.click("text=default")
-    // Click button:has-text("Continue")
-    await page.click('button:has-text("Continue")')
+    await selectCourseInstanceIfPrompted(page)
     // Click text=Chapter 1: The Basics
     await Promise.all([page.waitForNavigation(), page.click("text=The Basics")])
     expectPath(page, "/org/uh-cs/courses/introduction-to-everything/chapter-1")

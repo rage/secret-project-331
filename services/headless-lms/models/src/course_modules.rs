@@ -23,6 +23,13 @@ RETURNING id
     Ok(res.id)
 }
 
+pub async fn insert_default_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Uuid> {
+    insert(conn, course_id, None, 0).await
+}
+
 pub async fn rename(conn: &mut PgConnection, id: Uuid, name: &str) -> ModelResult<()> {
     sqlx::query!(
         "

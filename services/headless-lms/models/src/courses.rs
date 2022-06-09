@@ -400,6 +400,9 @@ RETURNING id,
     };
     let page = crate::pages::insert_page(&mut tx, course_front_page, user).await?;
 
+    // Create default course module
+    crate::course_modules::insert_default_for_course(&mut tx, course.id).await?;
+
     // Create default course instance
     let default_course_instance = crate::course_instances::insert(
         &mut tx,

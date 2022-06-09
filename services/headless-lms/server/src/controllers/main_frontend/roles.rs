@@ -46,7 +46,6 @@ pub async fn set(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    let user = users::get_by_email(&mut conn, &role_info.email).await?;
     authorize_role_management(
         &mut conn,
         role_info.domain,
@@ -55,8 +54,8 @@ pub async fn set(
     )
     .await?;
 
-    let user = users::get_by_email(&mut conn, &role_info.email).await?;
-    roles::insert(&mut conn, user.id, role_info.role, role_info.domain).await?;
+    let target_user = users::get_by_email(&mut conn, &role_info.email).await?;
+    roles::insert(&mut conn, target_user.id, role_info.role, role_info.domain).await?;
 
     let token = skip_authorize()?;
     token.authorized_ok(HttpResponse::Ok().finish())
@@ -72,7 +71,6 @@ pub async fn unset(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    let user = users::get_by_email(&mut conn, &role_info.email).await?;
     authorize_role_management(
         &mut conn,
         role_info.domain,
@@ -80,8 +78,8 @@ pub async fn unset(
         user.id,
     )
     .await?;
-
-    roles::remove(&mut conn, user.id, role_info.role, role_info.domain).await?;
+    let target_user = users::get_by_email(&mut conn, &role_info.email).await?;
+    roles::remove(&mut conn, target_user.id, role_info.role, role_info.domain).await?;
 
     let token = skip_authorize()?;
     token.authorized_ok(HttpResponse::Ok().finish())
@@ -146,7 +144,7 @@ pub async fn fetch(
 
     let roles = roles::get(&mut conn, domain).await?;
 
-    let token = skip_authorize()?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::AnyCourse).await?;
     token.authorized_ok(web::Json(roles))
 }
 

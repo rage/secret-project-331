@@ -128,6 +128,8 @@ pub enum Resource {
     PlaygroundExample,
     ExerciseService,
 }
+
+/// Validates that user has right to function
 #[derive(Copy, Clone, Debug)]
 pub struct AuthorizationToken(());
 
@@ -140,6 +142,7 @@ impl AuthorizationToken {
     }
 }
 
+/// Responder for AuthorizationToken
 #[derive(Copy, Clone)]
 pub struct AuthorizedResponse<T> {
     pub data: T,
@@ -154,11 +157,36 @@ impl<T: Responder> Responder for AuthorizedResponse<T> {
     }
 }
 
+/**  Skips the authorize() and returns AuthorizationToken, needed in functions with anonymous and test users
+
+We need skip to get all organizations on the homepage
+
+
+ async fn get_all_organizations(
+
+    pool: web::Data<PgPool>,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
+
+ ) -> ControllerResult<web::Json<Vec<Organization>>> {
+
+    ...
+
+    let token = skip_authorize()?;
+    token.authorized_ok(Json(courses))
+}
+*/
 pub fn skip_authorize() -> anyhow::Result<AuthorizationToken> {
     Ok(AuthorizationToken(()))
 }
 
-/// Can user_id action the resource?
+/// Verifies that user has permission to Act on given Resource and returns an AuthorizationToken
+///
+/// let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+///
+/// We check that the user has permission to Edit the given Page, if succesful we return authorized_ok
+///
+/// token.authorized_ok(web::Json(cms_page_info))
 pub async fn authorize(
     conn: &mut PgConnection,
     action: Action,

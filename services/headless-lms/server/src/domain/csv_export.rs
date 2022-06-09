@@ -251,6 +251,7 @@ impl Write for CSVExportAdapter {
     }
 }
 
+/// Takes UnboundedReceiverStream-stream with AuthorizedResponse and returns UnboundedReceiverStream-stream with only Bytes
 pub fn make_authorized_streamable(
     stream: UnboundedReceiverStream<
         Result<AuthorizedResponse<bytes::Bytes>, controllers::ControllerError>,

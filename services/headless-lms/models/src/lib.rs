@@ -41,6 +41,7 @@ pub mod proposed_block_edits;
 pub mod proposed_page_edits;
 pub mod regradings;
 pub mod roles;
+pub mod study_registry_registrars;
 pub mod url_redirections;
 pub mod user_course_settings;
 pub mod user_exercise_slide_states;

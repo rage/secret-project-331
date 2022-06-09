@@ -5654,6 +5654,16 @@
       "nullable": [false, false, false, true, false, false, false, false, false]
     }
   },
+  "6115b4ea6be3824a74f2274a9e0f5dd876b87c83517915f895038bb5ed3e155d": {
+    "query": "\nUPDATE study_registry_registrars\nSET deleted_at = now()\nWHERE id = $1\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "6263426899d28575a326f3f969a391461c623bc4397d4236f1a2bf048785927d": {
     "query": "\nSELECT pages.id,\n  pages.created_at,\n  pages.updated_at,\n  pages.course_id,\n  pages.exam_id,\n  pages.chapter_id,\n  pages.url_path,\n  pages.title,\n  pages.deleted_at,\n  pages.content,\n  pages.order_number,\n  pages.copied_from\nFROM pages\nWHERE exam_id = $1\nAND pages.deleted_at IS NULL\n",
     "describe": {
@@ -11604,6 +11614,47 @@
       "nullable": [false, true, true, false, false]
     }
   },
+  "c9f9f907994a0773a19e94bee68daac50ef95bed3921b84db058b9e44f05436a": {
+    "query": "\nSELECT *\nFROM study_registry_registrars\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "secret_key",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, false, false]
+    }
+  },
   "cb4274ae34447c4c5f7629ca692a91b49faea0db90cc160062b393fca15537b1": {
     "query": "\nSELECT exercise_task_submissions.id,\n  user_id,\n  exercise_task_submissions.created_at,\n  exercise_slide_submissions.exercise_id,\n  exercise_task_submissions.exercise_task_id,\n  exercise_task_gradings.score_given,\n  exercise_task_submissions.data_json\nFROM exercise_task_submissions\n  JOIN exercise_slide_submissions ON exercise_task_submissions.exercise_slide_submission_id = exercise_slide_submissions.id\n  JOIN exercise_task_gradings on exercise_task_submissions.exercise_task_grading_id = exercise_task_gradings.id\n  JOIN exercises on exercise_slide_submissions.exercise_id = exercises.id\nWHERE exercise_slide_submissions.exam_id = $1\n  AND exercise_task_submissions.deleted_at IS NULL\n  AND exercise_task_gradings.deleted_at IS NULL\n  AND exercises.deleted_at IS NULL;\n        ",
     "describe": {
@@ -11924,6 +11975,22 @@
       ],
       "parameters": {
         "Left": ["Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
+  "d5e8f94a3f8fe2b9acbd2beccb38d03d4c6e7d1f0f5c4c0cfb642da2422445a9": {
+    "query": "\nINSERT INTO study_registry_registrars (id, name, secret_key)\nVALUES (COALESCE($1, uuid_generate_v4()), $2, $3)\nRETURNING id\n    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Varchar"]
       },
       "nullable": [false]
     }

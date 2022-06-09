@@ -81,7 +81,8 @@ async fn post_new_course(
         user.id,
     )
     .await?;
-
+    // Create default course module
+    models::course_modules::insert_default_for_course(&mut tx, course.id).await?;
     models::roles::insert(
         &mut tx,
         user.id,

@@ -9,7 +9,6 @@ GET `/api/v0/main-frontend/playground_examples` - Returns all playground example
 #[instrument(skip(pool))]
 async fn get_playground_examples(
     pool: web::Data<PgPool>,
-    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<PlaygroundExample>>> {
     let mut conn = pool.acquire().await?;
     let res = models::playground_examples::get_all_playground_examples(&mut conn).await?;

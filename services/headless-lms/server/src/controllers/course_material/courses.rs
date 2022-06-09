@@ -276,7 +276,6 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages
 async fn get_course_pages(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let pages: Vec<Page> = models::pages::course_pages(&mut conn, *course_id).await?;
@@ -396,7 +395,6 @@ async fn search_pages_with_phrase(
     course_id: web::Path<Uuid>,
     payload: web::Json<PageSearchRequest>,
     pool: web::Data<PgPool>,
-    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
     let res =
@@ -429,7 +427,6 @@ async fn search_pages_with_words(
     course_id: web::Path<Uuid>,
     payload: web::Json<PageSearchRequest>,
     pool: web::Data<PgPool>,
-    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
     let res =
@@ -512,7 +509,6 @@ async fn propose_edit(
 async fn glossary(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
-    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Term>>> {
     let mut conn = pool.acquire().await?;
     let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;

@@ -11,6 +11,7 @@ import {
   CoursePageWithUserData,
   ExamData,
   ExamEnrollment,
+  IsChapterFrontPage,
   MaterialReference,
   NewFeedback,
   NewMaterialReference,
@@ -379,4 +380,8 @@ export const postNewReference = async (
   data: NewMaterialReference,
 ): Promise<void> => {
   await courseMaterialClient.post(`/courses/${courseId}/references`, data)
+}
+
+export const isPageFrontPage = async (pageId: string): Promise<IsChapterFrontPage> => {
+  return (await courseMaterialClient.get(`/pages/${pageId}`)).data
 }

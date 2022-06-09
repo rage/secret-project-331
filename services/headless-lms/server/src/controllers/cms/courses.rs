@@ -29,7 +29,6 @@ async fn add_media(
 ) -> ControllerResult<web::Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course.id)).await?;
 
     let media_path = upload_media(

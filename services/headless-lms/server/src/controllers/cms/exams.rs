@@ -56,11 +56,10 @@ async fn get_exam_instructions(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ExamInstructions>> {
     let mut conn = pool.acquire().await?;
-
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
     let exam_instructions_data =
         models::exams::get_exam_instructions_data(&mut conn, *exam_id).await?;
 
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
     token.authorized_ok(web::Json(exam_instructions_data))
 }
 
@@ -84,12 +83,11 @@ async fn update_exam_instructions(
 ) -> ControllerResult<web::Json<ExamInstructions>> {
     let mut conn = pool.acquire().await?;
 
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
     let instructions_update = payload.0;
     let saved_instructions =
         models::exams::update_exam_instructions(&mut conn, *exam_id, instructions_update).await?;
 
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
     token.authorized_ok(web::Json(saved_instructions))
 }
 

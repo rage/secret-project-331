@@ -145,9 +145,9 @@ async fn get_mentimeter_oembed_data(
     user: AuthUser,
 ) -> ControllerResult<web::Json<OEmbedResponse>> {
     let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
     let url = query_params.url.to_string();
     let response = mentimeter_oembed_response_builder(url, app_conf.base_url.to_string())?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
     token.authorized_ok(web::Json(response))
 }
 

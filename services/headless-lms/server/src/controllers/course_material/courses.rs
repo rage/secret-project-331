@@ -452,7 +452,6 @@ pub async fn feedback(
     let fs = new_feedback.into_inner();
     let user_id = user.as_ref().map(|u| u.id);
 
-    let token = skip_authorize()?;
     // validate
     for f in &fs {
         if f.feedback_given.len() > 1000 {
@@ -481,6 +480,7 @@ pub async fn feedback(
         ids.push(id);
     }
     tx.commit().await?;
+    let token = skip_authorize()?;
     token.authorized_ok(web::Json(ids))
 }
 
@@ -496,7 +496,6 @@ async fn propose_edit(
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
-    let token = skip_authorize()?;
     let (id, _) = proposed_page_edits::insert(
         &mut conn,
         course.id,
@@ -504,7 +503,7 @@ async fn propose_edit(
         &edits.into_inner(),
     )
     .await?;
-
+    let token = skip_authorize()?;
     token.authorized_ok(web::Json(id))
 }
 

@@ -16,8 +16,6 @@ async fn get_organization_id(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
-    let organization =
-        models::course_instances::get_organization_id(&mut conn, *course_instance_id).await?;
     let token = authorize(
         &mut conn,
         Act::View,
@@ -25,6 +23,8 @@ async fn get_organization_id(
         Res::CourseInstance(*course_instance_id),
     )
     .await?;
+    let organization =
+        models::course_instances::get_organization_id(&mut conn, *course_instance_id).await?;
     token.authorized_ok(web::Json(organization))
 }
 

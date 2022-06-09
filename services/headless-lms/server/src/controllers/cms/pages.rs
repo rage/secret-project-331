@@ -21,7 +21,7 @@ async fn get_page(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Page(*page_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let cms_page = models::pages::get_page_with_exercises(&mut conn, *page_id).await?;
     token.authorized_ok(web::Json(cms_page))
@@ -39,7 +39,7 @@ async fn get_page_info(
     user: AuthUser,
 ) -> ControllerResult<web::Json<PageInfo>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Page(*page_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let cms_page_info = models::pages::get_page_info(&mut conn, *page_id).await?;
     token.authorized_ok(web::Json(cms_page_info))

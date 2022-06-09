@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use crate::{
+    course_modules,
     pages::{NewPage, Page, PageWithExercises},
     prelude::*,
     user_exercise_states::get_user_course_instance_chapter_metrics,
@@ -25,7 +26,7 @@ pub struct DatabaseChapter {
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
-    pub module: Option<Uuid>,
+    pub course_module_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -43,7 +44,7 @@ pub struct Chapter {
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
-    pub module: Option<Uuid>,
+    pub course_module_id: Uuid,
 }
 
 impl Chapter {
@@ -69,7 +70,7 @@ impl Chapter {
             opens_at: chapter.opens_at,
             copied_from: chapter.copied_from,
             deadline: chapter.deadline,
-            module: chapter.module,
+            course_module_id: chapter.course_module_id,
         }
     }
 }
@@ -110,7 +111,9 @@ pub struct NewChapter {
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
-    pub module: Option<Uuid>,
+    /// If undefined when creating a chapter, will use the course default one.
+    /// CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
+    pub course_module_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -120,7 +123,8 @@ pub struct ChapterUpdate {
     pub front_page_id: Option<Uuid>,
     pub deadline: Option<DateTime<Utc>>,
     pub opens_at: Option<DateTime<Utc>>,
-    pub module: Option<Uuid>,
+    /// CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
+    pub course_module_id: Option<Uuid>,
 }
 
 pub async fn insert(
@@ -128,18 +132,23 @@ pub async fn insert(
     name: &str,
     course_id: Uuid,
     chapter_number: i32,
-    module: Option<Uuid>,
+    course_module_id: Uuid,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO chapters (name, course_id, chapter_number, module)
+INSERT INTO chapters (
+    name,
+    course_id,
+    chapter_number,
+    course_module_id
+  )
 VALUES ($1, $2, $3, $4)
 RETURNING id
 ",
         name,
         course_id,
         chapter_number,
-        module
+        course_module_id,
     )
     .fetch_one(conn)
     .await?;
@@ -229,7 +238,7 @@ UPDATE chapters
 SET name = $2,
   deadline = $3,
   opens_at = $4,
-  module = $5
+  course_module_id = $5
 WHERE id = $1
 RETURNING *;
     "#,
@@ -237,7 +246,7 @@ RETURNING *;
         chapter_update.name,
         chapter_update.deadline,
         chapter_update.opens_at,
-        chapter_update.module
+        chapter_update.course_module_id,
     )
     .fetch_one(conn)
     .await?;
@@ -278,7 +287,39 @@ pub struct ChapterWithStatus {
     pub opens_at: Option<DateTime<Utc>>,
     pub status: ChapterStatus,
     pub chapter_image_url: Option<String>,
-    pub module: Option<Uuid>,
+    pub course_module_id: Uuid,
+}
+
+impl ChapterWithStatus {
+    pub fn from_database_chapter_timestamp_and_image_url(
+        database_chapter: DatabaseChapter,
+        timestamp: DateTime<Utc>,
+        chapter_image_url: Option<String>,
+    ) -> Self {
+        let open = database_chapter
+            .opens_at
+            .map(|o| o <= timestamp)
+            .unwrap_or(true);
+        let status = if open {
+            ChapterStatus::Open
+        } else {
+            ChapterStatus::Closed
+        };
+        ChapterWithStatus {
+            id: database_chapter.id,
+            created_at: database_chapter.created_at,
+            updated_at: database_chapter.updated_at,
+            name: database_chapter.name,
+            course_id: database_chapter.course_id,
+            deleted_at: database_chapter.deleted_at,
+            chapter_number: database_chapter.chapter_number,
+            front_page_id: database_chapter.front_page_id,
+            opens_at: database_chapter.opens_at,
+            status,
+            chapter_image_url,
+            course_module_id: database_chapter.course_module_id,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
@@ -309,7 +350,7 @@ SELECT id,
   opens_at,
   copied_from,
   deadline,
-  module
+  course_module_id
 FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -340,7 +381,7 @@ SELECT id,
   opens_at,
   copied_from,
   deadline,
-  module
+  course_module_id
 FROM chapters
 WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
   AND deleted_at IS NULL;
@@ -358,7 +399,13 @@ pub async fn insert_chapter(
     user: Uuid,
 ) -> ModelResult<(DatabaseChapter, Page)> {
     let mut tx = conn.begin().await?;
-
+    let course_module_id = if let Some(course_module_id) = chapter.course_module_id {
+        course_module_id
+    } else {
+        course_modules::get_default_by_course_id(&mut tx, chapter.course_id)
+            .await?
+            .id
+    };
     let chapter = sqlx::query_as!(
         DatabaseChapter,
         r#"
@@ -368,7 +415,7 @@ INSERT INTO chapters(
     chapter_number,
     deadline,
     opens_at,
-    module
+    course_module_id
   )
 VALUES($1, $2, $3, $4, $5, $6)
 RETURNING *;
@@ -378,7 +425,7 @@ RETURNING *;
         chapter.chapter_number,
         chapter.deadline,
         chapter.opens_at,
-        chapter.module
+        course_module_id,
     )
     .fetch_one(&mut tx)
     .await?;
@@ -479,4 +526,61 @@ pub async fn get_user_course_instance_chapter_progress(
             .transpose()?,
     };
     Ok(result)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod constraints {
+        use super::*;
+        use crate::{
+            courses::{self, NewCourse},
+            test_helper::*,
+        };
+
+        #[tokio::test]
+        async fn cannot_create_chapter_for_different_course_than_its_module() {
+            insert_data!(:tx, :user, :org, course: course_1, instance: _instance, :course_module);
+            let course_2 = courses::insert_course(
+                tx.as_mut(),
+                Uuid::new_v4(),
+                Uuid::new_v4(),
+                NewCourse {
+                    name: "".to_string(),
+                    slug: "course-2".to_string(),
+                    organization_id: org,
+                    language_code: "en-US".to_string(),
+                    teacher_in_charge_name: "Teacher".to_string(),
+                    teacher_in_charge_email: "teacher@example.com".to_string(),
+                    description: "".to_string(),
+                    is_draft: false,
+                    is_test_mode: false,
+                },
+                user,
+            )
+            .await
+            .unwrap()
+            .0
+            .id;
+            let chapter_result_2 = insert_chapter(
+                tx.as_mut(),
+                NewChapter {
+                    name: "Chapter of second course".to_string(),
+                    course_id: course_2,
+                    chapter_number: 0,
+                    front_page_id: None,
+                    opens_at: None,
+                    deadline: None,
+                    course_module_id: Some(course_module),
+                },
+                user,
+            )
+            .await;
+            assert!(
+                chapter_result_2.is_err(),
+                "Expected chapter creation to fail when course module belongs to a different course."
+            );
+        }
+    }
 }

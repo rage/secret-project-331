@@ -10,8 +10,8 @@ import SubmissionIFrame from "../../components/page-specific/submissions/id/Subm
 import { fetchSubmissionInfo } from "../../services/backend/submissions"
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import HideTextInSystemTests from "../../shared-module/components/HideTextInSystemTests"
 import Spinner from "../../shared-module/components/Spinner"
+import HideTextInSystemTests from "../../shared-module/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "../../shared-module/styles"
 import { narrowContainerWidthRem } from "../../shared-module/styles/constants"
 import dontRenderUntilQueryParametersReady, {

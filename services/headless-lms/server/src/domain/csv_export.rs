@@ -273,12 +273,12 @@ mod test {
 
     #[tokio::test]
     async fn exports() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
 
         let u2 = users::insert(tx.as_mut(), "second@example.org", None, None)
             .await
             .unwrap();
-        let c2 = chapters::insert(tx.as_mut(), "", course, 2, None)
+        let c2 = chapters::insert(tx.as_mut(), "", course, 2, course_module)
             .await
             .unwrap();
         let e2 = exercises::insert(tx.as_mut(), course, "", page, c2, 0)

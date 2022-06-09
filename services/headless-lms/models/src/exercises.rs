@@ -586,6 +586,7 @@ mod test {
             org: organization_id,
             course: course_id,
             instance: course_instance,
+            :course_module,
             chapter: chapter_id,
             page: page_id,
             exercise: exercise_id,

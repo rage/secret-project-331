@@ -175,9 +175,9 @@ export const fetchAllCoursePages = async (courseId: string): Promise<Array<Page>
 
 export const fetchUserCourseProgress = async (
   courseInstanceId: string,
-): Promise<UserCourseInstanceProgress> => {
+): Promise<UserCourseInstanceProgress[]> => {
   const response = await courseMaterialClient.get(`/course-instances/${courseInstanceId}/progress`)
-  return validateResponse(response, isUserCourseInstanceProgress)
+  return validateResponse(response, isArray(isUserCourseInstanceProgress))
 }
 
 export const fetchUserChapterInstanceChapterProgress = async (

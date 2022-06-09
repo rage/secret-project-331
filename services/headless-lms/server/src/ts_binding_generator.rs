@@ -2,7 +2,7 @@
 use crate::controllers::{
     auth::Login,
     course_material::{
-        courses::ChaptersWithStatus,
+        courses::{ChaptersWithStatus, CourseMaterialCourseModule},
         exams::{ExamData, ExamEnrollmentData},
     },
     main_frontend::{
@@ -195,6 +195,7 @@ fn ts_binding_generator() {
         users::User,
 
         ChaptersWithStatus,
+        CourseMaterialCourseModule,
         RoleQuery,
         RoleInfo,
         ExamData,

@@ -5,7 +5,7 @@ use std::{collections::HashMap, fs};
 use chrono::{NaiveDate, TimeZone, Utc};
 use headless_lms_actix::controllers::{
     course_material::{
-        courses::ChaptersWithStatus,
+        courses::{ChaptersWithStatus, CourseMaterialCourseModule},
         exams::{ExamData, ExamEnrollmentData},
     },
     main_frontend::exercises::ExerciseSubmissions,
@@ -258,7 +258,7 @@ fn main() {
         opens_at: Some(date_time),
         copied_from: None,
         deadline: Some(date_time),
-        module: None,
+        course_module_id: id,
     };
     let exercise_service = ExerciseService {
         id,
@@ -431,12 +431,28 @@ fn main() {
     write_docs!(
         UserCourseInstanceProgress,
         UserCourseInstanceProgress {
+            course_module_id: id,
+            course_module_name: "Module".to_string(),
+            course_module_order_number: 0,
             score_given: 3.0,
             score_maximum: Some(10),
             total_exercises: Some(66),
             attempted_exercises: Some(13)
         }
     );
+    write_docs!(
+        Vec<UserCourseInstanceProgress>,
+        vec![UserCourseInstanceProgress {
+            course_module_id: id,
+            course_module_name: "Module".to_string(),
+            course_module_order_number: 0,
+            score_given: 3.0,
+            score_maximum: Some(10),
+            total_exercises: Some(66),
+            attempted_exercises: Some(13)
+        }]
+    );
+
     write_docs!(
         UserCourseInstanceChapterProgress,
         UserCourseInstanceChapterProgress {
@@ -638,7 +654,7 @@ fn main() {
                     opens_at: Some(date_time),
                     deadline: Some(date_time),
                     copied_from: None,
-                    module: None,
+                    course_module_id: id,
                 },
                 score_given: 1.0,
                 score_total: 2
@@ -825,21 +841,27 @@ fn main() {
         ChaptersWithStatus,
         ChaptersWithStatus {
             is_previewable: false,
-            modules: vec![],
-            chapters: vec![ChapterWithStatus {
+            modules: vec![CourseMaterialCourseModule {
+                chapters: vec![ChapterWithStatus {
+                    id,
+                    created_at,
+                    updated_at,
+                    name: "The Basics".to_string(),
+                    course_id: id2,
+                    deleted_at,
+                    chapter_number: 1,
+                    front_page_id: None,
+                    opens_at: None,
+                    status: ChapterStatus::Open,
+                    chapter_image_url: Some("http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg".to_string()),
+                    course_module_id: id,
+                }],
                 id,
-                created_at,
-                updated_at,
-                name: "The Basics".to_string(),
-                course_id: id2,
-                deleted_at,
-                chapter_number: 1,
-                front_page_id: None,
-                opens_at: None,
-                status: ChapterStatus::Open,
-                chapter_image_url: Some("http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg".to_string()),
-                module: None,
-            }]
+                is_default: true,
+                name: None,
+                order_number: 0
+            }],
+
         }
     );
     write_docs!(

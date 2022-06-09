@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
 
-use std::{net::IpAddr, path::Path};
+use std::{collections::HashMap, net::IpAddr, path::Path};
 
 use actix_http::header;
 use chrono::Utc;
@@ -8,7 +8,7 @@ use futures::{future::OptionFuture, FutureExt};
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use isbot::Bots;
 use models::{
-    chapters::{ChapterStatus, ChapterWithStatus},
+    chapters::ChapterWithStatus,
     course_instances::CourseInstance,
     course_modules::Module,
     courses,
@@ -280,8 +280,17 @@ async fn get_course_pages(
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChaptersWithStatus {
     pub is_previewable: bool,
-    pub modules: Vec<Module>,
+    pub modules: Vec<CourseMaterialCourseModule>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseMaterialCourseModule {
     pub chapters: Vec<ChapterWithStatus>,
+    pub id: Uuid,
+    pub is_default: bool,
+    pub name: Option<String>,
+    pub order_number: i32,
 }
 
 /**
@@ -297,46 +306,64 @@ async fn get_chapters(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<ChaptersWithStatus>> {
     let mut conn = pool.acquire().await?;
-
     let is_previewable = OptionFuture::from(user.map(|u| {
         authorize(&mut conn, Act::Teach, Some(u.id), Res::Course(*course_id)).map(|r| r.ok())
     }))
     .await
     .is_some();
-    let chapters = models::chapters::course_chapters(&mut conn, *course_id).await?;
-    let modules = models::course_modules::for_course(&mut conn, *course_id).await?;
-    let chapters = chapters
+    let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
+    let chapters = models::chapters::course_chapters(&mut conn, *course_id)
+        .await?
         .into_iter()
         .map(|chapter| {
-            let open = chapter.opens_at.map(|o| o <= Utc::now()).unwrap_or(true);
-            let status = if open {
-                ChapterStatus::Open
-            } else {
-                ChapterStatus::Closed
-            };
-            ChapterWithStatus {
-                id: chapter.id,
-                created_at: chapter.created_at,
-                updated_at: chapter.updated_at,
-                name: chapter.name,
-                course_id: chapter.course_id,
-                deleted_at: chapter.deleted_at,
-                chapter_number: chapter.chapter_number,
-                front_page_id: chapter.front_page_id,
-                opens_at: chapter.opens_at,
-                status,
-                chapter_image_url: chapter
-                    .chapter_image_path
-                    .map(|path| file_store.get_download_url(Path::new(&path), &app_conf)),
-                module: chapter.module,
-            }
+            let chapter_image_url = chapter
+                .chapter_image_path
+                .as_ref()
+                .map(|path| file_store.get_download_url(Path::new(&path), &app_conf));
+            ChapterWithStatus::from_database_chapter_timestamp_and_image_url(
+                chapter,
+                Utc::now(),
+                chapter_image_url,
+            )
         })
         .collect();
+    let modules = collect_course_modules(course_modules, chapters)?;
     Ok(web::Json(ChaptersWithStatus {
         is_previewable,
         modules,
-        chapters,
     }))
+}
+
+/// Combines course modules and chapters, consuming them.
+fn collect_course_modules(
+    course_modules: Vec<Module>,
+    chapters: Vec<ChapterWithStatus>,
+) -> ControllerResult<Vec<CourseMaterialCourseModule>> {
+    let mut course_modules: HashMap<Uuid, CourseMaterialCourseModule> = course_modules
+        .into_iter()
+        .map(|course_module| {
+            (
+                course_module.id,
+                CourseMaterialCourseModule {
+                    chapters: vec![],
+                    id: course_module.id,
+                    is_default: course_module.name.is_none(),
+                    name: course_module.name,
+                    order_number: course_module.order_number,
+                },
+            )
+        })
+        .collect();
+    for chapter in chapters {
+        course_modules
+            .get_mut(&chapter.course_module_id)
+            .ok_or_else(|| {
+                ControllerError::InternalServerError("Module data mismatch.".to_string())
+            })?
+            .chapters
+            .push(chapter);
+    }
+    Ok(course_modules.into_values().collect())
 }
 
 /**

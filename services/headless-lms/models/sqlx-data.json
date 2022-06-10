@@ -3003,7 +3003,7 @@
             "Custom": {
               "name": "grade_local_id",
               "kind": {
-                "Enum": ["1", "2", "3", "4", "5"]
+                "Enum": ["0", "1", "2", "3", "4", "5"]
               }
             }
           }
@@ -5704,116 +5704,6 @@
         "Left": ["Uuid"]
       },
       "nullable": []
-    }
-  },
-  "611ec04410bb13f23faf144fcd15ac75a8d7e7313176f7c396b8f54bf8221078": {
-    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  course_module_id,\n  user_id,\n  completion_date,\n  completion_registration_attempt_date,\n  completion_language,\n  eligible_for_ects,\n  email,\n  grade_scale_id AS \"grade_scale_id: _\",\n  grade_local_id AS \"grade_local_id: _\"\nFROM course_module_completions\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "course_module_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 6,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 7,
-          "name": "completion_date",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "completion_registration_attempt_date",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 9,
-          "name": "completion_language",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 10,
-          "name": "eligible_for_ects",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 11,
-          "name": "email",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 12,
-          "name": "grade_scale_id: _",
-          "type_info": {
-            "Custom": {
-              "name": "grade_scale_id",
-              "kind": {
-                "Enum": ["sis_0_5", "sis_pass_fail"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 13,
-          "name": "grade_local_id: _",
-          "type_info": {
-            "Custom": {
-              "name": "grade_local_id",
-              "kind": {
-                "Enum": ["1", "2", "3", "4", "5"]
-              }
-            }
-          }
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false
-      ]
     }
   },
   "6263426899d28575a326f3f969a391461c623bc4397d4236f1a2bf048785927d": {
@@ -12102,6 +11992,122 @@
         "Left": ["Uuid"]
       },
       "nullable": []
+    }
+  },
+  "d482c944cfb8e7c321e376e70be51635e6ad31c2c7eb6d14baca9139b596df38": {
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  course_module_id,\n  user_id,\n  completion_date,\n  completion_registration_attempt_date,\n  completion_language,\n  eligible_for_ects,\n  email,\n  grade_scale_id AS \"grade_scale_id: _\",\n  grade_local_id AS \"grade_local_id: _\",\n  passed\nFROM course_module_completions\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "course_module_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "completion_date",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "completion_registration_attempt_date",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "completion_language",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 10,
+          "name": "eligible_for_ects",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 11,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 12,
+          "name": "grade_scale_id: _",
+          "type_info": {
+            "Custom": {
+              "name": "grade_scale_id",
+              "kind": {
+                "Enum": ["sis_0_5", "sis_pass_fail"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 13,
+          "name": "grade_local_id: _",
+          "type_info": {
+            "Custom": {
+              "name": "grade_local_id",
+              "kind": {
+                "Enum": ["0", "1", "2", "3", "4", "5"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 14,
+          "name": "passed",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "d565b3ca168a0beb24ee0a58c078fd031a52cd26a807c348bdb3fac1849bd456": {

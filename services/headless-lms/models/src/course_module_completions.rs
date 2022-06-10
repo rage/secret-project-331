@@ -12,6 +12,8 @@ pub enum GradeScaleId {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
 #[sqlx(type_name = "grade_local_id")]
 pub enum GradeLocalId {
+    #[sqlx(rename = "0")]
+    Zero,
     #[sqlx(rename = "1")]
     One,
     #[sqlx(rename = "2")]
@@ -40,6 +42,7 @@ pub struct CourseModuleCompletion {
     pub email: String,
     pub grade_scale_id: GradeScaleId,
     pub grade_local_id: GradeLocalId,
+    pub passed: bool,
 }
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -125,7 +128,8 @@ SELECT id,
   eligible_for_ects,
   email,
   grade_scale_id AS "grade_scale_id: _",
-  grade_local_id AS "grade_local_id: _"
+  grade_local_id AS "grade_local_id: _",
+  passed
 FROM course_module_completions
 WHERE id = $1
   AND deleted_at IS NULL
@@ -158,6 +162,80 @@ pub mod tests {
 
     use super::*;
     use crate::test_helper::*;
+
+    mod passed_evaluation {
+        use super::*;
+
+        #[tokio::test]
+        async fn sis_0_5_validation() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+            let dataset = vec![
+                (GradeLocalId::Zero, false),
+                (GradeLocalId::One, true),
+                (GradeLocalId::Two, true),
+                (GradeLocalId::Three, true),
+                (GradeLocalId::Four, true),
+                (GradeLocalId::Five, true),
+            ];
+            for (grade_local_id, expected_to_pass) in dataset {
+                let completion = create_new_completion(
+                    tx.as_mut(),
+                    course,
+                    course_module,
+                    user,
+                    GradeScaleId::SisuZeroFive,
+                    grade_local_id,
+                )
+                .await
+                .unwrap();
+                assert_eq!(completion.passed, expected_to_pass);
+            }
+        }
+
+        #[tokio::test]
+        async fn sis_pass_fail_validation() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+            let dataset = vec![(GradeLocalId::Zero, false), (GradeLocalId::One, true)];
+            for (grade_local_id, expected_to_pass) in dataset {
+                let completion = create_new_completion(
+                    tx.as_mut(),
+                    course,
+                    course_module,
+                    user,
+                    GradeScaleId::SisuPassFail,
+                    grade_local_id,
+                )
+                .await
+                .unwrap();
+                assert_eq!(completion.passed, expected_to_pass);
+            }
+        }
+
+        async fn create_new_completion(
+            conn: &mut PgConnection,
+            course_id: Uuid,
+            course_module_id: Uuid,
+            user_id: Uuid,
+            grade_scale_id: GradeScaleId,
+            grade_local_id: GradeLocalId,
+        ) -> ModelResult<CourseModuleCompletion> {
+            let new_completion = NewCourseModuleCompletion {
+                course_id,
+                course_module_id,
+                user_id,
+                completion_date: Utc.ymd(2022, 6, 10).and_hms(14, 0, 0),
+                completion_registration_attempt_date: None,
+                completion_language: "en_US".to_string(),
+                eligible_for_ects: true,
+                email: "email@example.com".to_string(),
+                grade_scale_id,
+                grade_local_id,
+            };
+            let completion_id = insert(conn, &new_completion, None).await.unwrap();
+            let completion = get_by_id(conn, completion_id).await.unwrap();
+            Ok(completion)
+        }
+    }
 
     #[tokio::test]
     async fn type_conversions_work() {

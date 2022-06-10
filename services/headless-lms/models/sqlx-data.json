@@ -5870,7 +5870,7 @@
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [false, false, false, true, false, false, false, true, true, false, false, false]
+      "nullable": [false, false, false, true, false, false, false, false, true, false, false, false]
     }
   },
   "64fe3f5421ad33305f9f1daef9da4fb63db3edc86b7e769e21e689b67f2d9839": {

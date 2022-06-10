@@ -67,7 +67,7 @@ export interface Chapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
-  module: string | null
+  course_module_id: string
 }
 
 export interface DatabaseChapter {
@@ -83,7 +83,7 @@ export interface DatabaseChapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
-  module: string | null
+  course_module_id: string
 }
 
 export type ChapterStatus = "open" | "closed"
@@ -93,7 +93,7 @@ export interface ChapterUpdate {
   front_page_id: string | null
   deadline: Date | null
   opens_at: Date | null
-  module: string | null
+  course_module_id: string | null
 }
 
 export interface ChapterWithStatus {
@@ -108,7 +108,7 @@ export interface ChapterWithStatus {
   opens_at: Date | null
   status: ChapterStatus
   chapter_image_url: string | null
-  module: string | null
+  course_module_id: string
 }
 
 export interface NewChapter {
@@ -118,7 +118,7 @@ export interface NewChapter {
   front_page_id: string | null
   opens_at: Date | null
   deadline: Date | null
-  module: string | null
+  course_module_id: string | null
 }
 
 export interface UserCourseInstanceChapterProgress {
@@ -150,7 +150,7 @@ export interface ChapterScore {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
-  module: string | null
+  course_module_id: string
   score_given: number
   score_total: number
 }
@@ -190,8 +190,9 @@ export interface Points {
 
 export interface Module {
   id: string
-  name: string
+  name: string | null
   order_number: number
+  copied_from: string | null
 }
 
 export interface Course {
@@ -910,6 +911,9 @@ export interface UserCourseInstanceChapterExerciseProgress {
 }
 
 export interface UserCourseInstanceProgress {
+  course_module_id: string
+  course_module_name: string
+  course_module_order_number: number
   score_given: number
   score_maximum: number | null
   total_exercises: number | null
@@ -948,8 +952,15 @@ export interface User {
 
 export interface ChaptersWithStatus {
   is_previewable: boolean
-  modules: Array<Module>
+  modules: Array<CourseMaterialCourseModule>
+}
+
+export interface CourseMaterialCourseModule {
   chapters: Array<ChapterWithStatus>
+  id: string
+  is_default: boolean
+  name: string | null
+  order_number: number
 }
 
 export interface RoleQuery {

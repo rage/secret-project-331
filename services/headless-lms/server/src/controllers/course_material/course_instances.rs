@@ -18,7 +18,7 @@ async fn get_user_progress_for_course_instance(
     user: AuthUser,
     course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<UserCourseInstanceProgress>> {
+) -> ControllerResult<web::Json<Vec<UserCourseInstanceProgress>>> {
     let mut conn = pool.acquire().await?;
     let user_course_instance_progress =
         models::user_exercise_states::get_user_course_instance_progress(

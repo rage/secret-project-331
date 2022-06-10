@@ -4,14 +4,20 @@ import { useTranslation } from "react-i18next"
 
 import { State } from "../pages/iframe"
 
-import Placeholder from "./Placeholder"
+import DynamicallyLoadingComponentPlaceholder from "./ComponentPlaceholder"
 
 // Dynamic imports for different view types to keep the bundle size down
-const Editor = dynamic(() => import("./Editor"), { ssr: false, loading: () => <Placeholder /> })
-const Exercise = dynamic(() => import("./Exercise"), { ssr: false, loading: () => <Placeholder /> })
+const Editor = dynamic(() => import("./Editor"), {
+  ssr: false,
+  loading: () => <DynamicallyLoadingComponentPlaceholder />,
+})
+const Exercise = dynamic(() => import("./Exercise"), {
+  ssr: false,
+  loading: () => <DynamicallyLoadingComponentPlaceholder />,
+})
 const Submission = dynamic(() => import("./Submission"), {
   ssr: false,
-  loading: () => <Placeholder />,
+  loading: () => <DynamicallyLoadingComponentPlaceholder />,
 })
 
 interface RendererProps {

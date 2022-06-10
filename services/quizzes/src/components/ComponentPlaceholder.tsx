@@ -1,11 +1,10 @@
 import { css } from "@emotion/css"
 import React, { useContext } from "react"
 
+import Spinner from "../shared-module/components/Spinner"
 import IframeHeightContext from "../shared-module/contexts/IframeHeightContext"
 
-const PLACEHOLDER = "placeholder"
-
-const Placeholder = () => {
+const DynamicallyLoadingComponentPlaceholder = () => {
   const iframeHeight = useContext(IframeHeightContext).height
   return (
     <div
@@ -13,9 +12,9 @@ const Placeholder = () => {
         height: ${iframeHeight};
       `}
     >
-      {PLACEHOLDER}
+      <Spinner variant="medium" />
     </div>
   )
 }
 
-export default Placeholder
+export default DynamicallyLoadingComponentPlaceholder

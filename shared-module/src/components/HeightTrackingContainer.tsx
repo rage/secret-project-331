@@ -1,12 +1,12 @@
 import { css } from "@emotion/css"
 import React, { ReactNode, useEffect, useRef, useState } from "react"
 
+import IframeHeightContext from "../contexts/IframeHeightContext"
+
 interface Props {
   port: MessagePort | null
   children?: ReactNode
 }
-
-const WAITING = "waiting, if changes"
 
 const HeightTrackingContainer: React.FC<Props> = ({ port, children }) => {
   const contentRef = useRef<HTMLDivElement>(null)
@@ -16,7 +16,6 @@ const HeightTrackingContainer: React.FC<Props> = ({ port, children }) => {
   useEffect(() => {
     const onResize = () => {
       const ref = contentRef.current
-      setTimeout(() => console.log(WAITING), 10)
       if (!ref) {
         return
       }
@@ -73,15 +72,17 @@ const HeightTrackingContainer: React.FC<Props> = ({ port, children }) => {
   })
 
   return (
-    <div
-      // overflow: hidden required because otherwise margin-top in the children can otherwise mess up the height calculation
-      className={css`
-        overflow: hidden;
-      `}
-      ref={contentRef}
-    >
-      {children}
-    </div>
+    <IframeHeightContext.Provider value={{ height }}>
+      <div
+        // overflow: hidden required because otherwise margin-top in the children can otherwise mess up the height calculation
+        className={css`
+          overflow: hidden;
+        `}
+        ref={contentRef}
+      >
+        {children}
+      </div>
+    </IframeHeightContext.Provider>
   )
 }
 

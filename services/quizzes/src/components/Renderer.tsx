@@ -4,10 +4,15 @@ import { useTranslation } from "react-i18next"
 
 import { State } from "../pages/iframe"
 
+import Placeholder from "./Placeholder"
+
 // Dynamic imports for different view types to keep the bundle size down
-const Editor = dynamic(() => import("./Editor"), { ssr: false })
-const Exercise = dynamic(() => import("./Exercise"), { ssr: false })
-const Submission = dynamic(() => import("./Submission"), { ssr: false })
+const Editor = dynamic(() => import("./Editor"), { ssr: false, loading: () => <Placeholder /> })
+const Exercise = dynamic(() => import("./Exercise"), { ssr: false, loading: () => <Placeholder /> })
+const Submission = dynamic(() => import("./Submission"), {
+  ssr: false,
+  loading: () => <Placeholder />,
+})
 
 interface RendererProps {
   state: State | null

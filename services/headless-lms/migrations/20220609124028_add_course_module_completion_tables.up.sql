@@ -7,7 +7,7 @@ CREATE TABLE course_module_completions (
   course_id UUID NOT NULL REFERENCES courses(id),
   course_module_id UUID NOT NULL REFERENCES course_modules(id),
   user_id UUID NOT NULL REFERENCES users(id),
-  completion_date TIMESTAMP WITH TIME ZONE,
+  completion_date TIMESTAMP WITH TIME ZONE NOT NULL,
   completion_registration_attempt_date TIMESTAMP WITH TIME ZONE,
   completion_language VARCHAR(255) NOT NULL,
   eligible_for_ects BOOLEAN NOT NULL,
@@ -23,8 +23,8 @@ COMMENT ON COLUMN course_module_completions.deleted_at IS 'Timestamp when the re
 COMMENT ON COLUMN course_module_completions.course_id IS 'Course that the completion is a part of.';
 COMMENT ON COLUMN course_module_completions.course_module_id IS 'Part of a course that the completion is for.';
 COMMENT ON COLUMN course_module_completions.user_id IS 'User who the completion is registered for.';
-COMMENT ON COLUMN course_module_completions.completion_date IS 'The date when a teacher has manually marked the course module as completed. For example, this may be the day of when an exam for the course took place.';
-COMMENT ON COLUMN course_module_completions.completion_registration_attempt_date IS 'For courses with a student self-registration. As per convention stated in course materials, this is actually the date of the course registration.';
+COMMENT ON COLUMN course_module_completions.completion_date IS 'The date when the student completed the course. The value of this field is the date that will end up in the user''s study registry as the completion date. If the completion is created automatically, it is the date when the student passed the completion thresholds. If the teacher creates these completions manually, the teacher inputs this value. Usually the teacher would in this case input the date of the exam.';
+COMMENT ON COLUMN course_module_completions.completion_registration_attempt_date IS 'Date when the student opened the form to register their credits to the open university.';
 COMMENT ON COLUMN course_module_completions.completion_language IS 'The language used in the completion of the course.';
 COMMENT ON COLUMN course_module_completions.eligible_for_ects IS 'Whether or not the student can receive study credits for this completion.';
 COMMENT ON COLUMN course_module_completions.email IS 'Email at the time of completing the course. Used to match the student to the data that they will fill to the open university and it will remain unchanged in the event of email change because changing this would break the matching.';

@@ -22,8 +22,7 @@ test("test", async ({ page, headless }) => {
     page.click("text=Glossary course"),
   ])
 
-  // Click text=Default
-  await page.click("text=Default")
+  await page.click('input[label="Default"]')
 
   // Click button:has-text("Continue")
   await page.click('button:has-text("Continue")')

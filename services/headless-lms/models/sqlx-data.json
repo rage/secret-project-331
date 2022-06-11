@@ -855,6 +855,16 @@
       "nullable": [true, true, true, true, true, true, true, true]
     }
   },
+  "0cdeea3ba0b6c8ddece5e2c1f839968e312f658ca0b0519bedc7e34c383367c0": {
+    "query": "\nUPDATE course_modules\nSET deleted_at = now()\nWHERE id = $1\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "0eb1973f9ce1c28fdf44969a8691da1e88b58501a1eff1e236eed1310dfe2464": {
     "query": "\n-- common table expression for the search term tsquery so that we don't have to repeat it many times\nWITH cte as (\n    -- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it\n    -- becomes a prefix match. This way the search will also contain results when the last word in the search term\n    -- is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement will be skipped.\n    SELECT ts_rewrite(\n        phraseto_tsquery($2::regconfig, $3),\n        to_tsquery($4),\n        to_tsquery($4 || ':*')\n    ) as query\n)\nSELECT id,\n    ts_rank(\n    content_search,\n    (\n        SELECT query\n        from cte\n    )\n    ) as rank,\n    ts_headline(\n    $2::regconfig,\n    title,\n    (\n        SELECT query\n        from cte\n    )\n    ) as title_headline,\n    ts_headline(\n    $2::regconfig,\n    content_search_original_text,\n    (\n        SELECT query\n        from cte\n    )\n    ) as content_headline,\n    url_path\nFROM pages\nWHERE course_id = $1\n    AND deleted_at IS NULL\n    AND content_search @@ (\n    SELECT query\n    from cte\n    )\nORDER BY rank DESC\nLIMIT 50;\n        ",
     "describe": {
@@ -1861,22 +1871,6 @@
       "nullable": [false, true, true, true]
     }
   },
-  "1d2a3e5c866dc5658632b9dd9e1dd9599ce0ec2008a1ef0fee538f07865ed804": {
-    "query": "\nINSERT INTO course_modules (course_id, name, order_number)\nVALUES ($1, $2, $3)\nRETURNING id\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Int4"]
-      },
-      "nullable": [false]
-    }
-  },
   "1e26900e33b2a6f1baafb787523f3539beb5c20be6a2a0857d6510e597217134": {
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  teacher_in_charge_name,\n  teacher_in_charge_email,\n  support_email\nFROM course_instances\nWHERE deleted_at IS NULL\n",
     "describe": {
@@ -2732,7 +2726,7 @@
         true,
         true,
         true,
-        true
+        false
       ]
     }
   },
@@ -2902,6 +2896,16 @@
         ]
       },
       "nullable": [false]
+    }
+  },
+  "2def52e21301e5f905174f3301d92553c046d703c11077f3ff3c2511928ee9e1": {
+    "query": "\nUPDATE course_modules\nSET name = COALESCE($1, name),\n  order_number = COALESCE($2, order_number)\nWHERE id = $3\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Varchar", "Int4", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "2e2e94fc2223f01242fa594ea0cb6183aeceab3dd62b9da489a26ffc94ea274d": {
@@ -3478,6 +3482,37 @@
       "nullable": [false, false, false, true, false, true, true, true, false, false, false]
     }
   },
+  "366ea78df7475c89f5cd3ec49ace8e6bd08ee5a2fb38e7596b38204c2505ec1c": {
+    "query": "\nSELECT id,\n  name,\n  order_number,\n  is_default\nFROM course_modules\nWHERE course_id = $1\n  AND is_default = TRUE\n  AND deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "is_default",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false]
+    }
+  },
   "375b467ba026680d07ba6fa844de91afd942e86b2715431e41b6788df0d2b3c0": {
     "query": "SELECT * FROM users WHERE upstream_id = $1",
     "describe": {
@@ -3527,6 +3562,37 @@
         "Left": ["Int4"]
       },
       "nullable": [false, false, false, true, true, false, true, true]
+    }
+  },
+  "378a0786bc078fffd002ee3f3f79c44c3a06540474debd8a56f28c5f976a7c35": {
+    "query": "\nINSERT INTO course_modules (course_id, name, order_number, is_default)\nVALUES ($1, $2, $3, $4)\nRETURNING id,\n  name,\n  order_number,\n  is_default\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "is_default",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Int4", "Bool"]
+      },
+      "nullable": [false, false, false, false]
     }
   },
   "37dfaa87dd74a4c1f409cd120e6997847616214878ae8a66b326699fa8633ad3": {
@@ -3615,7 +3681,7 @@
         true,
         true,
         true,
-        true
+        false
       ]
     }
   },
@@ -3928,7 +3994,7 @@
         true,
         true,
         true,
-        true
+        false
       ]
     }
   },
@@ -4207,7 +4273,7 @@
         true,
         true,
         true,
-        true
+        false
       ]
     }
   },
@@ -4425,7 +4491,7 @@
         true,
         true,
         true,
-        true
+        false
       ]
     }
   },
@@ -5607,6 +5673,37 @@
       "nullable": [false, false, false, false, false, false]
     }
   },
+  "6487753e6544e4d4ef493d0e49fe4b1f189bbbf7aca859422de583e7627183df": {
+    "query": "\nSELECT id,\n  name,\n  order_number,\n  is_default\nFROM course_modules\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "is_default",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, false]
+    }
+  },
   "64fe3f5421ad33305f9f1daef9da4fb63db3edc86b7e769e21e689b67f2d9839": {
     "query": "\nINSERT INTO exercise_task_gradings(\n    exercise_task_submission_id,\n    course_id,\n    exam_id,\n    exercise_id,\n    exercise_task_id,\n    grading_started_at\n  )\nVALUES($1, $2, $3, $4, $5, now())\nRETURNING id,\n  created_at,\n  updated_at,\n  exercise_task_submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  unscaled_score_given,\n  unscaled_score_maximum,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\n",
     "describe": {
@@ -5901,16 +5998,6 @@
         "Left": ["Uuid", "Uuid", "Int4", "Int4"]
       },
       "nullable": [false]
-    }
-  },
-  "66937c58727136756cceb8266a07c70c7c43ff50168a495af197c5f61782cbe4": {
-    "query": "\nUPDATE course_modules\nSET order_number = $1\nWHERE id = $2\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Int4", "Uuid"]
-      },
-      "nullable": []
     }
   },
   "680c5eed3c49d67d404af7d0a2df7dc8f9391db14848e8aff877a8a117335be2": {
@@ -6751,6 +6838,16 @@
         "Left": ["Uuid"]
       },
       "nullable": [false]
+    }
+  },
+  "76634e7c7d9eb41456d878ec9a76ec1f420f37d25e20d7bdc7aea0493b5c493a": {
+    "query": "\nUPDATE chapters\nSET module = $1\nWHERE id = $2\n",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": []
     }
   },
   "76ce92c1173e95b850a803ae754c1a94af1c02eb4e5e553df48901d90eb6e923": {
@@ -8267,7 +8364,7 @@
         true,
         true,
         true,
-        true
+        false
       ]
     }
   },
@@ -8647,32 +8744,6 @@
         "Left": ["Uuid", "Int4", "Uuid"]
       },
       "nullable": [false, false, false, true, false, false, false, false, false, false]
-    }
-  },
-  "9ba4643daef2c6a850568745bcc6f8d42b40feacedb4f78f945a5454138486e4": {
-    "query": "\nSELECT id,\n  name,\n  order_number\nFROM course_modules\nWHERE course_id = $1\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "order_number",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false]
     }
   },
   "9bc0b3ae6672ff787250bbbfbf353634b598e814cb2e3b8ca26235466b22ee63": {
@@ -9892,16 +9963,6 @@
       "nullable": [null]
     }
   },
-  "b071b7164ccc528dc6f1eb0c23b8de2057612836eec60ab6de5d1418f03b5b00": {
-    "query": "\nUPDATE course_modules\nSET name = $1\nWHERE id = $2\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Varchar", "Uuid"]
-      },
-      "nullable": []
-    }
-  },
   "b1df8260d01f98fc33b24144e0f6414c49242ff5de2f130c2a7649201decbc0b": {
     "query": "\nSELECT pages.id,\n  pages.created_at,\n  pages.updated_at,\n  pages.course_id,\n  pages.exam_id,\n  pages.chapter_id,\n  pages.url_path,\n  pages.title,\n  pages.deleted_at,\n  pages.content,\n  pages.order_number,\n  pages.copied_from\nFROM pages\nWHERE pages.course_id = $1\n  AND url_path = $2\n  AND pages.deleted_at IS NULL;\n        ",
     "describe": {
@@ -10422,16 +10483,6 @@
         false,
         false
       ]
-    }
-  },
-  "b760c129bfee373c2b75a8e5c699dc0ec999dc53890162b111e1f106e52a1f1e": {
-    "query": "\nDELETE FROM course_modules\nWHERE id = $1\n",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": []
     }
   },
   "b762efb77876e893abf712da8e1568b7406c5efd2cbe92e54520b6c93558794b": {
@@ -12507,7 +12558,7 @@
         true,
         true,
         true,
-        true
+        false
       ]
     }
   },
@@ -12995,7 +13046,7 @@
         true,
         true,
         true,
-        true
+        false
       ]
     }
   },

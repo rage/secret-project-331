@@ -6,7 +6,9 @@ use headless_lms_utils::{
 use crate::{
     chapters::{course_chapters, Chapter},
     course_instances::{CourseInstance, NewCourseInstance},
-    course_language_groups, library,
+    course_language_groups,
+    course_modules::{self, Module},
+    library,
     pages::{course_pages, NewPage, Page},
     prelude::*,
 };
@@ -52,6 +54,7 @@ pub struct CourseStructure {
     pub course: Course,
     pub pages: Vec<Page>,
     pub chapters: Vec<Chapter>,
+    pub modules: Vec<Module>,
 }
 
 pub async fn all_courses(conn: &mut PgConnection) -> ModelResult<Vec<Course>> {
@@ -255,10 +258,12 @@ pub async fn get_course_structure(
         .iter()
         .map(|chapter| Chapter::from_database_chapter(chapter, file_store, app_conf))
         .collect();
+    let modules = course_modules::for_course(conn, course_id).await?;
     Ok(CourseStructure {
         course,
         pages,
         chapters,
+        modules,
     })
 }
 
@@ -356,7 +361,7 @@ pub async fn insert_course(
     default_instance_id: Uuid,
     new_course: NewCourse,
     user: Uuid,
-) -> ModelResult<(Course, Page, CourseInstance)> {
+) -> ModelResult<(Course, Page, CourseInstance, Module)> {
     let mut tx = conn.begin().await?;
 
     let course_language_group_id = course_language_groups::insert(&mut tx).await?;
@@ -431,8 +436,12 @@ RETURNING id,
     )
     .await?;
 
+    // Create default course module
+    let default_module =
+        crate::course_modules::new(&mut tx, course.id, "Default module", 1, true).await?;
+
     tx.commit().await?;
-    Ok((course, page, default_course_instance))
+    Ok((course, page, default_course_instance, default_module))
 }
 
 // Represents the subset of page fields that one is allowed to update in a course
@@ -686,7 +695,7 @@ mod test {
         let user_id = users::insert(tx.as_mut(), "copies_course_user@example.com", None, None)
             .await
             .unwrap();
-        let (course, _page, _instance) = courses::insert_course(
+        let (course, _page, _instance, _module) = courses::insert_course(
             tx.as_mut(),
             Uuid::parse_str("86ede846-db97-4204-94c3-29cc2e71818e").unwrap(),
             Uuid::new_v4(),

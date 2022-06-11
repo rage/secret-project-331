@@ -132,48 +132,50 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
     chapters = (
       <>
         {grid(defaultModule)}
-        {extraModules.map(([module, chapters]) => {
-          const randomNumber = stringToRandomNumber(module.id) % COLORS_ARRAY.length
-          const randomizedColor = COLORS_ARRAY[randomNumber]
-          return (
-            <>
-              <hr
-                className={css`
-                  border: dashed 2px;
-                  margin: 2rem;
-                  color: #d8dadc;
-                  width: 80%;
-                  text-align: center;
-                  margin-left: auto;
-                  margin-right: auto;
-                `}
-              />
-              <div
-                className={css`
-                  margin: 1rem;
-                  text-transform: uppercase;
-                  font-size: 1.25rem;
-                  font-weight: bold;
-                  text-align: center;
-                `}
-              >
-                {t("additional-module")}
-              </div>
-              <div
-                className={css`
-                  margin-bottom: 2rem;
-                  color: ${randomizedColor};
-                  font-weight: bold;
-                  font-size: 1.7rem;
-                  text-align: center;
-                `}
-              >
-                {module.name}
-              </div>
-              {grid(chapters)}
-            </>
-          )
-        })}
+        {extraModules
+          .sort((a, b) => a[0].order_number - b[0].order_number)
+          .map(([module, chapters]) => {
+            const randomNumber = stringToRandomNumber(module.id) % COLORS_ARRAY.length
+            const randomizedColor = COLORS_ARRAY[randomNumber]
+            return (
+              <>
+                <hr
+                  className={css`
+                    border: dashed 2px;
+                    margin: 2rem;
+                    color: #d8dadc;
+                    width: 80%;
+                    text-align: center;
+                    margin-left: auto;
+                    margin-right: auto;
+                  `}
+                />
+                <div
+                  className={css`
+                    margin: 1rem;
+                    text-transform: uppercase;
+                    font-size: 1.25rem;
+                    font-weight: bold;
+                    text-align: center;
+                  `}
+                >
+                  {t("additional-module")}
+                </div>
+                <div
+                  className={css`
+                    margin-bottom: 2rem;
+                    color: ${randomizedColor};
+                    font-weight: bold;
+                    font-size: 1.7rem;
+                    text-align: center;
+                  `}
+                >
+                  {module.name}
+                </div>
+                {grid(chapters)}
+              </>
+            )
+          })}
       </>
     )
   }

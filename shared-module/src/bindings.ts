@@ -66,7 +66,7 @@ export interface Chapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
-  module: string | null
+  module: string
 }
 
 export interface DatabaseChapter {
@@ -82,7 +82,7 @@ export interface DatabaseChapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
-  module: string | null
+  module: string
 }
 
 export type ChapterStatus = "open" | "closed"
@@ -92,7 +92,7 @@ export interface ChapterUpdate {
   front_page_id: string | null
   deadline: Date | null
   opens_at: Date | null
-  module: string | null
+  module: string
 }
 
 export interface ChapterWithStatus {
@@ -107,7 +107,7 @@ export interface ChapterWithStatus {
   opens_at: Date | null
   status: ChapterStatus
   chapter_image_url: string | null
-  module: string | null
+  module: string
 }
 
 export interface NewChapter {
@@ -149,7 +149,7 @@ export interface ChapterScore {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
-  module: string | null
+  module: string
   score_given: number
   score_total: number
 }
@@ -191,6 +191,7 @@ export interface Module {
   id: string
   name: string
   order_number: number
+  is_default: boolean
 }
 
 export interface Course {
@@ -214,6 +215,7 @@ export interface CourseStructure {
   course: Course
   pages: Array<Page>
   chapters: Array<Chapter>
+  modules: Array<Module>
 }
 
 export interface CourseUpdate {
@@ -1038,4 +1040,22 @@ export interface OEmbedResponse {
   provider_url: string
   title: string
   version: string
+}
+
+export interface NewModule {
+  name: string
+  order_number: number
+  chapters: Array<string>
+}
+
+export interface ModuleUpdate {
+  new_name: string | null
+  new_order_number: number | null
+  new_chapters: Array<string>
+}
+
+export interface ModuleUpdates {
+  new: Array<NewModule>
+  updated: Record<string, ModuleUpdate>
+  deleted: Array<string>
 }

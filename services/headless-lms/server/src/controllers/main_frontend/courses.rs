@@ -1,8 +1,12 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
+use std::collections::HashMap;
+
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
+    chapters,
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
+    course_modules,
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
     exercise_slide_submissions::{
         self, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
@@ -644,6 +648,70 @@ pub async fn post_new_page_ordering(
     Ok(web::Json(()))
 }
 
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct NewModule {
+    name: String,
+    order_number: i32,
+    chapters: Vec<Uuid>,
+}
+
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ModuleUpdate {
+    new_name: Option<String>,
+    new_order_number: Option<i32>,
+    new_chapters: Vec<Uuid>,
+}
+
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ModuleUpdates {
+    new: Vec<NewModule>,
+    updated: HashMap<Uuid, ModuleUpdate>,
+    deleted: Vec<Uuid>,
+}
+
+#[instrument(skip(pool))]
+pub async fn update_modules(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    payload: web::Json<ModuleUpdates>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+
+    let mut tx = conn.begin().await?;
+
+    let updates = payload.into_inner();
+    for new in updates.new {
+        let module =
+            course_modules::new(&mut tx, *course_id, &new.name, new.order_number, false).await?;
+        for chapter in new.chapters {
+            chapters::set_module(&mut tx, chapter, module.id).await?;
+        }
+    }
+    for (id, update) in updates.updated {
+        course_modules::update(
+            &mut tx,
+            id,
+            update.new_name.as_deref(),
+            update.new_order_number,
+        )
+        .await?;
+        for chapter in update.new_chapters {
+            chapters::set_module(&mut tx, chapter, id).await?;
+        }
+    }
+    for deleted in updates.deleted {
+        course_modules::delete(&mut tx, deleted).await?;
+    }
+
+    tx.commit().await?;
+    Ok(web::Json(()))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -708,5 +776,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/new-page-ordering",
             web::post().to(post_new_page_ordering),
+        )
+        .route(
+            "/{course_id}/update-modules",
+            web::post().to(update_modules),
         );
 }

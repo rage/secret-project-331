@@ -92,6 +92,7 @@ fn main() {
     // reusable variables
     let id = Uuid::parse_str("307fa56f-9853-4f5c-afb9-a6736c232f32").unwrap();
     let id2 = Uuid::parse_str("3c6ca496-17ac-445c-88c0-4ded2f2dbe58").unwrap();
+    let id3 = Uuid::parse_str("e1858acc-5456-42bb-bfb5-57839bd8b1a7").unwrap();
     let date_time = Utc.timestamp(1640988000, 0);
     let created_at = date_time;
     let updated_at = date_time;
@@ -257,7 +258,7 @@ fn main() {
         opens_at: Some(date_time),
         copied_from: None,
         deadline: Some(date_time),
-        module: None,
+        module: id3,
     };
     let exercise_service = ExerciseService {
         id,
@@ -637,7 +638,7 @@ fn main() {
                     opens_at: Some(date_time),
                     deadline: Some(date_time),
                     copied_from: None,
-                    module: None,
+                    module: id3,
                 },
                 score_given: 1.0,
                 score_total: 2
@@ -651,7 +652,8 @@ fn main() {
         CourseStructure {
             chapters: vec![chapter.clone()],
             course: course.clone(),
-            pages: vec![page.clone()]
+            pages: vec![page.clone()],
+            modules: vec![],
         }
     );
     write_docs!(Vec<Exercise>, vec![exercise.clone()]);
@@ -837,7 +839,7 @@ fn main() {
                 opens_at: None,
                 status: ChapterStatus::Open,
                 chapter_image_url: Some("http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg".to_string()),
-                module: None,
+                module: id3,
             }]
         }
     );

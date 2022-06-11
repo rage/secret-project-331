@@ -1,48 +1,55 @@
 use crate::prelude::*;
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct Module {
+    pub id: Uuid,
+    pub name: String,
+    pub order_number: i32,
+    pub is_default: bool,
+}
+
 pub async fn new(
     conn: &mut PgConnection,
     course_id: Uuid,
     name: &str,
     order_number: i32,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
+    default: bool,
+) -> ModelResult<Module> {
+    let res = sqlx::query_as!(
+        Module,
         "
-INSERT INTO course_modules (course_id, name, order_number)
-VALUES ($1, $2, $3)
-RETURNING id
+INSERT INTO course_modules (course_id, name, order_number, is_default)
+VALUES ($1, $2, $3, $4)
+RETURNING id,
+  name,
+  order_number,
+  is_default
 ",
         course_id,
         name,
-        order_number
+        order_number,
+        default
     )
     .fetch_one(conn)
     .await?;
-    Ok(res.id)
+    Ok(res)
 }
 
-pub async fn rename(conn: &mut PgConnection, id: Uuid, name: &str) -> ModelResult<()> {
+pub async fn update(
+    conn: &mut PgConnection,
+    id: Uuid,
+    name: Option<&str>,
+    order_number: Option<i32>,
+) -> ModelResult<()> {
     sqlx::query!(
         "
 UPDATE course_modules
-SET name = $1
-WHERE id = $2
+SET name = COALESCE($1, name),
+  order_number = COALESCE($2, order_number)
+WHERE id = $3
 ",
         name,
-        id
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-pub async fn reorder(conn: &mut PgConnection, id: Uuid, order_number: i32) -> ModelResult<()> {
-    sqlx::query!(
-        "
-UPDATE course_modules
-SET order_number = $1
-WHERE id = $2
-",
         order_number,
         id
     )
@@ -54,7 +61,8 @@ WHERE id = $2
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
-DELETE FROM course_modules
+UPDATE course_modules
+SET deleted_at = now()
 WHERE id = $1
 ",
         id
@@ -64,27 +72,41 @@ WHERE id = $1
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct Module {
-    pub id: Uuid,
-    pub name: String,
-    pub order_number: i32,
-}
-
 pub async fn for_course(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Module>> {
     let modules = sqlx::query_as!(
         Module,
         "
 SELECT id,
   name,
-  order_number
+  order_number,
+  is_default
 FROM course_modules
 WHERE course_id = $1
+AND deleted_at IS NULL
 ",
         course_id
     )
     .fetch_all(conn)
     .await?;
     Ok(modules)
+}
+
+pub async fn get_default(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Module> {
+    let res = sqlx::query_as!(
+        Module,
+        "
+SELECT id,
+  name,
+  order_number,
+  is_default
+FROM course_modules
+WHERE course_id = $1
+  AND is_default = TRUE
+  AND deleted_at IS NULL
+",
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }

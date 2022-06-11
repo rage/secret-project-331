@@ -243,5 +243,12 @@
   "weekday-sunday": "Sunnuntai",
   "weekday-thursday": "Torstai",
   "weekday-tuesday": "Tiistai",
-  "weekday-wednesday": "Keskiviikko"
+  "weekday-wednesday": "Keskiviikko",
+  "modules": "Moduulit",
+  "save-changes": "Tallenna muutokset",
+  "new-module-name": "Uuden moduulin nimi",
+  "add-module": "Lisää moduuli",
+  "default-module": "Oletusmoduuli",
+  "module-name": "Moduulin nimi",
+  "order-number": "Järjestysnumero"
 }

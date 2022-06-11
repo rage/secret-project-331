@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use crate::{
+    course_modules,
     pages::{NewPage, Page, PageWithExercises},
     prelude::*,
     user_exercise_states::get_user_course_instance_chapter_metrics,
@@ -25,7 +26,7 @@ pub struct DatabaseChapter {
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
-    pub module: Option<Uuid>,
+    pub module: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -43,7 +44,7 @@ pub struct Chapter {
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
-    pub module: Option<Uuid>,
+    pub module: Uuid,
 }
 
 impl Chapter {
@@ -120,7 +121,7 @@ pub struct ChapterUpdate {
     pub front_page_id: Option<Uuid>,
     pub deadline: Option<DateTime<Utc>>,
     pub opens_at: Option<DateTime<Utc>>,
-    pub module: Option<Uuid>,
+    pub module: Uuid,
 }
 
 pub async fn insert(
@@ -278,7 +279,7 @@ pub struct ChapterWithStatus {
     pub opens_at: Option<DateTime<Utc>>,
     pub status: ChapterStatus,
     pub chapter_image_url: Option<String>,
-    pub module: Option<Uuid>,
+    pub module: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
@@ -359,6 +360,13 @@ pub async fn insert_chapter(
 ) -> ModelResult<(DatabaseChapter, Page)> {
     let mut tx = conn.begin().await?;
 
+    let module = if let Some(module) = chapter.module {
+        module
+    } else {
+        // if no module id was given, use default module
+        let default_module = course_modules::get_default(&mut tx, chapter.course_id).await?;
+        default_module.id
+    };
     let chapter = sqlx::query_as!(
         DatabaseChapter,
         r#"
@@ -378,7 +386,7 @@ RETURNING *;
         chapter.chapter_number,
         chapter.deadline,
         chapter.opens_at,
-        chapter.module
+        module
     )
     .fetch_one(&mut tx)
     .await?;
@@ -479,4 +487,23 @@ pub async fn get_user_course_instance_chapter_progress(
             .transpose()?,
     };
     Ok(result)
+}
+
+pub async fn set_module(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    module_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE chapters
+SET module = $1
+WHERE id = $2
+",
+        module_id,
+        chapter_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }

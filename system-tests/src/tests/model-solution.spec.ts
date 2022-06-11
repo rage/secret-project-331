@@ -79,8 +79,7 @@ test.describe("Model solutions", () => {
       page.click("text=Introduction to Everything"),
     ])
 
-    // Click text=default
-    await page.click("text=default")
+    await page.click('input[label="Default"]')
     // Click button:has-text("Continue")
     await page.click('button:has-text("Continue")')
     // Click text=Chapter 1: The Basics

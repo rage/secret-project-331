@@ -6,7 +6,7 @@ use crate::controllers::{
         exams::{ExamData, ExamEnrollmentData},
     },
     main_frontend::{
-        courses::GetFeedbackQuery,
+        courses::{GetFeedbackQuery, ModuleUpdate, ModuleUpdates, NewModule},
         exams::ExamCourseInfo,
         exercises::ExerciseSubmissions,
         feedback::MarkAsRead,
@@ -209,7 +209,10 @@ fn ts_binding_generator() {
         ErrorResponse,
         ErrorData,
         Pagination,
-        OEmbedResponse
+        OEmbedResponse,
+        NewModule,
+        ModuleUpdate,
+        ModuleUpdates
     };
     res.unwrap();
 }

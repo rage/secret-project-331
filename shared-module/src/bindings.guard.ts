@@ -83,10 +83,13 @@ import {
   Login,
   MarkAsRead,
   Module,
+  ModuleUpdate,
+  ModuleUpdates,
   NewChapter,
   NewCourse,
   NewExam,
   NewFeedback,
+  NewModule,
   NewPage,
   NewPeerReviewQuestion,
   NewProposedBlockEdit,
@@ -252,7 +255,7 @@ export function isChapter(obj: any, _argumentName?: string): obj is Chapter {
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    (obj.module === null || typeof obj.module === "string")
+    typeof obj.module === "string"
   )
 }
 
@@ -271,7 +274,7 @@ export function isDatabaseChapter(obj: any, _argumentName?: string): obj is Data
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    (obj.module === null || typeof obj.module === "string")
+    typeof obj.module === "string"
   )
 }
 
@@ -286,7 +289,7 @@ export function isChapterUpdate(obj: any, _argumentName?: string): obj is Chapte
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (obj.module === null || typeof obj.module === "string")
+    typeof obj.module === "string"
   )
 }
 
@@ -304,7 +307,7 @@ export function isChapterWithStatus(obj: any, _argumentName?: string): obj is Ch
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (isChapterStatus(obj.status) as boolean) &&
     (obj.chapter_image_url === null || typeof obj.chapter_image_url === "string") &&
-    (obj.module === null || typeof obj.module === "string")
+    typeof obj.module === "string"
   )
 }
 
@@ -364,7 +367,7 @@ export function isChapterScore(obj: any, _argumentName?: string): obj is Chapter
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    (obj.module === null || typeof obj.module === "string") &&
+    typeof obj.module === "string" &&
     typeof obj.score_given === "number" &&
     typeof obj.score_total === "number"
   )
@@ -430,7 +433,8 @@ export function isModule(obj: any, _argumentName?: string): obj is Module {
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     typeof obj.name === "string" &&
-    typeof obj.order_number === "number"
+    typeof obj.order_number === "number" &&
+    typeof obj.is_default === "boolean"
   )
 }
 
@@ -461,7 +465,9 @@ export function isCourseStructure(obj: any, _argumentName?: string): obj is Cour
     Array.isArray(obj.pages) &&
     obj.pages.every((e: any) => isPage(e) as boolean) &&
     Array.isArray(obj.chapters) &&
-    obj.chapters.every((e: any) => isChapter(e) as boolean)
+    obj.chapters.every((e: any) => isChapter(e) as boolean) &&
+    Array.isArray(obj.modules) &&
+    obj.modules.every((e: any) => isModule(e) as boolean)
   )
 }
 
@@ -1777,5 +1783,40 @@ export function isOEmbedResponse(obj: any, _argumentName?: string): obj is OEmbe
     typeof obj.provider_url === "string" &&
     typeof obj.title === "string" &&
     typeof obj.version === "string"
+  )
+}
+
+export function isNewModule(obj: any, _argumentName?: string): obj is NewModule {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.name === "string" &&
+    typeof obj.order_number === "number" &&
+    Array.isArray(obj.chapters) &&
+    obj.chapters.every((e: any) => typeof e === "string")
+  )
+}
+
+export function isModuleUpdate(obj: any, _argumentName?: string): obj is ModuleUpdate {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.new_name === null || typeof obj.new_name === "string") &&
+    (obj.new_order_number === null || typeof obj.new_order_number === "number") &&
+    Array.isArray(obj.new_chapters) &&
+    obj.new_chapters.every((e: any) => typeof e === "string")
+  )
+}
+
+export function isModuleUpdates(obj: any, _argumentName?: string): obj is ModuleUpdates {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.new) &&
+    obj.new.every((e: any) => isNewModule(e) as boolean) &&
+    ((obj.updated !== null && typeof obj.updated === "object") ||
+      typeof obj.updated === "function") &&
+    Object.entries<any>(obj.updated).every(
+      ([key, value]) => (isModuleUpdate(value) as boolean) && typeof key === "string",
+    ) &&
+    Array.isArray(obj.deleted) &&
+    obj.deleted.every((e: any) => typeof e === "string")
   )
 }

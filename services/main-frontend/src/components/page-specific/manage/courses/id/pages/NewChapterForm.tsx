@@ -62,7 +62,7 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
         // eslint-disable-next-line i18next/no-literal-string
         throw new Error("No id for chapter")
       }
-      return updateChapter(initialData?.id, data)
+      return updateChapter(initialData?.id, { ...data, module: initialData.module })
     },
     { notify: true, method: "POST" },
     { onSuccess: () => onSubmitForm() },

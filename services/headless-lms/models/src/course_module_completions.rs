@@ -1,3 +1,5 @@
+use futures::Stream;
+
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
@@ -139,6 +141,37 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub fn stream_by_course_module_id(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+) -> impl Stream<Item = sqlx::Result<CourseModuleCompletion>> + '_ {
+    sqlx::query_as!(
+        CourseModuleCompletion,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  course_id,
+  course_module_id,
+  user_id,
+  completion_date,
+  completion_registration_attempt_date,
+  completion_language,
+  eligible_for_ects,
+  email,
+  grade_scale_id AS "grade_scale_id: _",
+  grade_local_id AS "grade_local_id: _",
+  passed
+FROM course_module_completions
+WHERE course_module_id = $1
+  AND deleted_at IS NULL
+        "#,
+        course_module_id,
+    )
+    .fetch(conn)
 }
 
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {

@@ -251,7 +251,23 @@ impl Write for CSVExportAdapter {
     }
 }
 
-/// Takes UnboundedReceiverStream-stream with AuthorizedResponse and returns UnboundedReceiverStream-stream with only Bytes
+/** Without this one, actix cannot stream our authorized streams as responses
+
+```ignore
+HttpResponse::Ok()
+    .append_header((
+        "Content-Disposition",
+        format!(
+            "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
+            exam.name,
+            Utc::today().format("%Y-%m-%d")
+        ),
+    ))
+    .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+        receiver,
+    ))),
+```
+*/
 pub fn make_authorized_streamable(
     stream: UnboundedReceiverStream<
         Result<AuthorizedResponse<bytes::Bytes>, controllers::ControllerError>,

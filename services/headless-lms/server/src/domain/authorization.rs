@@ -159,28 +159,37 @@ impl<T: Responder> Responder for AuthorizedResponse<T> {
 
 /**  Skips the authorize() and returns AuthorizationToken, needed in functions with anonymous and test users
 
-We need skip to get all organizations on the homepage
+# Example
 
+```ignore
+async fn example_function(
+    // No user mentioned
+) -> ControllerResult<....> {
+    // We need to return ControllerResult -> AuthorizedResponse
 
- async fn get_all_organizations ->
+    let token = skip_authorize()?;
 
- token = skip_authorize()?;
+    token.authorized_ok(web::Json(organizations))
 
-token.authorized_ok(Json(courses))
-
-
+}
+```
 */
 pub fn skip_authorize() -> anyhow::Result<AuthorizationToken> {
     Ok(AuthorizationToken(()))
 }
 
-/// Verifies that user has permission to Act on given Resource and returns an AuthorizationToken
-///
-/// let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
-///
-/// We check that the user has permission to Edit the given Page, if succesful we return authorized_ok
-///
-/// token.authorized_ok(web::Json(cms_page_info))
+/**
+
+
+The authorization token is the only way to return a controller result, and should only be used in controller functions that return a response to the user.
+
+
+let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+
+token.authorized_ok(web::Json(cms_page_info))
+
+
+*/
 pub async fn authorize(
     conn: &mut PgConnection,
     action: Action,

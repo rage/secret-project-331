@@ -15,10 +15,10 @@ async fn get_email_template(
     user: AuthUser,
 ) -> ControllerResult<web::Json<EmailTemplate>> {
     let mut conn = pool.acquire().await?;
-
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
     let email_templates =
         models::email_templates::get_email_template(&mut conn, *email_template_id).await?;
-    Ok(web::Json(email_templates))
+    token.authorized_ok(web::Json(email_templates))
 }
 
 /**
@@ -33,7 +33,7 @@ async fn update_email_template(
     user: AuthUser,
 ) -> ControllerResult<web::Json<EmailTemplate>> {
     let mut conn = pool.acquire().await?;
-
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
     let request_update_template = payload.0;
     let updated_template = models::email_templates::update_email_template(
         &mut conn,
@@ -41,7 +41,7 @@ async fn update_email_template(
         request_update_template,
     )
     .await?;
-    Ok(web::Json(updated_template))
+    token.authorized_ok(web::Json(updated_template))
 }
 
 /**

@@ -7,7 +7,7 @@ use models::{
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
 };
 
-use crate::controllers::prelude::*;
+use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
 
 /**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
@@ -27,7 +27,8 @@ async fn get_user_progress_for_course_instance(
             user.id,
         )
         .await?;
-    Ok(web::Json(user_course_instance_progress))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(user_course_instance_progress))
 }
 
 /**
@@ -50,7 +51,8 @@ async fn get_user_progress_for_course_instance_chapter(
             user.id,
         )
         .await?;
-    Ok(web::Json(user_course_instance_chapter_progress))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(user_course_instance_chapter_progress))
 }
 
 /**
@@ -85,7 +87,8 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
                 exercise_id: i.exercise_id,
             })
             .collect();
-    Ok(web::Json(rounded_score_given_instances))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(rounded_score_given_instances))
 }
 
 /**
@@ -111,8 +114,8 @@ async fn add_user_enrollment(
         },
     )
     .await?;
-
-    Ok(web::Json(enrollment))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(enrollment))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

@@ -2,7 +2,10 @@
 import { css } from "@emotion/css"
 import React, { useEffect, useState } from "react"
 
+import useShouldHideStuffFromSystemTestScreenshots from "../../shared-module/hooks/useShouldHideStuffForSystemTestScreenshots"
+
 const ScrollIndicator: React.FC = () => {
+  const shouldHideStuffFromSystemTestScreenshots = useShouldHideStuffFromSystemTestScreenshots()
   const [scrolled, setScrolled] = useState("0")
 
   useEffect(() => {
@@ -34,6 +37,7 @@ const ScrollIndicator: React.FC = () => {
           left: 0;
           width: 100vw;
           z-index: 99;
+          ${shouldHideStuffFromSystemTestScreenshots && `visibility: hidden;`}
         `}
       >
         <div

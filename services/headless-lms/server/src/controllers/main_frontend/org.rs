@@ -2,7 +2,7 @@
 
 use models::organizations::Organization;
 
-use crate::controllers::prelude::*;
+use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
 
 /**
 GET `/api/v0/main-frontend/org/:slug
@@ -20,7 +20,9 @@ async fn get_organization_by_slug(
         models::organizations::get_organization_by_slug(&mut conn, &*organization_slug).await?;
     let organization =
         Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
-    Ok(web::Json(organization))
+
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(organization))
 }
 
 /**

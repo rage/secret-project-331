@@ -1,7 +1,7 @@
 use actix_http::Payload;
 use actix_session::Session;
 use actix_session::SessionExt;
-use actix_web::{FromRequest, HttpRequest};
+use actix_web::{FromRequest, HttpRequest, Responder};
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use futures::future::{err, ok, Ready};
@@ -129,13 +129,73 @@ pub enum Resource {
     MaterialReference,
 }
 
-/// Can user_id action the resource?
+/// Validates that user has right to function
+#[derive(Copy, Clone, Debug)]
+pub struct AuthorizationToken(());
+
+impl AuthorizationToken {
+    pub fn authorized_ok<T>(self, t: T) -> ControllerResult<T> {
+        Ok(AuthorizedResponse {
+            data: t,
+            token: self,
+        })
+    }
+}
+
+/// Responder for AuthorizationToken
+#[derive(Copy, Clone)]
+pub struct AuthorizedResponse<T> {
+    pub data: T,
+    pub token: AuthorizationToken,
+}
+
+impl<T: Responder> Responder for AuthorizedResponse<T> {
+    type Body = T::Body;
+
+    fn respond_to(self, req: &HttpRequest) -> actix_web::HttpResponse<Self::Body> {
+        T::respond_to(self.data, req)
+    }
+}
+
+/**  Skips the authorize() and returns AuthorizationToken, needed in functions with anonymous and test users
+
+# Example
+
+```ignore
+async fn example_function(
+    // No user mentioned
+) -> ControllerResult<....> {
+    // We need to return ControllerResult -> AuthorizedResponse
+
+    let token = skip_authorize()?;
+
+    token.authorized_ok(web::Json(organizations))
+
+}
+```
+*/
+pub fn skip_authorize() -> anyhow::Result<AuthorizationToken> {
+    Ok(AuthorizationToken(()))
+}
+
+/**
+
+
+The authorization token is the only way to return a controller result, and should only be used in controller functions that return a response to the user.
+
+
+let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+
+token.authorized_ok(web::Json(cms_page_info))
+
+
+*/
 pub async fn authorize(
     conn: &mut PgConnection,
     action: Action,
     user_id: Option<Uuid>,
     resource: Resource,
-) -> ControllerResult<()> {
+) -> Result<AuthorizationToken, ControllerError> {
     let user_roles = if let Some(user_id) = user_id {
         models::roles::get_roles(conn, user_id)
             .await
@@ -149,7 +209,7 @@ pub async fn authorize(
     // check global role
     for role in &user_roles {
         if role.is_global() && has_permission(role.role, action) {
-            return Ok(());
+            return Ok(AuthorizationToken(()));
         }
     }
 
@@ -157,7 +217,7 @@ pub async fn authorize(
     if resource == Resource::AnyCourse {
         for role in &user_roles {
             if has_permission(role.role, action) {
-                return Ok(());
+                return Ok(AuthorizationToken(()));
             }
         }
     }
@@ -234,16 +294,16 @@ async fn check_organization_permission(
     roles: &[Role],
     action: Action,
     organization_id: Uuid,
-) -> ControllerResult<()> {
+) -> Result<AuthorizationToken, ControllerError> {
     if action == Action::View {
         // anyone can view an organization regardless of roles
-        return Ok(());
+        return Ok(AuthorizationToken(()));
     };
 
     // check organization role
     for role in roles {
         if role.is_role_for_organization(organization_id) && has_permission(role.role, action) {
-            return Ok(());
+            return Ok(AuthorizationToken(()));
         }
     }
     Err(ControllerError::Forbidden("Unauthorized".to_string()))
@@ -255,7 +315,7 @@ async fn check_course_permission(
     roles: &[Role],
     mut action: Action,
     course_id: Uuid,
-) -> ControllerResult<()> {
+) -> Result<AuthorizationToken, ControllerError> {
     // if trying to View a draft course, check for permission to Teach instead
     if action == Action::View && models::courses::is_draft(conn, course_id).await? {
         action = Action::Teach;
@@ -264,7 +324,7 @@ async fn check_course_permission(
     // check course role
     for role in roles {
         if role.is_role_for_course(course_id) && has_permission(role.role, action) {
-            return Ok(());
+            return Ok(AuthorizationToken(()));
         }
     }
     let organization_id = models::courses::get_organization_id(conn, course_id).await?;
@@ -277,7 +337,7 @@ async fn check_course_instance_permission(
     roles: &[Role],
     mut action: Action,
     course_instance_id: Uuid,
-) -> ControllerResult<()> {
+) -> Result<AuthorizationToken, ControllerError> {
     // if trying to View a course instance that is not open, we check for permission to Teach
     if action == Action::View
         && !models::course_instances::is_open(conn, course_instance_id).await?
@@ -289,7 +349,7 @@ async fn check_course_instance_permission(
     for role in roles {
         if role.is_role_for_course_instance(course_instance_id) && has_permission(role.role, action)
         {
-            return Ok(());
+            return Ok(AuthorizationToken(()));
         }
     }
     let course_id = models::course_instances::get_course_id(conn, course_instance_id).await?;
@@ -302,11 +362,11 @@ async fn check_exam_permission(
     roles: &[Role],
     action: Action,
     exam_id: Uuid,
-) -> ControllerResult<()> {
+) -> Result<AuthorizationToken, ControllerError> {
     // check exam role
     for role in roles {
         if role.is_role_for_exam(exam_id) && has_permission(role.role, action) {
-            return Ok(());
+            return Ok(AuthorizationToken(()));
         }
     }
     let organization_id = models::exams::get_organization_id(conn, exam_id).await?;
@@ -318,7 +378,7 @@ async fn check_course_or_exam_permission(
     roles: &[Role],
     action: Action,
     course_or_exam_id: CourseOrExamId,
-) -> ControllerResult<()> {
+) -> Result<AuthorizationToken, ControllerError> {
     match course_or_exam_id {
         CourseOrExamId::Course(course_id) => {
             check_course_permission(conn, roles, action, course_id).await
@@ -330,10 +390,10 @@ async fn check_course_or_exam_permission(
 async fn check_material_reference_permissions(
     roles: &[Role],
     action: Action,
-) -> ControllerResult<()> {
+) -> Result<AuthorizationToken, ControllerError> {
     for role in roles {
         if has_permission(role.role, action) {
-            return Ok(());
+            return Ok(AuthorizationToken(()));
         }
     }
     Err(ControllerError::Forbidden("Unauthorized".to_string()))

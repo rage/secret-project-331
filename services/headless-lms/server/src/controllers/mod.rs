@@ -18,6 +18,7 @@ pub mod prelude;
 
 use std::error::Error;
 
+use crate::domain::authorization::AuthorizedResponse;
 use actix_web::{
     error,
     http::{header::ContentType, StatusCode},
@@ -196,7 +197,7 @@ impl From<UtilError> for ControllerError {
 Used as the result types for all controllers.
 Only put information here that you want to be visible to users.
 */
-pub type ControllerResult<T, E = ControllerError> = std::result::Result<T, E>;
+pub type ControllerResult<T, E = ControllerError> = std::result::Result<AuthorizedResponse<T>, E>;
 
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]

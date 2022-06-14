@@ -29,19 +29,20 @@ async fn add_media(
 ) -> ControllerResult<web::Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course.id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course.id)).await?;
 
     let media_path = upload_media(
         request.headers(),
         payload,
         StoreKind::Course(course.id),
         file_store.as_ref(),
+        pool,
+        user,
     )
     .await?;
-    let download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());
+    let download_url = file_store.get_download_url(media_path.data.as_path(), app_conf.as_ref());
 
-    Ok(web::Json(UploadResult { url: download_url }))
+    token.authorized_ok(web::Json(UploadResult { url: download_url }))
 }
 
 /**

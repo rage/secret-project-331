@@ -28,7 +28,7 @@ async fn add_media(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<UploadResult>> {
     let mut conn = pool.acquire().await?;
-    authorize(
+    let token = authorize(
         &mut conn,
         Act::Edit,
         Some(user.id),
@@ -42,11 +42,12 @@ async fn add_media(
         payload,
         StoreKind::Organization(organization.id),
         file_store.as_ref(),
+        pool,
+        user,
     )
     .await?;
-    let download_url = file_store.get_download_url(media_path.as_path(), app_conf.as_ref());
-
-    Ok(web::Json(UploadResult { url: download_url }))
+    let download_url = file_store.get_download_url(media_path.data.as_path(), app_conf.as_ref());
+    token.authorized_ok(web::Json(UploadResult { url: download_url }))
 }
 
 /**

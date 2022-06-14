@@ -21,10 +21,10 @@ async fn get_page(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let cms_page = models::pages::get_page_with_exercises(&mut conn, *page_id).await?;
-    Ok(web::Json(cms_page))
+    token.authorized_ok(web::Json(cms_page))
 }
 
 /**
@@ -39,10 +39,10 @@ async fn get_page_info(
     user: AuthUser,
 ) -> ControllerResult<web::Json<PageInfo>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let cms_page_info = models::pages::get_page_info(&mut conn, *page_id).await?;
-    Ok(web::Json(cms_page_info))
+    token.authorized_ok(web::Json(cms_page_info))
 }
 
 /**
@@ -77,7 +77,7 @@ async fn update_page(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let page_update = payload.0;
     let course_or_exam_id = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
@@ -92,7 +92,7 @@ async fn update_page(
         is_exam_page,
     )
     .await?;
-    Ok(web::Json(saved))
+    token.authorized_ok(web::Json(saved))
 }
 
 /**

@@ -1,3 +1,4 @@
+use actix_http::body;
 use actix_web::test;
 use chrono::{TimeZone, Utc};
 use headless_lms_models::{
@@ -9,33 +10,38 @@ use uuid::Uuid;
 
 mod integration_test;
 
+#[ignore = "Used for testing endpoint but doesn't work nicely with the other integration test."]
 #[tokio::test]
 async fn gets_completions_for_a_course() {
     let (actix, pool) = integration_test::init_actix().await;
     let mut conn = pool.acquire().await.unwrap();
-    let (_user, _org, course, _module, _completion) = insert_data(&mut conn).await;
+    let (_user, _org, course, _module, _completion, _completion_2) = insert_data(&mut conn).await;
     let path = format!("/api/v0/study-registry/completions/{}", course);
     let req = test::TestRequest::with_uri(&path).to_request();
-    let res: Vec<CourseModuleCompletion> = test::call_and_read_body_json(&actix, req).await;
-    assert_eq!(res.len(), 1);
+    let res = test::call_service(&actix, req).await;
+    assert!(res.status().is_success());
+    let body = res.into_body();
+    let bytes = body::to_bytes(body).await.unwrap();
+    let res: Vec<CourseModuleCompletion> = serde_json::from_slice(&bytes[..]).unwrap();
+    assert_eq!(res.len(), 2);
 }
 
-async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid) {
+async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, Uuid) {
     let user = headless_lms_models::users::insert_with_id(
         conn,
         "user@example.com",
         None,
         None,
-        Uuid::parse_str("08ef9e11-cb6b-4198-981f-806f41f5b61a").unwrap(),
+        Uuid::parse_str("2d9aa7a9-cd01-40ca-b2d1-007e5302226c").unwrap(),
     )
     .await
     .unwrap();
     let org = headless_lms_models::organizations::insert(
         conn,
         "",
-        "org",
+        "stream-org",
         "",
-        Uuid::parse_str("b1bde372-cc86-4e3a-a978-35695fdd884b").unwrap(),
+        Uuid::parse_str("c0938ae7-9f5d-4646-b3ba-900068f72ba4").unwrap(),
     )
     .await
     .unwrap();
@@ -81,11 +87,31 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid) 
     )
     .await
     .unwrap();
+    let course_module_completion_2_id = headless_lms_models::course_module_completions::insert(
+        conn,
+        &NewCourseModuleCompletion {
+            course_id: course.id,
+            course_module_id: course_module,
+            user_id: user,
+            completion_date: Utc.ymd(2022, 06, 13).and_hms(0, 0, 0),
+            completion_registration_attempt_date: None,
+            completion_language: "en_US".to_string(),
+            eligible_for_ects: true,
+            email: "student@example.com".to_string(),
+            grade_scale_id:
+                headless_lms_models::course_module_completions::GradeScaleId::SisuPassFail,
+            grade_local_id: headless_lms_models::course_module_completions::GradeLocalId::One,
+        },
+        None,
+    )
+    .await
+    .unwrap();
     (
         user,
         org,
         course.id,
         course_module,
         course_module_completion_id,
+        course_module_completion_2_id,
     )
 }

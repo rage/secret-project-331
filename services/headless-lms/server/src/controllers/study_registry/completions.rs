@@ -3,10 +3,15 @@
 use actix_web::http::header::ContentType;
 use bytes::Bytes;
 
-use tokio::sync::mpsc::UnboundedSender;
 use tokio_stream::{wrappers::UnboundedReceiverStream, StreamExt};
 
-use crate::{controllers::prelude::*, domain::csv_export::JsonStreamer};
+use crate::{
+    controllers::prelude::*,
+    domain::{
+        authorization::skip_authorize,
+        csv_export::{make_authorized_streamable, JsonStreamer},
+    },
+};
 
 #[instrument(skip(pool))]
 async fn get_completions(
@@ -14,30 +19,36 @@ async fn get_completions(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
+    // TODO: No skip, only doing like this because merging master
+    let token = skip_authorize()?;
     let course_module =
         models::course_modules::get_default_by_course_id(&mut conn, *course_id).await?;
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
     let mut handle_conn = pool.acquire().await?;
     let _handle = tokio::spawn(async move {
-        let res = stream_completions(&mut handle_conn, sender, course_module.id).await;
+        let streamer = JsonStreamer::from_sender(sender, token);
+        let res = stream_completions(&mut handle_conn, streamer, course_module.id).await;
         if let Err(err) = res {
             tracing::error!("Failed to stream completions: {}", err);
         }
     });
-    Ok(HttpResponse::Ok()
-        .content_type(ContentType::json())
-        .streaming(UnboundedReceiverStream::new(receiver)))
+    token.authorized_ok(
+        HttpResponse::Ok()
+            .content_type(ContentType::json())
+            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+                receiver,
+            ))),
+    )
 }
 
 // I tired to have most of this in JsonStreamer where you pass a stream but it broke and I don't know why :(
 async fn stream_completions(
     conn: &mut PgConnection,
-    sender: UnboundedSender<ControllerResult<Bytes>>,
+    streamer: JsonStreamer,
     course_module_id: Uuid,
 ) -> anyhow::Result<()> {
     let mut stream =
         models::course_module_completions::stream_by_course_module_id(conn, course_module_id);
-    let streamer = JsonStreamer::from_sender(sender);
     streamer.stream_array_start()?;
     if let Some(completion) = stream.try_next().await? {
         streamer.stream_object(&completion)?;

@@ -1,25 +1,25 @@
+use anyhow::{Context, Result};
+use bytes::Bytes;
+use csv::Writer;
+use futures::{stream::FuturesUnordered, Stream};
+use headless_lms_models::{
+    chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
+};
+use serde::Serialize;
+use sqlx::PgConnection;
 use std::{
     collections::HashMap,
     io,
     io::Write,
     sync::{Arc, Mutex},
 };
-
-use anyhow::{Context, Result};
-use bytes::Bytes;
-use csv::Writer;
-use futures::stream::FuturesUnordered;
-use headless_lms_models::{
-    chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
-};
-use serde::Serialize;
-use sqlx::PgConnection;
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
-use tokio_stream::StreamExt;
+use tokio_stream::{wrappers::UnboundedReceiverStream, StreamExt};
 use uuid::Uuid;
 
-use crate::controllers::ControllerResult;
+use crate::controllers::{self, ControllerResult};
 
+use super::authorization::{AuthorizationToken, AuthorizedResponse};
 /// Convenience struct for creating CSV data.
 struct CsvWriter<W: Write> {
     csv_writer: Arc<Mutex<Writer<W>>>,
@@ -235,8 +235,8 @@ where
 
 pub struct CSVExportAdapter {
     pub sender: UnboundedSender<ControllerResult<Bytes>>,
+    pub authorization_token: AuthorizationToken,
 }
-
 impl Write for CSVExportAdapter {
     fn flush(&mut self) -> std::io::Result<()> {
         Ok(())
@@ -244,8 +244,9 @@ impl Write for CSVExportAdapter {
 
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         let bytes = Bytes::copy_from_slice(buf);
+        let token = self.authorization_token;
         self.sender
-            .send(Ok(bytes))
+            .send(token.authorized_ok(bytes))
             .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
         Ok(buf.len())
     }
@@ -255,13 +256,20 @@ impl Write for CSVExportAdapter {
 ///
 /// NOTE: I think that this file is contextually the proper place to put this even though not csv.
 pub struct JsonStreamer {
+    authorization_token: AuthorizationToken,
     sender: UnboundedSender<ControllerResult<Bytes>>,
 }
 
 impl JsonStreamer {
     /// Creates new `JsonStreamer` that takes ownership of the sender.
-    pub fn from_sender(sender: UnboundedSender<ControllerResult<Bytes>>) -> Self {
-        Self { sender }
+    pub fn from_sender(
+        sender: UnboundedSender<ControllerResult<Bytes>>,
+        authorization_token: AuthorizationToken,
+    ) -> Self {
+        Self {
+            authorization_token,
+            sender,
+        }
     }
 
     pub fn stream_array_start(&self) -> anyhow::Result<()> {
@@ -314,9 +322,34 @@ impl JsonStreamer {
 
     fn send_bytes(&self, bytes: Bytes) -> anyhow::Result<()> {
         self.sender
-            .send(Ok(bytes))
+            .send(self.authorization_token.authorized_ok(bytes))
             .map_err(|_| anyhow::anyhow!("Failed to send data"))
     }
+}
+
+/** Without this one, actix cannot stream our authorized streams as responses
+
+```ignore
+HttpResponse::Ok()
+    .append_header((
+        "Content-Disposition",
+        format!(
+            "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
+            exam.name,
+            Utc::today().format("%Y-%m-%d")
+        ),
+    ))
+    .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+        receiver,
+    ))),
+```
+*/
+pub fn make_authorized_streamable(
+    stream: UnboundedReceiverStream<
+        Result<AuthorizedResponse<bytes::Bytes>, controllers::ControllerError>,
+    >,
+) -> impl Stream<Item = Result<bytes::Bytes, controllers::ControllerError>> {
+    stream.map(|item| item.map(|item2| item2.data))
 }
 
 #[cfg(test)]

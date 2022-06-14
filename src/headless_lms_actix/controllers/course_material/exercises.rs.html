@@ -341,6 +341,22 @@
 <span id="336">336</span>
 <span id="337">337</span>
 <span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/exercises`.</span>
 
 <span class="kw">use</span> <span class="ident">futures::future::OptionFuture</span>;
@@ -356,7 +372,7 @@
 
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">Duration</span>, <span class="ident">Utc</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">controllers::prelude</span>::<span class="kw-2">*</span>, <span class="ident">domain::authorization::skip_authorize</span>};
 
 <span class="doccomment">/**
 GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes
@@ -409,7 +425,8 @@ expose the correct answers to the user.
     <span class="kw">if</span> <span class="op">!</span><span class="ident">has_received_full_points</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">out_of_tries</span> {
         <span class="ident">course_material_exercise</span>.<span class="ident">clear_model_solution_specs</span>();
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">course_material_exercise</span>))
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">course_material_exercise</span>))
 }
 
 <span class="doccomment">/**
@@ -431,8 +448,8 @@ This request will fail if the user is not in the peer review stage yet because t
         <span class="ident">exercise_id</span>.<span class="ident">into_inner</span>(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">peer_review_data</span>))
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">peer_review_data</span>))
 }
 
 <span class="doccomment">/**
@@ -465,7 +482,7 @@ Content-Type: application/json
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">StudentExerciseSlideSubmissionResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">models::exercises::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">chapter_option_future</span>: <span class="ident">OptionFuture</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">exercise</span>
         .<span class="ident">chapter_id</span>
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">models::chapters::get_chapter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">id</span>))
@@ -492,7 +509,8 @@ Content-Type: application/json
             <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
             <span class="ident">payload</span>.<span class="ident">exercise_slide_id</span>,
         )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">data</span>;
 
     <span class="comment">// TODO: Should this be an upsert?</span>
     <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">models::user_exercise_states::get_user_exercise_state_if_exists</span>(
@@ -530,7 +548,7 @@ Content-Type: application/json
     <span class="kw">if</span> <span class="op">!</span><span class="ident">has_received_full_points</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">last_try</span> {
         <span class="ident">result</span>.<span class="ident">clear_model_solution_specs</span>();
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">result</span>))
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">result</span>))
 }
 
 <span class="doccomment">/**
@@ -556,7 +574,14 @@ Content-Type: application/json
     <span class="ident">models::library::peer_reviewing::start_peer_review_for_user</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">user_exercise_state</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="bool-val">true</span>))
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">Act::View</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
+        <span class="ident">Res::Exercise</span>(<span class="kw-2">*</span><span class="ident">exercise_id</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="bool-val">true</span>))
 }
 
 <span class="doccomment">/**
@@ -572,8 +597,9 @@ Content-Type: application/json
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// Authorization</span>
     <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">models::exercises::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Authorization</span>
+
     <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span>
         <span class="ident">user_exercise_states::get_users_current_by_exercise</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">models::library::peer_reviewing::create_peer_review_submission_for_user</span>(
@@ -583,7 +609,8 @@ Content-Type: application/json
         <span class="ident">payload</span>.<span class="number">0</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="bool-val">true</span>))
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="bool-val">true</span>))
 }
 
 <span class="doccomment">/// Submissions for exams are posted from course instances or from exams. Make respective validations</span>
@@ -595,38 +622,42 @@ Content-Type: application/json
     <span class="ident">slide_id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>(<span class="ident">CourseInstanceOrExamId</span>, <span class="ident">bool</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_try</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="ident">course_instance_id_or_exam_id</span>: <span class="ident">CourseInstanceOrExamId</span> <span class="op">=</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">course_id</span>) <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">course_id</span> {
-            <span class="comment">// If submitting for a course, there should be existing course settings that dictate which</span>
-            <span class="comment">// instance the user is on.</span>
-            <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">models::user_course_settings::get_user_course_settings_by_course_id</span>(
-                <span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">course_id</span>,
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">settings</span>) <span class="op">=</span> <span class="ident">settings</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">CourseInstanceOrExamId::Instance</span>(
-                    <span class="ident">settings</span>.<span class="ident">current_course_instance_id</span>,
-                ))
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Unauthorized</span>(
-                    <span class="string">&quot;User is not enrolled on this course.&quot;</span>.<span class="ident">to_string</span>(),
-                ))
-            }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">exam_id</span> {
-            <span class="comment">// If submitting for an exam, make sure that user&#39;s time is not up.</span>
-            <span class="kw">if</span> <span class="ident">models::exams::verify_exam_submission_can_be_made</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>, <span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">CourseInstanceOrExamId::Exam</span>(<span class="ident">exam_id</span>))
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Unauthorized</span>(
-                    <span class="string">&quot;Submissions for this exam are no longer accepted.&quot;</span>.<span class="ident">to_string</span>(),
-                ))
-            }
-        } <span class="kw">else</span> {
-            <span class="comment">// On database level this scenario is impossible.</span>
-            <span class="prelude-val">Err</span>(<span class="ident">ControllerError::InternalServerError</span>(
-                <span class="string">&quot;Exam doesn&#39;t belong to either a course nor exam.&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="kw">let</span> <span class="ident">course_instance_id_or_exam_id</span>: <span class="ident">CourseInstanceOrExamId</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">course_id</span>) <span class="op">=</span>
+        <span class="ident">exercise</span>.<span class="ident">course_id</span>
+    {
+        <span class="comment">// If submitting for a course, there should be existing course settings that dictate which</span>
+        <span class="comment">// instance the user is on.</span>
+        <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">models::user_course_settings::get_user_course_settings_by_course_id</span>(
+            <span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">course_id</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">settings</span>) <span class="op">=</span> <span class="ident">settings</span> {
+            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Course</span>(<span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">CourseInstanceOrExamId::Instance</span>(
+                <span class="ident">settings</span>.<span class="ident">current_course_instance_id</span>,
             ))
-        }<span class="question-mark">?</span>;
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Unauthorized</span>(
+                <span class="string">&quot;User is not enrolled on this course.&quot;</span>.<span class="ident">to_string</span>(),
+            ))
+        }
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">exam_id</span> {
+        <span class="comment">// If submitting for an exam, make sure that user&#39;s time is not up.</span>
+        <span class="kw">if</span> <span class="ident">models::exams::verify_exam_submission_can_be_made</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>, <span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
+            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Exam</span>(<span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">CourseInstanceOrExamId::Exam</span>(<span class="ident">exam_id</span>))
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Unauthorized</span>(
+                <span class="string">&quot;Submissions for this exam are no longer accepted.&quot;</span>.<span class="ident">to_string</span>(),
+            ))
+        }
+    } <span class="kw">else</span> {
+        <span class="comment">// On database level this scenario is impossible.</span>
+        <span class="prelude-val">Err</span>(<span class="ident">ControllerError::InternalServerError</span>(
+            <span class="string">&quot;Exam doesn&#39;t belong to either a course nor exam.&quot;</span>.<span class="ident">to_string</span>(),
+        ))
+    }<span class="question-mark">?</span>
+    .<span class="ident">data</span>;
     <span class="kw">if</span> <span class="ident">exercise</span>.<span class="ident">limit_number_of_tries</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max_tries_per_slide</span>) <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">max_tries_per_slide</span> {
             <span class="comment">// check if the user has attempts remaining</span>
@@ -650,7 +681,8 @@ Content-Type: application/json
             }
         }
     }
-    <span class="prelude-val">Ok</span>((<span class="ident">course_instance_id_or_exam_id</span>, <span class="ident">last_try</span>))
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Exercise</span>(<span class="ident">exercise</span>.<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>((<span class="ident">course_instance_id_or_exam_id</span>, <span class="ident">last_try</span>))
 }
 
 <span class="doccomment">/**

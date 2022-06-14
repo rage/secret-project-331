@@ -227,6 +227,13 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.</span>
 
 <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
@@ -240,7 +247,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">controllers::prelude</span>::<span class="kw-2">*</span>,
-    <span class="ident">domain::csv_export</span>::{<span class="self">self</span>, <span class="ident">CSVExportAdapter</span>},
+    <span class="ident">domain::csv_export</span>::{<span class="self">self</span>, <span class="ident">make_authorized_streamable</span>, <span class="ident">CSVExportAdapter</span>},
 };
 
 <span class="doccomment">/**
@@ -254,7 +261,7 @@ GET /course-instances/:id
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::Edit</span>,
         <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
@@ -263,7 +270,7 @@ GET /course-instances/:id
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span>
         <span class="ident">models::course_instances::get_course_instance</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">course_instance</span>))
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">course_instance</span>))
 }
 
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
@@ -275,7 +282,7 @@ GET /course-instances/:id
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">EmailTemplate</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::Edit</span>,
         <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
@@ -290,7 +297,7 @@ GET /course-instances/:id
         <span class="prelude-val">None</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">email_template</span>))
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">email_template</span>))
 }
 
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
@@ -301,7 +308,7 @@ GET /course-instances/:id
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">EmailTemplate</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::Edit</span>,
         <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
@@ -311,7 +318,7 @@ GET /course-instances/:id
 
     <span class="kw">let</span> <span class="ident">email_templates</span> <span class="op">=</span>
         <span class="ident">models::email_templates::get_email_templates</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">email_templates</span>))
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">email_templates</span>))
 }
 
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
@@ -321,7 +328,7 @@ GET /course-instances/:id
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::Edit</span>,
         <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
@@ -330,14 +337,16 @@ GET /course-instances/:id
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course_instance_id</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">course_instance_id</span>;
     <span class="kw">let</span> (<span class="ident">sender</span>, <span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">tokio::sync::mpsc::unbounded_channel</span>::<span class="op">&lt;</span><span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-
     <span class="comment">// spawn handle that writes the csv row by row into the sender</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle_conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">_handle</span> <span class="op">=</span> <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">csv_export::export_course_instance_points</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">handle_conn</span>,
             <span class="ident">course_instance_id</span>,
-            <span class="ident">CSVExportAdapter</span> { <span class="ident">sender</span> },
+            <span class="ident">CSVExportAdapter</span> {
+                <span class="ident">sender</span>,
+                <span class="ident">authorization_token</span>: <span class="ident">token</span>,
+            },
         )
         .<span class="kw">await</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">res</span> {
@@ -350,17 +359,22 @@ GET /course-instances/:id
     <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">course_instance</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// return response that streams data from the receiver</span>
-    <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse::Ok</span>()
-        .<span class="ident">append_header</span>((
-            <span class="string">&quot;Content-Disposition&quot;</span>,
-            <span class="macro">format!</span>(
-                <span class="string">&quot;attachment; filename=\&quot;{} - {} - Point export {}.csv\&quot;&quot;</span>,
-                <span class="ident">course</span>.<span class="ident">name</span>,
-                <span class="ident">course_instance</span>.<span class="ident">name</span>.<span class="ident">as_deref</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;unnamed&quot;</span>),
-                <span class="ident">Utc::today</span>().<span class="ident">format</span>(<span class="string">&quot;%Y-%m-%d&quot;</span>)
-            ),
-        ))
-        .<span class="ident">streaming</span>(<span class="ident">UnboundedReceiverStream::new</span>(<span class="ident">receiver</span>)))
+
+    <span class="kw">return</span> <span class="ident">token</span>.<span class="ident">authorized_ok</span>(
+        <span class="ident">HttpResponse::Ok</span>()
+            .<span class="ident">append_header</span>((
+                <span class="string">&quot;Content-Disposition&quot;</span>,
+                <span class="macro">format!</span>(
+                    <span class="string">&quot;attachment; filename=\&quot;{} - {} - Point export {}.csv\&quot;&quot;</span>,
+                    <span class="ident">course</span>.<span class="ident">name</span>,
+                    <span class="ident">course_instance</span>.<span class="ident">name</span>.<span class="ident">as_deref</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;unnamed&quot;</span>),
+                    <span class="ident">Utc::today</span>().<span class="ident">format</span>(<span class="string">&quot;%Y-%m-%d&quot;</span>)
+                ),
+            ))
+            .<span class="ident">streaming</span>(<span class="ident">make_authorized_streamable</span>(<span class="ident">UnboundedReceiverStream::new</span>(
+                <span class="ident">receiver</span>,
+            ))),
+    );
 }
 
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
@@ -372,7 +386,7 @@ GET /course-instances/:id
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Points</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::Edit</span>,
         <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
@@ -380,7 +394,7 @@ GET /course-instances/:id
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">points</span> <span class="op">=</span> <span class="ident">course_instances::get_points</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>, <span class="kw-2">*</span><span class="ident">pagination</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">points</span>))
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">points</span>))
 }
 
 <span class="doccomment">/**
@@ -394,7 +408,7 @@ POST /course-instances/:id/edit
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::Edit</span>,
         <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
@@ -402,7 +416,7 @@ POST /course-instances/:id/edit
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">course_instances::edit</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>, <span class="ident">update</span>.<span class="ident">into_inner</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse::Ok</span>().<span class="ident">finish</span>())
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">HttpResponse::Ok</span>().<span class="ident">finish</span>())
 }
 
 <span class="doccomment">/**
@@ -415,7 +429,7 @@ POST /course-instances/:id/delete
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::Edit</span>,
         <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
@@ -423,7 +437,7 @@ POST /course-instances/:id/delete
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">models::course_instances::delete</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse::Ok</span>().<span class="ident">finish</span>())
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">HttpResponse::Ok</span>().<span class="ident">finish</span>())
 }
 
 <span class="doccomment">/**

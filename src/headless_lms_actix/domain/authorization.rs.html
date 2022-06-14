@@ -458,10 +458,70 @@
 <span id="453">453</span>
 <span id="454">454</span>
 <span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">actix_http::Payload</span>;
 <span class="kw">use</span> <span class="ident">actix_session::Session</span>;
 <span class="kw">use</span> <span class="ident">actix_session::SessionExt</span>;
-<span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">FromRequest</span>, <span class="ident">HttpRequest</span>};
+<span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">FromRequest</span>, <span class="ident">HttpRequest</span>, <span class="ident">Responder</span>};
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">futures::future</span>::{<span class="ident">err</span>, <span class="ident">ok</span>, <span class="ident">Ready</span>};
@@ -589,13 +649,73 @@
     <span class="ident">MaterialReference</span>,
 }
 
-<span class="doccomment">/// Can user_id action the resource?</span>
+<span class="doccomment">/// Validates that user has right to function</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AuthorizationToken</span>(());
+
+<span class="kw">impl</span> <span class="ident">AuthorizationToken</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">authorized_ok</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">t</span>: <span class="ident">T</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">AuthorizedResponse</span> {
+            <span class="ident">data</span>: <span class="ident">t</span>,
+            <span class="ident">token</span>: <span class="self">self</span>,
+        })
+    }
+}
+
+<span class="doccomment">/// Responder for AuthorizationToken</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AuthorizedResponse</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="ident">data</span>: <span class="ident">T</span>,
+    <span class="kw">pub</span> <span class="ident">token</span>: <span class="ident">AuthorizationToken</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Responder</span><span class="op">&gt;</span> <span class="ident">Responder</span> <span class="kw">for</span> <span class="ident">AuthorizedResponse</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="ident">T::Body</span>;
+
+    <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">actix_web::HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span> {
+        <span class="ident">T::respond_to</span>(<span class="self">self</span>.<span class="ident">data</span>, <span class="ident">req</span>)
+    }
+}
+
+<span class="doccomment">/**  Skips the authorize() and returns AuthorizationToken, needed in functions with anonymous and test users
+
+# Example
+
+```ignore
+async fn example_function(
+    // No user mentioned
+) -&gt; ControllerResult&lt;....&gt; {
+    // We need to return ControllerResult -&gt; AuthorizedResponse
+
+    let token = skip_authorize()?;
+
+    token.authorized_ok(web::Json(organizations))
+
+}
+```
+*/</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">skip_authorize</span>() -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">AuthorizationToken</span><span class="op">&gt;</span> {
+    <span class="prelude-val">Ok</span>(<span class="ident">AuthorizationToken</span>(()))
+}
+
+<span class="doccomment">/**
+
+
+The authorization token is the only way to return a controller result, and should only be used in controller functions that return a response to the user.
+
+
+let token = authorize(&amp;mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+
+token.authorized_ok(web::Json(cms_page_info))
+
+
+*/</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">authorize</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">action</span>: <span class="ident">Action</span>,
     <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">resource</span>: <span class="ident">Resource</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AuthorizationToken</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">user_roles</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_id</span>) <span class="op">=</span> <span class="ident">user_id</span> {
         <span class="ident">models::roles::get_roles</span>(<span class="ident">conn</span>, <span class="ident">user_id</span>)
             .<span class="kw">await</span>
@@ -609,7 +729,7 @@
     <span class="comment">// check global role</span>
     <span class="kw">for</span> <span class="ident">role</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">user_roles</span> {
         <span class="kw">if</span> <span class="ident">role</span>.<span class="ident">is_global</span>() <span class="op">&amp;&amp;</span> <span class="ident">has_permission</span>(<span class="ident">role</span>.<span class="ident">role</span>, <span class="ident">action</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AuthorizationToken</span>(()));
         }
     }
 
@@ -617,7 +737,7 @@
     <span class="kw">if</span> <span class="ident">resource</span> <span class="op">==</span> <span class="ident">Resource::AnyCourse</span> {
         <span class="kw">for</span> <span class="ident">role</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">user_roles</span> {
             <span class="kw">if</span> <span class="ident">has_permission</span>(<span class="ident">role</span>.<span class="ident">role</span>, <span class="ident">action</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AuthorizationToken</span>(()));
             }
         }
     }
@@ -694,16 +814,16 @@
     <span class="ident">roles</span>: <span class="kw-2">&amp;</span>[<span class="ident">Role</span>],
     <span class="ident">action</span>: <span class="ident">Action</span>,
     <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AuthorizationToken</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">action</span> <span class="op">==</span> <span class="ident">Action::View</span> {
         <span class="comment">// anyone can view an organization regardless of roles</span>
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AuthorizationToken</span>(()));
     };
 
     <span class="comment">// check organization role</span>
     <span class="kw">for</span> <span class="ident">role</span> <span class="kw">in</span> <span class="ident">roles</span> {
         <span class="kw">if</span> <span class="ident">role</span>.<span class="ident">is_role_for_organization</span>(<span class="ident">organization_id</span>) <span class="op">&amp;&amp;</span> <span class="ident">has_permission</span>(<span class="ident">role</span>.<span class="ident">role</span>, <span class="ident">action</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AuthorizationToken</span>(()));
         }
     }
     <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Forbidden</span>(<span class="string">&quot;Unauthorized&quot;</span>.<span class="ident">to_string</span>()))
@@ -715,7 +835,7 @@
     <span class="ident">roles</span>: <span class="kw-2">&amp;</span>[<span class="ident">Role</span>],
     <span class="kw-2">mut</span> <span class="ident">action</span>: <span class="ident">Action</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AuthorizationToken</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span> {
     <span class="comment">// if trying to View a draft course, check for permission to Teach instead</span>
     <span class="kw">if</span> <span class="ident">action</span> <span class="op">==</span> <span class="ident">Action::View</span> <span class="op">&amp;&amp;</span> <span class="ident">models::courses::is_draft</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
         <span class="ident">action</span> <span class="op">=</span> <span class="ident">Action::Teach</span>;
@@ -724,7 +844,7 @@
     <span class="comment">// check course role</span>
     <span class="kw">for</span> <span class="ident">role</span> <span class="kw">in</span> <span class="ident">roles</span> {
         <span class="kw">if</span> <span class="ident">role</span>.<span class="ident">is_role_for_course</span>(<span class="ident">course_id</span>) <span class="op">&amp;&amp;</span> <span class="ident">has_permission</span>(<span class="ident">role</span>.<span class="ident">role</span>, <span class="ident">action</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AuthorizationToken</span>(()));
         }
     }
     <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="ident">models::courses::get_organization_id</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -737,7 +857,7 @@
     <span class="ident">roles</span>: <span class="kw-2">&amp;</span>[<span class="ident">Role</span>],
     <span class="kw-2">mut</span> <span class="ident">action</span>: <span class="ident">Action</span>,
     <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AuthorizationToken</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span> {
     <span class="comment">// if trying to View a course instance that is not open, we check for permission to Teach</span>
     <span class="kw">if</span> <span class="ident">action</span> <span class="op">==</span> <span class="ident">Action::View</span>
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">models::course_instances::is_open</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>
@@ -749,7 +869,7 @@
     <span class="kw">for</span> <span class="ident">role</span> <span class="kw">in</span> <span class="ident">roles</span> {
         <span class="kw">if</span> <span class="ident">role</span>.<span class="ident">is_role_for_course_instance</span>(<span class="ident">course_instance_id</span>) <span class="op">&amp;&amp;</span> <span class="ident">has_permission</span>(<span class="ident">role</span>.<span class="ident">role</span>, <span class="ident">action</span>)
         {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AuthorizationToken</span>(()));
         }
     }
     <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">models::course_instances::get_course_id</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -762,11 +882,11 @@
     <span class="ident">roles</span>: <span class="kw-2">&amp;</span>[<span class="ident">Role</span>],
     <span class="ident">action</span>: <span class="ident">Action</span>,
     <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AuthorizationToken</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span> {
     <span class="comment">// check exam role</span>
     <span class="kw">for</span> <span class="ident">role</span> <span class="kw">in</span> <span class="ident">roles</span> {
         <span class="kw">if</span> <span class="ident">role</span>.<span class="ident">is_role_for_exam</span>(<span class="ident">exam_id</span>) <span class="op">&amp;&amp;</span> <span class="ident">has_permission</span>(<span class="ident">role</span>.<span class="ident">role</span>, <span class="ident">action</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AuthorizationToken</span>(()));
         }
     }
     <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="ident">models::exams::get_organization_id</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -778,7 +898,7 @@
     <span class="ident">roles</span>: <span class="kw-2">&amp;</span>[<span class="ident">Role</span>],
     <span class="ident">action</span>: <span class="ident">Action</span>,
     <span class="ident">course_or_exam_id</span>: <span class="ident">CourseOrExamId</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AuthorizationToken</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">course_or_exam_id</span> {
         <span class="ident">CourseOrExamId::Course</span>(<span class="ident">course_id</span>) =&gt; {
             <span class="ident">check_course_permission</span>(<span class="ident">conn</span>, <span class="ident">roles</span>, <span class="ident">action</span>, <span class="ident">course_id</span>).<span class="kw">await</span>
@@ -790,10 +910,10 @@
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">check_material_reference_permissions</span>(
     <span class="ident">roles</span>: <span class="kw-2">&amp;</span>[<span class="ident">Role</span>],
     <span class="ident">action</span>: <span class="ident">Action</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AuthorizationToken</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span> {
     <span class="kw">for</span> <span class="ident">role</span> <span class="kw">in</span> <span class="ident">roles</span> {
         <span class="kw">if</span> <span class="ident">has_permission</span>(<span class="ident">role</span>.<span class="ident">role</span>, <span class="ident">action</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AuthorizationToken</span>(()));
         }
     }
     <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Forbidden</span>(<span class="string">&quot;Unauthorized&quot;</span>.<span class="ident">to_string</span>()))

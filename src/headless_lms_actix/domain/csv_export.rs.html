@@ -426,27 +426,53 @@
 <span id="421">421</span>
 <span id="422">422</span>
 <span id="423">423</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
+<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
+<span class="kw">use</span> <span class="ident">csv::Writer</span>;
+<span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">stream::FuturesUnordered</span>, <span class="ident">Stream</span>};
+<span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
+    <span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">exercise_task_submissions</span>, <span class="ident">exercises</span>, <span class="ident">user_exercise_states</span>,
+};
+<span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections::HashMap</span>,
     <span class="ident">io</span>,
     <span class="ident">io::Write</span>,
     <span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>},
 };
-
-<span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-<span class="kw">use</span> <span class="ident">csv::Writer</span>;
-<span class="kw">use</span> <span class="ident">futures::stream::FuturesUnordered</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
-    <span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">exercise_task_submissions</span>, <span class="ident">exercises</span>, <span class="ident">user_exercise_states</span>,
-};
-<span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
 <span class="kw">use</span> <span class="ident">tokio</span>::{<span class="ident">sync::mpsc::UnboundedSender</span>, <span class="ident">task::JoinHandle</span>};
-<span class="kw">use</span> <span class="ident">tokio_stream::StreamExt</span>;
+<span class="kw">use</span> <span class="ident">tokio_stream</span>::{<span class="ident">wrappers::UnboundedReceiverStream</span>, <span class="ident">StreamExt</span>};
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::ControllerResult</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers</span>::{<span class="self">self</span>, <span class="ident">ControllerResult</span>};
 
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::authorization</span>::{<span class="ident">AuthorizationToken</span>, <span class="ident">AuthorizedResponse</span>};
 <span class="doccomment">/// Convenience struct for creating CSV data.</span>
 <span class="kw">struct</span> <span class="ident">CsvWriter</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> {
     <span class="ident">csv_writer</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Writer</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -662,8 +688,8 @@
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CSVExportAdapter</span> {
     <span class="kw">pub</span> <span class="ident">sender</span>: <span class="ident">UnboundedSender</span><span class="op">&lt;</span><span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">authorization_token</span>: <span class="ident">AuthorizationToken</span>,
 }
-
 <span class="kw">impl</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">CSVExportAdapter</span> {
     <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">std::io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(())
@@ -671,11 +697,37 @@
 
     <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">Bytes::copy_from_slice</span>(<span class="ident">buf</span>);
+        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">authorization_token</span>;
         <span class="self">self</span>.<span class="ident">sender</span>
-            .<span class="ident">send</span>(<span class="prelude-val">Ok</span>(<span class="ident">bytes</span>))
+            .<span class="ident">send</span>(<span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">bytes</span>))
             .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="ident">e</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">buf</span>.<span class="ident">len</span>())
     }
+}
+
+<span class="doccomment">/** Without this one, actix cannot stream our authorized streams as responses
+
+```ignore
+HttpResponse::Ok()
+    .append_header((
+        &quot;Content-Disposition&quot;,
+        format!(
+            &quot;attachment; filename=\&quot;Exam: {} - Submissions {}.csv\&quot;&quot;,
+            exam.name,
+            Utc::today().format(&quot;%Y-%m-%d&quot;)
+        ),
+    ))
+    .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+        receiver,
+    ))),
+```
+*/</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_authorized_streamable</span>(
+    <span class="ident">stream</span>: <span class="ident">UnboundedReceiverStream</span><span class="op">&lt;</span>
+        <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AuthorizedResponse</span><span class="op">&lt;</span><span class="ident">bytes::Bytes</span><span class="op">&gt;</span>, <span class="ident">controllers::ControllerError</span><span class="op">&gt;</span>,
+    <span class="op">&gt;</span>,
+) -&gt; <span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bytes::Bytes</span>, <span class="ident">controllers::ControllerError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="ident">stream</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="ident">item</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">item2</span><span class="op">|</span> <span class="ident">item2</span>.<span class="ident">data</span>))
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>

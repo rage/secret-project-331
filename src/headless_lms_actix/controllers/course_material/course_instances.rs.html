@@ -138,6 +138,9 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/course-instances`.</span>
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals</span>;
@@ -147,7 +150,7 @@
     <span class="ident">user_exercise_states</span>::{<span class="ident">UserCourseInstanceChapterExerciseProgress</span>, <span class="ident">UserCourseInstanceProgress</span>},
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">controllers::prelude</span>::<span class="kw-2">*</span>, <span class="ident">domain::authorization::skip_authorize</span>};
 
 <span class="doccomment">/**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
@@ -167,7 +170,8 @@
             <span class="ident">user</span>.<span class="ident">id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">user_course_instance_progress</span>))
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">user_course_instance_progress</span>))
 }
 
 <span class="doccomment">/**
@@ -190,7 +194,8 @@ GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapt
             <span class="ident">user</span>.<span class="ident">id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">user_course_instance_chapter_progress</span>))
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">user_course_instance_chapter_progress</span>))
 }
 
 <span class="doccomment">/**
@@ -225,7 +230,8 @@ GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapte
                 <span class="ident">exercise_id</span>: <span class="ident">i</span>.<span class="ident">exercise_id</span>,
             })
             .<span class="ident">collect</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">rounded_score_given_instances</span>))
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">rounded_score_given_instances</span>))
 }
 
 <span class="doccomment">/**
@@ -251,8 +257,8 @@ POST /api/v0/course-material/course-instance/:course_instance_id/enroll - enroll
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">enrollment</span>))
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">enrollment</span>))
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {

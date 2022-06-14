@@ -218,6 +218,7 @@
 <span id="213">213</span>
 <span id="214">214</span>
 <span id="215">215</span>
+<span id="216">216</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0`.
 
@@ -238,6 +239,7 @@ This documents all endpoints. Select a module below for a namespace.
 
 <span class="kw">use</span> <span class="ident">std::error::Error</span>;
 
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization::AuthorizedResponse</span>;
 <span class="kw">use</span> <span class="ident">actix_web</span>::{
     <span class="ident">error</span>,
     <span class="ident">http</span>::{<span class="ident">header::ContentType</span>, <span class="ident">StatusCode</span>},
@@ -416,7 +418,7 @@ Represents error messages that are sent in responses.
 Used as the result types for all controllers.
 Only put information here that you want to be visible to users.
 */</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span> <span class="op">=</span> <span class="ident">ControllerError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span> <span class="op">=</span> <span class="ident">ControllerError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">AuthorizedResponse</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// Result of a image upload. Tells where the uploaded image can be retrieved from.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>

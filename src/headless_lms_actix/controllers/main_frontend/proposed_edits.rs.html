@@ -117,6 +117,9 @@
 <span id="112">112</span>
 <span id="113">113</span>
 <span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">models::proposed_page_edits</span>::{<span class="self">self</span>, <span class="ident">EditProposalInfo</span>, <span class="ident">PageProposal</span>, <span class="ident">ProposalCount</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
@@ -141,13 +144,6 @@ GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns fee
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageProposal</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Teach</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Course</span>(<span class="kw-2">*</span><span class="ident">course_id</span>),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">feedback</span> <span class="op">=</span> <span class="ident">proposed_page_edits::get_proposals_for_course</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
@@ -156,7 +152,15 @@ GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns fee
         <span class="ident">query</span>.<span class="ident">pagination</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">feedback</span>))
+
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">Act::Teach</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
+        <span class="ident">Res::Course</span>(<span class="kw-2">*</span><span class="ident">course_id</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">feedback</span>))
 }
 
 <span class="doccomment">/**
@@ -170,17 +174,18 @@ GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ProposalCount</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">authorize</span>(
+
+    <span class="kw">let</span> <span class="ident">edit_proposal_count</span> <span class="op">=</span>
+        <span class="ident">proposed_page_edits::get_proposal_count_for_course</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">Act::Teach</span>,
         <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
         <span class="ident">Res::Course</span>(<span class="kw-2">*</span><span class="ident">course_id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let</span> <span class="ident">edit_proposal_count</span> <span class="op">=</span>
-        <span class="ident">proposed_page_edits::get_proposal_count_for_course</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">web::Json</span>(<span class="ident">edit_proposal_count</span>))
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">edit_proposal_count</span>))
 }
 
 <span class="doccomment">/**
@@ -194,13 +199,6 @@ POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes th
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">proposal</span> <span class="op">=</span> <span class="ident">proposal</span>.<span class="ident">into_inner</span>();
-    <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Page</span>(<span class="ident">proposal</span>.<span class="ident">page_id</span>),
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="ident">proposed_page_edits::process_proposal</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
@@ -210,7 +208,15 @@ POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes th
         <span class="ident">user</span>.<span class="ident">id</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse::Ok</span>().<span class="ident">finish</span>())
+
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">Act::Edit</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
+        <span class="ident">Res::Page</span>(<span class="ident">proposal</span>.<span class="ident">page_id</span>),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">HttpResponse::Ok</span>().<span class="ident">finish</span>())
 }
 
 <span class="doccomment">/**

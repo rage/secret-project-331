@@ -125,18 +125,20 @@
 <span id="120">120</span>
 <span id="121">121</span>
 <span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/files`.
 
 */</span>
-
 <span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
 
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization::AuthorizationToken</span>;
 <span class="kw">use</span> <span class="ident">actix_files::NamedFile</span>;
 <span class="kw">use</span> <span class="ident">tokio::fs::read</span>;
-
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
-
 <span class="doccomment">/**
 
 GET `/api/v0/files/\*` Redirects the request to a file storage service.
@@ -200,8 +202,13 @@ Result:
 The file.
 */</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">req</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">serve_upload</span>(<span class="ident">req</span>: <span class="ident">HttpRequest</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">serve_upload</span>(
+    <span class="ident">req</span>: <span class="ident">HttpRequest</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
     <span class="comment">// TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">base_folder</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;uploads&quot;</span>);
     <span class="kw">let</span> <span class="ident">relative_path</span>: <span class="ident">PathBuf</span> <span class="op">=</span> <span class="ident">req</span>
         .<span class="ident">match_info</span>()
@@ -233,7 +240,8 @@ The file.
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">m</span>) <span class="op">=</span> <span class="ident">mime_type</span> {
         <span class="ident">response</span>.<span class="ident">append_header</span>((<span class="string">&quot;content-type&quot;</span>, <span class="ident">m</span>));
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">response</span>.<span class="ident">body</span>(<span class="ident">contents</span>))
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">response</span>.<span class="ident">body</span>(<span class="ident">contents</span>))
 }
 
 <span class="doccomment">/**

@@ -203,10 +203,51 @@
 <span id="198">198</span>
 <span id="199">199</span>
 <span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Shared helper functions for multiple controllers.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">path::PathBuf</span>, <span class="ident">sync::Arc</span>};
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization::AuthorizationToken</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">controllers::prelude</span>::<span class="kw-2">*</span>, <span class="ident">domain::authorization::AuthorizedResponse</span>};
 <span class="kw">use</span> <span class="ident">actix_http::header::HeaderMap</span>;
 <span class="kw">use</span> <span class="ident">actix_multipart::Field</span>;
 <span class="kw">use</span> <span class="ident">actix_web::http::header</span>;
@@ -216,8 +257,6 @@
     <span class="ident">strings::generate_random_string</span>,
 };
 <span class="kw">use</span> <span class="ident">models::organizations::DatabaseOrganization</span>;
-
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
@@ -232,22 +271,25 @@
     <span class="kw-2">mut</span> <span class="ident">payload</span>: <span class="ident">Multipart</span>,
     <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>,
     <span class="ident">file_store</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">FileStore</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">validate_media_headers</span>(<span class="ident">headers</span>)<span class="question-mark">?</span>;
-
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">validate_media_headers</span>(<span class="ident">headers</span>, <span class="kw-2">&amp;</span><span class="ident">user</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">file_payload</span> <span class="op">=</span> <span class="ident">payload</span>
         .<span class="ident">next</span>()
         .<span class="kw">await</span>
         .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Missing form data&quot;</span>.<span class="ident">into</span>()))<span class="question-mark">?</span>;
     <span class="kw">match</span> <span class="ident">file_payload</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">field</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">path</span>: <span class="ident">PathBuf</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">type_</span>() {
-                <span class="ident">mime::AUDIO</span> =&gt; <span class="ident">generate_audio_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>),
-                <span class="ident">mime::IMAGE</span> =&gt; <span class="ident">generate_image_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>),
-                <span class="kw">_</span> =&gt; <span class="ident">generate_file_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>),
-            }<span class="question-mark">?</span>;
-            <span class="ident">upload_media_to_storage</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">field</span>, <span class="ident">file_store</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
+            <span class="kw">let</span> <span class="ident">path</span>: <span class="ident">AuthorizedResponse</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">type_</span>() {
+                <span class="ident">mime::AUDIO</span> =&gt; <span class="ident">generate_audio_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>, <span class="kw-2">&amp;</span><span class="ident">user</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+                <span class="ident">mime::IMAGE</span> =&gt; <span class="ident">generate_image_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>, <span class="kw-2">&amp;</span><span class="ident">user</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+                <span class="kw">_</span> =&gt; <span class="ident">generate_file_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>, <span class="kw-2">&amp;</span><span class="ident">user</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+            };
+            <span class="ident">upload_media_to_storage</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>.<span class="ident">data</span>, <span class="ident">field</span>, <span class="ident">file_store</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">path</span>.<span class="ident">data</span>)
         }
         <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ControllerError::InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())),
     }
@@ -258,32 +300,48 @@
     <span class="kw-2">mut</span> <span class="ident">payload</span>: <span class="ident">Multipart</span>,
     <span class="ident">organization</span>: <span class="kw-2">&amp;</span><span class="ident">DatabaseOrganization</span>,
     <span class="ident">file_store</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">validate_media_headers</span>(<span class="ident">headers</span>)<span class="question-mark">?</span>;
-
+    <span class="ident">validate_media_headers</span>(<span class="ident">headers</span>, <span class="kw-2">&amp;</span><span class="ident">user</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">next_payload</span> <span class="op">=</span> <span class="ident">payload</span>
         .<span class="ident">next</span>()
         .<span class="kw">await</span>
         .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Missing form data&quot;</span>.<span class="ident">into</span>()))<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">match</span> <span class="ident">next_payload</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">field</span>) =&gt; {
             <span class="kw">let</span> <span class="ident">path</span>: <span class="ident">PathBuf</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">type_</span>() {
                 <span class="ident">mime::IMAGE</span> =&gt; {
-                    <span class="ident">generate_image_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">StoreKind::Organization</span>(<span class="ident">organization</span>.<span class="ident">id</span>))
+                    <span class="ident">generate_image_path</span>(
+                        <span class="kw-2">&amp;</span><span class="ident">field</span>,
+                        <span class="ident">StoreKind::Organization</span>(<span class="ident">organization</span>.<span class="ident">id</span>),
+                        <span class="kw-2">&amp;</span><span class="ident">user</span>,
+                        <span class="kw-2">&amp;</span><span class="ident">pool</span>,
+                    )
+                    .<span class="kw">await</span>
                 }
                 <span class="ident">unsupported</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;Unsupported image Mime type: {}&quot;</span>,
                     <span class="ident">unsupported</span>
                 ))),
-            }<span class="question-mark">?</span>;
+            }
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">data</span>)<span class="question-mark">?</span>;
             <span class="ident">upload_media_to_storage</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">field</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
+            <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">path</span>)
         }
         <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ControllerError::InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">generate_audio_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">generate_audio_path</span>(
+    <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>,
+    <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>,
+    <span class="ident">user</span>: <span class="kw-2">&amp;</span><span class="ident">AuthUser</span>,
+    <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">to_string</span>().<span class="ident">as_str</span>() {
         <span class="string">&quot;audio/aac&quot;</span> =&gt; <span class="string">&quot;.aac&quot;</span>,
         <span class="string">&quot;audio/mpeg&quot;</span> =&gt; <span class="string">&quot;.mp3&quot;</span>,
@@ -303,11 +361,17 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file_name</span> <span class="op">=</span> <span class="ident">generate_random_string</span>(<span class="number">30</span>);
     <span class="ident">file_name</span>.<span class="ident">push_str</span>(<span class="ident">extension</span>);
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="ident">file_name</span>, <span class="ident">FileType::Audio</span>, <span class="ident">store_kind</span>);
-
-    <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">path</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">generate_file_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">generate_file_path</span>(
+    <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>,
+    <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>,
+    <span class="ident">user</span>: <span class="kw-2">&amp;</span><span class="ident">AuthUser</span>,
+    <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">field_content</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">content_disposition</span>();
     <span class="kw">let</span> <span class="ident">field_content_name</span> <span class="op">=</span> <span class="ident">field_content</span>.<span class="ident">get_filename</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
         <span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Missing file name in content-disposition&quot;</span>.<span class="ident">into</span>())
@@ -321,10 +385,17 @@
 
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="ident">file_name</span>, <span class="ident">FileType::File</span>, <span class="ident">store_kind</span>);
 
-    <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">path</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">generate_image_path</span>(<span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">generate_image_path</span>(
+    <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>,
+    <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>,
+    <span class="ident">user</span>: <span class="kw-2">&amp;</span><span class="ident">AuthUser</span>,
+    <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">to_string</span>().<span class="ident">as_str</span>() {
         <span class="string">&quot;image/jpeg&quot;</span> =&gt; <span class="string">&quot;.jpg&quot;</span>,
         <span class="string">&quot;image/png&quot;</span> =&gt; <span class="string">&quot;.png&quot;</span>,
@@ -348,10 +419,16 @@
     <span class="ident">file_name</span>.<span class="ident">push_str</span>(<span class="ident">extension</span>);
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="ident">file_name</span>, <span class="ident">FileType::Image</span>, <span class="ident">store_kind</span>);
 
-    <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">path</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">validate_media_headers</span>(<span class="ident">headers</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span>) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">validate_media_headers</span>(
+    <span class="ident">headers</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span>,
+    <span class="ident">user</span>: <span class="kw-2">&amp;</span><span class="ident">AuthUser</span>,
+    <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">content_type</span> <span class="op">=</span> <span class="ident">headers</span>.<span class="ident">get</span>(<span class="ident">header::CONTENT_TYPE</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
         <span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Please provide a Content-Type header&quot;</span>.<span class="ident">into</span>())
     })<span class="question-mark">?</span>;
@@ -379,7 +456,8 @@
         ));
     }
 
-    <span class="prelude-val">Ok</span>(())
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(())
 }
 
 <span class="kw">enum</span> <span class="ident">FileType</span> {

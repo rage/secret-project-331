@@ -12,6 +12,7 @@ use futures::stream::FuturesUnordered;
 use headless_lms_models::{
     chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
 };
+use serde::Serialize;
 use sqlx::PgConnection;
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
 use tokio_stream::StreamExt;
@@ -247,6 +248,74 @@ impl Write for CSVExportAdapter {
             .send(Ok(bytes))
             .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
         Ok(buf.len())
+    }
+}
+
+/// Utility struct for streaming json objects.
+///
+/// NOTE: I think that this file is contextually the proper place to put this even though not csv.
+pub struct JsonStreamer {
+    sender: UnboundedSender<ControllerResult<Bytes>>,
+}
+
+impl JsonStreamer {
+    /// Creates new `JsonStreamer` that takes ownership of the sender.
+    pub fn from_sender(sender: UnboundedSender<ControllerResult<Bytes>>) -> Self {
+        Self { sender }
+    }
+
+    pub fn stream_array_start(&self) -> anyhow::Result<()> {
+        self.send_bytes(Bytes::from_static(b"["))
+    }
+
+    pub fn stream_array_separator(&self) -> anyhow::Result<()> {
+        self.send_bytes(Bytes::from_static(b","))
+    }
+
+    pub fn stream_array_end(&self) -> anyhow::Result<()> {
+        self.send_bytes(Bytes::from_static(b"]"))
+    }
+
+    pub fn stream_object<T>(&self, object: &T) -> anyhow::Result<()>
+    where
+        T: Serialize,
+    {
+        let slice =
+            serde_json::to_vec(object).map_err(|_| anyhow::anyhow!("Serialization error"))?;
+        let bytes = Bytes::copy_from_slice(&slice);
+        self.send_bytes(bytes)
+    }
+
+    /// Takes a stream of json-serializable sqlx database results and sends them onward. The message
+    /// is started with `[`, ended with `]` and each item is separated with `,` so that it resembles
+    /// a valid json array.
+    // pub async fn stream_as_array<T>(
+    //     &self,
+    //     stream: &mut impl Stream<Item = Result<T, sqlx::Error>>,
+    // ) -> anyhow::Result<()>
+    // where
+    //     T: Serialize,
+    // {
+    //     let stream = Box::pin(stream);
+    //     self.send_bytes(Bytes::from_static(b"["))?;
+    //     if let Some(data) = &stream.try_next().await? {
+    //         let bytes = self.serialize_to_bytes(data)?;
+    //         self.send_bytes(bytes)?;
+    //     }
+    //     self.send_bytes(Bytes::from_static(b"]"))?;
+    //     while let Some(data) = stream.try_next().await? {
+    //         self.send_bytes(Bytes::from_static(b","))?;
+    //         let bytes = self.serialize_to_bytes(data)?;
+    //         self.send_bytes(bytes)?;
+    //     }
+    //     self.send_bytes(Bytes::from_static(b"["))?;
+    //     Ok(())
+    // }
+
+    fn send_bytes(&self, bytes: Bytes) -> anyhow::Result<()> {
+        self.sender
+            .send(Ok(bytes))
+            .map_err(|_| anyhow::anyhow!("Failed to send data"))
     }
 }
 

@@ -10,14 +10,43 @@ use uuid::Uuid;
 
 mod integration_test;
 
-#[ignore = "Used for testing endpoint but doesn't work nicely with the other integration test."]
 #[tokio::test]
 async fn gets_completions_for_a_course() {
     let (actix, pool) = integration_test::init_actix().await;
     let mut conn = pool.acquire().await.unwrap();
     let (_user, _org, course, _module, _completion, _completion_2) = insert_data(&mut conn).await;
     let path = format!("/api/v0/study-registry/completions/{}", course);
+
+    // Without header nor database entry
     let req = test::TestRequest::with_uri(&path).to_request();
+    let res = test::call_service(&actix, req).await;
+    assert!(res.status().is_client_error());
+
+    // With header but no database entry
+    let req = test::TestRequest::with_uri(&path)
+        .append_header((
+            "Authorization",
+            "Basic integration-test-intentionally-public",
+        ))
+        .to_request();
+    let res = test::call_service(&actix, req).await;
+    assert!(res.status().is_client_error());
+
+    // With header and database entry
+    headless_lms_models::study_registry_registrars::insert(
+        &mut conn,
+        "Integration test",
+        "integration-test-intentionally-public",
+        Some(Uuid::parse_str("9d5aa77c-1c8c-4333-a3d2-1f328b9da87a").unwrap()),
+    )
+    .await
+    .unwrap();
+    let req = test::TestRequest::with_uri(&path)
+        .append_header((
+            "Authorization",
+            "Basic integration-test-intentionally-public",
+        ))
+        .to_request();
     let res = test::call_service(&actix, req).await;
     assert!(res.status().is_success());
     let body = res.into_body();

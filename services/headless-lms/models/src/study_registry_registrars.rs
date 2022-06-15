@@ -47,6 +47,25 @@ WHERE id = $1
     Ok(res)
 }
 
+pub async fn get_by_secret_key(
+    conn: &mut PgConnection,
+    secret_key: &str,
+) -> ModelResult<StudyRegistryRegistrar> {
+    let res = sqlx::query_as!(
+        StudyRegistryRegistrar,
+        "
+SELECT *
+FROM study_registry_registrars
+WHERE secret_key = $1
+  AND deleted_at IS NULL
+    ",
+        secret_key
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "

@@ -84,6 +84,7 @@ pub async fn init_actix() -> (
     (actix_web::test::init_service(app).await, pool)
 }
 
+#[ignore = "Only one integration test can be run at once in current setup."]
 #[tokio::test]
 async fn gets_organizations() {
     let (actix, pool) = init_actix().await;

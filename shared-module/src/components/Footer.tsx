@@ -3,12 +3,13 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import UHLogo from "../img/UHLogo.svg"
-import MOOCfi from "../img/moocfi.svg"
+import MOOCfi from "../img/MOOCLogo.svg"
+import UHLogo from "../img/UH.png"
 import { baseTheme, headingFont, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
 import Banner from "./Banner/Banner"
+import ContriButeBanner from "./Banner/ContributeBanner"
 
 const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
 
@@ -38,11 +39,10 @@ const Wrapper = styled.div`
   }
 
   div:first-of-type {
-    margin: 0 auto;
+    margin-left: 4em;
 
     ${respondToOrLarger.md} {
       padding-right: 20px;
-      margin-right: 0;
     }
   }
 `
@@ -103,24 +103,26 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
         }
       `}
     >
-      <Banner variant="readOnly">
+      <ContriButeBanner />
+      {/*       <Banner variant="readOnly">
         <>{t("project-description")}</>
-      </Banner>
+      </Banner> */}
       <Wrapper>
         <div
           className={css`
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
             align-content: space-between;
-            grid-gap: 1em;
+            grid-gap: 1.6em;
+            opacity: 0.9;
             ${respondToOrLarger.md} {
-              grid-template-columns: 1fr 1fr;
+              grid-template-rows: 1fr;
             }
           `}
         >
+          <img src={UHLogo} alt={t("university-of-helsinki")} width="277px" />
           {/* eslint-disable-next-line i18next/no-literal-string */}
           <MOOCfi alt="MOOC.fi" />
-          <UHLogo alt={t("university-of-helsinki")} />
         </div>
         <Text>
           <h1

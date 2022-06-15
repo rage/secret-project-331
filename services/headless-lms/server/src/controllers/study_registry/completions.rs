@@ -10,6 +10,13 @@ use crate::{
     domain::csv_export::{make_authorized_streamable, JsonStreamer},
 };
 
+/**
+GET `/api/v0/main-frontend/study-registry/completions/:course_id` - Streams completions for the given course.
+
+This endpoint is only available to study registry authorities.
+
+TODO: Example (can't automatically generate, see https://github.com/rage/secret-project-331/issues/834)
+ */
 #[instrument(skip(req, pool))]
 async fn get_completions(
     req: HttpRequest,

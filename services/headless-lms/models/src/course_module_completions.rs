@@ -143,28 +143,52 @@ WHERE id = $1
     Ok(res)
 }
 
+/// Completion in the form that is recognized by authorized third party study registry registrars.
+#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+pub struct StudyRegistryCompletion {
+    /// The date when the student completed the course. The value of this field is the date that will
+    /// end up in the user's study registry as the completion date. If the completion is created
+    /// automatically, it is the date when the student passed the completion thresholds. If the teacher
+    /// creates these completions manually, the teacher inputs this value. Usually the teacher would in
+    /// this case input the date of the exam.
+    pub completion_date: DateTime<Utc>,
+    /// The language used in the completion of the course.
+    pub completion_language: String,
+    /// Date when the student opened the form to register their credits to the open university.
+    pub completion_registration_attempt_date: Option<DateTime<Utc>>,
+    /// Email at the time of completing the course. Used to match the student to the data that they will
+    /// fill to the open university and it will remain unchanged in the event of email change because
+    /// changing this would break the matching.
+    pub email: String,
+    /// TODO: Not used at the moment.
+    pub grade: Option<String>,
+    /// ID of the completion.
+    pub id: Uuid,
+    /// Currently always null
+    pub student_number: Option<String>,
+    /// User id in courses.mooc.fi for received registered completions.
+    pub user_upstream_id: Uuid,
+    /// Tier of the completion. Currently always null. Historically used for example to distinguish between
+    /// intermediate and advanced versions of the Building AI course.
+    pub tier: Option<i32>,
+}
+
 pub fn stream_by_course_module_id(
     conn: &mut PgConnection,
     course_module_id: Uuid,
-) -> impl Stream<Item = sqlx::Result<CourseModuleCompletion>> + '_ {
+) -> impl Stream<Item = sqlx::Result<StudyRegistryCompletion>> + '_ {
     sqlx::query_as!(
-        CourseModuleCompletion,
+        StudyRegistryCompletion,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  course_module_id,
-  user_id,
-  completion_date,
-  completion_registration_attempt_date,
+SELECT completion_date,
   completion_language,
-  eligible_for_ects,
+  completion_registration_attempt_date,
   email,
-  grade_scale_id AS "grade_scale_id: _",
-  grade_local_id AS "grade_local_id: _",
-  passed
+  NULL AS grade,
+  id,
+  NULL AS student_number,
+  user_id AS user_upstream_id,
+  NULL AS "tier: _"
 FROM course_module_completions
 WHERE course_module_id = $1
   AND deleted_at IS NULL

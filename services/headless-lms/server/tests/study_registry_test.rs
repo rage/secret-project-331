@@ -2,7 +2,7 @@ use actix_http::body;
 use actix_web::test;
 use chrono::{TimeZone, Utc};
 use headless_lms_models::{
-    course_module_completions::{CourseModuleCompletion, NewCourseModuleCompletion},
+    course_module_completions::{NewCourseModuleCompletion, StudyRegistryCompletion},
     courses::NewCourse,
 };
 use sqlx::PgConnection;
@@ -51,7 +51,7 @@ async fn gets_completions_for_a_course() {
     assert!(res.status().is_success());
     let body = res.into_body();
     let bytes = body::to_bytes(body).await.unwrap();
-    let res: Vec<CourseModuleCompletion> = serde_json::from_slice(&bytes[..]).unwrap();
+    let res: Vec<StudyRegistryCompletion> = serde_json::from_slice(&bytes[..]).unwrap();
     assert_eq!(res.len(), 2);
 }
 

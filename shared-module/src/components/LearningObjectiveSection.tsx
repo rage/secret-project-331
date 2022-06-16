@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
@@ -73,7 +74,13 @@ const LearningObjective: React.FC<LearningObjectiveProps> = ({ objectives, title
   return (
     <Wrapper>
       <Header>
-        <h2>{title}</h2>
+        <h2
+          className={css`
+            text-transform: uppercase;
+          `}
+        >
+          {title}
+        </h2>
       </Header>
       <Content>
         {objectives.map(({ attributes: { values }, clientId }: any) => {

@@ -3,12 +3,11 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import MOOCfi from "../img/MOOCLogo.svg"
 import UHLogo from "../img/UH.png"
+import MOOCfi from "../img/moocfiLogo.svg"
 import { baseTheme, headingFont, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
-import Banner from "./Banner/Banner"
 import ContriButeBanner from "./Banner/ContributeBanner"
 
 const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
@@ -39,10 +38,11 @@ const Wrapper = styled.div`
   }
 
   div:first-of-type {
-    margin-left: 4em;
+    margin-left: 0;
 
     ${respondToOrLarger.md} {
-      padding-right: 20px;
+      /* padding-right: 20px; */
+      margin-left: 4em;
     }
   }
 `
@@ -120,7 +120,7 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
             }
           `}
         >
-          <img src={UHLogo} alt={t("university-of-helsinki")} width="277px" />
+          <img src={UHLogo} alt={t("university-of-helsinki")} width="230px" />
           {/* eslint-disable-next-line i18next/no-literal-string */}
           <MOOCfi alt="MOOC.fi" />
         </div>

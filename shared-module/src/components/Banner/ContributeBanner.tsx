@@ -1,21 +1,25 @@
-/* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import contributecover from "../../img/contribute.png"
 import Arrow from "../../img/screwedArrow.svg"
-import { baseTheme, headingFont } from "../../styles"
+import { headingFont } from "../../styles"
 
 // eslint-disable-next-line i18next/no-literal-string
 const BannerWrapper = styled.div`
-  height: 257px;
+  height: 340px;
   position: relative;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+
   img {
     position: absolute;
     right: 0;
     top: 0;
     width: 100%;
-    height: 257px;
+    height: 340px;
     z-index: -1;
     object-fit: cover;
   }
@@ -33,16 +37,19 @@ const Content = styled.div`
 
   h2 {
     text-align: center;
+    margin-bottom: 5px;
   }
 `
 const Text = styled.div`
   text-align: center;
   font-size: 22px;
+  margin-bottom: 10px;
 
   div {
     color: #3b4754;
   }
 `
+// eslint-disable-next-line i18next/no-literal-string
 const StyledLink = styled.a`
   font-family: ${headingFont};
   font-size: 30px;
@@ -78,19 +85,17 @@ const StyledArrow = styled(Arrow)`
 export type ContributeProps = React.HTMLAttributes<HTMLDivElement>
 
 const Contribute: React.FC<ContributeProps> = () => {
+  const { t } = useTranslation()
   return (
     <BannerWrapper>
-      <img src={contributecover} alt="background cover" />
+      <img src={contributecover} alt={t("contribute-image-cover")} />
       <Content>
-        <h2>Contribute to this project</h2>
+        <h2>{t("contribute-to-this-ptoject")}</h2>
         <Text>
-          <div>
-            Courses.mooc.fi is an open source project developed by the MOOC Centre of University of
-            Helsinki. Star the project on github for more details:
-          </div>
+          <div>{t("contribute-to-this-project-description")}:</div>
         </Text>
         <StyledLink href="github.com/rage/secret-project-331">
-          <span>Go to project</span>
+          <span>{t("go-to-ptoject")}</span>
           <StyledArrow />
         </StyledLink>
       </Content>

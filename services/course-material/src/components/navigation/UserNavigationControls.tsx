@@ -64,7 +64,7 @@ const UserNavigationControls: React.FC<UserNavigationControlsProps> = ({
   ) : (
     <>
       <li className={cx(styles)}>
-        <a href="https://www.mooc.fi/en/signup/">
+        <a href="https://www.mooc.fi/en/sign-up/">
           <Button size="medium" variant="primary">
             {t("create-new-account")}
           </Button>

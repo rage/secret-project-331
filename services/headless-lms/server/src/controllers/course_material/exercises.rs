@@ -86,10 +86,16 @@ async fn get_peer_review_for_exercise(
     let peer_review_data = models::peer_reviews::get_course_material_peer_review_data(
         &mut conn,
         user.id,
-        exercise_id.into_inner(),
+        *exercise_id,
     )
     .await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Exercise(*exercise_id),
+    )
+    .await?;
     token.authorized_ok(web::Json(peer_review_data))
 }
 

@@ -1,17 +1,4 @@
--- 1. Create types for module completion grades
-CREATE TYPE grade_scale_id AS ENUM ('sis_0_5', 'sis_pass_fail');
-CREATE TYPE grade_local_id AS ENUM('0', '1', '2', '3', '4', '5');
--- 2. Create function for calculating passed value
-CREATE FUNCTION check_grade_passed(scale grade_scale_id, grade grade_local_id) RETURNS BOOLEAN AS $$ BEGIN CASE
-  scale
-  WHEN 'sis_0_5' THEN RETURN grade <> '0';
-WHEN 'sis_pass_fail' THEN RETURN grade <> '0';
-ELSE RETURN false;
-END CASE
-;
-END;
-$$ LANGUAGE 'plpgsql' IMMUTABLE;
--- 3. Create table course_module_completions
+-- 1. Create table course_module_completions
 CREATE TABLE course_module_completions (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -25,11 +12,8 @@ CREATE TABLE course_module_completions (
   completion_language VARCHAR(255) NOT NULL,
   eligible_for_ects BOOLEAN NOT NULL,
   email VARCHAR(255) NOT NULL,
-  grade_scale_id grade_scale_id NOT NULL,
-  grade_local_id grade_local_id NOT NULL,
-  passed BOOLEAN GENERATED ALWAYS AS (
-    check_grade_passed(grade_scale_id, grade_local_id)
-  ) STORED NOT NULL
+  grade INTEGER,
+  passed BOOLEAN NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON course_module_completions FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -46,10 +30,9 @@ COMMENT ON COLUMN course_module_completions.completion_registration_attempt_date
 COMMENT ON COLUMN course_module_completions.completion_language IS 'The language used in the completion of the course.';
 COMMENT ON COLUMN course_module_completions.eligible_for_ects IS 'Whether or not the student can receive study credits for this completion.';
 COMMENT ON COLUMN course_module_completions.email IS 'Email at the time of completing the course. Used to match the student to the data that they will fill to the open university and it will remain unchanged in the event of email change because changing this would break the matching.';
-COMMENT ON COLUMN course_module_completions.grade_scale_id IS 'Grading scale used when deciding whether the grade counts as passed or failed.';
-COMMENT ON COLUMN course_module_completions.grade_local_id IS 'Grade for completion. Always a numeric value, that is interpreted according to grade_scale_id.';
+COMMENT ON COLUMN course_module_completions.grade IS 'Grade for completion. Numeric value or null.';
 COMMENT ON COLUMN course_module_completions.passed IS 'Whether or not the completion is valid for credits. Generated from grade_scale_id and grade_local_id.';
--- 4. Create table study_registry_registrars
+-- 2. Create table study_registry_registrars
 CREATE TABLE study_registry_registrars (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -67,7 +50,7 @@ COMMENT ON COLUMN study_registry_registrars.updated_at IS 'Timestamp when the re
 COMMENT ON COLUMN study_registry_registrars.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN study_registry_registrars.secret_key IS 'The secret key used to authenticate for the registry.';
 COMMENT ON COLUMN study_registry_registrars.name IS 'The name of the registrar.';
--- 5. Create table course_module_completion_study_registry_registrations
+-- 3. Create table course_module_completion_study_registry_registrations
 CREATE TABLE course_module_completion_study_registry_registrations (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),

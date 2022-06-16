@@ -2,32 +2,6 @@ use futures::Stream;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[sqlx(type_name = "grade_scale_id")]
-pub enum GradeScaleId {
-    #[sqlx(rename = "sis_0_5")]
-    SisuZeroFive,
-    #[sqlx(rename = "sis_pass_fail")]
-    SisuPassFail,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[sqlx(type_name = "grade_local_id")]
-pub enum GradeLocalId {
-    #[sqlx(rename = "0")]
-    Zero,
-    #[sqlx(rename = "1")]
-    One,
-    #[sqlx(rename = "2")]
-    Two,
-    #[sqlx(rename = "3")]
-    Three,
-    #[sqlx(rename = "4")]
-    Four,
-    #[sqlx(rename = "5")]
-    Five,
-}
-
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct CourseModuleCompletion {
     pub id: Uuid,
@@ -42,8 +16,7 @@ pub struct CourseModuleCompletion {
     pub completion_language: String,
     pub eligible_for_ects: bool,
     pub email: String,
-    pub grade_scale_id: GradeScaleId,
-    pub grade_local_id: GradeLocalId,
+    pub grade: Option<i32>,
     pub passed: bool,
 }
 
@@ -57,8 +30,8 @@ pub struct NewCourseModuleCompletion {
     pub completion_language: String,
     pub eligible_for_ects: bool,
     pub email: String,
-    pub grade_scale_id: GradeScaleId,
-    pub grade_local_id: GradeLocalId,
+    pub grade: Option<i32>,
+    pub passed: bool,
 }
 
 pub async fn insert(
@@ -78,8 +51,8 @@ INSERT INTO course_module_completions (
     completion_language,
     eligible_for_ects,
     email,
-    grade_scale_id,
-    grade_local_id
+    grade,
+    passed
   )
 VALUES (
     COALESCE($1, uuid_generate_v4()),
@@ -105,8 +78,8 @@ RETURNING id
         new_course_module_completion.completion_language,
         new_course_module_completion.eligible_for_ects,
         new_course_module_completion.email,
-        new_course_module_completion.grade_scale_id as GradeScaleId,
-        new_course_module_completion.grade_local_id as GradeLocalId,
+        new_course_module_completion.grade,
+        new_course_module_completion.passed,
     )
     .fetch_one(conn)
     .await?;
@@ -117,21 +90,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CourseM
     let res = sqlx::query_as!(
         CourseModuleCompletion,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  course_module_id,
-  user_id,
-  completion_date,
-  completion_registration_attempt_date,
-  completion_language,
-  eligible_for_ects,
-  email,
-  grade_scale_id AS "grade_scale_id: _",
-  grade_local_id AS "grade_local_id: _",
-  passed
+SELECT *
 FROM course_module_completions
 WHERE id = $1
   AND deleted_at IS NULL
@@ -161,7 +120,7 @@ pub struct StudyRegistryCompletion {
     /// changing this would break the matching.
     pub email: String,
     /// TODO: Not used at the moment.
-    pub grade: Option<String>,
+    pub grade: StudyRegistryGrade,
     /// ID of the completion.
     pub id: Uuid,
     /// Currently always null
@@ -173,28 +132,62 @@ pub struct StudyRegistryCompletion {
     pub tier: Option<i32>,
 }
 
+impl From<CourseModuleCompletion> for StudyRegistryCompletion {
+    fn from(completion: CourseModuleCompletion) -> Self {
+        Self {
+            completion_date: completion.completion_date,
+            completion_language: completion.completion_language,
+            completion_registration_attempt_date: completion.completion_registration_attempt_date,
+            email: completion.email,
+            grade: StudyRegistryGrade::new(completion.passed, completion.grade),
+            id: completion.id,
+            student_number: None,
+            user_upstream_id: completion.user_id,
+            tier: None,
+        }
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+pub struct StudyRegistryGrade {
+    pub scale: String,
+    pub grade: String,
+}
+
+impl StudyRegistryGrade {
+    fn new(passed: bool, grade: Option<i32>) -> Self {
+        match grade {
+            Some(grade) => Self {
+                scale: "sis-hyv-hyl".to_string(),
+                grade: grade.to_string(),
+            },
+            None => Self {
+                scale: "sis-0-5".to_string(),
+                grade: if passed {
+                    "0".to_string()
+                } else {
+                    "1".to_string()
+                },
+            },
+        }
+    }
+}
+
 pub fn stream_by_course_module_id(
     conn: &mut PgConnection,
     course_module_id: Uuid,
 ) -> impl Stream<Item = sqlx::Result<StudyRegistryCompletion>> + '_ {
     sqlx::query_as!(
-        StudyRegistryCompletion,
+        CourseModuleCompletion,
         r#"
-SELECT completion_date,
-  completion_language,
-  completion_registration_attempt_date,
-  email,
-  NULL AS grade,
-  id,
-  NULL AS student_number,
-  user_id AS user_upstream_id,
-  NULL AS "tier: _"
+SELECT *
 FROM course_module_completions
 WHERE course_module_id = $1
   AND deleted_at IS NULL
         "#,
         course_module_id,
     )
+    .map(StudyRegistryCompletion::from)
     .fetch(conn)
 }
 
@@ -211,107 +204,4 @@ WHERE id = $1
     .execute(conn)
     .await?;
     Ok(())
-}
-
-#[cfg(test)]
-pub mod tests {
-    use chrono::TimeZone;
-
-    use super::*;
-    use crate::test_helper::*;
-
-    mod passed_evaluation {
-        use super::*;
-
-        #[tokio::test]
-        async fn sis_0_5_validation() {
-            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let dataset = vec![
-                (GradeLocalId::Zero, false),
-                (GradeLocalId::One, true),
-                (GradeLocalId::Two, true),
-                (GradeLocalId::Three, true),
-                (GradeLocalId::Four, true),
-                (GradeLocalId::Five, true),
-            ];
-            for (grade_local_id, expected_to_pass) in dataset {
-                let completion = create_new_completion(
-                    tx.as_mut(),
-                    course,
-                    course_module,
-                    user,
-                    GradeScaleId::SisuZeroFive,
-                    grade_local_id,
-                )
-                .await
-                .unwrap();
-                assert_eq!(completion.passed, expected_to_pass);
-            }
-        }
-
-        #[tokio::test]
-        async fn sis_pass_fail_validation() {
-            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let dataset = vec![(GradeLocalId::Zero, false), (GradeLocalId::One, true)];
-            for (grade_local_id, expected_to_pass) in dataset {
-                let completion = create_new_completion(
-                    tx.as_mut(),
-                    course,
-                    course_module,
-                    user,
-                    GradeScaleId::SisuPassFail,
-                    grade_local_id,
-                )
-                .await
-                .unwrap();
-                assert_eq!(completion.passed, expected_to_pass);
-            }
-        }
-
-        async fn create_new_completion(
-            conn: &mut PgConnection,
-            course_id: Uuid,
-            course_module_id: Uuid,
-            user_id: Uuid,
-            grade_scale_id: GradeScaleId,
-            grade_local_id: GradeLocalId,
-        ) -> ModelResult<CourseModuleCompletion> {
-            let new_completion = NewCourseModuleCompletion {
-                course_id,
-                course_module_id,
-                user_id,
-                completion_date: Utc.ymd(2022, 6, 10).and_hms(14, 0, 0),
-                completion_registration_attempt_date: None,
-                completion_language: "en_US".to_string(),
-                eligible_for_ects: true,
-                email: "email@example.com".to_string(),
-                grade_scale_id,
-                grade_local_id,
-            };
-            let completion_id = insert(conn, &new_completion, None).await.unwrap();
-            let completion = get_by_id(conn, completion_id).await.unwrap();
-            Ok(completion)
-        }
-    }
-
-    #[tokio::test]
-    async fn type_conversions_work() {
-        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-        let new_completion = NewCourseModuleCompletion {
-            course_id: course,
-            course_module_id: course_module,
-            user_id: user,
-            completion_date: Utc.ymd(2022, 6, 10).and_hms(14, 0, 0),
-            completion_registration_attempt_date: None,
-            completion_language: "en_US".to_string(),
-            eligible_for_ects: true,
-            email: "email@example.com".to_string(),
-            grade_scale_id: GradeScaleId::SisuZeroFive,
-            grade_local_id: GradeLocalId::Four,
-        };
-        let completion_id = insert(tx.as_mut(), &new_completion, None).await.unwrap();
-        let completion = get_by_id(tx.as_mut(), completion_id).await.unwrap();
-        assert_eq!(completion.grade_scale_id, GradeScaleId::SisuZeroFive);
-        assert_eq!(completion.grade_local_id, GradeLocalId::Four);
-    }
 }

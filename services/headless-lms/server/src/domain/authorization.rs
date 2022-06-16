@@ -3,15 +3,10 @@ use actix_session::Session;
 use actix_session::SessionExt;
 use actix_web::{FromRequest, HttpRequest, Responder};
 use anyhow::Result;
-use argon2::{
-    password_hash::{rand_core::OsRng, SaltString},
-    Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
-};
 use chrono::{DateTime, Utc};
 use futures::future::{err, ok, Ready};
 use headless_lms_models::{self as models, roles::UserRole};
 use models::{roles::Role, CourseOrExamId};
-use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use sqlx::PgConnection;
 #[cfg(feature = "ts_rs")]
@@ -21,25 +16,6 @@ use uuid::Uuid;
 use crate::controllers::{ControllerError, ControllerResult};
 
 const SESSION_KEY: &str = "user";
-
-/// Argon M cost taken from tmc-server configuration.
-const ARGON_M_COST: u32 = 15;
-/// Argon T cost taken from tmc-server configuration.
-const ARGON_T_COST: u32 = 4;
-
-static ARGON_2: Lazy<Argon2> = Lazy::new(|| {
-    Argon2::new(
-        argon2::Algorithm::Argon2id,
-        argon2::Version::V0x13,
-        argon2::Params::new(
-            ARGON_M_COST,
-            ARGON_T_COST,
-            argon2::Params::DEFAULT_P_COST,
-            Some(argon2::Params::DEFAULT_OUTPUT_LEN),
-        )
-        .expect("Argon initialization parameters were incorrect."),
-    )
-});
 
 // at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
@@ -463,25 +439,6 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
     }
 }
 
-/// Hashes a password to a database-storable form.
-pub fn hash_password(password: &str) -> anyhow::Result<String> {
-    let salt = SaltString::generate(&mut OsRng);
-    let hash = ARGON_2
-        .hash_password(password.as_bytes(), &salt)
-        .map_err(|_| anyhow::anyhow!("Failed to hash password."))?;
-    Ok(hash.to_string())
-}
-
-/// Verifies given password against the actual hash.
-pub fn verify_password(password: &str, hashed_password: &str) -> anyhow::Result<bool> {
-    let parsed_hash = PasswordHash::new(hashed_password)
-        .map_err(|_| anyhow::anyhow!("Failed to parse password hash."))?;
-    let res = ARGON_2
-        .verify_password(password.as_bytes(), &parsed_hash)
-        .is_ok();
-    Ok(res)
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -568,13 +525,5 @@ mod test {
         authorize(tx.as_mut(), Action::View, None, Resource::Course(course))
             .await
             .unwrap();
-    }
-
-    #[test]
-    fn hashing_and_validating_password() {
-        let password = "batman123";
-        let hashed = hash_password(password).unwrap();
-        assert!(verify_password(password, &hashed).unwrap());
-        assert!(!verify_password("hunter2", &hashed).unwrap());
     }
 }

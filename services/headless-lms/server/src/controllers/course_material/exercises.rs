@@ -256,7 +256,13 @@ async fn submit_peer_review(
         payload.0,
     )
     .await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Exercise(exercise.id),
+    )
+    .await?;
     token.authorized_ok(web::Json(true))
 }
 

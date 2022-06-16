@@ -13,7 +13,9 @@ pub async fn get_user(
 ) -> ControllerResult<web::Json<User>> {
     let mut conn = pool.acquire().await?;
     let user = models::users::get_by_id(&mut conn, *user_id).await?;
-    Ok(web::Json(user))
+
+    let token = authorize(&mut conn, Act::Teach, Some(*user_id), Res::AnyCourse).await?;
+    token.authorized_ok(web::Json(user))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

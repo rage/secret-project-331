@@ -55,6 +55,8 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
 
   const submitMutation = useToastMutation(
     (data: NewChapter) => {
+      // Temp solution to retain module information without having a way to edit modules in frontend yet.
+      data.course_module_id = initialData?.course_module_id ?? null
       if (newRecord) {
         return postNewChapter(data)
       }
@@ -81,7 +83,7 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
           front_page_id: null,
           opens_at: data.opens_at,
           deadline: data.deadline,
-          module: null,
+          course_module_id: null,
         })
       })}
       className={css`

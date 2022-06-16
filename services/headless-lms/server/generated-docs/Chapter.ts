@@ -11,5 +11,5 @@ type Chapter = {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
-  module: string | null
+  course_module_id: string
 }

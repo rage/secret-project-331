@@ -2621,8 +2621,8 @@ async fn seed_sample_course(
             completion_language: "en_US".to_string(),
             eligible_for_ects: true,
             email: "student@example.com".to_string(),
-            grade_scale_id: course_module_completions::GradeScaleId::SisuPassFail,
-            grade_local_id: course_module_completions::GradeLocalId::One,
+            grade: Some(4),
+            passed: true,
         },
         None,
     )

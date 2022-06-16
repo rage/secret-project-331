@@ -108,9 +108,8 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             completion_language: "en_US".to_string(),
             eligible_for_ects: true,
             email: "student@example.com".to_string(),
-            grade_scale_id:
-                headless_lms_models::course_module_completions::GradeScaleId::SisuPassFail,
-            grade_local_id: headless_lms_models::course_module_completions::GradeLocalId::One,
+            grade: Some(4),
+            passed: true,
         },
         None,
     )
@@ -127,9 +126,8 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             completion_language: "en_US".to_string(),
             eligible_for_ects: true,
             email: "student@example.com".to_string(),
-            grade_scale_id:
-                headless_lms_models::course_module_completions::GradeScaleId::SisuPassFail,
-            grade_local_id: headless_lms_models::course_module_completions::GradeLocalId::One,
+            grade: Some(3),
+            passed: true,
         },
         None,
     )

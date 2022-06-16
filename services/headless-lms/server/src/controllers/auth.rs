@@ -59,14 +59,26 @@ POST `/api/v0/auth/authorize` checks whether user can perform specified action o
 #[instrument(skip(pool, payload,))]
 pub async fn authorize_action_on_resource(
     pool: web::Data<PgPool>,
-    user: AuthUser,
+    user: Option<AuthUser>,
     payload: web::Json<ActionOnResource>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let data = payload.0;
-
-    let token = authorize(&mut conn, data.action, Some(user.id), data.resource).await?;
-    token.authorized_ok(web::Json(true))
+    if let Some(user) = user {
+        if let Ok(true_token) =
+            authorize(&mut conn, data.action, Some(user.id), data.resource).await
+        {
+            true_token.authorized_ok(web::Json(true))
+        } else {
+            // We went to return success message even if the authorization fails.
+            let false_token = skip_authorize()?;
+            false_token.authorized_ok(web::Json(false))
+        }
+    } else {
+        // Never authorize anonymous user
+        let false_token = skip_authorize()?;
+        false_token.authorized_ok(web::Json(false))
+    }
 }
 
 /**
@@ -121,7 +133,7 @@ pub async fn login(
 
     let user = get_user_from_moocfi(&token, &mut conn).await;
     if let Ok(user) = user {
-        let token = authorize(&mut conn, Act::View, Some(user.id), Res::User).await?;
+        let token = skip_authorize()?;
         authorization::remember(&session, user)?;
         token.authorized_ok(HttpResponse::Ok().finish())
     } else {

@@ -11,7 +11,11 @@ use crate::{
 };
 
 /**
-GET `/api/v0/main-frontend/study-registry/completions/:course_id` - Streams completions for the given course.
+GET `/api/v0/main-frontend/study-registry/completions/:course_id`
+GET `/api/v0/main-frontend/study-registry/completions/:uh_course_code`
+GET `/api/v0/main-frontend/study-registry/completions/:course_slug`
+
+Streams completions for the given course.
 
 This endpoint is only available to study registry authorities.
 
@@ -20,24 +24,38 @@ TODO: Example (can't automatically generate, see https://github.com/rage/secret-
 #[instrument(skip(req, pool))]
 async fn get_completions(
     req: HttpRequest,
-    course_id: web::Path<Uuid>,
+    course_id_slug_or_code: web::Path<String>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    let raw_token = req
-        .headers()
-        .get("Authorization")
-        .map_or(Ok(""), |x| x.to_str())
-        .map_err(|_| ControllerError::Forbidden("Access denied.".to_string()))?;
-    let secret_key = parse_secret_key_from_token(raw_token)?.to_string();
-    let token = authorize(&mut conn, Act::View, None, Res::StudyRegistry(secret_key)).await?;
-    let course_module =
-        models::course_modules::get_default_by_course_id(&mut conn, *course_id).await?;
+    let secret_key = parse_secret_key_from_header(&req)?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        None,
+        Res::StudyRegistry(secret_key.to_string()),
+    )
+    .await?;
+
+    // Try to parse the param as UUID to know whether the completions should be from a distinct or
+    // multiple modules.
+    let course_modules = if let Ok(course_id) = Uuid::parse_str(&course_id_slug_or_code) {
+        let module = models::course_modules::get_default_by_course_id(&mut conn, course_id).await?;
+        vec![module.id]
+    } else {
+        // The param is either a course slug or non-unique UH course code.
+        models::course_modules::get_ids_by_course_slug_or_uh_course_code(
+            &mut conn,
+            course_id_slug_or_code.as_str(),
+        )
+        .await?
+    };
+
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
     let mut handle_conn = pool.acquire().await?;
     let _handle = tokio::spawn(async move {
         let streamer = JsonStreamer::from_sender(sender, token);
-        let res = stream_completions(&mut handle_conn, streamer, course_module.id).await;
+        let res = stream_completions(&mut handle_conn, streamer, &course_modules).await;
         if let Err(err) = res {
             tracing::error!("Failed to stream completions: {}", err);
         }
@@ -51,25 +69,14 @@ async fn get_completions(
     )
 }
 
-fn parse_secret_key_from_token(token: &str) -> Result<&str, ControllerError> {
-    if !token.starts_with("Basic") {
-        return Err(ControllerError::Forbidden("Access denied".to_string()));
-    }
-    let secret_key = token
-        .split(' ')
-        .nth(1)
-        .ok_or_else(|| anyhow::anyhow!("Malformed authorization token"))?;
-    Ok(secret_key)
-}
-
 // I tired to have most of this in JsonStreamer where you pass a stream but it broke and I don't know why :(
 async fn stream_completions(
     conn: &mut PgConnection,
     streamer: JsonStreamer,
-    course_module_id: Uuid,
+    course_module_ids: &[Uuid],
 ) -> anyhow::Result<()> {
     let mut stream =
-        models::course_module_completions::stream_by_course_module_id(conn, course_module_id);
+        models::course_module_completions::stream_by_course_module_id(conn, course_module_ids);
     streamer.stream_array_start()?;
     if let Some(completion) = stream.try_next().await? {
         streamer.stream_object(&completion)?;
@@ -90,5 +97,5 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{course_id}", web::get().to(get_completions));
+    cfg.route("/{course_id_slug_or_code}", web::get().to(get_completions));
 }

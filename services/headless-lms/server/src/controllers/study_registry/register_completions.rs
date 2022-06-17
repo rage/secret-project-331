@@ -9,12 +9,7 @@ async fn post_completions(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    let raw_token = req
-        .headers()
-        .get("Authorization")
-        .map_or(Ok(""), |x| x.to_str())
-        .map_err(|_| ControllerError::Forbidden("Access denied.".to_string()))?;
-    let secret_key = parse_secret_key_from_token(raw_token)?.to_string();
+    let secret_key = parse_secret_key_from_header(&req)?;
     let token = authorize(
         &mut conn,
         Act::View,
@@ -23,7 +18,7 @@ async fn post_completions(
     )
     .await?;
     let registrar =
-        models::study_registry_registrars::get_by_secret_key(&mut conn, &secret_key).await?;
+        models::study_registry_registrars::get_by_secret_key(&mut conn, secret_key).await?;
     models::course_module_completion_study_registry_registrations::insert_completions(
         &mut conn,
         payload.0,
@@ -31,17 +26,6 @@ async fn post_completions(
     )
     .await?;
     token.authorized_ok(HttpResponse::Ok().finish())
-}
-
-fn parse_secret_key_from_token(token: &str) -> Result<&str, ControllerError> {
-    if !token.starts_with("Basic") {
-        return Err(ControllerError::Forbidden("Access denied".to_string()));
-    }
-    let secret_key = token
-        .split(' ')
-        .nth(1)
-        .ok_or_else(|| anyhow::anyhow!("Malformed authorization token"))?;
-    Ok(secret_key)
 }
 
 /**

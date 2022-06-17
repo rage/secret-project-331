@@ -1110,37 +1110,6 @@
       "nullable": [false, false, false, true, false, true, false, false, false, false]
     }
   },
-  "11d8067ed2a2a3aa0dd64dd1d87f208dfb4ff63e47ad9c34fd12680dec333c78": {
-    "query": "\nSELECT id,\n  name,\n  order_number,\n  copied_from\nFROM course_modules\nWHERE course_id = $1\n  AND name IS NULL\n  AND order_number = 0\n  AND deleted_at IS NULL\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "order_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 3,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, true, false, true]
-    }
-  },
   "12678b433a9c84513a0c100571b2d82db27fbc569e2b9c79b23e31906be0f559": {
     "query": "\nSELECT ed.id AS id,\n  u.id AS to,\n  et.subject AS subject,\n  et.content AS body\nFROM email_deliveries ed\n  JOIN email_templates et ON et.id = ed.email_template_id\n  JOIN users u ON u.id = ed.user_id\nWHERE ed.deleted_at IS NULL\n  AND ed.sent = FALSE\n  AND ed.error IS NULL\nLIMIT 10000;\n  ",
     "describe": {
@@ -4805,6 +4774,102 @@
       ]
     }
   },
+  "463f3a8bbb35a814e0ca0c7e20d9602183676624ec57bebadcb9a75135d0f951": {
+    "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_module_id = ANY($1)\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "course_module_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "completion_date",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "completion_registration_attempt_date",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "completion_language",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 10,
+          "name": "eligible_for_ects",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 11,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 12,
+          "name": "grade",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 13,
+          "name": "passed",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": ["UuidArray"]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false
+      ]
+    }
+  },
   "4713ef1238437d6952f073fce7db826fac893b938edacba02855eeef03ae1133": {
     "query": "\nSELECT *\nFROM material_references\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n    ",
     "describe": {
@@ -4859,6 +4924,42 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": []
+    }
+  },
+  "49e2a71283a3be4ed5c7ac6eab9a82bc55fcbdd6b3d79b6c2e94e9cb1e69a5a7": {
+    "query": "\nSELECT id,\n  name,\n  order_number,\n  copied_from,\n  uh_course_code\nFROM course_modules\nWHERE course_id = $1\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "uh_course_code",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, true, false, true, true]
     }
   },
   "4bcf93034b7f1e2a30d12f895c2e8c394094dd5b057cbbd89a5715ad9518ef9d": {
@@ -11203,8 +11304,8 @@
       "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
-  "bc20735af6d99161faa04e1f3a2f89ef1df2f3cdb3086016a01a9e62ba6fc2e7": {
-    "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_module_id = $1\n  AND deleted_at IS NULL\n        ",
+  "bbf5f7f96a4d3430c8832ebdba59517b069e745200d6ad27e0f42e99b413967e": {
+    "query": "\nSELECT id,\n  name,\n  order_number,\n  copied_from,\n  uh_course_code\nFROM course_modules\nWHERE course_id = $1\n  AND name IS NULL\n  AND order_number = 0\n  AND deleted_at IS NULL\n        ",
     "describe": {
       "columns": [
         {
@@ -11214,89 +11315,29 @@
         },
         {
           "ordinal": 1,
-          "name": "created_at",
-          "type_info": "Timestamptz"
+          "name": "name",
+          "type_info": "Varchar"
         },
         {
           "ordinal": 2,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "course_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 5,
-          "name": "course_module_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 6,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 7,
-          "name": "completion_date",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 8,
-          "name": "completion_registration_attempt_date",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 9,
-          "name": "completion_language",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 10,
-          "name": "eligible_for_ects",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 11,
-          "name": "email",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 12,
-          "name": "grade",
+          "name": "order_number",
           "type_info": "Int4"
         },
         {
-          "ordinal": 13,
-          "name": "passed",
-          "type_info": "Bool"
+          "ordinal": 3,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 4,
+          "name": "uh_course_code",
+          "type_info": "Varchar"
         }
       ],
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false,
-        true,
-        false
-      ]
+      "nullable": [false, true, false, true, true]
     }
   },
   "bc4390dec143c0bbc96fdebad02b5673dc9037d1115322b71620583fd9f1b82b": {
@@ -14178,6 +14219,22 @@
       "nullable": [true]
     }
   },
+  "f4a5e376a7cec68e07e871efd0817d60abfea336e24c5fa060c5dc1c981aaf76": {
+    "query": "\nSELECT course_modules.id\nFROM course_modules\n  LEFT JOIN courses ON (course_modules.course_id = courses.id)\nWHERE (\n    course_modules.uh_course_code = $1\n    OR courses.slug = $1\n  )\n  AND course_modules.deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Text"]
+      },
+      "nullable": [false]
+    }
+  },
   "f4c732597c3cdf6484a20f41348183e56353ecdafbd4da0b6544f356e50e2424": {
     "query": "\nUPDATE pages\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\n          ",
     "describe": {
@@ -14360,37 +14417,6 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [null]
-    }
-  },
-  "f6f64c3ae9ccd94ee16c42300cba986d792f2627c7983135caa2886edfe44099": {
-    "query": "\nSELECT id,\n  name,\n  order_number,\n  copied_from\nFROM course_modules\nWHERE course_id = $1\n",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "order_number",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 3,
-          "name": "copied_from",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, true, false, true]
     }
   },
   "f75a47ca2444e4cbaade9a44f7104ede569c4660c573e5fa4034805f1597c361": {

@@ -203,19 +203,19 @@ impl StudyRegistryGrade {
     }
 }
 
-pub fn stream_by_course_module_id(
-    conn: &mut PgConnection,
-    course_module_id: Uuid,
-) -> impl Stream<Item = sqlx::Result<StudyRegistryCompletion>> + '_ {
+pub fn stream_by_course_module_id<'a>(
+    conn: &'a mut PgConnection,
+    course_module_ids: &'a [Uuid],
+) -> impl Stream<Item = sqlx::Result<StudyRegistryCompletion>> + 'a {
     sqlx::query_as!(
         CourseModuleCompletion,
         r#"
 SELECT *
 FROM course_module_completions
-WHERE course_module_id = $1
+WHERE course_module_id = ANY($1)
   AND deleted_at IS NULL
         "#,
-        course_module_id,
+        course_module_ids,
     )
     .map(StudyRegistryCompletion::from)
     .fetch(conn)

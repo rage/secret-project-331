@@ -38,7 +38,7 @@ CREATE TABLE study_registry_registrars (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  secret_key VARCHAR(255) NOT NULL,
+  secret_key VARCHAR(255) UNIQUE NOT NULL CONSTRAINT secret_key_minimum_length CHECK (LENGTH(secret_key) > 15),
   name VARCHAR(255) NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE

@@ -75,3 +75,7 @@ COMMENT ON COLUMN course_module_completion_study_registry_registrations.course_m
 COMMENT ON COLUMN course_module_completion_study_registry_registrations.study_registry_registrar_id IS 'Registrar that registered this course module completion.';
 COMMENT ON COLUMN course_module_completion_study_registry_registrations.user_id IS 'User that the related course module completion is based on.';
 COMMENT ON COLUMN course_module_completion_study_registry_registrations.real_student_number IS 'Used by administrators and support staff to confirm the completion was registered to the correct student';
+-- 4. Add UH course code to course modules
+ALTER TABLE course_modules
+ADD COLUMN uh_course_code VARCHAR(255);
+COMMENT ON COLUMN course_modules.uh_course_code IS 'University of Helsinki''s recognized identifier for the course.';

@@ -439,6 +439,22 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
     }
 }
 
+pub fn parse_secret_key_from_header(header: &HttpRequest) -> Result<&str, ControllerError> {
+    let raw_token = header
+        .headers()
+        .get("Authorization")
+        .map_or(Ok(""), |x| x.to_str())
+        .map_err(|_| anyhow::anyhow!("Access denied.".to_string()))?;
+    if !raw_token.starts_with("Basic") {
+        return Err(ControllerError::Forbidden("Access denied".to_string()));
+    }
+    let secret_key = raw_token
+        .split(' ')
+        .nth(1)
+        .ok_or_else(|| ControllerError::Forbidden("Malformed authorization token".to_string()))?;
+    Ok(secret_key)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

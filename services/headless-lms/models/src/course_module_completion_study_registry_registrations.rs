@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{course_module_completions, prelude::*};
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct CourseModuleCompletionStudyRegistryRegistration {
@@ -62,6 +62,41 @@ RETURNING id
     .fetch_one(conn)
     .await?;
     Ok(res.id)
+}
+
+#[derive(Clone, PartialEq, Eq, Deserialize, Serialize, Debug)]
+pub struct RegisteredCompletion {
+    pub completion_id: Uuid,
+    pub student_number: String,
+    pub registration_date: DateTime<Utc>,
+}
+
+pub async fn insert_completions(
+    conn: &mut PgConnection,
+    completions: Vec<RegisteredCompletion>,
+    study_registry_registrar_id: Uuid,
+) -> ModelResult<()> {
+    let ids: Vec<Uuid> = completions.iter().map(|x| x.completion_id).collect();
+    let completions_by_id = course_module_completions::get_by_ids_as_map(conn, &ids).await?;
+    for completion in completions.into_iter() {
+        let module_completion = completions_by_id
+            .get(&completion.completion_id)
+            .ok_or_else(|| ModelError::PreconditionFailed("Missing completion.".to_string()))?;
+        insert(
+            conn,
+            &NewCourseModuleCompletionStudyRegistryRegistration {
+                course_id: module_completion.course_id,
+                course_module_completion_id: completion.completion_id,
+                course_module_id: module_completion.course_module_id,
+                study_registry_registrar_id,
+                user_id: module_completion.user_id,
+                real_student_number: completion.student_number,
+            },
+            None,
+        )
+        .await?;
+    }
+    Ok(())
 }
 
 pub async fn get_id(

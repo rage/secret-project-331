@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use futures::Stream;
 
 use crate::prelude::*;
@@ -99,6 +101,37 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<CourseModuleCompletion>> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
+        "
+SELECT *
+FROM course_module_completions
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_ids_as_map(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, CourseModuleCompletion>> {
+    let res = get_by_ids(conn, ids)
+        .await?
+        .into_iter()
+        .map(|x| (x.id, x))
+        .collect();
     Ok(res)
 }
 

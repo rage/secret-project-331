@@ -1,7 +1,8 @@
-use actix_http::body;
+use actix_http::{body, Method};
 use actix_web::test;
 use chrono::{TimeZone, Utc};
 use headless_lms_models::{
+    course_module_completion_study_registry_registrations::RegisteredCompletion,
     course_module_completions::{NewCourseModuleCompletion, StudyRegistryCompletion},
     courses::NewCourse,
 };
@@ -11,7 +12,7 @@ use uuid::Uuid;
 mod integration_test;
 
 #[tokio::test]
-async fn gets_completions_for_a_course() {
+async fn gets_and_registers_completions() {
     let (actix, pool) = integration_test::init_actix().await;
     let mut conn = pool.acquire().await.unwrap();
     let (_user, _org, course, _module, _completion, _completion_2) = insert_data(&mut conn).await;
@@ -53,6 +54,34 @@ async fn gets_completions_for_a_course() {
     let bytes = body::to_bytes(body).await.unwrap();
     let res: Vec<StudyRegistryCompletion> = serde_json::from_slice(&bytes[..]).unwrap();
     assert_eq!(res.len(), 2);
+
+    // Trying to register without authenticating
+    let post_path = "/api/v0/study-registry/register-completions";
+    let completions: Vec<RegisteredCompletion> = res
+        .into_iter()
+        .map(|x| RegisteredCompletion {
+            completion_id: x.id,
+            student_number: "ABC123".to_string(),
+            registration_date: Utc.ymd(2022, 6, 17).and_hms(0, 0, 0),
+        })
+        .collect();
+    let req = test::TestRequest::with_uri(post_path)
+        .set_json(completions.clone())
+        .to_request();
+    let res = test::call_service(&actix, req).await;
+    assert!(res.status().is_client_error());
+
+    // Register with authenticating
+    let req = test::TestRequest::with_uri(post_path)
+        .method(Method::POST)
+        .append_header((
+            "Authorization",
+            "Basic integration-test-intentionally-public",
+        ))
+        .set_json(completions)
+        .to_request();
+    let res = test::call_service(&actix, req).await;
+    assert!(res.status().is_success());
 }
 
 async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, Uuid) {

@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next"
 
 import Arrow from "../../img/screwedArrow.svg"
 import { headingFont } from "../../styles"
-import { respondToOrLarger } from "../../styles/respond"
 
 const Cover = () => (
   <svg

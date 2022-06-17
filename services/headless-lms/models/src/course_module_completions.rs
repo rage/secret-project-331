@@ -156,8 +156,6 @@ pub struct StudyRegistryCompletion {
     pub grade: StudyRegistryGrade,
     /// ID of the completion.
     pub id: Uuid,
-    /// Currently always null
-    pub student_number: Option<String>,
     /// User id in courses.mooc.fi for received registered completions.
     pub user_upstream_id: Uuid,
     /// Tier of the completion. Currently always null. Historically used for example to distinguish between
@@ -174,7 +172,6 @@ impl From<CourseModuleCompletion> for StudyRegistryCompletion {
             email: completion.email,
             grade: StudyRegistryGrade::new(completion.passed, completion.grade),
             id: completion.id,
-            student_number: None,
             user_upstream_id: completion.user_id,
             tier: None,
         }

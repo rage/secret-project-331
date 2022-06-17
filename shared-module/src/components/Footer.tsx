@@ -3,9 +3,9 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import UHLogo from "../img/UH.png"
+import UHLogo from "../img/UHBrandLogo.svg"
 import MOOCfi from "../img/moocfiLogo.svg"
-import { baseTheme, headingFont, typography } from "../styles"
+import { baseTheme, headingFont, secondaryFont, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
 import ContriButeBanner from "./Banner/ContributeBanner"
@@ -15,6 +15,7 @@ const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
 // To be link in the future
 // const CREATORS_LINK = "https://www.mooc.fi/en/"
 
+// eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   display: grid;
   background: #d8dbdd;
@@ -24,10 +25,18 @@ const Wrapper = styled.div`
   position: relative;
   gap: 40px;
 
-  ${respondToOrLarger.md} {
-    grid-template-columns: 0.5fr 1fr 0.5fr;
-    padding: 5rem 4.5rem 4.5rem 4.5rem;
+  ${respondToOrLarger.sm} {
+    grid-template-columns: 1fr;
+    padding: 5rem 4rem 4.5rem 4rem;
     gap: 20px;
+    row-gap: 40px;
+  }
+
+  ${respondToOrLarger.lg} {
+    grid-template-columns: 0.5fr 1fr 0.5fr;
+    padding: 5rem 4rem 4.5rem 4rem;
+    gap: 20px;
+    row-gap: 40px;
   }
 
   h1 {
@@ -35,14 +44,18 @@ const Wrapper = styled.div`
     opacity: 0.8;
     line-height: 1;
     color: ${baseTheme.colors.grey[700]};
+    font-family: ${secondaryFont};
   }
 
   div:first-of-type {
     margin-left: 0;
 
     ${respondToOrLarger.md} {
-      /* padding-right: 20px; */
-      margin-left: 4em;
+      margin-left: 0;
+    }
+
+    ${respondToOrLarger.lg} {
+      margin-left: 2em;
     }
   }
 `
@@ -50,7 +63,7 @@ const Wrapper = styled.div`
 const StyledLink = styled.a`
   text-decoration: none;
   color: ${baseTheme.colors.grey[700]};
-  font-size: 1.2rem;
+  font-size: 20px;
   opacity: 0.7;
   transition: opacity 0.2s ease-in;
   margin-bottom: 5px;
@@ -66,14 +79,25 @@ const StyledLink = styled.a`
   }
 `
 const Text = styled.div`
-  width: 80%;
+  width: 100%;
   padding: 0;
 
-  ${respondToOrLarger.md} {
-    padding: 0 2rem 0 2rem;
+  ${respondToOrLarger.sm} {
+    padding: 0 2rem 0 0;
+    width: 100%;
   }
+
+  ${respondToOrLarger.lg} {
+    padding: 0 2rem 0 2rem;
+    width: 100%;
+  }
+  ${respondToOrLarger.xxl} {
+    padding: 0 2rem 0 2rem;
+    width: 80%;
+  }
+
   span {
-    font-size: 20px;
+    font-size: 22px;
     padding-right: 0;
     opacity: 0.7;
   }
@@ -81,7 +105,6 @@ const Text = styled.div`
 const Links = styled.div`
   display: flex;
   flex-direction: column;
-  /* justify-content: end; */
 `
 
 export interface FooterExtraProps {
@@ -99,28 +122,23 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
         margin-top: 2rem;
 
         h1 {
-          font-size: ${typography.h6};
+          font-size: ${typography.h5};
+          font-weight: 500;
         }
       `}
     >
       <ContriButeBanner />
-      {/*       <Banner variant="readOnly">
-        <>{t("project-description")}</>
-      </Banner> */}
       <Wrapper>
         <div
           className={css`
-            display: grid;
-            grid-template-rows: 1fr;
+            display: flex;
+            flex-direction: column;
             align-content: space-between;
-            grid-gap: 1.6em;
+            row-gap: 1.4em;
             opacity: 0.9;
-            ${respondToOrLarger.md} {
-              grid-template-rows: 1fr;
-            }
           `}
         >
-          <img src={UHLogo} alt={t("university-of-helsinki")} width="230px" />
+          <UHLogo />
           {/* eslint-disable-next-line i18next/no-literal-string */}
           <MOOCfi alt="MOOC.fi" />
         </div>

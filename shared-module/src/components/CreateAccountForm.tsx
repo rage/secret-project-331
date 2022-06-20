@@ -181,7 +181,6 @@ const CreateAccountForm = () => {
           <div key="email">
             <label htmlFor="email">{t("email")}</label>
             <input
-              name="email"
               placeholder={t("enter-your-email")}
               type="email"
               {...register("email", {
@@ -199,7 +198,6 @@ const CreateAccountForm = () => {
           <div key="password">
             <label htmlFor="password">{t("password")}</label>
             <input
-              name="password"
               placeholder={t("enter-your-password")}
               type="password"
               {...register("password", {
@@ -215,7 +213,6 @@ const CreateAccountForm = () => {
           <div key="passwordConfirmation">
             <label htmlFor="passwordConfirmation">{t("confirm-password")}</label>
             <input
-              name="passwordConfirmation"
               placeholder={t("confirm-your-password")}
               type="password"
               {...register("passwordConfirmation", {

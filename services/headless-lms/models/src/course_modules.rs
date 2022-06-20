@@ -78,9 +78,31 @@ WHERE id = $1
 pub struct Module {
     pub id: Uuid,
     pub name: Option<String>,
+    pub course_id: Uuid,
     pub order_number: i32,
     pub copied_from: Option<Uuid>,
     pub uh_course_code: Option<String>,
+}
+
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Module> {
+    let res = sqlx::query_as!(
+        Module,
+        "
+SELECT id,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code
+FROM course_modules
+WHERE id = $1
+  AND deleted_at IS NULL
+        ",
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn get_by_course_id(
@@ -92,6 +114,7 @@ pub async fn get_by_course_id(
         "
 SELECT id,
   name,
+  course_id,
   order_number,
   copied_from,
   uh_course_code
@@ -114,6 +137,7 @@ pub async fn get_default_by_course_id(
         "
 SELECT id,
   name,
+  course_id,
   order_number,
   copied_from,
   uh_course_code

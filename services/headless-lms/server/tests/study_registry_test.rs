@@ -15,7 +15,7 @@ mod integration_test;
 async fn gets_and_registers_completions() {
     let (actix, pool) = integration_test::init_actix().await;
     let mut conn = pool.acquire().await.unwrap();
-    let (_user, _org, course, _module, _completion, _completion_2) = insert_data(&mut conn).await;
+    let (_user, _org, course, module, _completion, _completion_2) = insert_data(&mut conn).await;
     let path = format!("/api/v0/study-registry/completions/{}", course);
 
     // Without header nor database entry
@@ -43,6 +43,21 @@ async fn gets_and_registers_completions() {
     .await
     .unwrap();
     let req = test::TestRequest::with_uri(&path)
+        .append_header((
+            "Authorization",
+            "Basic integration-test-intentionally-public",
+        ))
+        .to_request();
+    let res = test::call_service(&actix, req).await;
+    assert!(res.status().is_success());
+    let body = res.into_body();
+    let bytes = body::to_bytes(body).await.unwrap();
+    let res: Vec<StudyRegistryCompletion> = serde_json::from_slice(&bytes[..]).unwrap();
+    assert_eq!(res.len(), 2);
+
+    // Another endpoint
+    let alt_path = format!("/api/v0/study-registry/completions/{}/{}", course, module);
+    let req = test::TestRequest::with_uri(&alt_path)
         .append_header((
             "Authorization",
             "Basic integration-test-intentionally-public",

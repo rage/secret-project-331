@@ -83,5 +83,16 @@
   "status": "status",
   "to-complete-this-chapter": "To complete this chapter",
   "title-references": "References",
+  "required-field": "This field is required",
+  "password": "Password",
+  "enter-your-email": "Enter your email",
+  "enter-your-password": "Enter your password",
+  "confirm-password": "Confirm password",
+  "confirm-your-password": "Confirm your password",
+  "password-must-have-at-least-8-digit": "Password must have at least 8 characters!",
+  "password-dont-match": "password doesn't match!",
+  "enter-a-valid-email": "Enter a valid email!",
+  "create-an-acount": "Create an account",
+  "sign-in-if-you-have-an-account": "Do you already have a username? log in",
   "create-new-account-subtitle": "This course uses mooc.fi usernames. If you have previously taken mooc.fi courses, you can use your existing IDs on the login page. On this page you can create a new ID that works in most mooc.fi courses and services."
 }

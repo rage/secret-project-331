@@ -444,12 +444,12 @@ const Contribute: React.FC<ContributeProps> = () => {
         <Cover />
       </div>
       <Content>
-        <h2>{t("contribute-to-this-ptoject")}</h2>
+        <h2>{t("about-this-project")}</h2>
         <Text>
-          <div>{t("contribute-to-this-project-description")}:</div>
+          <div>{t("about-this-project-description")}:</div>
         </Text>
         <StyledLink href="github.com/rage/secret-project-331">
-          <span>{t("go-to-ptoject")}</span>
+          <span>{t("project-github")}</span>
           <StyledArrow />
         </StyledLink>
       </Content>

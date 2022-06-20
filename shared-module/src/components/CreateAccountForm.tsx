@@ -122,9 +122,9 @@ const SUBTITLE =
 const CreateAccountForm = () => {
   // eslint-disable-next-line i18next/no-literal-string
   const { register, formState, watch, handleSubmit } = useForm({ mode: "onChange" })
-  const { errors, isValid, isSubmitting } = formState
+  const { errors /* isValid, isSubmitting */ } = formState
 
-  const [submitError, setSubmitError] = useState(false)
+  const [submitError /* setSubmitError */] = useState(false)
 
   const { t } = useTranslation()
 

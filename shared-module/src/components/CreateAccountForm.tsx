@@ -1,6 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
-import React, { useState } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -130,7 +130,7 @@ const CreateAccountForm = () => {
 
   const password = watch("password")
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (/* data */) => {
     /*   try {
       await createAccount({
         email: data.email,

@@ -181,6 +181,44 @@ impl From<CourseModuleCompletion> for StudyRegistryCompletion {
     }
 }
 
+/// Grading object that maps the system grading information to Sisu's grading scales.
+///
+/// Currently only `sis-0-5` and `sis-hyv-hyl` scales are supported in the system.
+///
+/// All grading scales can be found from https://sis-helsinki-test.funidata.fi/api/graphql using
+/// the following query:
+///
+/// ```graphql
+/// query {
+///   grade_scales {
+///     id
+///     name {
+///       fi
+///       en
+///       sv
+///     }
+///     grades {
+///       name {
+///         fi
+///         en
+///         sv
+///       }
+///       passed
+///       localId
+///       abbreviation {
+///         fi
+///         en
+///         sv
+///       }
+///     }
+///     abbreviation {
+///       fi
+///       en
+///       sv
+///     }
+///   }
+/// }
+/// ```
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudyRegistryGrade {

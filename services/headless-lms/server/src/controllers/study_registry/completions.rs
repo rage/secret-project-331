@@ -3,12 +3,15 @@
 use actix_web::http::header::ContentType;
 use bytes::Bytes;
 
+use futures::{future, StreamExt};
 use models::course_modules::Module;
-use tokio_stream::{wrappers::UnboundedReceiverStream, StreamExt};
+use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
     controllers::prelude::*,
-    domain::csv_export::{make_authorized_streamable, JsonStreamer},
+    domain::csv_export::{
+        make_authorized_streamable, serializable_sqlx_result_stream_to_json_stream,
+    },
 };
 
 /**
@@ -52,14 +55,30 @@ async fn get_completions(
         .await?
     };
 
+    // Duplicated below but `spawn` requires static lifetime.
+    // TODO: Create a macro instead.
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
     let mut handle_conn = pool.acquire().await?;
     let _handle = tokio::spawn(async move {
-        let streamer = JsonStreamer::from_sender(sender, token);
-        let res = stream_completions(&mut handle_conn, streamer, &course_modules).await;
-        if let Err(err) = res {
-            tracing::error!("Failed to stream completions: {}", err);
-        }
+        let stream = models::course_module_completions::stream_by_course_module_id(
+            &mut handle_conn,
+            &course_modules,
+        );
+        let fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
+            let token = skip_authorize().expect("Always succeeds");
+            let message = match message {
+                Ok(message) => message,
+                Err(err) => {
+                    error!("Error received from sqlx result stream: {}", err);
+                    Bytes::from(format!("Streaming error. Details: {:?}", err))
+                }
+            };
+            if let Err(err) = sender.send(token.authorized_ok(message)) {
+                error!("Failed to send data to UnboundedReceiver: {}", err);
+            }
+            future::ready(())
+        });
+        fut.await;
     });
     token.authorized_ok(
         HttpResponse::Ok()
@@ -97,11 +116,26 @@ async fn get_module_completions(
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
     let mut handle_conn = pool.acquire().await?;
     let _handle = tokio::spawn(async move {
-        let streamer = JsonStreamer::from_sender(sender, token);
-        let res = stream_completions(&mut handle_conn, streamer, &[module.id]).await;
-        if let Err(err) = res {
-            tracing::error!("Failed to stream completions: {}", err);
-        }
+        let modules = vec![module.id];
+        let stream = models::course_module_completions::stream_by_course_module_id(
+            &mut handle_conn,
+            &modules,
+        );
+        let fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
+            let token = skip_authorize().expect("Always succeeds");
+            let message = match message {
+                Ok(message) => message,
+                Err(err) => {
+                    error!("Error received from sqlx result stream: {}", err);
+                    Bytes::from(format!("Streaming error. Details: {:?}", err))
+                }
+            };
+            if let Err(err) = sender.send(token.authorized_ok(message)) {
+                error!("Failed to send data to UnboundedReceiver: {}", err);
+            }
+            future::ready(())
+        });
+        fut.await;
     });
     token.authorized_ok(
         HttpResponse::Ok()
@@ -110,26 +144,6 @@ async fn get_module_completions(
                 receiver,
             ))),
     )
-}
-
-// I tired to have most of this in JsonStreamer where you pass a stream but it broke and I don't know why :(
-async fn stream_completions(
-    conn: &mut PgConnection,
-    streamer: JsonStreamer,
-    course_module_ids: &[Uuid],
-) -> anyhow::Result<()> {
-    let mut stream =
-        models::course_module_completions::stream_by_course_module_id(conn, course_module_ids);
-    streamer.stream_array_start()?;
-    if let Some(completion) = stream.try_next().await? {
-        streamer.stream_object(&completion)?;
-    }
-    while let Some(completion) = stream.try_next().await? {
-        streamer.stream_array_separator()?;
-        streamer.stream_object(&completion)?;
-    }
-    streamer.stream_array_end()?;
-    Ok(())
 }
 
 async fn module_belongs_to_course(
